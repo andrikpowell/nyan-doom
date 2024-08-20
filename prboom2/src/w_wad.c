@@ -604,7 +604,7 @@ int W_LumpNumExists(int lump)
 
 int W_PWADLumpNumExists(int lump)
 {
-  return lump != LUMP_NOT_FOUND && lump < numlumps && (lumpinfo[lump].source == source_iwad); // Arsinikk - if not from IWAD
+  return W_LumpNumExists(lump) != LUMP_NOT_FOUND && lumpinfo[lump].source != source_pwad; // Arsinikk - from PWAD
 }
 
 int W_LumpNameExists(const char *name)
