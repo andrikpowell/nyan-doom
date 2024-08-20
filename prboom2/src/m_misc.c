@@ -93,6 +93,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_ansi_endoom),
   MIGRATED_SETTING(dsda_config_quit_sounds),
   MIGRATED_SETTING(dsda_config_announce_map),
+  MIGRATED_SETTING(dsda_config_skip_default_text),
 
   SETTING_HEADING("Game settings"),
   MIGRATED_SETTING(dsda_config_default_complevel),

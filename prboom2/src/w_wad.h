@@ -165,6 +165,7 @@ const void* W_LockLumpNum(int lump);
 int W_LumpNumExists(int lump);
 int W_LumpNameExists(const char *name);
 int W_LumpNameExists2(const char *name, int ns);
+int W_PWADLumpNumExists(int lump);
 
 // CPhipps - convenience macros
 //#define W_LumpByNum(num) (W_LumpByNum)((num),1)

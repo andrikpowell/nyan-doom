@@ -41,12 +41,16 @@
 #include "s_sound.h"
 #include "sounds.h"
 #include "d_deh.h"  // Ty 03/22/98 - externalizations
+#include "d_englsh.h"
 
 #include "heretic/f_finale.h"
 #include "hexen/f_finale.h"
 
 #include "dsda/font.h"
 #include "dsda/mapinfo.h"
+#include "dsda/map_format.h"
+#include "dsda/preferences.h"
+#include "dsda/configuration.h"
 
 #include "f_finale.h" // CPhipps - hmm...
 
@@ -80,6 +84,180 @@ void WI_checkForAccelerate(void);    // killough 3/28/98: used to
 extern int acceleratestage;          // accelerate intermission screens
 int midstage;                 // whether we're in "mid-stage"
 
+// Arsinikk - Checks whether intermission text matches original text and if new text is provided from PWAD.
+// used for the skip intermission config option.
+int dsda_CheckInterText(void)
+{
+    int SkipText;
+    int lump;
+    int PWADlump;
+    SkipText = 0;
+    lump = 0;
+    PWADlump = 0;
+
+    // Arsinikk - Essentially disable check for UMAPINFO an other conditions:
+    if(netgame || W_LumpNameExists("UMAPINFO") || map_format.zdoom || dsda_UseMapinfo() || raven)
+      return SkipText;
+
+    switch (gamemode)
+    {
+        // DOOM 1 - E1, E3 or E4, but each nine missions
+    case shareware:
+    case registered:
+    case retail:
+    {
+        switch (gameepisode)
+        {
+        case 1:
+            lump = W_GetNumForName("E1M8");
+            if (!strcmp(E1TEXT, s_E1TEXT)) SkipText = 1;
+            break;
+        case 2:
+            lump = W_GetNumForName("E2M8");
+            if (!strcmp(E2TEXT, s_E2TEXT)) SkipText = 1;
+            break;
+        case 3:
+            lump = W_GetNumForName("E3M8");
+            if (!strcmp(E3TEXT, s_E3TEXT)) SkipText = 1;
+            break;
+        case 4:
+            lump = W_GetNumForName("E4M8");
+            if (!strcmp(E4TEXT, s_E4TEXT)) SkipText = 1;
+            break;
+        default:
+            break;
+        }
+        break;
+    }
+
+    // DOOM II and missions packs with E1, M34
+    case commercial:
+    {
+        switch (gamemap)
+        {
+        case 6:
+            lump = W_GetNumForName("MAP06");
+            if (gamemission == pack_tnt) {
+                if (!strcmp(T1TEXT, s_T1TEXT))
+                    SkipText = 1;
+            }
+            else if (gamemission == pack_plut) {
+                if (!strcmp(P1TEXT, s_P1TEXT))
+                    SkipText = 1;
+            }
+            else {
+                if (!strcmp(C1TEXT, s_C1TEXT))
+                    SkipText = 1;
+            }
+            break;
+        case 11:
+            lump = W_GetNumForName("MAP11");
+            if (gamemission == pack_tnt) {
+                if (!strcmp(T2TEXT, s_T2TEXT))
+                    SkipText = 1;
+            }
+            else if (gamemission == pack_plut) {
+                if (!strcmp(P2TEXT, s_P2TEXT))
+                    SkipText = 1;
+            }
+            else {
+                if (!strcmp(C2TEXT, s_C2TEXT))
+                    SkipText = 1;
+            }
+            break;
+        case 20:
+            lump = W_GetNumForName("MAP20");
+            if (gamemission == pack_tnt) {
+                if (!strcmp(T3TEXT, s_T3TEXT))
+                    SkipText = 1;
+            }
+            else if (gamemission == pack_plut) {
+                if (!strcmp(P3TEXT, s_P3TEXT))
+                    SkipText = 1;
+            }
+            else {
+                if (!strcmp(C3TEXT, s_C3TEXT))
+                    SkipText = 1;
+            }
+            break;
+        case 30:
+            lump = W_GetNumForName("MAP30");
+            if (gamemission == pack_tnt) {
+                if (!strcmp(T4TEXT, s_T4TEXT))
+                    SkipText = 1;
+            }
+            else if (gamemission == pack_plut) {
+                if (!strcmp(P4TEXT, s_P4TEXT))
+                    SkipText = 1;
+            }
+            else {
+                if (!strcmp(C4TEXT, s_C4TEXT))
+                    SkipText = 1;
+            }
+            break;
+        case 15:
+            lump = W_GetNumForName("MAP15");
+            if (gamemission == pack_tnt) {
+                if (!strcmp(T5TEXT, s_T5TEXT))
+                    SkipText = 1;
+            }
+            else if (gamemission == pack_plut) {
+                if (!strcmp(P5TEXT, s_P5TEXT))
+                    SkipText = 1;
+            }
+            else {
+                if (!strcmp(C5TEXT, s_C5TEXT))
+                    SkipText = 1;
+            }
+            break;
+        case 31:
+            lump = W_GetNumForName("MAP31");
+            if (gamemission == pack_tnt) {
+                if (!strcmp(T6TEXT, s_T6TEXT))
+                    SkipText = 1;
+            }
+            else if (gamemission == pack_plut) {
+                if (!strcmp(P6TEXT, s_P6TEXT))
+                    SkipText = 1;
+            }
+            else {
+                if (!strcmp(C6TEXT, s_C6TEXT))
+                    SkipText = 1;
+            }
+            break;
+        default:
+            // Ouch.
+            break;
+        }
+        if (gamemission == pack_nerve && gamemap == 8)
+        {
+            lump = W_GetNumForName("MAP08");
+            if (!strcmp(C6TEXT, s_C6TEXT)) SkipText = 1;
+        }
+        break;
+    }
+
+    // Indeterminate.
+    default:
+        break;
+    }
+
+    PWADlump = W_PWADLumpNumExists(lump);
+
+    // Arsinikk - only skip text if lump before story screen is replaced and is from PWAD
+    if (PWADlump)
+      SkipText = 0;
+
+    return SkipText;
+}
+
+static dboolean F_ShowCast(void)
+{
+  return gamemap == 30 ||
+         (gamemission == pack_nerve && allow_incompatibility && gamemap == 8) ||
+         dsda_FinaleShortcut();
+}
+
 //
 // F_StartFinale
 //
@@ -87,9 +265,20 @@ void F_StartFinale (void)
 {
   int mnum;
   int muslump;
+  int SkipText;
 
   if (heretic) return Heretic_F_StartFinale();
   if (hexen) return Hexen_F_StartFinale();
+
+  SkipText = allow_incompatibility && dsda_CheckInterText() && dsda_IntConfig(dsda_config_skip_default_text);
+
+  // Arsinikk
+  // If iwad story text and option, move forward in Doom 2 / Plutonia / TNT
+  if (SkipText && (gamemode == commercial) && !F_ShowCast())
+  {
+    gameaction = ga_worlddone;
+    return;
+  }
 
   gameaction = ga_nothing;
   gamestate = GS_FINALE;
@@ -111,6 +300,24 @@ void F_StartFinale (void)
   else
   {
     S_ChangeMusic(mnum, true);
+  }
+
+  // Arsinikk
+  // If iwad story text and option, do actions for Doom 1
+  // Music change above is needed for Doom 1
+  // If Doom 2 cast, skip text and do cast
+  if (SkipText)
+  {
+    if (gamemode != commercial)
+    {
+      if (gameepisode == 3)
+        F_StartScroll(NULL, NULL, NULL, true);
+      else
+        F_StartPostFinale();
+    }
+    else if (F_ShowCast())
+      F_StartCast(NULL, NULL, true); // cast of Doom 2 characters
+    return;
   }
 
   // Okay - IWAD dependend stuff.
@@ -284,13 +491,6 @@ float Get_TextSpeed(void)
 //
 // killough 5/10/98: add back v1.9 demo compatibility
 //
-
-static dboolean F_ShowCast(void)
-{
-  return gamemap == 30 ||
-         (gamemission == pack_nerve && allow_incompatibility && gamemap == 8) ||
-         dsda_FinaleShortcut();
-}
 
 void F_Ticker(void)
 {

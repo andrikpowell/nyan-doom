@@ -1263,6 +1263,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "announce_map", dsda_config_announce_map,
     CONF_BOOL(0),
   },
+  [dsda_config_skip_default_text] = {
+   "dsda_skip_default_text", dsda_config_skip_default_text,
+   CONF_BOOL(0), NULL, STRICT_INT(0)
+  },
 };
 
 static void dsda_PersistIntConfig(dsda_config_t* conf) {
