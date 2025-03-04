@@ -728,7 +728,7 @@ void WI_initAnimatedBack(int entering)
     a = &anims[wbs->epsd][i];
 
     // init variables
-  	// [crispy] Do not reset animation timers upon switching to "Entering" state
+    // [crispy] Do not reset animation timers upon switching to "Entering" state
     // via WI_initShowNextLoc. Fixes notable blinking of Tower of Babel drawing
     // and the rest of animations from being restarted.
     if (!entering)
@@ -830,7 +830,7 @@ void WI_drawAnimatedBack(void)
   // [crispy] show Fortress of Mystery if it has been completed
   if (wbs->epsd == 1 && wbs->didsecret)
   {
-	  a = &anims[1][7];
+    a = &anims[1][7];
 
     V_DrawNumPatch(a->loc.x, a->loc.y, FB, a->p[2].lumpnum, CR_DEFAULT, VPT_STRETCH);
   }
