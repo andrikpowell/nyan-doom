@@ -519,13 +519,6 @@ void R_SetViewSize(void)
   setblocks = dsda_IntConfig(dsda_config_screenblocks);
 }
 
-void R_ResetViewSize(void)
-{
-  if (setblocks < 11 && !dsda_IntConfig(dsda_config_hud_multiple_zooms))
-    dsda_UpdateIntConfig(dsda_config_screenblocks, 10, true);
-  R_SetViewSize();
-}
-
 void R_MultMatrixVecd(const float matrix[16], const float in[4], float out[4])
 {
   int i;
