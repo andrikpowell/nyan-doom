@@ -64,6 +64,7 @@ static void dsda_UpdateLabelComponentText(char* str, size_t max_size) {
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
   int i;
   size_t length;
+  int show_totals;
   int fullkillcount, fullitemcount, fullsecretcount;
   const char* killcolor;
   const char* itemcolor;
@@ -92,6 +93,8 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
     max_kill_requirement = totalkills;
   }
 
+  show_totals = (local->hide_totals ? false : dsda_IntConfig(dsda_config_show_stat_totals));
+
   killcolor = (fullkillcount >= max_kill_requirement ? dsda_TextColor(dsda_tc_map_totals_max) :
                                                        dsda_TextColor(dsda_tc_map_totals_value));
   secretcolor = (fullsecretcount >= totalsecret ? dsda_TextColor(dsda_tc_map_totals_max) :
@@ -100,7 +103,7 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
                                              dsda_TextColor(dsda_tc_map_totals_value));
 
   if (local->include_kills) {
-    if (!local->hide_totals || fullkillcount >= max_kill_requirement)
+    if (show_totals || fullkillcount >= max_kill_requirement)
       length += snprintf(
         str,
         max_size,
@@ -117,7 +120,7 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   }
 
   if (local->include_items) {
-    if (!local->hide_totals || fullitemcount >= totalitems)
+    if (show_totals || fullitemcount >= totalitems)
       length += snprintf(
         str + length,
         max_size - length,
@@ -134,7 +137,7 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   }
 
   if (local->include_secrets) {
-    if (!local->hide_totals || fullsecretcount >= totalsecret)
+    if (show_totals || fullsecretcount >= totalsecret)
       snprintf(
         str + length,
         max_size - length,

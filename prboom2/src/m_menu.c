@@ -2833,6 +2833,7 @@ setup_menu_t stat_settings3[] =
 {
   { "HEADS-UP DISPLAY", S_SKIP | S_TITLE, m_null, D_X},
   { "SHOW MESSAGES", S_YESNO, m_conf, D_X, dsda_config_show_messages },
+  { "Level Stat Totals", S_YESNO, m_conf, D_X, dsda_config_show_stat_totals },
   { "Announce Map On Entry", S_CHOICE, m_conf, D_X, dsda_config_announce_map, 0, announce_map_list },
   { "REPORT REVEALED SECRETS", S_CHOICE, m_conf, D_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
   { "DEMO PLAYBACK PROGRESS BAR", S_YESNO, m_conf, D_X, dsda_config_hudadd_demoprogressbar },

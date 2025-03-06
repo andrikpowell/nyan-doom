@@ -56,6 +56,7 @@ typedef enum {
   dsda_config_freelook,
   dsda_config_autorun,
   dsda_config_show_messages,
+  dsda_config_show_stat_totals,
   dsda_config_command_display,
   dsda_config_coordinate_display,
   dsda_config_show_minimap,
