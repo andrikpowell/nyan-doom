@@ -281,6 +281,13 @@ static void dsda_ChangeMusic(int epsd, int map, dboolean random, dboolean messag
   int musnum, muslump;
   char *mapname;
 
+  // if IDMUS00 is pressed, reset to default map music
+  if (!random && (epsd == (gamemode == commercial) ? 1 : 0) && map == 0)
+  {
+    epsd = gameepisode;
+    map = gamemap;
+  }
+
   idmusnum = -1;
   dsda_MapMusic(&musnum, &muslump, epsd, map);
   idmusnum = musnum; //jff 3/17/98 remember idmus number for restore
