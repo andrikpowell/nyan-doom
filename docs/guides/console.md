@@ -211,6 +211,8 @@ See the [build mode guide](./build_mode.md) for more info.
 - `idbeholdr`
 - `idbeholda`
 - `idbeholdl`
+- `idnut`
+- `skill`
 - `tntcomp`
 - `tntem`
 - `tnthom`

@@ -2458,6 +2458,7 @@ static console_command_entry_t console_commands[] = {
   { "idbeholdl", console_BasicCheat, CF_DEMO },
 
   { "tntcomp", console_BasicCheat, CF_DEMO },
+  { "skill", console_BasicCheat, CF_DEMO },
   { "tntem", console_BasicCheat, CF_DEMO },
   { "tnthom", console_BasicCheat, CF_DEMO },
   { "tntka", console_BasicCheat, CF_DEMO },
@@ -2500,6 +2501,9 @@ static console_command_entry_t console_commands[] = {
   { "shadowcaster", console_BasicCheat, CF_DEMO },
   { "visit", console_BasicCheat, CF_DEMO },
   { "puke", console_BasicCheat, CF_DEMO },
+
+  // nyan
+  { "idnut", console_BasicCheat, CF_NEVER },
 
   // exit
   { "exit", console_Exit, CF_ALWAYS },
