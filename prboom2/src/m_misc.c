@@ -526,6 +526,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_ponce", dsda_input_ponce, 0, -1, -1),
   INPUT_SETTING("input_shazam", dsda_input_shazam, 0, -1, -1),
   INPUT_SETTING("input_chicken", dsda_input_chicken, 0, -1, -1),
+  INPUT_SETTING("input_idmusrr", dsda_input_idmusrr, 0, -1, -1),
 
   INPUT_SETTING("input_lookup", dsda_input_lookup, 0, -1, -1),
   INPUT_SETTING("input_lookdown", dsda_input_lookdown, 0, -1, -1),

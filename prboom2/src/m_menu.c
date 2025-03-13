@@ -2394,6 +2394,7 @@ setup_menu_t keys_settings5[] =  // Key Binding screen strings
   {"NEXT LEVEL"           ,S_INPUT   ,m_scrn,KB_X,0,dsda_input_nextlevel},
   {"PREVIOUS LEVEL"       ,S_INPUT   ,m_scrn,KB_X,0,dsda_input_prevlevel},
   {"Show Alive Monsters"  ,S_INPUT   ,m_scrn,KB_X,0,dsda_input_showalive},
+  {"Random Music"         ,S_INPUT   ,m_scrn,KB_X,0,dsda_input_idmusrr},
 
   PREV_PAGE(keys_settings4),
   NEXT_PAGE(keys_settings6),

@@ -81,6 +81,7 @@
 //-----------------------------------------------------------------------------
 
 static void cheat_mus();
+static void cheat_musrr();
 static void cheat_choppers();
 static void cheat_god();
 static void cheat_fa();
@@ -162,6 +163,7 @@ static void cheat_nut();
 
 cheatseq_t cheat[] = {
   CHEAT("idmus",      NULL,   "Change music",     cht_always, cheat_mus, -2, false),
+  CHEAT("idmusrr",    NULL,   NULL,               cht_always, cheat_musrr, 0, false),
   CHEAT("idchoppers", NULL,   "Chainsaw",         not_demo, cheat_choppers, 0, false),
   CHEAT("iddqd",      NULL,   "God mode",         not_classic_demo,  cheat_god, 0, false),
   CHEAT("idkfa",      NULL,   "Ammo & Keys",      not_demo, cheat_kfa, 0, false),
@@ -274,12 +276,40 @@ cheatseq_t cheat[] = {
 
 //-----------------------------------------------------------------------------
 
+static void dsda_ChangeMusic(int epsd, int map, dboolean random, dboolean message)
+{
+  int musnum, muslump;
+  char *mapname;
+
+  idmusnum = -1;
+  dsda_MapMusic(&musnum, &muslump, epsd, map);
+  idmusnum = musnum; //jff 3/17/98 remember idmus number for restore
+
+  mapname = VANILLA_MAP_LUMP_NAME(epsd, map);
+
+  if (W_LumpNameExists(mapname))
+  {
+    if (message) doom_printf("%s: %s", s_STSTR_MUS, mapname);
+
+    if (muslump != -1)
+    {
+      S_ChangeMusInfoMusic(muslump, true);
+    }
+    else if (musnum != -1)
+    {
+      S_ChangeMusic(musnum, 1);
+    }
+  }
+  else
+  {
+    if (message) dsda_AddMessage(s_STSTR_NOMUS);
+  }
+}
+
 static void cheat_mus(buf)
 char buf[3];
 {
-  int musnum, muslump;
   int epsd, map;
-  char *mapname;
 
   //jff 3/20/98 note: this cheat allowed in netgame/demorecord
 
@@ -298,29 +328,32 @@ char buf[3];
     map = buf[1] - '0';
   }
 
-  idmusnum = -1;
-  dsda_MapMusic(&musnum, &muslump, epsd, map);
-  idmusnum = musnum; //jff 3/17/98 remember idmus number for restore
+  dsda_ChangeMusic(epsd, map, false, true);
+}
 
-  mapname = VANILLA_MAP_LUMP_NAME(epsd,map);
+static void M_PlayRandomMusic(dboolean cheat)
+{
+  int epsd = gameepisode;
+  int map = gamemap;
 
-  if (W_LumpNameExists(mapname))
+  while (epsd == gameepisode && map == gamemap)
   {
-    doom_printf("%s: %s", s_STSTR_MUS, mapname);
+    int random_map = S_RandomMusic();
+    epsd = (random_map / 10) % 10;
+    map = (gamemode == commercial) ? random_map : random_map % 10;
+  }
 
-    if (muslump != -1)
-    {
-      S_ChangeMusInfoMusic(muslump, true);
-    }
-    else if (musnum != -1)
-    {
-      S_ChangeMusic(musnum, 1);
-    }
-  }
-  else
-  {
-    dsda_AddMessage(s_STSTR_NOMUS);
-  }
+  dsda_ChangeMusic(epsd, map, true, cheat);
+}
+
+static void cheat_musrr(void)
+{
+  M_PlayRandomMusic(true);
+}
+
+void M_RandomMusic(void)
+{
+  M_PlayRandomMusic(false);
 }
 
 // 'choppers' invulnerability & chainsaw
@@ -1127,6 +1160,7 @@ static cheat_input_t cheat_input[] = {
   { dsda_input_chicken, not_demo, cheat_chicken, 0 },
   { dsda_input_notarget, not_demo, cheat_notarget, 0 },
   { dsda_input_freeze, not_demo, cheat_freeze, 0 },
+  { dsda_input_idmusrr, not_demo, cheat_musrr, 0 },
   { 0 }
 };
 

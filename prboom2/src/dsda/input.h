@@ -146,6 +146,7 @@ typedef enum {
   dsda_input_idmypos,
   dsda_input_idrate,
   dsda_input_iddt,
+  dsda_input_idmusrr,
   dsda_input_cycle_palette,
   dsda_input_command_display,
   dsda_input_strict_mode,

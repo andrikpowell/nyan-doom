@@ -2450,6 +2450,7 @@ static console_command_entry_t console_commands[] = {
   { "iddit", console_BasicCheat, CF_DEMO },
   { "idclev", console_BasicCheat, CF_DEMO },
   { "idmus", console_BasicCheat, CF_DEMO },
+  { "idmusrr", console_BasicCheat, CF_DEMO },
   { "idbeholdv", console_BasicCheat, CF_DEMO },
   { "idbeholds", console_BasicCheat, CF_DEMO },
   { "idbeholdi", console_BasicCheat, CF_DEMO },

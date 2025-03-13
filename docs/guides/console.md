@@ -205,6 +205,7 @@ See the [build mode guide](./build_mode.md) for more info.
 - `iddit`
 - `idclev <map>`
 - `idmus <map>`
+- `idmusrr`
 - `idbeholdv`
 - `idbeholds`
 - `idbeholdi`
