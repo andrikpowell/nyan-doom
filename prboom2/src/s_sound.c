@@ -705,7 +705,7 @@ void S_ChangeMusic(int musicnum, int looping)
 
 int S_RandomMusic(void)
 {
-  static int last_random[5];
+  static int last_random[6];
   int epsd, map, random_map, found_map;
   char *mapname;
 
