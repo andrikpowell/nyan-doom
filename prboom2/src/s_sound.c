@@ -65,6 +65,7 @@
 #include "dsda/settings.h"
 #include "dsda/sfx.h"
 #include "dsda/skip.h"
+#include "dsda/utility.h"
 
 // Adjustable by menu.
 #define NORM_PITCH 128
