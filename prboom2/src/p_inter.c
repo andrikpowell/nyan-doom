@@ -54,6 +54,7 @@
 #include "e6y.h"//e6y
 
 #include "dsda.h"
+#include "dsda/settings.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
 #include "dsda/messenger.h"
