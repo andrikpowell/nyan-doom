@@ -53,6 +53,7 @@
 #include "e6y.h"//e6y
 
 #include "dsda.h"
+#include "dsda/settings.h"
 #include "dsda/destructible.h"
 #include "dsda/excmd.h"
 #include "dsda/map_format.h"
@@ -1165,6 +1166,10 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
     tmceilingz = thing->z; // pretend ceiling height is at body's base
     return true;
   }
+
+  // Allow player to walk through solid objects in Camera Mode
+  //if (viewplayer->cheats & CF_CAMERA)
+    //return true;
 
   // killough 3/16/98: Allow non-solid moving objects to move through solid
   // ones, by allowing the moving thing (tmthing) to move if it's non-solid,

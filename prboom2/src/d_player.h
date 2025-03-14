@@ -73,6 +73,7 @@ typedef enum
 #define CF_NOTARGET      0x08 // monsters don't target
 #define CF_FLY           0x10 // flying player
 #define CF_NUT           0x20 // IDNUT
+#define CF_CAMERA        0x40 // Camera
 
 // heretic
 typedef struct

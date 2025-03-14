@@ -847,14 +847,16 @@ floater:
 
   if (mo->player && (mo->flags & MF_FLY) && (mo->z > mo->floorz))
   {
-    mo->z += finesine[(FINEANGLES/80*gametic)&FINEMASK]/8;
+    if (!dsda_CameraMode())
+      mo->z += finesine[(FINEANGLES/80*gametic)&FINEMASK]/8;
     mo->momz = FixedMul (mo->momz, FRICTION_FLY);
   }
 
   if (mo->player && mo->flags2 & MF2_FLY && !(mo->z <= mo->floorz)
       && leveltime & 2)
   {
-      mo->z += finesine[(FINEANGLES / 20 * leveltime >> 2) & FINEMASK];
+      if (!dsda_CameraMode())
+        mo->z += finesine[(FINEANGLES / 20 * leveltime >> 2) & FINEMASK];
   }
 
   // clip movement

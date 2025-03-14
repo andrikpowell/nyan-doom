@@ -1259,6 +1259,9 @@ static void R_DrawPSprite (pspdef_t *psp)
   if (dsda_HideWeapon())
     return;
 
+  if (dsda_CameraMode())
+    return;
+
   // proff 11/99: don't use software stuff in OpenGL
   if (V_IsSoftwareMode())
   {

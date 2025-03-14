@@ -2505,6 +2505,7 @@ static console_command_entry_t console_commands[] = {
 
   // nyan
   { "idnut", console_BasicCheat, CF_NEVER },
+  { "camera", console_BasicCheat, CF_NEVER },
 
   // exit
   { "exit", console_Exit, CF_ALWAYS },

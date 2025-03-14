@@ -2524,6 +2524,7 @@ setup_menu_t dsda_keys_settings[] = {
   { "Toggles", S_SKIP | S_TITLE, m_null, KB_X},
   { "Command Display", S_INPUT, m_scrn, KB_X, 0, dsda_input_command_display },
   { "Strict Mode", S_INPUT, m_scrn, KB_X, 0, dsda_input_strict_mode },
+  { "Camera Mode", S_INPUT, m_scrn, KB_X, 0, dsda_input_camera },
   { "Coordinate Display", S_INPUT, m_scrn, KB_X, 0, dsda_input_coordinate_display },
   { "Extended HUD", S_INPUT, m_scrn, KB_X, 0, dsda_input_exhud },
   { "Status Widget", S_INPUT, m_scrn, KB_X, 0, dsda_input_status_widget },

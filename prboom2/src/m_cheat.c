@@ -82,6 +82,7 @@
 
 static void cheat_mus();
 static void cheat_musrr();
+static void cheat_camera();
 static void cheat_choppers();
 static void cheat_god();
 static void cheat_fa();
@@ -269,6 +270,7 @@ cheatseq_t cheat[] = {
 
   // nyan
   CHEAT("idnut", NULL, NULL, cht_always, cheat_nut, 0, false),
+  CHEAT("camera", NULL, NULL, not_demo, cheat_camera, 0, false),
 
   // end-of-list marker
   {NULL}
@@ -978,6 +980,60 @@ static void cheat_notarget()
     dsda_AddMessage("Notarget Mode OFF");
 }
 
+static void cheat_camera()
+{
+  if (!allow_incompatibility)
+    return dsda_AddMessage("Camera Mode Not Allowed");
+
+  plyr->cheats ^= CF_CAMERA;
+  plyr->cheats ^= CF_GODMODE;
+  plyr->cheats ^= CF_NOTARGET;
+  plyr->cheats ^= CF_FLY;
+
+  if (plyr->cheats & CF_CAMERA)
+    {
+      plyr->mo->flags |= CF_GODMODE;
+      plyr->mo->flags |= CF_NOTARGET;
+
+      if (raven)
+      {
+        if (!plyr->powers[pw_flight])
+        {
+          P_GivePower(plyr, pw_flight);
+          plyr->powers[pw_flight] = INT_MAX;
+        }
+      }
+      else
+      {
+        plyr->mo->flags |= MF_NOGRAVITY;
+        plyr->mo->flags |= MF_FLY;
+      }
+
+      dsda_AddMessage("Camera Mode ON");
+    }
+    else
+    {
+      plyr->mo->flags &= ~CF_GODMODE;
+      plyr->mo->flags &= ~CF_NOTARGET;
+
+      if (raven)
+      {
+        if (plyr->powers[pw_flight])
+        {
+          P_PlayerEndFlight(plyr);
+          plyr->powers[pw_flight] = 0;
+        }
+      }
+      else
+      {
+        plyr->mo->flags &= ~MF_NOGRAVITY;
+        plyr->mo->flags &= ~MF_FLY;
+      }
+
+      dsda_AddMessage("Camera Mode OFF");
+    }
+}
+
 static void cheat_freeze()
 {
   dsda_ToggleFrozenMode();
@@ -1168,6 +1224,7 @@ static cheat_input_t cheat_input[] = {
   { dsda_input_notarget, not_demo, cheat_notarget, 0 },
   { dsda_input_freeze, not_demo, cheat_freeze, 0 },
   { dsda_input_idmusrr, not_demo, cheat_musrr, 0 },
+  { dsda_input_camera, not_demo, cheat_camera, 0 },
   { 0 }
 };
 

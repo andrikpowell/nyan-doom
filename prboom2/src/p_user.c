@@ -265,6 +265,10 @@ void P_CalcHeight (player_t* player)
   angle = (FINEANGLES / 20 * leveltime) & FINEMASK;
   bob = dsda_ViewBob() ? FixedMul(player->bob / 2, finesine[angle]) : 0;
 
+  // Disable viewbob in Camera Mode
+  if (dsda_CameraMode())
+    bob = 0;
+
   // move viewheight
 
   if (player->playerstate == PST_LIVE)

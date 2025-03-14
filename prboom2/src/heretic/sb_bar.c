@@ -1133,7 +1133,7 @@ static void DrawAnimatedIcons(void)
     static dboolean hitCenterFrame;
 
     // Flight icons
-    if (CPlayer->powers[pw_flight])
+    if (CPlayer->powers[pw_flight] && !dsda_CameraMode())
     {
         if (CPlayer->powers[pw_flight] > BLINKTHRESHOLD
             || !(CPlayer->powers[pw_flight] & 16))

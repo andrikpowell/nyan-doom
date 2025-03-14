@@ -162,6 +162,10 @@ dboolean dsda_WeaponBob(void) {
   return dsda_IntConfig(dsda_config_weaponbob);
 }
 
+dboolean dsda_CameraMode(void) {
+  return (players[consoleplayer].cheats & CF_CAMERA);
+}
+
 dboolean dsda_ShowMessages(void) {
   return dsda_IntConfig(dsda_config_show_messages);
 }

@@ -496,6 +496,10 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
   if (toucher->health <= 0)
     return;
 
+  // Disable picking up items in Camera Mode
+  if (dsda_CameraMode())
+    return;
+
     // Identify by sprite.
   switch (special->sprite)
     {
@@ -1885,6 +1889,10 @@ static void Heretic_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
     sound = heretic_sfx_itemup;
     player = toucher->player;
 
+    // Disable picking up items in Camera Mode
+    if (player->cheats & CF_CAMERA)
+        return;
+
     switch (special->sprite)
     {
             // Items
@@ -3176,6 +3184,11 @@ static void Hexen_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
     sound = hexen_sfx_pickup_item;
     player = toucher->player;
     respawn = true;
+
+    // Disable picking up items in Camera Mode
+    if (player->cheats & CF_CAMERA)
+        return;
+
     switch (special->sprite)
     {
             // Items
