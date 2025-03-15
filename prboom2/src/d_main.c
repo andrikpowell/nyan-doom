@@ -1920,6 +1920,9 @@ static void D_DoomMainSetup(void)
     I_SafeExit(0);
   }
 
+  started_demo = dsda_Flag(dsda_arg_record) || dsda_Flag(dsda_arg_recordfromto) ||
+  dsda_Flag(dsda_arg_playdemo) || dsda_Flag(dsda_arg_timedemo) || dsda_Flag(dsda_arg_fastdemo);
+
   // CPhipps - autoloading of wads
   autoload = !dsda_Flag(dsda_arg_noautoload);
 
@@ -2116,18 +2119,9 @@ static void D_DoomMainSetup(void)
 
     if (doom_v11)
     {
-      dboolean recording_attempt =
-        dsda_Flag(dsda_arg_record) ||
-        dsda_Flag(dsda_arg_recordfromto);
+      lprintf(LO_INFO, "NOTICE: Doom v1.1 support is purely for historical purposes, thus demo support is disabled.\n");
   
-      dboolean playbacking_attempt =
-        dsda_Flag(dsda_arg_playdemo) ||
-        dsda_Flag(dsda_arg_timedemo) ||
-        dsda_Flag(dsda_arg_fastdemo);
-
-      lprintf(LO_INFO, "NOTICE: Doom v1.1 support is purely for historical purposes, thus demo support are disabled.\n");
-  
-      if (recording_attempt || playbacking_attempt)
+      if (started_demo)
         I_Error("Doom v1.1 IWAD is not supported for demo recording / playback.");
     }
   }

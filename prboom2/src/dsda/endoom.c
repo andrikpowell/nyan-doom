@@ -356,14 +356,12 @@ static void RestoreOldMode(void) {
 void dsda_CacheEndoom(void) {
   int lump;
   int show_endoom;
-  dboolean demo_check = dsda_Flag(dsda_arg_record) || dsda_Flag(dsda_arg_recordfromto) ||
-  dsda_Flag(dsda_arg_playdemo) || dsda_Flag(dsda_arg_timedemo) || dsda_Flag(dsda_arg_fastdemo);
 
   output_format = dsda_IntConfig(dsda_config_ansi_endoom);
 
   show_endoom = dsda_IntConfig(nyan_config_show_endoom);
 
-  if (demo_check > 0)
+  if (started_demo)
     return;
 
   if (show_endoom==0)
