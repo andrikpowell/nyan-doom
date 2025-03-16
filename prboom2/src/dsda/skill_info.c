@@ -16,10 +16,14 @@
 //
 
 #include "doomstat.h"
+#include "lprintf.h"
+#include "w_wad.h"
 
 #include "dsda/args.h"
 #include "dsda/configuration.h"
 #include "dsda/mapinfo/doom/parser.h"
+#include "dsda/nyanskill.h"
+#include "dsda/preferences.h"
 #include "dsda/text_color.h"
 #include "dsda/utility.h"
 
@@ -27,7 +31,7 @@
 
 skill_info_t skill_info;
 
-const skill_info_t doom_skill_infos[5] = {
+skill_info_t doom_skill_infos[6] = {
   {
     .ammo_factor = FRACUNIT * 2,
     .damage_factor = FRACUNIT / 2,
@@ -66,6 +70,13 @@ const skill_info_t doom_skill_infos[5] = {
     .pic_name = "M_NMARE",
     .respawn_time = 12,
     .flags = SI_FAST_MONSTERS | SI_INSTANT_REACTION | SI_MUST_CONFIRM
+  },
+  {
+    .spawn_filter = 4,
+    .key = 'p',
+    .name = "Ultra-Violence Plus.",
+    .pic_name = "M_ULTRAP",
+    .flags = SI_SPAWN_MULTI
   },
 };
 
@@ -172,12 +183,18 @@ void dsda_InitSkills(void) {
   int i = 0;
   int j;
   dboolean clear_skills;
+  dboolean newskill;
 
-  skill_list = doom_v11 ? 4 : 5;
+  uvplus = W_LumpNameExists("M_ULTRAP");
+  nyanskill = W_LumpNameExists("NYANSKLL");
+
+  nyan_newskill = newskill = (nyanskill || uvplus) && !raven && !doom_v11 && !started_demo && !netgame && !dsda_UseMapinfo();
+
+  skill_list = doom_v11 ? 4 : newskill ? 6 : 5;
 
   clear_skills = (doom_mapinfo.num_skills && doom_mapinfo.skills_cleared);
 
-  num_skills = (clear_skills ? 0 : 5) + doom_mapinfo.num_skills - doom_v11;
+  num_skills = (clear_skills ? 0 : 5) + doom_mapinfo.num_skills + newskill - doom_v11;
 
   skill_infos = Z_Calloc(num_skills, sizeof(*skill_infos));
 
@@ -187,6 +204,8 @@ void dsda_InitSkills(void) {
     original_skill_infos = hexen   ? hexen_skill_infos   :
                            heretic ? heretic_skill_infos :
                                      doom_skill_infos;
+
+    if (nyanskill) dsda_LoadNyanSkill();
 
     for (i = 0; i < skill_list; ++i)
       skill_infos[i] = original_skill_infos[i];

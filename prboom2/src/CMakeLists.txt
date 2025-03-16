@@ -194,6 +194,8 @@ set(COMMON_SRC
     dsda/music.h
     dsda/name.c
     dsda/name.h
+    dsda/nyanskill.cpp
+    dsda/nyanskill.h
     dsda/options.c
     dsda/options.h
     dsda/palette.c
