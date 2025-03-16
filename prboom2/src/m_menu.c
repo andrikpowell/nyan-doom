@@ -2755,7 +2755,7 @@ setup_menu_t trans_settings[] = {
   EMPTY_LINE,
   { "Vanilla Emulation", S_SKIP | S_TITLE, m_null, D_X},
   { "Enable for Vanilla", S_YESNO, m_conf, D_X, dsda_config_vanilla_translucent_sprites },
-  { "Ghosts are Translucent", S_YESNO, m_conf, D_X, dsda_config_vanilla_translucent_ghosts },
+  { "Ghosts are Translucent", S_YESNO, m_conf, D_X, dsda_config_translucent_ghosts },
 
   PREV_PAGE(display_settings),
   NEXT_PAGE(stat_settings1),
@@ -2981,7 +2981,7 @@ setup_menu_t auto_settings4[] =  // 3nd AutoMap Settings screen
   EMPTY_LINE,
   //jff 4/23/98 add exit line to automap
   {"exit line"                      ,S_COLOR ,m_conf,AU_X2, dsda_config_mapcolor_exit},
-  {"alt secret exit line"           ,S_COLOR ,m_conf,AU_X2, dsda_config_mapcolor_secretexit},
+  {"alt secret exit line"           ,S_COLOR ,m_conf,AU_X2, dsda_config_mapcolor_exitsecr},
   {"computer map unseen line"       ,S_COLOR ,m_conf,AU_X2, dsda_config_mapcolor_unsn},
   {"line w/no floor/ceiling changes",S_COLOR ,m_conf,AU_X2, dsda_config_mapcolor_flat},
   {"general sprite"                 ,S_COLOR ,m_conf,AU_X2, dsda_config_mapcolor_sprt},

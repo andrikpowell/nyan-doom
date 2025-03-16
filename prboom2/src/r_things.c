@@ -1237,7 +1237,7 @@ static void R_DrawPSprite (pspdef_t *psp)
     // Do not interpolate on the first tic of the level
     if (leveltime > 1)
     {
-      // Do not interpolate when changing screensize
+      // Interpolate weapon only when not changing screensize
       extern dboolean ScreenSize_Interpolate;
 
       if (lump == psp_inter.lump && ScreenSize_Interpolate)

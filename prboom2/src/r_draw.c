@@ -507,9 +507,9 @@ void R_InitBuffer(int width, int height)
 
   // Same with base row offset.
 
-  viewwindowy = width==SCREENWIDTH ? 0 : (SCREENHEIGHT-ST_SCALED_HEIGHT-height)>>1;
+  viewwindowy = width == SCREENWIDTH ? 0 : (SCREENHEIGHT - ST_SCALED_HEIGHT - height) >> 1;
 
-  drawvars.topleft = screens[0].data + viewwindowy*screens[0].pitch + viewwindowx;
+  drawvars.topleft = screens[0].data + viewwindowy * screens[0].pitch + viewwindowx;
   drawvars.pitch = screens[0].pitch;
 
   for (i=0; i<FUZZTABLE; i++)
@@ -643,21 +643,21 @@ void R_DrawViewBorder(void)
   if ( viewheight >= ( SCREENHEIGHT - ST_SCALED_HEIGHT ))
     return; // if high-res, don't go any further!
 
-  top = ((SCREENHEIGHT-ST_SCALED_HEIGHT)-viewheight)/2;
-  side = (SCREENWIDTH-scaledviewwidth)/2;
+  top = ((SCREENHEIGHT - ST_SCALED_HEIGHT) - viewheight) / 2;
+  side = (SCREENWIDTH - scaledviewwidth) / 2;
 
   // copy top
   for (i = 0; i < top; i++)
     R_CopyScreenBufferSection (0, i, SCREENWIDTH);
 
   // copy sides
-  for (i = top; i < (top+viewheight); i++) {
+  for (i = top; i < (top + viewheight); i++) {
     R_CopyScreenBufferSection (0, i, side);
-    R_CopyScreenBufferSection (viewwidth+side, i, side);
+    R_CopyScreenBufferSection (viewwidth + side, i, side);
   }
 
   // copy bottom
-  for (i = top+viewheight; i < (SCREENHEIGHT - ST_SCALED_HEIGHT); i++)
+  for (i = top + viewheight; i < (SCREENHEIGHT - ST_SCALED_HEIGHT); i++)
     R_CopyScreenBufferSection (0, i, SCREENWIDTH);
 }
 

@@ -61,7 +61,7 @@ typedef struct
   int revsecr;
   int tagfinder;
   int exit;
-  int secretexit;
+  int exitsecr;
   int unsn;
   int flat;
   int sprt;

@@ -661,9 +661,9 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mapcolor_exit", dsda_config_mapcolor_exit,
     CONF_COLOR(0), &mapcolor.exit
   },
-  [dsda_config_mapcolor_secretexit] = {
-    "mapcolor_secretexit", dsda_config_mapcolor_secretexit,
-    CONF_COLOR(0), &mapcolor.secretexit
+  [dsda_config_mapcolor_exitsecr] = {
+    "mapcolor_exitsecr", dsda_config_mapcolor_exitsecr,
+    CONF_COLOR(0), &mapcolor.exitsecr
   },
   [dsda_config_mapcolor_unsn] = {
     "mapcolor_unsn", dsda_config_mapcolor_unsn,
@@ -1389,9 +1389,9 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "vanilla_translucent_sprites", dsda_config_vanilla_translucent_sprites,
     CONF_BOOL(0), NULL, NOT_STRICT, deh_changeCompTranslucency
   },
-  [dsda_config_vanilla_translucent_ghosts] = {
-    "vanilla_translucent_ghosts", dsda_config_vanilla_translucent_ghosts,
-    CONF_BOOL(0), NULL, NOT_STRICT
+  [dsda_config_translucent_ghosts] = {
+    "translucent_ghosts", dsda_config_translucent_ghosts,
+    CONF_BOOL(0), NULL, STRICT_INT(0)
   },
   [nyan_config_item_bonus_flash] = {
     "nyan_item_bonus_flash", nyan_config_item_bonus_flash,

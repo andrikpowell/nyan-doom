@@ -581,10 +581,10 @@ void R_SetupViewport(void)
   else if (screenblocks == 10)
     height = SCREENHEIGHT;
   else
-    height = (screenblocks*SCREENHEIGHT/10) & ~7;
+    height = (screenblocks * SCREENHEIGHT / 10) & ~7;
 
   viewport[0] = viewwindowx;
-  viewport[1] = SCREENHEIGHT-(height+viewwindowy-((height-viewheight)/2));
+  viewport[1] = SCREENHEIGHT - (height + viewwindowy - ((height - viewheight) / 2));
   viewport[2] = viewwidth;
   viewport[3] = height;
 }
@@ -682,20 +682,20 @@ void R_ExecuteSetViewSize (void)
       viewheight = SCREENHEIGHT;
       freelookviewheight = viewheight;
     }
-// proff 09/24/98: Added for high-res
+  // proff 09/24/98: Added for high-res
   else if (setblocks == 10)
     {
       scaledviewwidth = SCREENWIDTH;
-      viewheight = SCREENHEIGHT-ST_SCALED_HEIGHT;
+      viewheight = SCREENHEIGHT - ST_SCALED_HEIGHT;
       freelookviewheight = SCREENHEIGHT;
     }
   // proff 09/24/98: Added for high-res
   else
     {
-// proff 08/17/98: Changed for high-res
-      scaledviewwidth = setblocks*SCREENWIDTH/10;
-      viewheight = (setblocks*(SCREENHEIGHT-ST_SCALED_HEIGHT)/10) & ~7;
-      freelookviewheight = setblocks*SCREENHEIGHT/10;
+      // proff 08/17/98: Changed for high-res
+      scaledviewwidth = setblocks * SCREENWIDTH / 10;
+      viewheight = (setblocks * (SCREENHEIGHT - ST_SCALED_HEIGHT) / 10) & ~7;
+      freelookviewheight = setblocks * SCREENHEIGHT / 10;
     }
 
   viewwidth = scaledviewwidth;
@@ -738,7 +738,7 @@ void R_ExecuteSetViewSize (void)
   // proff 11/06/98: Added for high-res
   // e6y: wide-res
   pspritexscale = (wide_centerx << FRACBITS) / 160;
-  pspriteyscale = (((cheight*viewwidth)/SCREENWIDTH) << FRACBITS) / 200;
+  pspriteyscale = (((cheight * viewwidth) / SCREENWIDTH) << FRACBITS) / 200;
   pspriteiscale = FixedDiv (FRACUNIT, pspritexscale);
   // [FG] make sure that the product of the weapon sprite scale factor
   //      and its reciprocal is always at least FRACUNIT to
@@ -748,8 +748,8 @@ void R_ExecuteSetViewSize (void)
     pspriteiyscale++;
 
   //e6y: added for GL
-  pspritexscale_f = (float)wide_centerx/160.0f;
-  pspriteyscale_f = (((float)cheight*viewwidth)/(float)SCREENWIDTH) / 200.0f;
+  pspritexscale_f = (float)wide_centerx / 160.0f;
+  pspriteyscale_f = (((float)cheight * viewwidth) / (float)SCREENWIDTH) / 200.0f;
 
   skyiscale = (fixed_t)(((uint64_t)FRACUNIT * SCREENWIDTH * 200) / (viewwidth * SCREENHEIGHT));
 

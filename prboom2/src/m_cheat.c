@@ -560,6 +560,7 @@ static void cheat_behold()
   dsda_AddMessage(s_STSTR_BEHOLD);
 }
 
+// check 'clev' change-level cheat
 static void cheat_clev0()
 {
   int epsd, map;
@@ -613,8 +614,7 @@ static void cheat_rate()
   dsda_ToggleRenderStats();
 }
 
-// compatibility cheat
-
+// check compatibility cheat
 static void cheat_comp0()
 {
   if (raven)
@@ -626,6 +626,7 @@ static void cheat_comp0()
   doom_printf("Complevel: %i - %s", compatibility_level, comp_lev_str[compatibility_level]);
 }
 
+// compatibility cheat
 static void cheat_comp(char buf[3])
 {
   if (raven)
@@ -652,6 +653,7 @@ static void cheat_comp(char buf[3])
   }
 }
 
+// Get skill strings
 static const char* dsda_skill_str(void)
 {
   if (hexen)
@@ -667,6 +669,7 @@ static const char* dsda_skill_str(void)
   return skill_infos[gameskill].name;
 }
 
+// Check skill cheat
 static void cheat_skill0()
 {
   if (!tc_game)
@@ -675,6 +678,7 @@ static void cheat_skill0()
     doom_printf("Skill: %i", gameskill + 1);
 }
 
+// Skill cheat
 static void cheat_skill(char buf[1])
 {
   int skill = buf[0] - '0';
