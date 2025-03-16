@@ -428,7 +428,7 @@ extern dboolean started_demo;
 
 extern dboolean raven;
 
-extern dboolean nyanskill;
+extern dboolean skilldef;
 extern dboolean uvplus;
 extern int skill_list;
 

@@ -1,18 +1,22 @@
-## NYANSKLL
+## SKILLDEF
 
-NYANSKLL is a lump that allows authors to configure a custom 6th skill level. Most features listed here form a subset of gzdoom's MAPINFO SKILL specification. Only the "new" format of mapinfo skill defintion is valid in Nyan Doom (the curly braces).
+SKILLDEF is a lump that allows authors to configure custom skill levels. Most features listed here form a subset of gzdoom's MAPINFO SKILL specification. Only the "new" format of mapinfo skill defintion is valid in Nyan Doom (the curly braces).
 
-It is recommended to only use NYANSKLL in non-UDMF maps, unlike Nyan Doom's MAPINFO support which is meant for UDMF maps.
+It is recommended to only use SKILLDEF in non-UDMF maps, unlike Nyan Doom's MAPINFO support which is meant for UDMF maps.
 
 ## Usage
 
-By default, Nyan Doom will only load NYANSKLL under Doom under Casual settings *(aka not recording or playing back demos).* This is done for compatibility purposes. See the full specification below.
+By default, Nyan Doom will only load SKILLDEF under Doom under Casual settings *(aka not recording or playing back demos).* This is done for compatibility purposes. See the full specification below.
 
 ### Skill
 
+**clearskills**
+
+Removes the existing skill levels.
+
 **skill \<ID\> { _properties_ }**
 
-Defines a new skill level in the 6th slot after "Nightmare!". The **ID** isn't used anywhere in-game.
+Defines a new skill level. The **ID** does not show up anywhere in-game. If two definitions use the same **ID**, the second definition will overwrite the first. The default skill level IDs are **baby**, **easy**, **normal**, **hard**, and **nightmare**.
 
 #### Skill Properties
 

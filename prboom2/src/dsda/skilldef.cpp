@@ -33,9 +33,9 @@ extern "C" {
 #include "scanner.h"
 
 #include "mapinfo/doom/parser.h"
-#include "nyanskill.h"
+#include "skilldef.h"
 
-static std::vector<doom_mapinfo_skill_t> nyan_skills;
+static std::vector<doom_mapinfo_skill_t> new_skills;
 
 static void dsda_SkipValue(Scanner &scanner) {
   if (scanner.CheckToken('=')) {
@@ -114,7 +114,7 @@ static void dsda_FreeSkill(doom_mapinfo_skill_t &skill) {
   Z_Free(skill.text_color);
 }
 
-static void dsda_ParseNyanSkill(Scanner &scanner) {
+static void dsda_ParseSkills(Scanner &scanner) {
   doom_mapinfo_skill_t skill = { 0 };
 
   scanner.MustGetString();
@@ -196,7 +196,7 @@ static void dsda_ParseNyanSkill(Scanner &scanner) {
     }
   }
 
-  for (auto &old_skill : nyan_skills)
+  for (auto &old_skill : new_skills)
     if (!stricmp(old_skill.unique_id, skill.unique_id)) {
       dsda_FreeSkill(old_skill);
       old_skill = skill;
@@ -204,12 +204,12 @@ static void dsda_ParseNyanSkill(Scanner &scanner) {
       return;
     }
 
-  nyan_skills.push_back(skill);
+  new_skills.push_back(skill);
 }
 
-doom_mapinfo_skill_t* nyan_skillinfo;
+doom_mapinfo_t skilldef_info;
 
-void dsda_LoadNyanSkillLump(const unsigned char* buffer, size_t length, nyan_skill_errorfunc err) {
+void dsda_LoadSkillDefLump(const unsigned char* buffer, size_t length, skilldef_errorfunc err) {
   Scanner scanner((const char*) buffer, length);
   scanner.SetErrorCallback(err);
 
@@ -217,9 +217,24 @@ void dsda_LoadNyanSkillLump(const unsigned char* buffer, size_t length, nyan_ski
   {
     scanner.MustGetToken(TK_Identifier);
 
-    if (scanner.StringMatch("skill"))
-      dsda_ParseNyanSkill(scanner);
+    if (scanner.StringMatch("skill")) {
+      dsda_ParseSkills(scanner);
+    }
+    else if (scanner.StringMatch("clearskills")) {
+    for (auto &skill : new_skills)
+      dsda_FreeSkill(skill);
+      new_skills.clear();
+      skilldef_info.skills_cleared = true;
+    }
+    else {
+      dsda_SkipValue(scanner);
+    }
   }
 
-  nyan_skillinfo = &nyan_skills[0];
+  skilldef_info.num_skills = new_skills.size();
+  if(skilldef_info.num_skills > 0) {
+    skilldef_info.skills = &new_skills[0];
+  } else {
+    skilldef_info.skills = NULL;
+  }
 }

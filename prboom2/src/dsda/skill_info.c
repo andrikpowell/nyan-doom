@@ -22,7 +22,7 @@
 #include "dsda/args.h"
 #include "dsda/configuration.h"
 #include "dsda/mapinfo/doom/parser.h"
-#include "dsda/nyanskill.h"
+#include "dsda/skilldef.h"
 #include "dsda/preferences.h"
 #include "dsda/text_color.h"
 #include "dsda/utility.h"
@@ -187,14 +187,17 @@ void dsda_InitSkills(void) {
   int j;
   dboolean clear_skills;
   dboolean newskill;
+  doom_mapinfo_t mapinfo;
 
   // Check for / parse new skill lumps
-  dsda_LoadNyanSkill();
-  newskill = (nyanskill || uvplus);
+  dsda_LoadSkillDef();
+  newskill = (uvplus && !skilldef);
 
-  clear_skills = (doom_mapinfo.num_skills && doom_mapinfo.skills_cleared);
+  mapinfo = skilldef ? skilldef_info : doom_mapinfo;
 
-  num_skills = (clear_skills ? 0 : 5) + (int)doom_mapinfo.num_skills + newskill - doom_v11;
+  clear_skills = (mapinfo.num_skills && mapinfo.skills_cleared);
+
+  num_skills = (clear_skills ? 0 : 5) + (int)mapinfo.num_skills + newskill - doom_v11;
   skill_list = doom_v11 ? 4 : newskill ? 6 : 5;
 
   skill_infos = Z_Calloc(num_skills, sizeof(*skill_infos));
@@ -210,40 +213,37 @@ void dsda_InitSkills(void) {
       skill_infos[i] = original_skill_infos[i];
   }
 
-  for (j = 0; j < doom_mapinfo.num_skills; ++j) {
-    if (!stricmp(doom_mapinfo.skills[j].unique_id, "baby")) {
-      dsda_CopySkillInfo(0, &doom_mapinfo.skills[j]);
+  for (j = 0; j < mapinfo.num_skills; ++j) {
+    if (!stricmp(mapinfo.skills[j].unique_id, "baby")) {
+      dsda_CopySkillInfo(0, &mapinfo.skills[j]);
       --i;
       --num_skills;
     }
-    else if (!stricmp(doom_mapinfo.skills[j].unique_id, "easy")) {
-      dsda_CopySkillInfo(1, &doom_mapinfo.skills[j]);
+    else if (!stricmp(mapinfo.skills[j].unique_id, "easy")) {
+      dsda_CopySkillInfo(1, &mapinfo.skills[j]);
       --i;
       --num_skills;
     }
-    else if (!stricmp(doom_mapinfo.skills[j].unique_id, "normal")) {
-      dsda_CopySkillInfo(2, &doom_mapinfo.skills[j]);
+    else if (!stricmp(mapinfo.skills[j].unique_id, "normal")) {
+      dsda_CopySkillInfo(2, &mapinfo.skills[j]);
       --i;
       --num_skills;
     }
-    else if (!stricmp(doom_mapinfo.skills[j].unique_id, "hard")) {
-      dsda_CopySkillInfo(3, &doom_mapinfo.skills[j]);
+    else if (!stricmp(mapinfo.skills[j].unique_id, "hard")) {
+      dsda_CopySkillInfo(3, &mapinfo.skills[j]);
       --i;
       --num_skills;
     }
-    else if (!stricmp(doom_mapinfo.skills[j].unique_id, "nightmare")) {
-      dsda_CopySkillInfo(4, &doom_mapinfo.skills[j]);
+    else if (!stricmp(mapinfo.skills[j].unique_id, "nightmare")) {
+      dsda_CopySkillInfo(4, &mapinfo.skills[j]);
       --i;
       --num_skills;
     }
     else
-      dsda_CopySkillInfo(i + j, &doom_mapinfo.skills[j]);
+      dsda_CopySkillInfo(i + j, &mapinfo.skills[j]);
   }
 
-  // If not MAPINFO, Get info for new skill
-  if (nyanskill)
-    dsda_CopySkillInfo(5, &nyan_skillinfo[0]);
-  else if (uvplus)
+  if (newskill)
   {
     dsda_CopySkillInfo(5, &uvplus_skill_info[0]);
     skill_infos[5].name = Z_Strdup("Ultra-Violence Plus.");
@@ -328,23 +328,26 @@ void dsda_AlterGameFlags(void)
   dsda_RefreshGameSkill();
 }
 
-void dsda_LoadNyanSkill(void) {
+void dsda_LoadSkillDef(void) {
   int p;
 
-  if (raven || doom_v11 || started_demo || netgame || dsda_UseMapinfo())
+  //if (started_demo)
+    //return;
+
+  if (raven || doom_v11 || netgame || dsda_UseMapinfo())
     return;
 
   if (W_LumpNameExists("M_ULTRAP"))
     uvplus = true;
   
-  if (!W_LumpNameExists("NYANSKLL"))
+  if (!W_LumpNameExists("SKILLDEF"))
     return;
 
-  nyanskill = true;
+  skilldef = true;
 
   p = -1;
-  while ((p = W_ListNumFromName("NYANSKLL", p)) >= 0) {
+  while ((p = W_ListNumFromName("SKILLDEF", p)) >= 0) {
     const unsigned char* lump = (const unsigned char *) W_LumpByNum(p);
-    dsda_LoadNyanSkillLump(lump, W_LumpLength(p), I_Error);
+    dsda_LoadSkillDefLump(lump, W_LumpLength(p), I_Error);
   }
 }

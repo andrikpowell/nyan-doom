@@ -66,6 +66,6 @@ void dsda_InitSkills(void);
 void dsda_TrackGameFlags(void);
 void dsda_RefreshGameSkill(void);
 void dsda_UpdateGameSkill(int skill);
-void dsda_LoadNyanSkill(void);
+void dsda_LoadSkillDef(void);
 
 #endif

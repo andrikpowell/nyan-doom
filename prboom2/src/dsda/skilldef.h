@@ -12,21 +12,21 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//  NYAN SKILL
+//  NYAN SKILLDEF
 //
 
-#ifndef __NYANSKLL_PARSER__
-#define __NYANSKLL_PARSER__
+#ifndef __SKILLDEF_PARSER__
+#define __SKILLDEF_PARSER__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern doom_mapinfo_skill_t* nyan_skillinfo;
+extern doom_mapinfo_t skilldef_info;
 
-typedef void (*nyan_skill_errorfunc)(const char *fmt, ...);	// this must not return!
+typedef void (*skilldef_errorfunc)(const char *fmt, ...);	// this must not return!
 
-void dsda_LoadNyanSkillLump(const unsigned char* buffer, size_t length, nyan_skill_errorfunc err);
+void dsda_LoadSkillDefLump(const unsigned char* buffer, size_t length, skilldef_errorfunc err);
 
 #ifdef __cplusplus
 }
