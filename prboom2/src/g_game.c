@@ -2362,11 +2362,6 @@ const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] =
   "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1", "PrBoom v2.1.2-v2.2.6",
   "PrBoom v2.3.x", "PrBoom 2.4.0", "Current PrBoom", "", "", "", "MBF21" };
 
-const char * skill_str[] = {
-    // dummy first option because defaultskill is 1-based
-    "", "ITYTD", "HNTR", "HMP", "UV", "NM"
-};
-
 //==========================================================================
 //
 // RecalculateDrawnSubsectors

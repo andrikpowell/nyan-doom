@@ -428,6 +428,8 @@ extern dboolean started_demo;
 
 extern dboolean raven;
 
+extern int skill_list;
+
 // heretic
 
 #define FRICTION_LOW 0xf900

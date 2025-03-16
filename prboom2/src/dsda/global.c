@@ -139,6 +139,7 @@ dboolean started_demo = false;
 dboolean hexen = false;
 dboolean heretic = false;
 dboolean raven = false;
+int skill_list;
 
 static void dsda_InitDoom(void) {
   int i;

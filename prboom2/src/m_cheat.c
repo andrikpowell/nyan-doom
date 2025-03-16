@@ -618,16 +618,10 @@ static void cheat_rate()
 static void cheat_comp0()
 {
   if (raven)
-  {
-    doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen");
-    return;
-  }
+    return doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen");
 
   if (doom_v11)
-  {
-    doom_printf("Cheat disabled");
-    return;
-  }
+    return doom_printf("Cheat disabled");
 
   doom_printf("Complevel: %i - %s", compatibility_level, comp_lev_str[compatibility_level]);
 }
@@ -635,16 +629,10 @@ static void cheat_comp0()
 static void cheat_comp(char buf[3])
 {
   if (raven)
-  {
-    doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen");
-    return;
-  }
+    return doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen");
 
   if (doom_v11)
-  {
-    doom_printf("Cheat disabled");
-    return;
-  }
+    return doom_printf("Cheat disabled");
 
   {
     int compinput = (buf[0] - '0') * 10 + buf[1] - '0';
@@ -666,22 +654,21 @@ static void cheat_comp(char buf[3])
 
 static void cheat_skill0()
 {
-  if (!raven && !tc_game)
-    doom_printf("Skill: %i - %s", gameskill+1, skill_str[gameskill+1]);
+  if (!hexen || !tc_game)
+    doom_printf("Skill: %i - %s", gameskill + 1, skill_infos[gameskill].name);
   else
-    doom_printf("Skill: %i", gameskill+1);
+    doom_printf("Skill: %i", gameskill + 1);
 }
 
 static void cheat_skill(char buf[1])
 {
   int skill = buf[0] - '0';
-  int maxskill = doom_v11 ? 4 : 5;
 
-  if (skill >= 1 && skill <= maxskill)
+  if (skill >= 1 && skill <= skill_list)
   {
     gameskill = skill - 1;
-    if (!raven)
-      doom_printf("Next Level Skill: %i - %s", gameskill+1, skill_str[gameskill + 1]);
+    if (!hexen || !tc_game)
+      doom_printf("Next Level Skill: %i - %s", gameskill + 1, skill_infos[gameskill].name);
     else
       doom_printf("Next Level Skill: %i", gameskill + 1);
 

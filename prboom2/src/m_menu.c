@@ -5964,9 +5964,6 @@ static void M_InitializeSkillMenu(void)
 
   SkillDef.lastOn = dsda_IntConfig(dsda_config_default_skill) - 1;
 
-  if (doom_v11)
-    num_skills = num_skills - 1;
-
   SkillDef.numitems = num_skills;
   SkillDef.menuitems = Z_Calloc(num_skills, sizeof(*SkillDef.menuitems));
 

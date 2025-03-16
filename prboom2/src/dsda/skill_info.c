@@ -173,9 +173,11 @@ void dsda_InitSkills(void) {
   int j;
   dboolean clear_skills;
 
+  skill_list = doom_v11 ? 4 : 5;
+
   clear_skills = (doom_mapinfo.num_skills && doom_mapinfo.skills_cleared);
 
-  num_skills = (clear_skills ? 0 : 5) + doom_mapinfo.num_skills;
+  num_skills = (clear_skills ? 0 : 5) + doom_mapinfo.num_skills - doom_v11;
 
   skill_infos = Z_Calloc(num_skills, sizeof(*skill_infos));
 
@@ -186,7 +188,7 @@ void dsda_InitSkills(void) {
                            heretic ? heretic_skill_infos :
                                      doom_skill_infos;
 
-    for (i = 0; i < 5; ++i)
+    for (i = 0; i < skill_list; ++i)
       skill_infos[i] = original_skill_infos[i];
   }
 

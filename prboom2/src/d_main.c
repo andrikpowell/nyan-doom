@@ -1809,7 +1809,7 @@ static void EvaluateDoomVerStr(void)
   if (doom_v11)
   {
     char *tempverstr;
-    const char v11verstr[]=" v1.1";
+    const char v11verstr[]=" v1.0/v1.1";
     tempverstr = Z_Malloc(sizeof(char) * (strlen(doomverstr)+strlen(v11verstr)+1));
     strcpy (tempverstr, doomverstr);
     strcat (tempverstr, v11verstr);
@@ -1967,10 +1967,6 @@ static void D_DoomMainSetup(void)
     autostart = true;
   }
 
-  // Don't allow Nightmare skill for Doom v1.1
-  if (doom_v11 && startskill == 4)
-    startskill = 3;
-
   arg = dsda_Arg(dsda_arg_episode);
   if (arg->found)
   {
@@ -2119,10 +2115,10 @@ static void D_DoomMainSetup(void)
 
     if (doom_v11)
     {
-      lprintf(LO_INFO, "NOTICE: Doom v1.1 support is purely for historical purposes, thus demo support is disabled.\n");
+      lprintf(LO_INFO, "NOTICE: Doom v1.0/v1.1 support is purely for historical purposes, thus demo support is disabled.\n");
   
       if (started_demo)
-        I_Error("Doom v1.1 IWAD is not supported for demo recording / playback.");
+        I_Error("Doom v1.0/v1.1 IWAD is not supported for demo recording or playback.");
     }
   }
 
