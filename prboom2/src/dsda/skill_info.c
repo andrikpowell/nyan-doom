@@ -73,7 +73,7 @@ const skill_info_t doom_skill_infos[5] = {
   },
 };
 
-const doom_mapinfo_skill_t uvplus_skill_info[1] = {
+doom_mapinfo_skill_t uvplus_skill_info[1] = {
   {
     .spawn_filter = 4,
     .key = 'p',
