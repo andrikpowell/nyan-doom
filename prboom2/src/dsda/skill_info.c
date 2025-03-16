@@ -78,7 +78,7 @@ doom_mapinfo_skill_t uvplus_skill_info[] = {
     .spawn_filter = 4,
     .key = 'p',
     //.name = "Ultra-Violence Plus.",
-    //.pic_name = "M_ULTRAP",
+    //.pic_name = "M_UVPLUS",
     .flags = SI_SPAWN_MULTI
   },
 };
@@ -247,7 +247,7 @@ void dsda_InitSkills(void) {
   {
     dsda_CopySkillInfo(5, &uvplus_skill_info[0]);
     skill_infos[5].name = Z_Strdup("Ultra-Violence Plus.");
-    skill_infos[5].pic_name = Z_Strdup("M_ULTRAP");
+    skill_infos[5].pic_name = Z_Strdup("M_UVPLUS");
   }
 
 }
@@ -337,7 +337,7 @@ void dsda_LoadSkillDef(void) {
   if (raven || doom_v11 || netgame || dsda_UseMapinfo())
     return;
 
-  if (W_LumpNameExists("M_ULTRAP"))
+  if (W_LumpNameExists("M_UVPLUS"))
     uvplus = true;
   
   if (!W_LumpNameExists("SKILLDEF"))
