@@ -140,7 +140,6 @@ dboolean hexen = false;
 dboolean heretic = false;
 dboolean raven = false;
 
-dboolean nyan_newskill = false;
 dboolean nyanskill = false;
 dboolean uvplus = false;
 int skill_list;

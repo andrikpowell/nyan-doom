@@ -50,16 +50,15 @@ typedef struct {
   int respawn_time;
   int spawn_filter;
   char key;
-  char* must_confirm;
-  char* name;
-  char* pic_name;
+  const char* must_confirm;
+  const char* name;
+  const char* pic_name;
   int text_color;
   skill_info_flags_t flags;
 } skill_info_t;
 
 extern skill_info_t skill_info;
 extern skill_info_t *skill_infos;
-extern skill_info_t doom_skill_infos[6];
 
 extern int num_skills;
 
@@ -67,5 +66,6 @@ void dsda_InitSkills(void);
 void dsda_TrackGameFlags(void);
 void dsda_RefreshGameSkill(void);
 void dsda_UpdateGameSkill(int skill);
+void dsda_LoadNyanSkill(void);
 
 #endif

@@ -31,7 +31,7 @@
 
 skill_info_t skill_info;
 
-skill_info_t doom_skill_infos[6] = {
+const skill_info_t doom_skill_infos[5] = {
   {
     .ammo_factor = FRACUNIT * 2,
     .damage_factor = FRACUNIT / 2,
@@ -71,6 +71,9 @@ skill_info_t doom_skill_infos[6] = {
     .respawn_time = 12,
     .flags = SI_FAST_MONSTERS | SI_INSTANT_REACTION | SI_MUST_CONFIRM
   },
+};
+
+const doom_mapinfo_skill_t uvplus_skill_info[1] = {
   {
     .spawn_filter = 4,
     .key = 'p',
@@ -185,16 +188,14 @@ void dsda_InitSkills(void) {
   dboolean clear_skills;
   dboolean newskill;
 
-  uvplus = W_LumpNameExists("M_ULTRAP");
-  nyanskill = W_LumpNameExists("NYANSKLL");
-
-  nyan_newskill = newskill = (nyanskill || uvplus) && !raven && !doom_v11 && !started_demo && !netgame && !dsda_UseMapinfo();
-
-  skill_list = doom_v11 ? 4 : newskill ? 6 : 5;
+  // Check for / parse new skill lumps
+  dsda_LoadNyanSkill();
+  newskill = (nyanskill || uvplus);
 
   clear_skills = (doom_mapinfo.num_skills && doom_mapinfo.skills_cleared);
 
-  num_skills = (clear_skills ? 0 : 5) + doom_mapinfo.num_skills + newskill - doom_v11;
+  num_skills = (clear_skills ? 0 : 5) + (int)doom_mapinfo.num_skills + newskill - doom_v11;
+  skill_list = doom_v11 ? 4 : newskill ? 6 : 5;
 
   skill_infos = Z_Calloc(num_skills, sizeof(*skill_infos));
 
@@ -204,8 +205,6 @@ void dsda_InitSkills(void) {
     original_skill_infos = hexen   ? hexen_skill_infos   :
                            heretic ? heretic_skill_infos :
                                      doom_skill_infos;
-
-    if (nyanskill) dsda_LoadNyanSkill();
 
     for (i = 0; i < skill_list; ++i)
       skill_infos[i] = original_skill_infos[i];
@@ -240,6 +239,13 @@ void dsda_InitSkills(void) {
     else
       dsda_CopySkillInfo(i + j, &doom_mapinfo.skills[j]);
   }
+
+  // If not MAPINFO, Get info for new skill
+  if (nyanskill)
+    dsda_CopySkillInfo(5, &nyan_skillinfo[0]);
+  else if (uvplus)
+    dsda_CopySkillInfo(5, &uvplus_skill_info[0]);
+
 }
 
 void dsda_RefreshPistolStart(void)
@@ -316,4 +322,25 @@ void dsda_AlterGameFlags(void)
     return;
 
   dsda_RefreshGameSkill();
+}
+
+void dsda_LoadNyanSkill(void) {
+  int p;
+
+  if (raven || doom_v11 || started_demo || netgame || dsda_UseMapinfo())
+    return;
+
+  if (W_LumpNameExists("M_ULTRAP"))
+    uvplus = true;
+  
+  if (!W_LumpNameExists("NYANSKLL"))
+    return;
+
+  nyanskill = true;
+
+  p = -1;
+  while ((p = W_ListNumFromName("NYANSKLL", p)) >= 0) {
+    const unsigned char* lump = (const unsigned char *) W_LumpByNum(p);
+    dsda_LoadNyanSkillLump(lump, W_LumpLength(p), I_Error);
+  }
 }

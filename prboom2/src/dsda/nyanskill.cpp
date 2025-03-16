@@ -15,7 +15,10 @@
 //  NYAN SKILL
 //
 
-#include <string.h>
+#include <cstring>
+#include <cstdio>
+#include <vector>
+#include <string>
 
 extern "C" {
 #include "d_main.h"
@@ -29,11 +32,10 @@ extern "C" {
 
 #include "scanner.h"
 
+#include "mapinfo/doom/parser.h"
 #include "nyanskill.h"
 
-
-#define STR_DUP(x) { x = Z_Strdup(scanner.string); }
-//#define STR_DUP(x) { Z_Free(x); x = Z_Strdup(scanner.string); }
+static std::vector<doom_mapinfo_skill_t> nyan_skills;
 
 static void dsda_SkipValue(Scanner &scanner) {
   if (scanner.CheckToken('=')) {
@@ -66,6 +68,9 @@ static void dsda_SkipValue(Scanner &scanner) {
   }
 }
 
+#define STR_DUP(x) { Z_Free(x); x = Z_Strdup(scanner.string); }
+#define RESET_STR(x) { Z_Free(x); x = NULL; }
+
 // The scanner drops the sign when scanning, and we need it back
 static void dsda_FloatString(Scanner &scanner, char* &str) {
   if (scanner.decimal >= 0) {
@@ -95,134 +100,126 @@ static void dsda_FloatString(Scanner &scanner, char* &str) {
                                scanner.MustGetFloat(); \
                                dsda_FloatString(scanner, x); }
 
-static void dsda_CopyFactor(fixed_t* dest, const char* source) {
-  // We will compute integers with these,
-  // and common human values (i.e., not powers of 2) are rounded down.
-  // Add 1 (= 1/2^16) to yield expected results.
-  // Otherwise, 0.2 * 15 would be 2 instead of 3.
-
-  if (source)
-    *dest = dsda_StringToFixed(source) + 1;
+static void dsda_FreeSkill(doom_mapinfo_skill_t &skill) {
+  Z_Free(skill.unique_id);
+  Z_Free(skill.ammo_factor);
+  Z_Free(skill.damage_factor);
+  Z_Free(skill.armor_factor);
+  Z_Free(skill.health_factor);
+  Z_Free(skill.monster_health_factor);
+  Z_Free(skill.friend_health_factor);
+  Z_Free(skill.must_confirm);
+  Z_Free(skill.name);
+  Z_Free(skill.pic_name);
+  Z_Free(skill.text_color);
 }
 
-void dsda_ParseNyanSKillLine(Scanner &scanner) {
+static void dsda_ParseNyanSkill(Scanner &scanner) {
+  doom_mapinfo_skill_t skill = { 0 };
+
   scanner.MustGetString();
+  STR_DUP(skill.unique_id);
 
   scanner.MustGetToken('{');
   while (!scanner.CheckToken('}')) {
     scanner.MustGetToken(TK_Identifier);
 
     if (scanner.StringMatch("AmmoFactor")) {
-      char *value;
-      SCAN_FLOAT_STRING(value);
-      dsda_CopyFactor(&doom_skill_infos[5].ammo_factor, value);
+      SCAN_FLOAT_STRING(skill.ammo_factor);
     }
     else if (scanner.StringMatch("DamageFactor")) {
-      char *value;
-      SCAN_FLOAT_STRING(value);
-      dsda_CopyFactor(&doom_skill_infos[5].damage_factor, value);
+      SCAN_FLOAT_STRING(skill.damage_factor);
     }
     else if (scanner.StringMatch("ArmorFactor")) {
-      char *value;
-      SCAN_FLOAT_STRING(value);
-      dsda_CopyFactor(&doom_skill_infos[5].armor_factor, value);
+      SCAN_FLOAT_STRING(skill.armor_factor);
     }
     else if (scanner.StringMatch("HealthFactor")) {
-      char *value;
-      SCAN_FLOAT_STRING(value);
-      dsda_CopyFactor(&doom_skill_infos[5].health_factor, value);
+      SCAN_FLOAT_STRING(skill.health_factor);
     }
     else if (scanner.StringMatch("MonsterHealth")) {
-      char *value;
-      SCAN_FLOAT_STRING(value);
-      dsda_CopyFactor(&doom_skill_infos[5].monster_health_factor, value);
+      SCAN_FLOAT_STRING(skill.monster_health_factor);
     }
     else if (scanner.StringMatch("FriendlyHealth")) {
-      char *value;
-      SCAN_FLOAT_STRING(value);
-      dsda_CopyFactor(&doom_skill_infos[5].friend_health_factor, value);
+      SCAN_FLOAT_STRING(skill.friend_health_factor);
     }
     else if (scanner.StringMatch("RespawnTime")) {
-      SCAN_INT(doom_skill_infos[5].respawn_time);
+      SCAN_INT(skill.respawn_time);
     }
     else if (scanner.StringMatch("SpawnFilter")) {
-      SCAN_INT(doom_skill_infos[5].spawn_filter);
+      SCAN_INT(skill.spawn_filter);
     }
     else if (scanner.StringMatch("Key")) {
       scanner.MustGetToken('=');
       scanner.MustGetString();
-      doom_skill_infos[5].key = tolower(scanner.string[0]);
+      skill.key = tolower(scanner.string[0]);
     }
     else if (scanner.StringMatch("MustConfirm")) {
       if (scanner.CheckToken('=')) {
         scanner.MustGetString();
-        STR_DUP(doom_skill_infos[5].must_confirm);
+        STR_DUP(skill.must_confirm);
       }
 
-      doom_skill_infos[5].flags |= SI_MUST_CONFIRM;
+      skill.flags |= DSI_MUST_CONFIRM;
     }
-    else if (!stricmp(scanner.string, "Name")) {
-      SCAN_STRING(doom_skill_infos[5].name);
+    else if (scanner.StringMatch("Name")) {
+      SCAN_STRING(skill.name);
     }
-    else if (!stricmp(scanner.string, "PicName")) {
-      SCAN_STRING(doom_skill_infos[5].pic_name);
+    else if (scanner.StringMatch("PicName")) {
+      SCAN_STRING(skill.pic_name);
+    }
+    else if (scanner.StringMatch("TextColor")) {
+      SCAN_STRING(skill.text_color);
     }
     else if (scanner.StringMatch("SpawnMulti")) {
-      doom_skill_infos[5].flags |= SI_SPAWN_MULTI;
+      skill.flags |= DSI_SPAWN_MULTI;
     }
     else if (scanner.StringMatch("FastMonsters")) {
-      doom_skill_infos[5].flags |= SI_FAST_MONSTERS;
+      skill.flags |= DSI_FAST_MONSTERS;
     }
     else if (scanner.StringMatch("InstantReaction")) {
-      doom_skill_infos[5].flags |= SI_INSTANT_REACTION;
+      skill.flags |= DSI_INSTANT_REACTION;
     }
     else if (scanner.StringMatch("NoPain")) {
-      doom_skill_infos[5].flags |= SI_NO_PAIN;
+      skill.flags |= DSI_NO_PAIN;
+    }
+    else if (scanner.StringMatch("DefaultSkill")) {
+      skill.flags |= DSI_DEFAULT_SKILL;
     }
     else if (scanner.StringMatch("PlayerRespawn")) {
-      doom_skill_infos[5].flags |= SI_PLAYER_RESPAWN;
+      skill.flags |= DSI_PLAYER_RESPAWN;
     }
     else if (scanner.StringMatch("EasyBossBrain")) {
-      doom_skill_infos[5].flags |= SI_EASY_BOSS_BRAIN;
+      skill.flags |= DSI_EASY_BOSS_BRAIN;
     }
     else {
       dsda_SkipValue(scanner);
     }
   }
+
+  for (auto &old_skill : nyan_skills)
+    if (!stricmp(old_skill.unique_id, skill.unique_id)) {
+      dsda_FreeSkill(old_skill);
+      old_skill = skill;
+
+      return;
+    }
+
+  nyan_skills.push_back(skill);
 }
 
-void dsda_ResetNyanSkill(void)
-{
-  doom_skill_infos[5].key = 'x',
-  doom_skill_infos[5].name = "New Difficulty.",
-  doom_skill_infos[5].pic_name = "M_ULTRA",
-  doom_skill_infos[5].flags = 0;
-}
+doom_mapinfo_skill_t* nyan_skillinfo;
 
-void dsda_LoadNyanSkill(void) {
-  int lump;
-
-  lump = W_CheckNumForName("NYANSKLL");
-
-  if (lump == LUMP_NOT_FOUND)
-    return;
-
-  // Reset New Skill
-  dsda_ResetNyanSkill();
-
-  Scanner scanner((const char*) W_LumpByNum(lump), W_LumpLength(lump));
-
-  scanner.SetErrorCallback(I_Error);
+void dsda_LoadNyanSkillLump(const unsigned char* buffer, size_t length, nyan_skill_errorfunc err) {
+  Scanner scanner((const char*) buffer, length);
+  scanner.SetErrorCallback(err);
 
   while (scanner.TokensLeft())
   {
     scanner.MustGetToken(TK_Identifier);
 
-    if (scanner.StringMatch("skill")) {
-      dsda_ParseNyanSKillLine(scanner);
-    }
-    else {
-      dsda_SkipValue(scanner);
-    }
+    if (scanner.StringMatch("skill"))
+      dsda_ParseNyanSkill(scanner);
   }
+
+  nyan_skillinfo = &nyan_skills[0];
 }

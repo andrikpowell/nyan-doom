@@ -12,17 +12,21 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//  DSDA GAMEINFO
+//  NYAN SKILL
 //
 
-#ifndef __GAMEINFO__
-#define __GAMEINFO__
+#ifndef __NYANSKLL_PARSER__
+#define __NYANSKLL_PARSER__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void dsda_LoadNyanSkill(void);
+extern doom_mapinfo_skill_t* nyan_skillinfo;
+
+typedef void (*nyan_skill_errorfunc)(const char *fmt, ...);	// this must not return!
+
+void dsda_LoadNyanSkillLump(const unsigned char* buffer, size_t length, nyan_skill_errorfunc err);
 
 #ifdef __cplusplus
 }
