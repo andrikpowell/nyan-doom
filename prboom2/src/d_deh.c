@@ -1677,7 +1677,7 @@ int do_baron_blood;
 int do_knight_blood;
 int do_caco_blood;
 
-void deh_InitColoredBlood(void)
+static void deh_InitColoredBlood(void)
 {
   extern byte* edited_mobjinfo_bits;
   #define baron mobjinfo[MT_BRUISER]
@@ -1760,7 +1760,7 @@ int vanilla_armor_bonus = -1;
 #define health_flash states[S_BON1C]
 #define armor_flash states[S_BON2C]
 
-void deh_InitBonusFlash(void)
+static void deh_InitBonusFlash(void)
 {
   extern byte* edited_mobjinfo_bits;
 
