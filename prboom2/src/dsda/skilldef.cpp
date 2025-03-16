@@ -221,8 +221,8 @@ void dsda_LoadSkillDefLump(const unsigned char* buffer, size_t length, skilldef_
       dsda_ParseSkills(scanner);
     }
     else if (scanner.StringMatch("clearskills")) {
-    for (auto &skill : new_skills)
-      dsda_FreeSkill(skill);
+      for (auto &skill : new_skills)
+        dsda_FreeSkill(skill);
       new_skills.clear();
       skilldef_info.skills_cleared = true;
     }

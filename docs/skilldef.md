@@ -6,10 +6,6 @@ It is recommended to only use SKILLDEF in non-UDMF maps, unlike Nyan Doom's MAPI
 
 ## Usage
 
-By default, Nyan Doom will only load SKILLDEF under Doom under Casual settings *(aka not recording or playing back demos).* This is done for compatibility purposes. See the full specification below.
-
-### Skill
-
 **clearskills**
 
 Removes the existing skill levels.
