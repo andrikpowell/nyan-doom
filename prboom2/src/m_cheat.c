@@ -654,10 +654,10 @@ static void cheat_comp(char buf[3])
 
 static void cheat_skill0()
 {
-  if (!hexen || !tc_game)
-    doom_printf("Skill: %i - %s", gameskill + 1, skill_infos[gameskill].name);
-  else
+  if (hexen || tc_game)
     doom_printf("Skill: %i", gameskill + 1);
+  else
+    doom_printf("Skill: %i - %s", gameskill + 1, skill_infos[gameskill].name);
 }
 
 static void cheat_skill(char buf[1])
@@ -667,10 +667,10 @@ static void cheat_skill(char buf[1])
   if (skill >= 1 && skill <= skill_list)
   {
     gameskill = skill - 1;
-    if (!hexen || !tc_game)
-      doom_printf("Next Level Skill: %i - %s", gameskill + 1, skill_infos[gameskill].name);
-    else
+    if (hexen || tc_game)
       doom_printf("Next Level Skill: %i", gameskill + 1);
+    else
+      doom_printf("Next Level Skill: %i - %s", gameskill + 1, skill_infos[gameskill].name);
 
     dsda_UpdateGameSkill(gameskill);
   }
