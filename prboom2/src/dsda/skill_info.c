@@ -198,7 +198,7 @@ void dsda_InitSkills(void) {
 
   num_skills = (clear_skills ? 0 : 5) + (int)mapinfo.num_skills + uvplus - doom_v11;
 
-  original_skill_list = (doom_v11 || uvplus) ? 4 : 5;
+  original_skill_list = doom_v11 ? 4 : 5;
 
   skill_infos = Z_Calloc(num_skills, sizeof(*skill_infos));
 
@@ -213,10 +213,7 @@ void dsda_InitSkills(void) {
       skill_infos[i] = original_skill_infos[i];
 
     if (uvplus)
-    {
-      skill_infos[4] = uvplus_skill_infos[0];
-      skill_infos[5] = doom_skill_infos[4];
-    }
+      skill_infos[5] = uvplus_skill_infos[0];
   }
 
   for (j = 0; j < mapinfo.num_skills; ++j) {
