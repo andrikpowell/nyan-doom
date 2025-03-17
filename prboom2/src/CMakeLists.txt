@@ -220,6 +220,8 @@ set(COMMON_SRC
     dsda/signal_context.h
     dsda/skill_info.c
     dsda/skill_info.h
+    dsda/skilldef.cpp
+    dsda/skilldef.h
     dsda/skip.c
     dsda/skip.h
     dsda/sndinfo.c

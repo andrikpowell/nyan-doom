@@ -141,6 +141,7 @@ dboolean heretic = false;
 dboolean raven = false;
 
 dboolean uvplus = false;
+dboolean skilldef = false;
 
 static void dsda_InitDoom(void) {
   int i;

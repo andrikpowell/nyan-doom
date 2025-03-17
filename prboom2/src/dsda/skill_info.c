@@ -23,6 +23,7 @@
 #include "dsda/configuration.h"
 #include "dsda/mapinfo/doom/parser.h"
 #include "dsda/preferences.h"
+#include "dsda/skilldef.h"
 #include "dsda/text_color.h"
 #include "dsda/utility.h"
 
@@ -191,7 +192,7 @@ void dsda_InitSkills(void) {
   // Check for / parse new skill lumps
   dsda_LoadSkillLump();
 
-  mapinfo = doom_mapinfo;
+  mapinfo = skilldef ? skilldef_info : doom_mapinfo;
 
   clear_skills = (mapinfo.num_skills && mapinfo.skills_cleared);
 
@@ -323,6 +324,8 @@ void dsda_AlterGameFlags(void)
 }
 
 void dsda_LoadSkillLump(void) {
+  int p;
+
   //if (started_demo)
     //return;
 
@@ -331,4 +334,16 @@ void dsda_LoadSkillLump(void) {
 
   if (W_LumpNameExists("M_UVPLUS"))
     uvplus = true;
+
+  if (!W_LumpNameExists("SKILLDEF"))
+    return;
+
+  skilldef = true;
+  uvplus = false;
+
+  p = -1;
+  while ((p = W_ListNumFromName("SKILLDEF", p)) >= 0) {
+    const unsigned char* lump = (const unsigned char *) W_LumpByNum(p);
+    dsda_LoadSkillDefLump(lump, W_LumpLength(p), I_Error);
+  }
 }
