@@ -194,8 +194,6 @@ set(COMMON_SRC
     dsda/music.h
     dsda/name.c
     dsda/name.h
-    dsda/skilldef.cpp
-    dsda/skilldef.h
     dsda/options.c
     dsda/options.h
     dsda/palette.c

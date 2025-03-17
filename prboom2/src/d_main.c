@@ -2211,8 +2211,8 @@ static void D_DoomMainSetup(void)
   dsda_LoadMapInfo();
   dsda_InitSkills();
 
-  if (skilldef || uvplus)
-    lprintf(LO_INFO, "Detected %s lump. %s difficulty enabled.\n", skilldef ? "SKILLDEF" : "M_UVPLUS", skilldef ? "Custom" : "UV Plus");
+  if (uvplus)
+    lprintf(LO_INFO, "Detected M_UVPLUS lump. UV Plus difficulty enabled.\n");
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_DEBUG, "\nP_Init: Init Playloop state.\n");

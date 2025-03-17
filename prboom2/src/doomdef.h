@@ -428,7 +428,6 @@ extern dboolean started_demo;
 
 extern dboolean raven;
 
-extern dboolean skilldef;
 extern dboolean uvplus;
 
 // heretic
