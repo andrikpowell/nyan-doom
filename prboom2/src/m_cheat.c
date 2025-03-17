@@ -683,7 +683,7 @@ static void cheat_skill(char buf[1])
 {
   int skill = buf[0] - '0';
 
-  if (skill >= 1 && skill <= skill_list)
+  if (skill >= 1 && skill <= num_skills)
   {
     gameskill = skill - 1;
 

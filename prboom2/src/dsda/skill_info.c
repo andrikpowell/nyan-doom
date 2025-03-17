@@ -73,12 +73,12 @@ const skill_info_t doom_skill_infos[5] = {
   },
 };
 
-doom_mapinfo_skill_t uvplus_skill_info[] = {
+const skill_info_t uvplus_skill_infos[1] = {
   {
     .spawn_filter = 4,
-    .key = 'p',
-    //.name = "Ultra-Violence Plus.",
-    //.pic_name = "M_UVPLUS",
+    .key = 'u',
+    .name = "Ultra-Violence Plus.",
+    .pic_name = "M_UVPLUS",
     .flags = SI_SPAWN_MULTI
   },
 };
@@ -185,20 +185,20 @@ void dsda_CopySkillInfo(int i, const doom_mapinfo_skill_t* info) {
 void dsda_InitSkills(void) {
   int i = 0;
   int j;
+  int original_skill_list;
   dboolean clear_skills;
-  dboolean newskill;
   doom_mapinfo_t mapinfo;
 
   // Check for / parse new skill lumps
   dsda_LoadSkillDef();
-  newskill = (uvplus && !skilldef);
 
   mapinfo = skilldef ? skilldef_info : doom_mapinfo;
 
   clear_skills = (mapinfo.num_skills && mapinfo.skills_cleared);
 
-  num_skills = (clear_skills ? 0 : 5) + (int)mapinfo.num_skills + newskill - doom_v11;
-  skill_list = doom_v11 ? 4 : newskill ? 6 : 5;
+  num_skills = (clear_skills ? 0 : 5) + (int)mapinfo.num_skills + uvplus - doom_v11;
+
+  original_skill_list = (doom_v11 || uvplus) ? 4 : 5;
 
   skill_infos = Z_Calloc(num_skills, sizeof(*skill_infos));
 
@@ -209,8 +209,14 @@ void dsda_InitSkills(void) {
                            heretic ? heretic_skill_infos :
                                      doom_skill_infos;
 
-    for (i = 0; i < skill_list; ++i)
+    for (i = 0; i < original_skill_list; ++i)
       skill_infos[i] = original_skill_infos[i];
+
+    if (uvplus)
+    {
+      skill_infos[4] = uvplus_skill_infos[0];
+      skill_infos[5] = doom_skill_infos[4];
+    }
   }
 
   for (j = 0; j < mapinfo.num_skills; ++j) {
@@ -242,14 +248,6 @@ void dsda_InitSkills(void) {
     else
       dsda_CopySkillInfo(i + j, &mapinfo.skills[j]);
   }
-
-  if (newskill)
-  {
-    dsda_CopySkillInfo(5, &uvplus_skill_info[0]);
-    skill_infos[5].name = Z_Strdup("Ultra-Violence Plus.");
-    skill_infos[5].pic_name = Z_Strdup("M_UVPLUS");
-  }
-
 }
 
 void dsda_RefreshPistolStart(void)
@@ -344,6 +342,7 @@ void dsda_LoadSkillDef(void) {
     return;
 
   skilldef = true;
+  uvplus = false;
 
   p = -1;
   while ((p = W_ListNumFromName("SKILLDEF", p)) >= 0) {

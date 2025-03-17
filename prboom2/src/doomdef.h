@@ -430,7 +430,6 @@ extern dboolean raven;
 
 extern dboolean skilldef;
 extern dboolean uvplus;
-extern int skill_list;
 
 // heretic
 

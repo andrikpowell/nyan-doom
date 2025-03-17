@@ -142,7 +142,6 @@ dboolean raven = false;
 
 dboolean skilldef = false;
 dboolean uvplus = false;
-int skill_list;
 
 static void dsda_InitDoom(void) {
   int i;
