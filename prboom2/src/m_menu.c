@@ -4426,7 +4426,7 @@ void M_DrawCreditsDynamic(void)     // Dynamic Credits
 
   // force drawing an animated background
   V_DrawNyanBackground(aniflat, 0);
-  M_DrawTitle(91, 6, "NYANLOGO", cr_logo, PACKAGE_NAME " v" PACKAGE_VERSION, cr_title);
+  M_DrawTitle(91, 6, "NYANLOGO", cr_logo, PROJECT_NAME " v" PROJECT_VERSION, cr_title);
   M_DrawTitle(91,25, "NYANNAME", cr_logo, "by Andrik 'Arsinikk' Powell", cr_logo);
   M_DrawScreenItems(cred_settings, 48);
 }

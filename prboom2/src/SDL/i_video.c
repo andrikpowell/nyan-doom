@@ -1163,7 +1163,7 @@ void I_InitScreenResolution(void)
 
 void I_SetWindowCaption(void)
 {
-  SDL_SetWindowTitle(NULL, PACKAGE_NAME " " PACKAGE_VERSION);
+  SDL_SetWindowTitle(NULL, PROJECT_NAME " " PROJECT_VERSION);
 }
 
 //
@@ -1311,7 +1311,7 @@ void I_UpdateVideoMode(void)
     gld_MultisamplingInit();
 
     sdl_window = SDL_CreateWindow(
-      PACKAGE_NAME " " PACKAGE_VERSION,
+      PROJECT_NAME " " PROJECT_VERSION,
       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
       SCREENWIDTH * screen_multiply, ACTUALHEIGHT * screen_multiply,
       init_flags);
@@ -1326,7 +1326,7 @@ void I_UpdateVideoMode(void)
       flags |= SDL_RENDERER_PRESENTVSYNC;
 
     sdl_window = SDL_CreateWindow(
-      PACKAGE_NAME " " PACKAGE_VERSION,
+      PROJECT_NAME " " PROJECT_VERSION,
       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
       SCREENWIDTH * screen_multiply, ACTUALHEIGHT * screen_multiply,
       init_flags);
