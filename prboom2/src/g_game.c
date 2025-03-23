@@ -71,6 +71,7 @@
 #include "p_map.h"
 #include "s_sound.h"
 #include "s_advsound.h"
+#include "s_randommus.h"
 #include "dstrings.h"
 #include "sounds.h"
 #include "r_data.h"
@@ -2256,6 +2257,7 @@ void G_DoWorldDone (void)
   idmusnum = -1;             //jff 3/17/98 allow new level's music to be loaded
   gamestate = GS_LEVEL;
   dsda_UpdateGameMap(wminfo.nextep + 1, wminfo.next + 1);
+  S_ResetRandomMusic(); // Reset Random Music
   G_DoLoadLevel();
   gameaction = ga_nothing;
   AM_clearMarks();           //jff 4/12/98 clear any marks on the automap
@@ -2850,6 +2852,9 @@ void G_DoNewGame (void)
 
   // e6y: allow new level's music to be loaded
   idmusnum = -1;
+
+  // Reset Random Music
+  S_ResetRandomMusic();
 
   G_ReloadDefaults();            // killough 3/1/98
   netgame = solo_net;

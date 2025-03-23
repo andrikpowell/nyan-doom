@@ -47,6 +47,7 @@
 #include "i_sound.h"
 #include "i_system.h"
 #include "d_main.h"
+#include "d_deh.h"
 #include "r_main.h"
 #include "m_random.h"
 #include "w_wad.h"
@@ -701,6 +702,43 @@ void S_ChangeMusic(int musicnum, int looping)
   {
      musinfo.items[0] = music->lumpnum;
      S_music[mus_musinfo].lumpnum = -1;
+  }
+}
+
+void dsda_ChangeMusic(int epsd, int map, dboolean random, dboolean message)
+{
+  int musnum, muslump;
+  char *mapname;
+
+  // if IDMUS00 is pressed, reset to default map music
+  if (!random && (epsd == (gamemode == commercial) ? 1 : 0) && map == 0)
+  {
+    epsd = gameepisode;
+    map = gamemap;
+  }
+
+  idmusnum = -1;
+  dsda_MapMusic(&musnum, &muslump, epsd, map);
+  idmusnum = musnum; //jff 3/17/98 remember idmus number for restore
+
+  mapname = VANILLA_MAP_LUMP_NAME(epsd, map);
+
+  if (W_LumpNameExists(mapname))
+  {
+    if (message) doom_printf("%s: %s", s_STSTR_MUS, mapname);
+
+    if (muslump != -1)
+    {
+      S_ChangeMusInfoMusic(muslump, true);
+    }
+    else if (musnum != -1)
+    {
+      S_ChangeMusic(musnum, 1);
+    }
+  }
+  else
+  {
+    if (message) dsda_AddMessage(s_STSTR_NOMUS);
   }
 }
 

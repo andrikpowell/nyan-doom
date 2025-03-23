@@ -424,6 +424,8 @@ set(COMMON_SRC
     st_stuff.h
     s_advsound.c
     s_advsound.h
+    s_randommus.c
+    s_randommus.h
     s_sound.c
     s_sound.h
     tables.c

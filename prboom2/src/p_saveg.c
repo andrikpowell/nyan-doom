@@ -44,6 +44,7 @@
 #include "p_enemy.h"
 #include "lprintf.h"
 #include "s_advsound.h"
+#include "s_randommus.h"
 #include "e6y.h"//e6y
 
 #include "hexen/a_action.h"
@@ -246,6 +247,10 @@ void P_ArchiveWorld (void)
   }
 
   P_SAVE_X(musinfo.current_item);
+
+  // Save Random Music
+  P_SAVE_X(RandomMusicLoad);
+  P_SAVE_X(CurrentRandomMusic);
 }
 
 
@@ -348,6 +353,12 @@ void P_UnArchiveWorld (void)
   }
 
   P_LOAD_X(musinfo.current_item);
+
+  // Restore Random Music
+  P_LOAD_X(RandomMusicLoad);
+  P_LOAD_X(CurrentRandomMusic);
+  if (dsda_IntConfig(nyan_config_play_random_music))
+    S_GetRandomMusic();
 }
 
 //

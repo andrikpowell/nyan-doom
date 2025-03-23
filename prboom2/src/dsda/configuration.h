@@ -85,6 +85,7 @@ typedef enum {
   nyan_config_skip_default_demos,
   nyan_config_skip_default_text,
   nyan_config_ignore_default_map_names,
+  nyan_config_play_random_music,
   nyan_config_enable_widescreen_lumps,
   nyan_config_enable_animate_lumps,
   nyan_config_boom_credit_help,

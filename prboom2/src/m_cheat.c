@@ -40,6 +40,7 @@
 #include "m_cheat.h"
 #include "s_sound.h"
 #include "s_advsound.h"
+#include "s_randommus.h"
 #include "sounds.h"
 #include "dstrings.h"
 #include "r_main.h"
@@ -278,43 +279,6 @@ cheatseq_t cheat[] = {
 
 //-----------------------------------------------------------------------------
 
-static void dsda_ChangeMusic(int epsd, int map, dboolean random, dboolean message)
-{
-  int musnum, muslump;
-  char *mapname;
-
-  // if IDMUS00 is pressed, reset to default map music
-  if (!random && (epsd == (gamemode == commercial) ? 1 : 0) && map == 0)
-  {
-    epsd = gameepisode;
-    map = gamemap;
-  }
-
-  idmusnum = -1;
-  dsda_MapMusic(&musnum, &muslump, epsd, map);
-  idmusnum = musnum; //jff 3/17/98 remember idmus number for restore
-
-  mapname = VANILLA_MAP_LUMP_NAME(epsd, map);
-
-  if (W_LumpNameExists(mapname))
-  {
-    if (message) doom_printf("%s: %s", s_STSTR_MUS, mapname);
-
-    if (muslump != -1)
-    {
-      S_ChangeMusInfoMusic(muslump, true);
-    }
-    else if (musnum != -1)
-    {
-      S_ChangeMusic(musnum, 1);
-    }
-  }
-  else
-  {
-    if (message) dsda_AddMessage(s_STSTR_NOMUS);
-  }
-}
-
 static void cheat_mus(buf)
 char buf[3];
 {
@@ -340,29 +304,9 @@ char buf[3];
   dsda_ChangeMusic(epsd, map, false, true);
 }
 
-static void M_PlayRandomMusic(dboolean cheat)
-{
-  int epsd = gameepisode;
-  int map = gamemap;
-
-  while (epsd == gameepisode && map == gamemap)
-  {
-    int random_map = S_RandomMusic();
-    epsd = (random_map / 10) % 10;
-    map = (gamemode == commercial) ? random_map : random_map % 10;
-  }
-
-  dsda_ChangeMusic(epsd, map, true, cheat);
-}
-
 static void cheat_musrr(void)
 {
-  M_PlayRandomMusic(true);
-}
-
-void M_RandomMusic(void)
-{
-  M_PlayRandomMusic(false);
+  S_PlayRandomMusic(true);
 }
 
 // 'choppers' invulnerability & chainsaw

@@ -27,6 +27,7 @@
 #include "r_main.h"
 #include "r_segs.h"
 #include "s_sound.h"
+#include "s_randommus.h"
 #include "smooth.h"
 #include "v_video.h"
 #include "z_zone.h"
@@ -142,6 +143,7 @@ void dsda_ResetAirControl(void);
 void dsda_AlterGameFlags(void);
 void dsda_RefreshPistolStart(void);
 void dsda_RefreshAlwaysPistolStart(void);
+void S_ToggleRandomMusic(void);
 
 void dsda_TrackConfigFeatures(void) {
   if (!demorecording)
@@ -477,6 +479,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
    "nyan_ignore_default_map_names", nyan_config_ignore_default_map_names,
    CONF_BOOL(0), NULL, STRICT_INT(0)
   },
+  [nyan_config_play_random_music] = {
+    "nyan_play_random_music", nyan_config_play_random_music,
+    CONF_BOOL(0), NULL, NOT_STRICT, S_ToggleRandomMusic
+   },
   [nyan_config_enable_widescreen_lumps] = {
    "nyan_enable_widescreen_lumps", nyan_config_enable_widescreen_lumps,
    CONF_BOOL(1), NULL, NOT_STRICT, dsda_ReloadNyanLumps

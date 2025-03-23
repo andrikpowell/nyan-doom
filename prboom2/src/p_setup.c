@@ -49,6 +49,7 @@
 #include "p_enemy.h"
 #include "s_sound.h"
 #include "s_advsound.h"
+#include "s_randommus.h"
 #include "st_stuff.h"
 #include "lprintf.h" //jff 10/6/98 for debug outputs
 #include "v_video.h"
@@ -3682,6 +3683,15 @@ void P_SetupLevel(int episode, int map, int playermask, int skill)
 
   // Make sure all sounds are stopped before Z_FreeTag.
   S_Start();
+
+  if (RandomMusicLoad == false)
+  {
+    RandomMusicLoad = true;
+    CurrentRandomMusic = -1;
+  }
+
+  if (dsda_IntConfig(nyan_config_play_random_music) && CurrentRandomMusic == -1)
+    S_LevelLoadRandomMusic();
 
   Z_FreeLevel();
 
