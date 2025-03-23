@@ -33,10 +33,6 @@
 // killough 3/7/98: modified to allow arbitrary listeners in spy mode
 // killough 5/2/98: reindented, removed useless code, beautified
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -742,46 +738,6 @@ void dsda_ChangeMusic(int epsd, int map, dboolean random, dboolean message)
   {
     if (message) dsda_AddMessage(s_STSTR_NOMUS);
   }
-}
-
-int S_RandomMusic(void)
-{
-  static int last_random[6];
-  int epsd, map, random_map, found_map;
-  char *mapname;
-
-  DO_ONCE
-  srand ( time(NULL) );
-  END_ONCE
-
-  found_map = false;
-
-  while (!found_map)
-  {
-    random_map = rand() % 99;
-    epsd = (random_map / 10) % 10;
-    map = (gamemode == commercial) ? random_map : random_map % 10;
-    mapname = VANILLA_MAP_LUMP_NAME(epsd, map);
-
-    if (W_LumpNameExists(mapname))
-    {
-      int already_played = 0;
-
-      for (int i = 0; i < 6; i++)
-        if (random_map == last_random[i])
-          already_played++;
-
-      if (!already_played)
-      {
-        for (int j = 4; j >= 0; j--)
-          last_random[j+1] = last_random[j];
-        last_random[0] = random_map;
-        found_map = true;
-      }
-    }
-  }
-  
-  return random_map;
 }
 
 void S_RestartMusic(void)

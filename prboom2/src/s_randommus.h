@@ -18,11 +18,11 @@
 #ifndef __S_RANDOMMUS__
 #define __S_RANDOMMUS__
 
-#include "sounds.h"
-
 extern dboolean CurrentRandomMusic;
 extern dboolean RandomMusicLoad;
+extern int last_random[6];
 
+extern int S_RandomMusic(void);
 void S_ResetRandomMusic(void);
 void S_PlayRandomMusic(dboolean cheat);
 void S_GetRandomMusic(void);

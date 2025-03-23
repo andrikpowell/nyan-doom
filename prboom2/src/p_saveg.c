@@ -157,6 +157,35 @@ void P_UnArchivePlayers (void)
       }
 }
 
+//
+// P_ArchiveRandomMusic
+//
+void P_ArchiveRandomMusic (void)
+{
+  // Save Random Music
+  P_SAVE_X(RandomMusicLoad);
+  P_SAVE_X(CurrentRandomMusic);
+
+  for (int ii = 0; ii < 6; ii++)
+    P_SAVE_X(last_random[ii]);
+}
+
+//
+// P_UnArchiveRandomMusic
+//
+void P_UnArchiveRandomMusic (void)
+{
+  // Restore Random Music
+  P_LOAD_X(RandomMusicLoad);
+  P_LOAD_X(CurrentRandomMusic);
+
+  for (int ii = 0; ii < 6; ii++)
+    P_LOAD_X(last_random[ii]);
+
+  if (dsda_IntConfig(nyan_config_play_random_music))
+    S_GetRandomMusic();
+}
+
 
 //
 // P_ArchiveWorld
@@ -247,10 +276,7 @@ void P_ArchiveWorld (void)
   }
 
   P_SAVE_X(musinfo.current_item);
-
-  // Save Random Music
-  P_SAVE_X(RandomMusicLoad);
-  P_SAVE_X(CurrentRandomMusic);
+  P_ArchiveRandomMusic();
 }
 
 
@@ -353,12 +379,7 @@ void P_UnArchiveWorld (void)
   }
 
   P_LOAD_X(musinfo.current_item);
-
-  // Restore Random Music
-  P_LOAD_X(RandomMusicLoad);
-  P_LOAD_X(CurrentRandomMusic);
-  if (dsda_IntConfig(nyan_config_play_random_music))
-    S_GetRandomMusic();
+  P_UnArchiveRandomMusic();
 }
 
 //

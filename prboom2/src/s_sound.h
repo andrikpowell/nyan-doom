@@ -94,8 +94,7 @@ void S_StartMusic(int music_id);
 
 // Start music using <music_id> from sounds.h, and set whether looping
 void S_ChangeMusic(int music_id, int looping);
-extern void dsda_ChangeMusic(int epsd, int map, dboolean random, dboolean message);
-extern int S_RandomMusic(void);
+void dsda_ChangeMusic(int epsd, int map, dboolean random, dboolean message);
 void S_ChangeMusInfoMusic(int lumpnum, int looping);
 dboolean S_ChangeMusicByName(const char *name, dboolean looping);
 void S_RestartMusic(void);

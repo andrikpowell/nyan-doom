@@ -15,16 +15,63 @@
 //	NYAN Random Music
 //
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 #include "doomstat.h"
 #include "g_game.h"
 #include "m_misc.h"
 #include "s_sound.h"
+#include "w_wad.h"
 #include "lprintf.h"
+
+#include "dsda/utility.h"
 
 #include "s_randommus.h"
 
 dboolean CurrentRandomMusic;
 dboolean RandomMusicLoad;
+int last_random[6];
+
+int S_RandomMusic(void)
+{
+  int epsd, map, random_map, found_map;
+  char *mapname;
+
+  DO_ONCE
+  srand ( time(NULL) );
+  END_ONCE
+
+  found_map = false;
+
+  while (!found_map)
+  {
+    random_map = rand() % 99;
+    epsd = (random_map / 10) % 10;
+    map = (gamemode == commercial) ? random_map : random_map % 10;
+    mapname = VANILLA_MAP_LUMP_NAME(epsd, map);
+
+    if (W_LumpNameExists(mapname))
+    {
+      int already_played = 0;
+
+      for (int i = 0; i < 6; i++)
+        if (random_map == last_random[i])
+          already_played++;
+
+      if (!already_played)
+      {
+        for (int j = 4; j >= 0; j--)
+          last_random[j+1] = last_random[j];
+        last_random[0] = random_map;
+        found_map = true;
+      }
+    }
+  }
+  
+  return random_map;
+}
 
 void S_ResetRandomMusic(void)
 {
