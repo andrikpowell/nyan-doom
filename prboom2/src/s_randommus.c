@@ -63,16 +63,17 @@ void S_GetRandomMusic(void)
 
 void S_ToggleRandomMusic(void)
 {
-  if (dsda_IntConfig(nyan_config_play_random_music))
-  {
-    S_PlayRandomMusic(false);
-    doom_printf("Playing random music");
-  }
-  else
-  {
-    dsda_ChangeMusic(gameepisode, gamemap, false, false);
-    doom_printf("Playing default music");
-  }
+  if (in_game)
+    if (dsda_IntConfig(nyan_config_play_random_music))
+    {
+      S_PlayRandomMusic(false);
+      doom_printf("Playing random music");
+    }
+    else
+    {
+      dsda_ChangeMusic(gameepisode, gamemap, false, false);
+      doom_printf("Playing default music");
+    }
 }
 
 void S_LevelLoadRandomMusic(void)
