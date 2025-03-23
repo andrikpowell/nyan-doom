@@ -77,7 +77,7 @@ const skill_info_t uvplus_skill_infos[1] = {
     .spawn_filter = 4,
     .key = 'u',
     .name = "Ultra-Violence Plus.",
-    .pic_name = "M_UVPLUS",
+    .pic_name = "NYANSKLG",
     .flags = SI_SPAWN_MULTI
   },
 };
@@ -215,9 +215,9 @@ void dsda_InitSkills(void) {
     {
       skill_infos[5] = uvplus_skill_infos[0];
 
-      if (W_LumpNameExists("NYANSKL6"))
+      if (W_LumpNameExists("NYANSKLM"))
       {
-        skill_infos[5].must_confirm = W_ReadLumpToString(W_GetNumForName("NYANSKL6"));
+        skill_infos[5].must_confirm = W_ReadLumpToString(W_GetNumForName("NYANSKLM"));
         skill_infos[5].flags |= SI_MUST_CONFIRM;
       }
     }
@@ -337,6 +337,6 @@ void dsda_LoadSkillLump(void) {
   if (raven || doom_v11 || netgame || dsda_UseMapinfo())
     return;
 
-  if (W_LumpNameExists("M_UVPLUS"))
+  if (W_LumpNameExists("NYANSKLG"))
     uvplus = true;
 }

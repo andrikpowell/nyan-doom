@@ -2212,7 +2212,7 @@ static void D_DoomMainSetup(void)
   dsda_InitSkills();
 
   if (uvplus)
-    lprintf(LO_INFO, "Detected M_UVPLUS lump. UV Plus difficulty enabled.\n");
+    lprintf(LO_INFO, "Detected NYANSKLG lump. UV Plus difficulty enabled.\n");
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_DEBUG, "\nP_Init: Init Playloop state.\n");
