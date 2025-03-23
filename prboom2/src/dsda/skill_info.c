@@ -212,7 +212,15 @@ void dsda_InitSkills(void) {
       skill_infos[i] = original_skill_infos[i];
 
     if (uvplus)
+    {
       skill_infos[5] = uvplus_skill_infos[0];
+
+      if (W_LumpNameExists("NYANSKL6"))
+      {
+        skill_infos[5].must_confirm = W_ReadLumpToString(W_GetNumForName("NYANSKL6"));
+        skill_infos[5].flags |= SI_MUST_CONFIRM;
+      }
+    }
   }
 
   for (j = 0; j < mapinfo.num_skills; ++j) {
