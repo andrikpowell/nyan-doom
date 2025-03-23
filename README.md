@@ -34,6 +34,13 @@ Nyan Doom is based on the DSDA-Doom source port, but adds many more quality-of-l
 Available for Windows, macOS and Linux in [Releases](https://github.com/andrikpowell/nyan-doom/releases/latest)
 
 <details markdown="1">
+  <summary>Download for Arch Linux</summary>
+  
+  <a href="https://aur.archlinux.org/packages/nyan-doom">https://aur.archlinux.org/packages/nyan-doom</a>
+  
+  > May not be fully up-to-date (unofficial)
+</details>
+<details markdown="1">
   <summary>Dev builds</summary>
   
   <a href="https://github.com/andrikpowell/nyan-doom/actions">https://github.com/andrikpowell/nyan-doom/actions</a>
