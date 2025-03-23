@@ -15,8 +15,8 @@
 //	NYAN Random Music
 //
 
-#ifndef __S_RANDOMMUS__
-#define __S_RANDOMMUS__
+#ifndef __S_RANDOM__
+#define __S_RANDOM__
 
 extern dboolean CurrentRandomMusic;
 extern dboolean RandomMusicLoad;

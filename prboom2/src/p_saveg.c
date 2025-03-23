@@ -44,7 +44,7 @@
 #include "p_enemy.h"
 #include "lprintf.h"
 #include "s_advsound.h"
-#include "s_randommus.h"
+#include "s_random.h"
 #include "e6y.h"//e6y
 
 #include "hexen/a_action.h"

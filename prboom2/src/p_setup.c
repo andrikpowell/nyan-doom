@@ -49,7 +49,7 @@
 #include "p_enemy.h"
 #include "s_sound.h"
 #include "s_advsound.h"
-#include "s_randommus.h"
+#include "s_random.h"
 #include "st_stuff.h"
 #include "lprintf.h" //jff 10/6/98 for debug outputs
 #include "v_video.h"

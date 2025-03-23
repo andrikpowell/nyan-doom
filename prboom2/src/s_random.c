@@ -28,7 +28,7 @@
 
 #include "dsda/utility.h"
 
-#include "s_randommus.h"
+#include "s_random.h"
 
 dboolean CurrentRandomMusic;
 dboolean RandomMusicLoad;

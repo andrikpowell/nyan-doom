@@ -27,7 +27,7 @@
 #include "r_main.h"
 #include "r_segs.h"
 #include "s_sound.h"
-#include "s_randommus.h"
+#include "s_random.h"
 #include "smooth.h"
 #include "v_video.h"
 #include "z_zone.h"

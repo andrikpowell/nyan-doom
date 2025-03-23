@@ -40,7 +40,7 @@
 #include "m_cheat.h"
 #include "s_sound.h"
 #include "s_advsound.h"
-#include "s_randommus.h"
+#include "s_random.h"
 #include "sounds.h"
 #include "dstrings.h"
 #include "r_main.h"

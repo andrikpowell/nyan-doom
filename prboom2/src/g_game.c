@@ -71,7 +71,7 @@
 #include "p_map.h"
 #include "s_sound.h"
 #include "s_advsound.h"
-#include "s_randommus.h"
+#include "s_random.h"
 #include "dstrings.h"
 #include "sounds.h"
 #include "r_data.h"
