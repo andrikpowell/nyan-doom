@@ -1,6 +1,6 @@
 doom ex
 stat_totals 2 8 bottom_left
-status_widget 2 24 bottom_left
+status_widget 2 32 bottom_left
 composite_time 2 16 bottom_left
 free_text 2 24 bottom_left
 tracker 2 32 bottom_left
@@ -54,6 +54,7 @@ secret_message 0 76 none
 add_offset 1 top_left
 
 doom off
+status_widget 2 56 bottom_left
 free_text 2 24 bottom_left
 tracker 2 32 bottom_left
 render_stats 2 8 top_left
@@ -108,6 +109,7 @@ armor_text 52 16 bottom_left
 weapon_text 2 24 bottom_left
 stat_totals 2 32 bottom_left
 composite_time 2 40 bottom_left
+status_widget 2 56 bottom_left
 free_text 2 48 bottom_left
 tracker 2 56 bottom_left
 ammo_text 256 32 bottom_right
