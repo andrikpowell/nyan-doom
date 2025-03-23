@@ -42,6 +42,7 @@
 #endif
 
 #include "doomstat.h"
+#include "g_game.h"
 #include "s_sound.h"
 #include "s_advsound.h"
 #include "i_sound.h"
@@ -62,6 +63,7 @@
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
 #include "dsda/memory.h"
+#include "dsda/messenger.h"
 #include "dsda/music.h"
 #include "dsda/settings.h"
 #include "dsda/sfx.h"
