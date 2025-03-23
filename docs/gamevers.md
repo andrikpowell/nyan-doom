@@ -10,9 +10,9 @@ The order of precedence is highest to lowest: parameter > lump > config. This me
 
 The GAMEVERS lump has two values:
 
-`complvl limit`
+`complvl nolimits`
 
-The `complvl` value defines the specific vanilla complevel, while the `limit` value defines limit-removing or not. The `limit` value can be ommited to run in normal mode.
+The `complvl` value defines the specific vanilla complevel, while the `nolimits` value defines limit-removing or not. The `nolimits` value can be ommited to run in normal mode.
 
 ### complvl
 
@@ -26,17 +26,17 @@ The `complvl` value defines the specific vanilla complevel, while the `limit` va
   - Selects complevel 3, for Ultimate Doom compatibility.
 - `final`
   - Selects complevel 4, for Final Doom (Plutonia, TNT) compatibility.
-- `limit`
+- `nolimits`
   - Allows the port to automatically detect the vanilla complevel, while activating limit-removing.
   - When using this, the second `value` is not needed.
 
 ### limit
 
-- `limit`
+- `nolimits`
   - Runs complevel under [limit-removing](limit_removing.md) mode. Removes overflow errors and emulation. Omit to run in normal mode. (Note this can be overriden by parameters).
 
 ### Examples:
 
 - `1.666` - Selects complevel 1
-- `1.666 limit` - Selects complevel 1, while activating limit-removing
-- `limit` - Auto-selects vanilla complevel, while activating limit-removing 
+- `1.666 nolimits` - Selects complevel 1, while activating limit-removing
+- `nolimits` - Auto-selects vanilla complevel, while activating limit-removing 

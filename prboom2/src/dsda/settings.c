@@ -95,7 +95,7 @@ static int dsda_WadCompatibilityLevel(void) {
               else if (!strncasecmp("final", gdata, 5))
                   complvl = 4;
 
-              if (strstr(gdata, "limit"))
+              if (strstr(gdata, "nolimits") || strstr(gdata, "limit"))
                 limitremoving = true;
             }
             if (complvl == -1) {

@@ -26,8 +26,8 @@ Note that `Boom` / `MBF` / `MBF21` features are ***NOT*** supported when running
 ### Autoload via Lumps
 "Limit-Removing" can also be automatically toggled via lumps placed in a wad. Note that Parameters will overwrite the following lumps.
 - The [`COMPLVL`](complvl.md) lump must use have the value of `vanilla`
-- The [`GAMEVERS`](gamevers.md) lump can then specify an exact complevel, with the value `limit` following after.
-  - A single value of `limit` can also be used, allowing for automatic choosing of the complevel based on the IWAD.
+- The [`GAMEVERS`](gamevers.md) lump can then specify an exact complevel, with the value `nolimits` following after.
+  - A single value of `nolimits` can also be used, allowing for automatic choosing of the complevel based on the IWAD.
 
 ### Final Notes
 Please note that the order of precedence is highest to lowest: parameter > lump > config.
@@ -38,4 +38,4 @@ This means that if a complevel and/or "limit-removing" is (or is not) set throug
 
 If a wad is loaded with the parameters `-complevel 2`, and has `GAMEVERS` (and `COMPLEVEL`) with the value of `final limit`, then the wad will be loaded with complevel 2 without "limit-removing" turned on.
 
-The `final` value for complevel 4 would be ignored for the complevel 2 parameter, and the `limit` value would be ignored since the parameter `-complevel 2` does not specify "limit-removing".
+The `final` value for complevel 4 would be ignored for the complevel 2 parameter, and the `nolimits` value would be ignored since the parameter `-complevel 2` does not specify "limit-removing".
