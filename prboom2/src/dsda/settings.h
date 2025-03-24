@@ -72,6 +72,7 @@ int dsda_AutoKeyFrameDepth(void);
 void dsda_SkipNextWipe(void);
 dboolean dsda_PendingSkipWipe(void);
 dboolean dsda_SkipWipe(void);
+dboolean dsda_MultipleAreaMaps(void);
 
 dboolean dsda_AllowGameController(void);
 dboolean dsda_AllowMouse(void);

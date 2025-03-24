@@ -673,7 +673,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       break;
 
     case SPR_PMAP:
-      if (player->powers[pw_allmap] && allow_incompatibility) // Pickup multiple area maps
+      if (player->powers[pw_allmap] && dsda_MultipleAreaMaps()) // Pickup multiple area maps
       {
         sound = sfx_getpow;
         break;

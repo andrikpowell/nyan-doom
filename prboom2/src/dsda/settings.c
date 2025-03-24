@@ -343,6 +343,10 @@ dboolean dsda_SkipWipe(void) {
   return !dsda_RenderWipeScreen() || hexen;
 }
 
+dboolean dsda_MultipleAreaMaps(void) {
+  return dsda_IntConfig(dsda_config_multiple_area_maps) && !dsda_StrictMode() && allow_incompatibility;
+}
+
 static dboolean game_controller_used;
 static dboolean mouse_used;
 

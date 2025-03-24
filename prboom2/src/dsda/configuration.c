@@ -1164,6 +1164,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_fuzzmode", dsda_config_fuzzmode,
     dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0)
   },
+  [dsda_config_multiple_area_maps] = {
+    "dsda_multiple_area_maps", dsda_config_multiple_area_maps,
+    CONF_BOOL(1), NULL, STRICT_INT(0)
+  },
   [dsda_config_map_blinking_locks] = {
     "map_blinking_locks", dsda_config_map_blinking_locks,
     CONF_BOOL(0), NULL, NOT_STRICT, AM_InitParams
