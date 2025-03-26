@@ -1167,10 +1167,6 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
     return true;
   }
 
-  // Allow player to walk through solid objects in Camera Mode
-  //if (viewplayer->cheats & CF_CAMERA)
-    //return true;
-
   // killough 3/16/98: Allow non-solid moving objects to move through solid
   // ones, by allowing the moving thing (tmthing) to move if it's non-solid,
   // despite another solid thing being in the way.

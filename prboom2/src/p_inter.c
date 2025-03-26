@@ -1891,7 +1891,7 @@ static void Heretic_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
     player = toucher->player;
 
     // Disable picking up items in Camera Mode
-    if (player->cheats & CF_CAMERA)
+    if (dsda_CameraMode())
         return;
 
     switch (special->sprite)
@@ -3187,7 +3187,7 @@ static void Hexen_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
     respawn = true;
 
     // Disable picking up items in Camera Mode
-    if (player->cheats & CF_CAMERA)
+    if (dsda_CameraMode())
         return;
 
     switch (special->sprite)
