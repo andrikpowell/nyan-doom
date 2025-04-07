@@ -1688,7 +1688,7 @@ static automap_style_t AM_wallStyle(int i)
     )
       return ams_locked;
 
-    if (mapcolor_p->exitsecr && (dsda_IsSecretExitLine(i) && !map_format.hexen && !dsda_IsExitLine(i)))
+    if (mapcolor_p->exitsecr && (dsda_IsSecretExitLine(i) && !dsda_IsExitLine(i)))
       return ams_exit_secret;
 
     if (mapcolor_p->exit && (dsda_IsExitLine(i) || dsda_IsSecretExitLine(i)))
