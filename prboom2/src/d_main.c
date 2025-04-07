@@ -127,7 +127,7 @@
 static void D_PageDrawer(void);
 
 char* iwadlump;
-char* doomiwadver;
+char* iwadver;
 
 // jff 1/24/98 add new versions of these variables to remember command line
 dboolean clnomonsters;   // checkparm of -nomonsters
@@ -189,8 +189,26 @@ const char *const standard_iwads[]=
 
   "heretic1.wad"
 };
+
+// list of episode-formatted IWAD names
+const char *const episode_iwads[]=
+{
+  "doom.wad",
+  "doom1.wad",
+  "doomu.wad", /* CPhipps - alow doomu.wad */
+
+  "freedoom1.wad",
+
+  "chex.wad",
+  "rekkrsa.wad",
+
+  "heretic.wad",
+
+  "heretic1.wad"
+};
 //e6y static
 const int nstandard_iwads = sizeof standard_iwads/sizeof*standard_iwads;
+const int nepisode_iwads = sizeof episode_iwads/sizeof*episode_iwads;
 
 /*
  * D_PostEvent - Event handling
@@ -1134,6 +1152,7 @@ static char *FindIWADFile(void)
   int   i;
   dsda_arg_t* arg;
   char  * iwad  = NULL;
+  int iwadnum = EpisodeStructure ? nepisode_iwads : nstandard_iwads;
 
   if (CheckExeSuffix("-heretic"))
   {
@@ -1161,8 +1180,8 @@ static char *FindIWADFile(void)
     if (iwadlump != NULL)
       return I_FindWad(iwadlump);
 
-    for (i=0; !iwad && i<nstandard_iwads; i++)
-      iwad = I_FindWad(standard_iwads[i]);
+    for (i=0; !iwad && i<iwadnum; i++)
+      iwad = EpisodeStructure ? I_FindWad(episode_iwads[i]) : I_FindWad(standard_iwads[i]);
   }
   return iwad;
 }
@@ -1816,15 +1835,16 @@ static void dsda_Loadfiles(void)
 }
 
 //
-// DetectDoomVersion
+// DetectEpisodeStructure
 //
-// If GAMEINFO is not present but Doom 1 maps are found, autoload DOOM 1.
+// If GAMEINFO is not present but Doom 1 maps are found, autoload episode IWAD.
 //
 
-static void dsda_DetectDoomVersion(void)
+static void dsda_DetectEpisodeStructure(void)
 {
   int i, ii;
   char lump[5];
+  char *iwad;
 
   for (i=0;i<10;i++)
   {
@@ -1833,8 +1853,13 @@ static void dsda_DetectDoomVersion(void)
       sprintf(lump, "E%dM%d", i, ii);
       if (W_LumpNameExists(lump))
       {
-        doomiwadver = lump;
-        iwadlump = Z_Strdup("DOOM.WAD");
+        EpisodeStructure = true;
+        iwadver = Z_Strdup(lump);
+        iwad = FindIWADFile();
+
+        if (iwad)
+          iwadlump = Z_Strdup(iwad);
+
         return;
       }
     }
@@ -1881,7 +1906,7 @@ static void IdentifyVersion (void)
 
     // Autodetect Doom 1 maps
     if (iwadlump == NULL)
-      dsda_DetectDoomVersion();
+      dsda_DetectEpisodeStructure();
 
     // Reset lump cache
     dsda_ResetInitLumpCache();
@@ -1895,8 +1920,9 @@ static void IdentifyVersion (void)
       if (!(iwad && *iwad))
       {
         Z_Free(iwadlump);
+        Z_Free(iwadver);
         iwadlump = NULL;
-        doomiwadver = NULL;
+        iwadver = NULL;
       }
     }
   }
@@ -1904,7 +1930,10 @@ static void IdentifyVersion (void)
   // If GAMEINFO/Doom 1 IWAD not found,
   // locate IWAD the traditional way
   if (iwadlump == NULL)
+  {
+    EpisodeStructure = false;
     iwad = FindIWADFile();
+  }
 
   // It is now ok to load dehacked / unzip files
   MainLumpCache = true;
@@ -2079,8 +2108,11 @@ static void D_DoomMainSetup(void)
 
   if (iwadlump != NULL)
   {
-    lprintf(LO_INFO, "Detected %s lump: %s\n", doomiwadver ? doomiwadver : "GAMEINFO", iwadlump);
+    lprintf(LO_INFO, "Detected %s lump: %s\n", iwadver ? iwadver : "GAMEINFO", iwadlump);
     Z_Free(iwadlump);
+
+    if (iwadver)
+      Z_Free(iwadver);
   }
 
   G_ReloadDefaults();

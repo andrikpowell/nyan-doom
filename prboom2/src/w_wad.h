@@ -91,6 +91,7 @@ typedef struct {
 extern wadfile_info_t *wadfiles;
 
 extern int MainLumpCache;
+extern int EpisodeStructure;
 
 extern size_t numwadfiles; // CPhipps - size of the wadfiles array
 
