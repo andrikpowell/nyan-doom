@@ -466,16 +466,18 @@ void ST_LoadTextColors(void)
 
 void ST_SetScaledWidth(void)
 {
-  int width;
+  int width = 320;
 
-  if (Check_Stbar_Animate && animateLumps)
-      width = stbarbg_ani.width;
-  else if (Check_Stbar_Wide && widescreenLumps)
-      width = stbarbg_ws.width;
-  else if (stbar_exists)
-      width = stbarbg.width;
-  else
-      width = 320;
+  // Set stbar width if stbar is found
+  if (!doom_v11 || stbar_exists)
+  {
+    if (Check_Stbar_Animate && animateLumps)
+        width = stbarbg_ani.width;
+    else if (Check_Stbar_Wide && widescreenLumps)
+        width = stbarbg_ws.width;
+    else
+        width = stbarbg.width;
+  }
 
   if (width == 0)
       width = ST_WIDTH;
@@ -509,9 +511,13 @@ static void ST_refreshBackground(void)
   if (st_statusbaron)
     {
       flags = VPT_ALIGN_BOTTOM;
+
+      // Draw Normal stbar if it exists
       if (stbar_exists)
         V_DrawNameNyanPatch(ST_X, y, FG, stbar, CR_DEFAULT, flags);
-      else if (doom_v11) // Draw Doom v1.1 two part statusbar
+
+      // Draw Doom v1.1 two part statusbar (if stbar not found)
+      if (doom_v11 && !stbar_exists)
       {
         V_DrawNamePatch(ST_X, y, FG, "STMBARL", CR_DEFAULT, flags);
         V_DrawNamePatch(ST_ARMSBGX, y, FG, "STMBARR", CR_DEFAULT, flags);

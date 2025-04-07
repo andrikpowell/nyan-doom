@@ -630,8 +630,7 @@ void R_DrawViewBorder(void)
   }
 
   // e6y: wide-res
-  if ((ratio_multiplier != ratio_scale || wide_offsety) &&
-     (R_PartialView() || automap_on))
+  if ((ratio_multiplier != ratio_scale || wide_offsety) && R_StatusBarVisible())
   {
     for (i = (SCREENHEIGHT - ST_SCALED_HEIGHT); i < SCREENHEIGHT; i++)
     {
