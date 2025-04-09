@@ -283,7 +283,6 @@ static void cheat_mus(buf)
 char buf[3];
 {
   int epsd, map;
-  char *mapname;
 
   //jff 3/20/98 note: this cheat allowed in netgame/demorecord
 

@@ -306,8 +306,8 @@ static void M_LevelTable(int);
 static void M_DrawGeneral(void); // killough 10/98
 static void M_DrawKeybnd(void);
 static void M_DrawDisplay(void);
-static void M_DrawNyan(int);
-static void M_DrawGameplay(int);
+static void M_DrawNyan(void);
+static void M_DrawGameplay(void);
 static void M_DrawWeapons(void);
 static void M_DrawAutoMap(void);
 static void M_DrawLevelTable(void);
