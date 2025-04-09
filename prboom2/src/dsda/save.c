@@ -34,6 +34,7 @@
 #include "dsda/music.h"
 #include "dsda/options.h"
 #include "dsda/skill_info.h"
+#include "dsda/settings.h"
 
 #include "save.h"
 
@@ -44,18 +45,17 @@ extern int dsda_max_kill_requirement;
 extern int player_damage_last_tic;
 
 static void dsda_ArchiveInternal(void) {
-  uint64_t features;
-
   P_SAVE_X(dsda_max_kill_requirement);
   P_SAVE_X(player_damage_last_tic);
   dsda_ArchiveGameModifiers();
 
-  features = dsda_UsedFeatures();
-  P_SAVE_X(features);
+  for (int f = 0; f < FEATURE_SLOTS; f++) {
+    P_SAVE_X(dsda_UsedFeatures()[f]);
+  }
 }
 
 static void dsda_UnArchiveInternal(void) {
-  uint64_t features;
+  byte features[FEATURE_SLOTS];
 
   P_LOAD_X(dsda_max_kill_requirement);
   P_LOAD_X(player_damage_last_tic);
@@ -289,6 +289,10 @@ static void dsda_MarkSaveSlotUsed(int slot) {
   }
 
   demo_save_slots[demo_save_slot_count - 1] = slot;
+}
+
+int dsda_AllowAnyMenuSave(void) {
+  return !dsda_StrictMode() || dsda_AllowCasualExCmdFeatures();
 }
 
 int dsda_AllowMenuLoad(int slot) {

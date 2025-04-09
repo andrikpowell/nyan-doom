@@ -27,7 +27,7 @@ extern "C" {
 #include "scanner.h"
 
 #include "gameinfo.h"
-
+    
 void dsda_ParseGameInfoLine(Scanner &scanner) {
 
   if (!scanner.CheckString()) {

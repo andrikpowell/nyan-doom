@@ -66,7 +66,6 @@ lumpinfo_t *lumpinfo;
 int        numlumps;         // killough
 
 int MainLumpCache = false;
-int EpisodeStructure = false;
 
 void ExtractFileBase (const char *path, char *dest)
 {
@@ -501,9 +500,7 @@ void W_Init(void)
 
   if (!numlumps)
   {
-    if (!MainLumpCache)
-      return;
-
+    if (!MainLumpCache) return;
     I_Error ("W_Init: No files found");
   }
 

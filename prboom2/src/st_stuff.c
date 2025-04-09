@@ -763,8 +763,8 @@ static void ST_updateFaceWidget(void)
 
   st_facecount--;
 
-    // [crispy] fix status bar face hysteresis
-    st_faceindex = painoffset + faceindex;
+  // [crispy] fix status bar face hysteresis
+  st_faceindex = painoffset + faceindex;
 }
 
 int sts_traditional_keys; // killough 2/28/98: traditional status bar keys

@@ -368,7 +368,9 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   stretch_param_t *params;
 
   if (cm == CR_DEFAULT)
-    trans = NULL;
+    trans = &colormaps[0][0];
+  else if (cm == CR_DARKEN)
+    trans = &colormaps[0][256 * 15];
   else if (cm < CR_LIMIT)
     trans = colrngs[cm];
   else
@@ -636,13 +638,15 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 // a dark faded background under menus.
 //
 static void FUNC_V_DrawShaded(int scrn, int x, int y, int width, int height, int shade)
-{
+{ 
   const lighttable_t *darkcolormap;
+  extern dboolean LevelUseFullBright;
+  extern const byte* colormap_lump;
   byte* dest;
   int ix, iy;
 
   // Compensate for Hexen FOGMAP
-  darkcolormap = dsda_HexenFadeExists() ? (const lighttable_t *)W_LumpByName("COLORMAP") : colormaps[scrn];
+  darkcolormap = (hexen && !LevelUseFullBright) ? (const lighttable_t *)colormap_lump : colormaps[scrn];
 
   for (iy = y; iy < y + height; ++iy)
   {
@@ -651,7 +655,7 @@ static void FUNC_V_DrawShaded(int scrn, int x, int y, int width, int height, int
     for (ix = x; ix < x + width; ++ix)
     {
       *dest = darkcolormap[shade * 256 + dest[scrn]];
-      ++dest;
+      dest++;
     }
   }
 }
@@ -1265,7 +1269,7 @@ void SetRatio(int width, int height)
   // The terms storage aspect ratio, pixel aspect ratio, and display aspect
   // ratio came from Wikipedia.  SAR x PAR = DAR
   lprintf(LO_DEBUG, "SetRatio: storage aspect ratio %u:%u\n", ratio_multiplier, ratio_scale);
-  if (height == 200 || height == 400)
+  if (height == 200 || height == 400 || !dsda_IntConfig(dsda_config_aspect_ratio_correction))
   {
     lprintf(LO_DEBUG, "SetRatio: recognized VGA mode with pixel aspect ratio 5:6\n");
     ratio_multiplier = width * 5;

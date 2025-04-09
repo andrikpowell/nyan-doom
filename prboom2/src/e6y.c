@@ -85,6 +85,7 @@
 #include "m_file.h"
 
 #include "dsda/args.h"
+#include "dsda/excmd.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
 #include "dsda/playback.h"
@@ -281,7 +282,7 @@ void M_ChangeSkyMode(void)
   gl_skymode = dsda_IntConfig(dsda_config_gl_skymode);
 
   if (gl_skymode == skytype_auto)
-    gl_drawskys = (dsda_MouseLook() ? skytype_skydome : skytype_standard);
+    gl_drawskys = (dsda_FreeAim() ? skytype_skydome : skytype_standard);
   else
     gl_drawskys = gl_skymode;
 }
@@ -775,9 +776,9 @@ int HU_DrawDemoProgress(int force)
 
   prev_len = len;
 
-  V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, playpal_white);
+  V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, playpal_lightest);
   if (len > 4)
-    V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, playpal_black);
+    V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, playpal_darkest);
 
   return true;
 }

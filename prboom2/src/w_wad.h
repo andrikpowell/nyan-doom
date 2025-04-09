@@ -95,6 +95,8 @@ extern int EpisodeStructure;
 
 extern size_t numwadfiles; // CPhipps - size of the wadfiles array
 
+extern int MainLumpCache;
+
 void W_Init(void); // CPhipps - uses the above array
 void W_InitCache(void);
 void W_DoneCache(void);

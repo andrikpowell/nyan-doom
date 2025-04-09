@@ -43,7 +43,7 @@ typedef struct {
   byte* footer;
   size_t demo_size;
   size_t footer_size;
-  uint64_t features;
+  byte features[FEATURE_SLOTS];
   int is_signed;
 } exdemo_t;
 
@@ -403,26 +403,46 @@ void dsda_MergeExDemoFeatures(void) {
 static void DemoEx_GetFeatures(const wadinfo_t* header) {
   char* str;
   char signature[33];
+  char ftext[2 * FEATURE_SLOTS + 1];
+  int ftext_start = 0;
+  int ftext_end = 0;
 
   exdemo.is_signed = 0;
-  exdemo.features = 0;
+  for (int f = 0; f < FEATURE_SLOTS; f++) {
+    exdemo.features[f] = 0;
+  }
 
   str = DemoEx_LumpAsString(DEMOEX_FEATURE_LUMPNAME, header);
   if (!str)
     return;
 
-  if (sscanf(str, "%*[^\n]\n%" PRIx64 "-%32s", &exdemo.features, signature) == 2) {
-    byte features[FEATURE_SIZE];
+  if (sscanf(str, "%*[^\n]\n0x%n%[^-]%n-%32s", &ftext_start, ftext, &ftext_end, signature) == 2) {
     dsda_cksum_t cksum;
+    int ftext_slots = (ftext_end - ftext_start) / 2;
+    byte *features;
+    int i;
 
-    dsda_CopyFeatures2(features, exdemo.features);
+    features = Z_Calloc(ftext_slots, sizeof(byte));
 
-    dsda_GetDemoCheckSum(&cksum, features, exdemo.demo, exdemo.demo_size);
+    for (i = 0; i < ftext_slots; i++) {
+      char current_text[3];
+      strncpy(current_text, ftext + i * 2, 2);
+      current_text[2] = '\0';
+      features[ftext_slots - i - 1] = strtol(current_text, NULL, 16);
+
+      // Add it to the padded features as well
+      if (i < FEATURE_SLOTS)
+        exdemo.features[FEATURE_SLOTS - i - 1] = features[ftext_slots - i - 1];
+    }
+
+    dsda_GetDemoCheckSum(&cksum, features, ftext_slots, exdemo.demo, exdemo.demo_size);
 
     if (!strcmp(signature, cksum.string))
       exdemo.is_signed = 1;
     else
       exdemo.is_signed = -1;
+
+    Z_Free(features);
   }
   else
     exdemo.is_signed = -1;
@@ -435,17 +455,27 @@ static void DemoEx_AddFeatures(wadtbl_t* wadtbl) {
   char* description;
   byte* buffer;
   size_t buffer_length;
-  uint64_t features;
+  byte *features;
+  char current_feature[3];
 
   dsda_GetDemoRecordingCheckSum(&cksum);
   description = dsda_DescribeFeatures();
   features = dsda_UsedFeatures();
 
-  // 18 for 64 bits in hex + \n + \0 + \- + extra space :^)
-  buffer_length = strlen(cksum.string) + strlen(description) + 24;
+  // (2 + 2 * FEATURE_SLOTS) for the bitmap size in hex + \n + \0 + \- + extra space :^)
+  buffer_length = strlen(cksum.string) + strlen(description) + 8 + 2 * FEATURE_SLOTS;
   buffer = Z_Calloc(buffer_length, 1);
 
-  snprintf(buffer, buffer_length, "%s\n0x%016" PRIx64 "-%s", description, features, cksum.string);
+  strcpy(buffer, description);
+  strcat(buffer, "\n0x");
+
+  for (int f = 0; f < FEATURE_SLOTS; f++) {
+    snprintf(current_feature, 3, "%02" PRIx8, features[FEATURE_SLOTS - f - 1]);
+    strncat(buffer, current_feature, 2);
+  }
+
+  strcat(buffer, "-");
+  strcat(buffer, cksum.string);
 
   AddPWADTableLump(wadtbl, DEMOEX_FEATURE_LUMPNAME, buffer, buffer_length);
 

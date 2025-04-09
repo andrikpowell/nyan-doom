@@ -281,6 +281,9 @@ void dsda_WadStatsExitMap(int missed_monsters) {
       if (current_map_stats->best_skill < best_normal_skill) {
         current_map_stats->best_time = -1;
         current_map_stats->best_max_time = -1;
+        current_map_stats->best_kills = 0;
+        current_map_stats->best_items = 0;
+        current_map_stats->best_secrets = 0;
       }
 
       current_map_stats->best_skill = skill;

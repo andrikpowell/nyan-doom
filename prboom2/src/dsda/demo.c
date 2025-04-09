@@ -290,7 +290,7 @@ void dsda_InitDemoRecording(void) {
 
   // Key settings revert when starting a new attempt
   dsda_RevertIntConfig(dsda_config_vertmouse);
-  dsda_RevertIntConfig(dsda_config_strict_mode);
+  dsda_SetTas(dsda_Flag(dsda_arg_tas) || dsda_Flag(dsda_arg_build) || dsda_Flag(dsda_arg_dsdademo));
 
   // prboom+ has already cached its settings (with demorecording == false)
   // we need to reset things here to satisfy strict mode
@@ -448,14 +448,14 @@ const byte* dsda_EvaluateDemoStartPoint(const byte* demo_p) {
   return demo_p;
 }
 
-void dsda_GetDemoCheckSum(dsda_cksum_t* cksum, byte* features, byte* demo, size_t demo_size) {
+void dsda_GetDemoCheckSum(dsda_cksum_t* cksum, byte* features, size_t feature_slots, byte* demo, size_t demo_size) {
   struct MD5Context md5;
 
   MD5Init(&md5);
 
   MD5Update(&md5, demo, demo_size);
 
-  MD5Update(&md5, features, FEATURE_SIZE);
+  MD5Update(&md5, features, feature_slots);
 
   MD5Final(cksum->bytes, &md5);
 
@@ -463,11 +463,11 @@ void dsda_GetDemoCheckSum(dsda_cksum_t* cksum, byte* features, byte* demo, size_
 }
 
 void dsda_GetDemoRecordingCheckSum(dsda_cksum_t* cksum) {
-  byte features[FEATURE_SIZE];
+  byte features[FEATURE_SLOTS];
 
   dsda_CopyFeatures(features);
 
-  dsda_GetDemoCheckSum(cksum, features, dsda_demo_write_buffer, dsda_DemoBufferOffset());
+  dsda_GetDemoCheckSum(cksum, features, FEATURE_SLOTS, dsda_demo_write_buffer, dsda_DemoBufferOffset());
 }
 
 static int dsda_ExportDemoToFile(const char* demo_name) {

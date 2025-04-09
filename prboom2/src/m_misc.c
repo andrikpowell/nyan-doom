@@ -161,6 +161,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_fps_limit),
   MIGRATED_SETTING(dsda_config_background_fps_limit),
   MIGRATED_SETTING(dsda_config_sdl_video_window_pos),
+  MIGRATED_SETTING(dsda_config_sdl_video_display_index),
   MIGRATED_SETTING(dsda_config_palette_ondamage),
   MIGRATED_SETTING(dsda_config_palette_onbonus),
   MIGRATED_SETTING(dsda_config_palette_onpowers),
@@ -176,6 +177,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_render_patches_scaley),
   MIGRATED_SETTING(dsda_config_render_stretchsky),
   MIGRATED_SETTING(dsda_config_render_linearsky),
+  MIGRATED_SETTING(dsda_config_aspect_ratio_correction),
   MIGRATED_SETTING(dsda_config_freelook),
 
   SETTING_HEADING("OpenGL settings"),
@@ -288,7 +290,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_hudadd_crosshair_lock_target),
 
   SETTING_HEADING("DSDA-Doom settings"),
-  MIGRATED_SETTING(dsda_config_strict_mode),
+  // MIGRATED_SETTING(dsda_config_strict_mode), Do not persist
   MIGRATED_SETTING(dsda_config_cycle_ghost_colors),
   MIGRATED_SETTING(dsda_config_auto_key_frame_interval),
   MIGRATED_SETTING(dsda_config_auto_key_frame_depth),

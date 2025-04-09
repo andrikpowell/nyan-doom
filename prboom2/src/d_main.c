@@ -128,6 +128,7 @@ static void D_PageDrawer(void);
 
 char* iwadlump;
 char* iwadver;
+int EpisodeStructure = false;
 
 // jff 1/24/98 add new versions of these variables to remember command line
 dboolean clnomonsters;   // checkparm of -nomonsters
@@ -206,6 +207,7 @@ const char *const episode_iwads[]=
 
   "heretic1.wad"
 };
+
 //e6y static
 const int nstandard_iwads = sizeof standard_iwads/sizeof*standard_iwads;
 const int nepisode_iwads = sizeof episode_iwads/sizeof*episode_iwads;
@@ -1436,7 +1438,7 @@ static void D_AddZip(const char* zipped_file_name, wad_source_t source, deh_queu
 
   LoadWADsAtPath(temporary_directory, source);
   if (MainLumpCache)
-    LoadDehackedFilesAtPath(temporary_directory, true, deh_queue);
+     LoadDehackedFilesAtPath(temporary_directory, true, deh_queue);
 
   Z_Free(full_zip_path);
 }
@@ -1813,9 +1815,9 @@ static void dsda_Loadfiles(void)
       else if (dsda_HasFileExt(file_name, ".zip"))
       {
         if (dsda_Arg(dsda_arg_iwad)->found)
-          D_AddZip(file_name, source_pwad, NULL);
-        else
-          MainLumpCache ? D_AddUnzippedFile(file_name, source_pwad, NULL) : D_AddZip(file_name, source_pwad, NULL);
+           D_AddZip(file_name, source_pwad, NULL);
+         else
+           MainLumpCache ? D_AddUnzippedFile(file_name, source_pwad, NULL) : D_AddZip(file_name, source_pwad, NULL);
       }
       else if (dsda_HasFileExt(file_name, ".wad") || dsda_HasFileExt(file_name, ".lmp"))
       {
@@ -1927,7 +1929,7 @@ static void IdentifyVersion (void)
     }
   }
 
-  // If GAMEINFO/Doom 1 IWAD not found,
+  // If GAMEINFO / Episode IWAD not found,
   // locate IWAD the traditional way
   if (iwadlump == NULL)
   {
