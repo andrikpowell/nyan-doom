@@ -65,9 +65,8 @@ static const char* feature_names[FEATURE_SIZE] = {
   [uf_mouse_and_controller] = "Mouse and Controller",
   [uf_ghost] = "Ghost",
   [uf_advanced_map] = "Advanced Map",
-
-  [uf_blink_keys] = "Blinking Keys",
-  [uf_fuzz] = "Alternate Fuzz",
+  [uf_blink_keys] = "Blinking Keys", //Nyan-only
+  [uf_fuzz] = "Alternate Fuzz", //Nyan-only
 };
 
 void dsda_TrackFeature(int feature) {

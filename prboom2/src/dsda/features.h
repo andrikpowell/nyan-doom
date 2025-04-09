@@ -83,11 +83,9 @@ typedef enum {
   uf_mouse_and_controller,
   uf_ghost,
   uf_advanced_map,
-  // 63
-
-  uf_blink_keys = 64,
+  uf_blink_keys,
   uf_fuzz,
-  // 66
+  // 65
   //
   // 127
 } dsda_feature_flag_t;
