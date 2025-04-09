@@ -34,7 +34,7 @@ endif()
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(X_VCPKG_APPLOCAL_DEPS_INSTALL TRUE)
 
-project("nyan-doom" VERSION 1.2.4)
+project("nyan-doom" VERSION 1.2.5)
 
 # Set a default build type if none was specified
 set(default_build_type "RelWithDebInfo")
