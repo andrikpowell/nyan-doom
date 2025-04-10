@@ -3808,7 +3808,7 @@ static void M_BuildLevelTable(void)
     if (map->best_skill) {
       dsda_StringPrintF(&m_text, "%d", map->best_skill);
       entry->m_text = m_text.string;
-      if (map->best_skill == 5)
+      if (map->best_skill == num_skills - uvplus)
         entry->m_flags |= S_TC_SEL;
     }
     else {
@@ -3826,7 +3826,7 @@ static void M_BuildLevelTable(void)
     if (map->best_skill) {
       dsda_StringPrintF(&m_text, "%d/%d", map->best_kills, map->max_kills);
       entry->m_text = m_text.string;
-      if (map->best_kills == map->max_kills)
+      if (map->best_kills >= map->max_kills)
         entry->m_flags |= S_TC_SEL;
     }
     else {
@@ -3844,7 +3844,7 @@ static void M_BuildLevelTable(void)
     if (map->best_skill) {
       dsda_StringPrintF(&m_text, "%d/%d", map->best_items, map->max_items);
       entry->m_text = m_text.string;
-      if (map->best_items == map->max_items)
+      if (map->best_items >= map->max_items)
         entry->m_flags |= S_TC_SEL;
     }
     else {
@@ -3862,7 +3862,7 @@ static void M_BuildLevelTable(void)
     if (map->best_skill) {
       dsda_StringPrintF(&m_text, "%d/%d", map->best_secrets, map->max_secrets);
       entry->m_text = m_text.string;
-      if (map->best_secrets == map->max_secrets)
+      if (map->best_secrets >= map->max_secrets)
         entry->m_flags |= S_TC_SEL;
     }
     else {
