@@ -17,6 +17,7 @@
 
 #include "doomstat.h"
 #include "w_wad.h"
+#include "m_menu.h"
 #include "v_video.h"
 #include "s_sound.h"
 #include "sounds.h"
