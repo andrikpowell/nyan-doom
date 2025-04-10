@@ -176,6 +176,9 @@ void M_DrawDelVerify(void);
 void M_ChangeMessages(void);
 void M_ResetBoomHelp(void);
 
+void M_LeaveSetupMenu(void);
+void M_ClearMenus(void);
+
 extern dboolean delete_verify;
 
 dboolean M_ConsoleOpen(void);

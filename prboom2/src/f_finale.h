@@ -55,6 +55,4 @@ void F_StartPostFinale (void);
 void F_BunnyLumpSetup(void);
 void F_BunnyApplyWidth(void);
 
-dboolean F_BlockingInput(void);
-
 #endif
