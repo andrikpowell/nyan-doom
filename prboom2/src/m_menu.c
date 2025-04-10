@@ -3108,7 +3108,7 @@ setup_menu_t gen_audio_settings[] = {
   { "Mute When Out of Focus", S_YESNO, m_conf, G_X, dsda_config_mute_unfocused_window },
   EMPTY_LINE,
   { "Number of Sound Channels", S_NUM, m_conf, G_X, dsda_config_snd_channels },
-  { "Limit Overlapping for Same-Sound", S_NUM, m_conf, G_X, dsda_config_parallel_sfx_active },
+  { "Limit Overlapping for Same-Sound", S_YESNO, m_conf, G_X, dsda_config_parallel_sfx_active },
   { "Number of Overlapping Sounds", S_NUM, m_conf, G_X, dsda_config_parallel_sfx_limit },
   { "Sound Replay Window (Tics)", S_NUM, m_conf, G_X, dsda_config_parallel_sfx_window },
   EMPTY_LINE,
