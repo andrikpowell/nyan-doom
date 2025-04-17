@@ -31,6 +31,7 @@
  *  Sliders and icons. Kinda widget stuff.
  *  Setup Menus.
  *  Extended HELP screens.
+ *  Dynamic HELP screen.
  *
  *-----------------------------------------------------------------------------*/
 
@@ -275,6 +276,7 @@ static void M_DrawHelp (void);                                     // phares 5/0
 static void M_DrawAd(void);
 
 static void M_DrawCreditsDynamic(void);
+static void M_DrawHelpDynamic(void);
 static void M_DrawSaveLoadBorder(int x,int y);
 static void M_DrawThermo(int x,int y,int thermWidth,int thermRange,int thermDot);
 static void M_DrawEmptyCell(menu_t *menu,int item);
@@ -329,6 +331,7 @@ void M_ChangeApplyPalette(void);
 
 menu_t SkillDef;                                              // phares 5/04/98
 
+dboolean help2_check;
 dboolean dynamic_screens;
 
 // end of prototypes added to support Setup Menus and Extended HELP screens
@@ -593,7 +596,7 @@ static void M_DrawReadThis1(void)
 {
   inhelpscreens = true;
   // Arsinikk - allows use of HELP2 screen for PWADs under DOOM 1
-  if (pwad_help2_check || gamemode == shareware)
+  if (help2_check || gamemode == shareware)
     M_DrawAd();
   else
     M_DrawCredits();
@@ -4225,12 +4228,12 @@ static void M_InitExtendedHelp(void)
             if (raven) {
               ExtHelpDef.prevMenu  = &InfoDef4; /* previous menu */
               InfoMenu4[0].routine = M_ExtHelp;
-            } else if (gamemode == shareware || pwad_help2_check) {
-              ExtHelpDef.prevMenu  = &ReadDef2; /* previous menu */
-              ReadMenu2[0].routine = M_ExtHelp;
-            } else {
+            } else if (gamemode == commercial || !help2_check) {
               ExtHelpDef.prevMenu  = &ReadDef1; /* previous menu */
               ReadMenu1[0].routine = M_ExtHelp;
+            } else {
+              ExtHelpDef.prevMenu  = &ReadDef2; /* previous menu */
+              ReadMenu2[0].routine = M_ExtHelp;
             }
         }
         return;
@@ -4266,6 +4269,20 @@ static void M_DrawExtHelp(void)
 // End of Extended HELP screens               // phares 3/30/98
 //
 ////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////
+//
+// Dynamic HELP screen                     // phares 3/2/98
+//
+// Rather than providing the static HELP screens from DOOM and its versions,
+// BOOM provides the player with a dynamic HELP screen that displays the
+// current settings of major key bindings.
+//
+// The Dynamic HELP screen is defined in a manner similar to that used for
+// the Setup Screens above.
+//
+// M_GetKeyString finds the correct string to represent the key binding
+// for the current item being drawn.
 
 static int M_GetKeyString(int c,int offset)
 {
@@ -4351,6 +4368,77 @@ static int M_GetKeyString(int c,int offset)
   return offset;
 }
 
+//
+// The Dynamic HELP screen table.
+
+#define KT_X1 283
+#define KT_X2 172
+#define KT_X3  87
+
+setup_menu_t helpstrings[] =  // HELP screen strings
+{
+  {"SCREEN"      ,S_SKIP|S_TITLE,m_null,KT_X1},
+  {"HELP"        ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_help},
+  {"MENU"        ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_escape},
+  {"PAUSE"       ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_pause},
+  {"AUTOMAP"     ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_map},
+  {"SOUND VOLUME",S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_soundvolume},
+  {"HUD"         ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_hud},
+  {"MESSAGES"    ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_messages},
+  {"GAMMA FIX"   ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_gamma},
+  {"SPY"         ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_spy},
+  {"LARGER VIEW" ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_zoomin},
+  {"SMALLER VIEW",S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_zoomout},
+  {"SCREENSHOT"  ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_screenshot},
+  EMPTY_LINE,
+  {"AUTOMAP"     ,S_SKIP|S_TITLE,m_null,KT_X1},
+  {"FOLLOW MODE" ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_map_follow},
+  {"ZOOM IN"     ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_map_zoomin},
+  {"ZOOM OUT"    ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_map_zoomout},
+  {"MARK PLACE"  ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_map_mark},
+  {"CLEAR LAST MARK",S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_map_clear},
+  {"FULL/ZOOM"   ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_map_gobig},
+  {"GRID"        ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_map_grid},
+  {"ROTATE"      ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_map_rotate},
+  {"OVERLAY"     ,S_SKIP|S_INPUT,m_null,KT_X1,0,dsda_input_map_overlay},
+  NEW_COLUMN,
+  {"WEAPONS"     ,S_SKIP|S_TITLE,m_null,KT_X3},
+  {"FIST"        ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_weapon1},
+  {"PISTOL"      ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_weapon2},
+  {"SHOTGUN"     ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_weapon3},
+  {"CHAINGUN"    ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_weapon4},
+  {"ROCKET"      ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_weapon5},
+  {"PLASMA"      ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_weapon6},
+  {"BFG 9000"    ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_weapon7},
+  {"CHAINSAW"    ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_weapon8},
+  {"SSG"         ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_weapon9},
+  {"BEST"        ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_toggleweapon},
+  {"FIRE"        ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_fire},
+  EMPTY_LINE,
+  {"MOVEMENT"    ,S_SKIP|S_TITLE,m_null,KT_X3},
+  {"FORWARD"     ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_forward},
+  {"BACKWARD"    ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_backward},
+  {"TURN LEFT"   ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_turnleft},
+  {"TURN RIGHT"  ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_turnright},
+  {"RUN"         ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_speed},
+  {"STRAFE LEFT" ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_strafeleft},
+  {"STRAFE RIGHT",S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_straferight},
+  {"STRAFE"      ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_strafe},
+  {"AUTORUN"     ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_autorun},
+  {"180 TURN"    ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_reverse},
+  {"USE"         ,S_SKIP|S_INPUT,m_null,KT_X3,0,dsda_input_use},
+  NEW_COLUMN,
+  {"GAME"        ,S_SKIP|S_TITLE,m_null,KT_X2},
+  {"SAVE"        ,S_SKIP|S_INPUT,m_null,KT_X2,0,dsda_input_savegame},
+  {"LOAD"        ,S_SKIP|S_INPUT,m_null,KT_X2,0,dsda_input_loadgame},
+  {"QUICKSAVE"   ,S_SKIP|S_INPUT,m_null,KT_X2,0,dsda_input_quicksave},
+  {"END GAME"    ,S_SKIP|S_INPUT,m_null,KT_X2,0,dsda_input_endgame},
+  {"QUICKLOAD"   ,S_SKIP|S_INPUT,m_null,KT_X2,0,dsda_input_quickload},
+  {"QUIT"        ,S_SKIP|S_INPUT,m_null,KT_X2,0,dsda_input_quit},
+
+  FINAL_ENTRY
+};
+
 /* cph 2006/08/06
  * M_DrawString() is the old M_DrawMenuString, except that it is not tied to
  * menu_buffer - no reason to force all the callers to write into one array! */
@@ -4435,7 +4523,7 @@ static void M_DrawHelp (void)
       V_DrawNameNyanPatch(0, 0, 0, helplump, CR_DEFAULT, VPT_STRETCH);
   else
   {
-    M_DrawCreditsDynamic();
+    M_DrawHelpDynamic();
   }
 }
 
@@ -4450,10 +4538,15 @@ static void M_DrawAd (void)
 
   V_ClearBorder();
   if (pwad_help2_check || gamemode == shareware)
-    V_DrawNameNyanPatch(0, 0, 0, help2, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNameNyanPatch(0, 0, 0, help2, CR_DEFAULT, VPT_STRETCH);
   else
     M_DrawCredits();
 }
+
+//
+// End of Dynamic HELP screen                // phares 3/2/98
+//
+////////////////////////////////////////////////////////////////////////////
 
 #define CR_X 20
 #define CR_X2 50
@@ -4499,6 +4592,15 @@ void M_DrawCreditsDynamic(void)     // Dynamic Credits
   M_DrawTitleImage(91, 6, "NYANLOGO", PROJECT_NAME " v" PROJECT_VERSION, cr_logo);
   M_DrawTitleImage(91, 25, "NYANNAME", "by Andrik 'Arsinikk' Powell", cr_logo);
   M_DrawScreenItems(cred_settings, 48);
+}
+
+void M_DrawHelpDynamic(void)     // Dynamic Credits
+{
+  inhelpscreens = true;
+
+  // force drawing an animated background
+  V_DrawNyanBackground(aniflat, 0);
+  M_DrawScreenItems(helpstrings, 2);
 }
 
 static int M_IndexInChoices(const char *str, const char **choices) {
@@ -6557,6 +6659,27 @@ static void M_DrawTitleImage(int x, int y, const char *patch, const char *text, 
 // Initialization Routines to take care of one-time setup
 //
 
+// phares 4/08/98:
+// M_InitHelpScreen() clears the weapons from the HELP
+// screen that don't exist in this version of the game.
+
+static void M_InitHelpScreen(void)
+{
+  setup_menu_t* src;
+
+  for (src = helpstrings; !(src->m_flags & S_END); src++) {
+    if (!src->m_text)
+      continue;
+
+    if ((strncmp(src->m_text,"PLASMA",6) == 0) && (gamemode == shareware))
+      src->m_flags = S_SKIP; // Don't show setting or item
+    if ((strncmp(src->m_text,"BFG",3) == 0) && (gamemode == shareware))
+      src->m_flags = S_SKIP; // Don't show setting or item
+    if ((strncmp(src->m_text,"SSG",3) == 0) && (gamemode != commercial))
+      src->m_flags = S_SKIP; // Don't show setting or item
+  }
+}
+
   // Arsinikk - This is where we will make changes
   // to the HELP and Read Me routines.
   //
@@ -6565,57 +6688,81 @@ static void M_DrawTitleImage(int x, int y, const char *patch, const char *text, 
   //
   // Note that these change based on certain factors:
   // - Which doom version
+  // - Whether dynamic boom screens are active (config)
   // - Whether extended help screens are detected
   // - Whether running Doom 1 under complevel 2 with HELP2
   //
 
 void M_ResetBoomHelp(void)
 {
-  if (raven) return;
-
+  const char* helpscreen = (gamemode == commercial) ? help0 : help1;
+  int PWAD_help = W_PWADLumpNameExists(helpscreen);
   dynamic_screens = dsda_IntConfig(nyan_config_boom_credit_help) && !tc_game && !doom_v11;
+  help2_check = pwad_help2_check || iwad_help2_check;
+
+  if(raven) return;
 
   // Doom II menu setup
-  if (gamemode == commercial) {
-    // This is used because DOOM 2 had only one HELP
-    // page. I use CREDIT as second page now, but
-    // kept this hack for educational purposes.
-
-    // "Help" and "ReadMe!" now use the same
-    // routine to match Vanilla routines.
+  if (gamemode == commercial)
+  {
     MainDef.y = 72;
     ReadDef1.routine = M_DrawReadThis2;
-    ReadDef1.x = 330;
-    ReadDef1.y = 165;
 
-    // Allowed "Read Me!" in commerical gamemodes
+    // Arsinikk - allowed "Read Me!" in the Doom II
     // by default if Extended Help screens are found.
     //
     // Otherwise remove "Read Me!" menu option
-    if (!extended_help_count)
+    if(!extended_help_count)
     {
+      ReadMenu1[0].routine = M_FinishReadThis;
       MainMenu[readthis] = MainMenu[quitdoom];
       MainDef.numitems = quitdoom;
-      ReadMenu1[0].routine = M_FinishReadThis;
     }
   }
+
+  // Arsinikk - Cut HELP / README screen down to
+  // 1 screen only when dynamic screens are not
+  // used or overriden by PWAD HELP lumps
+  if ((!help2_check && !dynamic_screens && gamemode != shareware) || (!help2_check && PWAD_help))
+  {
+    // Only 1 help screen
+    ReadMenu1[0].routine = M_FinishReadThis;
+    ReadDef1.routine = M_DrawReadThis2;
+    if(gamemode == commercial)
+      ReadDef1.y = 165;
+    else
+      ReadDef1.y = 175;
+  }
+  // killough 2/21/98: Fix registered Doom help screen
+  // killough 10/98: moved to second screen, moved up to the top
   else
   {
-    // Episode 2 and 3 are handled,
-    // branching to an ad screen.
-
-    // killough 2/21/98: Fix registered Doom help screen
-    // killough 10/98: moved to second screen, moved up to the top
-
-    // If shareware or PWAD HELP2, use ad screen (w/ offset)
-    // with HELP1 screen, else cut to only HELP1 screen
-    if (pwad_help2_check || gamemode == shareware)
+    // 2 help screens (for Shareware/Registered
+    // and when Dynamic screens are active)
+    ReadMenu1[0].routine = M_ReadThis2;
+    ReadDef1.routine = M_DrawReadThis1;
+    if(help2_check || (!dynamic_screens && gamemode <= registered))
       ReadDef1.y = 15;
     else
-    {
-      ReadDef1.routine = M_DrawReadThis2;
-      if (!extended_help_count)
-        ReadMenu1[0].routine = M_FinishReadThis;
+      ReadDef1.y = 175;
+  }
+
+
+  // Arsinikk - when extended HELP screens are used,
+  // dynamic screens are disabled (regardless of settings)
+  // and only the vanilla number of screens are used
+  if(extended_help_count)
+  {
+    if (gamemode >= registered) {
+        ReadDef1.routine = M_DrawReadThis2;
+        ExtHelpDef.prevMenu  = &ReadDef1; /* previous menu */
+        ReadMenu1[0].routine = M_ExtHelp;
+        ReadDef1.y = 165;
+    } else {
+        ReadDef1.routine = M_DrawReadThis1;
+        ExtHelpDef.prevMenu  = &ReadDef2; /* previous menu */
+        ReadMenu2[0].routine = M_ExtHelp;
+        ReadDef1.y = 15;
     }
   }
 }
@@ -6638,9 +6785,10 @@ void M_Init(void)
   messageString = NULL;
   messageLastMenuActive = menuactive;
 
+  M_InitHelpScreen();   // init the help screen       // phares 4/08/98
   M_InitExtendedHelp(); // init extended help screens // phares 3/30/98
   M_ResetBoomHelp();   // Here we could catch other version dependencies,
-                      // like HELP1/2, and four episodes.
+                        // like HELP1/2, and four episodes.
 
   //e6y
   M_ChangeSpeed();

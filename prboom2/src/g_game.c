@@ -119,6 +119,7 @@
 
 // Allows use of HELP2 screen for PWADs under DOOM 1
 int pwad_help2_check;
+int iwad_help2_check;
 
 struct
 {
@@ -2746,6 +2747,9 @@ void G_ReloadDefaults(void)
   // I just allowed it for complevel 3 if HELP2 is present
   if ((compatibility_level <= 3) && (gamemode != commercial) && (gamemode != shareware) && !raven)
     pwad_help2_check = W_PWADLumpNameExists(help2);
+
+  if (!raven)
+    iwad_help2_check = W_IWADLumpNameExists(help2);
 
   // disables overflow warnings and errors for vanilla complevels
   if (demo_compatibility && (arg_complevel_limitremoving || dsda_Flag(dsda_arg_limitremoving)))

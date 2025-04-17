@@ -132,6 +132,7 @@ extern int arg_complevel_limitremoving;
 
 // checks whether to use HELP2 lump for Doom 1 complevel 2 and below
 extern int pwad_help2_check;
+extern int iwad_help2_check;
 
 // hexen
 
