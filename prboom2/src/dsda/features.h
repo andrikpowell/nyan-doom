@@ -85,7 +85,9 @@ typedef enum {
   uf_advanced_map,
   uf_blink_keys,
   uf_fuzz,
-  // 65
+  uf_vanillatrans,
+  uf_ghosttrans,
+  // 67
   //
   // 127
 } dsda_feature_flag_t;

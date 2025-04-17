@@ -1183,8 +1183,8 @@ void M_SaveGame (int choice)
 enum
 {
   opt_general, // killough 10/98
-  opt_nyan,
   opt_bindings,
+  opt_nyan,
   opt_display,
   opt_gameplay,
   opt_weapons,
@@ -1199,8 +1199,8 @@ enum
 static menuitem_t OptionsMenu[]=
 {
   { 1, "M_GENERL", M_General, 'g', "GENERAL" }, // killough 10/98
-  { 1, "M_NYANOP", M_Nyan, 'n', "NYAN OPTIONS" },
   { 1, "M_KEYBND", M_KeyBindings,'k', "KEY BINDINGS" },
+  { 1, "M_NYANOP", M_Nyan, 'n', "NYAN OPTIONS" },
   { 1, "M_DSPLAY", M_Display, 'd', "DISPLAY" },
   { 1, "M_GAMEPL", M_Gameplay, 'g', "GAMEPLAY / DEMOS" },
   { 1, "M_WEAP", M_Weapons, 'w', "WEAPONS" },
@@ -3196,17 +3196,15 @@ setup_menu_t gen_misc_settings[] = {
 
 static const char *nyan_pages[] =
 {
-  "Nyan",
-  "Translucency",
+  "Nyan Doom Options",
   NULL
 };
 
-setup_menu_t nyan_main_settings[], nyan_trans_settings[];
+setup_menu_t nyan_main_settings[];
 
 setup_menu_t* nyan_settings[] =
 {
   nyan_main_settings,
-  nyan_trans_settings,
   NULL
 };
 
@@ -3228,25 +3226,8 @@ setup_menu_t nyan_main_settings[] = {
   EMPTY_LINE,
   { "Animate Lumps", S_YESNO, m_conf, G_X, nyan_config_enable_animate_lumps },
   { "Widescreen Lumps", S_YESNO, m_conf, G_X, nyan_config_enable_widescreen_lumps },
-  { "Boom Credit/Help Screens", S_YESNO, m_conf, G_X, nyan_config_boom_credit_help },
+  { "Dynamic Boom Screens", S_YESNO, m_conf, G_X, nyan_config_boom_credit_help },
 
-  NEXT_PAGE(nyan_trans_settings),
-  FINAL_ENTRY
-};
-
-setup_menu_t nyan_trans_settings[] = {
-  { "Translucent Sprites", S_YESNO, m_conf, G_X, dsda_config_boom_translucent_sprites },
-  EMPTY_LINE,
-  TITLE("Customization", G_X),
-  { "Projectiles", S_YESNO, m_conf, G_X, dsda_config_boom_translucent_missiles },
-  { "Powerups", S_YESNO, m_conf, G_X, dsda_config_boom_translucent_powerups },
-  { "Effects", S_YESNO, m_conf, G_X, dsda_config_boom_translucent_effects },
-  EMPTY_LINE,
-  TITLE("Vanilla Emulation", G_X),
-  { "Enable for Vanilla", S_YESNO, m_conf, G_X, dsda_config_vanilla_translucent_sprites },
-  { "Ghosts are Translucent", S_YESNO, m_conf, G_X, dsda_config_translucent_ghosts },
-
-  PREV_PAGE(nyan_main_settings),
   FINAL_ENTRY
 };
 
@@ -3321,18 +3302,20 @@ static void M_DrawGeneral(void)
 static const char *display_pages[] =
 {
   "Options",
+  "Extra",
   "Status Bar",
   "EX-HUD",
   "HUD",
   NULL
 };
 
-setup_menu_t display_options_settings[], display_statbar_settings[];
+setup_menu_t display_options_settings[], display_statbar_settings[], display_extra_settings[];
 setup_menu_t display_hud_settings[], display_crosshair_settings[];
 
 setup_menu_t* display_settings[] =
 {
   display_options_settings,
+  display_extra_settings,
   display_statbar_settings,
   display_hud_settings,
   display_crosshair_settings,
@@ -3344,6 +3327,7 @@ setup_menu_t* display_settings[] =
 
 static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
 static const char* fuzz_mode_list[] = { "Vanilla", "Refraction", "Shadow", NULL };
+static const char* translucent_list[] = { "Off", "Default", "w/ Vanilla", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Menu Background", S_CHOICE, m_conf, G_X, dsda_config_menu_background, 0, menu_background_list },
@@ -3362,6 +3346,20 @@ setup_menu_t display_options_settings[] = {
   { "Change Palette On Bonus", S_YESNO, m_conf, G_X, dsda_config_palette_onbonus },
   { "Change Palette On Powers", S_YESNO, m_conf, G_X, dsda_config_palette_onpowers },
 
+  NEXT_PAGE(display_extra_settings),
+  FINAL_ENTRY
+};
+
+setup_menu_t display_extra_settings[] = {
+  { "Translucent Sprites", S_CHOICE, m_conf, G_X, dsda_config_translucent_sprites, 0, translucent_list },
+  { "Translucent Ghosts", S_YESNO, m_conf, G_X, dsda_config_translucent_ghosts },
+  EMPTY_LINE,
+  TITLE("Customization", G_X),
+  { "Projectiles", S_YESNO, m_conf, G_X, dsda_config_translucent_missiles },
+  { "Powerups", S_YESNO, m_conf, G_X, dsda_config_translucent_powerups },
+  { "Effects", S_YESNO, m_conf, G_X, dsda_config_translucent_effects },
+
+  PREV_PAGE(display_options_settings),
   NEXT_PAGE(display_statbar_settings),
   FINAL_ENTRY
 };
@@ -3398,7 +3396,7 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   { "Ammo Low/Ok", S_NUM, m_conf, DM_X, dsda_config_hud_ammo_red },
   { "Ammo Ok/Good", S_NUM, m_conf, DM_X, dsda_config_hud_ammo_yellow },
 
-  PREV_PAGE(display_options_settings),
+  PREV_PAGE(display_extra_settings),
   NEXT_PAGE(display_hud_settings),
   FINAL_ENTRY
 };
