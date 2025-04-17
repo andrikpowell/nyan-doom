@@ -84,7 +84,7 @@ void Heretic_F_StartFinale(void)
   S_ChangeMusic(heretic_mus_cptd, true);
 }
 
-dboolean F_BlockingInput(void)   // Avoid bringing up menu when loading Heretic's custom E2 palette
+static dboolean F_BlockingInput(void)   // Avoid bringing up menu when loading Heretic's custom E2 palette
 {
   return finalestage == 1 && gameepisode == 2;
 }
