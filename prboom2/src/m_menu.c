@@ -3379,6 +3379,7 @@ static const char* armor_icon_list[] =
   [ARMOR_ICON_OFF] = "Off",
   [ARMOR_ICON_1] = "Corner",
   [ARMOR_ICON_2] = "Icon",
+  NULL
 };
 
 setup_menu_t display_statbar_settings[] =  // Demos Settings screen
