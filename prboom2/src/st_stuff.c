@@ -1159,7 +1159,11 @@ static void ST_drawWidgets(void)
   STlib_updateMultIcon(&w_faces);
 
   if(armor_icon)
-    STlib_updateMultIcon(&w_armoricon);
+  {
+    //int color = (plyr->armortype >= 2) ? CR_BLUE : (plyr->armortype == 1) ? CR_GREEN : CR_DEFAULT;
+    int color = CR_DEFAULT;
+    STlib_updateColorIcon(&w_armoricon, color);
+  }
 
   if(berserk_icon)
   {

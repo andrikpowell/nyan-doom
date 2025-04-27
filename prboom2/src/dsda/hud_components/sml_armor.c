@@ -29,10 +29,15 @@ static void dsda_DrawComponent(void) {
     player_t* player;
     int x, y;
     int lump, armor;
+    int pwad_icons, color, flags;
 
     player = &players[displayplayer];
     x = local->component.x;
     y = local->component.y;
+
+    //color = (player->armortype >= 2) ? CR_BLUE : (player->armortype == 1) ? CR_GREEN : CR_DEFAULT;
+    color = CR_DEFAULT;
+    flags = local->component.vpt;
 
     if (!raven) {
         armor = player->armorpoints[ARMOR_ARMOR];
@@ -47,7 +52,13 @@ static void dsda_DrawComponent(void) {
 
             y = chex ? y+2 : y;
 
-            V_DrawNumPatch(x, y+2, FG, lump, CR_DEFAULT, local->component.vpt);
+            if (W_PWADLumpNumExists(lump))
+                color = CR_DEFAULT;
+
+            if (color != CR_DEFAULT)
+                flags |= VPT_TRANS;
+
+            V_DrawNumPatch(x, y+2, FG, lump, color, flags);
         }
     }
 }
