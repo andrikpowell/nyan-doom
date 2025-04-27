@@ -190,5 +190,8 @@ void STlib_initMultIcon
 void STlib_updateMultIcon
 ( st_multicon_t* mi );
 
+void STlib_updateColorIcon
+( st_multicon_t* mi, int cm );
+
 
 #endif

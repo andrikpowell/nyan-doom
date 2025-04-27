@@ -263,3 +263,35 @@ void STlib_updateMultIcon
       V_DrawNumPatch(mi->x, mi->y, FG, mi->p[*mi->inum].lumpnum, CR_DEFAULT, VPT_ALIGN_BOTTOM);
   }
 }
+
+//
+// STlib_updateColorIcon()
+//
+// Draw a st_multicon_t widget, used for a multigraphic display
+// like the status bar's keys. Displays each when the control
+// numbers change or refresh is true
+//
+// Passed a st_multicon_t widget, and a refresh flag
+// Returns nothing.
+//
+void STlib_updateColorIcon
+( st_multicon_t*  mi, int cm )
+{
+  int flags = VPT_ALIGN_BOTTOM;
+
+  if (chex || W_PWADLumpNumExists(mi->p[*mi->inum].lumpnum))
+    cm = CR_DEFAULT;
+
+  if (cm != CR_DEFAULT)
+    flags |= VPT_TRANS;
+
+  if (*mi->on)
+  {
+#ifdef RANGECHECK
+      if (y - ST_Y < 0)
+        I_Error("STlib_updateColorIcon: y - ST_Y < 0");
+#endif
+    if (*mi->inum != -1)  // killough 2/16/98: redraw only if != -1
+      V_DrawNumPatch(mi->x, mi->y, FG, mi->p[*mi->inum].lumpnum, cm, flags);
+  }
+}

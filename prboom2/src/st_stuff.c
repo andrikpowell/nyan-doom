@@ -329,7 +329,6 @@ static patchnum_t armorstyle2[DOOM_ARMORICON];
 typedef enum {
   berserkoff,
   berserkon,
-  berserkunity,
   DOOM_BERSERKICON
 } berserk_t;
 
@@ -874,23 +873,23 @@ static void ST_updateWidgets(void)
 
   // update armor icon
   st_armorindex = plyr->armortype;
-  if(plyr->armortype > 2)
+  if (plyr->armortype > 2)
     st_armorindex = 2;
 
   for (i=0;i<3;i++)
   {
-    if(armor_icon==2)
-      armorpatch[i] = armorstyle2[i];
-    else
+    int pwad_lumps = W_PWADLumpNameExists("STFARMS1") || W_PWADLumpNameExists("STFARMS2");
+  
+    if (armor_icon==1 || pwad_lumps)
       armorpatch[i] = armorstyle1[i];
+    else if (armor_icon==2)
+      armorpatch[i] = armorstyle2[i];
+
   }
 
   // update berserk icon
   if (plyr->powers[pw_strength])
-    if(unityedition && !chex)
-      st_berserkindex = 2;
-    else
-      st_berserkindex = 1;
+    st_berserkindex = 1;
   else
     st_berserkindex = 0;
 
@@ -1163,7 +1162,10 @@ static void ST_drawWidgets(void)
     STlib_updateMultIcon(&w_armoricon);
 
   if(berserk_icon)
-    STlib_updateMultIcon(&w_berserkicon);
+  {
+    int color = plyr->powers[pw_strength] ? unityedition ? CR_GREEN : CR_RED : CR_DEFAULT;
+    STlib_updateColorIcon(&w_berserkicon, color);
+  }
 
   for (i=0;i<3;i++)
     STlib_updateMultIcon(&w_keyboxes[i]);

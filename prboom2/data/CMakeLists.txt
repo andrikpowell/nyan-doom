@@ -187,7 +187,6 @@ set(GRAPHICS
     graphics/stcfn096.ppm
     graphics/stfpstr0.ppm
     graphics/stfpstr1.ppm
-    graphics/stfpstr2.ppm
     graphics/stfarms0.ppm
     graphics/stfarms1.ppm
     graphics/stfarms2.ppm
@@ -201,7 +200,6 @@ set(GRAPHICS
     graphics/stfpsuit.ppm
     graphics/stfpbpak.ppm
     graphics/stfppstr.ppm
-    graphics/stfppstu.ppm
     graphics/stfparm1.ppm
     graphics/stfparm2.ppm
     graphics/chxparm1.ppm
@@ -209,7 +207,6 @@ set(GRAPHICS
     graphics/chxppstr.ppm
     graphics/chxpstr0.ppm
     graphics/chxpstr1.ppm
-    graphics/chxpstr2.ppm
     graphics/chxarms0.ppm
     graphics/chxarms1.ppm
     graphics/chxarms2.ppm

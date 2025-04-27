@@ -28,7 +28,6 @@ static local_component_t* local;
 static const char* dsda_BerserkName(player_t* player) {
     if (player->powers[pw_strength])
         if (chex) { return "CHXPPSTR"; }
-        else if (unityedition) { return "STFPPSTU"; }
         else { return "STFPPSTR"; }
     else
         return NULL;
@@ -36,11 +35,19 @@ static const char* dsda_BerserkName(player_t* player) {
 
 void drawBerserkIcon(player_t* player, int* x, int* y, const char* (*hasBerserk)(player_t*)) {
     const char* name;
+    int color = hasBerserk(player) ? unityedition ? CR_GREEN : CR_RED : CR_DEFAULT;
+    int flags = local->component.vpt;
+
+    if (W_PWADLumpNameExists("STFPPSTR") || chex)
+        color = CR_DEFAULT;
+
+    if (color != CR_DEFAULT)
+        flags |= VPT_TRANS;  
 
     name = hasBerserk(player);
 
     if (name)
-        V_DrawNamePatch(*x, *y, FG, name, CR_DEFAULT, local->component.vpt);
+        V_DrawNamePatch(*x, *y, FG, name, color, flags);
 }
 
 static void dsda_DrawComponent(void) {

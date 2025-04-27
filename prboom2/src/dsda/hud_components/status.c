@@ -36,8 +36,7 @@ static int patch_vertical_spacing;
 static int patch_spacing;
 
 const char* drawBerserkName() {
-    if (unityedition) { return "STFPPSTU"; }
-    else { return "STFPPSTR"; }
+    return "STFPPSTR";
 }
 
 const char* drawArmorName(player_t* player) {
@@ -45,9 +44,17 @@ const char* drawArmorName(player_t* player) {
     else { return "STFPARM2"; }
 }
 
-void drawPowerupStatusIcon(player_t* player, int* x, int* y, int powerup, const char* lumpname, int blinking) {
+void drawPowerupStatusIcon(player_t* player, int* x, int* y, int powerup, const char* lumpname, int color, int blinking) {
+    int flags = local->component.vpt;
+
+    if (W_PWADLumpNameExists(lumpname))
+        color = CR_DEFAULT;
+
+    if (color != CR_DEFAULT)
+        flags |= VPT_TRANS;
+
     if ((!blinking && powerup) || (blinking && (powerup > BLINKTHRESHOLD || (powerup & 8))))
-        V_DrawNamePatch(*x, *y, FG, lumpname, CR_DEFAULT, local->component.vpt);
+        V_DrawNamePatch(*x, *y, FG, lumpname, color, flags);
 
     x += patch_spacing;
     y += patch_vertical_spacing;
@@ -71,28 +78,31 @@ static void dsda_DrawComponent(void) {
         return;
 
     if (player->armortype > 0 && dsda_IntConfig(nyan_config_ex_status_armor))
-        drawPowerupStatusIcon(player, &x, &y, player->armortype > 0, drawArmorName(player), NOT_BLINKING);
+        drawPowerupStatusIcon(player, &x, &y, player->armortype > 0, drawArmorName(player), CR_DEFAULT, NOT_BLINKING);
 
     if (player->powers[pw_strength] && dsda_IntConfig(nyan_config_ex_status_berserk))
-        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_strength], drawBerserkName(), NOT_BLINKING);
+    {
+        int color = player->powers[pw_strength] ? unityedition ? CR_GREEN : CR_RED : CR_DEFAULT;    
+        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_strength], "STFPPSTR", color, NOT_BLINKING);
+    }
 
     if (player->powers[pw_allmap] && dsda_IntConfig(nyan_config_ex_status_areamap))
-        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_allmap], "STFPMAP", NOT_BLINKING);
+        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_allmap], "STFPMAP", CR_DEFAULT, NOT_BLINKING);
 
     if (player->backpack && dsda_IntConfig(nyan_config_ex_status_backpack))
-        drawPowerupStatusIcon(player, &x, &y, player->backpack, "STFPBPAK", NOT_BLINKING);
+        drawPowerupStatusIcon(player, &x, &y, player->backpack, "STFPBPAK", CR_DEFAULT, NOT_BLINKING);
 
     if (player->powers[pw_ironfeet] && dsda_IntConfig(nyan_config_ex_status_radsuit))
-        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_ironfeet], "STFPSUIT", BLINKING);
+        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_ironfeet], "STFPSUIT", CR_DEFAULT, BLINKING);
 
     if (player->powers[pw_invisibility] && dsda_IntConfig(nyan_config_ex_status_invis))
-        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_invisibility], "STFPINS", BLINKING);
+        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_invisibility], "STFPINS", CR_DEFAULT, BLINKING);
 
     if (player->powers[pw_infrared] && dsda_IntConfig(nyan_config_ex_status_liteamp))
-        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_infrared], "STFPVIS", BLINKING);
+        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_infrared], "STFPVIS", CR_DEFAULT, BLINKING);
 
     if (player->powers[pw_invulnerability] && dsda_IntConfig(nyan_config_ex_status_invuln))
-        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_invulnerability], "STFPINV", BLINKING);
+        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_invulnerability], "STFPINV", CR_DEFAULT, BLINKING);
 }
 
 void dsda_InitStatusHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

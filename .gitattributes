@@ -154,7 +154,6 @@ prboom2/data/graphics/stkeys7.ppm -text
 prboom2/data/graphics/stkeys8.ppm -text
 prboom2/data/graphics/stfpstr0.ppm -text
 prboom2/data/graphics/stfpstr1.ppm -text
-prboom2/data/graphics/stfpstr2.ppm -text
 prboom2/data/graphics/stfarms0.ppm -text
 prboom2/data/graphics/stfarms1.ppm -text
 prboom2/data/graphics/stfarms2.ppm -text
@@ -170,10 +169,8 @@ prboom2/data/graphics/stfpbpak.ppm -text
 prboom2/data/graphics/stfparm1.ppm -text
 prboom2/data/graphics/stfparm2.ppm -text
 prboom2/data/graphics/stfppstr.ppm -text
-prboom2/data/graphics/stfppstu.ppm -text
 prboom2/data/graphics/chxpstr0.ppm -text
 prboom2/data/graphics/chxpstr1.ppm -text
-prboom2/data/graphics/chxpstr2.ppm -text
 prboom2/data/graphics/chxarms0.ppm -text
 prboom2/data/graphics/chxarms1.ppm -text
 prboom2/data/graphics/chxarms2.ppm -text
