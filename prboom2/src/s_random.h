@@ -20,6 +20,8 @@
 
 extern dboolean CurrentRandomMusic;
 extern dboolean RandomMusicLoad;
+extern dboolean RandomMusicLoadgame;
+extern int RandomMusicStatus;
 extern int last_random[6];
 
 extern int S_RandomMusic(void);

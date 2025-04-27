@@ -32,6 +32,8 @@
 
 dboolean CurrentRandomMusic;
 dboolean RandomMusicLoad;
+dboolean RandomMusicLoadgame;
+int RandomMusicStatus;
 int last_random[6];
 
 int S_RandomMusic(void)
@@ -110,7 +112,7 @@ void S_GetRandomMusic(void)
 
 void S_ToggleRandomMusic(void)
 {
-  if (!in_game)
+  if (!in_game || RandomMusicLoadgame)
     return;
 
   if (dsda_IntConfig(nyan_config_play_random_music))

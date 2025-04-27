@@ -162,7 +162,10 @@ void P_UnArchivePlayers (void)
 //
 void P_ArchiveRandomMusic (void)
 {
+  RandomMusicStatus = dsda_IntConfig(nyan_config_play_random_music);
+
   // Save Random Music
+  P_SAVE_X(RandomMusicStatus);
   P_SAVE_X(RandomMusicLoad);
   P_SAVE_X(CurrentRandomMusic);
 
@@ -176,11 +179,16 @@ void P_ArchiveRandomMusic (void)
 void P_UnArchiveRandomMusic (void)
 {
   // Restore Random Music
+  P_LOAD_X(RandomMusicStatus);
   P_LOAD_X(RandomMusicLoad);
   P_LOAD_X(CurrentRandomMusic);
 
   for (int ii = 0; ii < 6; ii++)
     P_LOAD_X(last_random[ii]);
+  
+  RandomMusicLoadgame = true;
+  dsda_UpdateIntConfig(nyan_config_play_random_music, RandomMusicStatus, true);
+  RandomMusicLoadgame = false;
 
   if (dsda_IntConfig(nyan_config_play_random_music))
     S_GetRandomMusic();
