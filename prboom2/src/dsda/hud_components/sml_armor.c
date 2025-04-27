@@ -29,7 +29,7 @@ static void dsda_DrawComponent(void) {
     player_t* player;
     int x, y;
     int lump, armor;
-    int pwad_icons, color, flags;
+    int color, flags;
 
     player = &players[displayplayer];
     x = local->component.x;
