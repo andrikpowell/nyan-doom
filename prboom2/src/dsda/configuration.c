@@ -26,6 +26,7 @@
 #include "lprintf.h"
 #include "r_main.h"
 #include "r_segs.h"
+#include "st_stuff.h"
 #include "s_sound.h"
 #include "s_random.h"
 #include "smooth.h"
@@ -346,6 +347,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_sts_blink_keys] = {
     "sts_blink_keys", dsda_config_sts_blink_keys,
     CONF_BOOL(0), &sts_blink_keys, STRICT_INT(0),
+  },
+  [dsda_config_stbar_bg_color] = {
+    "config_stbar_bg_color", dsda_config_stbar_bg_color,
+    CONF_BOOL(0), NULL, NOT_STRICT, ST_SetResolution
   },
   [dsda_config_strict_mode] = {
     "dsda_strict_mode", dsda_config_strict_mode,

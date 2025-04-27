@@ -3387,6 +3387,7 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   { "Single Key Display", S_YESNO, m_conf, DM_X, dsda_config_sts_traditional_keys },
   { "ANIMATED HEALTH/ARMOR COUNT", S_YESNO, m_conf, DM_X, dsda_config_hud_animated_count },
   { "BLINK MISSING KEYS", S_YESNO, m_conf, DM_X, dsda_config_sts_blink_keys },
+  { "Colored Background", S_YESNO, m_conf, DM_X, dsda_config_stbar_bg_color },
   { "INCLUDE SSG ON ARMS", S_YESNO, m_conf, DM_X, dsda_config_ssg_on_arms },
   { "BERSERK INDICATOR", S_CHOICE, m_conf, DM_X, nyan_config_hud_berserk, 0, berserk_icon_list },
   { "ARMOR INDICATOR", S_CHOICE, m_conf, DM_X, nyan_config_hud_armoricon, 0, armor_icon_list },
