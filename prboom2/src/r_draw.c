@@ -45,7 +45,6 @@
 #include "am_map.h"
 #include "lprintf.h"
 #include "i_system.h"
-#include "gl_intern.h"
 
 #include "dsda/settings.h"
 #include "dsda/stretch.h"
