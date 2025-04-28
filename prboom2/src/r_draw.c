@@ -552,6 +552,7 @@ void R_FillBackColor (void)
   width = LittleShort(width);
 
   for (i = 0; i < width; ++i) {
+    // Skip irrelevant data in the doom patch header
     int32_t offset;
     p = lump + 8 + 4 * i;
     offset = *((const int32_t *) p);
@@ -562,6 +563,7 @@ void R_FillBackColor (void)
       length = *p++;
       p++;
 
+      // Get RGB values per pixel
       for (j = 0; j < length; ++j) {
         entry = *p++;
         r += playpal[3 * entry + 0];
@@ -598,7 +600,7 @@ void R_FillBackColor (void)
 void R_FillBackScreen (void)
 {
   int automap = automap_on;
-  int stbar_color = dsda_IntConfig(dsda_config_stbar_bg_color);
+  int stbar_solid_bg = dsda_IntConfig(dsda_config_sts_solid_bg_color);
 
   if (grnrock.lumpnum == 0)
     return;
@@ -627,6 +629,13 @@ void R_FillBackScreen (void)
     {
       int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
 
+      if (stbar_solid_bg)
+      {
+        R_FillBackColor();
+        V_EndUIDraw();
+        return;
+      }
+
       V_FillFlat(grnrock.lumpnum, 1, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
 
       // heretic_note: I think this looks bad, so I'm skipping it...
@@ -636,9 +645,6 @@ void R_FillBackScreen (void)
         V_FillPatch(brdr_b.lumpnum, 1, 0, stbar_top, ST_SCALED_OFFSETX, brdr_b.height, VPT_NONE);
         V_FillPatch(brdr_b.lumpnum, 1, SCREENWIDTH - ST_SCALED_OFFSETX, stbar_top, ST_SCALED_OFFSETX, brdr_b.height, VPT_NONE);
       }
-
-      if (stbar_color)
-         R_FillBackColor();
 
       V_EndUIDraw();
       return;
@@ -668,7 +674,7 @@ void R_FillBackScreen (void)
   V_DrawNumPatch(viewwindowx - g_border_offset, viewwindowy + viewheight, 1, brdr_bl.lumpnum, CR_DEFAULT, VPT_NONE);
   V_DrawNumPatch(viewwindowx + scaledviewwidth, viewwindowy + viewheight, 1, brdr_br.lumpnum, CR_DEFAULT, VPT_NONE);
 
-  if (stbar_color)
+  if (stbar_solid_bg)
     R_FillBackColor();
 
   V_EndUIDraw();
