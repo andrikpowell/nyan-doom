@@ -334,7 +334,7 @@ void HU_AnnounceMap(void)
         if (announce_config==2)
           dsda_AddAlert(map_and_author.string);
         else
-          SetTitleMessage(plr - players, hud_title.string, 4 * TICRATE, 0);
+          SetTitleMessage(plr - players, map_and_author.string, 4 * TICRATE, 0);
 
         dsda_FreeString(&map_and_author);
       }
