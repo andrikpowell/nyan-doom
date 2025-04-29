@@ -5475,7 +5475,8 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
 
   if (dsda_InputActivated(dsda_input_quickload))
   {
-    S_StartVoidSound(g_sfx_swtchn);
+    if(dsda_PlayQuicksaveSFX())
+      S_StartVoidSound(g_sfx_swtchn);
     M_QuickLoad();
     return true;
   }
