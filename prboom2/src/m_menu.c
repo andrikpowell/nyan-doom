@@ -1777,8 +1777,6 @@ static int choice_value;
 
 dboolean M_SetDisabled(const setup_menu_t* s)
 {
-  int flags = s->m_flags;
-
   // Strict Mode
   if (dsda_StrictMode() && dsda_IsStrictConfig(s->config_id))
     return true;
