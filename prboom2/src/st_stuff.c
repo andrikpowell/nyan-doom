@@ -344,6 +344,7 @@ static patchnum_t faceback; // CPhipps - single background, translated for diffe
 patchnum_t stbarbg;
 patchnum_t stbarbg_ws;
 patchnum_t stbarbg_ani;
+patchnum_t stbarbg_v11;
 patchnum_t grnrock;
 patchnum_t brdr_t, brdr_b, brdr_l, brdr_r;
 patchnum_t brdr_tl, brdr_tr, brdr_bl, brdr_br;
@@ -1285,6 +1286,8 @@ static void ST_loadGraphics(void)
     R_SetPatchNum(&stbarbg_ws, "W_STBAR");
   if (stbar_exists)
     R_SetPatchNum(&stbarbg, stbar);
+  if (doom_v11)
+    R_SetPatchNum(&stbarbg_v11, "STMBARR");
   R_SetPatchNum(&brdr_t, "brdr_t");
   R_SetPatchNum(&brdr_b, "brdr_b");
   R_SetPatchNum(&brdr_l, "brdr_l");
