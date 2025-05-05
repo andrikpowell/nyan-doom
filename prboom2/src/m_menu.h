@@ -174,7 +174,6 @@ typedef struct menu_s
 void M_SetupNextMenu(menu_t *menudef);
 void M_DrawDelVerify(void);
 void M_ChangeMessages(void);
-void M_ResetBoomHelp(void);
 
 void M_LeaveSetupMenu(void);
 void M_ClearMenus(void);

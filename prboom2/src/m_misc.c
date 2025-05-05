@@ -347,7 +347,6 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_ignore_default_map_names),
   MIGRATED_SETTING(nyan_config_enable_widescreen_lumps),
   MIGRATED_SETTING(nyan_config_enable_animate_lumps),
-  MIGRATED_SETTING(nyan_config_boom_credit_help),
   MIGRATED_SETTING(nyan_config_hud_berserk),
   MIGRATED_SETTING(nyan_config_hud_armoricon),
   MIGRATED_SETTING(nyan_config_item_bonus_flash),
