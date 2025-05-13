@@ -1068,6 +1068,14 @@ static dboolean console_IDDT(const char* command, const char* args) {
   return true;
 }
 
+static dboolean console_IDDWT(const char* command, const char* args) {
+  int num;
+  sscanf(args, "%i", &num);
+  cheat_reveal_weapon(num);
+
+  return true;
+}
+
 static dboolean console_CheatFullClip(const char* command, const char* args) {
   target_player.cheats ^= CF_INFINITE_AMMO;
   return true;
@@ -2448,6 +2456,7 @@ static console_command_entry_t console_commands[] = {
   { "iddst", console_BasicCheat, CF_DEMO },
   { "iddkt", console_BasicCheat, CF_DEMO },
   { "iddit", console_BasicCheat, CF_DEMO },
+  { "iddwt", console_IDDWT, CF_DEMO },
   { "idclev", console_BasicCheat, CF_DEMO },
   { "idmus", console_BasicCheat, CF_DEMO },
   { "idmusrr", console_BasicCheat, CF_DEMO },
@@ -2460,7 +2469,6 @@ static console_command_entry_t console_commands[] = {
 
   { "skill", console_BasicCheat, CF_DEMO },
   { "tntcomp", console_BasicCheat, CF_DEMO },
-  { "skill", console_BasicCheat, CF_DEMO },
   { "tntem", console_BasicCheat, CF_DEMO },
   { "tnthom", console_BasicCheat, CF_DEMO },
   { "tntka", console_BasicCheat, CF_DEMO },

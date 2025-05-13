@@ -203,6 +203,7 @@ See the [build mode guide](./build_mode.md) for more info.
 - `iddst`
 - `iddkt`
 - `iddit`
+- `iddwt`
 - `idclev <map>`
 - `idmus <map>`
 - `idmusrr`

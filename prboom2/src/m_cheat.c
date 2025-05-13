@@ -107,6 +107,14 @@ static void cheat_ddt();
 static void cheat_reveal_secret();
 static void cheat_reveal_kill();
 static void cheat_reveal_item();
+static void cheat_reveal_weapon_2();
+static void cheat_reveal_weapon_3();
+static void cheat_reveal_weapon_4();
+static void cheat_reveal_weapon_5();
+static void cheat_reveal_weapon_6();
+static void cheat_reveal_weapon_7();
+static void cheat_reveal_weapon_8();
+static void cheat_reveal_weapon_9();
 static void cheat_hom();
 static void cheat_fast();
 static void cheat_tntkey();
@@ -197,6 +205,14 @@ cheatseq_t cheat[] = {
   CHEAT("iddst",      NULL,   NULL,               cht_always, cheat_reveal_secret, 0, true),
   CHEAT("iddkt",      NULL,   NULL,               cht_always, cheat_reveal_kill, 0, true),
   CHEAT("iddit",      NULL,   NULL,               cht_always, cheat_reveal_item, 0, true),
+  CHEAT("iddwt2",     NULL,   NULL,               cht_always, cheat_reveal_weapon_2, 0, true),
+  CHEAT("iddwt3",     NULL,   NULL,               cht_always, cheat_reveal_weapon_3, 0, true),
+  CHEAT("iddwt4",     NULL,   NULL,               cht_always, cheat_reveal_weapon_4, 0, true),
+  CHEAT("iddwt5",     NULL,   NULL,               cht_always, cheat_reveal_weapon_5, 0, true),
+  CHEAT("iddwt6",     NULL,   NULL,               cht_always, cheat_reveal_weapon_6, 0, true),
+  CHEAT("iddwt7",     NULL,   NULL,               cht_always, cheat_reveal_weapon_7, 0, true),
+  CHEAT("iddwt8",     NULL,   NULL,               cht_always, cheat_reveal_weapon_8, 0, true),
+  CHEAT("iddwt9",     NULL,   NULL,               cht_always, cheat_reveal_weapon_9, 0, true),
   // killough 2/07/98: HOM autodetector
   CHEAT("tnthom",     NULL,   NULL,               cht_always, cheat_hom, 0, false),
   // killough 2/16/98: generalized key cheats
@@ -790,6 +806,125 @@ static void cheat_cycle_mobj(mobj_t **last_mobj, int *last_count, int flags, int
   } while (th != start_th);
 }
 
+static void cheat_cycle_mobj_weapon(mobj_t **last_mobj, int *last_count, int num)
+{
+  extern int init_thinkers_count;
+  thinker_t *th, *start_th;
+  dboolean found_num;
+
+  // If the thinkers have been wiped, addresses are invalid
+  if (*last_count != init_thinkers_count)
+  {
+    *last_count = init_thinkers_count;
+    *last_mobj = NULL;
+  }
+
+  if (*last_mobj)
+    th = &(*last_mobj)->thinker;
+  else
+    th = &thinkercap;
+
+  start_th = th;
+
+  do
+  {
+    th = th->next;
+    if (th->function == P_MobjThinker)
+    {
+      mobj_t *mobj;
+
+      mobj = (mobj_t *) th;
+
+      found_num = (mobj->sprite == num);
+
+      // Hexen 4th Weapon Logic
+      if (hexen && num == 666) // dummy value
+      {
+        int weapon_piece_1 = 0, weapon_piece_2 = 0, weapon_piece_3 = 0;
+        dboolean fighter = PlayerClass[consoleplayer] == PCLASS_FIGHTER;
+        dboolean cleric = PlayerClass[consoleplayer] == PCLASS_CLERIC;
+        dboolean mage = PlayerClass[consoleplayer] == PCLASS_MAGE;
+
+        weapon_piece_1 = fighter ? HEXEN_SPR_WFR1 : cleric ? HEXEN_SPR_WCH1 : mage ? HEXEN_SPR_WMS1 : false;
+        weapon_piece_2 = fighter ? HEXEN_SPR_WFR2 : cleric ? HEXEN_SPR_WCH2 : mage ? HEXEN_SPR_WMS2 : false;
+        weapon_piece_3 = fighter ? HEXEN_SPR_WFR3 : cleric ? HEXEN_SPR_WCH3 : mage ? HEXEN_SPR_WMS3 : false;
+
+        found_num = ((mobj->sprite == weapon_piece_1) ||
+                     (mobj->sprite == weapon_piece_2) ||
+                     (mobj->sprite == weapon_piece_3));
+      }
+
+      if (found_num && (mobj->flags & MF_SPECIAL) && !(mobj->flags & MF_DROPPED))
+      {
+        dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
+        AM_SetMapCenter(mobj->x, mobj->y);
+        P_SetTarget(last_mobj, mobj);
+        break;
+      }
+    }
+  } while (th != start_th);
+}
+
+int cheat_get_weapon(int num)
+{
+  if (hexen)
+  {
+    int HEXEN_SPR_4WPN = 666; // dummy value
+
+    if (PlayerClass[consoleplayer] == PCLASS_FIGHTER)
+      switch (num)
+      {
+        case 2: return HEXEN_SPR_WFAX; // timon's axe
+        case 3: return HEXEN_SPR_WFHM; // hammer of retribution
+        case 4: return HEXEN_SPR_4WPN; // quietus (3 parts)
+        default: return false;
+      }
+    else if (PlayerClass[consoleplayer] == PCLASS_CLERIC)
+      switch (num)
+      {
+        case 2: return HEXEN_SPR_WCSS; // serpent staff
+        case 3: return HEXEN_SPR_WCFM; // firestorm
+        case 4: return HEXEN_SPR_4WPN; // wraithverge (3 parts)
+        default: return false;
+      }
+    else if (PlayerClass[consoleplayer] == PCLASS_MAGE)
+      switch (num)
+      {
+        case 2: return HEXEN_SPR_WMCS; // frost shards
+        case 3: return HEXEN_SPR_WMLG; // arc of death
+        case 4: return HEXEN_SPR_4WPN; // bloodscourge (3 parts)
+        default: return false;
+      }
+  }
+  else if (heretic)
+  {
+    switch (num)
+    {
+      case 3: return HERETIC_SPR_WBOW; // crossbow
+      case 4: return HERETIC_SPR_WBLS; // dragon claw
+      case 5: return HERETIC_SPR_WSKL; // hellstaff
+      case 6: return HERETIC_SPR_WPHX; // phoenix rod
+      case 7: return HERETIC_SPR_WMCE; // firemace
+      case 8: return HERETIC_SPR_WGNT; // gauntlets
+      default: return false;
+    }
+  }
+  else
+    switch (num)
+    {
+      case 3: return SPR_SHOT; // shotgun
+      case 4: return SPR_MGUN; // chaingun
+      case 5: return SPR_LAUN; // rocket launcher
+      case 6: return SPR_PLAS; // plasma gun
+      case 7: return SPR_BFUG; // bfg
+      case 8: return SPR_CSAW; // chainsaw
+      case 9: return SPR_SGN2; // ssg
+      default: return false;
+    }
+
+  return false;
+}
+
 static void cheat_reveal_kill()
 {
   if (automap_input)
@@ -813,6 +948,33 @@ static void cheat_reveal_item()
     dsda_TrackFeature(uf_iddt);
 
     cheat_cycle_mobj(&last_mobj, &last_count, MF_COUNTITEM, false);
+  }
+}
+
+static void cheat_reveal_weapon_2() { cheat_reveal_weapon(2); }
+static void cheat_reveal_weapon_3() { cheat_reveal_weapon(3); }
+static void cheat_reveal_weapon_4() { cheat_reveal_weapon(4); }
+static void cheat_reveal_weapon_5() { cheat_reveal_weapon(5); }
+static void cheat_reveal_weapon_6() { cheat_reveal_weapon(6); }
+static void cheat_reveal_weapon_7() { cheat_reveal_weapon(7); }
+static void cheat_reveal_weapon_8() { cheat_reveal_weapon(8); }
+static void cheat_reveal_weapon_9() { cheat_reveal_weapon(9); }
+
+void cheat_reveal_weapon(int num)
+{
+  if (automap_input)
+  {
+    int sprite_num = cheat_get_weapon(num);
+
+    if (sprite_num != false)
+    {
+      static int last_count;
+      static mobj_t *last_mobj;
+
+      dsda_TrackFeature(uf_iddt);
+
+      cheat_cycle_mobj_weapon(&last_mobj, &last_count, sprite_num);
+    }
   }
 }
 
