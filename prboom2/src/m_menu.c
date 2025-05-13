@@ -6176,7 +6176,7 @@ dboolean M_MenuIsShaded(void)
 {
   int WhichMenuFade = dsda_IntConfig(nyan_config_full_menu_fade);
   int Options = (setup_active || currentMenu == &OptionsDef);
-  int All     = WhichMenuFade && (Options || menuactive == mnact_float);
+  int All     = WhichMenuFade && (Options || menuactive == mnact_float) && (currentMenu != &dsda_ConsoleDef);
   return (Options || All) && fadeBG();
 }
 
