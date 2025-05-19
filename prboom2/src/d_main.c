@@ -2120,7 +2120,6 @@ static void D_DoomMainSetup(void)
   G_ReloadDefaults();
 
   lprintf(LO_DEBUG, "dsda_ReloadNyanLumps: Loading NYAN lumps.\n");
-  dsda_ReloadNyanLumps();
   dsda_InitNyanLumps();
 
   if (limitremoving)

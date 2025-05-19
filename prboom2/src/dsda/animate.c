@@ -41,6 +41,9 @@ void AnimateTicker(void)
 
 void dsda_InitNyanLumps(void) {
     if (!raven) {
+        animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
+        widescreenLumps = dsda_IntConfig(nyan_config_enable_widescreen_lumps);
+
         Check_Skull_Animate = D_CheckAnimate(mskull1);
         Check_Stbar_Animate = D_CheckAnimate(stbar);
         Check_Stbar_Wide = D_CheckWide(stbar);
@@ -50,18 +53,16 @@ void dsda_InitNyanLumps(void) {
 void dsda_ReloadNyanLumps(void)
 {
     if (!raven) {
-        animateLumps = (dsda_IntConfig(nyan_config_enable_animate_lumps) ? 1 : 0);
-        widescreenLumps = (dsda_IntConfig(nyan_config_enable_widescreen_lumps) ? 1 : 0);
+        animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
+        widescreenLumps = dsda_IntConfig(nyan_config_enable_widescreen_lumps);
         ST_SetScaledWidth();
+        ST_SetResolution();
     }
 }
 
 
 const int D_CheckWide(const char* lump)
-{   
-    if (!widescreenLumps)
-        return false;
-
+{
     if (W_CheckNumForName(PrefixCombine("W_", lump)) != LUMP_NOT_FOUND)
         return true;
 
@@ -81,9 +82,6 @@ int D_SetupWidePatch(const char* lump)
 const int D_CheckAnimate(const char* lump)
 {
     int SLump, ELump;
-
-    if (!animateLumps)
-        return false;
 
     if (!strcmp(lump, mskull1)) { lump = "SKULL"; }
     if (!strcmp(lump, mdoom))   { lump = "DOOM";  }
