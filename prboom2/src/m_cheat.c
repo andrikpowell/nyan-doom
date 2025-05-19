@@ -988,7 +988,9 @@ static void cheat_hom()
 // killough 3/6/98: -fast parameter toggle
 static void cheat_fast()
 {
-  dsda_AddMessage((fastparm = !fastparm) ? "Fast Monsters On" : "Fast Monsters Off");
+  fastparm = !fastparm;
+  dsda_AddMessage(fastparm ? "Fast Monsters On" : "Fast Monsters Off");
+  dsda_UpdateIntConfig(dsda_config_fast_monsters, fastparm, false);
   dsda_RefreshGameSkill(); // refresh fast monsters
 }
 
