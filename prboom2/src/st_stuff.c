@@ -1216,7 +1216,7 @@ void ST_Drawer(void)
 }
 
 
-static ST_loadDoomStbar(void)
+static void ST_loadDoomStbar(void)
 {
   stbar_exists = W_LumpNameExists(stbar);
 
