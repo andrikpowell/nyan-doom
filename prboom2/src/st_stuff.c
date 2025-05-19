@@ -344,7 +344,6 @@ static patchnum_t faceback; // CPhipps - single background, translated for diffe
 patchnum_t stbarbg;
 patchnum_t stbarbg_ws;
 patchnum_t stbarbg_ani;
-patchnum_t stbarbg_v11;
 patchnum_t grnrock;
 patchnum_t brdr_t, brdr_b, brdr_l, brdr_r;
 patchnum_t brdr_tl, brdr_tr, brdr_bl, brdr_br;
@@ -466,7 +465,7 @@ void ST_LoadTextColors(void)
 
 void ST_SetScaledWidth(void)
 {
-  int width = 320;
+  int width = 0;
 
   // Set stbar width if stbar is found
   if (!doom_v11 || stbar_exists)
@@ -1217,6 +1216,19 @@ void ST_Drawer(void)
 }
 
 
+static ST_loadDoomStbar(void)
+{
+  stbar_exists = W_LumpNameExists(stbar);
+
+  // Extra stbars
+  if (Check_Stbar_Animate)  R_SetPatchNum(&stbarbg_ani, "S_STBAR");
+  if (Check_Stbar_Wide)     R_SetPatchNum(&stbarbg_ws, "W_STBAR");
+
+  // Main stbar
+  if (stbar_exists)         R_SetPatchNum(&stbarbg, stbar);
+  else if (doom_v11)        R_SetPatchNum(&stbarbg, "STMBARR");
+}
+
 
 //
 // ST_loadGraphics
@@ -1277,17 +1289,8 @@ static void ST_loadGraphics(void)
       R_SetPatchNum(&berserkpatch[i], namebuf);
     }
 
-  stbar_exists = W_LumpNameExists(stbar);
-
   //e6y: status bar background
-  if (Check_Stbar_Animate)
-    R_SetPatchNum(&stbarbg_ani, "S_STBAR");
-  if (Check_Stbar_Wide)
-    R_SetPatchNum(&stbarbg_ws, "W_STBAR");
-  if (stbar_exists)
-    R_SetPatchNum(&stbarbg, stbar);
-  if (doom_v11)
-    R_SetPatchNum(&stbarbg_v11, "STMBARR");
+  ST_loadDoomStbar();
   R_SetPatchNum(&brdr_t, "brdr_t");
   R_SetPatchNum(&brdr_b, "brdr_b");
   R_SetPatchNum(&brdr_l, "brdr_l");

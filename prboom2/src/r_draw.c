@@ -530,7 +530,6 @@ void R_InitBuffer(int width, int height)
 void R_FillBackColor (void)
 {
   extern patchnum_t stbarbg;
-  extern patchnum_t stbarbg_v11;
   byte col, col_top;
   int i, j, pixel_cnt;
   int r, g, b;
@@ -547,10 +546,7 @@ void R_FillBackColor (void)
   pixel_cnt = 0;
   r = g = b = 0;
 
-  if (doom_v11)
-    lump = W_LumpByNum(stbarbg_v11.lumpnum);
-  else
-    lump = W_LumpByNum(stbarbg.lumpnum);
+  lump = W_LumpByNum(stbarbg.lumpnum);
 
   width = *((const int16_t *) lump);
   width = LittleShort(width);
