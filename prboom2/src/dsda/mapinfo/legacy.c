@@ -528,7 +528,7 @@ int dsda_LegacyMapTitle(dsda_string_t* str, int epsd, int map, int override) {
     if (map > 0 && epsd > 0) {
       if (heretic) {
         if (epsd < 6 && map < 10)
-          dsda_StringCat(str, LevelNames[(gameepisode - 1) * 9 + map - 1]);
+          dsda_StringCat(str, LevelNames[(epsd - 1) * 9 + map - 1]);
       }
       else {
         switch (gamemode) {
