@@ -450,7 +450,7 @@ int dsda_LegacyMapAuthor(const char** author) {
   return true;
 }
 
-int dsda_LegacyHUTitleCheck(dsda_string_t* str) {
+int dsda_LegacyGenericMapname(dsda_string_t* str, int epsd, int map) {
   extern char** mapnames[];
   extern char** mapnames2[];
   extern char** mapnamesp[];
@@ -462,8 +462,8 @@ int dsda_LegacyHUTitleCheck(dsda_string_t* str) {
 
   if (raven) return false;
 
-  if (gamestate == GS_LEVEL && gamemap > 0 && gameepisode > 0) {
-    char* mapname = VANILLA_MAP_LUMP_NAME(gameepisode, gamemap);
+  if (map > 0 && epsd > 0) {
+    char* mapname = VANILLA_MAP_LUMP_NAME(epsd, map);
 
     if (W_PWADLumpNameExists(mapname)) {
       int classic_mapname = 0;
@@ -472,27 +472,27 @@ int dsda_LegacyHUTitleCheck(dsda_string_t* str) {
         case shareware:
         case registered:
         case retail:
-          if (gameepisode < 6 && gamemap < 10)
+          if (epsd < 6 && map < 10)
           {
-            if (*mapnames[(gameepisode - 1) * 9 + gamemap - 1] == og_mapnames[(gameepisode - 1) * 9 + gamemap - 1])
+            if (*mapnames[(epsd - 1) * 9 + map - 1] == og_mapnames[(epsd - 1) * 9 + map - 1])
               classic_mapname++;
           }
           break;
 
         default:
-          if (gamemission == pack_tnt && gamemap < 33)
+          if (gamemission == pack_tnt && map < 33)
           {
-            if (*mapnamest[gamemap - 1] == og_mapnamest[gamemap - 1])
+            if (*mapnamest[map - 1] == og_mapnamest[map - 1])
               classic_mapname++;
           }
-          else if (gamemission == pack_plut && gamemap < 33)
+          else if (gamemission == pack_plut && map < 33)
           {
-            if (*mapnamesp[gamemap - 1] == og_mapnamesp[gamemap - 1])
+            if (*mapnamesp[map - 1] == og_mapnamesp[map - 1])
               classic_mapname++;
           }
-          else if (gamemap < 34)
+          else if (map < 34)
           {
-            if (*mapnames2[gamemap - 1] == og_mapnames2[gamemap - 1])
+            if (*mapnames2[map - 1] == og_mapnames2[map - 1])
               classic_mapname++;
           }
           break;
@@ -501,7 +501,7 @@ int dsda_LegacyHUTitleCheck(dsda_string_t* str) {
       if (classic_mapname > 0)
       {
         if (gamemode == commercial)
-          sprintf(mapname, "level %i", gamemap);
+          sprintf(mapname, "level %i", map);
         dsda_StringCat(str, mapname);
         return true;
       }
@@ -511,7 +511,7 @@ int dsda_LegacyHUTitleCheck(dsda_string_t* str) {
   return false;
 }
 
-int dsda_LegacyHUTitle(dsda_string_t* str) {
+int dsda_LegacyMapTitle(dsda_string_t* str, int epsd, int map, int override) {
   extern char** mapnames[];
   extern char** mapnames2[];
   extern char** mapnamesp[];
@@ -520,42 +520,50 @@ int dsda_LegacyHUTitle(dsda_string_t* str) {
 
   dsda_InitString(str, NULL);
 
-  if(dsda_IntConfig(nyan_config_ignore_default_map_names) && dsda_LegacyHUTitleCheck(str) == true)
-    return true;
+  if (override || gamestate == GS_LEVEL)
+  {
+    if(dsda_IntConfig(nyan_config_ignore_default_map_names) && dsda_LegacyGenericMapname(str, epsd, map))
+      return true;
 
-  if (gamestate == GS_LEVEL && gamemap > 0 && gameepisode > 0) {
-    if (heretic) {
-      if (gameepisode < 6 && gamemap < 10)
-        dsda_StringCat(str, LevelNames[(gameepisode - 1) * 9 + gamemap - 1]);
-    }
-    else {
-      switch (gamemode) {
-        case shareware:
-        case registered:
-        case retail:
-          // Chex.exe always uses the episode 1 level title
-          // eg. E2M1 gives the title for E1M1
-          if (chex_exe && gamemap < 10)
-            dsda_StringCat(str, *mapnames[gamemap - 1]);
-          else if (gameepisode < 6 && gamemap < 10)
-            dsda_StringCat(str, *mapnames[(gameepisode - 1) * 9 + gamemap - 1]);
-          break;
+    if (map > 0 && epsd > 0) {
+      if (heretic) {
+        if (epsd < 6 && map < 10)
+          dsda_StringCat(str, LevelNames[(gameepisode - 1) * 9 + map - 1]);
+      }
+      else {
+        switch (gamemode) {
+          case shareware:
+          case registered:
+          case retail:
+            // Chex.exe always uses the episode 1 level title
+            // eg. E2M1 gives the title for E1M1
+            if (chex_exe && map < 10)
+              dsda_StringCat(str, *mapnames[map - 1]);
+            else if (epsd < 6 && map < 10)
+              dsda_StringCat(str, *mapnames[(epsd - 1) * 9 + map - 1]);
+            break;
 
-        default:  // Ty 08/27/98 - modified to check mission for TNT/Plutonia
-          if (gamemission == pack_tnt && gamemap < 33)
-            dsda_StringCat(str, *mapnamest[gamemap - 1]);
-          else if (gamemission == pack_plut && gamemap < 33)
-            dsda_StringCat(str, *mapnamesp[gamemap - 1]);
-          else if (gamemap < 34)
-            dsda_StringCat(str, *mapnames2[gamemap - 1]);
-          break;
+          default:  // Ty 08/27/98 - modified to check mission for TNT/Plutonia
+            if (gamemission == pack_tnt && map < 33)
+              dsda_StringCat(str, *mapnamest[map - 1]);
+            else if (gamemission == pack_plut && map < 33)
+              dsda_StringCat(str, *mapnamesp[map - 1]);
+            else if (map < 34)
+              dsda_StringCat(str, *mapnames2[map - 1]);
+            break;
+        }
       }
     }
   }
 
   if (!str->string)
-    dsda_StringCat(str, VANILLA_MAP_LUMP_NAME(gameepisode, gamemap));
+    dsda_StringCat(str, VANILLA_MAP_LUMP_NAME(epsd, map));
 
+  return true;
+}
+
+int dsda_LegacyHUTitle(dsda_string_t* str) {
+  dsda_LegacyMapTitle(str, gameepisode, gamemap, false);
   return true;
 }
 
