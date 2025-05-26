@@ -488,7 +488,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [nyan_config_ignore_default_map_names] = {
    "nyan_ignore_default_map_names", nyan_config_ignore_default_map_names,
-   CONF_BOOL(1), NULL, STRICT_INT(0)
+   CONF_BOOL(1), NULL, NOT_STRICT
   },
   [nyan_config_play_random_music] = {
     "nyan_play_random_music", nyan_config_play_random_music,
