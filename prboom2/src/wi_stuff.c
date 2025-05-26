@@ -48,6 +48,7 @@
 #include "dsda/exhud.h"
 #include "dsda/font.h"
 #include "dsda/mapinfo.h"
+#include "dsda/mapinfo/legacy.h"
 #include "dsda/configuration.h"
 #include "dsda/animate.h"
 #include "dsda/library.h"
@@ -526,6 +527,33 @@ static void WI_DrawString(int cx, int cy, const char* ch)
   }
 }
 
+dsda_string_t classic_mapname;
+
+const char* WI_LegacyMapname(int epsd, int map)
+{
+  char lname[9];
+  const char* levelname = NULL;
+  char* mapname = VANILLA_MAP_LUMP_NAME(epsd + 1, map + 1);
+
+  if (classic_mapname.string)
+    dsda_FreeString(&classic_mapname);
+
+  dsda_InitString(&classic_mapname, NULL);
+
+  if (W_PWADLumpNameExists(mapname))
+  {
+    if (dsda_LegacyMapTitle(&classic_mapname, epsd + 1, map + 1, true))
+    {
+      WI_levelNameLump(epsd, map, lname);
+    
+      if (!W_PWADLumpNameExists(lname))
+        levelname = classic_mapname.string;
+    }
+  }
+
+  return levelname;
+}
+
 // ====================================================================
 // WI_drawLF
 // Purpose: Draw the "Finished" level name before showing stats
@@ -535,6 +563,7 @@ static void WI_DrawString(int cx, int cy, const char* ch)
 const char *lf_levelname;
 const char *lf_levelpic;
 const char *lf_author;
+int lf_classic;
 
 void WI_drawLF(void)
 {
@@ -542,6 +571,9 @@ void WI_drawLF(void)
   char lname[9];
 
   dsda_PrepareFinished();
+
+  if (lf_classic && dsda_IntConfig(nyan_config_ignore_default_map_names))
+    lf_levelname = WI_LegacyMapname(wbs->epsd, wbs->last);
 
   if (lf_levelname)
   {
@@ -592,6 +624,7 @@ void WI_drawLF(void)
 const char *el_levelname;
 const char *el_levelpic;
 const char *el_author;
+int el_classic;
 
 void WI_drawEL(void)
 {
@@ -606,6 +639,9 @@ void WI_drawEL(void)
   y += (5 * V_NamePatchHeight(entering)) / 4;
 
   dsda_PrepareEntering();
+
+  if (el_classic && dsda_IntConfig(nyan_config_ignore_default_map_names))
+    el_levelname = WI_LegacyMapname(wbs->nextep, wbs->next);
 
   if (el_levelname)
   {
