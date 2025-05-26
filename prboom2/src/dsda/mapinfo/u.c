@@ -534,6 +534,9 @@ int dsda_UPrepareEntering(void) {
   extern const char *el_levelname;
   extern const char *el_levelpic;
   extern const char *el_author;
+  extern int el_classic;
+
+  el_classic = false;
 
   if (!nextmapinfo)
     return false;
@@ -560,6 +563,9 @@ int dsda_UPrepareFinished(void) {
   extern const char *lf_levelname;
   extern const char *lf_levelpic;
   extern const char *lf_author;
+  extern int lf_classic;
+
+  lf_classic = false;
 
   if (!lastmapinfo)
     return false;

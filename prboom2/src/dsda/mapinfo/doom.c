@@ -661,6 +661,9 @@ int dsda_DoomPrepareEntering(void) {
   extern const char *el_levelname;
   extern const char *el_levelpic;
   extern const char *el_author;
+  extern int el_classic;
+
+  el_classic = false;
 
   if (!next_map)
     return false;
@@ -683,6 +686,9 @@ int dsda_DoomPrepareFinished(void) {
   extern const char *lf_levelname;
   extern const char *lf_levelpic;
   extern const char *lf_author;
+  extern int lf_classic;
+
+  lf_classic = false;
 
   if (!last_map)
     return false;
