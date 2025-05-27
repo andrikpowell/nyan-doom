@@ -40,8 +40,8 @@ void dsda_UpdateTitleSwap(void)
   if (hud_title_cycle.string == NULL)
   {
     titleSwap = 0;
-    titleCounter = titleTime;  
-    dsda_StringPrintF(&hud_title_cycle, hud_title.string);
+    titleCounter = titleTime;
+    dsda_StringPrintF(&hud_title_cycle, "%s", hud_title.string);
   }
 
   // Restart counter + init swap 
@@ -57,7 +57,7 @@ void dsda_UpdateTitleSwap(void)
     if (titleSwap)
       dsda_StringPrintF(&hud_title_cycle, "Author: %s", hud_author.string);
     else
-      dsda_StringPrintF(&hud_title_cycle, hud_title.string);
+      dsda_StringPrintF(&hud_title_cycle, "%s", hud_title.string);
   }
 }
 

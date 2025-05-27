@@ -119,7 +119,7 @@ static void HU_FetchAuthor(void)
     dsda_FreeString(&hud_author);
 
   if (author && author[0])
-    dsda_StringPrintF(&hud_author, author);
+    dsda_StringPrintF(&hud_author, "%s", author);
 }
 
 static void HU_InitMessages(void)
