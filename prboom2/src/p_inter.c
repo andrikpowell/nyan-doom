@@ -490,7 +490,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 
   // Nutty Messages
   mega_message = (players[displayplayer].cheats & CF_NUT) ? "You got a Coconut!" : s_GOTMSPHERE;
-  soul_message = ((players[displayplayer].cheats & CF_NUT) && (gamemode != commercial)) ? "You got a Blueberry!" : s_GOTSUPER;
+  soul_message = (players[displayplayer].cheats & CF_NUT) ? "You got a Blueberry!" : s_GOTSUPER;
 
   // Dead thing touching.
   // Can happen with a sliding player corpse.
