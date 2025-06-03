@@ -553,11 +553,7 @@ void SB_Drawer(dboolean statusbaron)
     }
 
     if (stbar_solid_bg)
-    {
-        V_BeginMenuDraw();
         R_FillBackColor();
-        V_EndMenuDraw();
-    }
 
     CPlayer = &players[consoleplayer];
     if (heretic)

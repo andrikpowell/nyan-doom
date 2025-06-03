@@ -513,11 +513,7 @@ static void ST_refreshBackground(void)
       flags = VPT_ALIGN_BOTTOM;
 
       if (stbar_solid_bg)
-      {
-        V_BeginMenuDraw();
         R_FillBackColor();
-        V_EndMenuDraw();
-      }
 
       // Draw Normal stbar if it exists
       if (stbar_exists)
