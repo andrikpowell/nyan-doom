@@ -604,10 +604,11 @@ void R_FillBackColor (void)
 void R_FillBackScreen (void)
 {
   int automap = automap_on;
-  int stbar_solid_bg = dsda_IntConfig(dsda_config_sts_solid_bg_color);
 
   if (grnrock.lumpnum == 0)
     return;
+
+  V_BeginUIDraw();
 
   // e6y: wide-res
   if (ratio_multiplier != ratio_scale || wide_offsety)
@@ -631,15 +632,6 @@ void R_FillBackScreen (void)
     {
       int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
 
-      if (stbar_solid_bg)
-      {
-        V_BeginMenuDraw();
-        R_FillBackColor();
-        V_EndMenuDraw();
-        return;
-      }
-
-      V_BeginUIDraw();
       V_FillFlat(grnrock.lumpnum, 1, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
 
       // heretic_note: I think this looks bad, so I'm skipping it...
@@ -657,8 +649,6 @@ void R_FillBackScreen (void)
 
   if (scaledviewwidth == SCREENWIDTH)
     return;
-
-  V_BeginUIDraw();
 
   V_FillFlat(grnrock.lumpnum, 1, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
 
@@ -678,13 +668,6 @@ void R_FillBackScreen (void)
   V_DrawNumPatch(viewwindowx + scaledviewwidth, viewwindowy + viewheight, 1, brdr_br.lumpnum, CR_DEFAULT, VPT_NONE);
 
   V_EndUIDraw();
-
-  if (stbar_solid_bg)
-  {
-    V_BeginMenuDraw();
-    R_FillBackColor();
-    V_EndMenuDraw();
-  }
 }
 
 //

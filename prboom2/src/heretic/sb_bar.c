@@ -540,6 +540,7 @@ static int oldpieces = -1;
 
 void SB_Drawer(dboolean statusbaron)
 {
+    int stbar_solid_bg = dsda_IntConfig(dsda_config_sts_solid_bg_color);
     if (!statusbaron)
     {
         SB_PaletteFlash(false);
@@ -549,6 +550,13 @@ void SB_Drawer(dboolean statusbaron)
             ST_updateBlinkingKeys(CPlayer);
         }
         return;
+    }
+
+    if (stbar_solid_bg)
+    {
+        V_BeginMenuDraw();
+        R_FillBackColor();
+        V_EndMenuDraw();
     }
 
     CPlayer = &players[consoleplayer];

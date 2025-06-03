@@ -506,10 +506,18 @@ static void ST_refreshBackground(void)
 {
   int y = ST_Y;
   enum patch_translation_e flags = VPT_ALIGN_LEFT_TOP;
+  int stbar_solid_bg = dsda_IntConfig(dsda_config_sts_solid_bg_color);
 
   if (st_statusbaron)
     {
       flags = VPT_ALIGN_BOTTOM;
+
+      if (stbar_solid_bg)
+      {
+        V_BeginMenuDraw();
+        R_FillBackColor();
+        V_EndMenuDraw();
+      }
 
       // Draw Normal stbar if it exists
       if (stbar_exists)
