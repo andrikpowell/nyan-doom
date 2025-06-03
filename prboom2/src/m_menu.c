@@ -605,8 +605,15 @@ static void M_DrawReadThis1(void)
 
 static void M_DrawReadThis2(void)
 {
+  const char* helplump = (gamemode == commercial) ? help0 : help1;
+  int pwadmaps = W_PWADLumpNameExists("THINGS");
+
   inhelpscreens = true;
-  M_DrawHelp();
+
+  if (W_PWADLumpNameExists(helplump) || !pwadmaps)
+    M_DrawHelp();
+  else
+    M_DrawCredits();
 }
 
 /////////////////////////////
