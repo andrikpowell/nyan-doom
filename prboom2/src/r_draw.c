@@ -539,7 +539,12 @@ void R_FillBackColor (void)
   int ST_SCALED_BORDER = brdr_b.height * patches_scaley/2;
   const unsigned char *playpal = V_GetPlaypal();
   int prevlump = 0;
-  int lump = N_GetNyanPatchNum(W_LumpName(stbarbg.lumpnum));
+  int lump;
+
+  if (ST_SCALED_WIDTH >= SCREENWIDTH)
+    return;
+
+  lump = N_GetNyanPatchNum(W_LumpName(stbarbg.lumpnum));
   
   if (prevlump != lump)
   {
