@@ -1077,28 +1077,31 @@ void F_Drawer (void)
     F_TextWrite ();
   else
   {
-    // e6y: wide-res
-    V_ClearBorder();
+    const char* finalelump = NULL;
 
     switch (gameepisode)
     {
       // CPhipps - patch drawing updated
       case 1:
-          // Arsinikk - allows use of HELP2 screen for PWADs under DOOM 1
-          if ((gamemode == retail && !pwad_help2_check) || gamemode == commercial)
-            V_DrawNameNyanPatch(0, 0, 0, credit, CR_DEFAULT, VPT_STRETCH);
-          else
-            V_DrawNameNyanPatch(0, 0, 0, help2, CR_DEFAULT, VPT_STRETCH);
-           break;
+        // Arsinikk - allows use of HELP2 screen for PWADs under DOOM 1
+        int showhelp2 = ((gamemode == retail && pwad_help2_check) || gamemode <= registered);
+        finalelump = showhelp2 ? credit : help2;
+        break;
       case 2:
-            V_DrawNameNyanPatch(0, 0, 0, e2victory, CR_DEFAULT, VPT_STRETCH);
-           break;
+        finalelump = e2victory;
+        break;
       case 3:
-           F_BunnyScroll ();
-           break;
+        F_BunnyScroll ();
+        break;
       case 4:
-             V_DrawNameNyanPatch(0, 0, 0, e4endpic, CR_DEFAULT, VPT_STRETCH);
-           break;
+        finalelump = e4endpic;
+        break;
+    }
+
+    if (finalelump)
+    {
+      V_ClearBorder(); // e6y: wide-res
+      V_DrawNameNyanPatch(0, 0, 0, finalelump, CR_DEFAULT, VPT_STRETCH);
     }
   }
 }
