@@ -1186,13 +1186,12 @@ void ST_SetResolution(void)
 void ST_Drawer(void)
 {
   dboolean statusbaron = R_StatusBarVisible();
-  dboolean fullmenu = (menuactive == mnact_full) && !M_MenuIsShaded();
 
   V_BeginUIDraw();
 
   if (raven)
   {
-    SB_Drawer(statusbaron, fullmenu);
+    SB_Drawer(statusbaron);
     V_EndUIDraw();
     return;
   }
@@ -1206,10 +1205,7 @@ void ST_Drawer(void)
 
   if (statusbaron) {
     ST_refreshBackground(); // draw status bar background to off-screen buff
-
-    // Hide stbar numbers if fade overlay is inactive
-    if (!fullmenu || fadeBG())
-      ST_drawWidgets(); // and refresh all widgets
+    ST_drawWidgets(); // draw widgets
   }
 
   V_EndUIDraw();
