@@ -1079,12 +1079,13 @@ void F_Drawer (void)
   {
     const char* finalelump = NULL;
 
+    // Arsinikk - allows use of HELP2 screen for PWADs under DOOM 1
+    dboolean showhelp2 = (gamemode == retail && pwad_help2_check) || gamemode <= registered;
+
     switch (gameepisode)
     {
       // CPhipps - patch drawing updated
       case 1:
-        // Arsinikk - allows use of HELP2 screen for PWADs under DOOM 1
-        int showhelp2 = ((gamemode == retail && pwad_help2_check) || gamemode <= registered);
         finalelump = showhelp2 ? credit : help2;
         break;
       case 2:
