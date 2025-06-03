@@ -28,15 +28,15 @@ extern int Check_Stbar_Animate;
 
 void AnimateTicker(void);
 
-void dsda_InitNyanLumps(void);
-void dsda_ReloadNyanLumps(void);
+void N_InitNyanLumps(void);
+void N_ReloadNyanLumps(void);
 
 void V_DrawNameNyanPatch(const int x, const int y, const int scrn, const char* lump, const int color, const int flags);
 void V_DrawNyanBackground(const char* lump, const int scrn);
 
 // Also called by F_BunnyScroll()
-const int D_CheckAnimate(const char* lump);
-const int D_CheckWide(const char* lump);
+const int N_CheckAnimate(const char* lump);
+const int N_CheckWide(const char* lump);
 const char* PrefixCombine(const char *lump_prefix, const char *lump_main);
 
 #endif

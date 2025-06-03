@@ -496,11 +496,11 @@ dsda_config_t dsda_config[dsda_config_count] = {
    },
   [nyan_config_enable_widescreen_lumps] = {
    "nyan_enable_widescreen_lumps", nyan_config_enable_widescreen_lumps,
-   CONF_BOOL(1), NULL, NOT_STRICT, dsda_ReloadNyanLumps
+   CONF_BOOL(1), NULL, NOT_STRICT, N_ReloadNyanLumps
   },
   [nyan_config_enable_animate_lumps] = {
    "nyan_enable_animate_lumps", nyan_config_enable_animate_lumps,
-   CONF_BOOL(1), NULL, NOT_STRICT, dsda_ReloadNyanLumps
+   CONF_BOOL(1), NULL, NOT_STRICT, N_ReloadNyanLumps
   },
   [dsda_config_script_0] = {
     "dsda_script_0", dsda_config_script_0,

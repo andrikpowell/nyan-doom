@@ -39,18 +39,18 @@ void AnimateTicker(void)
   AnimateTime++;
 }
 
-void dsda_InitNyanLumps(void) {
+void N_InitNyanLumps(void) {
     if (!raven) {
         animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
         widescreenLumps = dsda_IntConfig(nyan_config_enable_widescreen_lumps);
 
-        Check_Skull_Animate = D_CheckAnimate(mskull1);
-        Check_Stbar_Animate = D_CheckAnimate(stbar);
-        Check_Stbar_Wide = D_CheckWide(stbar);
+        Check_Skull_Animate = N_CheckAnimate(mskull1);
+        Check_Stbar_Animate = N_CheckAnimate(stbar);
+        Check_Stbar_Wide = N_CheckWide(stbar);
     }
 }
 
-void dsda_ReloadNyanLumps(void)
+void N_ReloadNyanLumps(void)
 {
     if (!raven) {
         animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
@@ -61,7 +61,7 @@ void dsda_ReloadNyanLumps(void)
 }
 
 
-const int D_CheckWide(const char* lump)
+const int N_CheckWide(const char* lump)
 {
     if (W_CheckNumForName(PrefixCombine("W_", lump)) != LUMP_NOT_FOUND)
         return true;
@@ -69,7 +69,7 @@ const int D_CheckWide(const char* lump)
     return false;
 }
 
-int D_SetupWidePatch(const char* lump)
+int N_SetupWidePatch(const char* lump)
 {
     int WLump = W_CheckNumForName(PrefixCombine("W_", lump));
 
@@ -79,7 +79,7 @@ int D_SetupWidePatch(const char* lump)
     return false;
 }
 
-const int D_CheckAnimate(const char* lump)
+const int N_CheckAnimate(const char* lump)
 {
     int SLump, ELump;
 
@@ -96,7 +96,7 @@ const int D_CheckAnimate(const char* lump)
     return false;
 }
 
-int D_SetupAnimatePatch(const char* lump)
+int N_SetupAnimatePatch(const char* lump)
 {
     int SLump = W_CheckNumForName(PrefixCombine("S_", lump));
     int ELump = W_CheckNumForName(PrefixCombine("E_", lump));
@@ -127,14 +127,14 @@ void V_DrawNameNyanPatch(const int x, const int y, const int scrn, const char* l
 
     if (animateLumps)
     {
-        AniCheck = D_SetupAnimatePatch(lump);
+        AniCheck = N_SetupAnimatePatch(lump);
 
         if (AniCheck)
             lumpNum = AniCheck;
     }
     if (widescreenLumps && !AniCheck && !SkipWide)
     {
-        WideCheck = D_SetupWidePatch(lump);
+        WideCheck = N_SetupWidePatch(lump);
 
         if (WideCheck)
             lumpNum = WideCheck;

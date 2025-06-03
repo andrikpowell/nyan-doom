@@ -963,8 +963,8 @@ void F_StartScroll (const char* right, const char* left, const char* music, dboo
 const rpatch_t *p1, *p2;
 static int  p1offset, p2width;
 
-#define R_PatchAnimateByName(name, fallback) (D_CheckAnimate(name) ? R_PatchByName(PrefixCombine("S_", name)) : fallback)
-#define R_PatchWideByName(name, fallback)    (D_CheckWide(name)    ? R_PatchByName(PrefixCombine("W_", name)) : fallback)
+#define R_PatchAnimateByName(name, fallback) (N_CheckAnimate(name) ? R_PatchByName(PrefixCombine("S_", name)) : fallback)
+#define R_PatchWideByName(name, fallback)    (N_CheckWide(name)    ? R_PatchByName(PrefixCombine("W_", name)) : fallback)
 
 void F_BunnyApplyWidth(void)
 {

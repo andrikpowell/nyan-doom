@@ -2119,8 +2119,8 @@ static void D_DoomMainSetup(void)
 
   G_ReloadDefaults();
 
-  lprintf(LO_DEBUG, "dsda_ReloadNyanLumps: Loading NYAN lumps.\n");
-  dsda_InitNyanLumps();
+  lprintf(LO_DEBUG, "N_InitNyanLumps: Loading NYAN lumps.\n");
+  N_InitNyanLumps();
 
   if (limitremoving)
     lprintf(LO_INFO, "Limit-removing detected. Overflows disabled\n");
