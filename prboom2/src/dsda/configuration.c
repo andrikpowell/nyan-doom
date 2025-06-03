@@ -1344,6 +1344,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "enhanced_liteamp", dsda_config_enhanced_liteamp,
     CONF_BOOL(0), NULL, STRICT_INT(0)
   },
+  [dsda_config_colored_borderbox] = {
+    "dsda_colored_borderbox", dsda_config_colored_borderbox,
+    CONF_BOOL(1)
+  },
   [dsda_config_render_wipescreen] = {
     "render_wipescreen", dsda_config_render_wipescreen,
     CONF_BOOL(1), NULL, STRICT_INT(1)

@@ -3371,6 +3371,7 @@ static const char* translucent_list[] = { "Off", "Default", "w/ Vanilla", NULL }
 setup_menu_t display_options_settings[] = {
   { "Menu Background", S_CHOICE, m_conf, G_X, dsda_config_menu_background, 0, menu_background_list },
   { "Wipe Screen Effect", S_YESNO,  m_conf, G_X, dsda_config_render_wipescreen },
+  { "Colored Borderbox", S_YESNO, m_conf, G_X, dsda_config_colored_borderbox },
   { "View Bobbing", S_YESNO, m_conf, G_X, dsda_config_viewbob },
   { "Weapon Bobbing", S_YESNO, m_conf, G_X, dsda_config_weaponbob },
   { "Weapon Attack Alignment", S_CHOICE, m_conf, G_X, dsda_config_weapon_attack_alignment, 0, weapon_attack_alignment_strings },
@@ -4299,7 +4300,7 @@ static void M_DrawExtHelp(void)
 
   inhelpscreens = true;              // killough 5/1/98
   // CPhipps - patch drawing updated
-  V_ClearBorder(); // Arsinikk - redraw background for every ext HELP screen. Adds background for widescreen on sides.
+  V_ClearBorder(namebfr); // Adds background for widescreen on sides.
   V_DrawNameNyanPatch(0, 0, 0, namebfr, CR_DEFAULT, VPT_STRETCH);
 }
 
@@ -4470,7 +4471,7 @@ static void M_DrawHelp (void)
 
   M_ChangeMenu(NULL, mnact_full);
 
-  V_ClearBorder();
+  V_ClearBorder(helplump);
   V_DrawNameNyanPatch(0, 0, 0, helplump, CR_DEFAULT, VPT_STRETCH);
 }
 
@@ -4483,9 +4484,11 @@ static void M_DrawAd (void)
 {
   M_ChangeMenu(NULL, mnact_full);
 
-  V_ClearBorder();
   if (pwad_help2_check || gamemode == shareware)
+  {
+    V_ClearBorder(help2);
     V_DrawNameNyanPatch(0, 0, 0, help2, CR_DEFAULT, VPT_STRETCH);
+  }
   else
     M_DrawCredits();
 }
@@ -4518,9 +4521,11 @@ void M_DrawCredits(void)     // killough 10/98: credit screen
 {
   inhelpscreens = true;
 
-  V_ClearBorder();
   if (tc_game || doom_v11)
+  {
+    V_ClearBorder(credit);
     V_DrawNameNyanPatch(0, 0, 0, credit, CR_DEFAULT, VPT_STRETCH);
+  }
   else
     M_DrawCreditsDynamic();
 }

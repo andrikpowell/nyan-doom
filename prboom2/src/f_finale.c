@@ -564,7 +564,7 @@ void F_TextWrite (void)
 {
   if (finalepatch)
   {
-    V_ClearBorder();
+    V_ClearBorder(finalepatch);
     V_DrawNameNyanPatch(0, 0, 0, finalepatch, CR_DEFAULT, VPT_STRETCH);
   }
   else
@@ -900,7 +900,7 @@ void F_CastDrawer (void)
   dboolean             flip;
 
   // e6y: wide-res
-  V_ClearBorder();
+  V_ClearBorder(castbackground);
   // erase the entire screen to a background
   // CPhipps - patch drawing updated
   V_DrawNameNyanPatch(0,0,0, castbackground, CR_DEFAULT, VPT_STRETCH); // Ty 03/30/98 bg texture extern
@@ -1017,7 +1017,7 @@ void F_BunnyScroll (void)
       V_DrawNameNyanPatch(-scrolled, 0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
     }
     if (p2width == 320)
-      V_ClearBorder();
+      V_ClearBorder(scrollpic1);
   }
 
   if (!end_patches_exist)
@@ -1100,7 +1100,7 @@ void F_Drawer (void)
 
     if (finalelump)
     {
-      V_ClearBorder(); // e6y: wide-res
+      V_ClearBorder(finalelump); // e6y: wide-res
       V_DrawNameNyanPatch(0, 0, 0, finalelump, CR_DEFAULT, VPT_STRETCH);
     }
   }

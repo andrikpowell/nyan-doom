@@ -458,7 +458,7 @@ void dsda_DoomFDrawer(void) {
     F_BunnyScroll();
   else {
     // e6y: wide-res
-    V_ClearBorder();
+    V_ClearBorder(end_data->end_pic);
     V_DrawNameNyanPatch(0, 0, 0, end_data->end_pic, CR_DEFAULT, VPT_STRETCH);
   }
 }

@@ -55,6 +55,7 @@
 #include "st_stuff.h"
 #include "e6y.h"
 
+#include "dsda/animate.h"
 #include "dsda/configuration.h"
 #include "dsda/cr_table.h"
 #include "dsda/global.h"
@@ -1313,9 +1314,37 @@ ColorEntry_t V_GetPatchColor (int lumpnum)
   return col;
 }
 
-void V_ClearBorder(void)
+byte V_GetBorderColor(const char* lump)
+{
+  const unsigned char *playpal = V_GetPlaypal();
+  ColorEntry_t patch_color;
+  byte col;
+  int r, g, b;
+  patch_color.r = 0;
+  patch_color.g = 0;
+  patch_color.b = 0;
+
+  patch_color = V_GetPatchColor(N_GetNyanPatchNum(lump));
+  r = patch_color.r;
+  g = patch_color.g;
+  b = patch_color.b;
+
+  // Desaturate colours
+  r /= 2;
+  g /= 2;
+  b /= 2;
+
+  // Convert to palette
+  col = V_BestColor(playpal, r, g, b);
+
+  return col;
+}
+
+void V_ClearBorder(const char* lump)
 {
   int bordtop, bordbottom, bordleft, bordright;
+  static byte pillarboxcolor;
+  dboolean ColorBorder;
 
   if (render_stretch_hud == patch_stretch_fit_to_width)
     return;
@@ -1325,20 +1354,23 @@ void V_ClearBorder(void)
   bordtop = wide_offsety;
   bordbottom = wide_offset2y - wide_offsety;
 
+  ColorBorder = dsda_IntConfig(dsda_config_colored_borderbox) && (lump != NULL);
+  pillarboxcolor = ColorBorder ? V_GetBorderColor(lump) : 0;
+
   if (bordtop > 0)
   {
     // Top
-    V_FillRect(0, 0, 0, SCREENWIDTH, bordtop, 0);
+    V_FillRect(0, 0, 0, SCREENWIDTH, bordtop, pillarboxcolor);
     // Bottom
-    V_FillRect(0, 0, SCREENHEIGHT - bordbottom, SCREENWIDTH, bordbottom, 0);
+    V_FillRect(0, 0, SCREENHEIGHT - bordbottom, SCREENWIDTH, bordbottom, pillarboxcolor);
   }
 
   if (bordleft > 0)
   {
     // Left
-    V_FillRect(0, 0, bordtop, bordleft, SCREENHEIGHT - bordbottom - bordtop, 0);
+    V_FillRect(0, 0, bordtop, bordleft, SCREENHEIGHT - bordbottom - bordtop, pillarboxcolor);
     // Right
-    V_FillRect(0, SCREENWIDTH - bordright, bordtop, bordright, SCREENHEIGHT - bordbottom - bordtop, 0);
+    V_FillRect(0, SCREENWIDTH - bordright, bordtop, bordright, SCREENHEIGHT - bordbottom - bordtop, pillarboxcolor);
   }
 }
 
@@ -1601,7 +1633,7 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
   // which causes the black bars on the edge of heretic E3's
   // bottom endscreen to overlap the top screen during scrolling.
   // this happens in both software and GL at the time of writing.
-  V_ClearBorder();
+  V_ClearBorder(NULL);
 
   // custom widescreen assets are a different format
   {
@@ -1610,6 +1642,7 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
     lump = W_CheckNumForName(lump_name);
     if (W_LumpLength(lump) != HERETIC_RAW_SCREEN_SIZE)
     {
+      V_ClearBorder(lump_name);
       V_DrawNamePatch(0, 0, 0, lump_name, CR_DEFAULT, VPT_STRETCH);
       return;
     }

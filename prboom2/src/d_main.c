@@ -668,7 +668,7 @@ static void D_PageDrawer(void)
   if (pagename)
   {
     // e6y: wide-res
-    V_ClearBorder();
+    V_ClearBorder(pagename);
 
     V_DrawNameNyanPatch(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
   }

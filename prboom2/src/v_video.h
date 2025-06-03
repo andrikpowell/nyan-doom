@@ -313,7 +313,7 @@ typedef struct ColorEntry_s
 ColorEntry_t V_GetPatchColor (int lumpnum);
 
 // e6y: wide-res
-void V_ClearBorder(void);
+void V_ClearBorder(const char* lump);
 
 void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags);
 

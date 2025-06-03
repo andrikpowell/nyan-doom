@@ -169,7 +169,7 @@ static void IN_DrawInterpic(void)
   snprintf(name, sizeof(name), "MAPE%d", gameepisode);
 
   // e6y: wide-res
-  V_ClearBorder();
+  V_ClearBorder(name);
   V_DrawNamePatch(0, 0, 0, name, CR_DEFAULT, VPT_STRETCH);
 }
 
@@ -572,7 +572,7 @@ void IN_Drawer(void)
 void IN_DrawStatBack(void)
 {
     // e6y: wide-res
-    V_ClearBorder();
+    V_ClearBorder(NULL);
     V_DrawBackground("FLOOR16", 0);
 }
 

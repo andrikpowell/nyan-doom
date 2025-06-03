@@ -145,7 +145,7 @@ void Heretic_F_TextWrite(void)
   int width;
 
   // e6y: wide-res
-  V_ClearBorder();
+  V_ClearBorder(NULL);
 
   //
   // erase the entire screen to a tiled background
