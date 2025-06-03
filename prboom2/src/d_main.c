@@ -481,11 +481,6 @@ void D_Display (fixed_t frac)
     use_boom_cm=false;
     frame_fixedcolormap = 0;
 
-    if (automap_active)
-    {
-      AM_Drawer(false);
-    }
-
     R_RestoreInterpolations();
 
     DSDA_ADD_CONTEXT(sf_status_bar);
@@ -497,6 +492,11 @@ void D_Display (fixed_t frac)
 
     if (V_IsSoftwareMode())
       R_DrawViewBorder();
+
+    if (automap_active)
+    {
+      AM_Drawer(false);
+    }
 
     DSDA_ADD_CONTEXT(sf_hud);
     HU_Drawer();

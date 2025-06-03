@@ -619,17 +619,12 @@ void AM_SetPosition(void)
 {
   if (automap_active)
   {
-    if (automap_overlay > 0)
+    if (!R_StatusBarVisible())
     {
       f_x = 0;
       f_y = 0;
       f_w = SCREENWIDTH;
       f_h = SCREENHEIGHT;
-
-      f_x = viewwindowx + f_x * viewwidth / SCREENWIDTH;
-      f_y = viewwindowy + f_y * viewheight / SCREENHEIGHT;
-      f_w = f_w * viewwidth / SCREENWIDTH;
-      f_h = f_h * viewheight / SCREENHEIGHT;
     }
     else
     {
