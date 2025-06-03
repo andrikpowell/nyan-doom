@@ -534,7 +534,7 @@ void R_FillBackColor (void)
   ColorEntry_t stbar_color;
   static byte col;
   static byte col_top;
-  int r, g, b;
+  int r = 0, g = 0, b = 0;
   int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
   int ST_SCALED_BORDER = brdr_b.height * patches_scaley/2;
   const unsigned char *playpal = V_GetPlaypal();
