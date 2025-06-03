@@ -114,7 +114,7 @@ int N_SetupAnimatePatch(const char* lump)
     return false;
 }
 
-void V_DrawNameNyanPatch(const int x, const int y, const int scrn, const char* lump, const int color, const int flags)
+int N_GetNyanPatchNum(const char* lump)
 {
     int lumpNum = W_GetNumForName(lump);
     int AniCheck = 0;
@@ -140,7 +140,12 @@ void V_DrawNameNyanPatch(const int x, const int y, const int scrn, const char* l
             lumpNum = WideCheck;
     }
 
-    V_DrawNumPatch(x, y, scrn, lumpNum, color, flags);
+    return lumpNum;
+}
+
+void V_DrawNameNyanPatch(const int x, const int y, const int scrn, const char* lump, const int color, const int flags)
+{
+    V_DrawNumPatch(x, y, scrn, N_GetNyanPatchNum(lump), color, flags);
 }
 
 void V_DrawNyanBackground(const char* lump, const int scrn)
