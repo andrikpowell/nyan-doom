@@ -26,6 +26,7 @@
 #include "v_video.h"
 #include "w_wad.h"
 
+#include "dsda/animate.h"
 #include "dsda/args.h"
 #include "dsda/episode.h"
 #include "dsda/map_format.h"
