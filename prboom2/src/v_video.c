@@ -1319,7 +1319,7 @@ byte V_GetBorderColor(const char* lump)
   const unsigned char *playpal = V_GetPlaypal();
   ColorEntry_t patch_color;
   byte col;
-  int r, g, b;
+  int r = 0, g = 0, b = 0;
   static int prevlump = 0;
   int lumpnum = N_GetNyanPatchNum(lump);
   patch_color.r = 0;
