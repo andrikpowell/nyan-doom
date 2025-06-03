@@ -617,7 +617,10 @@ void R_FillBackScreen (void)
   }
 
   if (scaledviewwidth == SCREENWIDTH)
+  {
+    V_EndUIDraw();
     return;
+  }
 
   V_FillFlat(grnrock.lumpnum, 1, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
 
