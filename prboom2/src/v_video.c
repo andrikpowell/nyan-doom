@@ -1320,14 +1320,20 @@ byte V_GetBorderColor(const char* lump)
   ColorEntry_t patch_color;
   byte col;
   int r, g, b;
+  static int prevlump = 0;
+  int lumpnum = N_GetNyanPatchNum(lump);
   patch_color.r = 0;
   patch_color.g = 0;
   patch_color.b = 0;
 
-  patch_color = V_GetPatchColor(N_GetNyanPatchNum(lump));
-  r = patch_color.r;
-  g = patch_color.g;
-  b = patch_color.b;
+  if (prevlump != lumpnum)
+  {
+    patch_color = V_GetPatchColor(lumpnum);
+    r = patch_color.r;
+    g = patch_color.g;
+    b = patch_color.b;
+    lumpnum = prevlump;
+  }
 
   // Desaturate colours
   r /= 2;

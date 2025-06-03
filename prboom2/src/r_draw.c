@@ -538,7 +538,7 @@ void R_FillBackColor (void)
   int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
   int ST_SCALED_BORDER = brdr_b.height * patches_scaley/2;
   const unsigned char *playpal = V_GetPlaypal();
-  int prevlump = 0;
+  static int prevlump = 0;
   int lump;
 
   if (ST_SCALED_WIDTH >= SCREENWIDTH)
