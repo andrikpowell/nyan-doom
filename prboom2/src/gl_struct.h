@@ -83,7 +83,7 @@ void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_
   gld_FillRaw(W_GetNumForName(name), (x), (y), (src_width), (src_height), (dst_width), (dst_height), (flags))
 
 #define gld_FillFlat(lump, x, y, width, height, flags) \
-  gld_FillRaw((firstflat+lump), (x), (y), 64, 64, (width), (height), (flags))
+  gld_FillRaw((firstflat+lump), 0, 0, 64, 64, SCREENWIDTH, SCREENHEIGHT, (flags))
 #define gld_FillFlatName(flatname, x, y, width, height, flags) \
   gld_FillFlat(R_FlatNumForName(flatname), (x), (y), (width), (height), (flags))
 #define gld_FillFlatNum(lump, x, y, width, height, flags) \
