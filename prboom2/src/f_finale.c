@@ -1086,7 +1086,7 @@ void F_Drawer (void)
     {
       // CPhipps - patch drawing updated
       case 1:
-        finalelump = showhelp2 ? credit : help2;
+        finalelump = showhelp2 ? help2 : credit;
         break;
       case 2:
         finalelump = e2victory;
