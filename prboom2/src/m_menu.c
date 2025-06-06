@@ -274,8 +274,8 @@ static void M_DrawLoad(void);
 static void M_DrawSave(void);
 static void M_DrawHelp (void);                                     // phares 5/04/98
 static void M_DrawAd(void);
+static void M_DrawCredits(void);
 
-static void M_DrawCreditsDynamic(void);
 static void M_DrawSaveLoadBorder(int x,int y);
 static void M_DrawThermo(int x,int y,int thermWidth,int thermRange,int thermDot);
 static void M_DrawEmptyCell(menu_t *menu,int item);
@@ -606,14 +606,16 @@ static void M_DrawReadThis1(void)
 static void M_DrawReadThis2(void)
 {
   const char* helplump = (gamemode == commercial) ? help0 : help1;
-  int pwadmaps = W_PWADLumpNameExists("THINGS");
+  int pwadmaps = W_PWADLumpNameExists("THINGS"); // show help screen for IWAD
 
   inhelpscreens = true;
 
   if (W_PWADLumpNameExists(helplump) || !pwadmaps)
     M_DrawHelp();
-  else
+  else if (W_PWADLumpNameExists(credit))
     M_DrawCredits();
+  else
+    M_DrawCreditsDynamic();
 }
 
 /////////////////////////////
@@ -4529,13 +4531,8 @@ void M_DrawCredits(void)     // killough 10/98: credit screen
 {
   inhelpscreens = true;
 
-  if (tc_game || doom_v11)
-  {
-    V_ClearBorder(credit);
-    V_DrawNameNyanPatch(0, 0, 0, credit, CR_DEFAULT, VPT_STRETCH);
-  }
-  else
-    M_DrawCreditsDynamic();
+  V_ClearBorder(credit);
+  V_DrawNameNyanPatch(0, 0, 0, credit, CR_DEFAULT, VPT_STRETCH);
 }
 
 void M_DrawCreditsDynamic(void)     // Dynamic Credits

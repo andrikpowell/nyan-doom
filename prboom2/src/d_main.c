@@ -673,7 +673,7 @@ static void D_PageDrawer(void)
     V_DrawNameNyanPatch(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
   }
   else
-    M_DrawCredits();
+    M_DrawCreditsDynamic();
 }
 
 //
