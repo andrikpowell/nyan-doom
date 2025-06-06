@@ -1807,6 +1807,16 @@ dboolean M_SetDisabled(const setup_menu_t* s)
   if (dsda_StrictMode() && dsda_IsStrictConfig(s->config_id))
     return true;
 
+  // Raven Disable Wipe
+  if (raven)
+  {
+    if (s->config_id == dsda_config_render_wipescreen)
+    {
+      dsda_UpdateIntConfig(dsda_config_render_wipescreen, 0, false);
+      return true;
+    }
+  }
+
   // Complevel Argument
   if (s->config_id == dsda_config_default_complevel)
   {

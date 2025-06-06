@@ -338,7 +338,7 @@ dboolean dsda_SkipWipe(void) {
     return true;
   }
 
-  return !dsda_RenderWipeScreen() || hexen;
+  return !dsda_RenderWipeScreen() || raven;
 }
 
 dboolean dsda_MultipleAreaMaps(void) {
