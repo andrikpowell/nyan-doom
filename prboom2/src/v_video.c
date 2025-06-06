@@ -1417,10 +1417,11 @@ byte V_GetBorderColor(const char* lump, int width, int height)
   const unsigned char *playpal = V_GetPlaypal();
   ColorEntry_t patch_color;
   byte col;
+  int lumpnum;
   int r = 0, g = 0, b = 0;
   static int prevlump = 0;
-  dboolean doom_format = !(width || height);;
-  int lumpnum = doom_format ? N_GetNyanPatchNum(lump) : W_GetNumForName(lump);
+  dboolean doom_format = !(width || height);
+  lumpnum = doom_format ? N_GetNyanPatchNum(lump) : W_GetNumForName(lump);
   patch_color.r = 0;
   patch_color.g = 0;
   patch_color.b = 0;
