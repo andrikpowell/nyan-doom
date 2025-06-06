@@ -1770,6 +1770,34 @@ static int entry_index;
 static char entry_string_index[ENTRY_STRING_BFR_SIZE]; // points to new strings while editing
 static int choice_value;
 
+static const char *gen_compstrings[] =
+{
+  "Default",
+  "Doom v1.2",
+  "Doom v1.666",
+  "Doom/2 v1.9",
+  "Ultimate Doom",
+  "Final Doom",
+  "DosDoom",
+  "TASDoom",
+  "Boom's vanilla",
+  "Boom v2.01",
+  "Boom",
+  "LxDoom",
+  "MBF",
+  "PrBoom 2.03b",
+  "PrBoom 2.1.x",
+  "PrBoom 2.2.x",
+  "PrBoom 2.3.x",
+  "PrBoom 2.4.0",
+  "Latest PrBoom+",
+  "~",
+  "~",
+  "~",
+  "MBF21",
+  NULL
+};
+
 /////////////////////////////
 //
 // M_SetDisabled
@@ -1788,6 +1816,18 @@ dboolean M_SetDisabled(const setup_menu_t* s)
   // Complevel Argument
   if (s->config_id == dsda_config_default_complevel)
   {
+    if (doom_v11 || raven)
+    {
+      dsda_UpdateIntConfig(dsda_config_default_complevel, 0, false);
+
+      if (doom_v11)
+        gen_compstrings[1] = "Doom v1.0/1.1";
+
+      if (raven)
+        gen_compstrings[1] = "Raven";
+
+      return true;
+    }
     if (dsda_Arg(dsda_arg_complevel)->found)
     {
       dsda_UpdateIntConfig(dsda_config_default_complevel, dsda_Arg(dsda_arg_complevel)->value.v_int, false);
@@ -3075,34 +3115,6 @@ static const char *videomodes[] = {
 static const char *gen_skillstrings[] = {
   // Dummy first option because defaultskill is 1-based
   "", "ITYTD", "HNTR", "HMP", "UV", "NM", NULL
-};
-
-static const char *gen_compstrings[] =
-{
-  "Default",
-  "Doom v1.2",
-  "Doom v1.666",
-  "Doom/2 v1.9",
-  "Ultimate Doom",
-  "Final Doom",
-  "DosDoom",
-  "TASDoom",
-  "Boom's vanilla",
-  "Boom v2.01",
-  "Boom",
-  "LxDoom",
-  "MBF",
-  "PrBoom 2.03b",
-  "PrBoom 2.1.x",
-  "PrBoom 2.2.x",
-  "PrBoom 2.3.x",
-  "PrBoom 2.4.0",
-  "Latest PrBoom+",
-  "~",
-  "~",
-  "~",
-  "MBF21",
-  NULL
 };
 
 static const char *death_use_strings[] = { "default", "nothing", "reload", NULL };
