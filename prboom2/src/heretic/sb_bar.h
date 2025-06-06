@@ -37,6 +37,7 @@ void SB_Init(void);
 void SB_Ticker(void);
 void SB_Drawer(dboolean statusbaron);
 void SB_PaletteFlash(dboolean forceChange);
+void SB_DrawHorns(void);
 
 // hexen
 

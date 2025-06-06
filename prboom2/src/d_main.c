@@ -498,6 +498,9 @@ void D_Display (fixed_t frac)
       AM_Drawer(false);
     }
 
+    if (raven)
+      SB_DrawHorns();
+
     DSDA_ADD_CONTEXT(sf_hud);
     HU_Drawer();
     DSDA_REMOVE_CONTEXT(sf_hud);

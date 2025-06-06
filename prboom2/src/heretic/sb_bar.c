@@ -685,25 +685,32 @@ void SB_PaletteFlash(dboolean forceChange)
 //
 //---------------------------------------------------------------------------
 
+void SB_DrawHorns(void)
+{
+    dboolean statusbaron = R_StatusBarVisible();
+
+    if (statusbaron && !dsda_HideHorns())
+    {
+        V_BeginUIDraw();
+        if (heretic)
+        {
+            V_DrawNumPatch(0,  148, 0, LumpLTFCTOP, CR_DEFAULT, VPT_STRETCH);
+            V_DrawNumPatch(0,  148, 1, LumpLTFCTOP, CR_DEFAULT, VPT_STRETCH);
+            V_DrawNumPatch(290,  148, 0, LumpRTFCTOP, CR_DEFAULT, VPT_STRETCH);
+            V_DrawNumPatch(290,  148, 1, LumpRTFCTOP, CR_DEFAULT, VPT_STRETCH);
+        }
+        else
+        {
+            V_DrawNumPatch(0, 134, 0, LumpH2TOP, CR_DEFAULT, VPT_STRETCH);
+            V_DrawNumPatch(0, 134, 1, LumpH2TOP, CR_DEFAULT, VPT_STRETCH);
+        }
+        V_EndUIDraw();
+    }
+}
+
 void DrawCommonBar(void)
 {
     int healthPos;
-
-    if (!dsda_HideHorns())
-    {
-      if (heretic)
-      {
-          V_DrawNumPatch(0,  148, 0, LumpLTFCTOP, CR_DEFAULT, VPT_STRETCH);
-          V_DrawNumPatch(0,  148, 1, LumpLTFCTOP, CR_DEFAULT, VPT_STRETCH);
-          V_DrawNumPatch(290,  148, 0, LumpRTFCTOP, CR_DEFAULT, VPT_STRETCH);
-          V_DrawNumPatch(290,  148, 1, LumpRTFCTOP, CR_DEFAULT, VPT_STRETCH);
-      }
-      else
-      {
-          V_DrawNumPatch(0, 134, 0, LumpH2TOP, CR_DEFAULT, VPT_STRETCH);
-          V_DrawNumPatch(0, 134, 1, LumpH2TOP, CR_DEFAULT, VPT_STRETCH);
-      }
-    }
 
     if (oldhealth != HealthMarker)
     {
