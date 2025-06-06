@@ -2986,8 +2986,16 @@ void G_InitNew(int skill, int episode, int map, dboolean prepare)
   {
     if (heretic)
     {
-      if (episode > 9)
-        episode = 9;
+      if (gamemode >= registered)
+      {
+        if (episode > 9)
+          episode = 9;
+      }
+      else // only start episode 1 on shareware
+      {
+        if (episode > 1)
+          episode = 1;
+      }
       if (map < 1)
         map = 1;
       if (map > 9)
