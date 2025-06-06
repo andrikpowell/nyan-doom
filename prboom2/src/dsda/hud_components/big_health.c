@@ -83,7 +83,7 @@ void dsda_InitBigHealthHC(int x_offset, int y_offset, int vpt, int* args, int ar
   }
   else {
     health_lump = R_NumPatchForSpriteIndex(SPR_MEDI);
-    strength_lump = R_NumPatchForSpriteIndex(SPR_PSTR);
+    strength_lump = (gamemode != shareware) ? R_NumPatchForSpriteIndex(SPR_PSTR) : health_lump; // berserk doesn't exist in shareware
     patch_delta_x = 14;
     patch_vertical_spacing = 2;
     patch_spacing = 2;
