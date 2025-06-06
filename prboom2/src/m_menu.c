@@ -2679,6 +2679,7 @@ setup_menu_t keys_raven_settings[] = {
   { "INVENTORY LEFT", S_INPUT, m_scrn, MS_X, 0, dsda_input_invleft },
   { "INVENTORY RIGHT", S_INPUT, m_scrn, MS_X, 0, dsda_input_invright },
   { "USE ARTIFACT", S_INPUT, m_scrn, MS_X, 0, dsda_input_use_artifact },
+  { "SKIP ARTIFACT", S_INPUT, m_scrn, MS_X, 0, dsda_input_skip_artifact },
   EMPTY_LINE,
   { "HERETIC INVENTORY", S_SKIP | S_TITLE, m_null, MS_X},
   { "USE TOME OF POWER", S_INPUT, m_scrn, MS_X, 0, dsda_input_arti_tome },

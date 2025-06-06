@@ -646,6 +646,18 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       }
     }
 
+    // Skip artifact key
+    if (dsda_InputTickActivated(dsda_input_skip_artifact))
+    {
+      if (players[consoleplayer].inventory[inv_ptr].type != arti_none)
+      {
+        if (hexen)
+          P_PlayerNextArtifact(&players[consoleplayer]);
+        else
+          cmd->arti = 0xff;       // skip artifact code
+      }
+    }
+
     if (hexen)
     {
       extern int mn_SuicideConsole;

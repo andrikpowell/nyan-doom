@@ -61,6 +61,7 @@ typedef enum {
   dsda_input_lookdown,
   dsda_input_lookcenter,
   dsda_input_use_artifact,
+  dsda_input_skip_artifact,
   dsda_input_arti_tome,
   dsda_input_arti_quartz,
   dsda_input_arti_urn,

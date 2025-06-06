@@ -537,6 +537,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_lookdown", dsda_input_lookdown, 0, -1, -1),
   INPUT_SETTING("input_lookcenter", dsda_input_lookcenter, 0, -1, -1),
   INPUT_SETTING("input_use_artifact", dsda_input_use_artifact, KEYD_RSHIFT, -1, DSDA_CONTROLLER_BUTTON_RIGHTSHOULDER),
+  INPUT_SETTING("input_skip_artifact", dsda_input_skip_artifact, 0, -1, -1),
   INPUT_SETTING("input_arti_tome", dsda_input_arti_tome, 0, -1, -1),
   INPUT_SETTING("input_arti_quartz", dsda_input_arti_quartz, 0, -1, -1),
   INPUT_SETTING("input_arti_urn", dsda_input_arti_urn, 0, -1, -1),
