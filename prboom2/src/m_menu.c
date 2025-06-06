@@ -592,7 +592,7 @@ static void M_DrawReadThis1(void)
 {
   inhelpscreens = true;
   // Allows use of HELP2 screen for PWADs under DOOM 1
-  if (pwad_help2_check || gamemode == shareware)
+  if (pwad_help2_check || doom_v11 || gamemode == shareware)
     M_DrawAd();
   else
     M_DrawCredits();
@@ -4277,7 +4277,7 @@ static void M_InitExtendedHelp(void)
             if (raven) {
               ExtHelpDef.prevMenu  = &InfoDef4; /* previous menu */
               InfoMenu4[0].routine = M_ExtHelp;
-            } else if (gamemode == shareware || pwad_help2_check) {
+            } else if (pwad_help2_check || doom_v11 || gamemode == shareware) {
               ExtHelpDef.prevMenu  = &ReadDef2; /* previous menu */
               ReadMenu2[0].routine = M_ExtHelp;
             } else {
@@ -4494,7 +4494,7 @@ static void M_DrawAd (void)
 {
   M_ChangeMenu(NULL, mnact_full);
 
-  if (pwad_help2_check || gamemode == shareware)
+  if (pwad_help2_check || doom_v11 || gamemode == shareware)
   {
     V_ClearBorder(help2);
     V_DrawNameNyanPatch(0, 0, 0, help2, CR_DEFAULT, VPT_STRETCH);
@@ -6650,7 +6650,7 @@ void M_InitHelp(void)
 
     // If shareware or PWAD HELP2, use ad screen (w/ offset)
     // with HELP1 screen, else cut to only HELP1 screen
-    if (pwad_help2_check || gamemode == shareware)
+    if (pwad_help2_check || doom_v11 || gamemode == shareware)
       ReadDef1.y = 15;
     else
     {
