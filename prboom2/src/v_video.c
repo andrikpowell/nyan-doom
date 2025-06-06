@@ -1223,8 +1223,8 @@ int V_GetPlaypalCount(void)
 
 //
 // V_GetPatchColor
-// Get the color of a lump
-// via lumpnum
+// Get the color of a Doom-Format
+// graphic via lumpnum
 //
 
 ColorEntry_t V_GetPatchColor (int lumpnum)
@@ -1305,6 +1305,37 @@ ColorEntry_t V_GetPatchColor (int lumpnum)
       }
     }
   }
+  else
+  {
+    // Get color from all pixels
+    for (i = 0; i < width; ++i) {
+      // Skip irrelevant data in the doom patch header
+      byte length;
+      byte entry;
+      const byte* p;
+      int32_t offset;
+      p = lump + 8 + 4 * i;
+      offset = *((const int32_t *) p);
+      p = lump + LittleLong(offset);
+
+      while (*p != 0xff) {
+        p++;
+        length = *p++;
+        p++;
+
+        // Get RGB values per pixel
+        for (j = 0; j < length; ++j) {
+          entry = *p++;
+          col.r += playpal[3 * entry + 0];
+          col.g += playpal[3 * entry + 1];
+          col.b += playpal[3 * entry + 2];
+          pixel_cnt++;
+        }
+
+        p++;
+      }
+    }
+  }
 
   // Average RGB values
   col.r /= pixel_cnt;
@@ -1314,21 +1345,89 @@ ColorEntry_t V_GetPatchColor (int lumpnum)
   return col;
 }
 
-byte V_GetBorderColor(const char* lump)
+//
+// V_GetPatchColorRaw
+// Get the color of a Raw-Format
+// graphic via lumpnum
+//
+
+ColorEntry_t V_GetPatchColorRaw (int lumpnum, int w, int h)
+{
+  ColorEntry_t col;
+  const unsigned char *playpal = V_GetPlaypal();
+  int x, y, pixel_cnt;
+  const byte* lump;
+
+  pixel_cnt = 0;
+  col.r = 0;
+  col.g = 0;
+  col.b = 0;
+
+  lump = W_LumpByNum(lumpnum);
+
+  if (w >= 16)
+  {
+    // Get color from left 16 pixels
+    for (x = 0; x < 16; ++x) {
+      for (y = 0; y < h; ++y) {
+        byte entry = lump[y * w + x];
+        col.r += playpal[3 * entry + 0];
+        col.g += playpal[3 * entry + 1];
+        col.b += playpal[3 * entry + 2];
+        pixel_cnt++;
+      }
+    }
+
+    // Get color from right 16 pixels
+    for (x = w - 16; x < w; ++x) {
+      for (y = 0; y < h; ++y) {
+        byte entry = lump[y * w + x];
+        col.r += playpal[3 * entry + 0];
+        col.g += playpal[3 * entry + 1];
+        col.b += playpal[3 * entry + 2];
+        pixel_cnt++;
+      }
+    }
+  }
+  else
+  {
+    // Get color from all pixels
+    for (x = 0; x < w; ++x) {
+      for (y = 0; y < h; ++y) {
+        byte entry = lump[y * w + x];
+        col.r += playpal[3 * entry + 0];
+        col.g += playpal[3 * entry + 1];
+        col.b += playpal[3 * entry + 2];
+        pixel_cnt++;
+      }
+    }
+  }
+
+
+  // Average RGB values
+  col.r /= pixel_cnt;
+  col.g /= pixel_cnt;
+  col.b /= pixel_cnt;
+
+  return col;
+}
+
+byte V_GetBorderColor(const char* lump, int width, int height)
 {
   const unsigned char *playpal = V_GetPlaypal();
   ColorEntry_t patch_color;
   byte col;
   int r = 0, g = 0, b = 0;
   static int prevlump = 0;
-  int lumpnum = N_GetNyanPatchNum(lump);
+  dboolean doom_format = !(width || height);;
+  int lumpnum = doom_format ? N_GetNyanPatchNum(lump) : W_GetNumForName(lump);
   patch_color.r = 0;
   patch_color.g = 0;
   patch_color.b = 0;
 
   if (prevlump != lumpnum)
   {
-    patch_color = V_GetPatchColor(lumpnum);
+    patch_color = doom_format ? V_GetPatchColor(lumpnum) : V_GetPatchColorRaw(lumpnum, width, height);
     r = patch_color.r;
     g = patch_color.g;
     b = patch_color.b;
@@ -1346,22 +1445,14 @@ byte V_GetBorderColor(const char* lump)
   return col;
 }
 
-void V_ClearBorder(const char* lump)
+void V_DrawBorder(byte pillarboxcolor)
 {
   int bordtop, bordbottom, bordleft, bordright;
-  static byte pillarboxcolor;
-  dboolean ColorBorder;
-
-  if (render_stretch_hud == patch_stretch_fit_to_width)
-    return;
 
   bordleft = wide_offsetx;
   bordright = wide_offset2x - wide_offsetx;
   bordtop = wide_offsety;
   bordbottom = wide_offset2y - wide_offsety;
-
-  ColorBorder = dsda_IntConfig(dsda_config_colored_borderbox) && (lump != NULL);
-  pillarboxcolor = ColorBorder ? V_GetBorderColor(lump) : 0;
 
   if (bordtop > 0)
   {
@@ -1378,6 +1469,26 @@ void V_ClearBorder(const char* lump)
     // Right
     V_FillRect(0, SCREENWIDTH - bordright, bordtop, bordright, SCREENHEIGHT - bordbottom - bordtop, pillarboxcolor);
   }
+}
+
+void V_ClearBorder(const char* lump)
+{
+  dboolean ColorBorder = dsda_IntConfig(dsda_config_colored_borderbox) && (lump != NULL);
+
+  if (render_stretch_hud == patch_stretch_fit_to_width)
+    return;
+
+  V_DrawBorder(ColorBorder ? V_GetBorderColor(lump, 0, 0) : 0);
+}
+
+void V_ClearBorderRaw(const char* lump, int width, int height)
+{
+  dboolean ColorBorder = dsda_IntConfig(dsda_config_colored_borderbox) && (lump != NULL);
+
+  if (render_stretch_hud == patch_stretch_fit_to_width)
+    return;
+
+  V_DrawBorder(ColorBorder ? V_GetBorderColor(lump, width, height) : 0);
 }
 
 // DWF 2012-05-10
@@ -1634,13 +1745,6 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
   int x_offset, y_offset;
   const byte* raw;
 
-  // e6y: wide-res
-  // NOTE: the size isn't quite right on all resolutions,
-  // which causes the black bars on the edge of heretic E3's
-  // bottom endscreen to overlap the top screen during scrolling.
-  // this happens in both software and GL at the time of writing.
-  V_ClearBorder(NULL);
-
   // custom widescreen assets are a different format
   {
     int lump;
@@ -1653,6 +1757,13 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
       return;
     }
   }
+
+  // e6y: wide-res
+  // NOTE: the size isn't quite right on all resolutions,
+  // which causes the black bars on the edge of heretic E3's
+  // bottom endscreen to overlap the top screen during scrolling.
+  // this happens in both software and GL at the time of writing.
+  V_ClearBorderRaw(lump_name, 320, 200);
 
   switch (render_stretch_hud) {
     case patch_stretch_not_adjusted:

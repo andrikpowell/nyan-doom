@@ -314,6 +314,7 @@ ColorEntry_t V_GetPatchColor (int lumpnum);
 
 // e6y: wide-res
 void V_ClearBorder(const char* lump);
+void V_ClearBorderRaw(const char* lump, int width, int height);
 
 void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags);
 
