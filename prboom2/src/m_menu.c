@@ -2283,35 +2283,32 @@ static void M_DrawScreenItems(const setup_menu_t* base_src, int base_y)
   }
 }
 
-// Draws the name of each page. If there are more than 5, uses a carousel
-static void M_DrawTabs(const char **pages)
+// Draws the name of each page. If there are more than m, uses a carousel
+void M_DrawTabs(const char **pages, int m, int y)
 {
   int x = 0;
   int w = 0;
   int i = 0;
   int start_i = 0;
-  int end_i = 4;
+  int end_i = m - 1;
+  int s = (m / 2); // halfway point
 
   // Figure out what tabs should be drawn if using carousel
-  if (current_page > 2)
+  if (current_page > s)
   {
-    if (previous_page < current_page)
-    {
-      start_i = current_page - 2;
-      end_i = current_page + 2;
-    }
-    else if (previous_page > current_page)
-    {
-      start_i = current_page - 2;
-      end_i = current_page + 2;
-    }
+    while (pages[current_page + i] != NULL)
+      i++;
 
-    if (pages[current_page + 1] == NULL)
-      start_i = current_page - 4;
-    else if (pages[current_page + 2] == NULL)
-      start_i = current_page - 3;
-
-    if (start_i < 0) start_i = 0;
+    if (i <= s)
+    {
+      start_i = current_page + i - m;
+      end_i = current_page + i;
+    }
+    else
+    {
+        start_i = current_page - s;
+        end_i = current_page + s;
+    }
   }
 
   // Find the initial offset to center text
@@ -2324,14 +2321,14 @@ static void M_DrawTabs(const char **pages)
 
   // Draw the arrows on the sides
   if (start_i > 0)
-    M_DrawString(x -  M_GetPixelWidth("<-") - 1, TABS_Y , cr_tab, "<-");
+    M_DrawString(x - M_GetPixelWidth("<-") - 2, y , cr_tab, "<-");
   if (pages[i] != NULL)
-    M_DrawString(320 - x, TABS_Y , cr_tab, "->");
+    M_DrawString(320 - x + 2, y , cr_tab, "->");
 
   // Draw the page names
   for (i = start_i; (i <= end_i && pages[i] != NULL); i++)
   {
-    M_DrawString(x, TABS_Y,i == current_page ? cr_tab_highlight: cr_tab, pages[i]);
+    M_DrawString(x, y,i == current_page ? cr_tab_highlight: cr_tab, pages[i]);
 
     w = M_GetPixelWidth(pages[i]);
     x += w + 6;
@@ -2444,8 +2441,6 @@ static void M_EnterSetup(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup
   setup_select = false;
   colorbox_active = false;
   setup_gather = false;
-  current_page = 0;
-  previous_page = 0;
 
   M_UpdateSetupMenu(setup_menu);
 }
@@ -2850,7 +2845,7 @@ static void M_DrawKeybnd(void)
   // proff/nicolas 09/20/98 -- changed for hi-res
   M_DrawTitle(2, "KEY BINDINGS", cr_title); // M_KEYBND
   M_DrawInstructions();
-  M_DrawTabs(keys_pages);
+  M_DrawTabs(keys_pages, 5, TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -2922,7 +2917,7 @@ static void M_DrawWeapons(void)
   // proff/nicolas 09/20/98 -- changed for hi-res
   M_DrawTitle(2, "WEAPONS", cr_title); // M_WEAP
   M_DrawInstructions();
-  M_DrawTabs(weap_pages);
+  M_DrawTabs(weap_pages, sizeof(weap_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -3094,7 +3089,7 @@ static void M_DrawAutoMap(void)
   // CPhipps - patch drawing updated
   M_DrawTitle(2, "AUTOMAP", cr_title); // M_AUTO
   M_DrawInstructions();
-  M_DrawTabs(auto_pages);
+  M_DrawTabs(auto_pages, sizeof(auto_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 
   // If a color is being selected, need to show color paint chips
@@ -3368,7 +3363,7 @@ static void M_DrawNyan(void)
 
   M_DrawTitle(2, "NYAN OPTIONS", cr_title); // M_DSPLAY
   M_DrawInstructions();
-  M_DrawTabs(nyan_pages);
+  M_DrawTabs(nyan_pages, sizeof(nyan_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -3419,7 +3414,7 @@ static void M_DrawGeneral(void)
   // proff/nicolas 09/20/98 -- changed for hi-res
   M_DrawTitle(2, "GENERAL", cr_title); // M_GENERL
   M_DrawInstructions();
-  M_DrawTabs(gen_pages);
+  M_DrawTabs(gen_pages, sizeof(gen_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -3607,7 +3602,7 @@ static void M_DrawDisplay(void)
 
   M_DrawTitle(2, "DISPLAY", cr_title); // M_DSPLAY
   M_DrawInstructions();
-  M_DrawTabs(display_pages);
+  M_DrawTabs(display_pages, sizeof(display_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -3724,7 +3719,7 @@ static void M_DrawGameplay(void)
 
   M_DrawTitle(2, "GAMEPLAY / DEMOS", cr_title); // M_COMP
   M_DrawInstructions();
-  M_DrawTabs(gameplay_pages);
+  M_DrawTabs(gameplay_pages, sizeof(gameplay_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -4257,7 +4252,7 @@ static void M_DrawLevelTable(void)
   if (current_setup_menu != level_table_page[wad_stats_summary_page])
     M_DrawInstructionString(cr_info_edit, "Press ENTER key to warp");
 
-  M_DrawTabs(level_table_pages);
+  M_DrawTabs(level_table_pages, sizeof(level_table_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -6476,6 +6471,9 @@ void M_SetupNextMenu(menu_t *menudef)
 {
   M_ChangeMenu(menudef, mnact_nochange);
   itemOn = currentMenu->lastOn;
+
+  current_page = 0;
+  previous_page = 0;
 }
 
 /////////////////////////////
