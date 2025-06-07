@@ -294,6 +294,7 @@ cfg_def_t cfg_defs[] =
   SETTING_HEADING("DSDA-Doom settings"),
   // MIGRATED_SETTING(dsda_config_strict_mode), Do not persist
   MIGRATED_SETTING(dsda_config_cycle_ghost_colors),
+  MIGRATED_SETTING(dsda_config_auto_key_frame_active),
   MIGRATED_SETTING(dsda_config_auto_key_frame_interval),
   MIGRATED_SETTING(dsda_config_auto_key_frame_depth),
   MIGRATED_SETTING(dsda_config_auto_key_frame_timeout),

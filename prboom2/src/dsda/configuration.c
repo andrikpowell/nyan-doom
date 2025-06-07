@@ -1023,6 +1023,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_cycle_ghost_colors", dsda_config_cycle_ghost_colors,
     CONF_BOOL(0)
   },
+  [dsda_config_auto_key_frame_active] = {
+    "dsda_auto_key_frame_active", dsda_config_auto_key_frame_active,
+    CONF_BOOL(1), NULL, STRICT_INT(0), dsda_InitKeyFrame
+  },
   [dsda_config_auto_key_frame_interval] = {
     "dsda_auto_key_frame_interval", dsda_config_auto_key_frame_interval,
     dsda_config_int, 1, 600, { 1 }, NULL, STRICT_INT(1), dsda_InitKeyFrame

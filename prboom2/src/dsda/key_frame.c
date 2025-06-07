@@ -63,6 +63,7 @@ static auto_kf_t* last_auto_kf;
 static int auto_kf_size;
 static int restore_key_frame_index = -1;
 
+static int dsda_auto_key_frame_active;
 static int dsda_auto_key_frame_interval;
 static int dsda_auto_key_frame_depth;
 static int dsda_auto_key_frame_timeout;
@@ -172,6 +173,7 @@ void dsda_CopyKeyFrame(dsda_key_frame_t* dest, dsda_key_frame_t* source) {
 void dsda_InitKeyFrame(void) {
   int i;
 
+  dsda_auto_key_frame_active = dsda_IntConfig(dsda_config_auto_key_frame_active);
   dsda_auto_key_frame_interval = dsda_IntConfig(dsda_config_auto_key_frame_interval);
   dsda_auto_key_frame_depth = dsda_IntConfig(dsda_config_auto_key_frame_depth);
   dsda_auto_key_frame_timeout = dsda_IntConfig(dsda_config_auto_key_frame_timeout);
@@ -347,6 +349,8 @@ void dsda_RewindAutoKeyFrame(void) {
 
   if (load_kf)
     dsda_RestoreKeyFrame(&load_kf->kf, true);
+  else if (!dsda_auto_key_frame_active)
+    doom_printf("Rewind Disabled");
   else
     doom_printf("No key frame found"); // rewind past the depth limit
 }
@@ -361,6 +365,9 @@ void dsda_UpdateAutoKeyFrames(void) {
   int current_time;
   int interval_tics;
   dsda_key_frame_t* current_key_frame;
+
+  if (!dsda_auto_key_frame_active)
+    auto_kf_size = 0;
 
   if (
     auto_kf_timed_out ||

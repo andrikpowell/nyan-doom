@@ -222,6 +222,7 @@ typedef enum {
   dsda_config_hud_ammo_red,
   dsda_config_hud_ammo_yellow,
   dsda_config_cycle_ghost_colors,
+  dsda_config_auto_key_frame_active,
   dsda_config_auto_key_frame_interval,
   dsda_config_auto_key_frame_depth,
   dsda_config_auto_key_frame_timeout,
