@@ -1813,10 +1813,10 @@ dboolean M_SetDisabled(const setup_menu_t* s)
     // OpenGL vs Software
     if (s->dependent_id == dsda_config_videomode)
     {
-      if (s->dependent_input == "OpenGL" && V_IsSoftwareMode())
+      if (s->dependent_input == (const char *)"OpenGL" && V_IsSoftwareMode())
         return true;
 
-      if (s->dependent_input == "Software" && V_IsOpenGLMode())
+      if (s->dependent_input == (const char *)"Software" && V_IsOpenGLMode())
         return true;
     }
     else  // Default behaviour
@@ -2462,8 +2462,8 @@ static void M_DrawInstructions(void)
 #define FINAL_ENTRY { 0, S_SKIP | S_END, m_null }
 #define EMPTY_LINE { 0, S_SKIP, m_null }
 #define NEW_COLUMN { 0, S_SKIP | S_RESET_Y, m_null }
-#define DEPEND(config, value)     0, m_null, config, (char *)value, false
-#define EXCLUDE(config, value)    0, m_null, config, (char *)value, true
+#define DEPEND(config, value)     0, m_null, config, (const char *)value, false
+#define EXCLUDE(config, value)    0, m_null, config, (const char *)value, true
 
 static void M_EnterSetup(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
 {
@@ -3301,7 +3301,7 @@ setup_menu_t gen_misc_settings[] = {
   { "Use Dehacked Cheats", S_YESNO, m_conf, G2_X, dsda_config_deh_change_cheats },
   EMPTY_LINE,
   { "Endoom Screen", S_CHOICE, m_conf, G2_X, nyan_config_show_endoom, 0, endoom_list },
-  { "Endoom Type", S_CHOICE, m_conf, G2_X, nyan_config_type_endoom, 0, endoom_type_list, nyan_config_show_endoom, "0", true },
+  { "Endoom Type", S_CHOICE, m_conf, G2_X, nyan_config_type_endoom, 0, endoom_type_list, nyan_config_show_endoom, (const char*)0, true },
   EMPTY_LINE,
   { "Enable Rewind", S_YESNO, m_conf, G2_X, dsda_config_auto_key_frame_active },
   { "Rewind Interval (s)", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_interval, DEPEND(dsda_config_auto_key_frame_active, true) },
