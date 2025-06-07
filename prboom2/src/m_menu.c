@@ -1782,15 +1782,15 @@ dboolean M_SetDisabled(const setup_menu_t* s)
     return true;
 
   // Dependant Menu Options
-  if (s->dependent_id >= 0)
+  if (s->dependent_id > 0)
   {
     // OpenGL vs Software
     if (s->dependent_id == dsda_config_videomode)
     {
-      if (s->dependent_input == (const char *)"OpenGL" && V_IsSoftwareMode())
+      if (!strcmp(s->dependent_input, "OpenGL") && V_IsSoftwareMode())
         return true;
 
-      if (s->dependent_input == (const char *)"Software" && V_IsOpenGLMode())
+      if (!strcmp(s->dependent_input, "Software") && V_IsOpenGLMode())
         return true;
     }
     else  // Default behaviour
@@ -1837,6 +1837,16 @@ dboolean M_SetDisabled(const setup_menu_t* s)
     if (s->config_id == dsda_config_render_wipescreen)
     {
       dsda_UpdateIntConfig(dsda_config_render_wipescreen, 0, false);
+      return true;
+    }
+  }
+
+  // Disable Raven Options in Doom
+  if (!raven)
+  {
+    if (s->config_id == dsda_config_hide_horns)
+    {
+      dsda_UpdateIntConfig(dsda_config_hide_horns, 0, false);
       return true;
     }
   }
@@ -3695,7 +3705,7 @@ setup_menu_t demos_tas_settings[] =
 {
   { "Strict Mode", S_YESNO, m_conf, DM_X, dsda_config_strict_mode },
   EMPTY_LINE,
-  { "Wipe At Full Speed", S_YESNO, m_conf, DM_X, dsda_config_wipe_at_full_speed },
+  { "Wipe At Full Speed", S_YESNO, m_conf, DM_X, dsda_config_wipe_at_full_speed, DEPEND(dsda_config_render_wipescreen, true) },
   { "Show Command Display", S_YESNO, m_conf, DM_X, dsda_config_command_display },
   { "Command History", S_NUM, m_conf, DM_X, dsda_config_command_history_size },
   { "Hide Empty Commands", S_YESNO, m_conf, DM_X, dsda_config_hide_empty_commands },
