@@ -3997,6 +3997,9 @@ void G_DoPlayDemo(void)
     if (dsda_Flag(dsda_arg_track_playback))
       dsda_ResetSplits();
 
+    if (raven)
+      comp_lev_str[0] = "Raven (Doom v1.2)";
+
     lprintf(LO_INFO, "Playing demo:\n  Name: %s\n  Compatibility: %s\n%s",
                      defdemoname, comp_lev_str[compatibility_level], lrtext);
 
