@@ -1807,6 +1807,29 @@ dboolean M_SetDisabled(const setup_menu_t* s)
   if (dsda_StrictMode() && dsda_IsStrictConfig(s->config_id))
     return true;
 
+  // Limit Removing
+  if (limitremoving)
+  {
+    int i;
+    int overflows[] = {
+      dsda_config_overrun_spechit_warn,          dsda_config_overrun_spechit_emulate,
+      dsda_config_overrun_reject_warn,           dsda_config_overrun_reject_emulate,
+      dsda_config_overrun_intercept_warn,        dsda_config_overrun_intercept_emulate,
+      dsda_config_overrun_playeringame_warn,     dsda_config_overrun_playeringame_emulate,
+      dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
+      dsda_config_overrun_missedbackside_warn,   dsda_config_overrun_missedbackside_emulate,
+    };
+
+    for (i = 0; (size_t)i < sizeof(overflows) / sizeof(overflows[0]); i++)
+    {
+      if(s->config_id == overflows[i])
+      {
+        dsda_UpdateIntConfig(overflows[i], 0, false);
+        return true;
+      }
+    }
+  }
+
   // Raven Disable Wipe
   if (raven)
   {
