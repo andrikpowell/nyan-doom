@@ -51,6 +51,7 @@
 
 #include "dsda.h"
 #include "dsda/aim.h"
+#include "dsda/settings.h"
 #include "dsda/excmd.h"
 
 #define LOWERSPEED   (FRACUNIT*6)
