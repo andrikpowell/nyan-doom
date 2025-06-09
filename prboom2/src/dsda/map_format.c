@@ -158,6 +158,10 @@ dboolean dsda_IsExitLine(int index) {
     return special == 74 ||
            special == 75;
 
+  if (heretic)
+    return special ==  11 ||
+           special ==  52;
+
   return special == 11  ||
          special == 52  ||
          special == 197;
@@ -167,6 +171,10 @@ dboolean dsda_IsSecretExitLine(int index) {
   int special = lines[index].special;
 
   if (map_format.hexen) return false;
+
+  if (heretic)
+    return special == 51 ||
+           special == 105;
 
   return special == 51  ||
          special == 124 ||
