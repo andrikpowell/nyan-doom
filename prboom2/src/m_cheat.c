@@ -108,6 +108,9 @@ static void cheat_reveal_secret();
 static void cheat_reveal_kill();
 static void cheat_reveal_item();
 static void cheat_reveal_weapon();
+static void cheat_reveal_key();
+static void cheat_reveal_keyx();
+static void cheat_reveal_keyxx();
 static void cheat_hom();
 static void cheat_fast();
 static void cheat_tntkey();
@@ -208,6 +211,17 @@ cheatseq_t cheat[] = {
   CHEAT("iddwt7",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_bfg+1, true),
   CHEAT("iddwt8",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_chainsaw+1, true),
   CHEAT("iddwt9",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_supershotgun+1, true),
+  // find key cheats
+  CHEAT("iddf",       NULL,   NULL,               cht_always, cheat_reveal_key, 0, false),
+  CHEAT("iddfr",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
+  CHEAT("iddfy",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
+  CHEAT("iddfb",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
+  CHEAT("iddfrc",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_RKEY, true),
+  CHEAT("iddfyc",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_YKEY, true),
+  CHEAT("iddfbc",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_BKEY, true),
+  CHEAT("iddfrs",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_RSKU, true),
+  CHEAT("iddfys",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_YSKU, true),
+  CHEAT("iddfbs",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_BSKU, true),
   // killough 2/07/98: HOM autodetector
   CHEAT("tnthom",     NULL,   NULL,               cht_always, cheat_hom, 0, false),
   // killough 2/16/98: generalized key cheats
@@ -1017,17 +1031,43 @@ static void cheat_fast()
 // killough 2/16/98: keycard/skullkey cheat functions
 static void cheat_tntkey()
 {
-  dsda_AddMessage("Red, Yellow, Blue");
+  dsda_AddMessage("Add key: Red, Yellow, Blue");
 }
 
 static void cheat_tntkeyx()
 {
-  dsda_AddMessage("Card, Skull");
+  dsda_AddMessage("Add key: Card, Skull");
 }
 
 static void cheat_tntkeyxx(int key)
 {
   dsda_AddMessage((plyr->cards[key] = !plyr->cards[key]) ? "Key Added" : "Key Removed");
+}
+
+// Key Finder [Nugget]
+static void cheat_reveal_key(void)
+{
+  if (automap_input && !raven)
+    dsda_AddMessage("Key Finder: Red, Yellow, Blue");
+}
+
+static void cheat_reveal_keyx(void)
+{
+  if (automap_input && !raven)
+    dsda_AddMessage("Key Finder: Card, Skull");
+}
+
+static void cheat_reveal_keyxx(int key)
+{
+  if (automap_input && !raven)
+  {
+    static int last_count;
+    static mobj_t *last_mobj;
+
+    dsda_TrackFeature(uf_iddt);
+
+    cheat_cycle_mobj_spr(&last_mobj, &last_count, key, MF_SPECIAL, false, "Key Finder: key not found");
+  }
 }
 
 // killough 2/16/98: generalized weapon cheats
