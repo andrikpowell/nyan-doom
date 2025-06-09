@@ -1205,8 +1205,8 @@ static void G_DoLoadLevel (void)
 
   if (dsda_ShowDataDisk())
   {
-      drawdisk = true;
-      drawdisktics = DRAWDISKTICS;
+    drawdisk = true;
+    drawdisktics = DRAWDISKTICS;
   }
 
   // Set the sky map.
@@ -2372,8 +2372,8 @@ void G_LoadGame(int slot)
 
   if (dsda_ShowDataDisk())
   {
-      drawdisk = true;
-      drawdisktics = DRAWDISKTICS;
+    drawdisk = true;
+    drawdisktics = DRAWDISKTICS;
   }
 
   gameaction = ga_loadgame;
@@ -2554,8 +2554,8 @@ void G_SaveGame(int slot, const char *description)
 
   if (dsda_ShowDataDisk())
   {
-      drawdisk = true;
-      drawdisktics = DRAWDISKTICS;
+    drawdisk = true;
+    drawdisktics = DRAWDISKTICS;
   }
 }
 
