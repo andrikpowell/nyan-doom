@@ -728,6 +728,7 @@ static void cheat_ddt()
 static void cheat_reveal_secret()
 {
   static int last_secret = -1;
+  dboolean found = false;
 
   if (automap_input)
   {
@@ -751,6 +752,7 @@ static void cheat_reveal_secret()
         // This is probably not necessary
         if (sec->lines && sec->lines[0] && sec->lines[0]->v1)
         {
+          found = true;
           AM_SetMapCenter(sec->lines[0]->v1->x, sec->lines[0]->v1->y);
           last_secret = i;
           break;
@@ -761,13 +763,17 @@ static void cheat_reveal_secret()
       if (i >= numsectors)
         i = 0;
     } while (i != start_i);
+
+    if (!found)
+      dsda_AddMessage("No Secrets found");
   }
 }
 
-static void cheat_cycle_mobj(mobj_t **last_mobj, int *last_count, int flags, int alive)
+static void cheat_cycle_mobj(mobj_t **last_mobj, int *last_count, int flags, int alive, char* notfound_msg)
 {
   extern int init_thinkers_count;
   thinker_t *th, *start_th;
+  dboolean found = false;
 
   // If the thinkers have been wiped, addresses are invalid
   if (*last_count != init_thinkers_count)
@@ -794,6 +800,7 @@ static void cheat_cycle_mobj(mobj_t **last_mobj, int *last_count, int flags, int
 
       if ((!alive || mobj->health > 0) && mobj->flags & flags)
       {
+        found = true;
         dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
         AM_SetMapCenter(mobj->x, mobj->y);
         P_SetTarget(last_mobj, mobj);
@@ -801,6 +808,9 @@ static void cheat_cycle_mobj(mobj_t **last_mobj, int *last_count, int flags, int
       }
     }
   } while (th != start_th);
+
+  if (!found)
+    dsda_AddMessage(notfound_msg);
 }
 
 dboolean cheat_get_hexen_piece(int num)
@@ -817,11 +827,12 @@ dboolean cheat_get_hexen_piece(int num)
   return ((num == weapon_piece_1) || (num == weapon_piece_2) || (num == weapon_piece_3));
 }
 
-static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num)
+static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num, char* notfound_msg)
 {
   extern int init_thinkers_count;
   thinker_t *th, *start_th;
   dboolean found_num;
+  dboolean found = false;
 
   // If the thinkers have been wiped, addresses are invalid
   if (*last_count != init_thinkers_count)
@@ -852,10 +863,12 @@ static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num)
       if (hexen && num == 666) // dummy value
       {
         found_num = cheat_get_hexen_piece(mobj->sprite);
+        notfound_msg = "Weapon part not found";
       }
 
       if (found_num && (mobj->flags & MF_SPECIAL) && !(mobj->flags & MF_DROPPED))
       {
+        found = true;
         dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
         AM_SetMapCenter(mobj->x, mobj->y);
         P_SetTarget(last_mobj, mobj);
@@ -863,6 +876,9 @@ static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num)
       }
     }
   } while (th != start_th);
+
+  if (!found)
+    dsda_AddMessage(notfound_msg);
 }
 
 int cheat_get_weapon(int num)
@@ -934,7 +950,7 @@ static void cheat_reveal_kill()
 
     dsda_TrackFeature(uf_iddt);
 
-    cheat_cycle_mobj(&last_mobj, &last_count, MF_COUNTKILL, true);
+    cheat_cycle_mobj(&last_mobj, &last_count, MF_COUNTKILL, true, "No Monsters Found");
   }
 }
 
@@ -947,7 +963,7 @@ static void cheat_reveal_item()
 
     dsda_TrackFeature(uf_iddt);
 
-    cheat_cycle_mobj(&last_mobj, &last_count, MF_COUNTITEM, false);
+    cheat_cycle_mobj(&last_mobj, &last_count, MF_COUNTITEM, false, "No Items Found");
   }
 }
 
@@ -977,7 +993,7 @@ void cheat_reveal_weaponx(int weapon)
 
       dsda_TrackFeature(uf_iddt);
 
-      cheat_cycle_mobj_spr(&last_mobj, &last_count, sprite_num);
+      cheat_cycle_mobj_spr(&last_mobj, &last_count, sprite_num, "Weapon Not Found");
     }
   }
 }
