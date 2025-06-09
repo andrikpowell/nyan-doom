@@ -139,6 +139,8 @@ extern int markpointnum, markpointnum_max;
 // end changes -- killough 2/22/98
 
 extern mapcolor_t mapcolor;
+extern mapcolor_t mapcolor_heretic;
+extern mapcolor_t mapcolor_hexen;
 
 void M_ChangeMapTextured(void);
 void M_ChangeMapMultisamling(void);

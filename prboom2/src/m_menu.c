@@ -322,6 +322,7 @@ static void M_ExtHelpNextScreen(int);
 static void M_ExtHelp(int);
 static int  M_GetKeyString(int,int);
 static void M_InitCompStr(void);
+static void M_InitMapcolors(void);
 
 void M_ChangeDemoSmoothTurns(void);
 void M_ChangeFullScreen(void);
@@ -3072,6 +3073,7 @@ int color_palette_y; // Y position of the cursor on the color palette
 static void M_DrawColPal(void)
 {
   int cpx, cpy;
+  char* palsel;
 
   // Draw a background, border, and paint chips
 
@@ -3084,8 +3086,9 @@ static void M_DrawColPal(void)
 
   cpx = COLORPALXORIG+color_palette_x*(CHIP_SIZE)-1;
   cpy = COLORPALYORIG+color_palette_y*(CHIP_SIZE)-1;
+  palsel = raven ? "H_PALSEL" : "M_PALSEL";
   // proff 12/6/98: Drawing of colorchips completly changed for hi-res, it now uses a patch
-  V_DrawNamePatch(cpx,cpy,0,"M_PALSEL",CR_DEFAULT,VPT_STRETCH); // PROFF_GL_FIX
+  V_DrawNamePatch(cpx,cpy,0,palsel,CR_DEFAULT,VPT_STRETCH); // PROFF_GL_FIX
 }
 
 // The drawing part of the Automap Setup initialization. Draw the
@@ -6784,12 +6787,26 @@ static void M_InitCompStr(void)
   }
 }
 
+static void M_InitMapcolors(void)
+{
+  if (raven)
+  {
+    int difference2 = (dsda_config_mapcolor_heretic_back - dsda_config_mapcolor_back) * (hexen ? 2 : 1);
+
+    for (int i = 0; i <= sizeof(auto_colors_settings) / sizeof(auto_colors_settings[0]); ++i)
+      for (int j = dsda_config_mapcolor_back; j < dsda_config_mapcolor_heretic_back; ++j)
+        if (auto_colors_settings[i].config_id == j)
+          auto_colors_settings[i].config_id += difference2;
+  }
+}
+
 //
 // M_Init
 //
 void M_Init(void)
 {
   M_InitCompStr();
+  M_InitMapcolors();
 
   if (raven) MN_Init();
 

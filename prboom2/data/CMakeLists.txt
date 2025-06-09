@@ -226,6 +226,10 @@ set(GRAPHICS
     graphics/cross7.ppm
 )
 
+set(RAVEN_GRAPHICS
+    graphics/h_palsel.lmp
+)
+
 set(FLATS
     flats/-n0_tex-.ppm
 )
@@ -420,6 +424,7 @@ set(WAD_SRC
     ${TABLES}
     ${SOUNDS}
     ${GRAPHICS}
+    ${RAVEN_GRAPHICS}
     ${FLATS}
     ${SPRITES}
 )
@@ -431,6 +436,7 @@ set(WAD_CMDLINE
     -marker B_START -lumps ${TABLES} -marker B_END
     -sounds ${SOUNDS}
     -graphics ${GRAPHICS}
+    -lumps ${RAVEN_GRAPHICS}
     -marker FF_START -flats ${FLATS} -marker FF_END
     -marker SS_START -sprites ${SPRITEP} -marker SS_END
 )

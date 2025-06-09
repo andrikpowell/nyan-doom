@@ -72,63 +72,11 @@ mapcolor_t mapcolor = {
 };
 
 mapcolor_t mapcolor_heretic = {
-  .back = 0,
-  .grid = 5 * 8,
-  .wall = 104,
-  .fchg = 88,
-  .cchg = 10 * 8,
-  // .clsd
-  .rkey = 220,
-  .bkey = 197,
-  .ykey = 144,
-  .rdor = 220,
-  .bdor = 197,
-  .ydor = 144,
-  .tele = 88,
-  .secr = 88,
-  .revsecr = 88,
-  // .exit
-  .unsn = 5 * 8 + 3,
-  // .flat
-  .sprt = 224,
-  .item = 144,
-  .frnd = 224,
-  .enemy = 160,
-  .hair = 5 * 8,
-  .sngl = 4 * 8,
   .plyr = { 220, 144, 150, 197 },
-  .trail_1 = 33,
-  .trail_2 = 15,
 };
 
 mapcolor_t mapcolor_hexen = {
-  .back = 0,
-  .grid = 5 * 8,
-  .wall = 12 * 8,
-  .fchg = 14 * 8,
-  .cchg = 10 * 8,
-  // .clsd
-  // .rkey
-  // .bkey
-  // .ykey
-  .rdor = 198,
-  .bdor = 198,
-  .ydor = 198,
-  .tele = 157,
-  // .secr
-  // .revsecr
-  .exit = 177,
-  .unsn = 5 * 8 + 3,
-  // .flat
-  .sprt = 216,
-  .item = 230,
-  .frnd = 216,
-  .enemy = 176,
-  .hair = 5 * 8,
-  .sngl = 4 * 8,
   .plyr = { 157, 177, 137, 198, 215, 32, 106, 234 },
-  .trail_1 = 33,
-  .trail_2 = 15,
 };
 
 static mapcolor_t *mapcolor_p;
