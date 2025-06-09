@@ -115,6 +115,8 @@ dboolean dsda_IsDeathExitLine(int index)
 {
   const sector_t *sec = lines[index].frontsector;
 
+  if (raven) return false;
+
   if (sec->special < 32)
   {
     return (sec->special == 11);
@@ -132,6 +134,8 @@ dboolean dsda_IsDeathExitLine(int index)
 dboolean dsda_IsDeathSecretExitLine(int index)
 {
   const sector_t *sec = lines[index].frontsector;
+
+  if (raven) return false;
 
   if (sec->special < 32)
   {
