@@ -288,6 +288,9 @@ void dsda_RestoreKeyFrame(dsda_key_frame_t* key_frame, dboolean skip_wipe) {
 
   G_AfterLoad();
 
+  if (dsda_ShowDataDisk())
+    drawdisk = false;
+
   dsda_QueueJoin();
 
   dsda_ResolveParentKF(key_frame);

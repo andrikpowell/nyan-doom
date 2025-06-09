@@ -1202,7 +1202,6 @@ void ST_DrawDisk(void)
 {
   if (dsda_ShowDataDisk() && !raven && (stdisk_exists || stcdrom_exists) && drawdisktics)
   {
-    extern int dsda_skip_next_wipe;
     dboolean stcdrom = dsda_ShowDataDisk() == 2 && stcdrom_exists;
     patchnum_t icon = stcdrom ? stcdrom_icon : stdisk_icon;
     stretch_param_t *params = dsda_StretchParams(VPT_STRETCH);
@@ -1210,7 +1209,7 @@ void ST_DrawDisk(void)
 
     V_DrawNumPatchPrecise(screenwidth_sml - 10 - icon.width, 5, 0, icon.lumpnum, CR_DEFAULT, VPT_STRETCH);
 
-    if (!--drawdisktics || dsda_skip_next_wipe)
+    if (!--drawdisktics)
       drawdisk = false;
   }
 }
