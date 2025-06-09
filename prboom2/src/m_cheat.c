@@ -92,14 +92,14 @@ static void cheat_kfa();
 static void cheat_noclip();
 static void cheat_pw();
 static void cheat_behold();
-static void cheat_clev0();
 static void cheat_clev();
+static void cheat_clevx();
 static void cheat_mypos();
 static void cheat_rate();
-static void cheat_comp0();
 static void cheat_comp();
+static void cheat_compx();
 static void cheat_skill();
-static void cheat_skill0();
+static void cheat_skillx();
 static void cheat_friction();
 static void cheat_pushers();
 static void cheat_massacre();
@@ -180,6 +180,7 @@ cheatseq_t cheat[] = {
   CHEAT("idfa",       NULL,   "Ammo",             not_demo, cheat_fa, 0, false),
   CHEAT("idspispopd", NULL,   "No Clipping 1",    not_classic_demo,  cheat_noclip, 0, false),
   CHEAT("idclip",     NULL,   "No Clipping 2",    not_classic_demo,  cheat_noclip, 0, false),
+  CHEAT("idbehold",   NULL,   "BEHOLD menu",      cht_always, cheat_behold, 0, false),
   CHEAT("idbeholdh",  NULL,   "Invincibility",    not_demo, cheat_health, 0, false),
   CHEAT("idbeholdm",  NULL,   "Invincibility",    not_demo, cheat_megaarmour, 0, false),
   CHEAT("idbeholdv",  NULL,   "Invincibility",    not_demo, cheat_pw, pw_invulnerability, false),
@@ -188,16 +189,15 @@ cheatseq_t cheat[] = {
   CHEAT("idbeholdr",  NULL,   "Radiation Suit",   not_demo, cheat_pw, pw_ironfeet, false),
   CHEAT("idbeholda",  NULL,   "Auto-map",         cht_always, cheat_pw, pw_allmap, false),
   CHEAT("idbeholdl",  NULL,   "Lite-Amp Goggles", cht_always, cheat_pw, pw_infrared, false),
-  CHEAT("idbehold",   NULL,   "BEHOLD menu",      cht_always, cheat_behold, 0, false),
-  CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cheat_clev, -2, false),
-  CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cheat_clev0, 0, false),
+  CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cheat_clev, 0, false),
+  CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cheat_clevx, -2, false),
   CHEAT("idmypos",    NULL,   NULL,               cht_always, cheat_mypos, 0, false),
   CHEAT("idrate",     NULL,   "Frame rate",       cht_always, cheat_rate, 0, false),
   // phares
-  CHEAT("tntcomp",    NULL,   NULL,               not_demo, cheat_comp, -2, false),
-  CHEAT("tntcomp",    NULL,   NULL,               not_demo, cheat_comp0, 0, false),
-  CHEAT("skill",      NULL,   NULL,               not_demo, cheat_skill, -1, false),
-  CHEAT("skill",      NULL,   NULL,               not_demo, cheat_skill0, 0, false),
+  CHEAT("tntcomp",    NULL,   NULL,               not_demo, cheat_comp, 0, false),
+  CHEAT("tntcomp",    NULL,   NULL,               not_demo, cheat_compx, -2, false),
+  CHEAT("skill",      NULL,   NULL,               not_demo, cheat_skill, 0, false),
+  CHEAT("skill",      NULL,   NULL,               not_demo, cheat_skillx, -1, false),
   // jff 2/01/98 kill all monsters
   CHEAT("tntem",      NULL,   NULL,               not_demo, cheat_massacre, 0, false),
   // killough 2/07/98: moved from am_map.c
@@ -205,6 +205,7 @@ cheatseq_t cheat[] = {
   CHEAT("iddst",      NULL,   NULL,               cht_always, cheat_reveal_secret, 0, true),
   CHEAT("iddkt",      NULL,   NULL,               cht_always, cheat_reveal_kill, 0, true),
   CHEAT("iddit",      NULL,   NULL,               cht_always, cheat_reveal_item, 0, true),
+  // find weapon cheats
   CHEAT("iddwt2",     NULL,   NULL,               cht_always, cheat_reveal_weapon_2, 0, true),
   CHEAT("iddwt3",     NULL,   NULL,               cht_always, cheat_reveal_weapon_3, 0, true),
   CHEAT("iddwt4",     NULL,   NULL,               cht_always, cheat_reveal_weapon_4, 0, true),
@@ -265,7 +266,8 @@ cheatseq_t cheat[] = {
   CHEAT("skel", NULL, NULL, not_demo, cheat_k, 0, false),
   CHEAT("gimme", NULL, NULL, not_demo, cheat_artifact, -2, false),
   CHEAT("shazam", NULL, NULL, not_demo, cheat_tome, 0, false),
-  CHEAT("engage", NULL, NULL, not_demo | not_menu, cheat_clev, -2, false),
+  CHEAT("engage", NULL, NULL, not_demo | not_menu, cheat_clev, 0, false),
+  CHEAT("engage", NULL, NULL, not_demo | not_menu, cheat_clevx, -2, false),
   CHEAT("ravmap", NULL, NULL, cht_always, cheat_ddt, 0, true),
   CHEAT("cockadoodledoo", NULL, NULL, not_demo, cheat_chicken, 0, false),
 
@@ -279,7 +281,8 @@ cheatseq_t cheat[] = {
   CHEAT("sherlock", NULL, NULL, not_demo, cheat_puzzle, 0, false),
   CHEAT("casper", NULL, NULL, not_classic_demo, cheat_noclip, 0, false),
   CHEAT("shadowcaster", NULL, NULL, not_demo, cheat_class, -1, false),
-  CHEAT("visit", NULL, NULL, not_demo | not_menu, cheat_clev, -2, false),
+  CHEAT("visit", NULL, NULL, not_demo | not_menu, cheat_clev, 0, false),
+  CHEAT("visit", NULL, NULL, not_demo | not_menu, cheat_clevx, -2, false),
   CHEAT("init", NULL, NULL, not_demo, cheat_init, 0, false),
   CHEAT("puke", NULL,  NULL, not_demo, cheat_script, -2, false),
   CHEAT("mapsco", NULL, NULL, cht_always, cheat_ddt, 0, true),
@@ -521,7 +524,7 @@ static void cheat_behold()
 }
 
 // check 'clev' change-level cheat
-static void cheat_clev0()
+static void cheat_clev()
 {
   int epsd, map;
   char *cur, *next;
@@ -539,7 +542,7 @@ static void cheat_clev0()
 }
 
 // 'clev' change-level cheat
-static void cheat_clev(char buf[3])
+static void cheat_clevx(char buf[3])
 {
   int epsd, map;
 
@@ -575,7 +578,7 @@ static void cheat_rate()
 }
 
 // check compatibility cheat
-static void cheat_comp0()
+static void cheat_comp()
 {
   if (raven)
     return doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen");
@@ -587,7 +590,7 @@ static void cheat_comp0()
 }
 
 // compatibility cheat
-static void cheat_comp(char buf[3])
+static void cheat_compx(char buf[3])
 {
   if (raven)
     return doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen");
@@ -630,7 +633,7 @@ static const char* dsda_skill_str(void)
 }
 
 // Check skill cheat
-static void cheat_skill0()
+static void cheat_skill()
 {
   if (!tc_game)
     doom_printf("Skill: %i - %s", gameskill + 1, dsda_skill_str());
@@ -639,7 +642,7 @@ static void cheat_skill0()
 }
 
 // Skill cheat
-static void cheat_skill(char buf[1])
+static void cheat_skillx(char buf[1])
 {
   int skill = buf[0] - '0';
 
@@ -960,6 +963,7 @@ static void cheat_reveal_weapon_7() { cheat_reveal_weapon(7); }
 static void cheat_reveal_weapon_8() { cheat_reveal_weapon(8); }
 static void cheat_reveal_weapon_9() { cheat_reveal_weapon(9); }
 
+// Reveal weapon cheat
 void cheat_reveal_weapon(int num)
 {
   if (automap_input)
