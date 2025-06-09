@@ -107,14 +107,7 @@ static void cheat_ddt();
 static void cheat_reveal_secret();
 static void cheat_reveal_kill();
 static void cheat_reveal_item();
-static void cheat_reveal_weapon_2();
-static void cheat_reveal_weapon_3();
-static void cheat_reveal_weapon_4();
-static void cheat_reveal_weapon_5();
-static void cheat_reveal_weapon_6();
-static void cheat_reveal_weapon_7();
-static void cheat_reveal_weapon_8();
-static void cheat_reveal_weapon_9();
+static void cheat_reveal_weapon();
 static void cheat_hom();
 static void cheat_fast();
 static void cheat_tntkey();
@@ -206,14 +199,15 @@ cheatseq_t cheat[] = {
   CHEAT("iddkt",      NULL,   NULL,               cht_always, cheat_reveal_kill, 0, true),
   CHEAT("iddit",      NULL,   NULL,               cht_always, cheat_reveal_item, 0, true),
   // find weapon cheats
-  CHEAT("iddwt2",     NULL,   NULL,               cht_always, cheat_reveal_weapon_2, 0, true),
-  CHEAT("iddwt3",     NULL,   NULL,               cht_always, cheat_reveal_weapon_3, 0, true),
-  CHEAT("iddwt4",     NULL,   NULL,               cht_always, cheat_reveal_weapon_4, 0, true),
-  CHEAT("iddwt5",     NULL,   NULL,               cht_always, cheat_reveal_weapon_5, 0, true),
-  CHEAT("iddwt6",     NULL,   NULL,               cht_always, cheat_reveal_weapon_6, 0, true),
-  CHEAT("iddwt7",     NULL,   NULL,               cht_always, cheat_reveal_weapon_7, 0, true),
-  CHEAT("iddwt8",     NULL,   NULL,               cht_always, cheat_reveal_weapon_8, 0, true),
-  CHEAT("iddwt9",     NULL,   NULL,               cht_always, cheat_reveal_weapon_9, 0, true),
+  CHEAT("iddwt",      NULL,   NULL,               cht_always, cheat_reveal_weapon, 0, false),
+  CHEAT("iddwt2",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_pistol+1, true),
+  CHEAT("iddwt3",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_shotgun+1, true),
+  CHEAT("iddwt4",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_chaingun+1, true),
+  CHEAT("iddwt5",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_missile+1, true),
+  CHEAT("iddwt6",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_plasma+1, true),
+  CHEAT("iddwt7",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_bfg+1, true),
+  CHEAT("iddwt8",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_chainsaw+1, true),
+  CHEAT("iddwt9",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_supershotgun+1, true),
   // killough 2/07/98: HOM autodetector
   CHEAT("tnthom",     NULL,   NULL,               cht_always, cheat_hom, 0, false),
   // killough 2/16/98: generalized key cheats
@@ -809,7 +803,21 @@ static void cheat_cycle_mobj(mobj_t **last_mobj, int *last_count, int flags, int
   } while (th != start_th);
 }
 
-static void cheat_cycle_mobj_weapon(mobj_t **last_mobj, int *last_count, int num)
+dboolean cheat_get_hexen_piece(int num)
+{
+  int weapon_piece_1 = 0, weapon_piece_2 = 0, weapon_piece_3 = 0;
+  dboolean fighter = PlayerClass[consoleplayer] == PCLASS_FIGHTER;
+  dboolean cleric = PlayerClass[consoleplayer] == PCLASS_CLERIC;
+  dboolean mage = PlayerClass[consoleplayer] == PCLASS_MAGE;
+
+  weapon_piece_1 = fighter ? HEXEN_SPR_WFR1 : cleric ? HEXEN_SPR_WCH1 : mage ? HEXEN_SPR_WMS1 : false;
+  weapon_piece_2 = fighter ? HEXEN_SPR_WFR2 : cleric ? HEXEN_SPR_WCH2 : mage ? HEXEN_SPR_WMS2 : false;
+  weapon_piece_3 = fighter ? HEXEN_SPR_WFR3 : cleric ? HEXEN_SPR_WCH3 : mage ? HEXEN_SPR_WMS3 : false;
+
+  return ((num == weapon_piece_1) || (num == weapon_piece_2) || (num == weapon_piece_3));
+}
+
+static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num)
 {
   extern int init_thinkers_count;
   thinker_t *th, *start_th;
@@ -843,18 +851,7 @@ static void cheat_cycle_mobj_weapon(mobj_t **last_mobj, int *last_count, int num
       // Hexen 4th Weapon Logic
       if (hexen && num == 666) // dummy value
       {
-        int weapon_piece_1 = 0, weapon_piece_2 = 0, weapon_piece_3 = 0;
-        dboolean fighter = PlayerClass[consoleplayer] == PCLASS_FIGHTER;
-        dboolean cleric = PlayerClass[consoleplayer] == PCLASS_CLERIC;
-        dboolean mage = PlayerClass[consoleplayer] == PCLASS_MAGE;
-
-        weapon_piece_1 = fighter ? HEXEN_SPR_WFR1 : cleric ? HEXEN_SPR_WCH1 : mage ? HEXEN_SPR_WMS1 : false;
-        weapon_piece_2 = fighter ? HEXEN_SPR_WFR2 : cleric ? HEXEN_SPR_WCH2 : mage ? HEXEN_SPR_WMS2 : false;
-        weapon_piece_3 = fighter ? HEXEN_SPR_WFR3 : cleric ? HEXEN_SPR_WCH3 : mage ? HEXEN_SPR_WMS3 : false;
-
-        found_num = ((mobj->sprite == weapon_piece_1) ||
-                     (mobj->sprite == weapon_piece_2) ||
-                     (mobj->sprite == weapon_piece_3));
+        found_num = cheat_get_hexen_piece(mobj->sprite);
       }
 
       if (found_num && (mobj->flags & MF_SPECIAL) && !(mobj->flags & MF_DROPPED))
@@ -954,21 +951,24 @@ static void cheat_reveal_item()
   }
 }
 
-static void cheat_reveal_weapon_2() { cheat_reveal_weapon(2); }
-static void cheat_reveal_weapon_3() { cheat_reveal_weapon(3); }
-static void cheat_reveal_weapon_4() { cheat_reveal_weapon(4); }
-static void cheat_reveal_weapon_5() { cheat_reveal_weapon(5); }
-static void cheat_reveal_weapon_6() { cheat_reveal_weapon(6); }
-static void cheat_reveal_weapon_7() { cheat_reveal_weapon(7); }
-static void cheat_reveal_weapon_8() { cheat_reveal_weapon(8); }
-static void cheat_reveal_weapon_9() { cheat_reveal_weapon(9); }
-
-// Reveal weapon cheat
-void cheat_reveal_weapon(int num)
+// Check weapon cheat
+static void cheat_reveal_weapon()
 {
   if (automap_input)
   {
-    int sprite_num = cheat_get_weapon(num);
+    if (raven)
+      dsda_AddMessage(heretic ? "Weapon number 3-8" : "Weapon number 2-4");
+    else
+      dsda_AddMessage(gamemode == commercial ? "Weapon number 3-9" : "Weapon number 3-8");
+  }
+}
+
+// Reveal weapon cheat
+void cheat_reveal_weaponx(int weapon)
+{
+  if (automap_input)
+  {
+    int sprite_num = cheat_get_weapon(weapon);
 
     if (sprite_num != false)
     {
@@ -977,7 +977,7 @@ void cheat_reveal_weapon(int num)
 
       dsda_TrackFeature(uf_iddt);
 
-      cheat_cycle_mobj_weapon(&last_mobj, &last_count, sprite_num);
+      cheat_cycle_mobj_spr(&last_mobj, &last_count, sprite_num);
     }
   }
 }

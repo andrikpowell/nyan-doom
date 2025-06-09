@@ -1071,7 +1071,7 @@ static dboolean console_IDDT(const char* command, const char* args) {
 static dboolean console_IDDWT(const char* command, const char* args) {
   int num;
   sscanf(args, "%i", &num);
-  cheat_reveal_weapon(num);
+  cheat_reveal_weaponx(num);
 
   return true;
 }

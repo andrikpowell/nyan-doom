@@ -72,7 +72,7 @@ extern cheatseq_t cheat[];
 void M_CheatGod(void);
 void M_CheatNoClip(void);
 void M_CheatIDDT(void);
-void cheat_reveal_weapon(int num);
+void cheat_reveal_weaponx(int weapon);
 dboolean M_CheatResponder(event_t *ev);
 dboolean M_CheatEntered(const char* element, const char* value);
 
