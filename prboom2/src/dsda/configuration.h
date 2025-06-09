@@ -91,6 +91,7 @@ typedef enum {
   nyan_config_enable_animate_lumps,
   nyan_config_item_bonus_flash,
   nyan_config_colored_blood,
+  nyan_config_loading_disk,
   dsda_config_script_0,
   dsda_config_script_1,
   dsda_config_script_2,

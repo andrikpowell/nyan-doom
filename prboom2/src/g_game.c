@@ -1193,6 +1193,12 @@ static void G_DoLoadLevel (void)
 {
   int i;
 
+  if (dsda_ShowDataDisk())
+  {
+      drawdisk = true;
+      drawdisktics = DRAWDISKTICS;
+  }
+
   // Set the sky map.
   // First thing, we have a dummy sky texture name,
   //  a flat. The data is in the WAD only because
@@ -2354,6 +2360,12 @@ void G_LoadGame(int slot)
     netgame = false;
   }
 
+  if (dsda_ShowDataDisk())
+  {
+      drawdisk = true;
+      drawdisktics = DRAWDISKTICS;
+  }
+
   gameaction = ga_loadgame;
   savegameslot = slot;
   load_via_cmd = false;
@@ -2528,6 +2540,12 @@ void G_SaveGame(int slot, const char *description)
   {
     savegameslot = slot;
     G_DoSaveGame(false);
+  }
+
+  if (dsda_ShowDataDisk())
+  {
+      drawdisk = true;
+      drawdisktics = DRAWDISKTICS;
   }
 }
 

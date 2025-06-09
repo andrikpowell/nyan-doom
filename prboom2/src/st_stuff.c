@@ -35,6 +35,7 @@
 
 #include "doomdef.h"
 #include "doomstat.h"
+#include "d_deh.h"
 #include "m_random.h"
 #include "i_video.h"
 #include "w_wad.h"
@@ -347,6 +348,12 @@ patchnum_t stbarbg_ani;
 patchnum_t grnrock;
 patchnum_t brdr_t, brdr_b, brdr_l, brdr_r;
 patchnum_t brdr_tl, brdr_tr, brdr_bl, brdr_br;
+
+// stdisk stuff
+dboolean stdisk_exists;
+dboolean stcdrom_exists;
+patchnum_t stdisk_icon;
+patchnum_t stcdrom_icon;
 
 // main bar right
 static patchnum_t armsbg;
@@ -1187,6 +1194,27 @@ void ST_SetResolution(void)
   R_FillBackScreen();
 }
 
+dboolean drawdisk = false;
+int drawdisktics;
+const int DRAWDISKTICS = (TICRATE / 2);
+
+void ST_DrawDisk(void)
+{
+  if (dsda_ShowDataDisk() && !raven && (stdisk_exists || stcdrom_exists) && drawdisktics)
+  {
+    extern int dsda_skip_next_wipe;
+    dboolean stcdrom = dsda_ShowDataDisk() == 2 && stcdrom_exists;
+    patchnum_t icon = stcdrom ? stcdrom_icon : stdisk_icon;
+    stretch_param_t *params = dsda_StretchParams(VPT_STRETCH);
+    float screenwidth_sml = (SCREENWIDTH - params->deltax1) * 320.0f / params->video->width;
+
+    V_DrawNumPatchPrecise(screenwidth_sml - 10 - icon.width, 5, 0, icon.lumpnum, CR_DEFAULT, VPT_STRETCH);
+
+    if (!--drawdisktics || dsda_skip_next_wipe)
+      drawdisk = false;
+  }
+}
+
 void ST_Drawer(void)
 {
   dboolean statusbaron = R_StatusBarVisible();
@@ -1212,6 +1240,9 @@ void ST_Drawer(void)
     ST_drawWidgets(); // draw widgets
   }
 
+  if (drawdisk)
+    ST_DrawDisk();
+
   V_EndUIDraw();
 }
 
@@ -1229,6 +1260,20 @@ static void ST_loadDoomStbar(void)
   else if (doom_v11)        R_SetPatchNum(&stbarbg, "STMBARR");
 }
 
+static void ST_loadStdisk(void)
+{
+  if (W_LumpNameExists(s_stcdrom))
+  {
+    R_SetPatchNum(&stcdrom_icon, s_stcdrom);
+    stcdrom_exists = true;
+  }
+
+  if (W_LumpNameExists(s_stdisk))
+  {
+    R_SetPatchNum(&stdisk_icon, s_stdisk);
+    stdisk_exists = true;
+  }
+}
 
 //
 // ST_loadGraphics
@@ -1299,6 +1344,9 @@ static void ST_loadGraphics(void)
   R_SetPatchNum(&brdr_tr, "brdr_tr");
   R_SetPatchNum(&brdr_bl, "brdr_bl");
   R_SetPatchNum(&brdr_br, "brdr_br");
+
+  // data access disk
+  ST_loadStdisk();
 
   // arms background
   R_SetPatchNum(&armsbg, "STARMS");

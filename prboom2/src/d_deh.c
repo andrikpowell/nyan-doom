@@ -509,6 +509,9 @@ const char *bgflat30     = "RROCK17";  // DOOM2 after MAP30
 const char *bgflat15     = "RROCK13";  // DOOM2 going MAP15 to MAP31
 const char *bgflat31     = "RROCK19";  // DOOM2 going MAP31 to MAP32
 const char *bgcastcall   = "BOSSBACK"; // Panel behind cast call
+// data access Disk
+const char *s_stcdrom      = "STCDROM";
+const char *s_stdisk       = "STDISK";
 
 /* Ty 05/03/98 - externalized
  * cph - updated for prboom */
@@ -826,6 +829,8 @@ static deh_strs deh_strlookup[] = {
   {&bgflat15,"BGFLAT15"},
   {&bgflat31,"BGFLAT31"},
   {&bgcastcall,"BGCASTCALL"},
+  {&s_stcdrom,"STCDROM"},
+  {&s_stdisk,"STDISK"},
   {&savegamename,"SAVEGAMENAME"},  // Ty 05/03/98
 };
 

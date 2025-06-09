@@ -1434,6 +1434,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_colored_blood", nyan_config_colored_blood,
     dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT, deh_changeColoredBlood
   },
+  [nyan_config_loading_disk] = {
+    "nyan_loading_disk", nyan_config_loading_disk,
+    dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT
+  },
   [dsda_config_show_alive_monsters] = { // never persisted
     "show_alive_monsters", dsda_config_show_alive_monsters,
     dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0)

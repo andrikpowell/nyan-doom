@@ -3293,6 +3293,8 @@ setup_menu_t gen_controller_settings[] = {
 
 #undef CONTROLLER_ON
 
+static const char* loading_disk_list[] = { "Off", "disk", "cd-rom", NULL };
+
 setup_menu_t gen_misc_settings[] = {
   { "Death Use Action", S_CHOICE, m_conf, G2_X, dsda_config_death_use_action, 0, death_use_strings },
   { "Boom Weapon Auto Switch", S_YESNO, m_conf, G2_X, dsda_config_switch_when_ammo_runs_out },
@@ -3307,6 +3309,7 @@ setup_menu_t gen_misc_settings[] = {
   EMPTY_LINE,
   { "Autosave On Level Start", S_YESNO, m_conf, G2_X, dsda_config_auto_save },
   { "Organize My Save Files", S_YESNO, m_conf, G2_X, dsda_config_organized_saves },
+  { "Data Access Icon", S_CHOICE, m_conf, G2_X, nyan_config_loading_disk, 0, loading_disk_list },
   { "Skip Quit Prompt", S_YESNO, m_conf, G2_X, dsda_config_skip_quit_prompt },
 
   PREV_PAGE(gen_controller_settings),

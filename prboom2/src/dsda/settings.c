@@ -298,6 +298,10 @@ int dsda_ShowAliveMonsters(void) {
   return dsda_IntConfig(dsda_config_show_alive_monsters);
 }
 
+int dsda_ShowDataDisk(void) {
+  return dsda_IntConfig(nyan_config_loading_disk);
+}
+
 int dsda_reveal_map;
 
 int dsda_RevealAutomap(void) {

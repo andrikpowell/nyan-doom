@@ -57,6 +57,10 @@ extern int ST_SCALED_OFFSETX;
 void ST_SetScaledWidth(void);
 void ST_LoadTextColors(void);
 
+extern dboolean drawdisk;
+extern int drawdisktics;
+extern const int DRAWDISKTICS;
+
 //
 // STATUS BAR
 //

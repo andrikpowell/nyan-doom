@@ -1061,6 +1061,12 @@ extern const char* bgflat31;
 // char*        bgcastcall = "BOSSBACK"; // panel behind cast call
 extern const char* bgcastcall;
 
+// char*        s_stcdrom = "STCDROM"
+extern const char* s_stcdrom;
+
+// char*        s_stdisk = "STDISK"
+extern const char* s_stdisk;
+
 // from g_game.c, prefix for savegame name like "boomsav"
 extern const char* savegamename;
 
