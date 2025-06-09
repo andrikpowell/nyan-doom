@@ -111,6 +111,7 @@ static void cheat_reveal_weapon();
 static void cheat_reveal_key();
 static void cheat_reveal_keyx();
 static void cheat_reveal_keyxx();
+static void cheat_reveal_exit();
 static void cheat_hom();
 static void cheat_fast();
 static void cheat_tntkey();
@@ -222,6 +223,8 @@ cheatseq_t cheat[] = {
   CHEAT("iddfrs",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_RSKU, true),
   CHEAT("iddfys",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_YSKU, true),
   CHEAT("iddfbs",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_BSKU, true),
+  // find exit
+  CHEAT("iddet",      NULL,   NULL,               cht_always, cheat_reveal_exit, 0, true),
   // killough 2/07/98: HOM autodetector
   CHEAT("tnthom",     NULL,   NULL,               cht_always, cheat_hom, 0, false),
   // killough 2/16/98: generalized key cheats
@@ -1009,6 +1012,108 @@ void cheat_reveal_weaponx(int weapon)
 
       cheat_cycle_mobj_spr(&last_mobj, &last_count, sprite_num, MF_SPECIAL, MF_DROPPED, "Weapon Not Found");
     }
+  }
+}
+
+// Exit finder [Nugget]
+static void cheat_reveal_exit(void)
+{
+  if (automap_input)
+  {
+
+    static int last_exit_line = -1;
+    int i, start_i;
+    int found_exit;
+    int exit_lines, secret_lines;
+
+    dsda_TrackFeature(uf_iddt);
+
+    i = last_exit_line + 1;
+
+    if (i >= numlines) { i = 0; }
+
+    start_i = i;
+
+    // (found_exit & 1) == normal
+    // (found_exit & 2) == secret
+    // Can be both
+    found_exit = 0;
+
+    do {
+      const line_t *const line = &lines[i];
+      const short special = line->special;
+
+      if (hexen)
+      {
+        exit_lines = (special ==  74 ||
+                      special ==  75);
+        
+        secret_lines = false;
+      }
+      else if (heretic)
+      {
+        exit_lines = (special ==  11 ||
+                      special ==  51 ||
+                      special ==  52 ||
+                      special == 105);
+        
+        secret_lines = (special ==  51 ||
+                        special == 105);
+      }
+      else
+      {
+        exit_lines = (special ==  11 ||
+                      special ==  51 ||
+                      special ==  52 ||
+                      special == 124 ||
+                      special == 197 ||
+                      special == 198);
+        
+        secret_lines = (special ==  51 ||
+                        special == 124 ||
+                        special == 198);
+      }
+
+      if (exit_lines)
+        found_exit |= 1 + secret_lines;
+
+      if (!raven)
+      {
+        for (int j = 0;  j < 2;  j++)
+        {
+          sector_t *const sector = j ? line->backsector : line->frontsector;
+
+          if (!raven && sector && P_IsDeathExit(sector))
+          {
+            found_exit |= 1 + ((sector->special & DEATH_MASK) &&
+                               (sector->special & DAMAGE_MASK) == DAMAGE_MASK);
+          }
+        }
+      }
+
+      if (found_exit)
+      {
+        dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
+        AM_SetMapCenter(line->v1->x, line->v1->y);
+
+        doom_printf(
+          "Exit Finder: found %s",
+            (found_exit == 3) ? "normal and secret exits"
+          : (found_exit == 2) ? "secret exit"
+          :                     "normal exit"
+        );
+
+        last_exit_line = i;
+        break;
+      }
+
+      i++;
+      if (i >= numlines)
+        i = 0;
+    } while (i != start_i);
+
+    if (!found_exit)
+      doom_printf("Exit Finder: no exits found");
   }
 }
 
