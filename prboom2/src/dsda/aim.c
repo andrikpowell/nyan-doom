@@ -18,6 +18,7 @@
 #include "p_map.h"
 #include "tables.h"
 
+#include "dsda/settings.h"
 #include "dsda/excmd.h"
 
 #include "aim.h"
