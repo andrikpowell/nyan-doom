@@ -299,7 +299,7 @@ int dsda_ShowAliveMonsters(void) {
 }
 
 dboolean dsda_DisableHorizAutoaim(void) {
-  return dsda_IntConfig(dsda_config_disable_horiz_autoaim);
+  return dsda_IntConfig(dsda_config_disable_horiz_autoaim) && !dsda_StrictMode() && allow_incompatibility;
 }
 
 int dsda_ShowDataDisk(void) {
