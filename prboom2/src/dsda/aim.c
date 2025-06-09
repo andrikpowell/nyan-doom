@@ -64,16 +64,19 @@ void dsda_PlayerAim(mobj_t* source, angle_t angle, aim_t* aim, uint64_t target_m
     {
       aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
 
-      if (!linetarget)
+      if (!dsda_DisableHorizAutoaim())
       {
-        aim->angle += 1 << 26;
-        aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
-      }
+        if (!linetarget)
+        {
+          aim->angle += 1 << 26;
+          aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
+        }
 
-      if (!linetarget)
-      {
-        aim->angle -= 2 << 26;
-        aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
+        if (!linetarget)
+        {
+          aim->angle -= 2 << 26;
+          aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
+        }
       }
 
       if (!linetarget) {
@@ -103,16 +106,19 @@ void dsda_PlayerAimBad(mobj_t* source, angle_t angle, aim_t* aim, uint64_t targe
     {
       aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
 
-      if (!linetarget)
+      if (!dsda_DisableHorizAutoaim())
       {
-        aim->angle += 1 << 26;
-        aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
-      }
+        if (!linetarget)
+        {
+          aim->angle += 1 << 26;
+          aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
+        }
 
-      if (!linetarget)
-      {
-        aim->angle -= 2 << 26;
-        aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
+        if (!linetarget)
+        {
+          aim->angle -= 2 << 26;
+          aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
+        }
       }
 
       if (heretic && !linetarget)

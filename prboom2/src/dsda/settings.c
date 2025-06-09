@@ -298,6 +298,10 @@ int dsda_ShowAliveMonsters(void) {
   return dsda_IntConfig(dsda_config_show_alive_monsters);
 }
 
+dboolean dsda_DisableHorizAutoaim(void) {
+  return dsda_IntConfig(dsda_config_disable_horiz_autoaim);
+}
+
 int dsda_ShowDataDisk(void) {
   return dsda_IntConfig(nyan_config_loading_disk);
 }

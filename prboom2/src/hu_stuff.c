@@ -238,7 +238,7 @@ mobj_t *HU_Target(void)
   // intercepts overflow guard
   overflows_enabled = false;
   P_AimLineAttack(plr->mo, an, 16*64*FRACUNIT, 0);
-  if (plr->readyweapon == wp_missile || plr->readyweapon == wp_plasma || plr->readyweapon == wp_bfg)
+  if (!dsda_DisableHorizAutoaim() && (plr->readyweapon == wp_missile || plr->readyweapon == wp_plasma || plr->readyweapon == wp_bfg))
   {
     if (!linetarget)
       P_AimLineAttack(plr->mo, an += 1<<26, 16*64*FRACUNIT, 0);

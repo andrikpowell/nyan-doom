@@ -3619,6 +3619,7 @@ setup_menu_t comp_options_settings[] = {
   EMPTY_LINE,
   { "Always Pistol Start", S_YESNO, m_conf, G2_X, dsda_config_always_pistol_start },
   { "Allow Jumping", S_YESNO, m_conf, G2_X, dsda_config_allow_jumping },
+  { "Disable Horizontal Autoaim", S_YESNO, m_conf, G2_X, dsda_config_disable_horiz_autoaim },
 
   NEXT_PAGE(comp_emulation_settings),
   FINAL_ENTRY

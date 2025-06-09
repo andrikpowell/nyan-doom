@@ -1103,6 +1103,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_allow_jumping", dsda_config_allow_jumping,
     CONF_BOOL(0), NULL, NOT_STRICT, dsda_ResetAirControl
   },
+  [dsda_config_disable_horiz_autoaim] = {
+    "dsda_disable_horiz_autoaim", dsda_config_disable_horiz_autoaim,
+    CONF_BOOL(0), NULL, STRICT_INT(0)
+  },
   [dsda_config_always_pistol_start] = {
     "dsda_always_pistol_start", dsda_config_always_pistol_start,
     CONF_BOOL(0), NULL, NOT_STRICT, dsda_RefreshAlwaysPistolStart
