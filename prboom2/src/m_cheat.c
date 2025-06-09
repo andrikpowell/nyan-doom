@@ -827,7 +827,7 @@ dboolean cheat_get_hexen_piece(int num)
   return ((num == weapon_piece_1) || (num == weapon_piece_2) || (num == weapon_piece_3));
 }
 
-static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num, char* notfound_msg)
+static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num, int flags, int rflags, char* notfound_msg)
 {
   extern int init_thinkers_count;
   thinker_t *th, *start_th;
@@ -866,7 +866,7 @@ static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num, c
         notfound_msg = "Weapon part not found";
       }
 
-      if (found_num && (mobj->flags & MF_SPECIAL) && !(mobj->flags & MF_DROPPED))
+      if (found_num && (flags ? mobj->flags & flags : true) && (rflags ? !(mobj->flags & rflags) : true))
       {
         found = true;
         dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
@@ -993,7 +993,7 @@ void cheat_reveal_weaponx(int weapon)
 
       dsda_TrackFeature(uf_iddt);
 
-      cheat_cycle_mobj_spr(&last_mobj, &last_count, sprite_num, "Weapon Not Found");
+      cheat_cycle_mobj_spr(&last_mobj, &last_count, sprite_num, MF_SPECIAL, MF_DROPPED, "Weapon Not Found");
     }
   }
 }
