@@ -456,8 +456,11 @@ static void AM_restoreScaleAndLoc(void)
 
 void AM_setMarkParams(int num)
 {
-  int i;
-  static char namebuf[16] = "AMMNUM0";
+  int i, namenum;
+  char namebuf[16];
+
+  sprintf(namebuf,"%s", !raven ? "AMMNUM0" : "SMALLIN0");
+  namenum = !raven ? 6 : 7;
 
   markpoints[num].w = 0;
   markpoints[num].h = 0;
@@ -465,7 +468,7 @@ void AM_setMarkParams(int num)
   snprintf(markpoints[num].label, sizeof(markpoints[num].label), "%d", num);
   for (i = 0; i < (int)strlen(markpoints[num].label); i++)
   {
-    namebuf[6] = markpoints[num].label[i];
+    namebuf[namenum] = markpoints[num].label[i];
     markpoints[num].widths[i] = V_NamePatchWidth(namebuf);
     markpoints[num].w += markpoints[num].widths[i] + 1;
     markpoints[num].h = MAX(markpoints[num].h, V_NamePatchHeight(namebuf));
@@ -1159,7 +1162,7 @@ dboolean AM_Responder
     /* Ty 03/27/98 - *not* externalized
      * cph 2001/11/20 - use doom_printf so we don't have our own buffer */
     doom_printf("%s %d", s_AMSTR_MARKEDSPOT, markpointnum);
-    if (!raven) AM_addMark();
+    AM_addMark();
 
     return true;
   }
@@ -2604,8 +2607,11 @@ static void AM_drawPlayerTrail(void)
 //
 static void AM_drawMarks(void)
 {
-  int i;
-  char namebuf[16] = "AMMNUM0";
+  int i, namenum;
+  char namebuf[16];
+
+  sprintf(namebuf,"%s", !raven ? "AMMNUM0" : "SMALLIN0");
+  namenum = !raven ? 6 : 7;
 
   if (map_trail_mode && dsda_RevealAutomap())
     AM_drawPlayerTrail();
@@ -2648,7 +2654,7 @@ static void AM_drawMarks(void)
         w = 0;
         for (k = 0; k < (int)strlen(markpoints[i].label); k++)
         {
-          namebuf[6] = markpoints[i].label[k];
+          namebuf[namenum] = markpoints[i].label[k];
 
           if (p.x < f_x + f_w &&
               p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
