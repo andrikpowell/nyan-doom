@@ -2381,7 +2381,47 @@ static void AM_drawThings(void)
       {
         int color = -1;
 
-        if (heretic)
+        if (hexen)
+        {
+          switch(t->info->doomednum)
+          {
+            // all hexen keys use same key color
+            case 8030:
+            case 8031:
+            case 8032:
+            case 8033:
+            case 8034:
+            case 8035:
+            case 8036:
+            case 8037:
+            case 8038:
+            case 8039:
+            case 8200:
+              color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
+            // hexen puzzle parts use key color
+            case 9002:
+            case 9003:
+            case 9004:
+            case 9005:
+            case 9006:
+            case 9007:
+            case 9008:
+            case 9009:
+            case 9010:
+            case 9011:
+            case 9012:
+            case 9014:
+            case 9015:
+            case 9016:
+            case 9017:
+            case 9018:
+            case 9019:
+            case 9020:
+            case 9021:
+              color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
+          }
+        }
+        else if (heretic)
         {
           switch(t->info->doomednum)
           {

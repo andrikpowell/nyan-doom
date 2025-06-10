@@ -36,7 +36,7 @@ secret_message 0 76 none
 add_offset 1 top_left
 
 hexen ex
-stat_totals 2 8 bottom_left
+stat_totals 2 8 bottom_left 1 0 0
 composite_time 2 16 bottom_left
 free_text 2 24 bottom_left
 tracker 2 32 bottom_left
@@ -157,7 +157,7 @@ ready_ammo_text 2 8 bottom_left
 health_text 2 16 bottom_left
 armor_text 52 16 bottom_left
 weapon_text 2 24 bottom_left
-stat_totals 2 32 bottom_left
+stat_totals 2 32 bottom_left 1 0 0
 composite_time 2 40 bottom_left
 free_text 2 48 bottom_left
 tracker 2 56 bottom_left
@@ -196,7 +196,7 @@ announce_message 0 14 none
 secret_message 0 76 none
 
 hexen map
-map_totals 2 8 top_left
+map_totals 2 8 top_left 1 0 0
 map_time 2 40 top_left
 map_coordinates 255 8 top_right
 map_title 24 20 bottom_left

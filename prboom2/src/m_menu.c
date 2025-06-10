@@ -1625,8 +1625,16 @@ static void M_SetSetupMenuItemOn (const int x)
   }
 }
 
+setup_menu_t auto_colors_settings[];
+setup_menu_t auto_heretic_colors_settings[];
+setup_menu_t auto_hexen_colors_settings[];
+
 static void M_UpdateSetupMenu(setup_menu_t *new_setup_menu)
 {
+  // Mega Raven Hack! - Swap out automap color pages
+  if (raven && new_setup_menu == auto_colors_settings)
+    new_setup_menu = heretic ? auto_heretic_colors_settings : auto_hexen_colors_settings;
+
   current_setup_menu = new_setup_menu;
   set_menu_itemon = M_GetSetupMenuItemOn();
   if (current_setup_menu[set_menu_itemon].m_flags & S_NOSELECT)
@@ -2949,7 +2957,6 @@ static const char *auto_pages[] =
 
 setup_menu_t auto_options_settings[];
 setup_menu_t auto_appearance_settings[];
-setup_menu_t auto_colors_settings[];
 
 setup_menu_t* auto_settings[] =
 {
@@ -3044,6 +3051,76 @@ setup_menu_t auto_colors_settings[] =  // 2st AutoMap Settings screen
   EMPTY_LINE,
   {"player trail 1"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_trail_1},
   {"player trail 2"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_trail_2},
+
+  PREV_PAGE(auto_appearance_settings),
+  FINAL_ENTRY
+};
+
+setup_menu_t auto_heretic_colors_settings[] =  // 2st AutoMap Settings screen
+{
+  {"background", S_COLOR, m_conf, AU_X, dsda_config_mapcolor_heretic_back},
+  {"grid lines", S_COLOR, m_conf, AU_X, dsda_config_mapcolor_heretic_grid},
+  {"normal 1s wall", S_COLOR, m_conf,AU_X, dsda_config_mapcolor_heretic_wall},
+  {"line at floor height change", S_COLOR, m_conf, AU_X, dsda_config_mapcolor_heretic_fchg},
+  {"line at ceiling height change"      ,S_COLOR,m_conf,AU_X, dsda_config_mapcolor_heretic_cchg},
+  {"line at sector with floor = ceiling",S_COLOR,m_conf,AU_X, dsda_config_mapcolor_heretic_clsd},
+  {"green key"                            ,S_COLOR,m_conf,AU_X, dsda_config_mapcolor_heretic_gkey},
+  {"blue key"                           ,S_COLOR,m_conf,AU_X, dsda_config_mapcolor_heretic_bkey},
+  {"yellow key"                         ,S_COLOR,m_conf,AU_X, dsda_config_mapcolor_heretic_ykey},
+  {"green door"                           ,S_COLOR,m_conf,AU_X, dsda_config_mapcolor_heretic_gdor},
+  {"blue door"                          ,S_COLOR,m_conf,AU_X, dsda_config_mapcolor_heretic_bdor},
+  {"yellow door"                        ,S_COLOR,m_conf,AU_X, dsda_config_mapcolor_heretic_ydor},
+  EMPTY_LINE,
+  {"teleporter line"                ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_tele},
+  {"secret sector boundary"         ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_secr},
+  {"revealed secret sector boundary",S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_revsecr},
+  {"tag finder line"                ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_tagfinder},
+  //jff 4/23/98 add exit line to automap
+  {"exit line"                      ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_exit},
+  {"alt secret exit line"           ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_exitsecr},
+  {"map unseen line"                ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_unsn},
+  {"line w/no floor/ceiling changes",S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_flat},
+  {"general sprite"                 ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_sprt},
+  {"countable enemy sprite"         ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_enemy},      // cph 2006/06/30
+  {"countable item sprite"          ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_item},       // mead 3/4/2003
+  {"crosshair"                      ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_hair},
+  {"single player arrow"            ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_sngl},
+  {"your colour in multiplayer"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_me},
+  EMPTY_LINE,
+  {"player trail 1"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_trail_1},
+  {"player trail 2"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_trail_2},
+
+  PREV_PAGE(auto_appearance_settings),
+  FINAL_ENTRY
+};
+
+setup_menu_t auto_hexen_colors_settings[] =  // 2st AutoMap Settings screen
+{
+  {"background", S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hexen_back},
+  {"grid lines", S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hexen_grid},
+  {"normal 1s wall", S_COLOR, m_conf,AU_X, dsda_config_mapcolor_hexen_wall},
+  {"line at floor height change", S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hexen_fchg},
+  {"line at ceiling height change"      ,S_COLOR,m_conf,AU_X, dsda_config_mapcolor_hexen_cchg},
+  {"line at sector with floor = ceiling",S_COLOR,m_conf,AU_X, dsda_config_mapcolor_hexen_clsd},
+  {"key"                                ,S_COLOR,m_conf,AU_X, dsda_config_mapcolor_hexen_key},
+  {"locked door"                        ,S_COLOR,m_conf,AU_X, dsda_config_mapcolor_hexen_dor},
+  {"puzzle item"                        ,S_COLOR,m_conf,AU_X, dsda_config_mapcolor_hexen_puzzle},
+  EMPTY_LINE,
+  {"teleporter line"                ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_tele},
+  {"tag finder line"                ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_tagfinder},
+  //jff 4/23/98 add exit line to automap
+  {"exit line"                      ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_exit},
+  {"map unseen line"                ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_unsn},
+  {"line w/no floor/ceiling changes",S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_flat},
+  {"general sprite"                 ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_sprt},
+  {"countable enemy sprite"         ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_enemy},      // cph 2006/06/30
+  {"countable item sprite"          ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_item},       // mead 3/4/2003
+  {"crosshair"                      ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_hair},
+  {"single player arrow"            ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_sngl},
+  {"your colour in multiplayer"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_me},
+  EMPTY_LINE,
+  {"player trail 1"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_trail_1},
+  {"player trail 2"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_trail_2},
 
   PREV_PAGE(auto_appearance_settings),
   FINAL_ENTRY
@@ -6787,18 +6864,6 @@ static void M_InitCompStr(void)
   }
 }
 
-static void M_InitMapcolors(void)
-{
-  if (raven)
-  {
-    int difference2 = (dsda_config_mapcolor_heretic_back - dsda_config_mapcolor_back) * (hexen ? 2 : 1);
-
-    for (int i = 0; i <= sizeof(auto_colors_settings) / sizeof(auto_colors_settings[0]); ++i)
-      for (int j = dsda_config_mapcolor_back; j < dsda_config_mapcolor_heretic_back; ++j)
-        if (auto_colors_settings[i].config_id == j)
-          auto_colors_settings[i].config_id += difference2;
-  }
-}
 
 //
 // M_Init
@@ -6806,7 +6871,6 @@ static void M_InitMapcolors(void)
 void M_Init(void)
 {
   M_InitCompStr();
-  M_InitMapcolors();
 
   if (raven) MN_Init();
 

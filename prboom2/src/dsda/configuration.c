@@ -746,8 +746,8 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mapcolor_heretic_clsd", dsda_config_mapcolor_heretic_clsd,
     CONF_COLOR(0), &mapcolor_heretic.clsd
   },
-  [dsda_config_mapcolor_heretic_rkey] = {
-    "mapcolor_heretic_rkey", dsda_config_mapcolor_heretic_rkey,
+  [dsda_config_mapcolor_heretic_gkey] = {
+    "mapcolor_heretic_gkey", dsda_config_mapcolor_heretic_gkey,
     CONF_COLOR(220), &mapcolor_heretic.rkey
   },
   [dsda_config_mapcolor_heretic_bkey] = {
@@ -758,8 +758,8 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mapcolor_heretic_ykey", dsda_config_mapcolor_heretic_ykey,
     CONF_COLOR(144), &mapcolor_heretic.ykey
   },
-  [dsda_config_mapcolor_heretic_rdor] = {
-    "mapcolor_heretic_rdor", dsda_config_mapcolor_heretic_rdor,
+  [dsda_config_mapcolor_heretic_gdor] = {
+    "mapcolor_heretic_gdor", dsda_config_mapcolor_heretic_gdor,
     CONF_COLOR(220), &mapcolor_heretic.rdor
   },
   [dsda_config_mapcolor_heretic_bdor] = {
@@ -862,41 +862,21 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mapcolor_hexen_clsd", dsda_config_mapcolor_hexen_clsd,
     CONF_COLOR(0), &mapcolor_hexen.clsd
   },
-  [dsda_config_mapcolor_hexen_rkey] = {
-    "mapcolor_hexen_rkey", dsda_config_mapcolor_hexen_rkey,
-    CONF_COLOR(0), &mapcolor_hexen.rkey
-  },
-  [dsda_config_mapcolor_hexen_bkey] = {
-    "mapcolor_hexen_bkey", dsda_config_mapcolor_hexen_bkey,
-    CONF_COLOR(0), &mapcolor_hexen.bkey
-  },
-  [dsda_config_mapcolor_hexen_ykey] = {
-    "mapcolor_hexen_ykey", dsda_config_mapcolor_hexen_ykey,
+  [dsda_config_mapcolor_hexen_key] = {
+    "mapcolor_hexen_key", dsda_config_mapcolor_hexen_key,
     CONF_COLOR(0), &mapcolor_hexen.ykey
   },
-  [dsda_config_mapcolor_hexen_rdor] = {
-    "mapcolor_hexen_rdor", dsda_config_mapcolor_hexen_rdor,
-    CONF_COLOR(198), &mapcolor_hexen.rdor
+  [dsda_config_mapcolor_hexen_puzzle] = {
+    "mapcolor_hexen_puzzle", dsda_config_mapcolor_hexen_puzzle,
+    CONF_COLOR(0), &mapcolor_hexen.bkey
   },
-  [dsda_config_mapcolor_hexen_bdor] = {
-    "mapcolor_hexen_bdor", dsda_config_mapcolor_hexen_bdor,
-    CONF_COLOR(198), &mapcolor_hexen.bdor
-  },
-  [dsda_config_mapcolor_hexen_ydor] = {
-    "mapcolor_hexen_ydor", dsda_config_mapcolor_hexen_ydor,
+  [dsda_config_mapcolor_hexen_dor] = {
+    "mapcolor_hexen_dor", dsda_config_mapcolor_hexen_dor,
     CONF_COLOR(198), &mapcolor_hexen.ydor
   },
   [dsda_config_mapcolor_hexen_tele] = {
     "mapcolor_hexen_tele", dsda_config_mapcolor_hexen_tele,
     CONF_COLOR(157), &mapcolor_hexen.tele
-  },
-  [dsda_config_mapcolor_hexen_secr] = {
-    "mapcolor_hexen_secr", dsda_config_mapcolor_hexen_secr,
-    CONF_COLOR(0), &mapcolor_hexen.secr
-  },
-  [dsda_config_mapcolor_hexen_revsecr] = {
-    "mapcolor_hexen_revsecr", dsda_config_mapcolor_hexen_revsecr,
-    CONF_COLOR(0), &mapcolor_hexen.revsecr
   },
   [dsda_config_mapcolor_hexen_tagfinder] = {
     "mapcolor_hexen_tagfinder", dsda_config_mapcolor_hexen_tagfinder,
@@ -905,10 +885,6 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_mapcolor_hexen_exit] = {
     "mapcolor_hexen_exit", dsda_config_mapcolor_hexen_exit,
     CONF_COLOR(177), &mapcolor_hexen.exit
-  },
-  [dsda_config_mapcolor_hexen_exitsecr] = {
-    "mapcolor_hexen_exitsecr", dsda_config_mapcolor_hexen_exitsecr,
-    CONF_COLOR(0), &mapcolor_hexen.exitsecr
   },
   [dsda_config_mapcolor_hexen_unsn] = {
     "mapcolor_hexen_unsn", dsda_config_mapcolor_hexen_unsn,

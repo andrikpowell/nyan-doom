@@ -189,7 +189,8 @@ dboolean dsda_IsTeleportLine(int index) {
            special == 71;
 
   if (heretic)
-    return special == 39;
+    return special == 97 ||
+           special == 39;
 
   return special == 39  ||
          special == 97  ||
