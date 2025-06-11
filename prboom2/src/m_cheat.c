@@ -791,7 +791,7 @@ static void cheat_reveal_secret()
   }
 }
 
-static void cheat_cycle_mobj(mobj_t **last_mobj, int *last_count, int flags, int alive, char* notfound_msg)
+static void cheat_cycle_mobj(mobj_t **last_mobj, int *last_count, int flags, int alive, const char* notfound_msg)
 {
   extern int init_thinkers_count;
   thinker_t *th, *start_th;
@@ -849,7 +849,7 @@ dboolean cheat_get_hexen_piece(int num)
   return ((num == weapon_piece_1) || (num == weapon_piece_2) || (num == weapon_piece_3));
 }
 
-static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num, int flags, int rflags, char* notfound_msg)
+static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num, int flags, int rflags, const char* notfound_msg)
 {
   extern int init_thinkers_count;
   thinker_t *th, *start_th;
