@@ -204,6 +204,7 @@ See the [build mode guide](./build_mode.md) for more info.
 - `iddkt`
 - `iddit`
 - `iddwt <weapon number>`
+- `iddf <color> <type>`
 - `idclev <map>`
 - `idmus <map>`
 - `idmusrr`
@@ -226,6 +227,7 @@ See the [build mode guide](./build_mode.md) for more info.
 - `fast`
 - `ice`
 - `push`
+- `key <color> <type>`
 - `notarget`
 - `fly`
 - `fullclip`

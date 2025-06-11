@@ -73,6 +73,7 @@ void M_CheatGod(void);
 void M_CheatNoClip(void);
 void M_CheatIDDT(void);
 void cheat_reveal_weaponx(int weapon);
+void cheat_reveal_keyxx(int key);
 dboolean M_CheatResponder(event_t *ev);
 dboolean M_CheatEntered(const char* element, const char* value);
 

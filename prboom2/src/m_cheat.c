@@ -111,7 +111,6 @@ static void cheat_reveal_weapon();
 static void cheat_reveal_exit();
 static void cheat_reveal_key();
 static void cheat_reveal_keyx();
-static void cheat_reveal_keyxx();
 static void cheat_reveal_doom_key();
 static void cheat_reveal_heretic_key();
 static void cheat_hom();
@@ -1194,7 +1193,7 @@ static void cheat_reveal_keyx(void)
     dsda_AddMessage("Key Finder: Card, Skull");
 }
 
-static void cheat_reveal_keyxx(int key)
+void cheat_reveal_keyxx(int key)
 {
   if (hexen) return;
 
