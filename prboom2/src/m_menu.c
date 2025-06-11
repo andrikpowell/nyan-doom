@@ -3150,7 +3150,7 @@ int color_palette_y; // Y position of the cursor on the color palette
 static void M_DrawColPal(void)
 {
   int cpx, cpy;
-  char* palsel;
+  const char* palsel;
 
   // Draw a background, border, and paint chips
 
