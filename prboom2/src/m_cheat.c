@@ -111,7 +111,8 @@ static void cheat_reveal_weapon();
 static void cheat_reveal_key();
 static void cheat_reveal_keyx();
 static void cheat_reveal_keyxx();
-static void cheat_reveal_heretic_keyx();
+static void cheat_reveal_doom_key();
+static void cheat_reveal_heretic_key();
 static void cheat_reveal_exit();
 static void cheat_hom();
 static void cheat_fast();
@@ -218,16 +219,17 @@ cheatseq_t cheat[] = {
   CHEAT("iddfr",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
   CHEAT("iddfy",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
   CHEAT("iddfb",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
-  CHEAT("iddfrc",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_RKEY, true),
-  CHEAT("iddfyc",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_YKEY, true),
-  CHEAT("iddfbc",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_BKEY, true),
-  CHEAT("iddfrs",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_RSKU, true),
-  CHEAT("iddfys",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_YSKU, true),
-  CHEAT("iddfbs",     NULL,   NULL,               cht_always, cheat_reveal_keyxx, SPR_BSKU, true),
+  // find doom keys
+  CHEAT("iddfrc",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_RKEY, true),
+  CHEAT("iddfyc",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_YKEY, true),
+  CHEAT("iddfbc",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_BKEY, true),
+  CHEAT("iddfrs",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_RSKU, true),
+  CHEAT("iddfys",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_YSKU, true),
+  CHEAT("iddfbs",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_BSKU, true),
   // find heretic keys
-  CHEAT("iddfg",      NULL,   NULL,               cht_always, cheat_reveal_heretic_keyx, HERETIC_SPR_AKYY, false),
-  CHEAT("iddfy",      NULL,   NULL,               cht_always, cheat_reveal_heretic_keyx, HERETIC_SPR_CKYY, false),
-  CHEAT("iddfb",      NULL,   NULL,               cht_always, cheat_reveal_heretic_keyx, HERETIC_SPR_BKYY, false),
+  CHEAT("iddfg",      NULL,   NULL,               cht_always, cheat_reveal_heretic_key, HERETIC_SPR_AKYY, false),
+  CHEAT("iddfy",      NULL,   NULL,               cht_always, cheat_reveal_heretic_key, HERETIC_SPR_CKYY, false),
+  CHEAT("iddfb",      NULL,   NULL,               cht_always, cheat_reveal_heretic_key, HERETIC_SPR_BKYY, false),
   // find exit
   CHEAT("iddet",      NULL,   NULL,               cht_always, cheat_reveal_exit, 0, true),
   // killough 2/07/98: HOM autodetector
@@ -1163,7 +1165,7 @@ static void cheat_reveal_key(void)
     doom_printf("Key Finder: %s, Yellow, Blue", !heretic ? "Red" : "Green");
 }
 
-static void cheat_reveal_keyx(int key)
+static void cheat_reveal_keyx(void)
 {
   if (raven) return;
 
@@ -1173,7 +1175,7 @@ static void cheat_reveal_keyx(int key)
 
 static void cheat_reveal_keyxx(int key)
 {
-  if (raven) return;
+  if (hexen) return;
 
   if (automap_input)
   {
@@ -1186,19 +1188,20 @@ static void cheat_reveal_keyxx(int key)
   }
 }
 
-static void cheat_reveal_heretic_keyx(int key)
+static void cheat_reveal_doom_key(int key)
+{
+  if (raven) return;
+
+  if (automap_input)
+    cheat_reveal_keyxx(key);
+}
+
+static void cheat_reveal_heretic_key(int key)
 {
   if (!heretic) return;
 
   if (automap_input)
-  {
-    static int last_count;
-    static mobj_t *last_mobj;
-
-    dsda_TrackFeature(uf_iddt);
-
-    cheat_cycle_mobj_spr(&last_mobj, &last_count, key, MF_SPECIAL, false, "Key Finder: key not found");
-  }
+    cheat_reveal_keyxx(key);
 }
 
 // killough 2/16/98: generalized weapon cheats
