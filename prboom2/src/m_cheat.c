@@ -174,7 +174,6 @@ static void cheat_nut();
 
 cheatseq_t cheat[] = {
   CHEAT("idmus",      NULL,   "Change music",     cht_always, cheat_mus, -2, false),
-  CHEAT("idmusrr",    NULL,   NULL,               cht_always, cheat_musrr, 0, false),
   CHEAT("idchoppers", NULL,   "Chainsaw",         not_demo, cheat_choppers, 0, false),
   CHEAT("iddqd",      NULL,   "God mode",         not_classic_demo,  cheat_god, 0, false),
   CHEAT("idkfa",      NULL,   "Ammo & Keys",      not_demo, cheat_kfa, 0, false),
@@ -317,6 +316,13 @@ static void cheat_mus(buf)
 char buf[3];
 {
   int epsd, map;
+
+  // Check for random
+  if (buf[0] == 'r' && buf[1] == 'r')
+  {
+    cheat_musrr();
+    return;
+  }
 
   //jff 3/20/98 note: this cheat allowed in netgame/demorecord
 
