@@ -203,7 +203,7 @@ See the [build mode guide](./build_mode.md) for more info.
 - `iddst`
 - `iddkt`
 - `iddit`
-- `iddwt`
+- `iddwt <weapon number>`
 - `idclev <map>`
 - `idmus <map>`
 - `idmusrr`
@@ -215,15 +215,17 @@ See the [build mode guide](./build_mode.md) for more info.
 - `idbeholdl`
 - `idnut`
 - `skill`
-- `tntcomp`
+- `comp`
 - `tntem`
-- `tnthom`
+- `killem`
+- `hom`
 - `tntka`
-- `tntsmart`
-- `tntpitch`
-- `tntfast`
-- `tntice`
-- `tntpush`
+- `idk`
+- `smart`
+- `pitch`
+- `fast`
+- `ice`
+- `push`
 - `notarget`
 - `fly`
 - `fullclip`

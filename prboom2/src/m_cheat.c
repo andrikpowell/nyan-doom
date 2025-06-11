@@ -108,21 +108,23 @@ static void cheat_reveal_secret();
 static void cheat_reveal_kill();
 static void cheat_reveal_item();
 static void cheat_reveal_weapon();
+static void cheat_reveal_exit();
 static void cheat_reveal_key();
 static void cheat_reveal_keyx();
 static void cheat_reveal_keyxx();
 static void cheat_reveal_doom_key();
 static void cheat_reveal_heretic_key();
-static void cheat_reveal_exit();
 static void cheat_hom();
 static void cheat_fast();
-static void cheat_tntkey();
-static void cheat_tntkeyx();
-static void cheat_tntkeyxx();
-static void cheat_tntweap();
-static void cheat_tntweapx();
-static void cheat_tntammo();
-static void cheat_tntammox();
+static void cheat_key();
+static void cheat_keyx();
+static void cheat_keyxx();
+static void cheat_key_doom();
+static void cheat_key_heretic();
+static void cheat_weap();
+static void cheat_weapx();
+static void cheat_ammo();
+static void cheat_ammox();
 static void cheat_smart();
 static void cheat_pitch();
 static void cheat_megaarmour();
@@ -188,22 +190,26 @@ cheatseq_t cheat[] = {
   CHEAT("idbeholdr",  NULL,   "Radiation Suit",   not_demo, cheat_pw, pw_ironfeet, false),
   CHEAT("idbeholda",  NULL,   "Auto-map",         cht_always, cheat_pw, pw_allmap, false),
   CHEAT("idbeholdl",  NULL,   "Lite-Amp Goggles", cht_always, cheat_pw, pw_infrared, false),
-  CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cheat_clev, 0, false),
   CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cheat_clevx, -2, false),
+  CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cheat_clev, 0, false),
   CHEAT("idmypos",    NULL,   NULL,               cht_always, cheat_mypos, 0, false),
   CHEAT("idrate",     NULL,   "Frame rate",       cht_always, cheat_rate, 0, false),
+
   // phares
-  CHEAT("tntcomp",    NULL,   NULL,               not_demo, cheat_comp, 0, false),
-  CHEAT("tntcomp",    NULL,   NULL,               not_demo, cheat_compx, -2, false),
-  CHEAT("skill",      NULL,   NULL,               not_demo, cheat_skill, 0, false),
+  CHEAT("comp",       NULL,   NULL,               not_demo, cheat_compx, -2, false),
+  CHEAT("comp",       NULL,   NULL,               not_demo, cheat_comp, 0, false),
   CHEAT("skill",      NULL,   NULL,               not_demo, cheat_skillx, -1, false),
-  // jff 2/01/98 kill all monsters
-  CHEAT("tntem",      NULL,   NULL,               not_demo, cheat_massacre, 0, false),
+  CHEAT("skill",      NULL,   NULL,               not_demo, cheat_skill, 0, false),
+  CHEAT("tntem",      NULL,   NULL,               not_demo, cheat_massacre, 0, false),  // jff 2/01/98 kill all monsters
+  CHEAT("killem",     NULL,   NULL,               not_demo, cheat_massacre, 0, false),  // jff 2/01/98 kill all monsters
+
   // killough 2/07/98: moved from am_map.c
   CHEAT("iddt",       NULL,   "Map cheat",        cht_always, cheat_ddt, 0, true),
   CHEAT("iddst",      NULL,   NULL,               cht_always, cheat_reveal_secret, 0, true),
   CHEAT("iddkt",      NULL,   NULL,               cht_always, cheat_reveal_kill, 0, true),
   CHEAT("iddit",      NULL,   NULL,               cht_always, cheat_reveal_item, 0, true),
+  CHEAT("iddet",      NULL,   NULL,               cht_always, cheat_reveal_exit, 0, true),
+
   // find weapon cheats
   CHEAT("iddwt",      NULL,   NULL,               cht_always, cheat_reveal_weapon, 0, false),
   CHEAT("iddwt2",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_pistol+1, true),
@@ -214,66 +220,57 @@ cheatseq_t cheat[] = {
   CHEAT("iddwt7",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_bfg+1, true),
   CHEAT("iddwt8",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_chainsaw+1, true),
   CHEAT("iddwt9",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_supershotgun+1, true),
-  // find key cheats
-  CHEAT("iddf",       NULL,   NULL,               cht_always, cheat_reveal_key, 0, false),
-  CHEAT("iddfr",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
-  CHEAT("iddfy",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
-  CHEAT("iddfb",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
-  // find doom keys
+
+  // key cheats
   CHEAT("iddfrc",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_RKEY, true),
   CHEAT("iddfyc",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_YKEY, true),
   CHEAT("iddfbc",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_BKEY, true),
   CHEAT("iddfrs",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_RSKU, true),
   CHEAT("iddfys",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_YSKU, true),
   CHEAT("iddfbs",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_BSKU, true),
-  // find heretic keys
-  CHEAT("iddfg",      NULL,   NULL,               cht_always, cheat_reveal_heretic_key, HERETIC_SPR_AKYY, false),
-  CHEAT("iddfy",      NULL,   NULL,               cht_always, cheat_reveal_heretic_key, HERETIC_SPR_CKYY, false),
-  CHEAT("iddfb",      NULL,   NULL,               cht_always, cheat_reveal_heretic_key, HERETIC_SPR_BKYY, false),
-  // find exit
-  CHEAT("iddet",      NULL,   NULL,               cht_always, cheat_reveal_exit, 0, true),
-  // killough 2/07/98: HOM autodetector
-  CHEAT("tnthom",     NULL,   NULL,               cht_always, cheat_hom, 0, false),
-  // killough 2/16/98: generalized key cheats
-  CHEAT("tntkey",     NULL,   NULL,               not_demo, cheat_tntkey, 0, false),
-  CHEAT("tntkeyr",    NULL,   NULL,               not_demo, cheat_tntkeyx, 0, false),
-  CHEAT("tntkeyy",    NULL,   NULL,               not_demo, cheat_tntkeyx, 0, false),
-  CHEAT("tntkeyb",    NULL,   NULL,               not_demo, cheat_tntkeyx, 0, false),
-  CHEAT("tntkeyrc",   NULL,   NULL,               not_demo, cheat_tntkeyxx, it_redcard, false),
-  CHEAT("tntkeyyc",   NULL,   NULL,               not_demo, cheat_tntkeyxx, it_yellowcard, false),
-  CHEAT("tntkeybc",   NULL,   NULL,               not_demo, cheat_tntkeyxx, it_bluecard, false),
-  CHEAT("tntkeyrs",   NULL,   NULL,               not_demo, cheat_tntkeyxx, it_redskull, false),
-  CHEAT("tntkeyys",   NULL,   NULL,               not_demo, cheat_tntkeyxx, it_yellowskull, false),
-  // killough 2/16/98: end generalized keys
-  CHEAT("tntkeybs",   NULL,   NULL,               not_demo, cheat_tntkeyxx, it_blueskull, false),
-  // Ty 04/11/98 - Added TNTKA
-  CHEAT("tntka",      NULL,   NULL,               not_demo, cheat_k, 0, false),
-  // killough 2/16/98: generalized weapon cheats
-  CHEAT("tntweap",    NULL,   NULL,               not_demo, cheat_tntweap, 0, false),
-  CHEAT("tntweap",    NULL,   NULL,               not_demo, cheat_tntweapx, -1, false),
-  CHEAT("tntammo",    NULL,   NULL,               not_demo, cheat_tntammo, 0, false),
-  // killough 2/16/98: end generalized weapons
-  CHEAT("tntammo",    NULL,   NULL,               not_demo, cheat_tntammox, -1, false),
-  // killough 2/21/98: smart monster toggle
-  CHEAT("tntsmart",   NULL,   NULL,               not_demo, cheat_smart, 0, false),
-  // killough 2/21/98: pitched sound toggle
-  CHEAT("tntpitch",   NULL,   NULL,               cht_always, cheat_pitch, 0, false),
-  // killough 2/21/98: reduce RSI injury by adding simpler alias sequences:
-  // killough 2/21/98: same as tntammo
-  CHEAT("tntamo",     NULL,   NULL,               not_demo, cheat_tntammo, 0, false),
-  // killough 2/21/98: same as tntammo
-  CHEAT("tntamo",     NULL,   NULL,               not_demo, cheat_tntammox, -1, false),
-  // killough 3/6/98: -fast toggle
-  CHEAT("tntfast",    NULL,   NULL,               not_demo, cheat_fast, 0, false),
-  // phares 3/10/98: toggle variable friction effects
-  CHEAT("tntice",     NULL,   NULL,               not_demo, cheat_friction, 0, false),
-  // phares 3/10/98: toggle pushers
-  CHEAT("tntpush",    NULL,   NULL,               not_demo, cheat_pushers, 0, false),
+  CHEAT("iddfg",      NULL,   NULL,               cht_always, cheat_reveal_heretic_key, HERETIC_SPR_AKYY, true), // heretic
+  CHEAT("iddfy",      NULL,   NULL,               cht_always, cheat_reveal_heretic_key, HERETIC_SPR_CKYY, true), // heretic
+  CHEAT("iddfb",      NULL,   NULL,               cht_always, cheat_reveal_heretic_key, HERETIC_SPR_BKYY, true), // heretic
+  CHEAT("iddf",       NULL,   NULL,               cht_always, cheat_reveal_key, 0, false),
+  CHEAT("iddfr",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
+  CHEAT("iddfy",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
+  CHEAT("iddfb",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
 
-  // [RH] Monsters don't target
-  CHEAT("notarget",   NULL,   NULL,               not_demo, cheat_notarget, 0, false),
-  // fly mode is active
-  CHEAT("fly",        NULL,   NULL,               not_demo, cheat_fly, 0, false),
+  // killough 2/16/98: generalized key cheats
+  CHEAT("keyrc",      NULL,   NULL,               not_demo, cheat_key_doom, it_redcard, false),
+  CHEAT("keyyc",      NULL,   NULL,               not_demo, cheat_key_doom, it_yellowcard, false),
+  CHEAT("keybc",      NULL,   NULL,               not_demo, cheat_key_doom, it_bluecard, false),
+  CHEAT("keyrs",      NULL,   NULL,               not_demo, cheat_key_doom, it_redskull, false),
+  CHEAT("keyys",      NULL,   NULL,               not_demo, cheat_key_doom, it_yellowskull, false),
+  CHEAT("keybs",      NULL,   NULL,               not_demo, cheat_key_doom, it_blueskull, false),
+  CHEAT("keyg",       NULL,   NULL,               not_demo, cheat_key_heretic, key_green, false),  // heretic
+  CHEAT("keyy",       NULL,   NULL,               not_demo, cheat_key_heretic, key_yellow, false), // heretic
+  CHEAT("keyb",       NULL,   NULL,               not_demo, cheat_key_heretic, key_blue, false),   // heretic
+  CHEAT("key",        NULL,   NULL,               not_demo, cheat_key, 0, false),
+  CHEAT("keyr",       NULL,   NULL,               not_demo, cheat_keyx, 0, false),
+  CHEAT("keyy",       NULL,   NULL,               not_demo, cheat_keyx, 0, false),
+  CHEAT("keyb",       NULL,   NULL,               not_demo, cheat_keyx, 0, false),
+
+  // killough 2/16/98: generalized weapon cheats
+  CHEAT("weap",       NULL,   NULL,               not_demo, cheat_weapx, -1, false),
+  CHEAT("weap",       NULL,   NULL,               not_demo, cheat_weap, 0, false),
+  CHEAT("ammo",       NULL,   NULL,               not_demo, cheat_ammox, -1, false),
+  CHEAT("ammo",       NULL,   NULL,               not_demo, cheat_ammo, 0, false),
+  // removed "TNTAMO" due to "AMMO" being short
+
+  // Obscure TNT cheats
+  CHEAT("tntka",      NULL,   NULL,               not_demo, cheat_k, 0, false),         // Ty 04/11/98 - Added TNTKA
+  CHEAT("idk",        NULL,   NULL,               not_demo, cheat_k, 0, false),         // MBF version of TNTKA
+  CHEAT("hom",        NULL,   NULL,               cht_always, cheat_hom, 0, false),     // killough 2/07/98: HOM autodetector
+  CHEAT("smart",      NULL,   NULL,               not_demo, cheat_smart, 0, false),     // killough 2/21/98: smart monster toggle
+  CHEAT("pitch",      NULL,   NULL,               cht_always, cheat_pitch, 0, false),   // killough 2/21/98: pitched sound toggle
+  CHEAT("fast",       NULL,   NULL,               not_demo, cheat_fast, 0, false),      // killough 3/6/98: -fast toggle
+  CHEAT("ice",        NULL,   NULL,               not_demo, cheat_friction, 0, false),  // phares 3/10/98: toggle variable friction effects
+  CHEAT("push",       NULL,   NULL,               not_demo, cheat_pushers, 0, false),   // phares 3/10/98: toggle pushers
+
+  // dsda cheats
+  CHEAT("notarget",   NULL,   NULL,               not_demo, cheat_notarget, 0, false),  // [RH] Monsters don't target
+  CHEAT("fly",        NULL,   NULL,               not_demo, cheat_fly, 0, false),       // fly mode is active
 
   // heretic
   CHEAT("quicken", NULL, NULL, not_classic_demo, cheat_god, 0, false),
@@ -284,8 +281,8 @@ cheatseq_t cheat[] = {
   CHEAT("skel", NULL, NULL, not_demo, cheat_k, 0, false),
   CHEAT("gimme", NULL, NULL, not_demo, cheat_artifact, -2, false),
   CHEAT("shazam", NULL, NULL, not_demo, cheat_tome, 0, false),
-  CHEAT("engage", NULL, NULL, not_demo | not_menu, cheat_clev, 0, false),
   CHEAT("engage", NULL, NULL, not_demo | not_menu, cheat_clevx, -2, false),
+  CHEAT("engage", NULL, NULL, not_demo | not_menu, cheat_clev, 0, false),
   CHEAT("ravmap", NULL, NULL, cht_always, cheat_ddt, 0, true),
   CHEAT("cockadoodledoo", NULL, NULL, not_demo, cheat_chicken, 0, false),
 
@@ -299,8 +296,8 @@ cheatseq_t cheat[] = {
   CHEAT("sherlock", NULL, NULL, not_demo, cheat_puzzle, 0, false),
   CHEAT("casper", NULL, NULL, not_classic_demo, cheat_noclip, 0, false),
   CHEAT("shadowcaster", NULL, NULL, not_demo, cheat_class, -1, false),
-  CHEAT("visit", NULL, NULL, not_demo | not_menu, cheat_clev, 0, false),
   CHEAT("visit", NULL, NULL, not_demo | not_menu, cheat_clevx, -2, false),
+  CHEAT("visit", NULL, NULL, not_demo | not_menu, cheat_clev, 0, false),
   CHEAT("init", NULL, NULL, not_demo, cheat_init, 0, false),
   CHEAT("puke", NULL,  NULL, not_demo, cheat_script, -2, false),
   CHEAT("mapsco", NULL, NULL, cht_always, cheat_ddt, 0, true),
@@ -1141,17 +1138,35 @@ static void cheat_fast()
 }
 
 // killough 2/16/98: keycard/skullkey cheat functions
-static void cheat_tntkey()
+static void cheat_key()
 {
-  dsda_AddMessage("Add key: Red, Yellow, Blue");
+  if (hexen) return;
+
+  doom_printf("Add key: %s, Yellow, Blue", !heretic ? "Red" : "Green");
 }
 
-static void cheat_tntkeyx()
+static void cheat_keyx()
 {
+  if (raven) return;
+
   dsda_AddMessage("Add key: Card, Skull");
 }
 
-static void cheat_tntkeyxx(int key)
+static void cheat_key_doom(int key)
+{
+  if (raven) return;
+
+  cheat_keyxx(key);
+}
+
+static void cheat_key_heretic(int key)
+{
+  if (!heretic) return;
+
+  cheat_keyxx(key);
+}
+
+static void cheat_keyxx(int key)
 {
   dsda_AddMessage((plyr->cards[key] = !plyr->cards[key]) ? "Key Added" : "Key Removed");
 }
@@ -1206,12 +1221,12 @@ static void cheat_reveal_heretic_key(int key)
 
 // killough 2/16/98: generalized weapon cheats
 
-static void cheat_tntweap()
+static void cheat_weap()
 {
   dsda_AddMessage(gamemode == commercial ? "Weapon number 1-9" : "Weapon number 1-8");
 }
 
-static void cheat_tntweapx(buf)
+static void cheat_weapx(buf)
 char buf[3];
 {
   int w = *buf - '1';
@@ -1236,12 +1251,12 @@ char buf[3];
 }
 
 // killough 2/16/98: generalized ammo cheats
-static void cheat_tntammo()
+static void cheat_ammo()
 {
   dsda_AddMessage("Ammo 1-4, Backpack");
 }
 
-static void cheat_tntammox(buf)
+static void cheat_ammox(buf)
 char buf[1];
 {
   int a = *buf - '1';
