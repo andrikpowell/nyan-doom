@@ -362,8 +362,6 @@ static dboolean console_PlayerSetAmmo(const char* command, const char* args) {
 }
 
 static dboolean console_PlayerGiveKey(const char* command, const char* args) {
-  extern int playerkeys;
-
   int key;
 
   if (sscanf(args, "%i", &key)) {
@@ -371,7 +369,7 @@ static dboolean console_PlayerGiveKey(const char* command, const char* args) {
       return false;
 
     target_player.cards[key] = true;
-    playerkeys |= 1 << key;
+    target_player.ravenkeys |= 1 << key;
 
     return true;
   }
@@ -380,8 +378,6 @@ static dboolean console_PlayerGiveKey(const char* command, const char* args) {
 }
 
 static dboolean console_PlayerRemoveKey(const char* command, const char* args) {
-  extern int playerkeys;
-
   int key;
 
   if (sscanf(args, "%i", &key)) {
@@ -389,7 +385,7 @@ static dboolean console_PlayerRemoveKey(const char* command, const char* args) {
       return false;
 
     target_player.cards[key] = false;
-    playerkeys &= ~(1 << key);
+    target_player.ravenkeys &= ~(1 << key);
 
     return true;
   }
@@ -1112,7 +1108,6 @@ static int console_GetKey(const char* color, const char* type, int spr)
 }
 
 static dboolean console_IDDF(const char* command, const char* args) {
-  extern int playerkeys;
   int arg_count;
   char color[CONSOLE_ENTRY_SIZE];
   char type[CONSOLE_ENTRY_SIZE];
@@ -1136,7 +1131,6 @@ static dboolean console_IDDF(const char* command, const char* args) {
 }
 
 static dboolean console_KEY(const char* command, const char* args) {
-  extern int playerkeys;
   int arg_count;
   char color[CONSOLE_ENTRY_SIZE];
   char type[CONSOLE_ENTRY_SIZE];
@@ -1154,12 +1148,12 @@ static dboolean console_KEY(const char* command, const char* args) {
     if (target_player.cards[key])
     {
       target_player.cards[key] = false;
-      playerkeys &= ~(1 << key);
+      target_player.ravenkeys &= ~(1 << key);
     }
     else
     {
       target_player.cards[key] = true;
-      playerkeys |= 1 << key;
+      target_player.ravenkeys |= 1 << key;
     }
 
     return true;
