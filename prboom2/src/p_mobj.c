@@ -2222,7 +2222,7 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
     if (p == &players[consoleplayer])
       p->ravenkeys = 7;
   }
-  else if (p == &players[consoleplayer] && heretic)
+  else if (p == &players[consoleplayer] && !hexen)
     p->ravenkeys = 0;
 
   R_SmoothPlaying_Reset(p); // e6y
