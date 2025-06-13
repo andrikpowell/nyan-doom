@@ -1817,29 +1817,6 @@ dboolean M_SetDisabled(const setup_menu_t* s)
     }
   }
 
-  // Limit Removing
-  if (limitremoving)
-  {
-    int i;
-    int overflows[] = {
-      dsda_config_overrun_spechit_warn,          dsda_config_overrun_spechit_emulate,
-      dsda_config_overrun_reject_warn,           dsda_config_overrun_reject_emulate,
-      dsda_config_overrun_intercept_warn,        dsda_config_overrun_intercept_emulate,
-      dsda_config_overrun_playeringame_warn,     dsda_config_overrun_playeringame_emulate,
-      dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
-      dsda_config_overrun_missedbackside_warn,   dsda_config_overrun_missedbackside_emulate,
-    };
-
-    for (i = 0; (size_t)i < sizeof(overflows) / sizeof(overflows[0]); i++)
-    {
-      if(s->config_id == overflows[i])
-      {
-        dsda_UpdateIntConfig(overflows[i], 0, false);
-        return true;
-      }
-    }
-  }
-
   // Raven Disable Wipe
   if (raven)
   {
@@ -1881,6 +1858,30 @@ dboolean M_SetDisabled(const setup_menu_t* s)
     {
       dsda_UpdateIntConfig(dsda_config_default_complevel, complvl, false);
       return true;
+    }
+  }
+
+  // Limit Removing
+  if (limitremoving || dsda_IntConfig(dsda_config_default_complevel) >= boom_compatibility_compatibility+1)
+  {
+    int i;
+    int overflows[] = {
+      dsda_config_overrun_spechit_warn,          dsda_config_overrun_spechit_emulate,
+      dsda_config_overrun_reject_warn,           dsda_config_overrun_reject_emulate,
+      dsda_config_overrun_intercept_warn,        dsda_config_overrun_intercept_emulate,
+      dsda_config_overrun_playeringame_warn,     dsda_config_overrun_playeringame_emulate,
+      dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
+      dsda_config_overrun_missedbackside_warn,   dsda_config_overrun_missedbackside_emulate,
+    };
+
+    for (i = 0; (size_t)i < sizeof(overflows) / sizeof(overflows[0]); i++)
+    {
+      if(s->config_id == overflows[i])
+      {
+        if (limitremoving)
+          dsda_UpdateIntConfig(overflows[i], 0, false);
+        return true;
+      }
     }
   }
 
