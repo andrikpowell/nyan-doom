@@ -33,6 +33,7 @@ void N_ReloadNyanLumps(void);
 
 int N_GetNyanPatchNum(const char* lump);
 void V_DrawNameNyanPatch(const int x, const int y, const int scrn, const char* lump, const int color, const int flags);
+void V_DrawNameNyanPatchFullScreen(const int x, const int y, const int scrn, const char* lump, const int color, const int flags);
 void V_DrawNyanBackground(const char* lump, const int scrn);
 
 // Also called by F_BunnyScroll()

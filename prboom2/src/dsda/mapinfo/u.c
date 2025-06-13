@@ -317,7 +317,7 @@ void dsda_UFDrawer(void) {
   else {
     // e6y: wide-res
     V_ClearBorder(gamemapinfo->endpic);
-    V_DrawNameNyanPatch(0, 0, 0, gamemapinfo->endpic, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNameNyanPatchFullScreen(0, 0, 0, gamemapinfo->endpic, CR_DEFAULT, VPT_STRETCH);
   }
 }
 

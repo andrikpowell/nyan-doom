@@ -148,6 +148,11 @@ void V_DrawNameNyanPatch(const int x, const int y, const int scrn, const char* l
     V_DrawNumPatch(x, y, scrn, N_GetNyanPatchNum(lump), color, flags);
 }
 
+void V_DrawNameNyanPatchFullScreen(const int x, const int y, const int scrn, const char* lump, const int color, const int flags)
+{
+    V_DrawNumPatchFullScreen(x, y, scrn, N_GetNyanPatchNum(lump), color, flags);
+}
+
 void V_DrawNyanBackground(const char* lump, const int scrn)
 {
     extern const char* g_menu_flat;

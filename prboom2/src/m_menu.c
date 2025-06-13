@@ -4504,7 +4504,7 @@ static void M_DrawExtHelp(void)
   inhelpscreens = true;              // killough 5/1/98
   // CPhipps - patch drawing updated
   V_ClearBorder(namebfr); // Adds background for widescreen on sides.
-  V_DrawNameNyanPatch(0, 0, 0, namebfr, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNameNyanPatchFullScreen(0, 0, 0, namebfr, CR_DEFAULT, VPT_STRETCH);
 }
 
 //
@@ -4675,7 +4675,7 @@ static void M_DrawHelp (void)
   M_ChangeMenu(NULL, mnact_full);
 
   V_ClearBorder(helplump);
-  V_DrawNameNyanPatch(0, 0, 0, helplump, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNameNyanPatchFullScreen(0, 0, 0, helplump, CR_DEFAULT, VPT_STRETCH);
 }
 
 //
@@ -4690,7 +4690,7 @@ static void M_DrawAd (void)
   if (pwad_help2_check || doom_v11 || gamemode == shareware)
   {
     V_ClearBorder(help2);
-    V_DrawNameNyanPatch(0, 0, 0, help2, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNameNyanPatchFullScreen(0, 0, 0, help2, CR_DEFAULT, VPT_STRETCH);
   }
   else
     M_DrawCredits();
@@ -4725,7 +4725,7 @@ void M_DrawCredits(void)     // killough 10/98: credit screen
   inhelpscreens = true;
 
   V_ClearBorder(credit);
-  V_DrawNameNyanPatch(0, 0, 0, credit, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNameNyanPatchFullScreen(0, 0, 0, credit, CR_DEFAULT, VPT_STRETCH);
 }
 
 void M_DrawCreditsDynamic(void)     // Dynamic Credits

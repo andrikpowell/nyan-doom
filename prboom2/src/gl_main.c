@@ -510,7 +510,7 @@ void gld_EndMenuDraw(void)
   glsl_PopNullShader();
 }
 
-void gld_DrawNumPatch_f(float x, float y, int lump, int cm, enum patch_translation_e flags)
+void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int cm, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
@@ -550,8 +550,11 @@ void gld_DrawNumPatch_f(float x, float y, int lump, int cm, enum patch_translati
   }
 
   // [FG] automatically center wide patches without horizontal offset
-  if (gltexture->width > 320 && leftoffset == 0)
-    x -= (float)(gltexture->width - 320) / 2;
+  if (center)
+  {
+    if (gltexture->width > 320 && leftoffset == 0)
+      x -= (float)(gltexture->width - 320) / 2;
+  }
 
   if (flags & VPT_STRETCH_MASK)
   {
@@ -586,9 +589,9 @@ void gld_DrawNumPatch_f(float x, float y, int lump, int cm, enum patch_translati
   glEnd();
 }
 
-void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e flags)
+void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int cm, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f((float)x, (float)y, lump, cm, flags);
+  gld_DrawNumPatch_f((float)x, (float)y, lump, center, cm, flags);
 }
 
 void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_width, int dst_height, enum patch_translation_e flags)
