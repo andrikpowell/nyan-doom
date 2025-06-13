@@ -53,7 +53,6 @@
 static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 {
   int              count;
-  int              tutti_frutti = dsda_IntConfig(dsda_config_tutti_frutti_emulate) && demo_compatibility;
 
 #if (!(R_DRAWCOLUMN_PIPELINE & RDC_FUZZ))
   byte             *dest;            // killough
@@ -162,7 +161,7 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
     //
     // killough 2/1/98: more performance tuning
 
-    if (dcvars->texheight == 128 || tutti_frutti) {
+    if (dcvars->texheight == 128) {
       #define FIXEDT_128MASK ((127<<FRACBITS)|0xffff)
       while(count--) {
         *dest = GETCOL(frac & FIXEDT_128MASK);

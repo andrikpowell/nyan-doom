@@ -462,7 +462,6 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_overrun_donut_emulate),
   MIGRATED_SETTING(dsda_config_overrun_missedbackside_warn),
   MIGRATED_SETTING(dsda_config_overrun_missedbackside_emulate),
-  MIGRATED_SETTING(dsda_config_tutti_frutti_emulate),
 
   SETTING_HEADING("Mapping error compatibility settings"),
   MIGRATED_SETTING(dsda_config_comperr_zerotag),

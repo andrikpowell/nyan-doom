@@ -110,7 +110,6 @@ typedef enum {
   dsda_config_overrun_intercept_emulate,
   dsda_config_overrun_playeringame_warn,
   dsda_config_overrun_playeringame_emulate,
-  dsda_config_tutti_frutti_emulate,
   dsda_config_overrun_donut_warn,
   dsda_config_overrun_donut_emulate,
   dsda_config_overrun_missedbackside_warn,
