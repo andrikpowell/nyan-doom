@@ -452,6 +452,9 @@ sfxinfo_t doom_S_sfx[] = {
   [697] = { "dsfre197", 127, 0, -1, 0, 0, 0, "" },
   [698] = { "dsfre198", 127, 0, -1, 0, 0, 0, "" },
   [699] = { "dsfre199", 127, 0, -1, 0, 0, 0, "" },
+
+  // Nyan
+  { "dsnyanut", 60, 0, -1, 0, 0, 0, "" },
 };
 
 #define DISAMBIGUATED_SFX(id, tag) { "", 0, &doom_S_sfx[id], 0, 0, 0, 0, tag }

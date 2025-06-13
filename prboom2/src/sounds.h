@@ -41,6 +41,7 @@ typedef enum {
   sfx_class_none,
   sfx_class_important,
   sfx_class_secret,
+  sfx_class_idnut,
 } sfx_class_t;
 
 typedef struct {
@@ -589,6 +590,9 @@ typedef enum {
   sfx_fre197,
   sfx_fre198,
   sfx_fre199,
+
+  // Nyan sfx
+  sfx_idnut,
 
   DOOM_NUMSFX,
 

@@ -476,8 +476,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
   player_t *player;
   int      i;
   int      sound;
+  int      idnut;
   fixed_t  delta = special->z - toucher->z;
-  const char *soul_message, *mega_message;
 
   if (heretic) return Heretic_P_TouchSpecialThing(special, toucher);
   if (hexen) return Hexen_P_TouchSpecialThing(special, toucher);
@@ -487,10 +487,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 
   sound = sfx_itemup;
   player = toucher->player;
-
-  // Nutty Messages
-  mega_message = (players[displayplayer].cheats & CF_NUT) ? "You got a Coconut!" : s_GOTMSPHERE;
-  soul_message = (players[displayplayer].cheats & CF_NUT) ? "You got a Blueberry!" : s_GOTSUPER;
+  idnut = players[displayplayer].cheats & CF_NUT;
 
   // Dead thing touching.
   // Can happen with a sliding player corpse.
@@ -554,8 +551,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       if (player->health > max_soul)
         player->health = max_soul;
       player->mo->health = player->health;
-      dsda_AddPlayerMessage(soul_message, player);
-      sound = sfx_getpow;
+      dsda_AddPlayerMessage(idnut ? "You got a Blueberry!" : s_GOTSUPER, player);
+      sound = idnut ? g_sfx_idnut : sfx_getpow;
       break;
 
     case SPR_MEGA:
@@ -569,8 +566,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       P_GiveArmor (player,
          ((!demo_compatibility || prboom_comp[PC_APPLY_BLUE_ARMOR_CLASS_TO_MEGASPHERE].state) ?
           blue_armor_class : 2));
-      dsda_AddPlayerMessage(mega_message, player);
-      sound = sfx_getpow;
+      dsda_AddPlayerMessage(idnut ? "You got a Coconut!" : s_GOTMSPHERE, player);
+      sound = idnut ? g_sfx_idnut : sfx_getpow;
       break;
 
         // cards
@@ -829,13 +826,17 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
   P_RemoveMobj (special);
   player->bonuscount += BONUSADD;
 
+  // Don't cut off IDNUT :)
+  if (sound != g_sfx_idnut)
+    sound = sound | PICKUP_SOUND;
+
   /* cph 20028/10 - for old-school DM addicts, allow old behavior
    * where only consoleplayer's pickup sounds are heard */
   // displayplayer, not consoleplayer, for viewing multiplayer demos
   if (!comp[comp_sound])
-    S_StartSound (player->mo, sound | PICKUP_SOUND);   // killough 4/25/98
+    S_StartSound (player->mo, sound);   // killough 4/25/98
   else if (player == &players[displayplayer])
-    S_StartVoidSound (sound | PICKUP_SOUND);
+    S_StartVoidSound (sound);
 }
 
 //

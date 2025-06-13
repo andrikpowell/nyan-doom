@@ -119,6 +119,7 @@ int g_sfx_respawn;
 int g_sfx_secret;
 int g_sfx_revive;
 int g_sfx_console;
+int g_sfx_idnut;
 
 int g_door_normal;
 int g_door_raise_in_5_mins;
@@ -194,6 +195,7 @@ static void dsda_InitDoom(void) {
   g_sfx_secret = sfx_secret;
   g_sfx_revive = sfx_slop;
   g_sfx_console = sfx_radio;
+  g_sfx_idnut = sfx_idnut; // nyan
 
   // Doom v1.1 - link missing sounds
   if (doom_v11)

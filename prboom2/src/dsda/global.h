@@ -91,6 +91,7 @@ extern int g_sfx_respawn;
 extern int g_sfx_secret;
 extern int g_sfx_revive;
 extern int g_sfx_console;
+extern int g_sfx_idnut;
 
 extern int g_door_normal;
 extern int g_door_raise_in_5_mins;

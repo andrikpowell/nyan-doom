@@ -334,6 +334,8 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume, int loop_timeo
   // killough 4/25/98
   if (sfx_id == g_sfx_secret)
     params.sfx_class = sfx_class_secret;
+  else if (sfx_id == g_sfx_idnut)
+    params.sfx_class = sfx_class_idnut;
   else if (sfx_id & PICKUP_SOUND ||
       sfx_id == sfx_oof ||
       (compatibility_level >= prboom_2_compatibility && sfx_id == sfx_noway))
@@ -977,7 +979,8 @@ static int S_getChannel(void *origin, sfxinfo_t *sfxinfo, sfx_params_t *params)
   for (cnum = 0; cnum < numChannels; cnum++)
     if (channels[cnum].active && channels[cnum].origin == origin &&
         (comp[comp_sound] || channels[cnum].sfx_class == params->sfx_class) &&
-        (channels[cnum].sfx_class != sfx_class_secret || params->sfx_class == sfx_class_secret))
+        (channels[cnum].sfx_class != sfx_class_secret || params->sfx_class == sfx_class_secret) &&
+        (channels[cnum].sfx_class != sfx_class_idnut || params->sfx_class == sfx_class_idnut))
     {
       // The sound is already playing
       if (channels[cnum].sfxinfo == sfxinfo && channels[cnum].loop && params->loop) {

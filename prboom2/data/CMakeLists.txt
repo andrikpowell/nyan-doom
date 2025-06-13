@@ -72,6 +72,7 @@ set(SOUNDS
     sounds/dsdgdth.wav
     sounds/dsdgpain.wav
     sounds/dssecret.wav
+    sounds/dsnyanut.wav
 )
 
 set(GRAPHICS
