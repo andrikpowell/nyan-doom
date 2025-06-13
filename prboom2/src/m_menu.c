@@ -1874,6 +1874,9 @@ dboolean M_SetDisabled(const setup_menu_t* s)
       dsda_config_overrun_missedbackside_warn,   dsda_config_overrun_missedbackside_emulate,
     };
 
+    if (s->config_id == dsda_config_tutti_frutti_emulate)
+      return true;
+
     for (i = 0; (size_t)i < sizeof(overflows) / sizeof(overflows[0]); i++)
     {
       if(s->config_id == overflows[i])
@@ -3717,6 +3720,7 @@ setup_menu_t comp_emulation_settings[] = {
   { "TRY TO EMULATE IT", S_YESNO, m_conf, AU_X, dsda_config_overrun_intercept_emulate },
   { "WARN ON PLAYERINGAME OVERFLOW", S_YESNO, m_conf, AU_X, dsda_config_overrun_playeringame_warn },
   { "TRY TO EMULATE IT", S_YESNO, m_conf, AU_X, dsda_config_overrun_playeringame_emulate },
+  { "Emulate Tutti-Frutti Effect", S_YESNO, m_conf, AU_X, dsda_config_tutti_frutti_emulate, DEPEND_SW },
   EMPTY_LINE,
   { "MAPPING ERROR FIXES", S_SKIP | S_TITLE, m_conf, AU_X},
   { "LINEDEFS W/O TAGS APPLY LOCALLY", S_YESNO, m_conf, AU_X, dsda_config_comperr_zerotag },

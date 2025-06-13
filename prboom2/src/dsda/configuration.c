@@ -574,6 +574,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "overrun_playeringame_emulate", dsda_config_overrun_playeringame_emulate,
     CONF_BOOL(1), &overflows[OVERFLOW_PLAYERINGAME].emulate
   },
+  [dsda_config_tutti_frutti_emulate] = {
+    "tutti_frutti_emulate", dsda_config_tutti_frutti_emulate,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
   [dsda_config_overrun_donut_warn] = {
     "overrun_donut_warn", dsda_config_overrun_donut_warn,
     CONF_BOOL(0), &overflows[OVERFLOW_DONUT].warn
