@@ -2450,6 +2450,8 @@ static void M_DrawInstructions(void)
 #define NEW_COLUMN { 0, S_SKIP | S_RESET_Y, m_null }
 #define DEPEND(config, value)     0, m_null, config, (const char *)value, false
 #define EXCLUDE(config, value)    0, m_null, config, (const char *)value, true
+#define DEPEND_SW                 0, m_null, dsda_config_videomode, "Software", false
+#define DEPEND_GL                 0, m_null, dsda_config_videomode, "OpenGL", false
 
 static void M_EnterSetup(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
 {
@@ -3000,13 +3002,13 @@ setup_menu_t auto_options_settings[] =
 setup_menu_t auto_appearance_settings[] =
 {
   { "Things appearance", S_CHOICE, m_conf, AA_X, dsda_config_map_things_appearance, 0, map_things_appearance_list },
-  { "GL Nice Icons", S_YESNO, m_conf, AA_X, dsda_config_map_things_nice, DEPEND(dsda_config_videomode, "OpenGL") },
-  { "GL textured display", S_YESNO, m_conf, AA_X, dsda_config_map_textured, DEPEND(dsda_config_videomode, "OpenGL") },
+  { "GL Nice Icons", S_YESNO, m_conf, AA_X, dsda_config_map_things_nice, DEPEND_GL },
+  { "GL textured display", S_YESNO, m_conf, AA_X, dsda_config_map_textured, DEPEND_GL },
   EMPTY_LINE,
   TITLE("GL Translucency", AA_X),
-  { "Textured automap %", S_NUM, m_conf, AA_X, dsda_config_map_textured_trans, DEPEND(dsda_config_videomode, "OpenGL") },
-  { "Textured automap on overlay %", S_NUM, m_conf, AA_X, dsda_config_map_textured_overlay_trans, DEPEND(dsda_config_videomode, "OpenGL") },
-  { "Lines on overlay %", S_NUM, m_conf, AA_X, dsda_config_map_lines_overlay_trans, DEPEND(dsda_config_videomode, "OpenGL") },
+  { "Textured automap %", S_NUM, m_conf, AA_X, dsda_config_map_textured_trans, DEPEND_GL },
+  { "Textured automap on overlay %", S_NUM, m_conf, AA_X, dsda_config_map_textured_overlay_trans, DEPEND_GL },
+  { "Lines on overlay %", S_NUM, m_conf, AA_X, dsda_config_map_lines_overlay_trans, DEPEND_GL },
   EMPTY_LINE,
   TITLE("Trail", AA_X),
   { "Player Trail", S_YESNO, m_conf, AA_X, dsda_config_map_trail },
@@ -3508,10 +3510,10 @@ setup_menu_t display_options_settings[] = {
   { "View Bobbing", S_YESNO, m_conf, G_X, dsda_config_viewbob },
   { "Weapon Bobbing", S_YESNO, m_conf, G_X, dsda_config_weaponbob },
   { "Weapon Attack Alignment", S_CHOICE, m_conf, G_X, dsda_config_weapon_attack_alignment, 0, weapon_attack_alignment_strings },
-  { "Linear Sky Scrolling", S_YESNO, m_conf, G_X, dsda_config_render_linearsky, DEPEND(dsda_config_videomode, "Software") },
+  { "Linear Sky Scrolling", S_YESNO, m_conf, G_X, dsda_config_render_linearsky, DEPEND_SW },
   { "Quake Intensity", S_NUM, m_conf, G_X, dsda_config_quake_intensity },
-  { "GL Health Bars", S_YESNO, m_conf, G_X, dsda_config_gl_health_bar, DEPEND(dsda_config_videomode, "OpenGL") },
-  { "GL Blend Animations", S_YESNO, m_conf, G_X, dsda_config_gl_blend_animations, DEPEND(dsda_config_videomode, "OpenGL") },
+  { "GL Health Bars", S_YESNO, m_conf, G_X, dsda_config_gl_health_bar, DEPEND_GL },
+  { "GL Blend Animations", S_YESNO, m_conf, G_X, dsda_config_gl_blend_animations, DEPEND_GL },
   EMPTY_LINE,
   { "Change Palette On Pain", S_YESNO, m_conf, G_X, dsda_config_palette_ondamage },
   { "Change Palette On Bonus", S_YESNO, m_conf, G_X, dsda_config_palette_onbonus },
