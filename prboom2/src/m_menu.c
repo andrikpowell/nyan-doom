@@ -1910,6 +1910,7 @@ static void M_DrawItem(const setup_menu_t* s, int y)
     flags |= S_DISABLED;
  
   color =
+    (flags & S_TITLE && flags & S_DISABLED) ? cr_title + CR_DARKEN :
     flags & S_DISABLED ? cr_label + CR_DARKEN :    flags & (S_SELECT|S_TC_SEL) ? cr_label_edit :
     flags & S_HILITE ? cr_label_highlight :
     flags & (S_TITLE|S_NEXT|S_PREV) ? cr_title :
@@ -2451,6 +2452,7 @@ static void M_DrawInstructions(void)
 #define NEW_COLUMN { 0, S_SKIP | S_RESET_Y, m_null }
 #define DEPEND(config, value)     0, m_null, config, (const char *)value, false
 #define EXCLUDE(config, value)    0, m_null, config, (const char *)value, true
+#define TITLE_DEPEND(page_name, offset_x, config, value) { page_name, S_SKIP | S_TITLE, m_null, offset_x, 0, DEPEND(config, value)}
 #define DEPEND_SW                 0, m_null, dsda_config_videomode, "Software", false
 #define DEPEND_GL                 0, m_null, dsda_config_videomode, "OpenGL", false
 
@@ -3006,7 +3008,7 @@ setup_menu_t auto_appearance_settings[] =
   { "GL Nice Icons", S_YESNO, m_conf, AA_X, dsda_config_map_things_nice, DEPEND_GL },
   { "GL textured display", S_YESNO, m_conf, AA_X, dsda_config_map_textured, DEPEND_GL },
   EMPTY_LINE,
-  TITLE("GL Translucency", AA_X),
+  TITLE_DEPEND("GL Translucency", AA_X, dsda_config_videomode, "OpenGL"),
   { "Textured automap %", S_NUM, m_conf, AA_X, dsda_config_map_textured_trans, DEPEND_GL },
   { "Textured automap on overlay %", S_NUM, m_conf, AA_X, dsda_config_map_textured_overlay_trans, DEPEND_GL },
   { "Lines on overlay %", S_NUM, m_conf, AA_X, dsda_config_map_lines_overlay_trans, DEPEND_GL },
