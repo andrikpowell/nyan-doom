@@ -971,13 +971,10 @@ void A_FireOldBFG(player_t *player, pspdef_t *psp)
       do
       {
         slope = P_AimLineAttack(mo, an, 16*64*FRACUNIT, mask);
-        if (!dsda_DisableHorizAutoaim())
-        {
-          if (!linetarget)
-            slope = P_AimLineAttack(mo, an += 1<<26, 16*64*FRACUNIT, mask);
-          if (!linetarget)
-            slope = P_AimLineAttack(mo, an -= 2<<26, 16*64*FRACUNIT, mask);
-        }
+        if (!linetarget)
+          slope = P_AimLineAttack(mo, an += 1<<26, 16*64*FRACUNIT, mask);
+        if (!linetarget)
+          slope = P_AimLineAttack(mo, an -= 2<<26, 16*64*FRACUNIT, mask);
         if (!linetarget)
           slope = 0, an = mo->angle;
       }

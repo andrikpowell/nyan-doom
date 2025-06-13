@@ -107,19 +107,16 @@ void dsda_PlayerAimBad(mobj_t* source, angle_t angle, aim_t* aim, uint64_t targe
     {
       aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
 
-      if (!dsda_DisableHorizAutoaim())
+      if (!linetarget)
       {
-        if (!linetarget)
-        {
-          aim->angle += 1 << 26;
-          aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
-        }
+        aim->angle += 1 << 26;
+        aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
+      }
 
-        if (!linetarget)
-        {
-          aim->angle -= 2 << 26;
-          aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
-        }
+      if (!linetarget)
+      {
+        aim->angle -= 2 << 26;
+        aim->slope = P_AimLineAttack(source, aim->angle, 16 * 64 * FRACUNIT, target_mask);
       }
 
       if (heretic && !linetarget)
