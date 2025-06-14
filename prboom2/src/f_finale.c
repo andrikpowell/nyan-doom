@@ -565,7 +565,7 @@ void F_TextWrite (void)
   if (finalepatch)
   {
     V_ClearBorder(finalepatch);
-    V_DrawNameNyanPatchFS(0, 0, 0, finalepatch, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchAnimateFS(0, 0, 0, finalepatch, CR_DEFAULT, VPT_STRETCH);
   }
   else
     V_DrawBackground(finaleflat, 0);
@@ -903,7 +903,7 @@ void F_CastDrawer (void)
   V_ClearBorder(castbackground);
   // erase the entire screen to a background
   // CPhipps - patch drawing updated
-  V_DrawNameNyanPatchFS(0,0,0, castbackground, CR_DEFAULT, VPT_STRETCH); // Ty 03/30/98 bg texture extern
+  V_DrawNamePatchAnimateFS(0,0,0, castbackground, CR_DEFAULT, VPT_STRETCH); // Ty 03/30/98 bg texture extern
 
   F_CastPrint (*(castorder[castnum].name));
 
@@ -1007,14 +1007,14 @@ void F_BunnyScroll (void)
     F_BunnyApplyWidth();
 
     if (scrolled <= 0) {
-      V_DrawNameNyanPatchFS(0, 0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatchAnimateFS(0, 0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
     } else if (scrolled >= 320) {
-      V_DrawNameNyanPatchFS(p1offset, 0, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatchAnimateFS(p1offset, 0, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
       if (p1offset > 0)
-        V_DrawNameNyanPatchFS(-320, 0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
+        V_DrawNamePatchAnimateFS(-320, 0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
     } else {
-      V_DrawNameNyanPatchFS(p1offset + 320 - scrolled, 0, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
-      V_DrawNameNyanPatchFS(-scrolled, 0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatchAnimateFS(p1offset + 320 - scrolled, 0, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatchAnimateFS(-scrolled, 0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
     }
     if (p2width == 320)
       V_ClearBorder(scrollpic1);
@@ -1102,7 +1102,7 @@ void F_Drawer (void)
     if (finalelump)
     {
       V_ClearBorder(finalelump); // e6y: wide-res
-      V_DrawNameNyanPatchFS(0, 0, 0, finalelump, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatchAnimateFS(0, 0, 0, finalelump, CR_DEFAULT, VPT_STRETCH);
     }
   }
 }

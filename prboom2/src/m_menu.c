@@ -482,7 +482,7 @@ static void M_DrawMainMenu(void)
 {
   if (raven) return MN_DrawMainMenu();
   // CPhipps - patch drawing updated
-  V_DrawNameNyanPatch(94, 2, 0, mdoom, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatchAnimate(94, 2, 0, mdoom, CR_DEFAULT, VPT_STRETCH);
 }
 
 /////////////////////////////
@@ -4504,7 +4504,7 @@ static void M_DrawExtHelp(void)
   inhelpscreens = true;              // killough 5/1/98
   // CPhipps - patch drawing updated
   V_ClearBorder(namebfr); // Adds background for widescreen on sides.
-  V_DrawNameNyanPatchFS(0, 0, 0, namebfr, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatchAnimateFS(0, 0, 0, namebfr, CR_DEFAULT, VPT_STRETCH);
 }
 
 //
@@ -4675,7 +4675,7 @@ static void M_DrawHelp (void)
   M_ChangeMenu(NULL, mnact_full);
 
   V_ClearBorder(helplump);
-  V_DrawNameNyanPatchFS(0, 0, 0, helplump, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatchAnimateFS(0, 0, 0, helplump, CR_DEFAULT, VPT_STRETCH);
 }
 
 //
@@ -4690,7 +4690,7 @@ static void M_DrawAd (void)
   if (pwad_help2_check || doom_v11 || gamemode == shareware)
   {
     V_ClearBorder(help2);
-    V_DrawNameNyanPatchFS(0, 0, 0, help2, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchAnimateFS(0, 0, 0, help2, CR_DEFAULT, VPT_STRETCH);
   }
   else
     M_DrawCredits();
@@ -4725,7 +4725,7 @@ void M_DrawCredits(void)     // killough 10/98: credit screen
   inhelpscreens = true;
 
   V_ClearBorder(credit);
-  V_DrawNameNyanPatchFS(0, 0, 0, credit, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatchAnimateFS(0, 0, 0, credit, CR_DEFAULT, VPT_STRETCH);
 }
 
 void M_DrawCreditsDynamic(void)     // Dynamic Credits
@@ -4733,7 +4733,7 @@ void M_DrawCreditsDynamic(void)     // Dynamic Credits
   inhelpscreens = true;
 
   // force drawing an animated background
-  V_DrawNyanBackground(aniflat, 0);
+  V_DrawBackgroundAnimate(aniflat, 0);
   M_DrawTitleImage(91, 6, "NYANLOGO", PROJECT_NAME " v" PROJECT_VERSION, cr_logo);
   M_DrawTitleImage(91, 25, "NYANNAME", "by Andrik 'Arsinikk' Powell", cr_logo);
   M_DrawScreenItems(cred_settings, 48);
@@ -6535,7 +6535,7 @@ void M_Drawer (void)
 
         // CPhipps - patch drawing updated
         if (Check_Skull_Animate && animateLumps)
-            V_DrawNameNyanPatch(ix, iy, scrn, mskull1, color, flags);
+            V_DrawNamePatchAnimate(ix, iy, scrn, mskull1, color, flags);
         else
             V_DrawNamePatch(ix, iy, scrn, skullName[whichSkull], color, flags);
     }

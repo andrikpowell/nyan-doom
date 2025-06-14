@@ -28,13 +28,13 @@ extern int Check_Stbar_Animate;
 
 void AnimateTicker(void);
 
-void N_InitNyanLumps(void);
-void N_ReloadNyanLumps(void);
+void N_InitAnimateLumps(void);
+void N_ReloadAnimateLumps(void);
 
-int N_GetNyanPatchNum(const char* lump);
-void V_DrawNameNyanPatch(const int x, const int y, const int scrn, const char* lump, const int color, const int flags);
-void V_DrawNameNyanPatchFS(const int x, const int y, const int scrn, const char* lump, const int color, const int flags);
-void V_DrawNyanBackground(const char* lump, const int scrn);
+int N_GetPatchAnimateNum(const char* lump);
+void V_DrawNamePatchAnimate(const int x, const int y, const int scrn, const char* lump, const int color, const int flags);
+void V_DrawNamePatchAnimateFS(const int x, const int y, const int scrn, const char* lump, const int color, const int flags);
+void V_DrawBackgroundAnimate(const char* lump, const int scrn);
 
 // Also called by F_BunnyScroll()
 const int N_CheckAnimate(const char* lump);

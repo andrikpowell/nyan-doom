@@ -544,7 +544,7 @@ void R_FillBackColor (void)
   if (ST_SCALED_WIDTH >= SCREENWIDTH)
     return;
 
-  lump = N_GetNyanPatchNum(W_LumpName(stbarbg.lumpnum));
+  lump = N_GetPatchAnimateNum(W_LumpName(stbarbg.lumpnum));
   
   if (prevlump != lump)
   {

@@ -524,7 +524,7 @@ static void ST_refreshBackground(void)
 
       // Draw Normal stbar if it exists
       if (stbar_exists)
-        V_DrawNameNyanPatchFS(ST_X, y, FG, stbar, CR_DEFAULT, flags);
+        V_DrawNamePatchAnimateFS(ST_X, y, FG, stbar, CR_DEFAULT, flags);
 
       // Draw Doom v1.1 two part statusbar (if stbar not found)
       if (doom_v11 && !stbar_exists)
@@ -535,7 +535,7 @@ static void ST_refreshBackground(void)
 
       if (!deathmatch)
       {
-        V_DrawNameNyanPatch(ST_ARMSBGX, y, FG, starms, CR_DEFAULT, flags);
+        V_DrawNamePatchAnimate(ST_ARMSBGX, y, FG, starms, CR_DEFAULT, flags);
       }
 
       // killough 3/7/98: make face background change with displayplayer

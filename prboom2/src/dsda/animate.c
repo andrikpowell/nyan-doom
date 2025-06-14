@@ -39,7 +39,7 @@ void AnimateTicker(void)
   AnimateTime++;
 }
 
-void N_InitNyanLumps(void) {
+void N_InitAnimateLumps(void) {
     if (!raven) {
         animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
         widescreenLumps = dsda_IntConfig(nyan_config_enable_widescreen_lumps);
@@ -50,7 +50,7 @@ void N_InitNyanLumps(void) {
     }
 }
 
-void N_ReloadNyanLumps(void)
+void N_ReloadAnimateLumps(void)
 {
     if (!raven) {
         animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
@@ -114,7 +114,7 @@ int N_SetupAnimatePatch(const char* lump)
     return false;
 }
 
-int N_GetNyanPatchNum(const char* lump)
+int N_GetPatchAnimateNum(const char* lump)
 {
     int lumpNum = W_GetNumForName(lump);
     int AniCheck = 0;
@@ -143,17 +143,17 @@ int N_GetNyanPatchNum(const char* lump)
     return lumpNum;
 }
 
-void V_DrawNameNyanPatch(const int x, const int y, const int scrn, const char* lump, const int color, const int flags)
+void V_DrawNamePatchAnimate(const int x, const int y, const int scrn, const char* lump, const int color, const int flags)
 {
-    V_DrawNumPatch(x, y, scrn, N_GetNyanPatchNum(lump), color, flags);
+    V_DrawNumPatch(x, y, scrn, N_GetPatchAnimateNum(lump), color, flags);
 }
 
-void V_DrawNameNyanPatchFS(const int x, const int y, const int scrn, const char* lump, const int color, const int flags)
+void V_DrawNamePatchAnimateFS(const int x, const int y, const int scrn, const char* lump, const int color, const int flags)
 {
-    V_DrawNumPatchFS(x, y, scrn, N_GetNyanPatchNum(lump), color, flags);
+    V_DrawNumPatchFS(x, y, scrn, N_GetPatchAnimateNum(lump), color, flags);
 }
 
-void V_DrawNyanBackground(const char* lump, const int scrn)
+void V_DrawBackgroundAnimate(const char* lump, const int scrn)
 {
     extern const char* g_menu_flat;
     int lumpNum = R_FlatNumForName(g_menu_flat);

@@ -483,7 +483,7 @@ static void WI_slamBackground(void)
   V_ClearBorder(name);
 
   // background
-  V_DrawNameNyanPatchFS(0, 0, FB, name, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatchAnimateFS(0, 0, FB, name, CR_DEFAULT, VPT_STRETCH);
 }
 
 #define SPACEWIDTH 4

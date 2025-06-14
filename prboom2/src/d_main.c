@@ -673,7 +673,7 @@ static void D_PageDrawer(void)
     // e6y: wide-res
     V_ClearBorder(pagename);
 
-    V_DrawNameNyanPatchFS(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchAnimateFS(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
   }
   else
     M_DrawCreditsDynamic();
@@ -2122,8 +2122,8 @@ static void D_DoomMainSetup(void)
 
   G_ReloadDefaults();
 
-  lprintf(LO_DEBUG, "N_InitNyanLumps: Loading NYAN lumps.\n");
-  N_InitNyanLumps();
+  lprintf(LO_DEBUG, "N_InitAnimateLumps: Loading NYAN Animate lumps.\n");
+  N_InitAnimateLumps();
 
   if (limitremoving)
     lprintf(LO_INFO, "Limit-removing detected. Overflows disabled\n");
