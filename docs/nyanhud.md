@@ -2,8 +2,6 @@
 
 HUD configurations are stored in the NYANHUD lump. These defaults can be changed by replacing the lump or specifying a hud config file with `-hud filename`. There are separate configurations for each game (doom, heretic, and hexen), with or without the status bar.
 
-Nyan Doom can also load a DSDAHUD lump, if no NYANHUD lump is found. The order of precedence is `NYANHUD > DSDAHUD`. This is to avoid Nyan Doom only preferences from finding their way into DSDAHUD lumps.
-
 ### Specification
 
 A HUD configuration starts with the environment: `game variant`
@@ -43,7 +41,7 @@ Finally, there is a positioning helper: `add_offset y alignment`
 - This compensates for mixed stretching between the message font and the extended hud font
 - Set `y` as the number of message font component lines at the edge of the given alignment
 
-You can find the current default configuration [here](../prboom2/data/lumps/dsdahud.lmp).
+You can find the current default configuration [here](../prboom2/data/lumps/nyanhud.lmp).
 
 ### Components
 
