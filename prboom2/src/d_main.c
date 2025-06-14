@@ -673,7 +673,7 @@ static void D_PageDrawer(void)
     // e6y: wide-res
     V_ClearBorder(pagename);
 
-    V_DrawNameNyanPatchFullScreen(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNameNyanPatchFS(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
   }
   else
     M_DrawCreditsDynamic();

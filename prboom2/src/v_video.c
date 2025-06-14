@@ -1757,7 +1757,7 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
     if (W_LumpLength(lump) != HERETIC_RAW_SCREEN_SIZE)
     {
       V_ClearBorder(lump_name);
-      V_DrawNamePatchFullScreen(0, 0, 0, lump_name, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatchFS(0, 0, 0, lump_name, CR_DEFAULT, VPT_STRETCH);
       return;
     }
   }

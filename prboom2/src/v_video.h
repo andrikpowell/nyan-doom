@@ -228,10 +228,10 @@ extern V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise;
 #define V_DrawNamePatchPrecise(x,y,s,n,t,f) V_DrawNumPatchGenPrecise(x,y,s,W_GetNumForName(n),false,t,f)
 
 // These functions center patches if width > 320 :
-#define V_DrawNumPatchFullScreen(x,y,s,n,t,f) V_DrawNumPatchGen(x,y,s,n,true,t,f)
-#define V_DrawNumPatchPreciseFullScreen(x,y,s,n,t,f) V_DrawNumPatchGenPrecise(x,y,s,n,true,t,f)
-#define V_DrawNamePatchFullScreen(x,y,s,n,t,f) V_DrawNumPatchGen(x,y,s,W_GetNumForName(n),true,t,f)
-#define V_DrawNamePatchPreciseFullScreen(x,y,s,n,t,f) V_DrawNumPatchGenPrecise(x,y,s,W_GetNumForName(n),true,t,f)
+#define V_DrawNumPatchFS(x,y,s,n,t,f) V_DrawNumPatchGen(x,y,s,n,true,t,f)
+#define V_DrawNumPatchPreciseFS(x,y,s,n,t,f) V_DrawNumPatchGenPrecise(x,y,s,n,true,t,f)
+#define V_DrawNamePatchFS(x,y,s,n,t,f) V_DrawNumPatchGen(x,y,s,W_GetNumForName(n),true,t,f)
+#define V_DrawNamePatchPreciseFS(x,y,s,n,t,f) V_DrawNumPatchGenPrecise(x,y,s,W_GetNumForName(n),true,t,f)
 
 /* cph -
  * Functions to return width & height of a patch.

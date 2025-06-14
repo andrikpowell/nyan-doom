@@ -483,7 +483,7 @@ static void WI_slamBackground(void)
   V_ClearBorder(name);
 
   // background
-  V_DrawNameNyanPatchFullScreen(0, 0, FB, name, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNameNyanPatchFS(0, 0, FB, name, CR_DEFAULT, VPT_STRETCH);
 }
 
 #define SPACEWIDTH 4
@@ -595,7 +595,7 @@ void WI_drawLF(void)
       return;
 
     // CPhipps - patch drawing updated
-    V_DrawNamePatchFullScreen((320 - V_NamePatchWidth(lname)) / 2, y,
+    V_DrawNamePatchFS((320 - V_NamePatchWidth(lname)) / 2, y,
       FB, lname, CR_DEFAULT, VPT_STRETCH);
 
     y += (5 * V_NamePatchHeight(lname)) / 4;
@@ -667,7 +667,7 @@ void WI_drawEL(void)
 
     // CPhipps - patch drawing updated
     // draw level
-    V_DrawNamePatchFullScreen((320 - V_NamePatchWidth(lname)) / 2, y, FB,
+    V_DrawNamePatchFS((320 - V_NamePatchWidth(lname)) / 2, y, FB,
       lname, CR_DEFAULT, VPT_STRETCH);
 
     y += (5 * V_NamePatchHeight(lname)) / 4;

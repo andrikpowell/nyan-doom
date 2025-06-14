@@ -524,7 +524,7 @@ static void ST_refreshBackground(void)
 
       // Draw Normal stbar if it exists
       if (stbar_exists)
-        V_DrawNameNyanPatchFullScreen(ST_X, y, FG, stbar, CR_DEFAULT, flags);
+        V_DrawNameNyanPatchFS(ST_X, y, FG, stbar, CR_DEFAULT, flags);
 
       // Draw Doom v1.1 two part statusbar (if stbar not found)
       if (doom_v11 && !stbar_exists)
