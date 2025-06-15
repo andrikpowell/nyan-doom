@@ -125,8 +125,6 @@ static void nyan_LoadAnimateLump(void) {
         target_format = hexen ? "hexen" : heretic ? "heretic" : "doom";
 
         for (line_i = 0; lines[line_i]; ++line_i) {
-            const char* line = lines[line_i];
-
             if (target_format) {
                 line_i = nyan_ParseAnimateLump(lines, line_i);
                 break;
