@@ -80,9 +80,12 @@ static int nyan_ParseAnimateLump(char** lines, int line_i) {
         !strncmp(args, "hexen", sizeof(args)))
         break;
 
-    count = sscanf(args, "%32s %32s %32s %d", lump, start, end, &speed);
+    count = sscanf(args, "%8s %8s %8s %d", lump, start, end, &speed);
     if (count != 4)
         I_Error("Invalid NYANANIM arguments \"%s\"", line);
+
+    if (speed <= 1)
+        speed = 1;
 
     N_AddPatchAnimateLump(lump, start, end, speed);
   }
@@ -122,7 +125,7 @@ static void nyan_LoadAnimateLump(void) {
         target_format = hexen ? "hexen" : heretic ? "heretic" : "doom";
 
         for (line_i = 0; lines[line_i]; ++line_i) {
-            line = lines[line_i];
+            const char* line = lines[line_i];
 
             if (target_format) {
                 line_i = nyan_ParseAnimateLump(lines, line_i);
