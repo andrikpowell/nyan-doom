@@ -3563,8 +3563,6 @@ static const char* armor_icon_list[] =
   NULL
 };
 
-#define COLORED_NUM   DEPEND(dsda_config_sts_colored_numbers, true)
-
 setup_menu_t display_statbar_settings[] =  // Demos Settings screen
 {
   { "Solid Color Background", S_YESNO, m_conf, G_X, dsda_config_sts_solid_bg_color },
@@ -3579,18 +3577,16 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   TITLE("Coloring", G_X),
   { "Gray %",S_YESNO, m_conf, G_X, dsda_config_sts_pct_always_gray },
   { "Colored Numbers", S_YESNO, m_conf, G_X, dsda_config_sts_colored_numbers },
-  { "Health Low/Ok", S_NUM, m_conf, G_X, dsda_config_hud_health_red, COLORED_NUM },
-  { "Health Ok/Good", S_NUM, m_conf, G_X, dsda_config_hud_health_yellow, COLORED_NUM },
-  { "Health Good/Extra", S_NUM, m_conf, G_X, dsda_config_hud_health_green, COLORED_NUM },
-  { "Ammo Low/Ok", S_NUM, m_conf, G_X, dsda_config_hud_ammo_red, COLORED_NUM },
-  { "Ammo Ok/Good", S_NUM, m_conf, G_X, dsda_config_hud_ammo_yellow, COLORED_NUM },
+  { "Health Low/Ok", S_NUM, m_conf, G_X, dsda_config_hud_health_red },
+  { "Health Ok/Good", S_NUM, m_conf, G_X, dsda_config_hud_health_yellow },
+  { "Health Good/Extra", S_NUM, m_conf, G_X, dsda_config_hud_health_green },
+  { "Ammo Low/Ok", S_NUM, m_conf, G_X, dsda_config_hud_ammo_red },
+  { "Ammo Ok/Good", S_NUM, m_conf, G_X, dsda_config_hud_ammo_yellow },
 
   PREV_PAGE(display_nyan_settings),
   NEXT_PAGE(display_hud_settings),
   FINAL_ENTRY
 };
-
-#undef COLORED_NUM
 
 #define EXHUD_ON           DEPEND(dsda_config_exhud, true)
 #define STATUS_WIDGET_ON   DEPEND(nyan_config_ex_status_widget, true)
