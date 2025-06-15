@@ -79,7 +79,7 @@ static void R_FLUSHWHOLE_FUNCNAME(void)
       byte *dest = drawvars.topleft + yl * drawvars.pitch + startx + temp_x - fuzzcellsize;
 
       int lines = fuzzcellsize - (yl % fuzzcellsize);
-      int dark, offset;
+      static int dark, offset;
 
       if (REFRACTION_FUZZ)
       {
