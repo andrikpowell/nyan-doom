@@ -2,6 +2,8 @@
 
 HUD configurations are stored in the NYANHUD lump. These defaults can be changed by replacing the lump or specifying a hud config file with `-hud filename`. There are separate configurations for each game (doom, heretic, and hexen), with or without the status bar.
 
+NYANHUD is very similar to DSDAHUD, but does include extra widgets, thus is incompatible with DSDA-Doom.
+
 ### Specification
 
 A HUD configuration starts with the environment: `game variant`
@@ -43,7 +45,7 @@ Finally, there is a positioning helper: `add_offset y alignment`
 
 You can find the current default configuration [here](../prboom2/data/lumps/nyanhud.lmp).
 
-### Components
+### DSDA Components
 
 Unless otherwise specified, argument values are integers. For toggles, a 1 means on and a 0 means off. For example, `stat_totals 2 8 bottom_left 1 0 1` would turn off items but keep kills and secrets enabled.
 
@@ -112,10 +114,6 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
   - Uses the message font
 - `map_coordinates`: shows the player's position
   - Uses the message font
-- `map_title`: shows the current map's title
-  - Uses the message font
-  - Supports 1 argument: `cycle_author`
-  - `cycle_author`: cycles between map title and author on automap
 - `message`: shows the current player message
   - Uses the message font
   - Supports 1 argument: `center`
@@ -125,13 +123,17 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
   - Supports 1 argument: `center`
   - `center`: centers the component horizontally
 
-### NYANHUD Components
+### Nyan-specific Components
 - `status_widget`: shows icons for armor type, backpack, and other powerups
   - Supports 1 argument: `vertical`
 - `sml_armor`: shows the player armor type with a small sprite
   - Sprite is hidden when armor is 0%
 - `sml_berserk`: shows the player berserk status with a small sprite
   - Sprite is hidden when berserk is inactive
+- `map_title`: shows the current map's title
+  - Uses the message font
+  - Supports 1 argument: `cycle_author`
+  - `cycle_author`: cycles between map title and author on automap
 - `announce_message`: shows the announce map message
   - Uses the message font
   - Supports 1 argument: `center`
