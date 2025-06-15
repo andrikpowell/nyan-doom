@@ -26,15 +26,6 @@ extern int Check_Stbar_Wide;
 extern int Check_Skull_Animate;
 extern int Check_Stbar_Animate;
 
-typedef struct
-{
-    int lump;
-    int wide;
-    int ani_start;
-    int ani_end;
-    int ani_speed;
-} animate_t;
-
 void AnimateTicker(void);
 
 void N_InitAnimateLumps(void);

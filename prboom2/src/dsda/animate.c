@@ -29,6 +29,15 @@
 
 #include "animate.h"
 
+typedef struct
+{
+    int lump;
+    int wide;
+    int ani_start;
+    int ani_end;
+    int ani_speed;
+} animate_t;
+
 int animateLumps;
 int widescreenLumps;
 
@@ -40,6 +49,11 @@ int Check_Stbar_Animate;
 static animate_t* n_lastanim;
 static animate_t* n_anims;
 static size_t n_maxanims;
+
+void AnimateTicker(void)
+{
+  AnimateTime++;
+}
 
 static int nyan_ParseAnimateLump(char** lines, int line_i) {
   int count;
@@ -81,7 +95,6 @@ static void nyan_LoadAnimateLump(void) {
   DO_ONCE
     char* animate_lump = NULL;
     char** lines;
-    const char* line;
     int line_i;
     const char* target_format;
     int lump;
@@ -125,11 +138,6 @@ static void nyan_LoadAnimateLump(void) {
   END_ONCE
 }
 
-void AnimateTicker(void)
-{
-  AnimateTime++;
-}
-
 void N_InitAnimateLumps(void) {
     if (!raven) {
         animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
@@ -152,22 +160,14 @@ void N_ReloadAnimateLumps(void)
     }
 }
 
-
 const int N_CheckWide(const char* lump)
 {
     int i;
     for (i = 0; (size_t)i < n_maxanims; i++)
-    {
         if (n_anims[i].lump == W_GetNumForName(lump) && n_anims[i].wide != LUMP_NOT_FOUND)
             return true;
-    }
 
     return false;
-}
-
-static int N_SetupWidePatch(const char* lump)
-{
-    return W_CheckNumForName(PrefixCombine("W_", lump));
 }
 
 const int N_CheckAnimate(const char* lump)
@@ -191,19 +191,9 @@ const int N_CheckAnimate(const char* lump)
     return false;
 }
 
-static int N_PlayAnimatePatch(int aninum)
+static int N_SetupWidePatch(const char* lump)
 {
-    int SLump = n_anims[aninum].ani_start;
-    int ELump = n_anims[aninum].ani_end;
-    int speed = n_anims[aninum].ani_speed;
-
-    if (SLump <= ELump)
-    {
-        int frame = (AnimateTime / speed) % (ELump - SLump + 1);
-        return SLump + frame;
-    }
-
-    return false;
+    return W_CheckNumForName(PrefixCombine("W_", lump));
 }
 
 int N_SetupAnimatePatch(const char* prefix, const char* lump)
@@ -282,13 +272,27 @@ void N_AddPatchAnimateNum(const char* lump)
     n_lastanim++;
 }
 
+static int N_PlayAnimatePatch(int aninum)
+{
+    int SLump = n_anims[aninum].ani_start;
+    int ELump = n_anims[aninum].ani_end;
+    int speed = n_anims[aninum].ani_speed;
+
+    if (SLump <= ELump)
+    {
+        int frame = (AnimateTime / speed) % (ELump - SLump + 1);
+        return SLump + frame;
+    }
+
+    return false;
+}
+
 int N_GetPatchAnimateNum(const char* lump)
 {
     int lumpNum = W_GetNumForName(lump);
     int LumpCheck = 0;
     int AniCheck = 0;
     int WideCheck = 0;
-    int SkipWide = 0;
     int i;
 
     for (i = 0; (size_t)i < n_maxanims; i++)
@@ -301,10 +305,8 @@ int N_GetPatchAnimateNum(const char* lump)
     if (animateLumps)
     {
         for (i = 0; (size_t)i < n_maxanims; i++)
-        {
             if (n_anims[i].lump == W_GetNumForName(lump) && n_anims[i].ani_start != LUMP_NOT_FOUND)
                 AniCheck = N_PlayAnimatePatch(i);
-        }
 
         if (AniCheck)
             lumpNum = AniCheck;
@@ -312,10 +314,8 @@ int N_GetPatchAnimateNum(const char* lump)
     if (widescreenLumps && !AniCheck)
     {
         for (i = 0; (size_t)i < n_maxanims; i++)
-        {
             if (n_anims[i].lump == W_GetNumForName(lump) && n_anims[i].wide != LUMP_NOT_FOUND)
                 WideCheck = n_anims[i].wide;
-        }
 
         if (WideCheck)
             lumpNum = WideCheck;
