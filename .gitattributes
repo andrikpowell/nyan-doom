@@ -188,6 +188,7 @@ prboom2/data/lumps/c_start.lmp -text svneol=unset#application/octet-stream
 prboom2/data/lumps/chexdeh.lmp -text
 prboom2/data/lumps/dsdacr.lmp -text
 prboom2/data/lumps/nyanhud.lmp -text
+prboom2/data/lumps/nyananim.lmp -text
 prboom2/data/lumps/dsdatc.lmp -text
 prboom2/data/lumps/gammatbl.lmp -text svneol=unset#application/octet-stream
 prboom2/data/lumps/glfp.lmp -text

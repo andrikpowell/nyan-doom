@@ -34,6 +34,7 @@ set(LUMPS
     lumps/soundfont/sndfont.lmp
     lumps/dsdacr.lmp
     lumps/nyanhud.lmp
+    lumps/nyananim.lmp
     lumps/dsdatc.lmp
 )
 
