@@ -84,6 +84,10 @@ void N_ReloadAnimateLumps(void)
 const int N_CheckWide(const char* lump)
 {
     int i;
+
+    if (W_CheckNumForName(lump) == LUMP_NOT_FOUND)
+        return false;
+
     for (i = 0; (size_t)i < n_maxanims; i++)
         if (n_anims[i].lump == W_GetNumForName(lump) && n_anims[i].wide != LUMP_NOT_FOUND)
             return true;
@@ -95,6 +99,9 @@ const int N_CheckAnimate(const char* lump)
 {
     int i;
     int SLump, ELump;
+
+    if (W_CheckNumForName(lump) == LUMP_NOT_FOUND)
+        return false;
 
     for (i = 0; (size_t)i < n_maxanims; i++)
     {
