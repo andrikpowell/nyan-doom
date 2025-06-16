@@ -26,16 +26,27 @@ extern int Check_Stbar_Wide;
 extern int Check_Skull_Animate;
 extern int Check_Stbar_Animate;
 
+typedef struct
+{
+    int lump;
+    int widescrn;
+    int ani_start;
+    int ani_end;
+    int ani_speed;
+    int validcycle;
+} animate_t;
+
 void AnimateTicker(void);
 
 void N_InitAnimateLumps(void);
 void N_ReloadAnimateLumps(void);
 
 int N_GetPatchAnimateNum(const char* lump);
+void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elump, int speed, dboolean externalLump);
+
 void V_DrawNamePatchAnimate(const int x, const int y, const int scrn, const char* lump, const int color, const int flags);
 void V_DrawNamePatchAnimateFS(const int x, const int y, const int scrn, const char* lump, const int color, const int flags);
 void V_DrawBackgroundAnimate(const char* lump, const int scrn);
-void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elump, int speed);
 
 // Also called by F_BunnyScroll()
 const int N_CheckAnimate(const char* lump);

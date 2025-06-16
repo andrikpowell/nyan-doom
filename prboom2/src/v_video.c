@@ -1419,9 +1419,9 @@ byte V_GetBorderColor(const char* lump, int width, int height)
 {
   const unsigned char *playpal = V_GetPlaypal();
   ColorEntry_t patch_color;
-  byte col;
+  static byte col;
   int lumpnum;
-  int r = 0, g = 0, b = 0;
+  static int r = 0, g = 0, b = 0;
   static int prevlump = 0;
   dboolean doom_format = !(width || height);
   lumpnum = doom_format ? N_GetPatchAnimateNum(lump) : W_GetNumForName(lump);
@@ -1435,13 +1435,13 @@ byte V_GetBorderColor(const char* lump, int width, int height)
     r = patch_color.r;
     g = patch_color.g;
     b = patch_color.b;
-    lumpnum = prevlump;
-  }
+    prevlump = lumpnum;
 
-  // Desaturate colours
-  r /= 2;
-  g /= 2;
-  b /= 2;
+    // Desaturate colours
+    r /= 2;
+    g /= 2;
+    b /= 2;
+  }
 
   // Convert to palette
   col = V_BestColor(playpal, r, g, b);

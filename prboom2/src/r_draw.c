@@ -534,7 +534,7 @@ void R_FillBackColor (void)
   ColorEntry_t stbar_color;
   static byte col;
   static byte col_top;
-  int r = 0, g = 0, b = 0;
+  static int r = 0, g = 0, b = 0;
   int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
   int ST_SCALED_BORDER = brdr_b.height * patches_scaley/2;
   const unsigned char *playpal = V_GetPlaypal();
@@ -544,17 +544,17 @@ void R_FillBackColor (void)
   if (ST_SCALED_WIDTH >= SCREENWIDTH)
     return;
 
-  lump = N_GetPatchAnimateNum(W_LumpName(stbarbg.lumpnum));
-  
+  lump = Check_Stbar_Animate && animateLumps ? N_GetPatchAnimateNum(W_LumpName(stbarbg.lumpnum)) : stbarbg.lumpnum;
+
   if (prevlump != lump)
   {
     stbar_color = V_GetPatchColor(lump);
     r = stbar_color.r;
     g = stbar_color.g;
     b = stbar_color.b;
-    lump = prevlump;
+    prevlump = lump;
   }
-  
+
   // Convert to palette and tune down saturation
   col = V_BestColor(playpal, r/3, g/3, b/3);
   col_top = V_BestColor(playpal, r/2, g/2, b/2);

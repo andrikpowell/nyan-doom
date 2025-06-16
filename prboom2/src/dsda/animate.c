@@ -29,14 +29,6 @@
 
 #include "animate.h"
 
-typedef struct
-{
-    int lump;
-    int wide;
-    int ani_start;
-    int ani_end;
-    int ani_speed;
-} animate_t;
 
 int animateLumps;
 int widescreenLumps;
@@ -60,9 +52,9 @@ void N_InitAnimateLumps(void) {
         animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
         widescreenLumps = dsda_IntConfig(nyan_config_enable_widescreen_lumps);
 
-        N_AddPatchAnimateLump("M_SKULL1", "S_SKULL", "E_SKULL", 8);
-        N_AddPatchAnimateLump("M_DOOM", "S_DOOM", "E_DOOM", 8);
-        N_AddPatchAnimateLump("STBAR", "S_STBAR", "E_STBAR", 8);
+        N_AddPatchAnimateLump("M_SKULL1", "S_SKULL", "E_SKULL", 8, true);
+        N_AddPatchAnimateLump("M_DOOM", "S_DOOM", "E_DOOM", 8, true);
+        N_AddPatchAnimateLump("STBAR", "S_STBAR", "E_STBAR", 8, true);
         // Disabled for now
         //nyan_LoadAnimateLump();
         Check_Skull_Animate = N_CheckAnimate(mskull1);
@@ -84,12 +76,22 @@ void N_ReloadAnimateLumps(void)
 const int N_CheckWide(const char* lump)
 {
     int i;
+    int lumpnum = W_CheckNumForName(lump);
 
-    if (W_CheckNumForName(lump) == LUMP_NOT_FOUND)
+    if (lumpnum == LUMP_NOT_FOUND)
         return false;
 
     for (i = 0; (size_t)i < n_maxanims; i++)
-        if (n_anims[i].lump == W_GetNumForName(lump) && n_anims[i].wide != LUMP_NOT_FOUND)
+        if (n_anims[i].lump == lumpnum && n_anims[i].widescrn != LUMP_NOT_FOUND)
+            return true;
+
+    return false;
+}
+
+int N_CheckAnimateCycle(int SLump, int ELump)
+{
+    if ((SLump != LUMP_NOT_FOUND) && (ELump != LUMP_NOT_FOUND))
+        if (SLump < ELump)
             return true;
 
     return false;
@@ -98,21 +100,17 @@ const int N_CheckWide(const char* lump)
 const int N_CheckAnimate(const char* lump)
 {
     int i;
-    int SLump, ELump;
+    int lumpnum = W_CheckNumForName(lump);
 
-    if (W_CheckNumForName(lump) == LUMP_NOT_FOUND)
+    if (lumpnum == LUMP_NOT_FOUND)
         return false;
 
     for (i = 0; (size_t)i < n_maxanims; i++)
     {
-        if (n_anims[i].lump == W_GetNumForName(lump) && n_anims[i].ani_start != LUMP_NOT_FOUND)
+        if (n_anims[i].lump == lumpnum)
         {
-            SLump = n_anims[i].ani_start;
-            ELump = n_anims[i].ani_end;
-
-            if ((SLump != LUMP_NOT_FOUND) && (ELump != LUMP_NOT_FOUND))
-                if (SLump <= ELump)
-                    return true;
+            if (N_CheckAnimateCycle(n_anims[i].ani_start, n_anims[i].ani_end))
+                return true;
         }
     }
 
@@ -140,64 +138,42 @@ void N_ExtendAnimateLimit(void)
     }
 }
 
-void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elump, int speed)
+void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elump, int speed, dboolean externalLump)
 {
     int i;
+    int lumpnum = W_GetNumForName(lump);
 
-    if (W_CheckNumForName(lump) == LUMP_NOT_FOUND)
+    if (lumpnum == LUMP_NOT_FOUND)
         return;
 
     // Check if lump already exists, and update info instead
     for (i = 0; (size_t)i < n_maxanims; i++)
     {
-        if (n_anims[i].lump == W_GetNumForName(lump))
+        if (n_anims[i].lump == lumpnum)
         {
-            n_anims[i].lump = W_GetNumForName(lump);
-            n_anims[i].wide = N_SetupWidePatch(lump);
-            n_anims[i].ani_start = W_CheckNumForName(slump);
-            n_anims[i].ani_end = W_CheckNumForName(elump);
+            n_anims[i].lump = lumpnum;
+            n_anims[i].widescrn = W_CheckNumForName(PrefixCombine("W_", lump));
+            n_anims[i].ani_start = W_CheckNumForName(externalLump ? slump : PrefixCombine("S_", lump));
+            n_anims[i].ani_end = W_CheckNumForName(externalLump ? elump : PrefixCombine("E_", lump));
             n_anims[i].ani_speed = speed;
+            n_anims[i].validcycle = N_CheckAnimateCycle(n_anims[i].ani_start, n_anims[i].ani_end);
             return;
         }
     }
 
     N_ExtendAnimateLimit();
-    n_lastanim->lump = W_GetNumForName(lump);
-    n_lastanim->wide = N_SetupWidePatch(lump);
-    n_lastanim->ani_start = W_CheckNumForName(slump);
-    n_lastanim->ani_end = W_CheckNumForName(elump);
+    n_lastanim->lump = lumpnum;
+    n_lastanim->widescrn = W_CheckNumForName(PrefixCombine("W_", lump));
+    n_lastanim->ani_start = W_CheckNumForName(externalLump ? slump : PrefixCombine("S_", lump));
+    n_lastanim->ani_end = W_CheckNumForName(externalLump ? elump : PrefixCombine("E_", lump));
     n_lastanim->ani_speed = speed;
+    n_lastanim->validcycle = N_CheckAnimateCycle(n_lastanim->ani_start, n_lastanim->ani_end);
     n_lastanim++;
 }
 
 void N_AddPatchAnimateNum(const char* lump)
 {
-    int i;
-
-    if (W_CheckNumForName(lump) == LUMP_NOT_FOUND)
-        return;
-
-    // Check if lump already exists, and update info instead
-    for (i = 0; (size_t)i < n_maxanims; i++)
-    {
-        if (n_anims[i].lump == W_GetNumForName(lump))
-        {
-            n_anims[i].lump = W_GetNumForName(lump);
-            n_anims[i].wide = N_SetupWidePatch(lump);
-            n_anims[i].ani_start = N_SetupAnimatePatch("S_",lump);
-            n_anims[i].ani_end = N_SetupAnimatePatch("E_",lump);
-            n_anims[i].ani_speed = 8;
-            return;
-        }
-    }
-
-    N_ExtendAnimateLimit();
-    n_lastanim->lump = W_GetNumForName(lump);
-    n_lastanim->wide = N_SetupWidePatch(lump);
-    n_lastanim->ani_start = N_SetupAnimatePatch("S_",lump);
-    n_lastanim->ani_end = N_SetupAnimatePatch("E_",lump);
-    n_lastanim->ani_speed = 8;
-    n_lastanim++;
+    N_AddPatchAnimateLump(lump, NULL, NULL, 8, false);
 }
 
 static int N_PlayAnimatePatch(int aninum)
@@ -205,51 +181,44 @@ static int N_PlayAnimatePatch(int aninum)
     int SLump = n_anims[aninum].ani_start;
     int ELump = n_anims[aninum].ani_end;
     int speed = n_anims[aninum].ani_speed;
+    int frame = (AnimateTime / speed) % (ELump - SLump + 1);
 
-    if (SLump <= ELump)
-    {
-        int frame = (AnimateTime / speed) % (ELump - SLump + 1);
-        return SLump + frame;
-    }
+    return SLump + frame;
+}
 
-    return false;
+int N_GetPatchAnimateIndex(const char* lump)
+{
+    int lumpnum = W_GetNumForName(lump);
+    int index = LUMP_NOT_FOUND;
+
+    do {
+        for (int i = 0; (size_t)i < n_maxanims; i++)
+            if (n_anims[i].lump == lumpnum)
+                index = i;
+
+        if (index == LUMP_NOT_FOUND)
+            N_AddPatchAnimateNum(lump);
+
+    } while (index == LUMP_NOT_FOUND);
+
+    return index;
 }
 
 int N_GetPatchAnimateNum(const char* lump)
 {
-    int lumpNum = W_GetNumForName(lump);
-    int LumpCheck = 0;
-    int AniCheck = 0;
-    int WideCheck = 0;
-    int i;
-
-    for (i = 0; (size_t)i < n_maxanims; i++)
-        if (n_anims[i].lump == W_GetNumForName(lump))
-            LumpCheck = true;
-
-    if (!LumpCheck)
-        N_AddPatchAnimateNum(lump);
-
-    if (animateLumps)
+    if (animateLumps || widescreenLumps)
     {
-        for (i = 0; (size_t)i < n_maxanims; i++)
-            if (n_anims[i].lump == W_GetNumForName(lump) && n_anims[i].ani_start != LUMP_NOT_FOUND)
-                AniCheck = N_PlayAnimatePatch(i);
+        int index = N_GetPatchAnimateIndex(lump);
+        int animate  = animateLumps && n_anims[index].validcycle;
+        int widescrn = widescreenLumps && n_anims[index].widescrn != LUMP_NOT_FOUND;
 
-        if (AniCheck)
-            lumpNum = AniCheck;
-    }
-    if (widescreenLumps && !AniCheck)
-    {
-        for (i = 0; (size_t)i < n_maxanims; i++)
-            if (n_anims[i].lump == W_GetNumForName(lump) && n_anims[i].wide != LUMP_NOT_FOUND)
-                WideCheck = n_anims[i].wide;
-
-        if (WideCheck)
-            lumpNum = WideCheck;
+        if (animate)
+            return N_PlayAnimatePatch(index);
+        else if (widescrn)
+            return n_anims[index].widescrn;
     }
 
-    return lumpNum;
+    return W_GetNumForName(lump);
 }
 
 void V_DrawNamePatchAnimate(const int x, const int y, const int scrn, const char* lump, const int color, const int flags)
