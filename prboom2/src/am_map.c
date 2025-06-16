@@ -2377,6 +2377,40 @@ static void AM_drawThings(void)
       else
         AM_SetMPointFloatValue(&p);
 
+      // hexen artifacts use item color
+      if (hexen && mapcolor_p->item)
+      {
+        int color = -1;
+
+        switch(t->info->doomednum)
+        {
+          case 30:
+          case 32:
+          case 33:
+          case 36:
+          case 82:
+          case 83:
+          case 84:
+          case 86:
+          case 8000:
+          case 8002:
+          case 8003:
+          case 8041:
+          case 10040:
+          case 10110:
+          case 10120:
+            color = mapcolor_p->item != -1? mapcolor_p->item : mapcolor_p->sprt; break;
+        }
+
+        if (color != -1)
+        {
+          AM_drawLineCharacter(thintriangle_guy, NUMTHINTRIANGLEGUYLINES,
+            scale, t->angle, color, p.x, p.y);
+          t = t->snext;
+          continue;
+        }
+      }
+
       //jff 1/5/98 case over doomednum of thing being drawn
       if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
       {

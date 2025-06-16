@@ -3119,7 +3119,7 @@ setup_menu_t auto_hexen_colors_settings[] =  // 2st AutoMap Settings screen
   {"line w/no floor/ceiling changes",S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_flat},
   {"general sprite"                 ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_sprt},
   {"countable enemy sprite"         ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_enemy},      // cph 2006/06/30
-  {"countable item sprite"          ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_item},       // mead 3/4/2003
+  {"artifact sprite"                ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_item},       // mead 3/4/2003
   {"crosshair"                      ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_hair},
   {"single player arrow"            ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_sngl},
   {"your colour in multiplayer"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_me},
