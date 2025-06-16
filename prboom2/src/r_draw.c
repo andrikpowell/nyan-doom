@@ -552,16 +552,17 @@ void R_FillBackColor (void)
     r = stbar_color.r;
     g = stbar_color.g;
     b = stbar_color.b;
+
+    // Convert to palette and tune down saturation
+    col = V_BestColor(playpal, r/3, g/3, b/3);
+    col_top = V_BestColor(playpal, r/2, g/2, b/2);
+
+    // If colors are the same, brighten top
+    if (col_top == col)
+      col_top = V_BestColor(playpal, r, g, b);
+
     prevlump = lump;
   }
-
-  // Convert to palette and tune down saturation
-  col = V_BestColor(playpal, r/3, g/3, b/3);
-  col_top = V_BestColor(playpal, r/2, g/2, b/2);
-
-  // If colors are the same, brighten top
-  if (col_top == col)
-    col_top = V_BestColor(playpal, r, g, b);
 
   V_BeginMenuDraw();
   V_FillRect(1, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, col);

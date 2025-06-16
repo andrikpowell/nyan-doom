@@ -1415,7 +1415,7 @@ ColorEntry_t V_GetPatchColorRaw (int lumpnum, int w, int h)
   return col;
 }
 
-byte V_GetBorderColor(const char* lump, int width, int height)
+byte V_GetBorderColor(const char* lump, int width, int height, dboolean doom_format)
 {
   const unsigned char *playpal = V_GetPlaypal();
   ColorEntry_t patch_color;
@@ -1423,11 +1423,8 @@ byte V_GetBorderColor(const char* lump, int width, int height)
   int lumpnum;
   static int r = 0, g = 0, b = 0;
   static int prevlump = 0;
-  dboolean doom_format = !(width || height);
+
   lumpnum = doom_format ? N_GetPatchAnimateNum(lump) : W_GetNumForName(lump);
-  patch_color.r = 0;
-  patch_color.g = 0;
-  patch_color.b = 0;
 
   if (prevlump != lumpnum)
   {
@@ -1435,16 +1432,16 @@ byte V_GetBorderColor(const char* lump, int width, int height)
     r = patch_color.r;
     g = patch_color.g;
     b = patch_color.b;
-    prevlump = lumpnum;
 
     // Desaturate colours
     r /= 2;
     g /= 2;
     b /= 2;
-  }
 
-  // Convert to palette
-  col = V_BestColor(playpal, r, g, b);
+    // Convert to palette
+    col = V_BestColor(playpal, r, g, b);
+    prevlump = lumpnum;
+  }
 
   return col;
 }
@@ -1482,7 +1479,7 @@ void V_ClearBorder(const char* lump)
   if (render_stretch_hud == patch_stretch_fit_to_width)
     return;
 
-  V_DrawBorder(ColorBorder ? V_GetBorderColor(lump, 0, 0) : 0);
+  V_DrawBorder(ColorBorder ? V_GetBorderColor(lump, 0, 0, true) : 0);
 }
 
 void V_ClearBorderRaw(const char* lump, int width, int height)
@@ -1492,7 +1489,7 @@ void V_ClearBorderRaw(const char* lump, int width, int height)
   if (render_stretch_hud == patch_stretch_fit_to_width)
     return;
 
-  V_DrawBorder(ColorBorder ? V_GetBorderColor(lump, width, height) : 0);
+  V_DrawBorder(ColorBorder ? V_GetBorderColor(lump, width, height, false) : 0);
 }
 
 // DWF 2012-05-10
