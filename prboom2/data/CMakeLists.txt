@@ -32,7 +32,7 @@ set(LUMPS
     lumps/animated.lmp
     lumps/sndcurve.lmp
     lumps/soundfont/sndfont.lmp
-    lumps/nyancr.lmp
+    lumps/dsdacr.lmp
     lumps/nyanhud.lmp
     lumps/nyantc.lmp
 )

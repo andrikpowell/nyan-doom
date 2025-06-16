@@ -30,7 +30,7 @@ typedef struct {
   int r2, g2, b2;
 } cr_range_t;
 
-// Default values - overridden by NYANCR lump
+// Default values - overridden by DSDACR lump
 cr_range_t cr_range[CR_HUD_LIMIT] = {
   [CR_DEFAULT]   = { 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF },
   [CR_BRICK]     = { 0x47, 0x00, 0x00, 0xFF, 0xB8, 0xB8 },
@@ -126,7 +126,7 @@ static void dsda_LoadCRLump(void) {
   int line_i;
   int i, r1, g1, b1, r2, g2, b2;
 
-  lump = W_ReadLumpToString(W_GetNumForName("NYANCR"));
+  lump = W_ReadLumpToString(W_GetNumForName("DSDACR"));
 
   lines = dsda_SplitString(lump, "\n\r");
 
@@ -137,14 +137,14 @@ static void dsda_LoadCRLump(void) {
     line = lines[line_i];
 
     if (sscanf(line, "%d %i %i %i %i %i %i", &i, &r1, &g1, &b1, &r2, &g2, &b2) != 7)
-      I_Error("NYANCR lump has unknown format!");
+      I_Error("DSDACR lump has unknown format!");
 
     if (i < 1 || i >= CR_HUD_LIMIT)
-      I_Error("NYANCR index %d is out of bounds!", i);
+      I_Error("DSDACR index %d is out of bounds!", i);
 
     if (r1 < 0 || g1 < 0 || b1 < 0 || r2 < 0 || g2 < 0 || b2 < 0 ||
         r1 > 255 || g1 > 255 || b1 > 255 || r2 > 255 || g2 > 255 || b2 > 255)
-      I_Error("NYANCR index %d has color out of range (0-255)", i);
+      I_Error("DSDACR index %d has color out of range (0-255)", i);
 
     cr_range[i].r1 = r1;
     cr_range[i].g1 = g1;
