@@ -32,9 +32,9 @@ set(LUMPS
     lumps/animated.lmp
     lumps/sndcurve.lmp
     lumps/soundfont/sndfont.lmp
-    lumps/dsdacr.lmp
+    lumps/nyancr.lmp
     lumps/nyanhud.lmp
-    lumps/dsdatc.lmp
+    lumps/nyantc.lmp
 )
 
 set(COLORMAPS

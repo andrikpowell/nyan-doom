@@ -147,7 +147,7 @@ void dsda_LoadTextColor(void) {
   char key[33] = { 0 };
   dsda_text_color_t* p;
 
-  lump = W_ReadLumpToString(W_GetNumForName("DSDATC"));
+  lump = W_ReadLumpToString(W_GetNumForName("NYANTC"));
 
   lines = dsda_SplitString(lump, "\n\r");
 
@@ -158,7 +158,7 @@ void dsda_LoadTextColor(void) {
       continue;
 
     if (sscanf(line, "%32s %d", key, &color_range) != 2)
-      I_Error("DSDATC lump has unknown format! (%s)", line);
+      I_Error("NYANTC lump has unknown format! (%s)", line);
 
     for (p = dsda_text_colors; p->key; p++)
       if (!strcasecmp(key, p->key)) {
@@ -167,7 +167,7 @@ void dsda_LoadTextColor(void) {
       }
 
     if (!p->key)
-      I_Error("DSDATC lump has unknown key %s!", key);
+      I_Error("NYANTC lump has unknown key %s!", key);
   }
 
   for (p = dsda_text_colors; p->key; p++) {
