@@ -520,7 +520,10 @@ static void R_SetSpritelights(int lightlevel)
 
   lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
 
-  spritelights = scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum+NYAN_LITESCALE)];
+  if (NYAN_LITEAMP)
+    lightnum += NYAN_LITESCALE;
+
+  spritelights = scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
 }
 
 

@@ -96,7 +96,7 @@ void gld_StaticLightAlpha(float light, float alpha)
 
   glColor4f(1.0f, 1.0f, 1.0f, alpha);
 
-  glsl_SetLightLevel((player->fixedcolormap ? (NYAN_LITEAMP ? light+0.3 : 1.0f) : light));
+  glsl_SetLightLevel((player->fixedcolormap ? (NYAN_LITEAMP ? light+0.3f : 1.0f) : light));
 }
 
 // [XA] return amount of light to add from the player's gun flash.

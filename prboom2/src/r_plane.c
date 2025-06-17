@@ -208,10 +208,18 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
   dsvars->xfrac = FixedMul(dsvars->xfrac, dsvars->xscale);
   dsvars->yfrac = FixedMul(dsvars->yfrac, dsvars->yscale);
 
-  if ((!(dsvars->colormap = fixedcolormap) || ((dsvars->colormap = fixedcolormap) && NYAN_LITEAMP)))
+  if (!(dsvars->colormap = fixedcolormap))
   {
     dsvars->z = distance;
-    index = distance >> (LIGHTZSHIFT+NYAN_LITESHIFT);
+    index = distance >> (LIGHTZSHIFT);
+    if (index >= MAXLIGHTZ )
+      index = MAXLIGHTZ-1;
+    dsvars->colormap = dsvars->planezlight[index];
+  }
+  else if (NYAN_LITEAMP)
+  {
+    dsvars->z = distance;
+    index = distance >> (NYAN_LIGHTZSHIFT);
     if (index >= MAXLIGHTZ )
       index = MAXLIGHTZ-1;
     dsvars->colormap = dsvars->planezlight[index];
@@ -755,11 +763,12 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       dsvars.planeheight = D_abs(pl->height-viewz);
 
+      if (NYAN_LITEAMP && pl->lightlevel <= 64)
+        pl->lightlevel = 64;
+
       // SoM 10/19/02: deep water colormap fix
-      if(fixedcolormap && !NYAN_LITEAMP)
+      if (fixedcolormap && !NYAN_LITEAMP)
         light = (255  >> LIGHTSEGSHIFT);
-      else if (NYAN_LITEAMP && (pl->lightlevel <= 64))
-        light = (64  >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
       else
         light = (pl->lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
 

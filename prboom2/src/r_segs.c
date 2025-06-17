@@ -286,7 +286,10 @@ const lighttable_t** GetLightTable(int lightlevel)
 
   lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
 
-  return scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum+NYAN_LITESCALE)];
+  if (NYAN_LITEAMP)
+    lightnum += NYAN_LITESCALE;
+
+  return scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
 }
 
 static void R_UpdateWallLights(int lightlevel)
