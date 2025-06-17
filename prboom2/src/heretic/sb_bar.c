@@ -539,7 +539,6 @@ static int oldpieces = -1;
 
 void SB_Drawer(dboolean statusbaron)
 {
-    int stbar_solid_bg = dsda_IntConfig(dsda_config_sts_solid_bg_color);
     if (!statusbaron)
     {
         SB_PaletteFlash(false);
@@ -550,9 +549,6 @@ void SB_Drawer(dboolean statusbaron)
         }
         return;
     }
-
-    if (stbar_solid_bg)
-        R_FillBackColor();
 
     CPlayer = &players[consoleplayer];
     if (heretic)

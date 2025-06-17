@@ -541,10 +541,7 @@ void R_FillBackColor (void)
   static int prevlump = 0;
   int lump;
 
-  if (ST_SCALED_WIDTH >= SCREENWIDTH)
-    return;
-
-  lump = Check_Stbar_Animate && animateLumps ? N_GetPatchAnimateNum(W_LumpName(stbarbg.lumpnum)) : stbarbg.lumpnum;
+  lump = Check_Stbar_Animate && animateLumps ? N_GetPatchAnimateNum(W_LumpName(stbarbg.lumpnum), false) : stbarbg.lumpnum;
 
   if (prevlump != lump)
   {
@@ -581,6 +578,7 @@ void R_FillBackColor (void)
 void R_FillBackScreen (void)
 {
   int automap = automap_on;
+  int stbar_solid_bg = dsda_IntConfig(dsda_config_sts_solid_bg_color);
 
   if (grnrock.lumpnum == 0)
     return;
@@ -608,6 +606,13 @@ void R_FillBackScreen (void)
     if (only_stbar && ST_SCALED_OFFSETX > 0)
     {
       int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
+
+      if (stbar_solid_bg)
+      {
+        R_FillBackColor();
+        V_EndUIDraw();
+        return;
+      }
 
       V_FillFlat(grnrock.lumpnum, 1, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, VPT_STRETCH);
 
@@ -646,6 +651,9 @@ void R_FillBackScreen (void)
   V_DrawNumPatch(viewwindowx + scaledviewwidth, viewwindowy - g_border_offset, 1, brdr_tr.lumpnum, CR_DEFAULT, VPT_NONE);
   V_DrawNumPatch(viewwindowx - g_border_offset, viewwindowy + viewheight, 1, brdr_bl.lumpnum, CR_DEFAULT, VPT_NONE);
   V_DrawNumPatch(viewwindowx + scaledviewwidth, viewwindowy + viewheight, 1, brdr_br.lumpnum, CR_DEFAULT, VPT_NONE);
+
+  if (stbar_solid_bg)
+    R_FillBackColor();
 
   V_EndUIDraw();
 }

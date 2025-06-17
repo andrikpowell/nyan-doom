@@ -513,38 +513,35 @@ static void ST_refreshBackground(void)
 {
   int y = ST_Y;
   enum patch_translation_e flags = VPT_ALIGN_LEFT_TOP;
-  int stbar_solid_bg = dsda_IntConfig(dsda_config_sts_solid_bg_color);
 
   if (st_statusbaron)
     {
       flags = VPT_ALIGN_BOTTOM;
 
-      if (stbar_solid_bg)
-        R_FillBackColor();
-
       // Draw Normal stbar if it exists
       if (stbar_exists)
-        V_DrawNamePatchAnimateFS(ST_X, y, FG, stbar, CR_DEFAULT, flags);
+        V_DrawNamePatchAnimateFS(ST_X, y, BG, stbar, CR_DEFAULT, flags);
 
       // Draw Doom v1.1 two part statusbar (if stbar not found)
       if (doom_v11 && !stbar_exists)
       {
-        V_DrawNamePatch(ST_X, y, FG, "STMBARL", CR_DEFAULT, flags);
-        V_DrawNamePatch(ST_ARMSBGX, y, FG, "STMBARR", CR_DEFAULT, flags);
+        V_DrawNamePatch(ST_X, y, BG, "STMBARL", CR_DEFAULT, flags);
+        V_DrawNamePatch(ST_ARMSBGX, y, BG, "STMBARR", CR_DEFAULT, flags);
       }
 
       if (!deathmatch)
       {
-        V_DrawNamePatchAnimate(ST_ARMSBGX, y, FG, starms, CR_DEFAULT, flags);
+        V_DrawNamePatchAnimate(ST_ARMSBGX, y, BG, starms, CR_DEFAULT, flags);
       }
 
       // killough 3/7/98: make face background change with displayplayer
       if (netgame)
       {
-        V_DrawNumPatch(ST_FX, y, FG, faceback.lumpnum,
+        V_DrawNumPatch(ST_FX, y, BG, faceback.lumpnum,
            displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT,
            displayplayer ? (VPT_TRANS | VPT_ALIGN_BOTTOM) : flags);
       }
+      V_CopyRect(BG, FG, ST_X + ST_SCALED_OFFSETX, SCREENHEIGHT - ST_SCALED_HEIGHT, ST_SCALED_WIDTH, ST_SCALED_HEIGHT, VPT_NONE);
     }
 }
 

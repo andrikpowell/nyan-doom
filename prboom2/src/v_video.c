@@ -1424,7 +1424,7 @@ byte V_GetBorderColor(const char* lump, int width, int height, dboolean doom_for
   static int r = 0, g = 0, b = 0;
   static int prevlump = 0;
 
-  lumpnum = doom_format ? N_GetPatchAnimateNum(lump) : W_GetNumForName(lump);
+  lumpnum = doom_format ? N_GetPatchAnimateNum(lump, true) : W_GetNumForName(lump);
 
   if (prevlump != lumpnum)
   {

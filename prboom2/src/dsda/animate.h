@@ -41,7 +41,7 @@ void AnimateTicker(void);
 void N_InitAnimateLumps(void);
 void N_ReloadAnimateLumps(void);
 
-int N_GetPatchAnimateNum(const char* lump);
+int N_GetPatchAnimateNum(const char* lump, dboolean animation);
 void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elump, int speed, dboolean externalLump);
 
 void V_DrawNamePatchAnimate(const int x, const int y, const int scrn, const char* lump, const int color, const int flags);

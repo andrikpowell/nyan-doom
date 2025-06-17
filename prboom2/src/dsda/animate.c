@@ -204,7 +204,7 @@ int N_GetPatchAnimateIndex(const char* lump)
     return index;
 }
 
-int N_GetPatchAnimateNum(const char* lump)
+int N_GetPatchAnimateNum(const char* lump, dboolean animation)
 {
     if (animateLumps || widescreenLumps)
     {
@@ -213,7 +213,7 @@ int N_GetPatchAnimateNum(const char* lump)
         int widescrn = widescreenLumps && n_anims[index].widescrn != LUMP_NOT_FOUND;
 
         if (animate)
-            return N_PlayAnimatePatch(index);
+            return animation ? N_PlayAnimatePatch(index) : n_anims[index].ani_start;
         else if (widescrn)
             return n_anims[index].widescrn;
     }
@@ -223,12 +223,12 @@ int N_GetPatchAnimateNum(const char* lump)
 
 void V_DrawNamePatchAnimate(const int x, const int y, const int scrn, const char* lump, const int color, const int flags)
 {
-    V_DrawNumPatch(x, y, scrn, N_GetPatchAnimateNum(lump), color, flags);
+    V_DrawNumPatch(x, y, scrn, N_GetPatchAnimateNum(lump, true), color, flags);
 }
 
 void V_DrawNamePatchAnimateFS(const int x, const int y, const int scrn, const char* lump, const int color, const int flags)
 {
-    V_DrawNumPatchFS(x, y, scrn, N_GetPatchAnimateNum(lump), color, flags);
+    V_DrawNumPatchFS(x, y, scrn, N_GetPatchAnimateNum(lump, true), color, flags);
 }
 
 void V_DrawBackgroundAnimate(const char* lump, const int scrn)
