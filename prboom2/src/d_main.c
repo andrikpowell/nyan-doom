@@ -490,9 +490,6 @@ void D_Display (fixed_t frac)
     // Interpolate weapon only when not changing screensize
     ScreenSize_Interpolate = true;
 
-    if (V_IsSoftwareMode())
-      R_DrawViewBorder();
-
     if (automap_active)
     {
       AM_Drawer(false);
