@@ -1406,7 +1406,6 @@ ColorEntry_t V_GetPatchColorRaw (int lumpnum, int w, int h)
     }
   }
 
-
   // Average RGB values
   col.r /= pixel_cnt;
   col.g /= pixel_cnt;
@@ -1418,17 +1417,14 @@ ColorEntry_t V_GetPatchColorRaw (int lumpnum, int w, int h)
 byte V_GetBorderColor(const char* lump, int width, int height, dboolean doom_format)
 {
   const unsigned char *playpal = V_GetPlaypal();
-  ColorEntry_t patch_color;
+  int lumpnum = doom_format ? N_GetPatchAnimateNum(lump, true) : W_GetNumForName(lump);
+  static int prevlump = -1;
   static byte col;
-  int lumpnum;
-  static int r = 0, g = 0, b = 0;
-  static int prevlump = 0;
-
-  lumpnum = doom_format ? N_GetPatchAnimateNum(lump, true) : W_GetNumForName(lump);
 
   if (prevlump != lumpnum)
   {
-    patch_color = doom_format ? V_GetPatchColor(lumpnum) : V_GetPatchColorRaw(lumpnum, width, height);
+    ColorEntry_t patch_color = doom_format ? V_GetPatchColor(lumpnum) : V_GetPatchColorRaw(lumpnum, width, height);
+    static int r = 0, g = 0, b = 0;
     r = patch_color.r;
     g = patch_color.g;
     b = patch_color.b;
