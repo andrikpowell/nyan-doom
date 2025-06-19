@@ -208,18 +208,11 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
   dsvars->xfrac = FixedMul(dsvars->xfrac, dsvars->xscale);
   dsvars->yfrac = FixedMul(dsvars->yfrac, dsvars->yscale);
 
-  if (!(dsvars->colormap = fixedcolormap))
+  if (!(dsvars->colormap = fixedcolormap) || NYAN_LITEAMP)
   {
+    int lightshift = NYAN_LITEAMP ? NYAN_LIGHTZSHIFT : LIGHTZSHIFT;
     dsvars->z = distance;
-    index = distance >> (LIGHTZSHIFT);
-    if (index >= MAXLIGHTZ )
-      index = MAXLIGHTZ-1;
-    dsvars->colormap = dsvars->planezlight[index];
-  }
-  else if (NYAN_LITEAMP)
-  {
-    dsvars->z = distance;
-    index = distance >> (NYAN_LIGHTZSHIFT);
+    index = distance >> (lightshift);
     if (index >= MAXLIGHTZ )
       index = MAXLIGHTZ-1;
     dsvars->colormap = dsvars->planezlight[index];
