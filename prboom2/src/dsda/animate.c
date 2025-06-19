@@ -47,16 +47,100 @@ void AnimateTicker(void)
   AnimateTime++;
 }
 
+/*static int N_ParseAnimateLump(char** lines, int line_i) {
+  int count;
+  const char* line;
+  static char lump[9] = { 0 };
+  static char start[9] = { 0 };
+  static char end[9] = { 0 };
+  static int speed;
+  char args[64];
+
+  for (++line_i; lines[line_i]; ++line_i) {
+    line = lines[line_i];
+
+    if (line[0] == '#' || line[0] == '/' || line[0] == '!' || !line[0])
+      continue;
+
+    count = sscanf(line, "%63[^\n\r]", args);
+    if (count != 1)
+        I_Error("Invalid NYANANIM definition \"%s\"", line);
+
+    // The start of another definition
+    if (!strncmp(args, "doom", sizeof(args)) ||
+        !strncmp(args, "heretic", sizeof(args)) ||
+        !strncmp(args, "hexen", sizeof(args)))
+        break;
+
+    count = sscanf(args, "\"%8[^\"]\" \"%8[^\"]\" \"%8[^\"]\" %d", lump, start, end, &speed);
+    if (count != 4)
+        I_Error("Invalid NYANANIM arguments \"%s\"", line);
+
+    N_AddPatchAnimateLump(lump, start, end, speed);
+  }
+
+  // roll back the line that wasn't part of this config
+  return line_i - 1;
+}
+
+static void N_LoadAnimateLump(void) {
+  DO_ONCE
+    char* animate_lump = NULL;
+    char** lines;
+    const char* line;
+    int line_i;
+    const char* target_format;
+    int lump;
+    int length = 0;
+
+    lump = -1;
+    while ((lump = W_FindNumFromName("NYANANIM", lump)) >= 0) {
+      if (!animate_lump) {
+        animate_lump = W_ReadLumpToString(lump);
+        length = W_LumpLength(lump);
+      }
+      else {
+        animate_lump = Z_Realloc(animate_lump, length + W_LumpLength(lump) + 2);
+        animate_lump[length++] = '\n'; // in case the file didn't end in a new line
+        W_ReadLump(lump, animate_lump + length);
+        length += W_LumpLength(lump);
+        animate_lump[length] = '\0';
+      }
+    }
+
+    if (animate_lump) {
+      lines = dsda_SplitString(animate_lump, "\n\r");
+
+      if (lines) {
+        target_format = hexen ? "hexen" : heretic ? "heretic" : "doom";
+
+        for (line_i = 0; lines[line_i]; ++line_i) {
+            line = lines[line_i];
+
+            if (target_format) {
+                line_i = N_ParseAnimateLump(lines, line_i);
+                break;
+            }
+        }
+
+        Z_Free(lines);
+      }
+
+      Z_Free(animate_lump);
+    }
+  END_ONCE
+}*/
+
 void N_InitAnimateLumps(void) {
     if (!raven) {
         animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
         widescreenLumps = dsda_IntConfig(nyan_config_enable_widescreen_lumps);
 
-        N_AddPatchAnimateLump("M_SKULL1", "S_SKULL", "E_SKULL", 8, true);
-        N_AddPatchAnimateLump("M_DOOM", "S_DOOM", "E_DOOM", 8, true);
-        N_AddPatchAnimateLump("STBAR", "S_STBAR", "E_STBAR", 8, true);
+        N_AddPatchAnimateLump("M_SKULL1", "S_SKULL", "E_SKULL", 8);
+        N_AddPatchAnimateLump("M_DOOM", "S_DOOM", "E_DOOM", 8);
+        N_AddPatchAnimateLump("STBAR", "S_STBAR", "E_STBAR", 8);
         // Disabled for now
-        //nyan_LoadAnimateLump();
+        //N_LoadAnimateLump();
         Check_Skull_Animate = N_CheckAnimate(mskull1);
         Check_Stbar_Animate = N_CheckAnimate(stbar);
         Check_Stbar_Wide = N_CheckWide(stbar);
@@ -88,7 +172,7 @@ const int N_CheckWide(const char* lump)
     return false;
 }
 
-int N_CheckAnimateCycle(int SLump, int ELump)
+static int N_CheckAnimateCycle(int SLump, int ELump)
 {
     if ((SLump != LUMP_NOT_FOUND) && (ELump != LUMP_NOT_FOUND))
         if (SLump < ELump)
@@ -122,12 +206,12 @@ static int N_SetupWidePatch(const char* lump)
     return W_CheckNumForName(PrefixCombine("W_", lump));
 }
 
-int N_SetupAnimatePatch(const char* prefix, const char* lump)
+static int N_SetupAnimatePatch(const char* prefix, const char* lump)
 {
     return W_CheckNumForName(PrefixCombine(prefix, lump));
 }
 
-void N_ExtendAnimateLimit(void)
+static void N_ExtendAnimateLimit(void)
 {
     if (n_lastanim >= n_anims + n_maxanims)
     {
@@ -138,10 +222,10 @@ void N_ExtendAnimateLimit(void)
     }
 }
 
-void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elump, int speed, dboolean externalLump)
+void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elump, int speed)
 {
     int i;
-    int lumpnum = W_GetNumForName(lump);
+    int lumpnum = W_CheckNumForName(lump);
 
     if (lumpnum == LUMP_NOT_FOUND)
         return;
@@ -153,8 +237,8 @@ void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elum
         {
             n_anims[i].lump = lumpnum;
             n_anims[i].widescrn = W_CheckNumForName(PrefixCombine("W_", lump));
-            n_anims[i].ani_start = W_CheckNumForName(externalLump ? slump : PrefixCombine("S_", lump));
-            n_anims[i].ani_end = W_CheckNumForName(externalLump ? elump : PrefixCombine("E_", lump));
+            n_anims[i].ani_start = W_CheckNumForName(slump);
+            n_anims[i].ani_end = W_CheckNumForName(elump);
             n_anims[i].ani_speed = speed;
             n_anims[i].validcycle = N_CheckAnimateCycle(n_anims[i].ani_start, n_anims[i].ani_end);
             return;
@@ -164,16 +248,27 @@ void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elum
     N_ExtendAnimateLimit();
     n_lastanim->lump = lumpnum;
     n_lastanim->widescrn = W_CheckNumForName(PrefixCombine("W_", lump));
-    n_lastanim->ani_start = W_CheckNumForName(externalLump ? slump : PrefixCombine("S_", lump));
-    n_lastanim->ani_end = W_CheckNumForName(externalLump ? elump : PrefixCombine("E_", lump));
+    n_lastanim->ani_start = W_CheckNumForName(slump);
+    n_lastanim->ani_end = W_CheckNumForName(elump);
     n_lastanim->ani_speed = speed;
     n_lastanim->validcycle = N_CheckAnimateCycle(n_lastanim->ani_start, n_lastanim->ani_end);
     n_lastanim++;
 }
 
-void N_AddPatchAnimateNum(const char* lump)
+static void N_AddPatchAnimateNum(const char* lump)
 {
-    N_AddPatchAnimateLump(lump, NULL, NULL, 8, false);
+    char slump[9] = "";
+    char elump[9] = "";
+    const char* slump_str;
+    const char* elump_str;
+
+    slump_str = PrefixCombine("S_", lump);
+    strcpy(slump, slump_str);
+
+    elump_str = PrefixCombine("E_", lump);
+    strcpy(elump, elump_str);
+
+    N_AddPatchAnimateLump(lump, slump, elump, 8);
 }
 
 static int N_PlayAnimatePatch(int aninum)
@@ -186,7 +281,7 @@ static int N_PlayAnimatePatch(int aninum)
     return SLump + frame;
 }
 
-int N_GetPatchAnimateIndex(const char* lump)
+static int N_GetPatchAnimateIndex(const char* lump)
 {
     int lumpnum = W_GetNumForName(lump);
     int index = LUMP_NOT_FOUND;
