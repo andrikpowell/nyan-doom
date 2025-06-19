@@ -523,6 +523,59 @@ void R_InitBuffer(int width, int height)
 }
 
 //
+// R_FillBackColorAnimate
+// Fills the statusbar widescreen area
+// with a color based on animation frame
+//
+
+void R_FillBackColorAnimate (void)
+{
+  extern patchnum_t stbarbg;
+  static byte col;
+  static byte col_top;
+  static int r = 0, g = 0, b = 0;
+  static prevframe = -1;
+  const int frame = N_GetStbarAnimate();
+  const int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
+  const int ST_SCALED_BORDER = brdr_b.height * patches_scaley/2;
+  const int lump = N_GetPatchAnimateNum(W_LumpName(stbarbg.lumpnum), true);
+  const char* lumpname = W_LumpName(lump);
+
+  if (prevframe != frame)
+  {
+    if (N_CheckStbarAnimateFrame(lumpname))
+    {
+      col = N_GetStbarAnimateFrame(lumpname, "col");
+      col_top = N_GetStbarAnimateFrame(lumpname, "col_top");
+    }
+    else
+    {
+      const unsigned char *playpal = V_GetPlaypal();
+      ColorEntry_t stbar_color = V_GetPatchColor(lump);
+      r = stbar_color.r;
+      g = stbar_color.g;
+      b = stbar_color.b;
+
+      // Convert to palette and tune down saturation
+      col = V_BestColor(playpal, r/3, g/3, b/3);
+      col_top = V_BestColor(playpal, r/2, g/2, b/2);
+
+      // If colors are the same, brighten top
+      if (col_top == col)
+        col_top = V_BestColor(playpal, r, g, b);
+
+      N_SetStbarAnimateFrame(lumpname, col, col_top);
+    }
+    prevframe = frame;
+  }
+
+  V_BeginMenuDraw();
+  V_FillRect(1, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, col);
+  V_FillRect(1, 0, stbar_top, SCREENWIDTH, ST_SCALED_BORDER, col_top);
+  V_EndMenuDraw();
+}
+
+//
 // R_FillBackColor
 // Fills the statusbar widescreen area
 // with a color
@@ -531,21 +584,23 @@ void R_InitBuffer(int width, int height)
 void R_FillBackColor (void)
 {
   extern patchnum_t stbarbg;
-  ColorEntry_t stbar_color;
   static byte col;
   static byte col_top;
   static int r = 0, g = 0, b = 0;
-  int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
-  int ST_SCALED_BORDER = brdr_b.height * patches_scaley/2;
-  const unsigned char *playpal = V_GetPlaypal();
-  static int prevlump = 0;
-  int lump;
+  static int prevlump = -1;
+  const int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
+  const int ST_SCALED_BORDER = brdr_b.height * patches_scaley/2;
+  const int lump = stbarbg.lumpnum;
 
-  lump = Check_Stbar_Animate && animateLumps ? N_GetPatchAnimateNum(W_LumpName(stbarbg.lumpnum), false) : stbarbg.lumpnum;
+  //lump = Check_Stbar_Animate && animateLumps ? N_GetPatchAnimateNum(W_LumpName(stbarbg.lumpnum), false) : stbarbg.lumpnum;
+
+  if (Check_Stbar_Animate && animateLumps)
+    return R_FillBackColorAnimate();
 
   if (prevlump != lump)
   {
-    stbar_color = V_GetPatchColor(lump);
+    const unsigned char *playpal = V_GetPlaypal();
+    ColorEntry_t stbar_color = V_GetPatchColor(lump);
     r = stbar_color.r;
     g = stbar_color.g;
     b = stbar_color.b;
@@ -693,6 +748,18 @@ void R_DrawViewBorder(void)
     {
       R_CopyScreenBufferSection(0, i, ST_SCALED_OFFSETX);
       R_CopyScreenBufferSection(SCREENWIDTH - ST_SCALED_OFFSETX, i, ST_SCALED_OFFSETX);
+    }
+
+    if (V_IsSoftwareMode() && Check_Stbar_Animate)
+    {
+      static prevframe = 0;
+      int frame = N_GetStbarAnimate();
+
+      if (prevframe != frame)
+      {
+        R_FillBackColorAnimate();
+        prevframe = frame;
+      }
     }
   }
 

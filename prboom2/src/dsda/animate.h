@@ -36,6 +36,13 @@ typedef struct
     int validcycle;
 } animate_t;
 
+typedef struct
+{
+    int lump;
+    byte col;
+    byte col_top;
+} stbarcolor_t;
+
 void AnimateTicker(void);
 
 void N_InitAnimateLumps(void);
@@ -52,5 +59,11 @@ void V_DrawBackgroundAnimate(const char* lump, const int scrn);
 const int N_CheckAnimate(const char* lump);
 const int N_CheckWide(const char* lump);
 const char* PrefixCombine(const char *lump_prefix, const char *lump_main);
+
+// Stbar Animate Stuffs
+int N_GetStbarAnimate(void);
+int N_CheckStbarAnimateFrame(const char* lump);
+int N_GetStbarAnimateFrame(const char* lump, const char* col);
+void N_SetStbarAnimateFrame(const char* lump, byte col, byte col_top);
 
 #endif
