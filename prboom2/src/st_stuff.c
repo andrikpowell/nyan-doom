@@ -1013,19 +1013,6 @@ int SmoothCount(int shownval, int realval)
   }
 }
 
-void ST_Ticker(void)
-{
-  if (raven) return SB_Ticker();
-
-  st_health = SmoothCount(st_health, plyr->health);
-  st_armor  = SmoothCount(st_armor, plyr->armorpoints[ARMOR_ARMOR]);
-
-  st_clock++;
-  st_randomnumber = M_Random();
-  ST_updateWidgets();
-  st_oldhealth = plyr->health;
-}
-
 int st_palette = 0;
 
 static void ST_doPaletteStuff(void)
@@ -1096,6 +1083,21 @@ void M_ChangeApplyPalette(void)
   }
   else
     V_SetPalette(0);
+}
+
+void ST_Ticker(void)
+{
+  if (raven) return SB_Ticker();
+
+  st_health = SmoothCount(st_health, plyr->health);
+  st_armor  = SmoothCount(st_armor, plyr->armorpoints[ARMOR_ARMOR]);
+
+  st_clock++;
+  st_randomnumber = M_Random();
+  ST_updateWidgets();
+  st_oldhealth = plyr->health;
+
+  ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 }
 
 int ST_HealthColor(int health)
@@ -1228,8 +1230,6 @@ void ST_Drawer(void)
    * completely by the call from D_Display
    * proff - really do it
    */
-
-  ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
   if (statusbaron) {
     ST_refreshBackground(); // draw status bar background to off-screen buff
