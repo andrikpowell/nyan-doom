@@ -32,6 +32,7 @@ jobs:
               -DCMAKE_POLICY_DEFAULT_CMP0091=NEW
               -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
               -DCMAKE_IGNORE_PATH="C:/Strawberry/perl/bin;C:/Strawberry/c/lib"
+
           - name: "MSYS2 UCRT64"
             os: windows-latest
             build_type: "Release"
