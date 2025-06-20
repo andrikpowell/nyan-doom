@@ -562,8 +562,8 @@ void R_FillBackColor (void)
   }
 
   V_BeginMenuDraw();
-  V_FillRect(1, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, col);
   V_FillRect(1, 0, stbar_top, SCREENWIDTH, ST_SCALED_BORDER, col_top);
+  V_FillRect(1, 0, stbar_top + ST_SCALED_BORDER, SCREENWIDTH, ST_SCALED_HEIGHT - ST_SCALED_BORDER, col);
   V_EndMenuDraw();
 }
 
