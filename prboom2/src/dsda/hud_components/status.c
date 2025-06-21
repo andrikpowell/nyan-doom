@@ -35,13 +35,19 @@ static local_component_t* local;
 static int patch_vertical_spacing;
 static int patch_spacing;
 
-const char* drawBerserkName() {
-    return "STFPPSTR";
-}
-
 const char* drawArmorName(player_t* player) {
     if (player->armortype < 2) { return "STFPARM1"; }
     else { return "STFPARM2"; }
+}
+
+//int getArmorColor(player_t* player) {
+//    if (player->armortype >= 2) { return CR_BLUE; }
+//    else if (player->armortype == 1) { return CR_GREEN; }
+//}
+
+int getBerserkColor(player_t* player) {
+    if (unityedition) { return CR_GREEN; }
+    else { return CR_RED; }
 }
 
 void drawPowerupStatusIcon(player_t* player, int* x, int* y, int powerup, const char* lumpname, int color, int blinking) {
@@ -81,10 +87,7 @@ static void dsda_DrawComponent(void) {
         drawPowerupStatusIcon(player, &x, &y, player->armortype > 0, drawArmorName(player), CR_DEFAULT, NOT_BLINKING);
 
     if (player->powers[pw_strength] && dsda_IntConfig(nyan_config_ex_status_berserk))
-    {
-        int color = player->powers[pw_strength] ? unityedition ? CR_GREEN : CR_RED : CR_DEFAULT;    
-        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_strength], "STFPPSTR", color, NOT_BLINKING);
-    }
+        drawPowerupStatusIcon(player, &x, &y, player->powers[pw_strength], "STFPPSTR", getBerserkColor(player), NOT_BLINKING);
 
     if (player->powers[pw_allmap] && dsda_IntConfig(nyan_config_ex_status_areamap))
         drawPowerupStatusIcon(player, &x, &y, player->powers[pw_allmap], "STFPMAP", CR_DEFAULT, NOT_BLINKING);
