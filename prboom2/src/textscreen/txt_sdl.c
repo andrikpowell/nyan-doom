@@ -870,7 +870,7 @@ void TXT_EnableKeyMapping(int enable)
     key_mapping = enable;
 }
 
-void TXT_SetWindowTitle(char *title)
+void TXT_SetWindowTitle(const char *title)
 {
     SDL_SetWindowTitle(TXT_SDLWindow, title);
 }

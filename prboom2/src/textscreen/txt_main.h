@@ -136,7 +136,7 @@ void TXT_Sleep(int timeout);
 void TXT_EnableKeyMapping(int enable);
 
 // Set the window title of the window containing the text mode screen
-void TXT_SetWindowTitle(char *title);
+void TXT_SetWindowTitle(const char *title);
 
 // Safe string copy.
 void TXT_StringCopy(char *dest, const char *src, size_t dest_len);
