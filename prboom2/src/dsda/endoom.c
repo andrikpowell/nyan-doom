@@ -15,6 +15,10 @@
 //	DSDA Endoom
 //
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
@@ -23,6 +27,7 @@
 #include "args.h"
 #include "doomdef.h"
 #include "doomtype.h"
+#include "i_video.h"
 #include "lprintf.h"
 #include "w_wad.h"
 
@@ -469,6 +474,8 @@ void dsda_WindowEndoom(void)
         lprintf(LO_ERROR, "Failed to initialize libtextscreen");
         return;
     }
+
+    TXT_SetWindowTitle(PROJECT_NAME " " PROJECT_VERSION);
 
     // Write the data to the screen memory
 
