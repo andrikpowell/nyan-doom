@@ -3380,6 +3380,7 @@ setup_menu_t gen_mouse_settings[] = {
   { "Dbl-Click As Use", S_YESNO, m_conf, G2_X, dsda_config_mouse_doubleclick_as_use, MOUSE_ON },
   { "Vertical Mouse Movement", S_YESNO, m_conf, G2_X, dsda_config_vertmouse, MOUSE_ON },
   { "Carry Fractional Tics", S_YESNO, m_conf, G2_X, dsda_config_mouse_carrytics, MOUSE_ON },
+  { "Mouse Stutter Correction", S_YESNO, m_conf, G2_X, dsda_config_mouse_stutter_correction, MOUSE_ON },
 
   PREV_PAGE(gen_audio_settings),
   NEXT_PAGE(gen_controller_settings),
