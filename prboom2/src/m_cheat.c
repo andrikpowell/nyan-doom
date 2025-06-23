@@ -666,7 +666,7 @@ static void cheat_skillx(char buf[1])
 {
   int skill = buf[0] - '0';
 
-  if (skill >= 1 && skill <= num_skills)
+  if (skill >= 1 && skill <= num_skills-customskill)
   {
     gameskill = skill - 1;
 

@@ -130,6 +130,7 @@ typedef struct setup_menu_s
   const char *dependent_input;
   int dependent_exclude;
   struct setup_menu_s *menu;  /* next or prev menu */
+  void (*action)(void); // killough 10/98: function to call after changing
 } setup_menu_t;
 
 //
@@ -148,9 +149,11 @@ typedef struct
   char  alphaKey; // hotkey in menu
   const char *alttext;
   int color;
+  byte flags;
 } menuitem_t;
 
 #define MENUF_TEXTINPUT 0x01
+#define MENUF_OPTLUMP   0x02 // [Nugget] Optional graphic lump
 
 typedef struct menu_s
 {

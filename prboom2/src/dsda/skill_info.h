@@ -63,9 +63,11 @@ extern skill_info_t *skill_infos;
 extern int num_skills;
 
 void dsda_InitSkills(void);
+void dsda_UpdateCustomSkill(int custom_skill);
 void dsda_TrackGameFlags(void);
 void dsda_RefreshGameSkill(void);
 void dsda_UpdateGameSkill(int skill);
 void dsda_LoadSkillLump(void);
+void dsda_CheckCustomSkill(void);
 
 #endif

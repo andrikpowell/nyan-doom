@@ -190,12 +190,13 @@ void dsda_InitSkills(void) {
 
   // Check for / parse new skill lumps
   dsda_LoadSkillLump();
+  dsda_CheckCustomSkill();
 
   mapinfo = doom_mapinfo;
 
   clear_skills = (mapinfo.num_skills && mapinfo.skills_cleared);
 
-  num_skills = (clear_skills ? 0 : 5) + (int)mapinfo.num_skills + uvplus - doom_v11;
+  num_skills = (clear_skills ? 0 : 5) + (int)mapinfo.num_skills + uvplus - doom_v11 + customskill;
 
   original_skill_list = doom_v11 ? 4 : 5;
 
@@ -252,6 +253,70 @@ void dsda_InitSkills(void) {
     else
       dsda_CopySkillInfo(i + j, &mapinfo.skills[j]);
   }
+
+  if (customskill)
+    skill_infos[num_skills-1].name = "Custom Skill";
+}
+
+int dsda_GetCustomSpawnFilter(int config) {
+  switch (config)
+  {
+    case 0: return 1; // if "easy",   skill 1
+    case 1: return 3; // if "medium", skill 3
+    case 2: return 4; // if "hard",   skill 4
+    default: return false;
+  }
+}
+
+int dsda_GetCustomFactor(int config) {
+  switch (config)
+  {
+    case 0: return FRACUNIT / 2;
+    case 1: return FRACUNIT;
+    case 2: return FRACUNIT * 3 / 2;
+    case 3: return FRACUNIT * 2;
+    case 4: return FRACUNIT * 4;
+    default: return false;
+  }
+}
+
+void dsda_UpdateCustomSkill(int custom_skill_num) {
+  // initialise configs
+  int spawn_config              = dsda_IntConfig(dsda_config_skill_spawn_filter);
+  int ammo_config               = dsda_IntConfig(dsda_config_skill_ammo_factor);
+  int damage_config             = dsda_IntConfig(dsda_config_skill_damage_factor);
+  int armor_config              = dsda_IntConfig(dsda_config_skill_armor_factor);
+  int health_config             = dsda_IntConfig(dsda_config_skill_health_factor);
+  int monster_health_config     = dsda_IntConfig(dsda_config_skill_monster_health_factor);
+  int friend_health_config      = dsda_IntConfig(dsda_config_skill_friend_health_factor);
+  int easy_brain                = dsda_IntConfig(dsda_config_skill_easy_brain);
+  int auto_use_health           = dsda_IntConfig(dsda_config_skill_auto_use_health);
+  int fast_monster_config       = dsda_IntConfig(dsda_config_skill_fast_monsters);
+  int aggressive_monsters       = dsda_IntConfig(dsda_config_skill_aggressive_monsters);
+  int coop_spawn_config         = dsda_IntConfig(dsda_config_skill_coop_spawns);
+  int respawn_config            = dsda_IntConfig(dsda_config_skill_respawn_monsters);
+  int respawn_time_config       = dsda_IntConfig(dsda_config_skill_respawn_time);
+
+  // Get spawn filter value
+  skill_infos[custom_skill_num].spawn_filter = dsda_GetCustomSpawnFilter(spawn_config);;
+
+  // Get multiplier factors
+  skill_infos[custom_skill_num].ammo_factor             = dsda_GetCustomFactor(ammo_config);
+  skill_infos[custom_skill_num].damage_factor           = dsda_GetCustomFactor(damage_config);
+  skill_infos[custom_skill_num].armor_factor            = dsda_GetCustomFactor(damage_config);
+  skill_infos[custom_skill_num].health_factor           = dsda_GetCustomFactor(health_config);
+  skill_infos[custom_skill_num].monster_health_factor   = dsda_GetCustomFactor(monster_health_config);
+  skill_infos[custom_skill_num].friend_health_factor    = dsda_GetCustomFactor(friend_health_config);
+
+  // Get respawn time (if respawn is enabled)
+  if (respawn_config) skill_infos[custom_skill_num].respawn_time = respawn_time_config;
+
+  // Add remaining flags
+  if (easy_brain)          skill_infos[custom_skill_num].flags |= SI_EASY_BOSS_BRAIN;
+  if (auto_use_health)     skill_infos[custom_skill_num].flags |= SI_AUTO_USE_HEALTH;
+  if (coop_spawn_config)   skill_infos[custom_skill_num].flags |= SI_SPAWN_MULTI;
+  if (aggressive_monsters) skill_infos[custom_skill_num].flags |= SI_INSTANT_REACTION;
+  if (fast_monster_config) skill_infos[custom_skill_num].flags |= SI_FAST_MONSTERS;
 }
 
 void dsda_RefreshPistolStart(void)
@@ -339,4 +404,14 @@ void dsda_LoadSkillLump(void) {
 
   if (W_LumpNameExists("NYANSKLG"))
     uvplus = true;
+}
+
+void dsda_CheckCustomSkill(void) {
+  //if (started_demo)
+    //return;
+
+  if (!allow_incompatibility || netgame)
+    return;
+
+  customskill = true;
 }

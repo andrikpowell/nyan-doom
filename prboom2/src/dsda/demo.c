@@ -39,6 +39,7 @@
 #include "dsda/map_format.h"
 #include "dsda/preferences.h"
 #include "dsda/settings.h"
+#include "dsda/skill_info.h"
 #include "dsda/split_tracker.h"
 #include "dsda/utility.h"
 
@@ -280,9 +281,11 @@ void dsda_InitDemoRecording(void) {
   if (dsda_Flag(dsda_arg_pistol_start))
     I_Error("The -pistolstart option is not allowed when recording a demo!");
 
-  if (uvplus && dsda_Flag(dsda_arg_skill))
+  if ((customskill || uvplus) && dsda_Flag(dsda_arg_skill))
   {
-    if (dsda_Arg(dsda_arg_skill)->value.v_int > 5)
+    if (dsda_Arg(dsda_arg_skill)->value.v_int > num_skills-customskill)
+      I_Error("Custom Skill is not allowed when recording a demo!\n");
+    else if (dsda_Arg(dsda_arg_skill)->value.v_int > num_skills-uvplus-customskill)
       I_Error("UV Plus (-skill 6) is not allowed when recording a demo!\nUse '-skill 4 -coop_spawns' instead.\n");
   }
 

@@ -272,8 +272,11 @@ void dsda_WadStatsExitMap(int missed_monsters) {
   if (!current_map_stats || demoplayback)
     return;
 
-  nightmare_skill = num_skills - uvplus;
-  best_normal_skill = num_skills - 1 - uvplus; 
+  if (customskill && (gameskill == num_skills-1))
+    return;
+
+  nightmare_skill = num_skills - uvplus - customskill;
+  best_normal_skill = num_skills - 1 - uvplus - customskill;
 
   if (!nomonsters) {
     skill = gameskill + 1;

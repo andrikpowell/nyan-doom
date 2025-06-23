@@ -1339,6 +1339,66 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_coop_spawns", dsda_config_coop_spawns,
     CONF_BOOL(0), NULL, NOT_STRICT, dsda_AlterGameFlags
   },
+  [dsda_config_skill_spawn_filter] = {
+    "dsda_skill_spawn_filter", dsda_config_skill_spawn_filter,
+    dsda_config_int, 0, 2, { 1 },
+  },
+  [dsda_config_skill_coop_spawns] = {
+    "dsda_skill_coop_spawns", dsda_config_skill_coop_spawns,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [dsda_config_skill_ammo_factor] = {
+    "dsda_skill_ammo_factor", dsda_config_skill_ammo_factor,
+    dsda_config_int, 0, 4, { 1 },
+  },
+  [dsda_config_skill_damage_factor] = {
+    "dsda_skill_damage_factor", dsda_config_skill_damage_factor,
+    dsda_config_int, 0, 4, { 1 },
+  },
+  [dsda_config_skill_armor_factor] = {
+    "dsda_skill_armor_factor", dsda_config_skill_armor_factor,
+    dsda_config_int, 0, 4, { 1 },
+  },
+  [dsda_config_skill_health_factor] = {
+    "dsda_skill_health_factor", dsda_config_skill_health_factor,
+    dsda_config_int, 0, 4, { 1 },
+  },
+  [dsda_config_skill_monster_health_factor] = {
+    "dsda_skill_monster_health_factor", dsda_config_skill_monster_health_factor,
+    dsda_config_int, 0, 4, { 1 },
+  },
+  [dsda_config_skill_friend_health_factor] = {
+    "dsda_skill_friend_health_factor", dsda_config_skill_friend_health_factor,
+    dsda_config_int, 0, 4, { 1 },
+  },
+  [dsda_config_skill_respawn_monsters] = {
+    "dsda_skill_respawn_monsters", dsda_config_skill_respawn_monsters,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [dsda_config_skill_respawn_time] = {
+    "dsda_skill_respawn_time", dsda_config_skill_respawn_time,
+    dsda_config_int, 1, 32, { 12 },
+  },
+  [dsda_config_skill_fast_monsters] = {
+    "dsda_skill_fast_monsters", dsda_config_skill_fast_monsters,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [dsda_config_skill_aggressive_monsters] = {
+    "dsda_skill_aggressive_monsters", dsda_config_skill_aggressive_monsters,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [dsda_config_skill_no_monsters] = {
+    "dsda_skill_no_monsters", dsda_config_skill_no_monsters,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [dsda_config_skill_easy_brain] = {
+    "dsda_skill_easy_brain", dsda_config_skill_easy_brain,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [dsda_config_skill_auto_use_health] = {
+    "dsda_skill_auto_use_health", dsda_config_skill_auto_use_health,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
   [dsda_config_parallel_sfx_active] = {
     "dsda_parallel_sfx_active", dsda_config_parallel_sfx_active,
     CONF_BOOL(0), NULL, NOT_STRICT, dsda_InitParallelSFXFilter
