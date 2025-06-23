@@ -1291,7 +1291,7 @@ SDL_Color V_GetPatchColor (int lumpnum)
 // graphic via lumpnum
 //
 
-SDL_Color V_GetPatchColorRaw (int lumpnum, int w, int h)
+static SDL_Color V_GetPatchColorRaw (int lumpnum, int w, int h)
 {
   SDL_Color col = {0,0,0,0};
   int r = 0, g = 0, b = 0;
@@ -1324,7 +1324,7 @@ SDL_Color V_GetPatchColorRaw (int lumpnum, int w, int h)
   return col;
 }
 
-byte V_GetBorderColor(const char* lump, int width, int height, dboolean doom_format)
+static byte V_GetBorderColor(const char* lump, int width, int height, dboolean doom_format)
 {
   const unsigned char *playpal = V_GetPlaypal();
   int lumpnum = doom_format ? N_GetPatchAnimateNum(lump, true) : W_GetNumForName(lump);
@@ -1351,7 +1351,7 @@ byte V_GetBorderColor(const char* lump, int width, int height, dboolean doom_for
   return col;
 }
 
-void V_DrawBorder(byte pillarboxcolor)
+static void V_DrawBorder(byte pillarboxcolor)
 {
   int bordtop, bordbottom, bordleft, bordright;
 

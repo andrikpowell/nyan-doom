@@ -152,7 +152,7 @@ static void dsda_CopyFactor(fixed_t* dest, const char* source) {
     *dest = dsda_StringToFixed(source) + 1;
 }
 
-void dsda_CopySkillInfo(int i, const doom_mapinfo_skill_t* info) {
+static void dsda_CopySkillInfo(int i, const doom_mapinfo_skill_t* info) {
   memset(&skill_infos[i], 0, sizeof(skill_infos[i]));
 
   dsda_CopyFactor(&skill_infos[i].ammo_factor, info->ammo_factor);
@@ -258,7 +258,7 @@ void dsda_InitSkills(void) {
     skill_infos[num_skills-1].name = "Custom Skill";
 }
 
-int dsda_GetCustomSpawnFilter(int config) {
+static int dsda_GetCustomSpawnFilter(int config) {
   switch (config)
   {
     case 0: return 1; // if "easy",   skill 1
@@ -268,7 +268,7 @@ int dsda_GetCustomSpawnFilter(int config) {
   }
 }
 
-int dsda_GetCustomFactor(int config) {
+static int dsda_GetCustomFactor(int config) {
   switch (config)
   {
     case 0: return FRACUNIT / 2;

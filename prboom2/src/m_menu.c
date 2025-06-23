@@ -1796,7 +1796,7 @@ static int choice_value;
 //
 //
 
-dboolean M_SetDisabled(const setup_menu_t* s)
+static dboolean M_SetDisabled(const setup_menu_t* s)
 {
   // Strict Mode
   if (dsda_StrictMode() && dsda_IsStrictConfig(s->config_id))
@@ -3781,7 +3781,7 @@ static void M_DrawCompatibility(void)
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
-void M_StartCustomSkill(const int mode)
+static void M_StartCustomSkill(const int mode)
 {
   int custom_skill = num_skills-1;
 
@@ -7018,7 +7018,7 @@ static void M_DrawTitleImage(int x, int y, const char *patch, const char *text, 
 // - Whether running Doom 1 under complevel 2 with HELP2
 //
 
-void M_InitHelp(void)
+static void M_InitHelp(void)
 {
   // Raven code moved to MN_Init() for
   // Heretic / Hexen 3-4 screen support.
