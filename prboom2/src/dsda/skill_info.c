@@ -303,7 +303,7 @@ void dsda_UpdateCustomSkill(int custom_skill_num) {
   // Get multiplier factors
   skill_infos[custom_skill_num].ammo_factor             = dsda_GetCustomFactor(ammo_config);
   skill_infos[custom_skill_num].damage_factor           = dsda_GetCustomFactor(damage_config);
-  skill_infos[custom_skill_num].armor_factor            = dsda_GetCustomFactor(damage_config);
+  skill_infos[custom_skill_num].armor_factor            = dsda_GetCustomFactor(armor_config);
   skill_infos[custom_skill_num].health_factor           = dsda_GetCustomFactor(health_config);
   skill_infos[custom_skill_num].monster_health_factor   = dsda_GetCustomFactor(monster_health_config);
   skill_infos[custom_skill_num].friend_health_factor    = dsda_GetCustomFactor(friend_health_config);
