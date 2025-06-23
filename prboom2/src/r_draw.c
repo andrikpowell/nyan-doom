@@ -533,7 +533,6 @@ void R_FillBackColor (void)
   extern patchnum_t stbarbg;
   static byte col;
   static byte col_top;
-  static int r = 0, g = 0, b = 0;
   static int prevlump = -1;
   const int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
   const int ST_SCALED_BORDER = brdr_b.height * patches_scaley/2;
@@ -545,10 +544,10 @@ void R_FillBackColor (void)
   if (prevlump != lump)
   {
     const unsigned char *playpal = V_GetPlaypal();
-    ColorEntry_t stbar_color = V_GetPatchColor(lump);
-    r = stbar_color.r;
-    g = stbar_color.g;
-    b = stbar_color.b;
+    SDL_Color stbar_color = V_GetPatchColor(lump);
+    int r = stbar_color.r;
+    int g = stbar_color.g;
+    int b = stbar_color.b;
 
     // Convert to palette and tune down saturation
     col = V_BestColor(playpal, r/3, g/3, b/3);

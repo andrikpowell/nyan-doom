@@ -1230,120 +1230,57 @@ int V_GetPlaypalCount(void)
 // graphic via lumpnum
 //
 
-ColorEntry_t V_GetPatchColor (int lumpnum)
+SDL_Color V_GetPatchColor (int lumpnum)
 {
-  ColorEntry_t col;
+  SDL_Color col = {0,0,0,0};
+  int r = 0, g = 0, b = 0;
   const unsigned char *playpal = V_GetPlaypal();
-  int i, j, pixel_cnt;
+  int x, y, pixel_cnt = 0;
   const byte* lump;
   short width;
-
-  pixel_cnt = 0;
-  col.r = 0;
-  col.g = 0;
-  col.b = 0;
 
   lump = W_LumpByNum(lumpnum);
 
   width = *((const int16_t *) lump);
   width = LittleShort(width);
 
-  if (width >= 16)
-  {
-    // Get color from left 16 pixels
-    for (i = 0; i < 16; ++i) {
-      // Skip irrelevant data in the doom patch header
-      byte length;
-      byte entry;
-      const byte* p;
-      int32_t offset;
-      p = lump + 8 + 4 * i;
-      offset = *((const int32_t *) p);
-      p = lump + LittleLong(offset);
+  for (x = 0; x < width; ++x) {
+    byte length;
+    byte entry;
+    const byte* p;
+    int32_t offset;
 
-      while (*p != 0xff) {
-        p++;
-        length = *p++;
-        p++;
+    // Only calculate for the leftmost and rightmost 16 columns
+    if (width > 32 && x > 16 && x < width - 16)
+      continue;
 
-        // Get RGB values per pixel
-        for (j = 0; j < length; ++j) {
-          entry = *p++;
-          col.r += playpal[3 * entry + 0];
-          col.g += playpal[3 * entry + 1];
-          col.b += playpal[3 * entry + 2];
-          pixel_cnt++;
-        }
+    // Skip irrelevant data in the doom patch header
+    p = lump + 8 + 4 * x;
+    offset = *((const int32_t *) p);
+    p = lump + LittleLong(offset);
 
-        p++;
+    while (*p != 0xff) {
+      p++;
+      length = *p++;
+      p++;
+
+      // Get RGB values per pixel
+      for (y = 0; y < length; ++y) {
+        entry = *p++;
+        r += playpal[3 * entry + 0];
+        g += playpal[3 * entry + 1];
+        b += playpal[3 * entry + 2];
+        pixel_cnt++;
       }
-    }
 
-    // Get color from right 16 pixels
-    for (i = width - 16; i < width; ++i) {
-      // Skip irrelevant data in the doom patch header
-      byte length;
-      byte entry;
-      const byte* p;
-      int32_t offset;
-      p = lump + 8 + 4 * i;
-      offset = *((const int32_t *) p);
-      p = lump + LittleLong(offset);
-
-      while (*p != 0xff) {
-        p++;
-        length = *p++;
-        p++;
-
-        // Get RGB values per pixel
-        for (j = 0; j < length; ++j) {
-          entry = *p++;
-          col.r += playpal[3 * entry + 0];
-          col.g += playpal[3 * entry + 1];
-          col.b += playpal[3 * entry + 2];
-          pixel_cnt++;
-        }
-
-        p++;
-      }
-    }
-  }
-  else
-  {
-    // Get color from all pixels
-    for (i = 0; i < width; ++i) {
-      // Skip irrelevant data in the doom patch header
-      byte length;
-      byte entry;
-      const byte* p;
-      int32_t offset;
-      p = lump + 8 + 4 * i;
-      offset = *((const int32_t *) p);
-      p = lump + LittleLong(offset);
-
-      while (*p != 0xff) {
-        p++;
-        length = *p++;
-        p++;
-
-        // Get RGB values per pixel
-        for (j = 0; j < length; ++j) {
-          entry = *p++;
-          col.r += playpal[3 * entry + 0];
-          col.g += playpal[3 * entry + 1];
-          col.b += playpal[3 * entry + 2];
-          pixel_cnt++;
-        }
-
-        p++;
-      }
+      p++;
     }
   }
 
   // Average RGB values
-  col.r /= pixel_cnt;
-  col.g /= pixel_cnt;
-  col.b /= pixel_cnt;
+  col.r = r / pixel_cnt;
+  col.g = g / pixel_cnt;
+  col.b = b / pixel_cnt;
 
   return col;
 }
@@ -1354,62 +1291,35 @@ ColorEntry_t V_GetPatchColor (int lumpnum)
 // graphic via lumpnum
 //
 
-ColorEntry_t V_GetPatchColorRaw (int lumpnum, int w, int h)
+SDL_Color V_GetPatchColorRaw (int lumpnum, int w, int h)
 {
-  ColorEntry_t col;
+  SDL_Color col = {0,0,0,0};
+  int r = 0, g = 0, b = 0;
   const unsigned char *playpal = V_GetPlaypal();
-  int x, y, pixel_cnt;
+  int x, y, pixel_cnt = 0;
   const byte* lump;
-
-  pixel_cnt = 0;
-  col.r = 0;
-  col.g = 0;
-  col.b = 0;
 
   lump = W_LumpByNum(lumpnum);
 
-  if (w >= 16)
-  {
-    // Get color from left 16 pixels
-    for (x = 0; x < 16; ++x) {
-      for (y = 0; y < h; ++y) {
-        byte entry = lump[y * w + x];
-        col.r += playpal[3 * entry + 0];
-        col.g += playpal[3 * entry + 1];
-        col.b += playpal[3 * entry + 2];
-        pixel_cnt++;
-      }
-    }
+  for (x = 0; x < w; ++x) {
+    // Only calculate for the leftmost and rightmost 16 columns
+    if (w > 32 && x > 16 && x < w - 16)
+      continue;
 
-    // Get color from right 16 pixels
-    for (x = w - 16; x < w; ++x) {
-      for (y = 0; y < h; ++y) {
-        byte entry = lump[y * w + x];
-        col.r += playpal[3 * entry + 0];
-        col.g += playpal[3 * entry + 1];
-        col.b += playpal[3 * entry + 2];
-        pixel_cnt++;
-      }
-    }
-  }
-  else
-  {
-    // Get color from all pixels
-    for (x = 0; x < w; ++x) {
-      for (y = 0; y < h; ++y) {
-        byte entry = lump[y * w + x];
-        col.r += playpal[3 * entry + 0];
-        col.g += playpal[3 * entry + 1];
-        col.b += playpal[3 * entry + 2];
-        pixel_cnt++;
-      }
+    // Get RGB values per pixel
+    for (y = 0; y < h; ++y) {
+      byte entry = lump[y * w + x];
+      r += playpal[3 * entry + 0];
+      g += playpal[3 * entry + 1];
+      b += playpal[3 * entry + 2];
+      pixel_cnt++;
     }
   }
 
   // Average RGB values
-  col.r /= pixel_cnt;
-  col.g /= pixel_cnt;
-  col.b /= pixel_cnt;
+  col.r = r / pixel_cnt;
+  col.g = g / pixel_cnt;
+  col.b = b / pixel_cnt;
 
   return col;
 }
@@ -1423,11 +1333,10 @@ byte V_GetBorderColor(const char* lump, int width, int height, dboolean doom_for
 
   if (prevlump != lumpnum)
   {
-    ColorEntry_t patch_color = doom_format ? V_GetPatchColor(lumpnum) : V_GetPatchColorRaw(lumpnum, width, height);
-    static int r = 0, g = 0, b = 0;
-    r = patch_color.r;
-    g = patch_color.g;
-    b = patch_color.b;
+    SDL_Color patch_color = doom_format ? V_GetPatchColor(lumpnum) : V_GetPatchColorRaw(lumpnum, width, height);
+    int r = patch_color.r;
+    int g = patch_color.g;
+    int b = patch_color.b;
 
     // Desaturate colours
     r /= 2;
