@@ -2008,7 +2008,7 @@ static void P_CalculateLineDefProperties(line_t *ld)
       // ML_TWOSIDED flag shouldn't be cleared for compatibility purposes
       // see CLNJ-506.LMP at https://dsdarchive.com/wads/challenj
       MissedBackSideOverrun(ld);
-      if (!demo_compatibility || !EMULATE(OVERFLOW_MISSEDBACKSIDE))
+      if (!demo_compatibility || !EMULATE(OVERFLOW_MISSEDBACKSIDE) || limitremoving)
       {
         ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
       }

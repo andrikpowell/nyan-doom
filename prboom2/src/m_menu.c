@@ -1886,7 +1886,7 @@ static dboolean M_SetDisabled(const setup_menu_t* s)
   // Limit Removing
   if (s->config_id == dsda_config_limit_removing)
   {
-    if (dsda_IntConfig(dsda_config_default_complevel) >= boom_compatibility_compatibility+1)
+    if (dsda_IntConfig(dsda_config_default_complevel) > tasdoom_compatibility)
     {
       dsda_UpdateIntConfig(dsda_config_limit_removing, false, true);
       return true;
@@ -1900,16 +1900,14 @@ static dboolean M_SetDisabled(const setup_menu_t* s)
   }
 
   // Limit Removing Overflows
-  if (dsda_IntConfig(dsda_config_default_complevel) >= boom_compatibility_compatibility+1)
+  if (dsda_IntConfig(dsda_config_default_complevel) > tasdoom_compatibility)
   {
     int i;
     int overflows[] = {
       dsda_config_overrun_spechit_warn,          dsda_config_overrun_spechit_emulate,
       dsda_config_overrun_reject_warn,           dsda_config_overrun_reject_emulate,
       dsda_config_overrun_intercept_warn,        dsda_config_overrun_intercept_emulate,
-      dsda_config_overrun_playeringame_warn,     dsda_config_overrun_playeringame_emulate,
       dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
-      dsda_config_overrun_missedbackside_warn,   dsda_config_overrun_missedbackside_emulate,
     };
 
     for (i = 0; (size_t)i < sizeof(overflows) / sizeof(overflows[0]); i++)
@@ -3765,8 +3763,8 @@ setup_menu_t comp_emulation_settings[] = {
   { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_reject_emulate, DEPEND(dsda_config_limit_removing,false) },
   { "WARN ON INTERCEPTS OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_intercept_warn, DEPEND(dsda_config_limit_removing,false) },
   { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_intercept_emulate, DEPEND(dsda_config_limit_removing,false) },
-  { "WARN ON PLAYERINGAME OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_playeringame_warn, DEPEND(dsda_config_limit_removing,false) },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_playeringame_emulate, DEPEND(dsda_config_limit_removing,false) },
+  { "WARN ON DONUT OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_donut_warn, DEPEND(dsda_config_limit_removing,false) },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_donut_emulate, DEPEND(dsda_config_limit_removing,false) },
   EMPTY_LINE,
   { "MAPPING ERROR FIXES", S_SKIP | S_TITLE, m_conf, CP_X},
   { "LINEDEFS W/O TAGS APPLY LOCALLY", S_YESNO, m_conf, CP_X, dsda_config_comperr_zerotag },
@@ -3867,7 +3865,7 @@ static const char *skill_multiplier[]         = { "Half", "Default", "1.5x", "Do
 
 setup_menu_t skill_options_builder[] = {
   { "Thing Spawns", S_CHOICE, m_conf, SK_X, dsda_config_skill_spawn_filter, 0, skill_spawn_filter },
-  { "Coop Spawns", S_YESNO, m_conf, SK_X, dsda_config_skill_coop_spawns },
+  { "Multiplayer Spawns", S_YESNO, m_conf, SK_X, dsda_config_skill_coop_spawns },
   EMPTY_LINE,
   { "Damage to Player", S_CHOICE, m_conf, SK_X, dsda_config_skill_damage_factor, 0, skill_damage_multiplier },
   { "Ammo Pickups %", S_CHOICE, m_conf, SK_X, dsda_config_skill_ammo_factor, 0, skill_ammo_multiplier },
