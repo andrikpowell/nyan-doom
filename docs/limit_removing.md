@@ -6,21 +6,21 @@ The term "limit-removing" has been used in the Doom Community for over a decade,
 
 ### Specification
 
-"Limit-Removing" is a Vanilla complevel that removes the all vanilla overflows. "Vanilla" refers to `complevels 0-4`.
+"Limit-Removing" is a Vanilla complevel that removes most vanilla overflows in `Doom` and `Heretic`. "Vanilla" refers to `complevels 0-6`.
 
 When playing/recording demos or just playing casual in "Limit-Removing" mode, the following overflows and warnings are disabled:
 
 - Spechits Overflow
 - Reject Overflow
 - Intercepts Overflow
-- Donut Overflow
-- Missing Backside Overflow
+- Donut Overflow *(not applicable to Heretic / Hexen)*
+- Missing Backside Overflow *(only warnings disabled for compat reasons)*
 
 Note that `Boom` / `MBF` / `MBF21` features are ***NOT*** supported when running in "Limit-Removing" *(exceptions being sky transfers, music changes, and other non-demo breaking features)*
 
 ### Parameter
 - `-complevel #r`
-  - The `#` can be `0-4` for vanilla complevels. The `r` is short for "removed"
+  - The `#` can be `0-6` for vanilla complevels. The `r` is short for "removed"
   - Example: `-complevel 0r`, `-complevel 4r`
 
 ### Autoload via Lumps
