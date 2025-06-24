@@ -3900,6 +3900,7 @@ setup_menu_t skill_options_builder[] = {
 setup_menu_t skill_options_start[] = {
   { "Respawn Time", S_NUM, m_conf, SK_X, dsda_config_skill_respawn_time, DEPEND(dsda_config_skill_respawn_monsters,true) },
   { "Slow Spawn-Cube Spitter", S_YESNO, m_conf, SK_X, dsda_config_skill_easy_brain },
+  { "Skip Pain State", S_YESNO, m_conf, SK_X, dsda_config_skill_no_pain },
   EMPTY_LINE,
   { "Armor Pickups %", S_CHOICE, m_conf, SK_X, dsda_config_skill_armor_factor, 0, skill_multiplier },
   { "Health Pickups %", S_CHOICE, m_conf, SK_X, dsda_config_skill_health_factor, 0, skill_multiplier },

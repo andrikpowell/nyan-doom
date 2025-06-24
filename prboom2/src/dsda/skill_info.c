@@ -296,6 +296,7 @@ void dsda_UpdateCustomSkill(int custom_skill_num) {
   int coop_spawn_config         = dsda_IntConfig(dsda_config_skill_coop_spawns);
   int respawn_config            = dsda_IntConfig(dsda_config_skill_respawn_monsters);
   int respawn_time_config       = dsda_IntConfig(dsda_config_skill_respawn_time);
+  int no_pain                   = dsda_IntConfig(dsda_config_skill_no_pain);
 
   // Get spawn filter value
   skill_infos[custom_skill_num].spawn_filter = dsda_GetCustomSpawnFilter(spawn_config);;
@@ -317,6 +318,7 @@ void dsda_UpdateCustomSkill(int custom_skill_num) {
   if (coop_spawn_config)   skill_infos[custom_skill_num].flags |= SI_SPAWN_MULTI;
   if (aggressive_monsters) skill_infos[custom_skill_num].flags |= SI_INSTANT_REACTION;
   if (fast_monster_config) skill_infos[custom_skill_num].flags |= SI_FAST_MONSTERS;
+  if (no_pain)             skill_infos[custom_skill_num].flags |= SI_NO_PAIN;
 }
 
 void dsda_RefreshLimitRemoving(void)

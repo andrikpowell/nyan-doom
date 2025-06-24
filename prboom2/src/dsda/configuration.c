@@ -1404,6 +1404,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_skill_auto_use_health", dsda_config_skill_auto_use_health,
     CONF_BOOL(0), NULL, NOT_STRICT
   },
+  [dsda_config_skill_no_pain] = {
+    "dsda_skill_no_pain", dsda_config_skill_no_pain,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
   [dsda_config_parallel_sfx_active] = {
     "dsda_parallel_sfx_active", dsda_config_parallel_sfx_active,
     CONF_BOOL(0), NULL, NOT_STRICT, dsda_InitParallelSFXFilter
