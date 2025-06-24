@@ -6522,8 +6522,7 @@ static void M_InitializeSkillMenu(void)
 
       SkillDef.menuitems[i].status = CustomSkillMenu[j].status;
     
-      if (CustomSkillMenu[j].name != "")
-        strncpy(SkillDef.menuitems[i].name, CustomSkillMenu[j].name, 8);
+      strncpy(SkillDef.menuitems[i].name, CustomSkillMenu[j].name, 8);
 
       SkillDef.menuitems[i].alttext = CustomSkillMenu[j].alttext;
       SkillDef.menuitems[i].routine = CustomSkillMenu[j].routine;
