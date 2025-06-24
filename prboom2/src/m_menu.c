@@ -1886,7 +1886,7 @@ static dboolean M_SetDisabled(const setup_menu_t* s)
   // Limit Removing
   if (s->config_id == dsda_config_limit_removing)
   {
-    if (dsda_IntConfig(dsda_config_default_complevel) > tasdoom_compatibility)
+    if (hexen || (dsda_IntConfig(dsda_config_default_complevel) > tasdoom_compatibility))
     {
       dsda_UpdateIntConfig(dsda_config_limit_removing, false, true);
       return true;
@@ -1899,10 +1899,9 @@ static dboolean M_SetDisabled(const setup_menu_t* s)
     }
   }
 
-  // Limit Removing Overflows
-  if (dsda_IntConfig(dsda_config_default_complevel) > tasdoom_compatibility)
+  // Disable Overflows
+  if (hexen || (dsda_IntConfig(dsda_config_default_complevel) > tasdoom_compatibility))
   {
-    int i;
     int overflows[] = {
       dsda_config_overrun_spechit_warn,          dsda_config_overrun_spechit_emulate,
       dsda_config_overrun_reject_warn,           dsda_config_overrun_reject_emulate,
@@ -1910,7 +1909,19 @@ static dboolean M_SetDisabled(const setup_menu_t* s)
       dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
     };
 
-    for (i = 0; (size_t)i < sizeof(overflows) / sizeof(overflows[0]); i++)
+    for (int i = 0; (size_t)i < sizeof(overflows) / sizeof(overflows[0]); i++)
+      if(s->config_id == overflows[i])
+        return true;
+  }
+
+  // Disable Donuts for Heretic
+  if (heretic)
+  {
+    int overflows[] = {
+      dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
+    };
+
+    for (int i = 0; (size_t)i < sizeof(overflows) / sizeof(overflows[0]); i++)
       if(s->config_id == overflows[i])
         return true;
   }

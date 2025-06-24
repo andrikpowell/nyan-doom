@@ -1004,7 +1004,7 @@ int P_SpawnDonut(int secnum, line_t *line, fixed_t pillarspeed, fixed_t slimespe
   // pillar must be two-sided
   if (!s2)
   {
-    if (demo_compatibility)
+    if (demo_compatibility && !limitremoving)
     {
       lprintf(LO_ERROR,
         "EV_DoDonut: lowest numbered line (linedef: %d) "

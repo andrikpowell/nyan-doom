@@ -2811,10 +2811,10 @@ void G_ReloadDefaults(void)
 
   // mark -lr as limitremoving arg
   if (demo_compatibility && dsda_Flag(dsda_arg_limitremoving))
-    limitremoving_arg = true;
+    limitremoving_arg = !hexen ? true : false;
 
   // disables overflow warnings and errors for vanilla complevels
-  if (demo_compatibility && (limitremoving_arg || limitremoving_lmp))
+  if (demo_compatibility && (limitremoving_arg || limitremoving_lmp) && !hexen)
   {
     dsda_UpdateIntConfig(dsda_config_limit_removing, 1, true);
     limitremoving = true;
