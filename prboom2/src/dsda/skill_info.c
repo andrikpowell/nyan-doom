@@ -319,6 +319,13 @@ void dsda_UpdateCustomSkill(int custom_skill_num) {
   if (fast_monster_config) skill_infos[custom_skill_num].flags |= SI_FAST_MONSTERS;
 }
 
+void dsda_RefreshLimitRemoving(void)
+{
+  if (allow_incompatibility || in_game)
+    limitremoving = (allow_incompatibility ? dsda_IntConfig(dsda_config_limit_removing) : limitremoving_arg);
+  dsda_TrackGameFlags();
+}
+
 void dsda_RefreshPistolStart(void)
 {
   if (allow_incompatibility || in_game)
@@ -344,6 +351,7 @@ static void dsda_ResetGameFlags(void)
   dsda_TrackGameFlags();
 }
 
+int track_limitremoving;
 int track_pistolstart;
 int track_respawnparm;
 int track_fastparm;
@@ -352,6 +360,7 @@ int track_coop_spawns;
 
 void dsda_TrackGameFlags(void)
 {
+  track_limitremoving = dsda_IntConfig(dsda_config_limit_removing);
   track_pistolstart = dsda_IntConfig(dsda_config_pistol_start);
   track_respawnparm = dsda_IntConfig(dsda_config_respawn_monsters);
   track_fastparm = dsda_IntConfig(dsda_config_fast_monsters);

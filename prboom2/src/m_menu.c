@@ -1884,7 +1884,23 @@ static dboolean M_SetDisabled(const setup_menu_t* s)
   }
 
   // Limit Removing
-  if (limitremoving || dsda_IntConfig(dsda_config_default_complevel) >= boom_compatibility_compatibility+1)
+  if (s->config_id == dsda_config_limit_removing)
+  {
+    if (dsda_IntConfig(dsda_config_default_complevel) >= boom_compatibility_compatibility+1)
+    {
+      dsda_UpdateIntConfig(dsda_config_limit_removing, false, true);
+      return true;
+    }
+
+    if (limitremoving_arg || limitremoving_lmp)
+    {
+      dsda_UpdateIntConfig(dsda_config_limit_removing, true, true);
+      return true;
+    }
+  }
+
+  // Limit Removing Overflows
+  if (dsda_IntConfig(dsda_config_default_complevel) >= boom_compatibility_compatibility+1)
   {
     int i;
     int overflows[] = {
@@ -1897,14 +1913,8 @@ static dboolean M_SetDisabled(const setup_menu_t* s)
     };
 
     for (i = 0; (size_t)i < sizeof(overflows) / sizeof(overflows[0]); i++)
-    {
       if(s->config_id == overflows[i])
-      {
-        if (limitremoving)
-          dsda_UpdateIntConfig(overflows[i], 0, false);
         return true;
-      }
-    }
   }
 
   return false;
@@ -3744,21 +3754,25 @@ setup_menu_t comp_options_settings[] = {
   FINAL_ENTRY
 };
 
+#define CP_X 250
+
 setup_menu_t comp_emulation_settings[] = {
-  { "WARN ON SPECHITS OVERFLOW", S_YESNO, m_conf, AU_X, dsda_config_overrun_spechit_warn },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, AU_X, dsda_config_overrun_spechit_emulate },
-  { "WARN ON REJECT OVERFLOW", S_YESNO, m_conf, AU_X, dsda_config_overrun_reject_warn },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, AU_X, dsda_config_overrun_reject_emulate },
-  { "WARN ON INTERCEPTS OVERFLOW", S_YESNO, m_conf, AU_X, dsda_config_overrun_intercept_warn },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, AU_X, dsda_config_overrun_intercept_emulate },
-  { "WARN ON PLAYERINGAME OVERFLOW", S_YESNO, m_conf, AU_X, dsda_config_overrun_playeringame_warn },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, AU_X, dsda_config_overrun_playeringame_emulate },
+  { "Limit-Removing", S_YESNO, m_conf, CP_X, dsda_config_limit_removing },
   EMPTY_LINE,
-  { "MAPPING ERROR FIXES", S_SKIP | S_TITLE, m_conf, AU_X},
-  { "LINEDEFS W/O TAGS APPLY LOCALLY", S_YESNO, m_conf, AU_X, dsda_config_comperr_zerotag },
-  { "USE PASSES THRU ALL SPECIAL LINES", S_YESNO, m_conf, AU_X, dsda_config_comperr_passuse },
-  { "WALK UNDER SOLID HANGING BODIES", S_YESNO, m_conf, AU_X, dsda_config_comperr_hangsolid },
-  { "FIX CLIPPING IN LARGE LEVELS", S_YESNO, m_conf, AU_X, dsda_config_comperr_blockmap },
+  { "WARN ON SPECHITS OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_spechit_warn, DEPEND(dsda_config_limit_removing,false) },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_spechit_emulate, DEPEND(dsda_config_limit_removing,false) },
+  { "WARN ON REJECT OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_reject_warn, DEPEND(dsda_config_limit_removing,false) },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_reject_emulate, DEPEND(dsda_config_limit_removing,false) },
+  { "WARN ON INTERCEPTS OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_intercept_warn, DEPEND(dsda_config_limit_removing,false) },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_intercept_emulate, DEPEND(dsda_config_limit_removing,false) },
+  { "WARN ON PLAYERINGAME OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_playeringame_warn, DEPEND(dsda_config_limit_removing,false) },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_playeringame_emulate, DEPEND(dsda_config_limit_removing,false) },
+  EMPTY_LINE,
+  { "MAPPING ERROR FIXES", S_SKIP | S_TITLE, m_conf, CP_X},
+  { "LINEDEFS W/O TAGS APPLY LOCALLY", S_YESNO, m_conf, CP_X, dsda_config_comperr_zerotag },
+  { "USE PASSES THRU ALL SPECIAL LINES", S_YESNO, m_conf, CP_X, dsda_config_comperr_passuse },
+  { "WALK UNDER SOLID HANGING BODIES", S_YESNO, m_conf, CP_X, dsda_config_comperr_hangsolid },
+  { "FIX CLIPPING IN LARGE LEVELS", S_YESNO, m_conf, CP_X, dsda_config_comperr_blockmap },
 
   PREV_PAGE(comp_options_settings),
   FINAL_ENTRY

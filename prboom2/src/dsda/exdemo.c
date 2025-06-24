@@ -313,7 +313,7 @@ static void DemoEx_AddParams(wadtbl_t* wadtbl) {
   // add complevel for formats which do not have it in header
   // add limit-removing status
   if (demo_compatibility) {
-    sprintf(buf, "-complevel %d%s ", compatibility_level, limitremoving ? "r" : "");
+    sprintf(buf, "-complevel %d%s ", compatibility_level, limitremoving_arg ? "r" : "");
     dsda_StringCat(&files, buf);
   }
 

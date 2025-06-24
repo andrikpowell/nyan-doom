@@ -75,7 +75,7 @@ static int dsda_WadCompatibilityLevel(void) {
           data = W_LumpByNum(num);
           gnum = W_CheckNumForName("GAMEVERS");
 
-          if ((length == 7 && !strncasecmp("vanilla", data, 7)) || limitremoving) {
+          if (length == 7 && !strncasecmp("vanilla", data, 7)) {
             if (gnum != LUMP_NOT_FOUND) {
               const char* gdata;
 
@@ -94,7 +94,7 @@ static int dsda_WadCompatibilityLevel(void) {
                   complvl = 4;
 
               if (strstr(gdata, "nolimits") || strstr(gdata, "limit"))
-                limitremoving = true;
+                limitremoving_lmp = true;
             }
             if (complvl == -1) {
                 if (gamemode == commercial)
@@ -113,7 +113,7 @@ static int dsda_WadCompatibilityLevel(void) {
           else if (length == 5 && !strncasecmp("mbf21", data, 5))
               complvl = 21;
 
-          lrtext = (limitremoving ? " (limit-removing)" : "");
+          lrtext = (limitremoving_lmp ? " (limit-removing)" : "");
           gtext = (gcheck ? " and GAMEVERS" : "");
 
           lprintf(LO_INFO, "Detected COMPLVL%s lump: %i%s\n", gtext, complvl, lrtext);

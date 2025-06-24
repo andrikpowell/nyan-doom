@@ -18,6 +18,7 @@
 #ifndef __DSDA_SAVE__
 #define __DSDA_SAVE__
 
+extern int track_limitremoving;
 extern int track_pistolstart;
 extern int track_respawnparm;
 extern int track_fastparm;

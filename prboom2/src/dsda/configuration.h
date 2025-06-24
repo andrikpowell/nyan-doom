@@ -296,6 +296,7 @@ typedef enum {
   dsda_config_death_use_action,
   dsda_config_allow_jumping,
   dsda_config_disable_horiz_autoaim,
+  dsda_config_limit_removing,
   dsda_config_always_pistol_start,
   dsda_config_pistol_start,
   dsda_config_respawn_monsters,

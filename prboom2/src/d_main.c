@@ -2122,7 +2122,7 @@ static void D_DoomMainSetup(void)
   lprintf(LO_DEBUG, "N_InitAnimateLumps: Loading NYAN Animate lumps.\n");
   N_InitAnimateLumps();
 
-  if (limitremoving)
+  if (limitremoving_arg || limitremoving_lmp)
     lprintf(LO_INFO, "Limit-removing detected. Overflows disabled\n");
 
   dsda_CopyDefaultCheats();

@@ -34,6 +34,7 @@
 
 typedef uint16_t skill_info_flags_t;
 
+extern int track_limitremoving;
 extern int track_pistolstart;
 extern int track_respawnparm;
 extern int track_fastparm;

@@ -127,10 +127,6 @@ extern const char * hexen_skill_mage[5];
 extern int shorttics;
 extern int longtics;
 
-// disables overflow warnings and errors for vanilla complevels
-extern int limitremoving;
-extern int arg_complevel_limitremoving;
-
 // checks whether to use HELP2 lump for Doom 1 complevel 2 and below
 extern int pwad_help2_check;
 

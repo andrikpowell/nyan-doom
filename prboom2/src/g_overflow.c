@@ -51,8 +51,6 @@
 
 int overflows_enabled = true;
 
-int limitremoving;
-
 overrun_param_t overflows[OVERFLOW_MAX];
 const char *overflow_cfgname[OVERFLOW_MAX] =
 {

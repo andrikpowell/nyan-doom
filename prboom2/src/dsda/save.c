@@ -65,6 +65,7 @@ static void dsda_UnArchiveInternal(void) {
   dsda_MergeFeatures(features);
 }
 
+int store_limitremoving;
 int store_pistolstart;
 int store_respawnparm;
 int store_fastparm;
@@ -73,12 +74,14 @@ int store_coop_spawns;
 
 void dsda_ArchiveGameModifiers(void)
 {
+  store_limitremoving = track_limitremoving;
   store_pistolstart = track_pistolstart;
   store_respawnparm = track_respawnparm;
   store_fastparm = track_fastparm;
   store_nomonsters = track_nomonsters;
   store_coop_spawns = track_coop_spawns;
 
+  P_SAVE_X(store_limitremoving);
   P_SAVE_X(store_pistolstart);
   P_SAVE_X(store_respawnparm);
   P_SAVE_X(store_fastparm);
@@ -88,12 +91,14 @@ void dsda_ArchiveGameModifiers(void)
 
 void dsda_UnArchiveGameModifiers(void)
 {
+  P_LOAD_X(store_limitremoving);
   P_LOAD_X(store_pistolstart);
   P_LOAD_X(store_respawnparm);
   P_LOAD_X(store_fastparm);
   P_LOAD_X(store_nomonsters);
   P_LOAD_X(store_coop_spawns);
 
+  dsda_UpdateIntConfig(dsda_config_limit_removing,store_limitremoving,true);
   dsda_UpdateIntConfig(dsda_config_pistol_start,store_pistolstart,true);
   dsda_UpdateIntConfig(dsda_config_respawn_monsters,store_respawnparm,true);
   dsda_UpdateIntConfig(dsda_config_fast_monsters,store_fastparm,true);
