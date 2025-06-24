@@ -35,6 +35,7 @@
 #include "dsda/features.h"
 #include "dsda/key_frame.h"
 #include "dsda/map_format.h"
+#include "dsda/utility.h"
 
 #include "settings.h"
 
@@ -53,15 +54,57 @@ void dsda_InitSettings(void) {
   gld_ResetAutomapTransparency();
 }
 
+static int dsda_ParseGameversLump(void) {
+    int num = W_CheckNumForName("GAMEVERS");
+
+    if (num != LUMP_NOT_FOUND)
+    {
+      int count;
+      char* lump;
+      char** lines;
+      char comp[9] = { 0 };
+      char limit[9] = { 0 };
+
+      lump = W_ReadLumpToString(num);
+      lines = dsda_SplitString(lump, "\n\r");
+
+      count = sscanf(lines[0], "%8s %8s", comp, limit);
+      if (count > 2)
+          I_Error("Too many GAMEVERS arguments!");
+
+      if (!strcasecmp("1.2", comp))
+          complvl = 0;
+      else if (!strcasecmp("1.666", comp))
+          complvl = 1;
+      else if (!strcasecmp("1.9", comp))
+          complvl = 2;
+      else if (!strcasecmp("ultimate", comp))
+          complvl = 3;
+      else if (!strcasecmp("final", comp))
+          complvl = 4;
+      else if (!strcasecmp("dos", comp))
+          complvl = 5;
+      else if (!strcasecmp("tas", comp))
+          complvl = 6;
+      
+      if (!strcasecmp("nolimits", comp)  || !strcasecmp("limit", comp) ||
+          !strcasecmp("nolimits", limit) || !strcasecmp("limit", limit))
+          limitremoving_lmp = true;
+    }
+
+    if (complvl != -1)
+      return true;
+
+    return false;
+}
+
 static int dsda_WadCompatibilityLevel(void) {
   static int last_numwadfiles = -1;
 
   // This might be called before all wads are loaded
   if (numwadfiles != last_numwadfiles) {
-      int num;
-      static int gcheck;
-      const char* gtext;
-      const char* lrtext;
+      int num, gamever;
+      const char *lumps, *limit;
 
       last_numwadfiles = numwadfiles;
       num = W_CheckNumForName("COMPLVL");
@@ -69,33 +112,13 @@ static int dsda_WadCompatibilityLevel(void) {
       if (num != LUMP_NOT_FOUND) {
           int length;
           const char* data;
-          int gnum;
 
           length = W_LumpLength(num);
           data = W_LumpByNum(num);
-          gnum = W_CheckNumForName("GAMEVERS");
 
           if (length == 7 && !strncasecmp("vanilla", data, 7)) {
-            if (gnum != LUMP_NOT_FOUND) {
-              const char* gdata;
+            gamever = dsda_ParseGameversLump();
 
-              gcheck = true;
-              gdata = W_ReadLumpToString(W_GetNumForName("GAMEVERS"));
-
-              if (!strncasecmp("1.2", gdata, 3))
-                  complvl = 0;
-              else if (!strncasecmp("1.666", gdata, 5))
-                  complvl = 1;
-              else if (!strncasecmp("1.9", gdata, 3))
-                  complvl = 2;
-              else if (!strncasecmp("ultimate", gdata, 8))
-                  complvl = 3;
-              else if (!strncasecmp("final", gdata, 5))
-                  complvl = 4;
-
-              if (strstr(gdata, "nolimits") || strstr(gdata, "limit"))
-                limitremoving_lmp = true;
-            }
             if (complvl == -1) {
                 if (gamemode == commercial)
                       if (gamemission == pack_plut || gamemission == pack_tnt)
@@ -113,10 +136,10 @@ static int dsda_WadCompatibilityLevel(void) {
           else if (length == 5 && !strncasecmp("mbf21", data, 5))
               complvl = 21;
 
-          lrtext = (limitremoving_lmp ? " (limit-removing)" : "");
-          gtext = (gcheck ? " and GAMEVERS" : "");
+          lumps = (gamever ? "COMPLVL and GAMEVERS" : "COMPLVL");
+          limit = (limitremoving_lmp ? " (limit-removing)" : "");
 
-          lprintf(LO_INFO, "Detected COMPLVL%s lump: %i%s\n", gtext, complvl, lrtext);
+          lprintf(LO_INFO, "Detected %s lump: %i%s\n", lumps, complvl, limit);
       }
 }
 
