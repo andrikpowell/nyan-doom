@@ -3643,6 +3643,16 @@ void P_MustRebuildBlockmap(void)
   must_rebuild_blockmap = true;
 }
 
+void P_UpdateTranMap(void) {
+  extern float gl_filter_pct;
+  extern int tran_filter_pct;
+
+  tran_filter_pct = dsda_TranslucencyPercent();
+  gl_filter_pct = tran_filter_pct * 0.01f;
+
+  main_tranmap = dsda_DefaultTranMap();
+}
+
 //
 // P_SetupLevel
 //
@@ -3657,7 +3667,7 @@ void P_SetupLevel(int episode, int map, int playermask, int skill)
   //e6y
   totallive = 0;
 
-  main_tranmap = dsda_DefaultTranMap();
+  P_UpdateTranMap();
 
   dsda_WatchBeforeLevelSetup();
 

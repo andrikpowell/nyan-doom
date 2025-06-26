@@ -3626,6 +3626,7 @@ setup_menu_t display_nyan_settings[] = {
   { "Colored Blood", S_CHOICE, m_conf, G_X, nyan_config_colored_blood, 0, colored_blood_list },
   EMPTY_LINE,
   TITLE("Translucency", G_X),
+  { "Translucency %", S_NUM, m_conf, G_X, dsda_config_tran_filter_pct },
   { "Translucent Sprites", S_CHOICE, m_conf, G_X, dsda_config_translucent_sprites, 0, translucent_list },
   { "Translucent Ghosts", S_YESNO, m_conf, G_X, dsda_config_translucent_ghosts },
   EMPTY_LINE,

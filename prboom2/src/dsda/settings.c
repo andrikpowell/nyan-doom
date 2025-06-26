@@ -325,6 +325,10 @@ dboolean dsda_DisableHorizAutoaim(void) {
   return dsda_IntConfig(dsda_config_disable_horiz_autoaim) && !dsda_StrictMode() && allow_incompatibility;
 }
 
+int dsda_TranslucencyPercent(void) {
+  return (!dsda_StrictMode() && allow_incompatibility) ? dsda_IntConfig(dsda_config_tran_filter_pct) : 66;
+}
+
 int dsda_ShowDataDisk(void) {
   return dsda_IntConfig(nyan_config_loading_disk);
 }

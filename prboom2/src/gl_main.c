@@ -92,7 +92,7 @@ float bw_red = 0.3f;
 float bw_green = 0.59f;
 float bw_blue = 0.11f;
 
-const int tran_filter_pct = 66;
+float gl_filter_pct;
 
 GLfloat gl_texture_filter_anisotropic;
 
@@ -824,7 +824,7 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   else
   {
     if (viewplayer->mo->flags & g_mf_translucent)
-      gld_StaticLightAlpha(light,(float)tran_filter_pct/100.0f);
+      gld_StaticLightAlpha(light,gl_filter_pct);
     else
       gld_StaticLight(light);
   }
@@ -2472,7 +2472,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   if (thing->alpha != 1.f)
     sprite.alpha = thing->alpha;
   else if (sprite.flags & g_mf_translucent)
-    sprite.alpha = 0.66f;
+    sprite.alpha = gl_filter_pct;
   else
     sprite.alpha = 1.f;
 

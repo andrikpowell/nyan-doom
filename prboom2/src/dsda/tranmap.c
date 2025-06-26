@@ -31,7 +31,7 @@
 static char* tranmap_base_dir;
 static char* tranmap_palette_dir;
 static dsda_cksum_t playpal_cksum;
-static const int default_tranmap_alpha = 66;
+int tran_filter_pct;
 static const int tranmap_length = 256 * 256;
 static const byte* tranmap_data[100];
 
@@ -197,5 +197,5 @@ const byte* dsda_DefaultTranMap(void) {
   if (lump != LUMP_NOT_FOUND)
     return W_LumpByNum(lump);
 
-  return dsda_TranMap(default_tranmap_alpha);
+  return dsda_TranMap(tran_filter_pct);
 }

@@ -146,6 +146,7 @@ void dsda_RefreshPistolStart(void);
 void dsda_RefreshAlwaysPistolStart(void);
 void dsda_RefreshLimitRemoving(void);
 void S_ToggleRandomMusic(void);
+void P_UpdateTranMap(void);
 
 void dsda_TrackConfigFeatures(void) {
   if (!demorecording)
@@ -1690,6 +1691,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_gl_fade_mode] = {
     "gl_fade_mode", dsda_config_gl_fade_mode,
     dsda_config_int, 0, 1, { 0 }
+  },
+  [dsda_config_tran_filter_pct] = {
+    "tran_filter_pct", dsda_config_tran_filter_pct,
+    dsda_config_int, 0, 100, { 66 }, NULL, STRICT_INT(66), P_UpdateTranMap
   },
   [dsda_config_translucent_sprites] = {
     "boom_translucent_sprites", dsda_config_translucent_sprites,
