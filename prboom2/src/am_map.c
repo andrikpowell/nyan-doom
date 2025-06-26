@@ -151,7 +151,7 @@ static map_things_appearance_t map_things_appearance;
 #define CYMTOF_F(y)  ((float)f_y + (f_h - MTOF_F((y)-m_y)))
 
 #define R ((8*PLAYERRADIUS)/7)
-mline_t hexen_player_arrow[] = {
+mline_t raven_player_arrow[] = {
   { { -R+R/4, 0 }, { 0, 0} }, // center line.
   { { -R+R/4, R/8 }, { R, 0} }, // blade
   { { -R+R/4, -R/8 }, { R, 0 } },
@@ -164,7 +164,7 @@ mline_t hexen_player_arrow[] = {
   { { -R-R/4, -R/8}, { -R+R/8, -R/8 } }
 };
 #undef R
-#define HEXEN_NUMPLYRLINES (sizeof(hexen_player_arrow)/sizeof(mline_t))
+#define RAVEN_NUMPLYRLINES (sizeof(raven_player_arrow)/sizeof(mline_t))
 
 //
 // The vector graphics for the automap.
@@ -189,7 +189,29 @@ static int numplyrlines;
 static mline_t *player_arrow;
 
 #define R ((8*PLAYERRADIUS)/7)
-mline_t cheat_player_arrow[] =
+mline_t raven_cheat_player_arrow[] = {
+  { { -R+R/8, 0 }, { R, 0 } }, // -----
+  { { R, 0 }, { R-R/2, R/6 } },  // ----->
+  { { R, 0 }, { R-R/2, -R/6 } },
+  { { -R+R/8, 0 }, { -R-R/8, R/6 } }, // >----->
+  { { -R+R/8, 0 }, { -R-R/8, -R/6 } },
+  { { -R+3*R/8, 0 }, { -R+R/8, R/6 } }, // >>----->
+  { { -R+3*R/8, 0 }, { -R+R/8, -R/6 } },
+  { { -R/2, 0 }, { -R/2, -R/6 } }, // >>-d--->
+  { { -R/2, -R/6 }, { -R/2+R/6, -R/6 } },
+  { { -R/2+R/6, -R/6 }, { -R/2+R/6, R/4 } },
+  { { -R/6, 0 }, { -R/6, -R/6 } }, // >>-dd-->
+  { { -R/6, -R/6 }, { 0, -R/6 } },
+  { { 0, -R/6 }, { 0, R/4 } },
+  { { R/6, R/4 }, { R/6, -R/7 } }, // >>-ddt->
+  { { R/6, -R/7 }, { R/6+R/32, -R/7-R/32 } },
+  { { R/6+R/32, -R/7-R/32 }, { R/6+R/10, -R/7 } }
+  };
+#undef R
+#define RAVEN_NUMCHEATPLYRLINES (sizeof(raven_cheat_player_arrow)/sizeof(mline_t))
+
+#define R ((8*PLAYERRADIUS)/7)
+mline_t doom_cheat_player_arrow[] =
 { // killough 3/22/98: He's alive, Jim :)
   { { -R+R/8, 0 }, { R, 0 } }, // -----
   { { R, 0 }, { R-R/2, R/4 } },  // ----->
@@ -207,7 +229,10 @@ mline_t cheat_player_arrow[] =
   { { -R/10+R/4, R/4}, {-R/10+R/4+R/8, R/4}},
 };
 #undef R
-#define NUMCHEATPLYRLINES (sizeof(cheat_player_arrow)/sizeof(mline_t))
+#define NUMCHEATPLYRLINES (sizeof(doom_cheat_player_arrow)/sizeof(mline_t))
+
+static int numcheatplyrlines;
+static mline_t *cheat_player_arrow;
 
 //jff 1/5/98 new symbol for keys on automap
 #define R (FRACUNIT)
@@ -617,15 +642,19 @@ static void AM_initVariables(void)
 
   AM_initPlayerTrail();
 
-  if (hexen)
+  if (raven)
   {
-    numplyrlines = HEXEN_NUMPLYRLINES;
-    player_arrow = hexen_player_arrow;
+    numplyrlines = RAVEN_NUMPLYRLINES;
+    player_arrow = raven_player_arrow;
+    numcheatplyrlines = RAVEN_NUMCHEATPLYRLINES;
+    cheat_player_arrow = raven_cheat_player_arrow;
   }
   else
   {
     numplyrlines = NUMPLYRLINES;
     player_arrow = doom_player_arrow;
+    numcheatplyrlines = NUMCHEATPLYRLINES;
+    cheat_player_arrow = doom_cheat_player_arrow;
   }
 
   m_paninc.x = m_paninc.y = 0;
@@ -2004,7 +2033,7 @@ static void AM_drawPlayers(void)
       AM_SetMPointFloatValue(&pt);
 
     if (dsda_RevealAutomap())
-      AM_drawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
+      AM_drawLineCharacter(cheat_player_arrow, numcheatplyrlines, scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
     else
       AM_drawLineCharacter(player_arrow, numplyrlines, scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
     return;
