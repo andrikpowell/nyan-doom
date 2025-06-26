@@ -156,3 +156,4 @@ Defines a new skill level. The **ID** does not show up anywhere in-game. If two 
 | **DefaultSkill** | Defaults the selector to this skill when entering the skill select. |
 | **PlayerRespawn** | Allow the player to respawn without resetting the map in single-player. |
 | **EasyBossBrain** | Reduces the rate of boss brain spawns. |
+| **EasyKey** | This makes keys show up on the automap, even without cheats. Heretic's lowest difficulty setting uses this. |

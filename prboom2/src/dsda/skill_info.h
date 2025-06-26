@@ -31,6 +31,7 @@
 #define SI_EASY_BOSS_BRAIN  0x0100
 #define SI_MUST_CONFIRM     0x0200
 #define SI_AUTO_USE_HEALTH  0x0400
+#define SI_EASY_KEY         0x0800
 
 typedef uint16_t skill_info_flags_t;
 

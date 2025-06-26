@@ -655,6 +655,9 @@ static void dsda_ParseDoomMapInfoSkill(Scanner &scanner) {
     else if (scanner.StringMatch("EasyBossBrain")) {
       skill.flags |= DSI_EASY_BOSS_BRAIN;
     }
+    else if (scanner.StringMatch("EasyKey")) {
+      skill.flags |= DSI_EASY_KEY;
+    }
     else {
       dsda_SkipValue(scanner);
     }

@@ -64,6 +64,7 @@
 #include "dsda/map_format.h"
 #include "dsda/messenger.h"
 #include "dsda/settings.h"
+#include "dsda/skill_info.h"
 #include "dsda/stretch.h"
 #include "dsda/utility.h"
 
@@ -2343,6 +2344,137 @@ static void AM_DrawNiceThings(void)
 }
 
 //
+// AM_drawEasyKeys()
+//
+// Always draw the keys on the automap
+// Used for Heretic's easy skill.
+//
+// Also allowed when using the EasyKey flag
+//
+static void AM_drawEasyKeys(int nice_things)
+{
+  int   i;
+  mobj_t* t;
+
+  if (!(skill_info.flags & SI_EASY_KEY))
+    return;
+
+  if (dsda_RevealAutomap() == 2)
+    return;
+
+  // for all sectors
+  for (i=0;i<numsectors;i++)
+  {
+    if (!(players[displayplayer].cheats & CF_NOCLIP) &&
+      (sectors[i].bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
+      sectors[i].bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
+      sectors[i].bbox[BOXBOTTOM] > am_frame.bbox[BOXTOP] ||
+      sectors[i].bbox[BOXTOP] < am_frame.bbox[BOXBOTTOM]))
+    {
+      continue;
+    }
+
+    t = sectors[i].thinglist;
+    while (t) // for all things in that sector
+    {
+      mpoint_t p;
+      angle_t angle;
+      fixed_t scale;
+
+      if (t->info->flags & MF_SPECIAL)
+      {
+        if (map_things_appearance == map_things_appearance_scaled)
+          scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, t->radius)>>FRACTOMAPBITS);// * 16 / 20;
+        else
+          scale = 16<<MAPBITS;
+
+        AM_GetMobjPosition(t, &p, &angle);
+
+        if (automap_rotate)
+          AM_rotatePoint(&p);
+        else if (!nice_things)
+          AM_SetMPointFloatValue(&p);
+
+        //jff 1/5/98 case over doomednum of thing being drawn
+        if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
+        {
+          int color = -1;
+
+          if (heretic)
+          {
+            switch(t->info->doomednum)
+            {
+              case 73: // green key
+                color = mapcolor_p->rkey != -1? mapcolor_p->rkey : mapcolor_p->sprt; break;
+              case 80: // yellow key
+                color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
+              case 79: // blue key
+                color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
+            }
+            if (color != -1)
+            {
+              if (nice_things)
+                AM_ProcessNiceThing(t, angle, p.x, p.y);
+              else
+                AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES,
+                  scale, 0, color, p.x, p.y);
+              t = t->snext;
+              continue;
+            }
+          }
+          else if (hexen)
+          {
+            switch(t->info->doomednum)
+            {
+              // all hexen keys use same key color
+              case 8030: case 8031: case 8032: case 8033: case 8034: case 8035:
+              case 8036: case 8037: case 8038: case 8039: case 8200:
+                color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
+            }
+
+            if (color != -1)
+            {
+              if (nice_things)
+                AM_ProcessNiceThing(t, angle, p.x, p.y);
+              else
+                AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES,
+                  scale, 0, color, p.x, p.y);
+              t = t->snext;
+              continue;
+            }
+          }
+          else // Doom Keys
+          {
+            switch(t->info->doomednum)
+            {
+              //jff 1/5/98 treat keys special
+              case 38: case 13: //jff  red key
+                color = mapcolor_p->rkey != -1? mapcolor_p->rkey : mapcolor_p->sprt; break;
+              case 39: case 6: //jff yellow key
+                color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
+              case 40: case 5: //jff blue key
+                color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
+            }
+
+            if (color != -1)
+            {
+              if (nice_things)
+                AM_ProcessNiceThing(t, angle, p.x, p.y);
+              else
+                AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES,
+                  scale, t->angle, color, p.x, p.y);
+              t = t->snext;
+              continue;
+            }
+          }
+        }
+      }
+      t = t->snext;
+    }
+   }
+}
+
+//
 // AM_drawThings()
 //
 // Draws the things on the automap in double IDDT cheat mode
@@ -2361,10 +2493,13 @@ static void AM_drawThings(void)
     if (map_opengl_nice_things)
     {
       AM_DrawNiceThings();
+      AM_drawEasyKeys(true);
       return;
     }
   }
 #endif
+
+  AM_drawEasyKeys(false);
 
   if (dsda_RevealAutomap() != 2)
     return;

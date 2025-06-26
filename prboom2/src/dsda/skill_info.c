@@ -88,7 +88,7 @@ const skill_info_t heretic_skill_infos[5] = {
     .damage_factor = FRACUNIT / 2,
     .spawn_filter = 1,
     .name = "THOU NEEDETH A WET-NURSE",
-    .flags = SI_AUTO_USE_HEALTH
+    .flags = SI_AUTO_USE_HEALTH | SI_EASY_KEY
   },
   {
     .spawn_filter = 2,
@@ -297,6 +297,7 @@ void dsda_UpdateCustomSkill(int custom_skill_num) {
   int respawn_config            = dsda_IntConfig(dsda_config_skill_respawn_monsters);
   int respawn_time_config       = dsda_IntConfig(dsda_config_skill_respawn_time);
   int no_pain                   = dsda_IntConfig(dsda_config_skill_no_pain);
+  int easy_key                  = dsda_IntConfig(dsda_config_skill_easy_key);
 
   // Get spawn filter value
   skill_infos[custom_skill_num].spawn_filter = dsda_GetCustomSpawnFilter(spawn_config);;
@@ -319,6 +320,7 @@ void dsda_UpdateCustomSkill(int custom_skill_num) {
   if (aggressive_monsters) skill_infos[custom_skill_num].flags |= SI_INSTANT_REACTION;
   if (fast_monster_config) skill_infos[custom_skill_num].flags |= SI_FAST_MONSTERS;
   if (no_pain)             skill_infos[custom_skill_num].flags |= SI_NO_PAIN;
+  if (easy_key)            skill_infos[custom_skill_num].flags |= SI_EASY_KEY;
 }
 
 void dsda_RefreshLimitRemoving(void)

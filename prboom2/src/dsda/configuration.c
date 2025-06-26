@@ -1408,6 +1408,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_skill_no_pain", dsda_config_skill_no_pain,
     CONF_BOOL(0), NULL, NOT_STRICT
   },
+  [dsda_config_skill_easy_key] = {
+    "dsda_skill_easy_key", dsda_config_skill_easy_key,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
   [dsda_config_parallel_sfx_active] = {
     "dsda_parallel_sfx_active", dsda_config_parallel_sfx_active,
     CONF_BOOL(0), NULL, NOT_STRICT, dsda_InitParallelSFXFilter

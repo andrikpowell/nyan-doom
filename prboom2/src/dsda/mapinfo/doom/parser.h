@@ -105,6 +105,7 @@ typedef struct {
 #define DSI_EASY_BOSS_BRAIN  0x0100
 #define DSI_MUST_CONFIRM     0x0200
 #define DSI_AUTO_USE_HEALTH  0x0400 // not applicable to doom
+#define DSI_EASY_KEY         0x0800
 
 typedef uint16_t doom_mapinfo_skill_flags_t;
 

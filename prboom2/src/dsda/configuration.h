@@ -319,6 +319,7 @@ typedef enum {
   dsda_config_skill_easy_brain,
   dsda_config_skill_auto_use_health,
   dsda_config_skill_no_pain,
+  dsda_config_skill_easy_key,
   dsda_config_parallel_sfx_active,
   dsda_config_parallel_sfx_limit,
   dsda_config_parallel_sfx_window,
