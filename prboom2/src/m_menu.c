@@ -2350,7 +2350,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
   }
 
   if (flags & S_THERMO) {
-    M_DrawThermo(x, y, 8, 16, dsda_IntConfig(s->config_id));
+    M_DrawThermo(x, y, 8, dsda_UpperLimitConfig(s->config_id) + 1, dsda_IntConfig(s->config_id));
 
     sprintf(menu_buffer, "%d", dsda_IntConfig(s->config_id));
 
@@ -5616,13 +5616,13 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
     if (ptr1->m_flags & S_THERMO)
     {
       if (action == MENU_LEFT) {
-        if (dsda_IntConfig(ptr1->config_id) > 0) {
+        if (dsda_IntConfig(ptr1->config_id) > dsda_LowerLimitConfig(ptr1->config_id)) {
           dsda_DecrementIntConfig(ptr1->config_id, true);
           S_StartVoidSound(g_sfx_menu);
         }
       }
       else if (action == MENU_RIGHT) {
-        if (dsda_IntConfig(ptr1->config_id) < 15) {
+        if (dsda_IntConfig(ptr1->config_id) < dsda_UpperLimitConfig(ptr1->config_id)) {
           dsda_IncrementIntConfig(ptr1->config_id, true);
           S_StartVoidSound(g_sfx_menu);
         }
