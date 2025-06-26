@@ -2072,8 +2072,8 @@ static int GetOptionColor(int flags)
 static void M_DrawItem(const setup_menu_t* s, int y)
 {
   int x = s->m_x;
-  const char text[66];
   int flags = s->m_flags;
+  char text[66];
   char *p, *t;
   int w = 0;
   int color;
