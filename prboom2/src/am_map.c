@@ -2413,21 +2413,9 @@ static void AM_drawThings(void)
 
         switch(t->info->doomednum)
         {
-          case 30:
-          case 32:
-          case 33:
-          case 36:
-          case 82:
-          case 83:
-          case 84:
-          case 86:
-          case 8000:
-          case 8002:
-          case 8003:
-          case 8041:
-          case 10040:
-          case 10110:
-          case 10120:
+          case 30: case 32: case 33: case 36: case 82:
+          case 83: case 84: case 86: case 8000: case 8002:
+          case 8003: case 8041: case 10040: case 10110: case 10120:
             color = mapcolor_p->item != -1? mapcolor_p->item : mapcolor_p->sprt; break;
         }
 
@@ -2445,60 +2433,50 @@ static void AM_drawThings(void)
       {
         int color = -1;
 
-        if (hexen)
+        if (heretic)
+        {
+          switch(t->info->doomednum)
+          {
+            case 73: // green key
+              color = mapcolor_p->rkey != -1? mapcolor_p->rkey : mapcolor_p->sprt; break;
+            case 80: // yellow key
+              color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
+            case 79: // blue key
+              color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
+          }
+
+          if (color != -1)
+          {
+            AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES,
+              scale, t->angle, color, p.x, p.y);
+            t = t->snext;
+            continue;
+          }
+        }
+        else if (hexen)
         {
           switch(t->info->doomednum)
           {
             // all hexen keys use same key color
-            case 8030:
-            case 8031:
-            case 8032:
-            case 8033:
-            case 8034:
-            case 8035:
-            case 8036:
-            case 8037:
-            case 8038:
-            case 8039:
-            case 8200:
+            case 8030: case 8031: case 8032: case 8033: case 8034: case 8035:
+            case 8036: case 8037: case 8038: case 8039: case 8200:
               color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
             // hexen puzzle parts use key color
-            case 9002:
-            case 9003:
-            case 9004:
-            case 9005:
-            case 9006:
-            case 9007:
-            case 9008:
-            case 9009:
-            case 9010:
-            case 9011:
-            case 9012:
-            case 9014:
-            case 9015:
-            case 9016:
-            case 9017:
-            case 9018:
-            case 9019:
-            case 9020:
-            case 9021:
+            case 9002: case 9003: case 9004: case 9005: case 9006: case 9007: case 9008:
+            case 9009: case 9010: case 9011: case 9012: case 9014: case 9015: case 9016:
+            case 9017: case 9018: case 9019: case 9020: case 9021:
               color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
           }
-        }
-        else if (heretic)
-        {
-          switch(t->info->doomednum)
+
+          if (color != -1)
           {
-            //jff 1/5/98 treat keys special
-            case 73: //jff  red key
-              color = mapcolor_p->rkey != -1? mapcolor_p->rkey : mapcolor_p->sprt; break;
-            case 80: //jff yellow key
-              color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
-            case 79: //jff blue key
-              color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
+            AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES,
+              scale, t->angle, color, p.x, p.y);
+            t = t->snext;
+            continue;
           }
         }
-        else
+        else // Doom Keys
         {
           switch(t->info->doomednum)
           {
@@ -2510,14 +2488,14 @@ static void AM_drawThings(void)
             case 40: case 5: //jff blue key
               color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
           }
-        }
 
-        if (color != -1)
-        {
-          AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES,
-            scale, t->angle, color, p.x, p.y);
-          t = t->snext;
-          continue;
+          if (color != -1)
+          {
+            AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES,
+              scale, t->angle, color, p.x, p.y);
+            t = t->snext;
+            continue;
+          }
         }
       }
       //jff 1/5/98 end added code for keys
