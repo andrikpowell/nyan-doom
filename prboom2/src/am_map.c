@@ -2077,6 +2077,265 @@ static void AM_drawPlayers(void)
   }
 }
 
+typedef struct map_nice_icon_param_s
+{
+  spritenum_t sprite;
+  int icon;
+  int radius;
+  int rotate;
+  unsigned char r, g, b;
+} map_nice_icon_param_t;
+
+static map_nice_icon_param_t *nice_icons;
+static int nice_sprites_max;
+
+static const map_nice_icon_param_t doom_icons[] =
+{
+  {SPR_STIM, am_icon_health, 12, 0, 100, 100, 200},
+  {SPR_MEDI, am_icon_health, 16, 0, 100, 100, 200},
+  {SPR_BON1, am_icon_health, 10, 0,   0,   0, 200},
+
+  {SPR_BON2, am_icon_armor,  10, 0,   0, 200,   0},
+  {SPR_ARM1, am_icon_armor,  16, 0, 100, 200, 100},
+  {SPR_ARM2, am_icon_armor,  16, 0, 100, 100, 200},
+
+  {SPR_CLIP, am_icon_ammo,   10, 0, 180, 150,  50},
+  {SPR_AMMO, am_icon_ammo,   16, 0, 180, 150,  50},
+  {SPR_ROCK, am_icon_ammo,   10, 0, 180, 150,  50},
+  {SPR_BROK, am_icon_ammo,   16, 0, 180, 150,  50},
+
+  {SPR_CELL, am_icon_ammo,   10, 0, 180, 150,  50},
+  {SPR_CELP, am_icon_ammo,   16, 0, 180, 150,  50},
+  {SPR_SHEL, am_icon_ammo,   10, 0, 180, 150,  50},
+  {SPR_SBOX, am_icon_ammo,   16, 0, 180, 150,  50},
+  {SPR_BPAK, am_icon_ammo,   16, 0, 180, 150,  50},
+
+  {SPR_BKEY, am_icon_key,    10, 0,   0,   0, 255},
+  {SPR_BSKU, am_icon_key,    10, 0,   0,   0, 255},
+  {SPR_YKEY, am_icon_key,    10, 0, 255, 255,   0},
+  {SPR_YSKU, am_icon_key,    10, 0, 255, 255,   0},
+  {SPR_RKEY, am_icon_key,    10, 0, 255,   0,   0},
+  {SPR_RSKU, am_icon_key,    10, 0, 255,   0,   0},
+
+  {SPR_PINV, am_icon_power,  16, 0, 220, 100, 220},
+  {SPR_PSTR, am_icon_power,  16, 0, 220, 100, 220},
+  {SPR_PINS, am_icon_power,  16, 0, 220, 100, 220},
+  {SPR_SUIT, am_icon_power,  16, 0, 220, 100, 220},
+  {SPR_PMAP, am_icon_power,  16, 0, 220, 100, 220},
+  {SPR_PVIS, am_icon_power,  16, 0, 220, 100, 220},
+  {SPR_SOUL, am_icon_power,  16, 0, 220, 100, 220},
+  {SPR_MEGA, am_icon_power,  16, 0, 220, 100, 220},
+
+  {SPR_BFUG, am_icon_weap,   20, 0, 220, 180, 100},
+  {SPR_MGUN, am_icon_weap,   20, 0, 220, 180, 100},
+  {SPR_CSAW, am_icon_weap,   20, 0, 220, 180, 100},
+  {SPR_LAUN, am_icon_weap,   20, 0, 220, 180, 100},
+  {SPR_PLAS, am_icon_weap,   20, 0, 220, 180, 100},
+  {SPR_SHOT, am_icon_weap,   20, 0, 220, 180, 100},
+  {SPR_SGN2, am_icon_weap,   20, 0, 220, 180, 100},
+
+  {SPR_BLUD, am_icon_bullet,  8, 0, 255,   0,   0},
+  {SPR_PUFF, am_icon_bullet,  8, 0, 255, 255, 115},
+  {SPR_MISL, am_icon_bullet,  8, 0,  91,  71,  43},
+  {SPR_PLSS, am_icon_bullet,  8, 0, 115, 115, 255},
+  {SPR_PLSE, am_icon_bullet,  8, 0, 115, 115, 255},
+  {SPR_BFS1, am_icon_bullet, 12, 0, 119, 255, 111},
+  {SPR_BFE1, am_icon_bullet, 12, 0, 119, 255, 111},
+
+  {DOOM_NUMSPRITES}
+};
+
+static const map_nice_icon_param_t heretic_icons[] =
+{
+  {HERETIC_SPR_PTN1, am_icon_health, 10, 0,   0, 255, 255},
+  {HERETIC_SPR_PTN2, am_icon_health, 16, 0,   0, 255, 255},
+
+  {HERETIC_SPR_SHLD, am_icon_armor,  10, 0, 180, 180, 180},
+  {HERETIC_SPR_SHD2, am_icon_armor,  16, 0, 255, 255,   0},
+
+  {HERETIC_SPR_AMG1, am_icon_heretic_ammo,   10, 0, 180, 150,  50},
+  {HERETIC_SPR_AMG2, am_icon_heretic_ammo,   16, 0, 180, 150,  50},
+  {HERETIC_SPR_AMC1, am_icon_heretic_ammo,   10, 0, 180, 150,  50},
+  {HERETIC_SPR_AMC2, am_icon_heretic_ammo,   16, 0, 180, 150,  50},
+  {HERETIC_SPR_AMB1, am_icon_heretic_ammo,   10, 0, 180, 150,  50},
+  {HERETIC_SPR_AMB2, am_icon_heretic_ammo,   16, 0, 180, 150,  50},
+  {HERETIC_SPR_AMP1, am_icon_heretic_ammo,   10, 0, 180, 150,  50},
+  {HERETIC_SPR_AMP2, am_icon_heretic_ammo,   16, 0, 180, 150,  50},
+  {HERETIC_SPR_AMS1, am_icon_heretic_ammo,   10, 0, 180, 150,  50},
+  {HERETIC_SPR_AMS2, am_icon_heretic_ammo,   16, 0, 180, 150,  50},
+  {HERETIC_SPR_AMM1, am_icon_heretic_ammo,   10, 0, 180, 150,  50},
+  {HERETIC_SPR_AMM2, am_icon_heretic_ammo,   16, 0, 180, 150,  50},
+  {HERETIC_SPR_BAGH, am_icon_heretic_ammo,   16, 0, 180, 150,  50}, // bag of holding
+
+  {HERETIC_SPR_BKYY, am_icon_key,    16, 0,   0,   0, 255}, // blue key
+  {HERETIC_SPR_CKYY, am_icon_key,    16, 0, 255, 255,   0}, // yellow key
+  {HERETIC_SPR_AKYY, am_icon_key,    16, 0,   0, 255,   0}, // green key
+
+  {HERETIC_SPR_SPHL, am_icon_power,  16, 0, 220, 100, 220}, // mystic urn
+  {HERETIC_SPR_FBMB, am_icon_power,  16, 0, 220, 100, 220}, // time bomb
+  {HERETIC_SPR_EGGC, am_icon_power,  16, 0, 220, 100, 220}, // egg
+  {HERETIC_SPR_SPMP, am_icon_power,  16, 0, 220, 100, 220}, // map scroll
+  {HERETIC_SPR_TRCH, am_icon_power,  16, 0, 220, 100, 220}, // torch
+  {HERETIC_SPR_ATLP, am_icon_power,  16, 0, 220, 100, 220}, // chaos device
+  {HERETIC_SPR_INVS, am_icon_power,  16, 0, 220, 100, 220}, // shadowsphere
+  {HERETIC_SPR_INVU, am_icon_power,  16, 0, 220, 100, 220}, // invuln
+  {HERETIC_SPR_SOAR, am_icon_power,  16, 0, 220, 100, 220}, // wings
+  {HERETIC_SPR_PWBK, am_icon_power,  16, 0, 220, 100, 220}, // tome of power
+
+  {HERETIC_SPR_WBOW, am_icon_heretic_weap,   20, 0, 220, 180, 100}, // crossbow
+  {HERETIC_SPR_WBLS, am_icon_heretic_weap,   20, 0, 220, 180, 100}, // dragon claw
+  {HERETIC_SPR_WSKL, am_icon_heretic_weap,   20, 0, 220, 180, 100}, // hellstaff
+  {HERETIC_SPR_WPHX, am_icon_heretic_weap,   20, 0, 220, 180, 100}, // phoenix rod
+  {HERETIC_SPR_WMCE, am_icon_heretic_weap,   20, 0, 220, 180, 100}, // mace
+  {HERETIC_SPR_WGNT, am_icon_heretic_weap,   20, 0, 220, 180, 100}, // gauntlets
+
+  {HERETIC_SPR_PPOD, am_icon_bullet, 10, 0, 0,   255,   0}, // pod
+  {HERETIC_SPR_TGLT, am_icon_bullet,  4, 0, 255,   0,   0}, // teleport particles
+  {HERETIC_SPR_BLOD, am_icon_bullet,  8, 0, 255,   0,   0}, // blood
+
+  {HERETIC_SPR_PUF1, am_icon_bullet,  4, 0, 255, 255, 115}, // gaunlet puff
+  {HERETIC_SPR_PUF3, am_icon_bullet,  8, 0, 255, 255, 115}, // staff puff
+  {HERETIC_SPR_PUF4, am_icon_bullet,  8, 0,   0,   0, 255}, // staff puff [tome]
+  {HERETIC_SPR_FX01, am_icon_bullet,  8, 0, 255, 255,   0}, // wand puff
+  {HERETIC_SPR_PUF2, am_icon_bullet,  8, 0, 255, 255,   0}, // wand puff [tome]
+  {HERETIC_SPR_FX03, am_icon_bullet,  8, 0,   0, 255,   0}, // crossbow bolt
+  {HERETIC_SPR_FX17, am_icon_bullet,  8, 0,   0,   0, 255}, // dragon claw bolt
+  {HERETIC_SPR_FX18, am_icon_bullet,  8, 0,   0,   0, 255}, // dragon claw bolt [tome]
+  {HERETIC_SPR_FX02, am_icon_bullet,  8, 0, 175, 175, 175}, // mace balls
+  {HERETIC_SPR_FX00, am_icon_bullet,  8, 0, 255,   0,   0}, // hellstaff fireball
+  {HERETIC_SPR_FX20, am_icon_bullet,  4, 0,   0, 255,   0}, // hellstaff rain [green]
+  {HERETIC_SPR_FX21, am_icon_bullet,  4, 0, 255, 255,   0}, // hellstaff rain [yellow]
+  {HERETIC_SPR_FX22, am_icon_bullet,  4, 0, 255,   0,   0}, // hellstaff rain [red]
+  {HERETIC_SPR_FX23, am_icon_bullet,  4, 0,   0,   0, 255}, // hellstaff rain [blue]
+  {HERETIC_SPR_FX04, am_icon_bullet,  8, 0, 255, 255,   0}, // phoenix rod fireball
+  {HERETIC_SPR_FX08, am_icon_bullet, 12, 0, 255, 255,   0}, // phoenix rod hit
+  {HERETIC_SPR_FX09, am_icon_bullet,  4, 0, 255, 255,   0}, // phoneix rod [idk]
+
+  {HERETIC_NUMSPRITES}
+};
+
+static const map_nice_icon_param_t hexen_icons[] =
+{
+  // Health
+  {HEXEN_SPR_PTN1, am_icon_health, 10, 0,   0, 255, 255},
+  {HEXEN_SPR_PTN2, am_icon_health, 16, 0,   0, 255, 255},
+
+  // Mana
+  {HEXEN_SPR_MAN1, am_icon_hexen_mana,  10, 0, 100, 100, 200},
+  {HEXEN_SPR_MAN2, am_icon_hexen_mana,  10, 0, 100, 200, 100},
+  {HEXEN_SPR_MAN3, am_icon_hexen_mana,  16, 0, 200, 100, 100},
+
+  // Armor
+  {HEXEN_SPR_ARM1, am_icon_armor,  10, 0, 180, 180, 180},
+  {HEXEN_SPR_ARM2, am_icon_armor,  10, 0, 180, 180, 180},
+  {HEXEN_SPR_ARM3, am_icon_armor,  10, 0, 180, 180, 180},
+  {HEXEN_SPR_ARM4, am_icon_armor,  10, 0, 180, 180, 180},
+
+  // Keys
+  {HEXEN_SPR_KEY1, am_icon_key,    16, 0,   0, 255,   0},
+  {HEXEN_SPR_KEY2, am_icon_key,    16, 0,   0, 255,   0},
+  {HEXEN_SPR_KEY3, am_icon_key,    16, 0,   0, 255,   0},
+  {HEXEN_SPR_KEY4, am_icon_key,    16, 0,   0, 255,   0},
+  {HEXEN_SPR_KEY5, am_icon_key,    16, 0,   0, 255,   0},
+  {HEXEN_SPR_KEY6, am_icon_key,    16, 0,   0, 255,   0},
+  {HEXEN_SPR_KEY7, am_icon_key,    16, 0,   0, 255,   0},
+  {HEXEN_SPR_KEY8, am_icon_key,    16, 0,   0, 255,   0},
+  {HEXEN_SPR_KEY9, am_icon_key,    16, 0,   0, 255,   0},
+  {HEXEN_SPR_KEYA, am_icon_key,    16, 0,   0, 255,   0},
+  {HEXEN_SPR_KEYB, am_icon_key,    16, 0,   0, 255,   0},
+
+  // Puzzle Items
+  {HEXEN_SPR_ASKU, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_ABGM, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_AGMR, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_AGMG, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_AGG2, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_AGMB, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_AGB2, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_ABK1, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_ABK2, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_ASK2, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_AFWP, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_ACWP, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_AMWP, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_AGER, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_AGR2, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_AGR3, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+  {HEXEN_SPR_AGR4, am_icon_hexen_puzzle,    16, 0, 255, 255,   0},
+
+  // Artifacts
+  {HEXEN_SPR_SPHL, am_icon_power,  16, 0, 220, 100, 220}, // mystic urn
+  {HEXEN_SPR_SUMN, am_icon_power,  16, 0, 220, 100, 220}, // dark servant
+  {HEXEN_SPR_PSBG, am_icon_power,  16, 0, 220, 100, 220}, // flechette
+  {HEXEN_SPR_TRCH, am_icon_power,  16, 0, 220, 100, 220}, // torch
+  {HEXEN_SPR_ATLP, am_icon_power,  16, 0, 220, 100, 220}, // chaos device
+  {HEXEN_SPR_SPED, am_icon_power,  16, 0, 220, 100, 220}, // boots of speed
+  {HEXEN_SPR_INVU, am_icon_power,  16, 0, 220, 100, 220}, // invuln
+  {HEXEN_SPR_SOAR, am_icon_power,  16, 0, 220, 100, 220}, // wings
+  {HEXEN_SPR_PORK, am_icon_power,  16, 0, 220, 100, 220}, // pork / egg
+  {HEXEN_SPR_BMAN, am_icon_power,  16, 0, 100, 100, 100}, // krater of might
+  {HEXEN_SPR_BMAN, am_icon_power,  16, 0, 100, 100, 100}, // krater of might
+  {HEXEN_SPR_BLST, am_icon_power,  16, 0, 100, 100, 100}, // disc of repulsion
+  {HEXEN_SPR_TELO, am_icon_power,  16, 0, 100, 100, 100}, // banishment device
+  {HEXEN_SPR_BRAC, am_icon_power,  16, 0, 100, 100, 100}, // dragonskin bracers
+  {HEXEN_SPR_HRAD, am_icon_power,  16, 0, 100, 100, 100}, // mystic ambit incant
+
+  // Weapons
+  {HEXEN_SPR_WFAX, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Fighter Axe
+  {HEXEN_SPR_WFHM, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Fighter Hammer
+  {HEXEN_SPR_WFR1, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Fighter Sword Piece 1
+  {HEXEN_SPR_WFR2, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Fighter Sword Piece 2
+  {HEXEN_SPR_WFR3, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Fighter Sword Piece 3
+  {HEXEN_SPR_WCSS, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Cleric Serpent Staff
+  {HEXEN_SPR_WCFM, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Cleric Firestorm
+  {HEXEN_SPR_WCH1, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Cleric Holy Piece 1
+  {HEXEN_SPR_WCH2, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Cleric Holy Piece 2
+  {HEXEN_SPR_WCH3, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Cleric Holy Piece 3
+  {HEXEN_SPR_WMCS, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Mage Ice Shards
+  {HEXEN_SPR_WMLG, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Mage Lightning
+  {HEXEN_SPR_WMS1, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Mage Bloodscourge Piece 1
+  {HEXEN_SPR_WMS2, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Mage Bloodscourge Piece 2
+  {HEXEN_SPR_WMS3, am_icon_hexen_weap,   20, 0, 220, 180, 100}, // Mage Bloodscourge Piece 3
+
+  // Misc Effects
+  {HEXEN_SPR_TSMK, am_icon_bullet, 10, 0, 255,   0,   0}, // red teleport cloud
+  {HEXEN_SPR_TLGL, am_icon_bullet,  4, 0,   0,   0, 255}, // blue teleport particles
+  {HEXEN_SPR_BLOD, am_icon_bullet,  8, 0, 255,   0,   0}, // blood splat
+
+  // Player weapon projectiles / puffs
+  {HEXEN_SPR_FHFX, am_icon_bullet,  4, 0, 255, 255, 115}, // Fighter punch puff
+  {HEXEN_SPR_FAXE, am_icon_bullet,  4, 0,   0,   0, 255}, // Fighter Axe hit
+  {HEXEN_SPR_FHFX, am_icon_bullet,  8, 0, 255,   0,   0}, // Fighter Hammer missile
+  {HEXEN_SPR_FSFX, am_icon_bullet,  8, 0,   0, 255,   0}, // Fighter sword projectiles
+  {HEXEN_SPR_CSSF, am_icon_bullet,  8, 0,   0, 255,   0}, // Cleric Serpent staff missile
+  {HEXEN_SPR_FHFX, am_icon_bullet,  4, 0,   0, 255,   0}, // Cleric Serpent staff puff
+  {HEXEN_SPR_CFCF, am_icon_bullet,  4, 0, 255, 255,   0}, // Cleric flame
+  {HEXEN_SPR_CFFX, am_icon_bullet,  8, 0, 255, 255,   0}, // Cleric flame missile
+  {HEXEN_SPR_SPIR, am_icon_bullet, 10, 0, 235, 235, 235}, // Cleric holy spirit missile
+  {HEXEN_SPR_MWND, am_icon_bullet,  8, 0,   0, 235, 255}, // Mage Wand puff / missile
+  {HEXEN_SPR_SHRD, am_icon_bullet,  8, 0,   0, 235, 255}, // Mage ice shards
+  {HEXEN_SPR_MLFX, am_icon_bullet,  8, 0,   0, 235, 255}, // Mage Lightning 1
+  {HEXEN_SPR_MLF2, am_icon_bullet,  8, 0,   0, 235, 255}, // Mage Lightning 2
+  {HEXEN_SPR_MSP1, am_icon_bullet, 10, 0, 255,   0,   0}, // Mage Bloodscourge missile 1
+  {HEXEN_SPR_MSP2, am_icon_bullet, 10, 0, 255,   0,   0}, // Mage Bloodscourge missile 1
+
+  {HEXEN_NUMSPRITES}
+};
+
+static void AM_InitNiceThings(void)
+{
+  int i;
+  const map_nice_icon_param_t* og_icons;
+
+  nice_sprites_max = raven ? heretic ? HERETIC_NUMSPRITES : HEXEN_NUMSPRITES : DOOM_NUMSPRITES;
+  og_icons         = raven ? heretic ? heretic_icons      : hexen_icons      : doom_icons;
+
+  nice_icons = Z_Calloc(nice_sprites_max, sizeof(*nice_icons));
+
+  for (i = 0; i < nice_sprites_max; ++i)
+    nice_icons[i] = og_icons[i];
+}
+
 static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t y)
 {
   const float shadow_scale_factor = 1.3f;
@@ -2085,70 +2344,8 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
   float fx, fy, fradius, rot, shadow_radius;
   unsigned char r, g, b, a;
 
-  typedef struct map_nice_icon_param_s
-  {
-    spritenum_t sprite;
-    int icon;
-    int radius;
-    int rotate;
-    unsigned char r, g, b;
-  } map_nice_icon_param_t;
-
-  static const map_nice_icon_param_t icons[] =
-  {
-    {SPR_STIM, am_icon_health, 12, 0, 100, 100, 200},
-    {SPR_MEDI, am_icon_health, 16, 0, 100, 100, 200},
-    {SPR_BON1, am_icon_health, 10, 0,   0,   0, 200},
-
-    {SPR_BON2, am_icon_armor,  10, 0,   0, 200,   0},
-    {SPR_ARM1, am_icon_armor,  16, 0, 100, 200, 100},
-    {SPR_ARM2, am_icon_armor,  16, 0, 100, 100, 200},
-
-    {SPR_CLIP, am_icon_ammo,   10, 0, 180, 150,  50},
-    {SPR_AMMO, am_icon_ammo,   16, 0, 180, 150,  50},
-    {SPR_ROCK, am_icon_ammo,   10, 0, 180, 150,  50},
-    {SPR_BROK, am_icon_ammo,   16, 0, 180, 150,  50},
-
-    {SPR_CELL, am_icon_ammo,   10, 0, 180, 150,  50},
-    {SPR_CELP, am_icon_ammo,   16, 0, 180, 150,  50},
-    {SPR_SHEL, am_icon_ammo,   10, 0, 180, 150,  50},
-    {SPR_SBOX, am_icon_ammo,   16, 0, 180, 150,  50},
-    {SPR_BPAK, am_icon_ammo,   16, 0, 180, 150,  50},
-
-    {SPR_BKEY, am_icon_key,    10, 0,   0,   0, 255},
-    {SPR_BSKU, am_icon_key,    10, 0,   0,   0, 255},
-    {SPR_YKEY, am_icon_key,    10, 0, 255, 255,   0},
-    {SPR_YSKU, am_icon_key,    10, 0, 255, 255,   0},
-    {SPR_RKEY, am_icon_key,    10, 0, 255,   0,   0},
-    {SPR_RSKU, am_icon_key,    10, 0, 255,   0,   0},
-
-    {SPR_PINV, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_PSTR, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_PINS, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_SUIT, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_PMAP, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_PVIS, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_SOUL, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_MEGA, am_icon_power,  16, 0, 220, 100, 220},
-
-    {SPR_BFUG, am_icon_weap,   20, 0, 220, 180, 100},
-    {SPR_MGUN, am_icon_weap,   20, 0, 220, 180, 100},
-    {SPR_CSAW, am_icon_weap,   20, 0, 220, 180, 100},
-    {SPR_LAUN, am_icon_weap,   20, 0, 220, 180, 100},
-    {SPR_PLAS, am_icon_weap,   20, 0, 220, 180, 100},
-    {SPR_SHOT, am_icon_weap,   20, 0, 220, 180, 100},
-    {SPR_SGN2, am_icon_weap,   20, 0, 220, 180, 100},
-
-    {SPR_BLUD, am_icon_bullet,  8, 0, 255,   0,   0},
-    {SPR_PUFF, am_icon_bullet,  8, 0, 255, 255, 115},
-    {SPR_MISL, am_icon_bullet,  8, 0,  91,  71,  43},
-    {SPR_PLSS, am_icon_bullet,  8, 0, 115, 115, 255},
-    {SPR_PLSE, am_icon_bullet,  8, 0, 115, 115, 255},
-    {SPR_BFS1, am_icon_bullet, 12, 0, 119, 255, 111},
-    {SPR_BFE1, am_icon_bullet, 12, 0, 119, 255, 111},
-
-    {DOOM_NUMSPRITES}
-  };
+  if (!nice_sprites_max)
+    AM_InitNiceThings();
 
   need_shadow = true;
 
@@ -2201,16 +2398,16 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
   else
   {
     i = 0;
-    while (icons[i].sprite < DOOM_NUMSPRITES)
+    while (nice_icons[i].sprite < nice_sprites_max)
     {
-      if (mobj->sprite == icons[i].sprite)
+      if (mobj->sprite == nice_icons[i].sprite)
       {
-        type = icons[i].icon;
-        r = icons[i].r;
-        g = icons[i].g;
-        b = icons[i].b;
-        radius = icons[i].radius << 16;
-        rotate = icons[i].rotate;
+        type = nice_icons[i].icon;
+        r = nice_icons[i].r;
+        g = nice_icons[i].g;
+        b = nice_icons[i].b;
+        radius = nice_icons[i].radius << 16;
+        rotate = nice_icons[i].rotate;
 
         break;
       }

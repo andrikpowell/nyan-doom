@@ -65,6 +65,12 @@ am_icon_t am_icons[am_icon_count + 1] =
   {-1, "M_MARK"},
   {-1, "M_NORMAL"},
 
+  {-1, "H_AMMO"},
+  {-1, "H_WEAP"},
+  {-1, "H_WEAP2"},
+  {-1, "H_MANA"},
+  {-1, "H_PUZZLE"},
+
   {-1, NULL},
 };
 

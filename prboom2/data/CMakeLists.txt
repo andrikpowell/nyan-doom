@@ -63,6 +63,11 @@ set(TABLES
     lumps/m_power.lmp
     lumps/m_weap.lmp
     lumps/m_mark.lmp
+    lumps/h_ammo.lmp
+    lumps/h_weap.lmp
+    lumps/h_weap2.lmp
+    lumps/h_mana.lmp
+    lumps/h_puzzle.lmp
 )
 
 set(SOUNDS

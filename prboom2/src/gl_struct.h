@@ -168,6 +168,12 @@ enum
   am_icon_mark,
   am_icon_bullet,
 
+  am_icon_heretic_ammo,
+  am_icon_heretic_weap,
+  am_icon_hexen_weap,
+  am_icon_hexen_mana,
+  am_icon_hexen_puzzle,
+
   am_icon_count
 };
 

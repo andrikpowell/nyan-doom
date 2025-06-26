@@ -203,6 +203,11 @@ prboom2/data/lumps/m_normal.lmp -text
 prboom2/data/lumps/m_power.lmp -text
 prboom2/data/lumps/m_shadow.lmp -text
 prboom2/data/lumps/m_weap.lmp -text
+prboom2/data/lumps/h_ammo.lmp -text
+prboom2/data/lumps/h_weap.lmp -text
+prboom2/data/lumps/h_weap2.lmp -text
+prboom2/data/lumps/h_mana.lmp -text
+prboom2/data/lumps/h_puzzle.lmp -text
 prboom2/data/lumps/nervebex.lmp -text
 prboom2/data/lumps/sinetabl.lmp -text
 prboom2/data/lumps/sndcurve.lmp -text
