@@ -591,182 +591,179 @@ static void ST_updateFaceWidget(void)
 
   painoffset = ST_calcPainOffset();
 
-  if (priority < 10)
+  // Avoids angry face at level start
+  if (leveltime > 1)
+  {
+    if (priority < 10)
     {
       // dead
       if (!plyr->health)
-        {
-          priority = 9;
-          painoffset = 0;
-          faceindex = ST_DEADFACE;
-          st_facecount = 1;
-        }
+      {
+        priority = 9;
+        painoffset = 0;
+        faceindex = ST_DEADFACE;
+        st_facecount = 1;
+      }
     }
 
-  if (priority < 9)
+    if (priority < 9)
     {
       if (plyr->bonuscount)
+      {
+        // picking up bonus
+        doevilgrin = false;
+
+        for (i=0;i<NUMWEAPONS;i++)
         {
-          // picking up bonus
-          doevilgrin = false;
-
-          for (i=0;i<NUMWEAPONS;i++)
-            {
-              if (oldweaponsowned[i] != plyr->weaponowned[i])
-                {
-                  doevilgrin = true;
-                  oldweaponsowned[i] = plyr->weaponowned[i];
-                }
-            }
-          if (doevilgrin)
-            {
-              // evil grin if just picked up weapon
-              priority = 8;
-              st_facecount = ST_EVILGRINCOUNT;
-              faceindex = ST_EVILGRINOFFSET;
-            }
+          if (oldweaponsowned[i] != plyr->weaponowned[i])
+          {
+            doevilgrin = true;
+            oldweaponsowned[i] = plyr->weaponowned[i];
+          }
         }
-
+        if (doevilgrin)
+        {
+          // evil grin if just picked up weapon
+          priority = 8;
+          st_facecount = ST_EVILGRINCOUNT;
+          faceindex = ST_EVILGRINOFFSET;
+        }
+      }
     }
 
-  if (priority < 8)
+    if (priority < 8)
     {
       if (plyr->damagecount && plyr->attacker && plyr->attacker != plyr->mo)
+      {
+        // being attacked
+        priority = 7;
+
+        // haleyjd 10/12/03: classic DOOM problem of missing OUCH face
+        // was due to inversion of this test:
+        // if(plyr->health - st_oldhealth > ST_MUCHPAIN)
+        // e6y: compatibility optioned
+        if((comp[comp_ouchface]?
+           (plyr->health - st_oldhealth):
+           (st_oldhealth - plyr->health)) > ST_MUCHPAIN)
         {
-          // being attacked
-          priority = 7;
+          // e6y
+          // There are TWO bugs in the ouch face code.
+          // Not only was the condition reversed, but the priority system is
+          // broken in a way that makes the face not work with monster damage.
+          if(!comp[comp_ouchface])
+            priority = 8;
 
-           // haleyjd 10/12/03: classic DOOM problem of missing OUCH face
-           // was due to inversion of this test:
-           // if(plyr->health - st_oldhealth > ST_MUCHPAIN)
-           // e6y: compatibility optioned
-           if((comp[comp_ouchface]?
-              (plyr->health - st_oldhealth):
-              (st_oldhealth - plyr->health)) > ST_MUCHPAIN)
-            {
-              // e6y
-              // There are TWO bugs in the ouch face code.
-              // Not only was the condition reversed, but the priority system is
-              // broken in a way that makes the face not work with monster damage.
-              if(!comp[comp_ouchface])
-                priority = 8;
-
-              st_facecount = ST_TURNCOUNT;
-              faceindex = ST_OUCHOFFSET;
-            }
-          else
-            {
-              badguyangle = R_PointToAngle2(plyr->mo->x,
-                                            plyr->mo->y,
-                                            plyr->attacker->x,
-                                            plyr->attacker->y);
-
-              if (badguyangle > plyr->mo->angle)
-                {
-                  // whether right or left
-                  diffang = badguyangle - plyr->mo->angle;
-                  i = diffang > ANG180;
-                }
-              else
-                {
-                  // whether left or right
-                  diffang = plyr->mo->angle - badguyangle;
-                  i = diffang <= ANG180;
-                } // confusing, aint it?
-
-
-              st_facecount = ST_TURNCOUNT;
-
-              if (diffang < ANG45)
-                {
-                  // head-on
-                  faceindex = ST_RAMPAGEOFFSET;
-                }
-              else if (i)
-                {
-                  // turn face right
-                  faceindex = ST_TURNOFFSET;
-                }
-              else
-                {
-                  // turn face left
-                  faceindex = ST_TURNOFFSET+1;
-                }
-            }
+          st_facecount = ST_TURNCOUNT;
+          faceindex = ST_OUCHOFFSET;
         }
+        else
+        {
+          badguyangle = R_PointToAngle2(plyr->mo->x,
+                                        plyr->mo->y,
+                                        plyr->attacker->x,
+                                        plyr->attacker->y);
+
+          if (badguyangle > plyr->mo->angle)
+          {
+            // whether right or left
+            diffang = badguyangle - plyr->mo->angle;
+            i = diffang > ANG180;
+          }
+          else
+          {
+            // whether left or right
+            diffang = plyr->mo->angle - badguyangle;
+            i = diffang <= ANG180;
+          } // confusing, aint it?
+
+          st_facecount = ST_TURNCOUNT;
+
+          if (diffang < ANG45)
+          {
+            // head-on
+            faceindex = ST_RAMPAGEOFFSET;
+          }
+          else if (i)
+          {
+            // turn face right
+            faceindex = ST_TURNOFFSET;
+          }
+          else
+          {
+            // turn face left
+            faceindex = ST_TURNOFFSET+1;
+          }
+        }
+      }
     }
 
-  if (priority < 7)
+    if (priority < 7)
     {
       // getting hurt because of your own damn stupidity
       if (plyr->damagecount)
+      {
+        // haleyjd 10/12/03: classic DOOM problem of missing OUCH face
+        // was due to inversion of this test:
+        // if(plyr->health - st_oldhealth > ST_MUCHPAIN)
+        // e6y: compatibility optioned
+        if((comp[comp_ouchface]?
+            (plyr->health - st_oldhealth):
+            (st_oldhealth - plyr->health)) > ST_MUCHPAIN)
         {
-           // haleyjd 10/12/03: classic DOOM problem of missing OUCH face
-           // was due to inversion of this test:
-           // if(plyr->health - st_oldhealth > ST_MUCHPAIN)
-           // e6y: compatibility optioned
-           if((comp[comp_ouchface]?
-              (plyr->health - st_oldhealth):
-              (st_oldhealth - plyr->health)) > ST_MUCHPAIN)
-            {
-              priority = 7;
-              st_facecount = ST_TURNCOUNT;
-              faceindex = ST_OUCHOFFSET;
-            }
-          else
-            {
-              priority = 6;
-              st_facecount = ST_TURNCOUNT;
-              faceindex = ST_RAMPAGEOFFSET;
-            }
-
+          priority = 7;
+          st_facecount = ST_TURNCOUNT;
+          faceindex = ST_OUCHOFFSET;
         }
-
+        else
+        {
+          priority = 6;
+          st_facecount = ST_TURNCOUNT;
+          faceindex = ST_RAMPAGEOFFSET;
+        }
+      }
     }
 
-  if (priority < 6)
+    if (priority < 6)
     {
       // rapid firing
       if (plyr->attackdown)
+      {
+        if (lastattackdown==-1)
+          lastattackdown = ST_RAMPAGEDELAY;
+        else if (!--lastattackdown)
         {
-          if (lastattackdown==-1)
-            lastattackdown = ST_RAMPAGEDELAY;
-          else if (!--lastattackdown)
-            {
-              priority = 5;
-              faceindex = ST_RAMPAGEOFFSET;
-              st_facecount = 1;
-              lastattackdown = 1;
-            }
+          priority = 5;
+          faceindex = ST_RAMPAGEOFFSET;
+          st_facecount = 1;
+          lastattackdown = 1;
         }
+      }
       else
         lastattackdown = -1;
-
     }
 
-  if (priority < 5)
+    if (priority < 5)
     {
       // invulnerability
       if ((plyr->cheats & CF_GODMODE)
           || plyr->powers[pw_invulnerability])
-        {
-          priority = 4;
+      {
+        priority = 4;
 
-          painoffset = 0;
-          faceindex = ST_GODFACE;
-          st_facecount = 1;
-
-        }
-
+        painoffset = 0;
+        faceindex = ST_GODFACE;
+        st_facecount = 1;
+      }
     }
+  }
 
   // look left or look right if the facecount has timed out
   if (!st_facecount)
-    {
-      faceindex = st_randomnumber % 3;
-      st_facecount = ST_STRAIGHTFACECOUNT;
-      priority = 0;
-    }
+  {
+    faceindex = st_randomnumber % 3;
+    st_facecount = ST_STRAIGHTFACECOUNT;
+    priority = 0;
+  }
 
   st_facecount--;
 
