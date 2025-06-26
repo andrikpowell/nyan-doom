@@ -83,10 +83,6 @@ static int dsda_ParseGameversLump(void) {
           complvl = 3;
       else if (!strcasecmp("final", comp))
           complvl = 4;
-      else if (!strcasecmp("dos", comp))
-          complvl = 5;
-      else if (!strcasecmp("tas", comp))
-          complvl = 6;
       
       if (!strcasecmp("nolimits", comp)  || !strcasecmp("limit", comp) ||
           !strcasecmp("nolimits", limit) || !strcasecmp("limit", limit))
