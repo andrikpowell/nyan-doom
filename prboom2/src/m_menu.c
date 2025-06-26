@@ -1829,36 +1829,6 @@ static dboolean M_SetDisabled(const setup_menu_t* s)
     }
   }
 
-  // Raven Disable Wipe
-  if (raven)
-  {
-    if (s->config_id == dsda_config_render_wipescreen)
-    {
-      dsda_UpdateIntConfig(dsda_config_render_wipescreen, 0, false);
-      return true;
-    }
-    if (s->config_id == dsda_config_skill_easy_brain)
-    {
-      dsda_UpdateIntConfig(dsda_config_skill_easy_brain, 0, false);
-      return true;
-    }
-  }
-
-  // Disable Raven Options in Doom
-  if (!raven)
-  {
-    if (s->config_id == dsda_config_hide_horns)
-    {
-      dsda_UpdateIntConfig(dsda_config_hide_horns, 0, false);
-      return true;
-    }
-    if (s->config_id == dsda_config_skill_auto_use_health)
-    {
-      dsda_UpdateIntConfig(dsda_config_skill_auto_use_health, 0, false);
-      return true;
-    }
-  }
-
   // Complevel Argument
   if (s->config_id == dsda_config_default_complevel)
   {
@@ -1883,7 +1853,7 @@ static dboolean M_SetDisabled(const setup_menu_t* s)
     }
   }
 
-  // Limit Removing
+  // Limit-Removing
   if (s->config_id == dsda_config_limit_removing)
   {
     if (hexen || (dsda_IntConfig(dsda_config_default_complevel) > tasdoom_compatibility))
@@ -1902,28 +1872,91 @@ static dboolean M_SetDisabled(const setup_menu_t* s)
   // Disable Overflows
   if (hexen || (dsda_IntConfig(dsda_config_default_complevel) > tasdoom_compatibility))
   {
-    int overflows[] = {
+    int options[] = {
       dsda_config_overrun_spechit_warn,          dsda_config_overrun_spechit_emulate,
       dsda_config_overrun_reject_warn,           dsda_config_overrun_reject_emulate,
       dsda_config_overrun_intercept_warn,        dsda_config_overrun_intercept_emulate,
       dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
     };
 
-    for (int i = 0; (size_t)i < sizeof(overflows) / sizeof(overflows[0]); i++)
-      if(s->config_id == overflows[i])
+    for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
+      if(s->config_id == options[i])
         return true;
   }
 
-  // Disable Donuts for Heretic
+  // Raven Disable Options
+  if (raven)
+  {
+    int options[] =
+    { dsda_config_render_wipescreen, dsda_config_skill_easy_brain,
+      nyan_config_loading_disk, dsda_config_fuzzmode, dsda_config_enhanced_liteamp,
+      nyan_config_item_bonus_flash, nyan_config_colored_blood, dsda_config_translucent_sprites,
+      dsda_config_translucent_ghosts, dsda_config_translucent_missiles, dsda_config_translucent_powerups,
+      dsda_config_translucent_effects, dsda_config_hud_animated_count, dsda_config_sts_traditional_keys,
+      nyan_config_hud_berserk, nyan_config_hud_armoricon, nyan_config_ex_status_widget,
+      nyan_config_ex_status_armor, nyan_config_ex_status_berserk, nyan_config_ex_status_areamap,
+      nyan_config_ex_status_backpack, nyan_config_ex_status_radsuit, nyan_config_ex_status_invis,
+      nyan_config_ex_status_liteamp, nyan_config_ex_status_invuln
+    };
+
+    const char* titles[] =
+    { "Status Widget" };
+
+    for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
+      if(s->config_id == options[i])
+      {
+        dsda_UpdateIntConfig(options[i], 0, false);
+        return true;
+      }
+
+    for (int i = 0; (size_t)i < sizeof(titles) / sizeof(titles[0]); i++)
+      if(s->m_text == titles[i])
+      {
+        return true;
+      }
+  }
+
+  // Heretic Disable Options
   if (heretic)
   {
-    int overflows[] = {
+    int options[] = {
       dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
     };
 
-    for (int i = 0; (size_t)i < sizeof(overflows) / sizeof(overflows[0]); i++)
-      if(s->config_id == overflows[i])
+    for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
+      if(s->config_id == options[i])
         return true;
+  }
+
+  // Hexen Disable Options
+  if (hexen)
+  {
+    if (s->config_id == dsda_config_sts_blink_keys)
+    {
+      dsda_UpdateIntConfig(dsda_config_sts_blink_keys, false, false);
+      return true;
+    }
+
+    if (s->config_id == dsda_config_allow_jumping)
+    {
+      dsda_UpdateIntConfig(dsda_config_allow_jumping, true, false);
+      return true;
+    }
+  }
+
+  // Disable Doom Options
+  if (!raven)
+  {
+    int options[] =
+    { dsda_config_hide_horns, dsda_config_skill_auto_use_health
+    };
+
+    for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
+      if(s->config_id == options[i])
+      {
+        dsda_UpdateIntConfig(options[i], 0, false);
+        return true;
+      }
   }
 
   return false;
@@ -3623,8 +3656,8 @@ static const char* armor_icon_list[] =
 setup_menu_t display_statbar_settings[] =  // Demos Settings screen
 {
   { "Solid Color Background", S_YESNO, m_conf, G_X, dsda_config_sts_solid_bg_color },
-  { "Smooth Health/Armor %", S_YESNO, m_conf, G_X, dsda_config_hud_animated_count },
   { "Hide Status Bar Horns", S_YESNO, m_conf, G_X, dsda_config_hide_horns },
+  { "Smooth Health/Armor %", S_YESNO, m_conf, G_X, dsda_config_hud_animated_count },
   { "Single Key Display", S_YESNO, m_conf, G_X, dsda_config_sts_traditional_keys },
   { "Blink Missing Keys", S_YESNO, m_conf, G_X, dsda_config_sts_blink_keys },
   EMPTY_LINE,
