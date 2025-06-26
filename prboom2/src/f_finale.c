@@ -1079,7 +1079,7 @@ void F_Drawer (void)
   {
     const char* finalelump = NULL;
 
-    // Arsinikk - allows use of HELP2 screen for PWADs under DOOM 1
+    // allows use of HELP2 screen for PWADs under DOOM 1
     dboolean showhelp2 = (gamemode == retail && pwad_help2_check) || gamemode <= registered;
 
     switch (gameepisode)

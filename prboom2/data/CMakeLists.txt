@@ -1,25 +1,42 @@
+cmake_minimum_required(VERSION 3.8...4.0)
+project(nyan-doom-wad
+    LANGUAGES C
+)
+
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    list(APPEND
+        CMAKE_MODULE_PATH
+        "${CMAKE_CURRENT_LIST_DIR}/../cmake"
+    )
+endif()
+
 # PrBoom-Plus WAD creation tool
 
-if(NOT CMAKE_CROSSCOMPILING)
-    add_executable(rdatawad
-        rd_main.c
-        rd_util.c
-        rd_util.h
-        rd_output.c
-        rd_output.h
-        rd_sound.c
-        rd_sound.h
-        rd_palette.c
-        rd_palette.h
-        rd_graphic.c
-        rd_graphic.h
-    )
-    target_compile_options(rdatawad PRIVATE ${SUPPORTED_WARNINGS})
-    target_compile_definitions(rdatawad PRIVATE ${DEPRECATION_SILENCING_DEFINITIONS})
-    target_include_directories(rdatawad PRIVATE ${CMAKE_BINARY_DIR})
+add_executable(nyan_rdatawad
+    rd_main.c
+    rd_util.c
+    rd_util.h
+    rd_output.c
+    rd_output.h
+    rd_sound.c
+    rd_sound.h
+    rd_palette.c
+    rd_palette.h
+    rd_graphic.c
+    rd_graphic.h
+)
 
-    set(CROSS_EXPORTS ${CROSS_EXPORTS} rdatawad PARENT_SCOPE)
-endif()
+target_compile_features(nyan_rdatawad
+    PRIVATE c_std_99
+)
+set_target_properties(nyan_rdatawad
+    PROPERTIES
+    OUTPUT_NAME rdatawad
+)
+
+include(NyanTargetFeatures)
+nyan_target_set_warnings(nyan_rdatawad)
+nyan_target_silence_deprecation(nyan_rdatawad)
 
 # PrBoom-Plus internal WAD
 
@@ -448,9 +465,13 @@ set(WAD_CMDLINE
 )
 
 add_custom_command(
-    OUTPUT "${WAD_DATA_PATH}"
-    COMMAND rdatawad -I "${CMAKE_CURRENT_SOURCE_DIR}" ${WAD_CMDLINE} -o "${WAD_DATA_PATH}"
-    DEPENDS rdatawad ${WAD_SRC}
+    OUTPUT ${WAD_DATA_PATH}
+    COMMAND nyan_rdatawad -I "${CMAKE_CURRENT_SOURCE_DIR}" ${WAD_CMDLINE} -o "${WAD_DATA_PATH}"
+    DEPENDS nyan_rdatawad ${WAD_SRC}
+    VERBATIM
 )
-add_custom_target(nyan-doom-wad DEPENDS ${WAD_DATA_PATH})
-install(FILES ${WAD_DATA_PATH} DESTINATION ${NYANPWADDIR})
+
+add_custom_target(nyan-doom-wad 
+    ALL
+    DEPENDS ${WAD_DATA_PATH}
+)

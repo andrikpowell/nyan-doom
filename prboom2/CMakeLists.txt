@@ -1,10 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
 
-option(WITH_DUMB "Use DUMB if available" ON)
-if(WITH_DUMB)
-    list(APPEND VCPKG_MANIFEST_FEATURES "dumb")
-endif()
-
 option(WITH_FLUIDSYNTH "Use FluidSynth if available" ON)
 if(WITH_FLUIDSYNTH)
     list(APPEND VCPKG_MANIFEST_FEATURES "fluidsynth")
@@ -28,6 +23,11 @@ endif()
 option(WITH_VORBISFILE "Use vorbisfile if available" ON)
 if(WITH_VORBISFILE)
     list(APPEND VCPKG_MANIFEST_FEATURES "libvorbis")
+endif()
+
+option(WITH_LIBOPENMPT "Use libopenmpt if available" ON)
+if(WITH_LIBOPENMPT)
+    list(APPEND VCPKG_MANIFEST_FEATURES "libopenmpt")
 endif()
 
 # Automatically install dependencies
@@ -98,12 +98,7 @@ check_include_file("unistd.h" HAVE_UNISTD_H)
 check_include_file("asm/byteorder.h" HAVE_ASM_BYTEORDER_H)
 check_include_file("dirent.h" HAVE_DIRENT_H)
 
-include(GetAvailableFlags)
-
-get_supported_warnings(SUPPORTED_WARNINGS)
-get_fast_math_flag(FAST_MATH_FLAG)
-get_compile_definitions(DSDA_COMPILE_DEFINITIONS)
-get_deprecation_silencing_definitions(DEPRECATION_SILENCING_DEFINITIONS)
+include(NyanTargetFeatures)
 
 include(PkgConfigHelper)
 
@@ -142,13 +137,6 @@ if(WITH_FLUIDSYNTH)
     endif()
 endif()
 
-if(WITH_DUMB)
-    find_package(DUMB)
-    if(DUMB_FOUND)
-        set(HAVE_LIBDUMB TRUE)
-    endif()
-endif()
-
 if(WITH_VORBISFILE)
     find_package(Vorbis COMPONENTS File)
     if(Vorbis_File_FOUND)
@@ -160,6 +148,13 @@ if(WITH_PORTMIDI)
     find_package(PortMidi)
     if(PortMidi_FOUND)
         set(HAVE_LIBPORTMIDI TRUE)
+    endif()
+endif()
+
+if(WITH_LIBOPENMPT)
+    find_package(libopenmpt)
+    if(libopenmpt_FOUND)
+        set(HAVE_LIBOPENMPT TRUE)
     endif()
 endif()
 
@@ -185,32 +180,46 @@ option(RANGECHECK "Enable internal range checking" OFF)
 
 configure_file(cmake/config.h.cin config.h)
 
-# Support cross compiling
-option(FORCE_CROSSCOMPILE "Enable cross-compilation" OFF)
-if(FORCE_CROSSCOMPILE)
-    set(CMAKE_CROSSCOMPILING ON)
-endif()
-
-if(CMAKE_CROSSCOMPILING)
-    set(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Export file from native build")
-    include(${IMPORT_EXECUTABLES})
-else()
-    if(NOT CROSS_EXPORTS)
-        set(CROSS_EXPORTS "")
-    endif()
-endif()
-
 set(NYAN_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 set(WAD_DATA_PATH "${NYAN_OUTPUT_PATH}/${WAD_DATA}")
 
-add_subdirectory(data)
+set(NYAN_BUILD_PWAD_WITH_EXTERNAL_PROJECT ${CMAKE_CROSSCOMPILING})
+if(CMAKE_GENERATOR MATCHES "Visual Studio")
+    set(NYAN_BUILD_PWAD_WITH_EXTERNAL_PROJECT TRUE)
+    set(NYAN_EXTERNAL_PROJECT_VS_ARGS
+        "CMAKE_GENERATOR" "${CMAKE_GENERATOR}"
+        "CMAKE_GENERATOR_PLATFORM" "${CMAKE_VS_PLATFORM_NAME_DEFAULT}"
+    )
+endif()
+
+if(NYAN_BUILD_PWAD_WITH_EXTERNAL_PROJECT)
+    set(NYAN_HOST_TOOLCHAIN ""
+        CACHE FILEPATH "Toolchain file to build host tools with"
+    )
+    include(ExternalProject)
+    ExternalProject_Add(nyan-doom-wad
+        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data"
+        ${NYAN_EXTERNAL_PROJECT_VS_ARGS}
+        CMAKE_CACHE_ARGS
+            "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
+            "-DWAD_DATA_PATH:FILEPATH=${WAD_DATA_PATH}"
+            "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${NYAN_HOST_TOOLCHAIN}"
+        BUILD_ALWAYS TRUE
+        BUILD_BYPRODUCTS "${WAD_DATA_PATH}"
+        INSTALL_COMMAND ""
+    )
+else()
+    add_subdirectory(data)
+endif()
+
 add_subdirectory(src)
 add_subdirectory(ICONS)
 
-if(NOT CMAKE_CROSSCOMPILING)
-    export(TARGETS ${CROSS_EXPORTS} FILE "${CMAKE_BINARY_DIR}/ImportExecutables.cmake")
-endif()
+install(FILES
+    "${WAD_DATA_PATH}"
+    DESTINATION "${NYANPWADDIR}"
+)
 
 if(WIN32)
     install(FILES COPYING DESTINATION . RENAME COPYING.txt)

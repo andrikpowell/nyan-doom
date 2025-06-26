@@ -13,7 +13,7 @@ On arm64 machines, brew will be installed in `/opt/homebrew`.
 ## Install Build Dependencies
 Install cmake, SDL2 and additional dependencies for Nyan-Doom:
 ```
-brew install cmake pkgconf dumb fluid-synth libvorbis libzip mad portmidi sdl2 sdl2_image sdl2_mixer
+brew install cmake pkgconf libopenmpt fluid-synth libvorbis libzip mad portmidi sdl2 sdl2_image sdl2_mixer
 ```
 ## Build Nyan-Doom
 Make a clone of the Nyan-Doom Git repository:

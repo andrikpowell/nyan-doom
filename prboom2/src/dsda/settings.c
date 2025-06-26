@@ -36,6 +36,7 @@
 #include "dsda/key_frame.h"
 #include "dsda/map_format.h"
 #include "dsda/utility.h"
+#include "dsda/skip.h"
 
 #include "settings.h"
 
@@ -242,7 +243,7 @@ dboolean dsda_SwitchWhenAmmoRunsOut(void) {
 }
 
 dboolean dsda_SkipQuitPrompt(void) {
-  return dsda_IntConfig(dsda_config_skip_quit_prompt);
+  return dsda_IntConfig(dsda_config_skip_quit_prompt) || dsda_SkipMode();
 }
 
 dboolean dsda_PlayQuicksaveSFX(void) {

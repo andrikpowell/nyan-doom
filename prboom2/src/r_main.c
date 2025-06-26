@@ -63,6 +63,7 @@
 
 #include "dsda/configuration.h"
 #include "dsda/exhud.h"
+#include "dsda/features.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
 #include "dsda/render_stats.h"
@@ -794,6 +795,9 @@ void R_ExecuteSetViewSize (void)
     }
   }
 
+  I_SetWindowRect();
+  I_SetViewportRect();
+
   if (V_IsOpenGLMode())
     dsda_GLSetRenderViewportParams();
 
@@ -961,6 +965,14 @@ static void R_SetupFrame (player_t *player)
   viewplayer = player;
 
   extralight = player->extralight;
+  int extra_brightness = dsda_IntConfig(dsda_config_extra_level_brightness);
+  if (extra_brightness < 0 || extra_brightness > 4) {
+    extra_brightness = 0;
+  }
+  if (extra_brightness != 0) {
+      dsda_TrackFeature(uf_levelbrightness);
+  }
+  extralight += extra_brightness;
 
   viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
   viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];

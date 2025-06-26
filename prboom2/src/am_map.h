@@ -165,6 +165,7 @@ typedef enum
 {
   map_things_appearance_classic,
   map_things_appearance_scaled,
+  map_things_appearance_box,
 
   map_things_appearance_max
 } map_things_appearance_t;

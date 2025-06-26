@@ -116,7 +116,7 @@ void S_Init(void);
 void M_ChangeMIDIPlayer(void);
 void HU_InitCrosshair(void);
 void HU_InitThresholds(void);
-void dsda_InitKeyFrame(void);
+void dsda_InitAutoKeyFrames(void);
 void dsda_SetupStretchParams(void);
 void dsda_InitCommandHistory(void);
 void dsda_InitQuickstartCache(void);
@@ -228,7 +228,7 @@ void dsda_TrackConfigFeatures(void) {
 void dsda_UpdateStrictMode(void) {
   I_Init2(); // side effect of realtic clock rate
   M_ChangeSpeed(); // side effect of always sr50
-  dsda_InitKeyFrame();
+  dsda_InitAutoKeyFrames();
   M_ChangeSkyMode(); // affected by mouselook setting
   HU_InitCrosshair();
   M_ChangeApplyPalette();
@@ -1235,19 +1235,19 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_auto_key_frame_active] = {
     "dsda_auto_key_frame_active", dsda_config_auto_key_frame_active,
-    CONF_BOOL(1), NULL, STRICT_INT(0), dsda_InitKeyFrame
+    CONF_BOOL(1), NULL, STRICT_INT(0), dsda_InitAutoKeyFrames
   },
   [dsda_config_auto_key_frame_interval] = {
     "dsda_auto_key_frame_interval", dsda_config_auto_key_frame_interval,
-    dsda_config_int, 1, 600, { 1 }, NULL, STRICT_INT(1), dsda_InitKeyFrame
+    dsda_config_int, 1, 600, { 1 }, NULL, STRICT_INT(1), dsda_InitAutoKeyFrames
   },
   [dsda_config_auto_key_frame_depth] = {
     "dsda_auto_key_frame_depth", dsda_config_auto_key_frame_depth,
-    dsda_config_int, 0, 600, { 60 }, NULL, STRICT_INT(0), dsda_InitKeyFrame
+    dsda_config_int, 0, 600, { 60 }, NULL, STRICT_INT(0), dsda_InitAutoKeyFrames
   },
   [dsda_config_auto_key_frame_timeout] = {
     "dsda_auto_key_frame_timeout", dsda_config_auto_key_frame_timeout,
-    dsda_config_int, 0, 25, { 10 }, NULL, STRICT_INT(0), dsda_InitKeyFrame
+    dsda_config_int, 0, 25, { 10 }, NULL, STRICT_INT(0), dsda_InitAutoKeyFrames
   },
   [dsda_config_auto_save] = {
     "dsda_config_auto_save", dsda_config_auto_save,
@@ -1464,6 +1464,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_multiple_area_maps] = {
     "dsda_multiple_area_maps", dsda_config_multiple_area_maps,
     CONF_BOOL(1), NULL, STRICT_INT(0)
+  },
+  [dsda_config_demo_end_quit] = {
+    "dsda_demo_end_quit", dsda_config_demo_end_quit,
+    CONF_BOOL(1)
   },
   [dsda_config_map_blinking_locks] = {
     "map_blinking_locks", dsda_config_map_blinking_locks,
@@ -1795,6 +1799,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_announce_map] = {
     "announce_map", dsda_config_announce_map,
     dsda_config_int, 0, 2, { 0 }
+  },
+  [dsda_config_extra_level_brightness] = {
+    "extra_level_brightness", dsda_config_extra_level_brightness,
+    dsda_config_int, 0, 4, {0}, NULL, STRICT_INT(0)
+  },
+  [dsda_config_playback_mouse_controls] = {
+    "playback_mouse_controls", dsda_config_playback_mouse_controls,
+    CONF_BOOL(1)
   },
 };
 

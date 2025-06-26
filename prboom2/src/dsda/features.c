@@ -69,6 +69,7 @@ static const char* feature_names[FEATURE_SIZE] = {
   [uf_fuzz] = "Alternate Fuzz", // Nyan-only
   [uf_vanillatrans] = "Vanilla Translucency",
   [uf_ghosttrans] = "Ghost Translucency",
+  [uf_levelbrightness] = "Extra Lighting",
 };
 
 void dsda_TrackFeature(int feature) {

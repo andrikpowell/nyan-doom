@@ -472,8 +472,6 @@ set(SDLDOOM_SOURCES
 )
 
 set(DOOMMUSIC_SOURCES
-    MUSIC/dumbplayer.c
-    MUSIC/dumbplayer.h
     MUSIC/flplayer.c
     MUSIC/flplayer.h
     MUSIC/madplayer.c
@@ -493,6 +491,8 @@ set(DOOMMUSIC_SOURCES
     MUSIC/portmidiplayer.h
     MUSIC/vorbisplayer.c
     MUSIC/vorbisplayer.h
+    MUSIC/libopenmptplayer.c
+    MUSIC/libopenmptplayer.h
 )
 
 set(EXTRA_FILES
@@ -550,14 +550,15 @@ function(AddGameExecutable TARGET SOURCES)
 
     add_executable(${TARGET} WIN32 ${SOURCES})
 
-    target_compile_options(${TARGET} PRIVATE
-        ${SUPPORTED_WARNINGS}
-        ${FAST_MATH_FLAG}
-    )
+    nyan_target_set_warnings(${TARGET})
+    nyan_target_silence_deprecation(${TARGET})
+    nyan_target_enable_fast_math(${TARGET})
 
-    target_compile_definitions(${TARGET} PRIVATE
-        ${DEPRECATION_SILENCING_DEFINITIONS}
-        ${DSDA_COMPILE_DEFINITIONS}
+    target_compile_definitions(${TARGET}
+        PRIVATE
+        HAVE_CONFIG_H
+        $<$<NOT:$<BOOL:${HAVE_STRICMP}>>:stricmp=strcasecmp>
+        $<$<NOT:$<BOOL:${HAVE_STRNICMP}>>:strnicmp=strncasecmp>
     )
 
     target_include_directories(${TARGET} PRIVATE
@@ -598,16 +599,16 @@ function(AddGameExecutable TARGET SOURCES)
         target_link_libraries(${TARGET} PRIVATE FluidSynth::libfluidsynth)
     endif()
 
-    if(HAVE_LIBDUMB)
-        target_link_libraries(${TARGET} PRIVATE DUMB::DUMB)
-    endif()
-
     if(HAVE_LIBVORBISFILE)
         target_link_libraries(${TARGET} PRIVATE Vorbis::vorbisfile)
     endif()
 
     if(HAVE_LIBPORTMIDI)
         target_link_libraries(${TARGET} PRIVATE PortMidi::portmidi)
+    endif()
+
+    if(HAVE_LIBOPENMPT)
+        target_link_libraries(${TARGET} PRIVATE libopenmpt::libopenmpt)
     endif()
 
     add_dependencies(${TARGET} nyan-doom-wad)
@@ -632,7 +633,10 @@ function(AddGameExecutable TARGET SOURCES)
         set(NYAN_BINARY_INSTALL_DIR "${CMAKE_INSTALL_BINDIR}")
     endif()
 
-    if(CMAKE_VERSION VERSION_GREATER 3.20 AND NOT VCPKG_TOOLCHAIN AND WIN32)
+    if(CMAKE_VERSION VERSION_GREATER 3.20
+        AND WIN32
+        AND NOT VCPKG_TOOLCHAIN
+        AND NOT CMAKE_CROSSCOMPILING)
         install(
             TARGETS ${TARGET}
             RUNTIME_DEPENDENCIES

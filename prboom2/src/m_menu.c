@@ -45,6 +45,7 @@
 #endif
 
 #include <stdio.h>
+#include <time.h>
 
 #include "SDL.h"
 
@@ -186,7 +187,7 @@ extern const char* g_menu_flat;
 extern int g_menu_save_page_size;
 extern int g_menu_font_spacing;
 
-#define QUICKSAVESLOT 255
+#define QUICKSAVESLOT 0
 
 static int messageToPrint;  // 1 = message to be printed
 
@@ -236,6 +237,9 @@ menu_t* currentMenu; // current menudef
 extern menu_t InfoDef1;
 extern menu_t InfoDef4;
 extern menuitem_t InfoMenu4[];
+
+static int current_page;
+static int previous_page;
 
 //
 // PROTOTYPES
@@ -791,11 +795,18 @@ enum
   load_end
 } load_e;
 
-static int save_page = 0;
-static const int save_page_limit = 16;
+static int current_save_page = 1; // 0 is the quicksaves page
+static int current_save_item = 0;
 
-#define SAVE_PAGE_STRING_SIZE 16
-char save_page_string[SAVE_PAGE_STRING_SIZE];
+const int save_page_limit = 17;
+const char *saves_pages[] =
+{
+  "Q", "1", "2", "3",
+  "4", "5", "6", "7",
+  "8", "9", "10", "11",
+  "12", "13", "14", "15",
+  "16", NULL
+};
 
 // The definitions of the Load Game screen
 
@@ -827,14 +838,14 @@ menu_t LoadDef =
 
 dboolean delete_verify = false;
 
-static void M_DeleteGame(int slot)
+static void M_DeleteSaveGame(int slot)
 {
   char *name;
 
   if (dsda_LastSaveSlot() == slot)
     dsda_ResetLastSaveSlot();
 
-  name = dsda_SaveGameName(slot + save_page * g_menu_save_page_size, false);
+  name = dsda_SaveGameName(slot + current_page * g_menu_save_page_size, false);
   remove(name);
   Z_Free(name);
 
@@ -848,6 +859,8 @@ static void M_DeleteGame(int slot)
 static void M_DrawLoad(void)
 {
   int i;
+  current_save_page = current_page;
+  current_save_item = itemOn;
 
   if (raven) return MN_DrawLoad();
 
@@ -859,7 +872,7 @@ static void M_DrawLoad(void)
     M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], CR_DEFAULT);
   }
 
-  M_WriteText(LoadDef.x, LoadDef.y + LINEHEIGHT * load_end, save_page_string, CR_DEFAULT);
+  M_DrawTabs(saves_pages, 5, 145);
 
   if (delete_verify)
     M_DrawDelVerify();
@@ -890,7 +903,7 @@ static void M_DrawSaveLoadBorder(int x,int y)
 
 void M_LoadSelect(int choice)
 {
-  if (!dsda_AllowMenuLoad(choice + save_page * g_menu_save_page_size))
+  if (!dsda_AllowMenuLoad(choice + current_page * g_menu_save_page_size))
   {
     M_StartMessage(
       "you can't load this game\n"
@@ -903,7 +916,7 @@ void M_LoadSelect(int choice)
   //  to g_game.c, this only passes the slot.
 
   // killough 3/16/98, 5/15/98: add slot, cmd
-  G_LoadGame(choice + save_page * g_menu_save_page_size);
+  G_LoadGame(choice + current_page * g_menu_save_page_size);
   M_ClearMenus();
 }
 
@@ -945,6 +958,8 @@ void M_LoadGame (int choice)
   }
 
   M_SetupNextMenu(&LoadDef);
+  current_page = current_save_page;
+  itemOn = current_save_item;
   M_ReadSaveStrings();
 }
 
@@ -990,7 +1005,7 @@ static void M_ReadSaveStrings(void)
     FILE *fp;  // killough 11/98: change to use stdio
 
     // killough 3/22/98
-    name = dsda_SaveGameName(i + save_page * g_menu_save_page_size, false);
+    name = dsda_SaveGameName(i + current_page * g_menu_save_page_size, false);
 
     fp = M_OpenFile(name,"rb");
     Z_Free(name);
@@ -1010,8 +1025,6 @@ static void M_ReadSaveStrings(void)
       fclose(fp);
     }
   }
-
-  snprintf(save_page_string, SAVE_PAGE_STRING_SIZE, "PAGE %d/%d", save_page + 1, save_page_limit);
 }
 
 #define SLOT_SCAN_MAX 112
@@ -1056,7 +1069,13 @@ static int M_AutoSaveSlot(const char *target_name)
   I_EndGlob(glob);
 
   if (return_slot < 0)
+  {
     return_slot = strnlen(slots, SLOT_SCAN_MAX);
+
+    // Make sure autosaves dont get added to the first page (quicksaves page)
+    if (return_slot < g_menu_save_page_size)
+      return_slot = g_menu_save_page_size;
+  }
 
   if (slots[return_slot] == 1)
     return_slot = -1;
@@ -1082,6 +1101,8 @@ void M_AutoSave(void)
 static void M_DrawSave(void)
 {
   int i;
+  current_save_page = current_page;
+  current_save_item = itemOn;
 
   if (raven) return MN_DrawSave();
 
@@ -1094,7 +1115,7 @@ static void M_DrawSave(void)
     M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], CR_DEFAULT);
     }
 
-  M_WriteText(LoadDef.x, LoadDef.y + LINEHEIGHT * load_end, save_page_string, CR_DEFAULT);
+  M_DrawTabs(saves_pages, 5, 145);
 
   if (saveStringEnter)
     {
@@ -1111,7 +1132,7 @@ static void M_DrawSave(void)
 //
 static void M_DoSave(int slot)
 {
-  G_SaveGame(slot + save_page * g_menu_save_page_size, savegamestrings[slot]);
+  G_SaveGame(slot + current_page * g_menu_save_page_size, savegamestrings[slot]);
   M_ClearMenus();
 }
 
@@ -1176,6 +1197,8 @@ void M_SaveGame (int choice)
   }
 
   M_SetupNextMenu(&SaveDef);
+  current_page = current_save_page;
+  itemOn = current_save_item;
   M_ReadSaveStrings();
 }
 
@@ -1430,6 +1453,11 @@ static void M_MusicVol(int choice)
 
 static void M_QuickSave(void)
 {
+  int i;
+  char description[SAVESTRINGSIZE];
+  time_t now;
+  struct tm *timeinfo;
+
   if (gamestate != GS_LEVEL)
     return;
 
@@ -1442,8 +1470,28 @@ static void M_QuickSave(void)
     return;
   }
 
-  G_SaveGame(QUICKSAVESLOT, "quicksave");
-  doom_printf("quicksave");
+  // Move all quicksaves downwards to make space for a new one
+  M_DeleteSaveGame(g_menu_save_page_size - 1);
+  for (i = g_menu_save_page_size - 2; i >= 0; i--)
+  {
+    char *oldname = dsda_SaveGameName(i, false);
+    char *newname = dsda_SaveGameName(i + 1, false);
+
+    rename(oldname, newname);
+
+    Z_Free(oldname);
+    Z_Free(newname);
+  }
+
+  time (&now);
+  timeinfo = localtime (&now);
+
+  strftime(description, sizeof(description), "quick %x %X", timeinfo);
+
+  G_SaveGame(QUICKSAVESLOT, description);
+  doom_printf("%s", description);
+
+  M_ReadSaveStrings();
 }
 
 /////////////////////////////
@@ -1594,8 +1642,6 @@ static void M_SizeDisplay(int choice)
 
 static int set_menu_itemon; // which setup item is selected?   // phares 3/98
 static setup_menu_t* current_setup_menu; // points to current setup menu table
-static int current_page;
-static int previous_page;
 
 // save the setup menu's itemon value in the S_END element's x coordinate
 
@@ -2715,17 +2761,11 @@ setup_menu_t keys_game_settings[] =  // Key Binding screen strings
   {"SCREEN"      ,S_SKIP|S_TITLE,m_null,KB_X},
 
   // phares 4/13/98:
-  // key_help and key_escape can no longer be rebound. This keeps the
+  // key_escape can no longer be rebound. This keeps the
   // player from getting themselves in a bind where they can't remember how
-  // to get to the menus, and can't remember how to get to the help screen
-  // to give them a clue as to how to get to the menus. :)
-
-  // Also, the keys assigned to these functions cannot be bound to other
-  // functions. Introduce an S_KEEP flag to show that you cannot swap this
-  // key with other keys in the same 'group'. (m_scrn, etc.)
-
-  // {"HELP"        ,S_SKIP|S_KEEP|S_INPUT ,m_scrn,0   ,0,dsda_input_help},
+  // to get to the menus
   // {"MENU"        ,S_SKIP|S_KEEP|S_INPUT ,m_scrn,0   ,0,dsda_input_escape},
+  {"HELP"        ,S_INPUT     ,m_scrn,KB_X,0,dsda_input_help},
   {"PAUSE"       ,S_INPUT     ,m_scrn,KB_X,0,dsda_input_pause},
   {"VOLUME"      ,S_INPUT     ,m_scrn,KB_X,0,dsda_input_soundvolume},
   {"HUD"         ,S_INPUT     ,m_scrn,KB_X,0,dsda_input_hud},
@@ -4000,6 +4040,7 @@ setup_menu_t demos_options_settings[] =  // Demos Settings screen
   { "Text File Author", S_NAME, m_conf, DM_X, dsda_config_player_name },
   EMPTY_LINE,
   { "Playback Progress Bar", S_YESNO, m_conf, DM_X, dsda_config_hudadd_demoprogressbar },
+  { "Playback Mouse Controls", S_YESNO, m_conf, DM_X, dsda_config_playback_mouse_controls },
   { "Smooth Playback", S_YESNO, m_conf, DM_X, dsda_config_demo_smoothturns },
   { "Smooth Playback Factor", S_NUM, m_conf, DM_X, dsda_config_demo_smoothturnsfactor },
   { "Cycle Ghost Colors", S_YESNO, m_conf, DM_X, dsda_config_cycle_ghost_colors },
@@ -5793,7 +5834,7 @@ static dboolean M_SetupResponder(int ch, int action, event_t* ev)
 
 static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
 {
-  if (ch == KEYD_F1)                                         // phares
+  if (dsda_InputActivated(dsda_input_help))                                         // phares
   {
     menu_t* F1_menu = raven ? &InfoDef1 : &ReadDef1;
     M_StartControlPanel ();
@@ -5927,7 +5968,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
 
   // Pop-up Main menu?
   if (ch == KEYD_ESCAPE || action == MENU_ESCAPE ||
-      (!in_game && (ch == KEYD_ENTER || ch == KEYD_SPACEBAR ||
+      (!in_game && (ch == KEYD_ENTER || ch == KEYD_SPACEBAR || ch == KEYD_KEYPADENTER ||
        dsda_InputActivated(dsda_input_fire) || dsda_InputActivated(dsda_input_use) || dsda_InputActivated(dsda_input_menu_enter)))) // phares
   {
     M_StartControlPanel();
@@ -6260,7 +6301,7 @@ static dboolean M_SaveResponder(int ch, int action, event_t* ev)
     switch (M_EventToConfirmation(ch, action, ev))
     {
       case confirmation_yes:
-        M_DeleteGame(itemOn);
+        M_DeleteSaveGame(itemOn);
         S_StartVoidSound(g_sfx_itemup);
         delete_verify = false;
         break;
@@ -6332,11 +6373,13 @@ static dboolean M_SaveResponder(int ch, int action, event_t* ev)
 
     if (diff)
     {
-      save_page += diff;
-      if (save_page < 0)
-        save_page = save_page_limit - 1;
-      else if (save_page >= save_page_limit)
-        save_page = 0;
+      S_StartVoidSound(g_sfx_menu);
+
+      current_page += diff;
+      if (current_page < 0)
+        current_page = save_page_limit - 1;
+      else if (current_page >= save_page_limit)
+        current_page = 0;
 
       M_ReadSaveStrings();
     }

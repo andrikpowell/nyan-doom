@@ -274,6 +274,7 @@ typedef enum {
   dsda_config_hud_health_green,
   dsda_config_hud_ammo_red,
   dsda_config_hud_ammo_yellow,
+  dsda_config_playback_mouse_controls,
   dsda_config_cycle_ghost_colors,
   dsda_config_auto_key_frame_active,
   dsda_config_auto_key_frame_interval,
@@ -411,6 +412,8 @@ typedef enum {
   dsda_config_ansi_endoom,
   dsda_config_quit_sounds,
   dsda_config_announce_map,
+  dsda_config_extra_level_brightness,
+  dsda_config_demo_end_quit,
   dsda_config_count,
 } dsda_config_identifier_t;
 

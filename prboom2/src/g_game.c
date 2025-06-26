@@ -51,6 +51,7 @@
 #include "doomstat.h"
 #include "d_net.h"
 #include "f_finale.h"
+#include "i_video.h"
 #include "m_file.h"
 #include "m_misc.h"
 #include "m_menu.h"
@@ -920,15 +921,15 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       {
         // HERETIC_TODO: fix this
         newweapon =
-          dsda_InputActive(dsda_input_weapon1) ? wp_fist :    // killough 5/2/98: reformatted
-          dsda_InputActive(dsda_input_weapon2) ? wp_pistol :
-          dsda_InputActive(dsda_input_weapon3) ? wp_shotgun :
-          dsda_InputActive(dsda_input_weapon4) ? wp_chaingun :
-          dsda_InputActive(dsda_input_weapon5) ? wp_missile :
-          dsda_InputActive(dsda_input_weapon6) && gamemode != shareware ? wp_plasma :
-          dsda_InputActive(dsda_input_weapon7) && gamemode != shareware ? wp_bfg :
-          dsda_InputActive(dsda_input_weapon8) ? wp_chainsaw :
-          (!demo_compatibility && dsda_InputActive(dsda_input_weapon9) && gamemode == commercial) ? wp_supershotgun :
+          dsda_InputTickActivated(dsda_input_weapon1) ? wp_fist :    // killough 5/2/98: reformatted
+          dsda_InputTickActivated(dsda_input_weapon2) ? wp_pistol :
+          dsda_InputTickActivated(dsda_input_weapon3) ? wp_shotgun :
+          dsda_InputTickActivated(dsda_input_weapon4) ? wp_chaingun :
+          dsda_InputTickActivated(dsda_input_weapon5) ? wp_missile :
+          dsda_InputTickActivated(dsda_input_weapon6) && gamemode != shareware ? wp_plasma :
+          dsda_InputTickActivated(dsda_input_weapon7) && gamemode != shareware ? wp_bfg :
+          dsda_InputTickActivated(dsda_input_weapon8) ? wp_chainsaw :
+          (!demo_compatibility && dsda_InputTickActivated(dsda_input_weapon9) && gamemode == commercial) ? wp_supershotgun :
           wp_nochange;
       }
 
@@ -1338,6 +1339,22 @@ dboolean G_Responder (event_t* ev)
     )
   ) return true;
 
+  if (dsda_IntConfig(dsda_config_playback_mouse_controls) &&
+    demoplayback && !timingdemo && dsda_InputActivated(dsda_input_fire))
+  {
+    int x, y;
+
+    dsda_GetMousePosition(&x, &y);
+
+    y = y * ACTUALHEIGHT / viewport_rect.h;
+
+    if (x && y > (ACTUALHEIGHT - ST_SCALED_HEIGHT / 6))
+    {
+      dsda_JumpToLogicTic(demo_tics_count * x / viewport_rect.w);
+      return true;
+    }
+  }
+
   // allow spy mode changes even during the demo
   // killough 2/22/98: even during DM demo
   //
@@ -1575,8 +1592,13 @@ void G_Ticker (void)
   else {
     int buf = gametic % BACKUPTICS;
 
-    dsda_UpdateAutoKeyFrames();
-    dsda_UpdateAutoSaves();
+    if (!timingdemo) {
+      dsda_UpdateAutoKeyFrames();
+      dsda_UpdateAutoSaves();
+
+      if (demoplayback)
+        dsda_UpdatePlaybackKeyFrames();
+    }
 
     if (dsda_BruteForce())
     {
@@ -4003,6 +4025,9 @@ void G_StartDemoPlayback(const byte *buffer, int length, int behaviour)
   demo_p = G_ReadDemoHeaderEx(demobuffer, demolength, RDH_SAFE);
   dsda_AttachPlaybackStream(demo_p, demolength, behaviour);
 
+  dsda_InitAutoKeyFrames();
+  dsda_InitPlaybackKeyFrames();
+
   R_SmoothPlaying_Reset(NULL); // e6y
 }
 
@@ -4101,13 +4126,29 @@ dboolean G_CheckDemoStatus (void)
     lprintf(LO_INFO, "Timed %u gametics in %u realtics = %-.1f frames per second\n",
              (unsigned) gametic,realtics,
              (unsigned) gametic * (double) TICRATE / realtics);
-    I_SafeExit(0);
+
+    if (dsda_IntConfig(dsda_config_demo_end_quit))
+      I_SafeExit(0);
+    else
+    {
+      timingdemo = false;
+      dsda_ClearPlaybackStream();
+      return false;
+    }
   }
 
   if (demoplayback)
   {
     if (userdemo)
-      I_SafeExit(0);  // killough
+    {
+      if (dsda_IntConfig(dsda_config_demo_end_quit))
+        I_SafeExit(0);  // killough
+      else
+      {
+        dsda_ClearPlaybackStream();
+        return false;
+      }
+    }
 
     G_ReloadDefaults();    // killough 3/1/98
     netgame = false;       // killough 3/29/98

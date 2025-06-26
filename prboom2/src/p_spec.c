@@ -256,7 +256,6 @@ void P_InitPicAnims (void)
                     animdefs[i].startname,
                     animdefs[i].endname);
     }
-
     lastanim->speed = LittleLong(animdefs[i].speed); // killough 5/5/98: add LONG()
     lastanim++;
   }
