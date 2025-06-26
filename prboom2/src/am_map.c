@@ -2801,7 +2801,7 @@ static void AM_drawThings(void)
         }
         else if (hexen)
         {
-          int hexen_key;
+          int hexen_key = false;
           switch(t->info->doomednum)
           {
             // all hexen keys use same key color
