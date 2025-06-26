@@ -3137,6 +3137,7 @@ static const char *map_things_appearance_list[] =
 {
   "classic",
   "scaled",
+  "hitboxes",
   NULL
 };
 
