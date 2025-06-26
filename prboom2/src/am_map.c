@@ -151,6 +151,20 @@ static map_things_appearance_t map_things_appearance;
 #define CYMTOF_F(y)  ((float)f_y + (f_h - MTOF_F((y)-m_y)))
 
 #define R ((8*PLAYERRADIUS)/7)
+mline_t raven_keysquare[] = {
+	{ { 0, 0 }, { R/4, -R/2 } },
+	{ { R/4, -R/2 }, { R/2, -R/2 } },
+	{ { R/2, -R/2 }, { R/2, R/2 } },
+	{ { R/2, R/2 }, { R/4, R/2 } },
+	{ { R/4, R/2 }, { 0, 0 } }, // handle part type thing
+	{ { 0, 0 }, { -R, 0 } }, // stem
+	{ { -R, 0 }, { -R, -R/2 } }, // end lockpick part
+	{ { -3*R/4, 0 }, { -3*R/4, -R/4 } }
+	};
+#undef R
+#define RAVEN_NUMKEYSQUARELINES (sizeof(raven_keysquare)/sizeof(mline_t))
+
+#define R ((8*PLAYERRADIUS)/7)
 mline_t raven_player_arrow[] = {
   { { -R+R/4, 0 }, { 0, 0} }, // center line.
   { { -R+R/4, R/8 }, { R, 0} }, // blade
@@ -2447,20 +2461,21 @@ static void AM_drawThings(void)
 
           if (color != -1)
           {
-            AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES,
-              scale, t->angle, color, p.x, p.y);
+            AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES,
+              scale, 0, color, p.x, p.y);
             t = t->snext;
             continue;
           }
         }
         else if (hexen)
         {
+          int hexen_key;
           switch(t->info->doomednum)
           {
             // all hexen keys use same key color
             case 8030: case 8031: case 8032: case 8033: case 8034: case 8035:
             case 8036: case 8037: case 8038: case 8039: case 8200:
-              color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
+              color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; hexen_key++; break;
             // hexen puzzle parts use key color
             case 9002: case 9003: case 9004: case 9005: case 9006: case 9007: case 9008:
             case 9009: case 9010: case 9011: case 9012: case 9014: case 9015: case 9016:
@@ -2470,8 +2485,13 @@ static void AM_drawThings(void)
 
           if (color != -1)
           {
-            AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES,
-              scale, t->angle, color, p.x, p.y);
+            if (hexen_key)
+              AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES,
+                scale, 0, color, p.x, p.y);
+            else // Hexen puzzle items
+              AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES,
+                scale, t->angle, color, p.x, p.y);
+            hexen_key = false;
             t = t->snext;
             continue;
           }
