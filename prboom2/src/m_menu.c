@@ -3575,7 +3575,7 @@ setup_menu_t gen_nyan_settings[] = {
   { "Overlay Gradual Fade", S_YESNO, m_conf, G2_X, nyan_config_gradual_menu_fade },
   EMPTY_LINE,
   { "Endoom Screen", S_CHOICE, m_conf, G2_X, nyan_config_show_endoom, 0, endoom_list },
-  { "Endoom Type", S_CHOICE, m_conf, G2_X, nyan_config_type_endoom, 0, endoom_type_list, nyan_config_show_endoom, 0, true },
+  { "Endoom Type", S_CHOICE, m_conf, G2_X, nyan_config_type_endoom, 0, endoom_type_list, nyan_config_show_endoom, (const char*)0, true },
   EMPTY_LINE,
   { "Skip IWAD Demos For PWADs", S_YESNO, m_conf, G2_X, nyan_config_skip_default_demos },
   { "Skip IWAD Story For PWADs", S_YESNO, m_conf, G2_X, nyan_config_skip_default_text },
@@ -3764,7 +3764,7 @@ static const char* stat_format_list[] = { "ratio", "percent", "count", "remainin
 setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
   { "Use Extended Hud", S_YESNO, m_conf, G_X, dsda_config_exhud },
-  { "Level Stat Format", S_CHOICE, m_conf, G_X, dsda_config_stats_format, 0, stat_format_list, dsda_config_exhud, 1, 0 },
+  { "Level Stat Format", S_CHOICE, m_conf, G_X, dsda_config_stats_format, 0, stat_format_list, dsda_config_exhud, (const char*)1, 0 },
   { "Ex Hud Scale %", S_NUM, m_conf, G_X, dsda_config_ex_text_scale_x, EXHUD_ON },
   { "Ex Hud Ratio %", S_NUM, m_conf, G_X, dsda_config_ex_text_ratio_y, EXHUD_ON },
   { "Ex Hud Free Text", S_NAME, m_conf, G_X, dsda_config_free_text, EXHUD_ON },
