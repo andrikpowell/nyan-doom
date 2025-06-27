@@ -3756,13 +3756,15 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   FINAL_ENTRY
 };
 
+static const char* stat_format_list[] = { "ratio", "percent", "count", "remaining", "dsda classic", NULL };
+
 #define EXHUD_ON           DEPEND(dsda_config_exhud, true)
 #define STATUS_WIDGET_ON   DEPEND(nyan_config_ex_status_widget, true)
 
 setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
   { "Use Extended Hud", S_YESNO, m_conf, G_X, dsda_config_exhud },
-  { "Level Stat Totals", S_YESNO, m_conf, G_X, dsda_config_show_stat_totals, EXHUD_ON },
+  { "Level Stat Format", S_CHOICE, m_conf, G_X, dsda_config_stats_format, 0, stat_format_list, dsda_config_exhud, 1, 0 },
   { "Ex Hud Scale %", S_NUM, m_conf, G_X, dsda_config_ex_text_scale_x, EXHUD_ON },
   { "Ex Hud Ratio %", S_NUM, m_conf, G_X, dsda_config_ex_text_ratio_y, EXHUD_ON },
   { "Ex Hud Free Text", S_NAME, m_conf, G_X, dsda_config_free_text, EXHUD_ON },

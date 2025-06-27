@@ -18,6 +18,7 @@
 #include "dsda/skill_info.h"
 
 #include "base.h"
+#include "stat_totals.h"
 
 #include "map_totals.h"
 
@@ -64,7 +65,6 @@ static void dsda_UpdateLabelComponentText(char* str, size_t max_size) {
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
   int i;
   size_t length;
-  int show_totals;
   int fullkillcount, fullitemcount, fullsecretcount;
   const char* killcolor;
   const char* itemcolor;
@@ -93,8 +93,6 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
     max_kill_requirement = totalkills;
   }
 
-  show_totals = (local->hide_totals ? false : dsda_IntConfig(dsda_config_show_stat_totals));
-
   killcolor = (fullkillcount >= max_kill_requirement ? dsda_TextColor(dsda_tc_map_totals_max) :
                                                        dsda_TextColor(dsda_tc_map_totals_value));
   secretcolor = (fullsecretcount >= totalsecret ? dsda_TextColor(dsda_tc_map_totals_max) :
@@ -102,56 +100,14 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   itemcolor = (fullitemcount >= totalitems ? dsda_TextColor(dsda_tc_map_totals_max) :
                                              dsda_TextColor(dsda_tc_map_totals_value));
 
-  if (local->include_kills) {
-    if (show_totals || fullkillcount >= max_kill_requirement)
-      length += snprintf(
-        str,
-        max_size,
-        "%s%d/%d\n",
-        killcolor, fullkillcount, max_kill_requirement
-      );
-    else
-      length += snprintf(
-        str,
-        max_size,
-        "%s%d\n",
-        killcolor, fullkillcount
-      );
-  }
+  if (local->include_kills)
+    length += dsda_PrintStats(length, str, max_size, NULL, killcolor, fullkillcount, max_kill_requirement, true);
 
-  if (local->include_items) {
-    if (show_totals || fullitemcount >= totalitems)
-      length += snprintf(
-        str + length,
-        max_size - length,
-        "%s%d/%d\n",
-        itemcolor, fullitemcount, totalitems
-      );
-    else
-      length += snprintf(
-        str + length,
-        max_size - length,
-        "%s%d\n",
-        itemcolor, fullitemcount
-      );
-  }
+  if (local->include_items)
+    length += dsda_PrintStats(length, str + length, max_size - length, NULL, itemcolor, fullitemcount, totalitems, true);
 
-  if (local->include_secrets) {
-    if (show_totals || fullsecretcount >= totalsecret)
-      snprintf(
-        str + length,
-        max_size - length,
-        "%s%d/%d",
-        secretcolor, fullsecretcount, totalsecret
-      );
-    else
-      snprintf(
-        str + length,
-        max_size - length,
-        "%s%d",
-        secretcolor, fullsecretcount
-      );
-  }
+  if (local->include_secrets)
+    dsda_PrintStats(length, str + length, max_size - length, NULL, secretcolor, fullsecretcount, totalsecret, false);
 }
 
 void dsda_InitMapTotalsHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

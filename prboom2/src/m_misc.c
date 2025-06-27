@@ -107,7 +107,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_sts_blink_keys),
   MIGRATED_SETTING(dsda_config_sts_solid_bg_color),
   MIGRATED_SETTING(dsda_config_show_messages),
-  MIGRATED_SETTING(dsda_config_show_stat_totals),
+  MIGRATED_SETTING(dsda_config_stats_format),
   MIGRATED_SETTING(dsda_config_autorun),
   MIGRATED_SETTING(dsda_config_deh_change_cheats),
   MIGRATED_SETTING(dsda_config_movement_strafe50),
