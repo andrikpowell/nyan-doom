@@ -39,7 +39,6 @@ int dsda_PrintStats(size_t length, char *buffer, size_t size, const char* label,
     char print_stats[32] = "";
     int has_label = (label != NULL);
 
-    int ratio   = (stat_config==0);
     int percent = (stat_config==1);
     int count   = (stat_config==2);
     int remain  = (stat_config==3);
@@ -77,7 +76,6 @@ int dsda_PrintStats(size_t length, char *buffer, size_t size, const char* label,
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
   int i;
   size_t length;
-  int show_totals;
   int fullkillcount, fullitemcount, fullsecretcount;
   const char* killcolor;
   const char* itemcolor;
