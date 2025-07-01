@@ -54,13 +54,15 @@ int dsda_PrintStats(size_t length, char *buffer, size_t size, int format, const 
 
     if (dsda && first && has_label)
       sprintf(print_stats, "%d/%d %d%%", th_count, th_total, !th_total ? 100 : th_count * 100 / th_total);
+    else if (ratio)
+      sprintf(print_stats, "%d/%d", th_count, th_total);
     else if (percent)
       sprintf(print_stats, "%d%%", !th_total ? 100 : th_count * 100 / th_total);
     else if (count)
       sprintf(print_stats, "%d", th_count);
     else if (remain)
       sprintf(print_stats, "%d", th_total - th_count);
-    else
+    else // fallback
       sprintf(print_stats, "%d/%d", th_count, th_total);
 
     if (has_label)
