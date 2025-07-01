@@ -527,6 +527,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_hud", dsda_input_hud, KEYD_F5, -1, -1),
   INPUT_SETTING("input_messages", dsda_input_messages, KEYD_F8, -1, -1),
   INPUT_SETTING("input_gamma", dsda_input_gamma, KEYD_F11, -1, -1),
+  INPUT_SETTING("input_extra_brightness", dsda_input_extra_brightness, 0, -1, -1),
   INPUT_SETTING("input_spy", dsda_input_spy, KEYD_F12, -1, -1),
   INPUT_SETTING("input_zoomin", dsda_input_zoomin, '=', -1, -1),
   INPUT_SETTING("input_zoomout", dsda_input_zoomout, '-', -1, -1),

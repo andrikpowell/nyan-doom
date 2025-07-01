@@ -1802,7 +1802,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_extra_level_brightness] = {
     "extra_level_brightness", dsda_config_extra_level_brightness,
-    dsda_config_int, 0, 4, {0}, NULL, STRICT_INT(0)
+    dsda_config_int, 0, 4, { 0 },  &extra_brightness, STRICT_INT(0)
   },
   [dsda_config_playback_mouse_controls] = {
     "playback_mouse_controls", dsda_config_playback_mouse_controls,

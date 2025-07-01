@@ -125,6 +125,7 @@ typedef struct {
 #define NUM_SCREENS 6
 extern screeninfo_t screens[NUM_SCREENS];
 extern int          usegamma;
+extern int          extra_brightness;
 
 // Varying bit-depth support -POPE
 //

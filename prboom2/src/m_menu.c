@@ -2801,6 +2801,7 @@ setup_menu_t keys_game_settings[] =  // Key Binding screen strings
   {"VOLUME"      ,S_INPUT     ,m_scrn,KB_X,0,dsda_input_soundvolume},
   {"HUD"         ,S_INPUT     ,m_scrn,KB_X,0,dsda_input_hud},
   {"GAMMA FIX"   ,S_INPUT     ,m_scrn,KB_X,0,dsda_input_gamma},
+  {"EXTRA BRIGHTNESS",S_INPUT ,m_scrn,KB_X,0,dsda_input_extra_brightness},
   {"SPY"         ,S_INPUT     ,m_scrn,KB_X,0,dsda_input_spy},
   {"LARGER VIEW" ,S_INPUT     ,m_scrn,KB_X,0,dsda_input_zoomin},
   {"SMALLER VIEW",S_INPUT     ,m_scrn,KB_X,0,dsda_input_zoomout},
@@ -5947,6 +5948,18 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
                     usegamma == 2 ? s_GAMMALVL2 :
                     usegamma == 3 ? s_GAMMALVL3 :
                     s_GAMMALVL4);
+    return true;
+  }
+
+  // Toggle extra brightness
+  if (dsda_InputActivated(dsda_input_extra_brightness) && !dsda_StrictMode())
+  {
+    dsda_CycleConfig(dsda_config_extra_level_brightness, true);
+    dsda_AddMessage(extra_brightness == 0 ? "Extra Brightness Off" :
+                    extra_brightness == 1 ? "Extra Brightness Level 1" :
+                    extra_brightness == 2 ? "Extra Brightness Level 2" :
+                    extra_brightness == 3 ? "Extra Brightness Level 3" :
+                    "Extra Brightness Level 4");
     return true;
   }
 

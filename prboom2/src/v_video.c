@@ -81,6 +81,7 @@ screeninfo_t screens[NUM_SCREENS];
 const byte *colrngs[CR_LIMIT];
 
 int usegamma;
+int extra_brightness;
 
 int V_BloodColor(int blood)
 {
