@@ -52,7 +52,7 @@ int dsda_PrintStats(size_t length, char *buffer, size_t size, int format, const 
     remain  = (stat_config == 4);
     dsda    = (stat_config == 5);
 
-    if (dsda && first && has_label)
+    if (dsda && first && (has_label || nyanhud))
       sprintf(print_stats, "%d/%d %d%%", th_count, th_total, !th_total ? 100 : th_count * 100 / th_total);
     else if (ratio)
       sprintf(print_stats, "%d/%d", th_count, th_total);
