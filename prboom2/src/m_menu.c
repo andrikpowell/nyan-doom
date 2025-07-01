@@ -3756,7 +3756,7 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   FINAL_ENTRY
 };
 
-static const char* stat_format_list[] = { "ratio", "percent", "count", "remaining", "dsda classic", NULL };
+static const char* stat_format_list[] = { "NYANHUD", "ratio", "percent", "count", "remaining", "dsda classic", NULL };
 
 #define EXHUD_ON           DEPEND(dsda_config_exhud, true)
 #define STATUS_WIDGET_ON   DEPEND(nyan_config_ex_status_widget, true)

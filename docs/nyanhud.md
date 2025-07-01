@@ -49,14 +49,6 @@ You can find the current default configuration [here](../prboom2/data/lumps/nyan
 
 Unless otherwise specified, argument values are integers. For toggles, a 1 means on and a 0 means off. For example, `stat_totals 2 8 bottom_left 1 0 1` would turn off items but keep kills and secrets enabled.
 
-- `stat_totals`: shows the kills / secrets / items on the current map
-  - Supports 6 arguments: `show_kills show_items show_secrets vertical show_labels hide_totals`
-  - `show_kills`: shows kills in the component
-  - `show_items`: shows items in the component
-  - `show_secrets`: shows secrets in the component
-  - `vertical`: displays the stats vertically rather than horizontally
-  - `show_labels`: shows the "K" "I" "S" labels
-  - `hide_totals`: hides the total counts until they are reached
 - `composite_time`: shows the current level time and the total time
   - Supports 1 argument: `show_label`
   - `show_label`: shows the "time" label
@@ -103,13 +95,6 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
   - Clear the text in the console with `free_text.clear`
   - Use `\n` to create a new line
   - Use `\cXY` to change to color `XY`
-- `map_totals`: shows the kills / secrets / items on the current map
-  - Uses the message font with word labels
-  - Supports 4 arguments: `show_kills show_items show_secrets hide_totals`
-  - `show_kills`: shows kills in the component
-  - `show_items`: shows items in the component
-  - `show_secrets`: shows secrets in the component
-  - `hide_totals`: hides the total counts until they are reached
 - `map_time`: shows the level / total time
   - Uses the message font
 - `map_coordinates`: shows the player's position
@@ -124,6 +109,21 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
   - `center`: centers the component horizontally
 
 ### Nyan-specific Components
+- `stat_totals`: shows the kills / secrets / items on the current map
+  - Supports 6 arguments: `show_kills show_items show_secrets vertical show_labels stat_format`
+  - `show_kills`: shows kills in the component
+  - `show_items`: shows items in the component
+  - `show_secrets`: shows secrets in the component
+  - `vertical`: displays the stats vertically rather than horizontally
+  - `show_labels`: shows the "K" "I" "S" labels
+  - `stat_format`: shows stats in a particular format (0 - Ratio, 1 - Percent, 2 - Count, 3 - Remaining, 4 - DSDA Classic)
+- `map_totals`: shows the kills / secrets / items on the current map
+  - Uses the message font with word labels
+  - Supports 4 arguments: `show_kills show_items show_secrets stat_format`
+  - `show_kills`: shows kills in the component
+  - `show_items`: shows items in the component
+  - `show_secrets`: shows secrets in the component
+  - `stat_format`: shows stats in a particular format (0 - Ratio, 1 - Percent, 2 - Count, 3 - Remaining, 4 - DSDA Classic)
 - `status_widget`: shows icons for armor type, backpack, and other powerups
   - Supports 1 argument: `vertical`
 - `sml_armor`: shows the player armor type with a small sprite

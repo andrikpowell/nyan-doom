@@ -24,7 +24,7 @@
 typedef struct {
   dsda_text_t component;
   dboolean include_kills, include_items, include_secrets;
-  dboolean hide_totals;
+  int stat_format;
   const char* label_k;
   const char* label_i;
   const char* label_s;
@@ -33,17 +33,24 @@ typedef struct {
 
 static local_component_t* local;
 
-int dsda_PrintStats(size_t length, char *buffer, size_t size, const char* label, const char* cm, const int th_count, const int th_total, dboolean separator)
+int dsda_PrintStats(size_t length, char *buffer, size_t size, int format, const char* label, const char* cm, const int th_count, const int th_total, dboolean separator)
 {
     int stat_config = dsda_IntConfig(dsda_config_stats_format);
+    int ratio, percent, count, remain, dsda;
     char print_stats[32] = "";
     int has_label = (label != NULL);
-
-    int percent = (stat_config==1);
-    int count   = (stat_config==2);
-    int remain  = (stat_config==3);
-    int dsda    = (stat_config==4);
     int first   = (length == 0);
+    int nyanhud = (stat_config == 0);
+
+    // Use NYANHUD format
+    if (nyanhud)
+      stat_config = format + 1;
+
+    ratio   = (stat_config == 1);
+    percent = (stat_config == 2);
+    count   = (stat_config == 3);
+    remain  = (stat_config == 4);
+    dsda    = (stat_config == 5);
 
     if (dsda && first && has_label)
       sprintf(print_stats, "%d/%d %d%%", th_count, th_total, !th_total ? 100 : th_count * 100 / th_total);
@@ -112,13 +119,13 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
                                              dsda_TextColor(dsda_tc_exhud_totals_value));
 
   if (local->include_kills)
-    length += dsda_PrintStats(length, str, max_size, local->label_k, killcolor, fullkillcount, max_kill_requirement, true);
+    length += dsda_PrintStats(length, str, max_size, local->stat_format, local->label_k, killcolor, fullkillcount, max_kill_requirement, true);
 
   if (local->include_items)
-    length += dsda_PrintStats(length, str + length, max_size - length, local->label_i, itemcolor, fullitemcount, totalitems, true);
+    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, local->label_i, itemcolor, fullitemcount, totalitems, true);
 
   if (local->include_secrets)
-    dsda_PrintStats(length, str + length, max_size - length, local->label_s, secretcolor, fullsecretcount, totalsecret, false);
+    dsda_PrintStats(length, str + length, max_size - length, local->stat_format, local->label_s, secretcolor, fullsecretcount, totalsecret, false);
 }
 
 void dsda_InitStatTotalsHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
@@ -143,7 +150,7 @@ void dsda_InitStatTotalsHC(int x_offset, int y_offset, int vpt, int* args, int a
     local->label_s = "";
   }
 
-  local->hide_totals = args[5];
+  local->stat_format = args[5];
 
   if (!local->include_kills && !local->include_items && !local->include_secrets) {
     local->include_kills = local->include_items = local->include_secrets = true;

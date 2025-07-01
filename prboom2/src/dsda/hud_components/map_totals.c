@@ -26,7 +26,7 @@ typedef struct {
   dsda_text_t label;
   dsda_text_t component;
   dboolean include_kills, include_items, include_secrets;
-  dboolean hide_totals;
+  int stat_format;
 } local_component_t;
 
 static local_component_t* local;
@@ -101,13 +101,13 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
                                              dsda_TextColor(dsda_tc_map_totals_value));
 
   if (local->include_kills)
-    length += dsda_PrintStats(length, str, max_size, NULL, killcolor, fullkillcount, max_kill_requirement, true);
+    length += dsda_PrintStats(length, str, max_size, local->stat_format, NULL, killcolor, fullkillcount, max_kill_requirement, true);
 
   if (local->include_items)
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, itemcolor, fullitemcount, totalitems, true);
+    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, NULL, itemcolor, fullitemcount, totalitems, true);
 
   if (local->include_secrets)
-    dsda_PrintStats(length, str + length, max_size - length, NULL, secretcolor, fullsecretcount, totalsecret, false);
+    dsda_PrintStats(length, str + length, max_size - length, local->stat_format, NULL, secretcolor, fullsecretcount, totalsecret, false);
 }
 
 void dsda_InitMapTotalsHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
@@ -118,7 +118,7 @@ void dsda_InitMapTotalsHC(int x_offset, int y_offset, int vpt, int* args, int ar
   local->include_items = args[1];
   local->include_secrets = args[2];
 
-  local->hide_totals = args[3];
+  local->stat_format = args[3];
 
   if (!local->include_kills && !local->include_items && !local->include_secrets)
     local->include_kills = local->include_items = local->include_secrets = true;
