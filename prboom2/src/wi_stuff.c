@@ -1017,6 +1017,7 @@ void WI_End(void)
     WI_endStats();
 }
 
+#define WI_INTERMISSION_PAUSE (!dsda_StrictMode() && allow_incompatibility && gamemode == commercial && !netgame)
 
 // ====================================================================
 // WI_initNoState
@@ -1030,8 +1031,8 @@ void WI_initNoState(void)
   acceleratestage = 0;
   if (gamemap == 30 || (gamemission == pack_nerve && allow_incompatibility && gamemap == 8) || dsda_FinaleShortcut())
       cnt = 10;
-  else if (!netgame && allow_incompatibility && gamemode == commercial)
-      cnt = 45;
+  else if (WI_INTERMISSION_PAUSE)
+      cnt = TICRATE + 10;
   else
       cnt = 10;
 }
@@ -1089,7 +1090,7 @@ void WI_updateNoState(void)
 
   WI_updateAnimatedBack();
 
-  if (!--cnt)
+  if (!--cnt || (WI_INTERMISSION_PAUSE && acceleratestage))
     G_WorldDone();
 }
 
