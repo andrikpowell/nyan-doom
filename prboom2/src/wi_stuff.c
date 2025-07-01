@@ -52,6 +52,7 @@
 #include "dsda/configuration.h"
 #include "dsda/animate.h"
 #include "dsda/library.h"
+#include "dsda/settings.h"
 
 #include "heretic/in_lude.h"
 #include "hexen/in_lude.h"
