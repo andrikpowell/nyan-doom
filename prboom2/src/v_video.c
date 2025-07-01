@@ -1232,7 +1232,7 @@ int V_GetPlaypalCount(void)
 
 SDL_Color V_GetPatchColor (int lumpnum)
 {
-  SDL_Color col = {0,0,0,0};
+  SDL_Color col = { 0, 0, 0 };
   int r = 0, g = 0, b = 0;
   const unsigned char *playpal = V_GetPlaypal();
   int x, y, pixel_cnt = 0;
@@ -1293,7 +1293,7 @@ SDL_Color V_GetPatchColor (int lumpnum)
 
 static SDL_Color V_GetPatchColorRaw (int lumpnum, int w, int h)
 {
-  SDL_Color col = {0,0,0,0};
+  SDL_Color col = { 0, 0, 0 };
   int r = 0, g = 0, b = 0;
   const unsigned char *playpal = V_GetPlaypal();
   int x, y, pixel_cnt = 0;
