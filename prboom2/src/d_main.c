@@ -686,8 +686,9 @@ static void D_PageDrawer(void)
     pagename = help2;
 
   // Draw Credits for Blank Demos
-  if (pagename == credit && (M_SKIPDEMOS || doom_v11))
-    return D_DrawCredits();
+  if (pagename && (M_SKIPDEMOS || doom_v11))
+    if (!strcmp(pagename, credit))
+      return D_DrawCredits();
 
   // proff/nicolas 09/14/98 -- now stretchs bitmaps to fullscreen!
   // CPhipps - updated for new patch drawing
