@@ -279,7 +279,6 @@ static void M_DrawLoad(void);
 static void M_DrawSave(void);
 static void M_DrawHelp (void);                                     // phares 5/04/98
 static void M_DrawAd(void);
-static void M_DrawCredits(void);
 
 static void M_DrawSaveLoadBorder(int x,int y);
 static void M_DrawThermo(int x,int y,int thermWidth,int thermRange,int thermDot);

@@ -641,6 +641,31 @@ void D_PageTicker(void)
     D_AdvanceDemo();
 }
 
+// Check whether to skip IWAD Demos
+int dsda_SkipIwadDemos(const char *name)
+{
+  if (dsda_IntConfig(nyan_config_skip_default_demos) && allow_incompatibility)
+  {
+    int pwaddemos = W_PWADLumpNameExists(name);
+    int pwadmaps =  W_PWADLumpNameExists("THINGS");
+    if (pwadmaps && !pwaddemos)
+      return 1;
+  }
+
+  return 0;
+}
+
+// Draw Credits for Blank Demos
+static void D_DrawCredits(void)
+{
+  if (!W_PWADLumpNameExists(credit))
+    M_DrawCreditsDynamic();
+  else
+    M_DrawCredits();
+}
+
+#define M_SKIPDEMOS (dsda_SkipIwadDemos("DEMO1") || (lumpinfo[W_CheckNumForName("DEMO1")].size == 0))
+
 //
 // D_PageDrawer
 //
@@ -659,6 +684,10 @@ static void D_PageDrawer(void)
   // Arsinikk - allows use of HELP2 screen for PWADs under DOOM 1
   if (demosequence == 4 && pwad_help2_check)
     pagename = help2;
+
+  // Draw Credits for Blank Demos
+  if (pagename == credit && (M_SKIPDEMOS || doom_v11))
+    return D_DrawCredits();
 
   // proff/nicolas 09/14/98 -- now stretchs bitmaps to fullscreen!
   // CPhipps - updated for new patch drawing
@@ -685,20 +714,6 @@ void D_AdvanceDemo (void)
 /* killough 11/98: functions to perform demo sequences
  * cphipps 10/99: constness fixes
  */
-
-// Check whether to skip IWAD Demos
-int dsda_SkipIwadDemos(const char *name)
-{
-  if (dsda_IntConfig(nyan_config_skip_default_demos) && allow_incompatibility)
-  {
-    int pwaddemos = W_PWADLumpNameExists(name);
-    int pwadmaps =  W_PWADLumpNameExists("THINGS");
-    if (pwadmaps && !pwaddemos)
-      return 1;
-  }
-
-  return 0;
-}
 
 static void D_SetPageName(const char *name)
 {
@@ -731,8 +746,11 @@ static void D_DrawTitle2(const char *name)
 
 void D_PlayDemoName(const char *name)
 {
-  if (dsda_SkipIwadDemos(name) || doom_v11)
-    name = "DEMONULL";
+  if (dsda_SkipIwadDemos(name))
+  {
+    demosequence = 0;
+    return;
+  }
   G_DeferedPlayDemo(name);
 }
 
@@ -810,6 +828,23 @@ const demostate_t doom_demostates[][4] =
   }
 };
 
+const demostate_t doom_demostates_blank[][4] =
+{
+  {
+    {D_DrawTitle1, titlepic},
+    {D_DrawTitle1, titlepic},
+    {D_DrawTitle2, titlepic},
+    {D_DrawTitle1, titlepic},
+  },
+
+  {
+    {D_SetPageName, credit},
+    {D_SetPageName, credit},
+    {D_SetPageName, credit},
+    {D_SetPageName, credit},
+  }
+};
+
 /*
  * This cycles through the demo sequences.
  * killough 11/98: made table-driven
@@ -817,6 +852,11 @@ const demostate_t doom_demostates[][4] =
 
 void D_DoAdvanceDemo(void)
 {
+  extern const demostate_t heretic_demostates[][4];
+  extern const demostate_t hexen_demostates[][4];
+  extern const demostate_t heretic_demostates_blank[][4];
+  extern const demostate_t hexen_demostates_blank[][4];
+
   players[consoleplayer].playerstate = PST_LIVE;  /* not reborn */
   advancedemo = false;
   dsda_ResetPauseMode();
@@ -829,6 +869,16 @@ void D_DoAdvanceDemo(void)
     demosequence = 0;
   else if (!demostates[++demosequence][gamemode].func)
     demosequence = 0;
+
+  // Change demostates if demos are blank
+  if (M_SKIPDEMOS || doom_v11)
+  {
+    demostates = raven ? heretic ? heretic_demostates_blank : hexen_demostates_blank : doom_demostates_blank;
+    if (demosequence > (raven ? 2 : 1))
+      demosequence = 0;
+  }
+  else
+    demostates = raven ? heretic ? heretic_demostates : hexen_demostates : doom_demostates;
 
   // do not even attempt to play DEMO4 if it is not available
   if (demosequence == 6 && gamemode == commercial && !W_LumpNameExists("demo4"))
