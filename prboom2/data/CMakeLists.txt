@@ -38,6 +38,14 @@ include(NyanTargetFeatures)
 nyan_target_set_warnings(nyan_rdatawad)
 nyan_target_silence_deprecation(nyan_rdatawad)
 
+include(CheckBigEndian)
+check_big_endian(RD_IS_BIG_ENDIAN)
+
+target_compile_definitions(nyan_rdatawad
+    PRIVATE
+    "RD_IS_BIG_ENDIAN=${RD_IS_BIG_ENDIAN}"
+)
+
 # PrBoom-Plus internal WAD
 
 set(PALETTE
