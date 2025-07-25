@@ -1278,6 +1278,10 @@ SDL_Color V_GetPatchColor (int lumpnum)
     }
   }
 
+  // Avoid transparent pixel crash
+  if (pixel_cnt < 1)
+    pixel_cnt = 1;
+
   // Average RGB values
   col.r = r / pixel_cnt;
   col.g = g / pixel_cnt;
@@ -1316,6 +1320,10 @@ static SDL_Color V_GetPatchColorRaw (int lumpnum, int w, int h)
       pixel_cnt++;
     }
   }
+
+  // Avoid transparent pixel crash
+  if (pixel_cnt < 1)
+    pixel_cnt = 1;
 
   // Average RGB values
   col.r = r / pixel_cnt;
