@@ -18,12 +18,12 @@
 #ifndef __DSDA_SAVE__
 #define __DSDA_SAVE__
 
-int saved_limitremoving;
-int saved_pistolstart;
-int saved_respawnparm;
-int saved_fastparm;
-int saved_nomonsters;
-int saved_coop_spawns;
+extern int saved_limitremoving;
+extern int saved_pistolstart;
+extern int saved_respawnparm;
+extern int saved_fastparm;
+extern int saved_nomonsters;
+extern int saved_coop_spawns;
 
 void dsda_ArchiveAll(void);
 void dsda_UnArchiveAll(void);

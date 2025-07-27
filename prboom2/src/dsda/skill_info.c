@@ -280,6 +280,25 @@ static int dsda_GetCustomFactor(int config) {
   }
 }
 
+// Custom Skill variables
+int cskill_spawn_filter;
+int cskill_ammo_factor;
+int cskill_damage_factor;
+int cskill_armor_factor;
+int cskill_health_factor;
+int cskill_monster_hp_factor;
+int cskill_friend_hp_factor;
+int cskill_respawn;
+int cskill_respawn_time;
+int cskill_coop_spawns;
+int cskill_no_monsters;
+int cskill_fast_monsters;
+int cskill_aggressive;
+int cskill_no_pain;
+int cskill_easy_brain;
+int cskill_auto_use_hp;
+int cskill_easy_key;
+
 void dsda_UpdateCustomSkill(int custom_skill_num) {
   // Reset custom skill
   skill_infos[custom_skill_num].flags = 0;

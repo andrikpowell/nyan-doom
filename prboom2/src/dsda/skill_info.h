@@ -35,23 +35,23 @@
 #define SI_NO_MONSTERS      0x1000
 
 // Custom Skill variables
-int cskill_spawn_filter;
-int cskill_ammo_factor;
-int cskill_damage_factor;
-int cskill_armor_factor;
-int cskill_health_factor;
-int cskill_monster_hp_factor;
-int cskill_friend_hp_factor;
-int cskill_respawn;
-int cskill_respawn_time;
-int cskill_coop_spawns;
-int cskill_no_monsters;
-int cskill_fast_monsters;
-int cskill_aggressive;
-int cskill_no_pain;
-int cskill_easy_brain;
-int cskill_auto_use_hp;
-int cskill_easy_key;
+extern int cskill_spawn_filter;
+extern int cskill_ammo_factor;
+extern int cskill_damage_factor;
+extern int cskill_armor_factor;
+extern int cskill_health_factor;
+extern int cskill_monster_hp_factor;
+extern int cskill_friend_hp_factor;
+extern int cskill_respawn;
+extern int cskill_respawn_time;
+extern int cskill_coop_spawns;
+extern int cskill_no_monsters;
+extern int cskill_fast_monsters;
+extern int cskill_aggressive;
+extern int cskill_no_pain;
+extern int cskill_easy_brain;
+extern int cskill_auto_use_hp;
+extern int cskill_easy_key;
 
 typedef uint16_t skill_info_flags_t;
 

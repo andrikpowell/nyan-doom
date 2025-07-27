@@ -65,6 +65,13 @@ static void dsda_UnArchiveInternal(void) {
   dsda_MergeFeatures(features);
 }
 
+int saved_limitremoving;
+int saved_pistolstart;
+int saved_respawnparm;
+int saved_fastparm;
+int saved_nomonsters;
+int saved_coop_spawns;
+
 void dsda_ArchiveGameModifiers(void)
 {
   saved_limitremoving = limitremoving;
