@@ -334,24 +334,29 @@ void dsda_RefreshPistolStart(void)
 {
   if (allow_incompatibility || in_game)
     if(dsda_IntConfig(dsda_config_always_pistol_start) && !dsda_IntConfig(dsda_config_pistol_start))
+    {
       dsda_UpdateIntConfig(dsda_config_always_pistol_start, 0, true);
-  dsda_TrackGameFlags();
+      dsda_ResetGameModifiers();
+    }
 }
 
 void dsda_RefreshAlwaysPistolStart(void)
 {
   if (allow_incompatibility || in_game)
     if(dsda_IntConfig(dsda_config_always_pistol_start) && !dsda_IntConfig(dsda_config_pistol_start))
+    {
       dsda_UpdateIntConfig(dsda_config_pistol_start, 1, true);
-  dsda_TrackGameFlags();
+      dsda_ResetGameModifiers();
+    }
 }
 
 static void dsda_ResetGameFlags(void)
 {
-  respawnparm = (allow_incompatibility ? dsda_IntConfig(dsda_config_respawn_monsters) : dsda_Flag(dsda_arg_respawn));
-  fastparm = (allow_incompatibility ? dsda_IntConfig(dsda_config_fast_monsters) : dsda_Flag(dsda_arg_fast));
-  nomonsters = (allow_incompatibility ? dsda_IntConfig(dsda_config_no_monsters) : dsda_Flag(dsda_arg_nomonsters));
-  coop_spawns = (allow_incompatibility ? dsda_IntConfig(dsda_config_coop_spawns) : dsda_Flag(dsda_arg_coop_spawns));
+  pistolstart   = (allow_incompatibility ? dsda_IntConfig(dsda_config_pistol_start)      : false);   // pistolstart not allowed in demos
+  respawnparm   = (allow_incompatibility ? dsda_IntConfig(dsda_config_respawn_monsters)  : dsda_Flag(dsda_arg_respawn));
+  fastparm      = (allow_incompatibility ? dsda_IntConfig(dsda_config_fast_monsters)     : dsda_Flag(dsda_arg_fast));
+  nomonsters    = (allow_incompatibility ? dsda_IntConfig(dsda_config_no_monsters)       : dsda_Flag(dsda_arg_nomonsters));
+  coop_spawns   = (allow_incompatibility ? dsda_IntConfig(dsda_config_coop_spawns)       : dsda_Flag(dsda_arg_coop_spawns));
   dsda_TrackGameFlags();
 }
 

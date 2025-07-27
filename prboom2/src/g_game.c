@@ -1255,7 +1255,7 @@ static void G_DoLoadLevel (void)
   }
 
   // automatic pistol start when advancing from one level to the next
-  if (dsda_IntConfig(dsda_config_pistol_start) && !skill_no_pistol_start)
+  if (pistolstart && !skill_no_pistol_start)
     if (allow_incompatibility)
       G_PlayerReborn(0);
 

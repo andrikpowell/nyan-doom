@@ -140,6 +140,8 @@ dboolean nomonsters;     // working -nomonsters
 dboolean respawnparm;    // working -respawn
 dboolean fastparm;       // working -fast
 
+dboolean pistolstart;
+
 dboolean randomclass;
 
 dboolean singletics = false; // debug flag to cancel adaptiveness
