@@ -4001,7 +4001,7 @@ setup_menu_t skill_options_builder[] = {
   { "Respawn Monsters", S_YESNO, m_conf, SK_X, dsda_config_skill_respawn_monsters },
   { "Fast Monsters", S_YESNO, m_conf, SK_X, dsda_config_skill_fast_monsters },
   { "Aggressive Monsters", S_YESNO, m_conf, SK_X, dsda_config_skill_aggressive_monsters},
-  { "No Monsters", S_YESNO, m_conf, SK_X, dsda_config_no_monsters },
+  { "No Monsters", S_YESNO, m_conf, SK_X, dsda_config_skill_no_monsters },
   EMPTY_LINE,
   { "Pistol Start", S_YESNO, m_conf, SK_X, dsda_config_pistol_start },
   EMPTY_LINE,

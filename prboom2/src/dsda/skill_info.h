@@ -32,6 +32,7 @@
 #define SI_MUST_CONFIRM     0x0200
 #define SI_AUTO_USE_HEALTH  0x0400
 #define SI_EASY_KEY         0x0800
+#define SI_NO_MONSTERS      0x1000
 
 // Custom Skill variables
 int cskill_spawn_filter;

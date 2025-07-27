@@ -305,6 +305,7 @@ void dsda_UpdateCustomSkill(int custom_skill_num) {
   if (cskill_coop_spawns)   skill_infos[custom_skill_num].flags |= SI_SPAWN_MULTI;
   if (cskill_aggressive)    skill_infos[custom_skill_num].flags |= SI_INSTANT_REACTION;
   if (cskill_fast_monsters) skill_infos[custom_skill_num].flags |= SI_FAST_MONSTERS;
+  if (cskill_no_monsters)   skill_infos[custom_skill_num].flags |= SI_NO_MONSTERS;
   if (cskill_no_pain)       skill_infos[custom_skill_num].flags |= SI_NO_PAIN;
   if (cskill_easy_key)      skill_infos[custom_skill_num].flags |= SI_EASY_KEY;
 }
@@ -373,6 +374,9 @@ void dsda_RefreshGameSkill(void) {
 
   if (respawnparm && !skill_info.respawn_time)
     skill_info.respawn_time = 12;
+
+  if (nomonsters)
+    skill_info.flags |= SI_NO_MONSTERS;
 
   if (fastparm)
     skill_info.flags |= SI_FAST_MONSTERS;
