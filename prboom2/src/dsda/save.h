@@ -18,12 +18,12 @@
 #ifndef __DSDA_SAVE__
 #define __DSDA_SAVE__
 
-extern int track_limitremoving;
-extern int track_pistolstart;
-extern int track_respawnparm;
-extern int track_fastparm;
-extern int track_nomonsters;
-extern int track_coop_spawns;
+int saved_limitremoving;
+int saved_pistolstart;
+int saved_respawnparm;
+int saved_fastparm;
+int saved_nomonsters;
+int saved_coop_spawns;
 
 void dsda_ArchiveAll(void);
 void dsda_UnArchiveAll(void);

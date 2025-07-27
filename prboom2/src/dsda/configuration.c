@@ -144,7 +144,6 @@ void dsda_ResetAirControl(void);
 void dsda_AlterGameFlags(void);
 void dsda_RefreshPistolStart(void);
 void dsda_RefreshAlwaysPistolStart(void);
-void dsda_RefreshLimitRemoving(void);
 void S_ToggleRandomMusic(void);
 void P_UpdateTranMap(void);
 
@@ -1319,7 +1318,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_limit_removing] = {
     "dsda_limit_removing", dsda_config_limit_removing,
-    CONF_BOOL(0), NULL, NOT_STRICT, dsda_RefreshLimitRemoving
+    CONF_BOOL(0), NULL, NOT_STRICT, dsda_AlterGameFlags
   },
   [dsda_config_always_pistol_start] = {
     "dsda_always_pistol_start", dsda_config_always_pistol_start,
