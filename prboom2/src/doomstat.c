@@ -59,7 +59,7 @@ int complvl = -1;
 
 // disables overflow warnings and errors for vanilla complevels
 int limitremoving;
-int limitremoving_lmp;
+int limitremoving_lmp = false;
 
 // e6y
 // it's required for demos recorded in "demo compatibility" mode by boom201 for example

@@ -100,7 +100,7 @@ static int dsda_WadCompatibilityLevel(void) {
 
   // This might be called before all wads are loaded
   if (numwadfiles != last_numwadfiles) {
-      int num, gamever;
+      int num, gamever = false;
       const char *lumps, *limit;
 
       last_numwadfiles = numwadfiles;
