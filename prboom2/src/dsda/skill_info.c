@@ -281,6 +281,10 @@ static int dsda_GetCustomFactor(int config) {
 }
 
 void dsda_UpdateCustomSkill(int custom_skill_num) {
+  // Reset custom skill
+  skill_infos[custom_skill_num].flags = 0;
+  skill_infos[custom_skill_num].respawn_time = 0;
+
   // Get spawn filter value
   skill_infos[custom_skill_num].spawn_filter = dsda_GetCustomSpawnFilter(cskill_spawn_filter);;
 
