@@ -115,6 +115,7 @@ static void cheat_reveal_doom_key();
 static void cheat_reveal_heretic_key();
 static void cheat_hom();
 static void cheat_fast();
+static void cheat_nuke();
 static void cheat_key();
 static void cheat_keyx();
 static void cheat_keyxx();
@@ -263,6 +264,7 @@ cheatseq_t cheat[] = {
   CHEAT("smart",      NULL,   NULL,               not_demo, cheat_smart, 0, false),     // killough 2/21/98: smart monster toggle
   CHEAT("pitch",      NULL,   NULL,               cht_always, cheat_pitch, 0, false),   // killough 2/21/98: pitched sound toggle
   CHEAT("fast",       NULL,   NULL,               not_demo, cheat_fast, 0, false),      // killough 3/6/98: -fast toggle
+  CHEAT("nuke",       NULL,   NULL,               not_demo, cheat_nuke, 0, false),      // killough 12/98: disable nukage damage
   CHEAT("ice",        NULL,   NULL,               not_demo, cheat_friction, 0, false),  // phares 3/10/98: toggle variable friction effects
   CHEAT("push",       NULL,   NULL,               not_demo, cheat_pushers, 0, false),   // phares 3/10/98: toggle pushers
 
@@ -1139,6 +1141,12 @@ static void cheat_fast()
   dsda_AddMessage(dsda_ToggleConfig(dsda_config_fast_monsters, true) ? "Fast Monsters On"
                                                                      : "Fast Monsters Off");
   dsda_RefreshGameSkill(); // refresh fast monsters
+}
+
+static void cheat_nuke(void)
+{
+  dsda_AddMessage((disable_nuke = !disable_nuke) ?
+                  "Nukage Disabled" : "Nukage Enabled");
 }
 
 // killough 2/16/98: keycard/skullkey cheat functions

@@ -1265,6 +1265,8 @@ dboolean P_UseSpecialLine
   int   side,
 	dboolean noplayercheck);
 
+extern int disable_nuke;  // killough 12/98: nukage disabling cheat
+
 void P_PlayerInSpecialSector
 ( player_t* player );
 

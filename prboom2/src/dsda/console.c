@@ -2568,6 +2568,7 @@ static console_command_entry_t console_commands[] = {
   { "pitch", console_BasicCheat, CF_DEMO },
   { "fast", console_BasicCheat, CF_DEMO },
   { "ice", console_BasicCheat, CF_DEMO },
+  { "nuke", console_BasicCheat, CF_DEMO },
   { "push", console_BasicCheat, CF_DEMO },
   { "key", console_KEY, CF_DEMO },
 

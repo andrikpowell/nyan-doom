@@ -2735,11 +2735,14 @@ void P_ShootHexenSpecialLine(mobj_t *thing, line_t *line)
   P_ActivateLine(line, thing, 0, SPAC_IMPACT);
 }
 
+int disable_nuke;  // killough 12/98: nukage disabling cheat
+
 static void P_ApplySectorDamage(player_t *player, int damage, int leak)
 {
-  if (!player->powers[pw_ironfeet] || (leak && P_Random(pr_slimehurt) < leak))
-    if (!(leveltime & 0x1f))
-      P_DamageMobj(player->mo, NULL, NULL, damage);
+  if (!disable_nuke)
+    if (!player->powers[pw_ironfeet] || (leak && P_Random(pr_slimehurt) < leak))
+      if (!(leveltime & 0x1f))
+        P_DamageMobj(player->mo, NULL, NULL, damage);
 }
 
 static void P_ApplySectorDamageEndLevel(player_t *player)
@@ -2828,7 +2831,7 @@ void P_PlayerInCompatibleSector(player_t *player, sector_t *sector)
           break;
       }
     }
-    else
+    else if (!disable_nuke)
     {
       P_ApplyGeneralizedSectorDamage(player, (sector->special & DAMAGE_MASK) >> DAMAGE_SHIFT);
     }
