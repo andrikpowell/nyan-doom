@@ -768,6 +768,7 @@ void M_ChooseSkill(int choice)
       message = s_NIGHTMARE; // Ty 03/27/98 - externalized
 
     M_StartMessage(message, M_VerifySkill, true);
+    M_SetupNextMenu(&ReadDef1); // Exit out of menu if "no" is selected
 
     return;
   }
