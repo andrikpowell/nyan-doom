@@ -768,7 +768,7 @@ void M_ChooseSkill(int choice)
       message = s_NIGHTMARE; // Ty 03/27/98 - externalized
 
     M_StartMessage(message, M_VerifySkill, true);
-    M_SetupNextMenu(&ReadDef1); // Exit out of menu if "no" is selected
+    M_SetupNextMenu(&ReadDef1); // Clear in-menu variables when "no" or "ESC"
 
     return;
   }
@@ -1680,34 +1680,17 @@ static dboolean M_ItemSelected(const setup_menu_t *s)
     int flags = s->m_flags;
 
     if (s == current_setup_menu + set_menu_itemon && whichSkull && !(flags & S_NOSELECT))
-    {
-        return true;
-    }
+      return true;
 
     return false;
 }
 
 static void M_BlinkingArrowRight(const setup_menu_t *s)
 {
-    int flags = s->m_flags;
-
-    if (!M_ItemSelected(s))
-    {
-        return;
-    }
-
-    if (flags & (S_CHOICE | S_CRITEM | S_THERMO))
-    {
-        if (!setup_select)
-        {
-            strcat(menu_buffer, " <");
-        }
-    }
-    else if (!setup_select)
-    {
+    if (M_ItemSelected(s) && !setup_select)
         strcat(menu_buffer, " <");
-    }
 }
+
 
 setup_menu_t auto_colors_settings[];
 setup_menu_t auto_heretic_colors_settings[];
@@ -2047,10 +2030,11 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
 static int GetItemColor(int flags)
 {
     return (flags & S_TITLE && flags & S_DISABLED) ? cr_title + CR_DARKEN :
-          flags & S_DISABLED ? cr_label + CR_DARKEN :    flags & (S_SELECT|S_TC_SEL) ? cr_label_edit :
-          flags & S_HILITE ? cr_label_highlight :
-          flags & (S_TITLE|S_NEXT|S_PREV) ? cr_title :
-          cr_label; // killough 10/98
+            flags & S_DISABLED ? cr_label + CR_DARKEN :
+            flags & (S_SELECT|S_TC_SEL) ? cr_label_edit :
+            flags & S_HILITE ? cr_label_highlight :
+            flags & (S_TITLE|S_NEXT|S_PREV) ? cr_title :
+            cr_label; // killough 10/98
 }
 
 static int GetOptionColor(int flags)
@@ -2085,6 +2069,7 @@ static void M_DrawItem(const setup_menu_t* s, int y)
  
   color = GetItemColor(flags);
 
+  // Add ". . ." to function
   sprintf(text, "%s%s", s->m_text, (flags & S_FUNC) ? ". . ." : "");
 
   /* killough 10/98:
@@ -2097,15 +2082,18 @@ static void M_DrawItem(const setup_menu_t* s, int y)
     w = M_GetPixelWidth(p);
 
     if (!(flags & S_LEFTJUST))
-        x -= (w + 4);
+      x -= (w + 4);
 
-    M_DrawString(x, y , color, p);
-    // print a blinking "arrow" next to the currently highlighted menu item
+    M_DrawString(x, y, color, p);
+
+    // print a blinking left "arrow" before highlighted menu item
     if (M_ItemSelected(s))
       M_DrawString(x - 8, y, color, ">");
-    // print a blinking "arrow" after function
-    if (M_ItemSelected(s) && (flags & S_FUNC))
-      M_DrawString(x + w, y, color, " <");
+
+    // print a blinking right "arrow" after highlighted function
+    if (flags & S_FUNC)
+      if (M_ItemSelected(s) && !setup_select)
+          M_DrawString(x + w, y, color, " <");
   }
   Z_Free(t);
 }
@@ -2257,8 +2245,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
 
     if (!ch) // don't show this item in automap mode
       V_DrawNamePatch(x+1,y,0,"M_PALNO", CR_DEFAULT, VPT_STRETCH);
-    if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
-      M_DrawString(x + 8, y, color, " <");
+    M_BlinkingArrowRight(s);
     return;
   }
 
@@ -2565,7 +2552,7 @@ static void M_DrawInstructions(void)
   // are changing an item or just sitting on it.
 
   if (setup_select) {
-    switch (flags & (S_INPUT | S_YESNO | S_WEAP | S_NUM | S_COLOR | S_CRITEM | S_FILE | S_CHOICE | S_FUNC | S_THERMO | S_NAME)) {
+    switch (flags & (S_INPUT | S_YESNO | S_WEAP | S_NUM | S_COLOR | S_CRITEM | S_FILE | S_CHOICE | S_THERMO | S_NAME)) {
       case S_INPUT:
         M_DrawInstructionString(cr_info_edit, "Press key or button for this action");
         break;
@@ -2596,9 +2583,6 @@ static void M_DrawInstructions(void)
       case S_NAME:
         M_DrawInstructionString(cr_info_edit, "Type / edit author and Press ENTER");
         break;
-      case S_FUNC:
-        M_DrawInstructionString(cr_info_edit, "Press ENTER key to confirm");
-        break;
       default:
         break;
     }
@@ -2619,7 +2603,7 @@ static void M_DrawInstructions(void)
 #define FINAL_ENTRY { 0, S_SKIP | S_END, m_null }
 #define EMPTY_LINE { 0, S_SKIP, m_null }
 #define NEW_COLUMN { 0, S_SKIP | S_RESET_Y, m_null }
-#define FUNCTION(action_name, flags, offset_x, action_func) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, 0, 0, m_null, 0, NULL, 0, .action = action_func }
+#define FUNCTION(action_name, flags, offset_x, action_func) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, .action = action_func }
 #define DEPEND(config, value)     0, m_null, config, (const char *)value, false
 #define EXCLUDE(config, value)    0, m_null, config, (const char *)value, true
 #define TITLE_DEPEND(page_name, offset_x, config, value) { page_name, S_SKIP | S_TITLE, m_null, offset_x, 0, DEPEND(config, value)}
@@ -3920,19 +3904,30 @@ static void M_DrawCompatibility(void)
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
+/////////////////////////////
+//
+// Custom Skill Functions [based off Nugget]
+
+enum
+{
+  cskill_new_game,
+  cskill_pistol_start,
+  cskill_loadout_current
+} cskill_mode_e;
+
 static void M_StartCustomSkill(const int mode)
 {
-  int custom_skill = num_skills-1;
+  // Use custom skill (-1 to match gameskill)
+  chosen_skill = num_skills - 1;
 
-  chosen_skill = custom_skill;
   dsda_UpdateCustomSkill(chosen_skill);
 
-  if (mode == 0 || gamestate == GS_DEMOSCREEN)
+  if (mode == cskill_new_game || gamestate == GS_DEMOSCREEN)
     M_FinishGameSelection();
-  else if (mode == 1 || !in_game)
+  else if (mode == cskill_pistol_start || !in_game)
     G_DeferedInitNew(chosen_skill, gameepisode, gamemap);
-  else if (mode == 2)
-    G_RestartWithLoadout();
+  else if (mode == cskill_loadout_current)
+    G_RestartWithLoadout(chosen_skill);
 
   M_ClearMenus();
 }
@@ -3948,17 +3943,17 @@ static void StartCustomSkill(const int mode)
 
 static void CSNewGame(void)
 {
-  StartCustomSkill(0);
+  StartCustomSkill(cskill_new_game);
 }
 
 static void CSPistolStart(void)
 {
-  StartCustomSkill(1);
+  StartCustomSkill(cskill_pistol_start);
 }
 
 static void CSCurrentLoadout(void)
 {
-  StartCustomSkill(2);
+  StartCustomSkill(cskill_loadout_current);
 }
 
 
@@ -4039,7 +4034,7 @@ static void M_DrawSkillBuilder(void)
 
   M_DrawBackground(g_menu_flat, 0);
 
-  M_DrawTitle(2, "CUSTOM SKILL BUILDER", cr_title); // M_COMP
+  M_DrawTitle(2, "CUSTOM SKILL BUILDER", cr_title); // M_CSTSKL
   M_DrawInstructions();
   M_DrawTabs(skill_pages, sizeof(skill_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
@@ -4347,7 +4342,7 @@ static void M_BuildLevelTable(void)
     if (map->best_skill) {
       dsda_StringPrintF(&m_text, "%d", map->best_skill);
       entry->m_text = m_text.string;
-      if (map->best_skill == num_skills - uvplus - customskill)
+      if (map->best_skill == num_og_skills - uvplus)
         entry->m_flags |= S_TC_SEL;
     }
     else {
@@ -5469,6 +5464,20 @@ static dboolean M_LevelTableResponder(int ch, int action, event_t* ev)
 
 static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
 {
+  setup_menu_t* ptr1 = current_setup_menu + set_menu_itemon;
+
+  // Execute functions
+  if (ptr1->m_flags & S_FUNC)
+  {
+    if (action == MENU_ENTER) {
+      if (ptr1->action)
+        ptr1->action();
+
+      M_SelectDone(ptr1);
+      return true;
+    }
+  }
+
   // changing an entry
   if (setup_select)
   {
@@ -5487,23 +5496,6 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
         dsda_ToggleConfig(ptr1->config_id, true);
       }
       M_SelectDone(ptr1);                           // phares 4/17/98
-      return true;
-    }
-
-    // [Nugget]
-    if (ptr1->m_flags & S_FUNC && action == MENU_ENTER)
-    {
-      if (M_ItemDisabled(ptr1))
-      {
-          S_StartVoidSound(g_sfx_oof);
-          return true;
-      }
-      else if (ptr1->action)
-      {
-          ptr1->action();
-      }
-
-      M_SelectDone(ptr1);
       return true;
     }
 
@@ -6611,24 +6603,25 @@ dboolean M_Responder(event_t* ev) {
 // Plus some initialization for game-dependant situations.
 
 static menuitem_t CustomSkillMenu[] = {
-  { -1 },
-  { 1, "M_CSTSKL", M_SkillBuilder, 's', "Custom Skill...", 0, MENUF_OPTLUMP },
+  { 1, "M_CSTSKL", M_SkillBuilder, 'c', "Custom Skill...", 0, MENUF_OPTLUMP },
 };
 
 static void M_InitializeSkillMenu(void)
 {
   extern skill_info_t *skill_infos;
   int i;
-  int skill_list = num_skills - customskill;
-  int skill_cspacing = customskill ? (skill_list < 7) ? 2 : 1 : 0;
-  int skill_list_space = skill_list + skill_cspacing;
+
+  // if skill has more than 7 items, remove custom skill space
+  int cskill_space      = num_og_skills < 7 && !raven; // looks bad in raven
+  int cskill_space_num  = customskill ? cskill_space ? 2 : 1 : 0;
+  int skill_list        = num_og_skills + cskill_space_num;
 
   SkillDef.lastOn = dsda_IntConfig(dsda_config_default_skill) - 1;
 
-  SkillDef.numitems = skill_list_space;
-  SkillDef.menuitems = Z_Calloc(skill_list_space, sizeof(*SkillDef.menuitems));
+  SkillDef.numitems = skill_list;
+  SkillDef.menuitems = Z_Calloc(skill_list, sizeof(*SkillDef.menuitems));
 
-  for (i = 0; i < skill_list; ++i)
+  for (i = 0; i < num_og_skills; ++i)
   {
     SkillDef.menuitems[i].status = 1;
 
@@ -6645,24 +6638,25 @@ static void M_InitializeSkillMenu(void)
       SkillDef.lastOn = i;
   }
 
-  // Add spacing + Custom Skill Builder
+  // Add Custom Skill
   if (customskill)
   {
-    int add_spacing = (skill_list < 7) ? 1 : 0;
-    int rem_spacing = (skill_list < 7) ? 0 : 1;
-    for (i = skill_list; i <= skill_list + add_spacing; ++i)
-    {
-      int j = i - skill_list + rem_spacing;
+    // Find where Custom Skill is in menu
+    int num_cskill = num_og_skills + cskill_space;
 
-      SkillDef.menuitems[i].status = CustomSkillMenu[j].status;
-    
-      strncpy(SkillDef.menuitems[i].name, CustomSkillMenu[j].name, 8);
+    // Add Custom Skill Spacing (if less than 7 items)
+    if (cskill_space)
+      SkillDef.menuitems[num_skills - 1].status = -1; // Disable selection for space
 
-      SkillDef.menuitems[i].alttext = CustomSkillMenu[j].alttext;
-      SkillDef.menuitems[i].routine = CustomSkillMenu[j].routine;
-      SkillDef.menuitems[i].alphaKey = CustomSkillMenu[j].alphaKey;
-      SkillDef.menuitems[i].flags = CustomSkillMenu[j].flags;
-    }
+    // Fill in Custom Skill Info
+    SkillDef.menuitems[num_cskill].status = CustomSkillMenu[0].status;
+
+    strcpy(SkillDef.menuitems[num_cskill].name, CustomSkillMenu[0].name);
+
+    SkillDef.menuitems[num_cskill].alttext  = CustomSkillMenu[0].alttext;
+    SkillDef.menuitems[num_cskill].routine  = CustomSkillMenu[0].routine;
+    SkillDef.menuitems[num_cskill].alphaKey = CustomSkillMenu[0].alphaKey;
+    SkillDef.menuitems[num_cskill].flags    = CustomSkillMenu[0].flags;
   }
 
   if (SkillDef.lastOn >= num_skills)

@@ -140,6 +140,7 @@ const skill_info_t hexen_skill_infos[5] = {
 };
 
 int num_skills;
+int num_og_skills;
 skill_info_t* skill_infos;
 
 static void dsda_CopyFactor(fixed_t* dest, const char* source) {
@@ -184,21 +185,18 @@ static void dsda_CopySkillInfo(int i, const doom_mapinfo_skill_t* info) {
 void dsda_InitSkills(void) {
   int i = 0;
   int j;
-  int original_skill_list;
+  int original_skills;
   dboolean clear_skills;
-  doom_mapinfo_t mapinfo;
 
   // Check for / parse new skill lumps
   dsda_LoadSkillLump();
   dsda_CheckCustomSkill();
 
-  mapinfo = doom_mapinfo;
+  clear_skills = (doom_mapinfo.num_skills && doom_mapinfo.skills_cleared);
+  original_skills = !doom_v11 ? 5 : 4;
 
-  clear_skills = (mapinfo.num_skills && mapinfo.skills_cleared);
-
-  num_skills = (clear_skills ? 0 : 5) + (int)mapinfo.num_skills + uvplus - doom_v11 + customskill;
-
-  original_skill_list = doom_v11 ? 4 : 5;
+  num_skills = (clear_skills ? 0 : original_skills) + (int)doom_mapinfo.num_skills + uvplus + customskill;
+  num_og_skills = num_skills - customskill;
 
   skill_infos = Z_Calloc(num_skills, sizeof(*skill_infos));
 
@@ -209,7 +207,7 @@ void dsda_InitSkills(void) {
                            heretic ? heretic_skill_infos :
                                      doom_skill_infos;
 
-    for (i = 0; i < original_skill_list; ++i)
+    for (i = 0; i < original_skills; ++i)
       skill_infos[i] = original_skill_infos[i];
 
     if (uvplus)
@@ -224,61 +222,42 @@ void dsda_InitSkills(void) {
     }
   }
 
-  for (j = 0; j < mapinfo.num_skills; ++j) {
-    if (!stricmp(mapinfo.skills[j].unique_id, "baby")) {
-      dsda_CopySkillInfo(0, &mapinfo.skills[j]);
+  for (j = 0; j < doom_mapinfo.num_skills; ++j) {
+    if (!stricmp(doom_mapinfo.skills[j].unique_id, "baby")) {
+      dsda_CopySkillInfo(0, &doom_mapinfo.skills[j]);
       --i;
       --num_skills;
     }
-    else if (!stricmp(mapinfo.skills[j].unique_id, "easy")) {
-      dsda_CopySkillInfo(1, &mapinfo.skills[j]);
+    else if (!stricmp(doom_mapinfo.skills[j].unique_id, "easy")) {
+      dsda_CopySkillInfo(1, &doom_mapinfo.skills[j]);
       --i;
       --num_skills;
     }
-    else if (!stricmp(mapinfo.skills[j].unique_id, "normal")) {
-      dsda_CopySkillInfo(2, &mapinfo.skills[j]);
+    else if (!stricmp(doom_mapinfo.skills[j].unique_id, "normal")) {
+      dsda_CopySkillInfo(2, &doom_mapinfo.skills[j]);
       --i;
       --num_skills;
     }
-    else if (!stricmp(mapinfo.skills[j].unique_id, "hard")) {
-      dsda_CopySkillInfo(3, &mapinfo.skills[j]);
+    else if (!stricmp(doom_mapinfo.skills[j].unique_id, "hard")) {
+      dsda_CopySkillInfo(3, &doom_mapinfo.skills[j]);
       --i;
       --num_skills;
     }
-    else if (!stricmp(mapinfo.skills[j].unique_id, "nightmare")) {
-      dsda_CopySkillInfo(4, &mapinfo.skills[j]);
+    else if (!stricmp(doom_mapinfo.skills[j].unique_id, "nightmare")) {
+      dsda_CopySkillInfo(4, &doom_mapinfo.skills[j]);
       --i;
       --num_skills;
     }
     else
-      dsda_CopySkillInfo(i + j, &mapinfo.skills[j]);
-  }
-
-  if (customskill)
-    skill_infos[num_skills-1].name = "Custom Skill";
-}
-
-static int dsda_GetCustomSpawnFilter(int config) {
-  switch (config)
-  {
-    case 0: return 1; // if "easy",   skill 1
-    case 1: return 3; // if "medium", skill 3
-    case 2: return 4; // if "hard",   skill 4
-    default: return false;
+      dsda_CopySkillInfo(i + j, &doom_mapinfo.skills[j]);
   }
 }
 
-static int dsda_GetCustomFactor(int config) {
-  switch (config)
-  {
-    case 0: return FRACUNIT / 2;
-    case 1: return FRACUNIT;
-    case 2: return FRACUNIT * 3 / 2;
-    case 3: return FRACUNIT * 2;
-    case 4: return FRACUNIT * 4;
-    default: return false;
-  }
-}
+/////////////////////////////////////////
+//
+// Add Custom Skill Properties
+//
+//
 
 // Custom Skill variables
 int cskill_spawn_filter;
@@ -299,7 +278,33 @@ int cskill_easy_brain;
 int cskill_auto_use_hp;
 int cskill_easy_key;
 
+static int dsda_GetCustomSpawnFilter(int config) {
+  switch (config)
+  {
+    case 0: return 1; // if "easy",   skill 1
+    case 1: return 3; // if "medium", skill 3
+    case 2: return 4; // if "hard",   skill 4
+    default: return false;
+  }
+}
+
+static int dsda_GetCustomFactor(int config) {
+  switch (config)
+  {
+    case 0: return FRACUNIT / 2;      // Half
+    case 1: return FRACUNIT;          // Default
+    case 2: return FRACUNIT * 3 / 2;  // 1.5x - Raven games use this
+    case 3: return FRACUNIT * 2;      // Double
+    case 4: return FRACUNIT * 4;      // Quad
+    default: return false;
+  }
+}
+
 void dsda_UpdateCustomSkill(int custom_skill_num) {
+
+  // Add label for skill cheat
+  skill_infos[custom_skill_num].name = "Custom Skill";
+
   // Reset custom skill
   skill_infos[custom_skill_num].flags = 0;
   skill_infos[custom_skill_num].respawn_time = 0;

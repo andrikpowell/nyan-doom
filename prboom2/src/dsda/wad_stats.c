@@ -268,26 +268,24 @@ void dsda_WadStatsExitMap(int missed_monsters) {
   int skill;
   int nightmare_skill;
   int best_normal_skill;
-  int extra_skills;
+  int extra_skill;
+  int nomo_flag;
   int skip_stats;
-  int is_custom_skill;
-  int is_nomo;
 
   if (!current_map_stats || demoplayback)
     return;
 
-  extra_skills = uvplus + customskill;
-  nightmare_skill = num_skills - extra_skills;
-  best_normal_skill = num_skills - 1 - extra_skills;
+
+  skill = gameskill + 1;
+  nightmare_skill = num_og_skills - uvplus;
+  best_normal_skill = num_og_skills - uvplus - 1;
+  extra_skill = skill > num_og_skills - uvplus;
 
   // Get conditions for recording wad stats
-  is_custom_skill = customskill && (gameskill == num_skills - customskill);
-  is_nomo = skill_info.flags & SI_NO_MONSTERS;
-
-  skip_stats = is_custom_skill || is_nomo;
+  nomo_flag = skill_info.flags & SI_NO_MONSTERS;
+  skip_stats = extra_skill || nomo_flag;
 
   if (!skip_stats) {
-    skill = gameskill + 1;
     if (skill > current_map_stats->best_skill) {
       if (current_map_stats->best_skill < best_normal_skill) {
         current_map_stats->best_time = -1;

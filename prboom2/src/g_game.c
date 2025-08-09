@@ -187,7 +187,7 @@ int             levels_completed;
 int             longtics;
 
 dboolean coop_spawns;
-dboolean skill_no_pistol_start;
+dboolean skill_loadout;
 
 // e6y
 // There is a new command-line switch "-shorttics".
@@ -1255,13 +1255,13 @@ static void G_DoLoadLevel (void)
   }
 
   // automatic pistol start when advancing from one level to the next
-  if (pistolstart && !skill_no_pistol_start)
+  if (pistolstart && !skill_loadout)
     if (allow_incompatibility)
       G_PlayerReborn(0);
 
-  // [Nugget] Custom Skill
-  if (skill_no_pistol_start)
-    skill_no_pistol_start = false;
+  // Custom Skill - Reset Pistol Start from Loadout
+  if (skill_loadout)
+    skill_loadout = false;
 
   // initialize the msecnode_t freelist.                     phares 3/25/98
   // any nodes in the freelist are gone by now, cleared
@@ -1522,7 +1522,7 @@ void G_Ticker (void)
     {
       case ga_loadlevel:
         // force players to be initialized on level reload
-        if (!hexen && !skill_no_pistol_start)
+        if (!hexen && !skill_loadout)
           for (i = 0; i < g_maxplayers; i++)
             players[i].playerstate = PST_REBORN;
         G_DoLoadLevel();
@@ -2668,19 +2668,18 @@ void G_DeferedInitNew(int skill, int episode, int map)
   dsda_WatchDeferredInitNew(skill, episode, map);
 }
 
-// [Nugget] Custom Skill
-void G_RestartWithLoadout(void)
+// Custom Skill - Restart with loadout [Nugget]
+void G_RestartWithLoadout(int skill)
 {
   gameaction = ga_loadlevel;
 
   G_PlayerFinishLevel(consoleplayer);
+  dsda_UpdateGameSkill(skill);
 
-  if (automap_active)
-    AM_Stop(true);
-
+  automap_active = false;
   AM_clearMarks();
 
-  skill_no_pistol_start = true;
+  skill_loadout = true;
 }
 
 /* cph -
