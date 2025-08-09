@@ -35,6 +35,7 @@
 #include "doomstat.h"
 #include "m_random.h"
 #include "w_wad.h"
+#include "f_finale.h"
 #include "g_game.h"
 #include "r_main.h"
 #include "v_video.h"
@@ -1018,7 +1019,15 @@ void WI_End(void)
     WI_endStats();
 }
 
-#define WI_INTERMISSION_PAUSE (!dsda_StrictMode() && allow_incompatibility && gamemode == commercial && !netgame)
+#define WI_LONGER_NOW_ENTERING (allow_incompatibility && gamemode == commercial && !netgame)
+
+void WI_wait(void)
+{
+  if (WI_LONGER_NOW_ENTERING && !F_ShowCast())
+      cnt = TICRATE + 10;
+  else
+      cnt = 10;
+}
 
 // ====================================================================
 // WI_initNoState
@@ -1030,12 +1039,7 @@ void WI_initNoState(void)
 {
   state = NoState;
   acceleratestage = 0;
-  if (gamemap == 30 || (gamemission == pack_nerve && allow_incompatibility && gamemap == 8) || dsda_FinaleShortcut())
-      cnt = 10;
-  else if (WI_INTERMISSION_PAUSE)
-      cnt = TICRATE + 10;
-  else
-      cnt = 10;
+  WI_wait();
 }
 
 
@@ -1091,7 +1095,7 @@ void WI_updateNoState(void)
 
   WI_updateAnimatedBack();
 
-  if (!--cnt || (WI_INTERMISSION_PAUSE && acceleratestage))
+  if (!--cnt || (WI_LONGER_NOW_ENTERING && acceleratestage))
     G_WorldDone();
 }
 
@@ -1225,7 +1229,7 @@ void WI_drawShowNextLoc(void)
     return; // MAP08 end game
 
   // draws which level you are entering..
-  if ( (gamemode != commercial) || (gamemap != 30) )  // Arsinikk - allow for MAP31 entering screen, if not MAP30
+  if ( (gamemode != commercial) || (gamemap != 30) )  // allows for MAP31 entering screen, if not MAP30
     WI_drawEL();
 }
 

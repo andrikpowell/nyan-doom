@@ -86,7 +86,7 @@ void WI_checkForAccelerate(void);    // killough 3/28/98: used to
 extern int acceleratestage;          // accelerate intermission screens
 int midstage;                 // whether we're in "mid-stage"
 
-static dboolean F_ShowCast(void)
+dboolean F_ShowCast(void)
 {
   return gamemap == 30 ||
          (gamemission == pack_nerve && allow_incompatibility && gamemap == 8) ||
