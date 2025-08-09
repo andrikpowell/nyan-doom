@@ -317,6 +317,10 @@ static void M_DrawAutoMap(void);
 static void M_DrawLevelTable(void);
 static void M_DrawExtHelp(void);
 
+static void CSNewGame(void);
+static void CSPistolStart(void);
+static void CSCurrentLoadout(void);
+
 static int M_GetPixelWidth(const char*);
 static void M_DrawString(int cx, int cy, int color, const char* ch);
 static void M_DrawMenuString(int,int,int);
@@ -2007,6 +2011,22 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
       dsda_UpdateIntConfig(dsda_config_allow_jumping, true, false);
       return true;
     }
+
+    if (s->config_id == dsda_config_pistol_start)
+    {
+      dsda_UpdateIntConfig(dsda_config_pistol_start, false, false);
+      return true;
+    }
+
+    if (s->config_id == dsda_config_always_pistol_start)
+    {
+      dsda_UpdateIntConfig(dsda_config_always_pistol_start, false, false);
+      return true;
+    }
+
+    // Hexen doesn't allow pistolstart + loadout doesn't work due to key management
+    if (s->action == CSPistolStart || s->action == CSCurrentLoadout)
+      return true;
   }
 
   // Disable Doom Options
