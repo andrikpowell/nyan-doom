@@ -613,7 +613,7 @@ static void M_DrawReadThis1(void)
 static void M_DrawReadThis2(void)
 {
   const char* helplump = (gamemode == commercial) ? help0 : help1;
-  int pwadmaps = W_PWADLumpNameExists("THINGS"); // show help screen for IWAD
+  int pwadmaps = W_PWADMapsExist(); // show help screen for IWAD
 
   inhelpscreens = true;
 

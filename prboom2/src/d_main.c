@@ -649,12 +649,12 @@ int dsda_SkipIwadDemos(const char *name)
   if (dsda_IntConfig(nyan_config_skip_default_demos) && allow_incompatibility)
   {
     int pwaddemos = W_PWADLumpNameExists(name);
-    int pwadmaps =  W_PWADLumpNameExists("THINGS");
+    int pwadmaps = W_PWADMapsExist();
     if (pwadmaps && !pwaddemos)
-      return 1;
+      return true;
   }
 
-  return 0;
+  return false;
 }
 
 // Draw Credits for Blank Demos

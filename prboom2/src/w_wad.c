@@ -628,6 +628,11 @@ int W_PWADLumpNameExists(const char *name)
   return W_PWADLumpNumExists(W_CheckNumForName(name)); // Arsinikk - from PWAD
 }
 
+int W_PWADMapsExist(void)
+{
+  return W_PWADLumpNameExists("THINGS") || W_PWADLumpNameExists("TEXTMAP");
+}
+
 void W_Shutdown(void)
 {
   int i;
