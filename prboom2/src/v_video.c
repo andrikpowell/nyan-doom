@@ -1634,26 +1634,24 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
   float x_factor = 0, y_factor = 0;
   int x_offset, y_offset;
   const byte* raw;
+  int lump_num = W_CheckNumForName(lump_name);
+  int lump_size = W_LumpLength(lump_num);
 
   // e6y: wide-res
   // NOTE: the size isn't quite right on all resolutions,
   // which causes the black bars on the edge of heretic E3's
   // bottom endscreen to overlap the top screen during scrolling.
   // this happens in both software and GL at the time of writing.
-  V_ClearBorderRaw(lump_name);
+  V_ClearBorder(lump_name);
 
   // custom widescreen assets are a different format
+  if (R_IsPatchLump(lump_num) || lump_size != HERETIC_RAW_SCREEN_SIZE)
   {
-    int lump;
-
-    lump = W_CheckNumForName(lump_name);
-    if (W_LumpLength(lump) != HERETIC_RAW_SCREEN_SIZE)
-    {
-      V_DrawNamePatchFS(0, 0, 0, lump_name, CR_DEFAULT, VPT_STRETCH);
-      return;
-    }
+    V_DrawNamePatchFS(0, 0, 0, lump_name, CR_DEFAULT, VPT_STRETCH);
+    return;
   }
 
+  // aspect ratio correction
   switch (render_stretch_hud) {
     case patch_stretch_not_adjusted:
       x_factor = (float)SCREENWIDTH / 320;
