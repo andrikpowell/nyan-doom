@@ -5470,6 +5470,9 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
   if (ptr1->m_flags & S_FUNC)
   {
     if (action == MENU_ENTER) {
+      if (M_ItemDisabled(ptr1))
+        return true;
+
       if (ptr1->action)
         ptr1->action();
 
