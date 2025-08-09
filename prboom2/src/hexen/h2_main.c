@@ -51,10 +51,10 @@ const demostate_t hexen_demostates[][4] =
   },
 
   {
-    { D_PlayDemoName, "demo1" },
-    { D_PlayDemoName, "demo1" },
-    { D_PlayDemoName, "demo1" },
-    { D_PlayDemoName, "demo1" },
+    { G_DeferedPlayDemo, "demo1" },
+    { G_DeferedPlayDemo, "demo1" },
+    { G_DeferedPlayDemo, "demo1" },
+    { G_DeferedPlayDemo, "demo1" },
   },
 
   {
@@ -65,10 +65,10 @@ const demostate_t hexen_demostates[][4] =
   },
 
   {
-    { D_PlayDemoName, "demo2" },
-    { D_PlayDemoName, "demo2" },
-    { D_PlayDemoName, "demo2" },
-    { D_PlayDemoName, "demo2" },
+    { G_DeferedPlayDemo, "demo2" },
+    { G_DeferedPlayDemo, "demo2" },
+    { G_DeferedPlayDemo, "demo2" },
+    { G_DeferedPlayDemo, "demo2" },
   },
 
   {
@@ -79,10 +79,10 @@ const demostate_t hexen_demostates[][4] =
   },
 
   {
-    { D_PlayDemoName, "demo3" },
-    { D_PlayDemoName, "demo3" },
-    { D_PlayDemoName, "demo3" },
-    { D_PlayDemoName, "demo3" },
+    { G_DeferedPlayDemo, "demo3" },
+    { G_DeferedPlayDemo, "demo3" },
+    { G_DeferedPlayDemo, "demo3" },
+    { G_DeferedPlayDemo, "demo3" },
   },
 
   {
@@ -90,29 +90,5 @@ const demostate_t hexen_demostates[][4] =
     {NULL},
     {NULL},
     {NULL},
-  }
-};
-
-const demostate_t hexen_demostates_blank[][4] =
-{
-  {
-    { Hexen_D_DrawTitle, NULL },
-    { Hexen_D_DrawTitle, NULL },
-    { Hexen_D_DrawTitle, NULL },
-    { Hexen_D_DrawTitle, NULL },
-  },
-
-  {
-    { Hexen_D_DrawTitle2, NULL },
-    { Hexen_D_DrawTitle2, NULL },
-    { Hexen_D_DrawTitle2, NULL },
-    { Hexen_D_DrawTitle2, NULL },
-  },
-
-  {
-    { Hexen_D_DrawCredits, NULL },
-    { Hexen_D_DrawCredits, NULL },
-    { Hexen_D_DrawCredits, NULL },
-    { Hexen_D_DrawCredits, NULL },
   }
 };

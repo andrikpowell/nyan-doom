@@ -3581,7 +3581,6 @@ setup_menu_t gen_nyan_settings[] = {
   { "Endoom Screen", S_CHOICE, m_conf, G2_X, nyan_config_show_endoom, 0, endoom_list },
   { "Endoom Type", S_CHOICE, m_conf, G2_X, nyan_config_type_endoom, 0, endoom_type_list, nyan_config_show_endoom, (const char*)0, true },
   EMPTY_LINE,
-  { "Skip IWAD Demos For PWADs", S_YESNO, m_conf, G2_X, nyan_config_skip_default_demos },
   { "Skip IWAD Story For PWADs", S_YESNO, m_conf, G2_X, nyan_config_skip_default_text },
   { "Skip IWAD Map Names For PWADs", S_YESNO, m_conf, G2_X, nyan_config_ignore_default_map_names },
   { "Randomize Music", S_YESNO, m_conf, G2_X, nyan_config_play_random_music },

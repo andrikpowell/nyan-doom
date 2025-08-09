@@ -408,7 +408,6 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_menu_play_demo),
   MIGRATED_SETTING(nyan_config_full_menu_fade),
   MIGRATED_SETTING(nyan_config_gradual_menu_fade),
-  MIGRATED_SETTING(nyan_config_skip_default_demos),
   MIGRATED_SETTING(nyan_config_skip_default_text),
   MIGRATED_SETTING(nyan_config_ignore_default_map_names),
   MIGRATED_SETTING(nyan_config_enable_widescreen_lumps),

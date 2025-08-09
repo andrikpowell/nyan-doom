@@ -80,6 +80,5 @@ typedef struct
 } demostate_t;
 
 void D_SetPage(const char* name, int tics, int music);
-void D_PlayDemoName(const char *name);
 
 #endif

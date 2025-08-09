@@ -644,29 +644,16 @@ void D_PageTicker(void)
 }
 
 // Check whether to skip IWAD Demos
-int dsda_SkipIwadDemos(const char *name)
+static int dsda_SkipIwadDemos(void)
 {
-  if (dsda_IntConfig(nyan_config_skip_default_demos) && allow_incompatibility)
-  {
-    int pwaddemos = W_PWADLumpNameExists(name);
-    int pwadmaps = W_PWADMapsExist();
-    if (pwadmaps && !pwaddemos)
-      return true;
-  }
+  int pwaddemos = W_PWADLumpNameExists("DEMO1");
+  int pwadmaps = W_PWADMapsExist();
+
+  if ((pwadmaps && !pwaddemos) || lumpinfo[W_CheckNumForName("DEMO1")].size == 0)
+    return true;
 
   return false;
 }
-
-// Draw Credits for Blank Demos
-static void D_DrawCredits(void)
-{
-  if (!W_PWADLumpNameExists(credit))
-    M_DrawCreditsDynamic();
-  else
-    M_DrawCredits();
-}
-
-#define M_SKIPDEMOS (dsda_SkipIwadDemos("DEMO1") || (lumpinfo[W_CheckNumForName("DEMO1")].size == 0))
 
 //
 // D_PageDrawer
@@ -687,11 +674,6 @@ static void D_PageDrawer(void)
   if (demosequence == 4 && pwad_help2_check)
     pagename = help2;
 
-  // Draw Credits for Blank Demos
-  if (pagename && (M_SKIPDEMOS || doom_v11))
-    if (!strcmp(pagename, credit))
-      return D_DrawCredits();
-
   // proff/nicolas 09/14/98 -- now stretchs bitmaps to fullscreen!
   // CPhipps - updated for new patch drawing
   // proff - added M_DrawCredits
@@ -701,6 +683,8 @@ static void D_PageDrawer(void)
     V_ClearBorder(pagename);
     V_DrawNamePatchAnimateFS(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
   }
+  else if (dsda_SkipIwadDemos() && W_PWADLumpNameExists("CREDIT"))
+    M_DrawCredits();
   else
     M_DrawCreditsDynamic();
 }
@@ -747,16 +731,6 @@ static void D_DrawTitle2(const char *name)
     D_SetPage(name, 0, mus_dm2ttl);
 }
 
-void D_PlayDemoName(const char *name)
-{
-  if (dsda_SkipIwadDemos(name))
-  {
-    demosequence = 0;
-    return;
-  }
-  G_DeferedPlayDemo(name);
-}
-
 /* killough 11/98: tabulate demo sequences
  */
 
@@ -772,10 +746,10 @@ const demostate_t doom_demostates[][4] =
   },
 
   {
-    {D_PlayDemoName, "demo1"},
-    {D_PlayDemoName, "demo1"},
-    {D_PlayDemoName, "demo1"},
-    {D_PlayDemoName, "demo1"},
+    {G_DeferedPlayDemo, "demo1"},
+    {G_DeferedPlayDemo, "demo1"},
+    {G_DeferedPlayDemo, "demo1"},
+    {G_DeferedPlayDemo, "demo1"},
   },
 
   {
@@ -786,10 +760,10 @@ const demostate_t doom_demostates[][4] =
   },
 
   {
-    {D_PlayDemoName, "demo2"},
-    {D_PlayDemoName, "demo2"},
-    {D_PlayDemoName, "demo2"},
-    {D_PlayDemoName, "demo2"},
+    {G_DeferedPlayDemo, "demo2"},
+    {G_DeferedPlayDemo, "demo2"},
+    {G_DeferedPlayDemo, "demo2"},
+    {G_DeferedPlayDemo, "demo2"},
   },
 
   {
@@ -800,10 +774,10 @@ const demostate_t doom_demostates[][4] =
   },
 
   {
-    {D_PlayDemoName, "demo3"},
-    {D_PlayDemoName, "demo3"},
-    {D_PlayDemoName, "demo3"},
-    {D_PlayDemoName, "demo3"},
+    {G_DeferedPlayDemo, "demo3"},
+    {G_DeferedPlayDemo, "demo3"},
+    {G_DeferedPlayDemo, "demo3"},
+    {G_DeferedPlayDemo, "demo3"},
   },
 
   {
@@ -812,7 +786,7 @@ const demostate_t doom_demostates[][4] =
     // e6y
     // Both Plutonia and TNT are commercial like Doom2,
     // but in difference from  Doom2, they have demo4 in demo cycle.
-    {D_PlayDemoName, "demo4"},
+    {G_DeferedPlayDemo, "demo4"},
     {D_SetPageName, credit},
   },
 
@@ -820,7 +794,7 @@ const demostate_t doom_demostates[][4] =
     {NULL},
     {NULL},
     {NULL},
-    {D_PlayDemoName, "demo4"},
+    {G_DeferedPlayDemo, "demo4"},
   },
 
   {
@@ -828,23 +802,6 @@ const demostate_t doom_demostates[][4] =
     {NULL},
     {NULL},
     {NULL},
-  }
-};
-
-const demostate_t doom_demostates_blank[][4] =
-{
-  {
-    {D_DrawTitle1, titlepic},
-    {D_DrawTitle1, titlepic},
-    {D_DrawTitle2, titlepic},
-    {D_DrawTitle1, titlepic},
-  },
-
-  {
-    {D_SetPageName, credit},
-    {D_SetPageName, credit},
-    {D_SetPageName, credit},
-    {D_SetPageName, credit},
   }
 };
 
@@ -855,11 +812,6 @@ const demostate_t doom_demostates_blank[][4] =
 
 void D_DoAdvanceDemo(void)
 {
-  extern const demostate_t heretic_demostates[][4];
-  extern const demostate_t hexen_demostates[][4];
-  extern const demostate_t heretic_demostates_blank[][4];
-  extern const demostate_t hexen_demostates_blank[][4];
-
   players[consoleplayer].playerstate = PST_LIVE;  /* not reborn */
   advancedemo = false;
   dsda_ResetPauseMode();
@@ -873,19 +825,20 @@ void D_DoAdvanceDemo(void)
   else if (!demostates[++demosequence][gamemode].func)
     demosequence = 0;
 
-  // Change demostates if demos are blank
-  if (M_SKIPDEMOS || doom_v11)
-  {
-    demostates = raven ? heretic ? heretic_demostates_blank : hexen_demostates_blank : doom_demostates_blank;
-    if (demosequence > (raven ? 2 : 1))
-      demosequence = 0;
-  }
-  else
-    demostates = raven ? heretic ? heretic_demostates : hexen_demostates : doom_demostates;
-
   // do not even attempt to play DEMO4 if it is not available
   if (demosequence == 6 && gamemode == commercial && !W_LumpNameExists("demo4"))
     demosequence = 0;
+
+  if (dsda_SkipIwadDemos())
+  {
+    // Skip blank / IWAD demos in PWADs
+    if (demostates[demosequence][gamemode].func == G_DeferedPlayDemo)
+      demosequence++;
+
+    // Limit to just TITLEPIC / CREDIT
+    if (demosequence > (raven ? 3 : 2))
+      demosequence = 0;
+  }
 
   demostates[demosequence][gamemode].func(demostates[demosequence][gamemode].name);
 }
