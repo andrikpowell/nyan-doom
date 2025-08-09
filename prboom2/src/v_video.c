@@ -1227,8 +1227,8 @@ int V_GetPlaypalCount(void)
 
 //
 // V_GetPatchColor
-// Get the color of a Doom-Format
-// graphic via lumpnum
+// Get the color of patch /
+// RAW graphic via lumpnum
 //
 
 SDL_Color V_GetPatchColor (int lumpnum)
@@ -1242,39 +1242,64 @@ SDL_Color V_GetPatchColor (int lumpnum)
 
   lump = W_LumpByNum(lumpnum);
 
-  width = *((const int16_t *) lump);
-  width = LittleShort(width);
+  // Doom Patch format
+  if (R_IsPatchLump(lumpnum))
+  {
+    width = *((const int16_t *) lump);
+    width = LittleShort(width);
 
-  for (x = 0; x < width; ++x) {
-    byte length;
-    byte entry;
-    const byte* p;
-    int32_t offset;
+    for (x = 0; x < width; ++x) {
+      byte length;
+      byte entry;
+      const byte* p;
+      int32_t offset;
 
-    // Only calculate for the leftmost and rightmost 16 columns
-    if (width > 32 && x > 16 && x < width - 16)
-      continue;
+      // Only calculate for the leftmost and rightmost 16 columns
+      if (width > 32 && x > 16 && x < width - 16)
+        continue;
 
-    // Skip irrelevant data in the doom patch header
-    p = lump + 8 + 4 * x;
-    offset = *((const int32_t *) p);
-    p = lump + LittleLong(offset);
+      // Skip irrelevant data in the doom patch header
+      p = lump + 8 + 4 * x;
+      offset = *((const int32_t *) p);
+      p = lump + LittleLong(offset);
 
-    while (*p != 0xff) {
-      p++;
-      length = *p++;
-      p++;
+      while (*p != 0xff) {
+        p++;
+        length = *p++;
+        p++;
+
+        // Get RGB values per pixel
+        for (y = 0; y < length; ++y) {
+          entry = *p++;
+          r += playpal[3 * entry + 0];
+          g += playpal[3 * entry + 1];
+          b += playpal[3 * entry + 2];
+          pixel_cnt++;
+        }
+
+        p++;
+      }
+    }
+  }
+  // RAW Screen format (Heretic / Hexen)
+  else
+  {
+    width = W_LumpLength(lumpnum) / 200;
+
+    for (x = 0; x < width; ++x) {
+      // Only calculate for the leftmost and rightmost 16 columns
+      if (width > 32 && x > 16 && x < width - 16)
+        continue;
 
       // Get RGB values per pixel
-      for (y = 0; y < length; ++y) {
-        entry = *p++;
+      // Only need to check 200 height
+      for (y = 0; y < 200; ++y) {
+        byte entry = lump[y * width + x];
         r += playpal[3 * entry + 0];
         g += playpal[3 * entry + 1];
         b += playpal[3 * entry + 2];
         pixel_cnt++;
       }
-
-      p++;
     }
   }
 
@@ -1290,59 +1315,19 @@ SDL_Color V_GetPatchColor (int lumpnum)
   return col;
 }
 
-//
-// V_GetPatchColorRaw
-// Get the color of a Raw-Format
-// graphic via lumpnum
-//
-
-static SDL_Color V_GetPatchColorRaw (int lumpnum, int w, int h)
+static byte V_GetBorderColor(const char* lump)
 {
-  SDL_Color col = { 0, 0, 0 };
-  int r = 0, g = 0, b = 0;
-  const unsigned char *playpal = V_GetPlaypal();
-  int x, y, pixel_cnt = 0;
-  const byte* lump;
-
-  lump = W_LumpByNum(lumpnum);
-
-  for (x = 0; x < w; ++x) {
-    // Only calculate for the leftmost and rightmost 16 columns
-    if (w > 32 && x > 16 && x < w - 16)
-      continue;
-
-    // Get RGB values per pixel
-    for (y = 0; y < h; ++y) {
-      byte entry = lump[y * w + x];
-      r += playpal[3 * entry + 0];
-      g += playpal[3 * entry + 1];
-      b += playpal[3 * entry + 2];
-      pixel_cnt++;
-    }
-  }
-
-  // Avoid transparent pixel crash
-  if (pixel_cnt < 1)
-    pixel_cnt = 1;
-
-  // Average RGB values
-  col.r = r / pixel_cnt;
-  col.g = g / pixel_cnt;
-  col.b = b / pixel_cnt;
-
-  return col;
-}
-
-static byte V_GetBorderColor(const char* lump, int width, int height, dboolean doom_format)
-{
-  const unsigned char *playpal = V_GetPlaypal();
-  int lumpnum = doom_format ? N_GetPatchAnimateNum(lump, true) : W_GetNumForName(lump);
+  int lumpnum = W_GetNumForName(lump);
   static int prevlump = -1;
   static byte col;
 
+  if (animateLumps)
+    lumpnum = N_GetPatchAnimateNum(lump, true);
+
   if (prevlump != lumpnum)
   {
-    SDL_Color patch_color = doom_format ? V_GetPatchColor(lumpnum) : V_GetPatchColorRaw(lumpnum, width, height);
+    const unsigned char *playpal = V_GetPlaypal();
+    SDL_Color patch_color = V_GetPatchColor(lumpnum);
     int r = patch_color.r;
     int g = patch_color.g;
     int b = patch_color.b;
@@ -1393,17 +1378,7 @@ void V_ClearBorder(const char* lump)
   if (render_stretch_hud == patch_stretch_fit_to_width)
     return;
 
-  V_DrawBorder(ColorBorder ? V_GetBorderColor(lump, 0, 0, true) : 0);
-}
-
-void V_ClearBorderRaw(const char* lump, int width, int height)
-{
-  dboolean ColorBorder = dsda_IntConfig(dsda_config_colored_borderbox) && (lump != NULL);
-
-  if (render_stretch_hud == patch_stretch_fit_to_width)
-    return;
-
-  V_DrawBorder(ColorBorder ? V_GetBorderColor(lump, width, height, false) : 0);
+  V_DrawBorder(ColorBorder ? V_GetBorderColor(lump) : 0);
 }
 
 // DWF 2012-05-10
@@ -1660,6 +1635,13 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
   int x_offset, y_offset;
   const byte* raw;
 
+  // e6y: wide-res
+  // NOTE: the size isn't quite right on all resolutions,
+  // which causes the black bars on the edge of heretic E3's
+  // bottom endscreen to overlap the top screen during scrolling.
+  // this happens in both software and GL at the time of writing.
+  V_ClearBorderRaw(lump_name);
+
   // custom widescreen assets are a different format
   {
     int lump;
@@ -1667,18 +1649,10 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
     lump = W_CheckNumForName(lump_name);
     if (W_LumpLength(lump) != HERETIC_RAW_SCREEN_SIZE)
     {
-      V_ClearBorder(lump_name);
       V_DrawNamePatchFS(0, 0, 0, lump_name, CR_DEFAULT, VPT_STRETCH);
       return;
     }
   }
-
-  // e6y: wide-res
-  // NOTE: the size isn't quite right on all resolutions,
-  // which causes the black bars on the edge of heretic E3's
-  // bottom endscreen to overlap the top screen during scrolling.
-  // this happens in both software and GL at the time of writing.
-  V_ClearBorderRaw(lump_name, 320, 200);
 
   switch (render_stretch_hud) {
     case patch_stretch_not_adjusted:
