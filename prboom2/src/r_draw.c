@@ -615,8 +615,8 @@ void R_FillBackScreen (void)
 
       V_FillFlat(grnrock.lumpnum, 1, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, VPT_STRETCH);
 
-      // heretic_note: I think this looks bad, so I'm skipping it...
-      if (!heretic)
+      // raven_note: I think this looks bad and KEX ports don't render it, so I'm skipping it...
+      if (!raven)
       {
         // line between view and status bar
         V_FillPatch(brdr_b.lumpnum, 1, 0, stbar_top, ST_SCALED_OFFSETX, brdr_b.height, VPT_NONE);
