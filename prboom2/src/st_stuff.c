@@ -485,7 +485,7 @@ void ST_SetScaledWidth(void)
         width = stbarbg.width;
   }
 
-  if (width == 0)
+  if (width == 0 || raven)
       width = ST_WIDTH;
 
   switch (stretch_hud(render_stretch_hud))
