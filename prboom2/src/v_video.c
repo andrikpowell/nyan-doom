@@ -1620,8 +1620,6 @@ int V_FillHeightVPT(int scrn, int y, int height, byte color, enum patch_translat
 
 // heretic
 
-#define HERETIC_RAW_SCREEN_SIZE 64000
-
 // heretic_note: is something already implemented to handle this?
 void V_DrawRawScreen(const char *lump_name)
 {
@@ -1635,7 +1633,7 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
   int x_offset, y_offset;
   const byte* raw;
   int lump_num = W_CheckNumForName(lump_name);
-  int lump_size = W_LumpLength(lump_num);
+  int lump_width = W_LumpLength(lump_num) / 200;
 
   // e6y: wide-res
   // NOTE: the size isn't quite right on all resolutions,
@@ -1645,7 +1643,7 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
   V_ClearBorder(lump_name);
 
   // custom widescreen assets are a different format
-  if (R_IsPatchLump(lump_num) || lump_size != HERETIC_RAW_SCREEN_SIZE)
+  if (R_IsPatchLump(lump_num))
   {
     V_DrawNamePatchFS(0, 0, 0, lump_name, CR_DEFAULT, VPT_STRETCH);
     return;
@@ -1671,30 +1669,36 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
       break;
   }
 
-  x_offset = (int)((SCREENWIDTH - (x_factor * 320)) / 2);
-  y_offset = (int)((dest_y_offset * y_factor) - (source_offset * y_factor / 320));
+  x_offset = (int)((SCREENWIDTH - (x_factor * lump_width)) / 2);
+  y_offset = (int)((dest_y_offset * y_factor) - (source_offset * y_factor / lump_width));
 
   // TODO: create a V_FillRaw alias and call that instead of the gld_ func directly,
   // though that means there needs to be a software version too (that's ideally a
   // bit more efficient than the current code's thousands-of-little-boxes approach)
   if (V_IsOpenGLMode()) {
-    gld_FillRawName(lump_name, x_offset, y_offset, 320, 200, 320 * x_factor, 200 * y_factor, VPT_STRETCH_REAL);
+    gld_FillRawName(lump_name, x_offset, y_offset, lump_width, 200, lump_width * x_factor, 200 * y_factor, VPT_STRETCH_REAL);
     return;
   }
 
   raw = (const byte *)W_LumpByName(lump_name) + source_offset;
 
   for (j = dest_y_offset; j < dest_y_offset + dest_y_limit; ++j)
-    for (i = 0; i < 320; ++i, ++raw)
+    for (i = 0; i < lump_width; ++i, ++raw)
     {
-      int x, y, width, height;
+      int x, y, width, height, x_pos;
 
       x = (int)(i * x_factor);
       y = (int)(j * y_factor);
       width = (int)((i + 1) * x_factor) - x;
       height = (int)((j + 1) * y_factor) - y;
 
-      V_FillRect(0, x_offset + x, y, width, height, *raw);
+      x_pos = x_offset + x;
+
+      // Don't draw pixels outside screen
+      if ((x_pos < 0) || (x_pos > SCREENWIDTH - width))
+        continue;
+
+      V_FillRect(0, x_pos, y, width, height, *raw);
     }
 }
 
