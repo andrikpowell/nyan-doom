@@ -490,6 +490,10 @@ void D_Display (fixed_t frac)
     // Interpolate weapon only when not changing screensize
     ScreenSize_Interpolate = true;
 
+    // Draw statusbar for software with full view and solid automap
+    if (V_IsSoftwareMode() && R_FullView() && automap_on)
+      R_DrawViewBorder();
+
     if (automap_active)
     {
       AM_Drawer(false);
