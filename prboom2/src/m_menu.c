@@ -2000,6 +2000,12 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
   // Hexen Disable Options
   if (hexen)
   {
+    if (s->config_id == dsda_config_hide_horns)
+    {
+      dsda_UpdateIntConfig(dsda_config_hide_horns, false, false);
+      return true;
+    }
+
     if (s->config_id == dsda_config_sts_blink_keys)
     {
       dsda_UpdateIntConfig(dsda_config_sts_blink_keys, false, false);
