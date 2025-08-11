@@ -567,6 +567,28 @@ void R_FillBackColor (void)
 }
 
 //
+// R_DrawBorder
+// Draws borders around viewport
+// for lower zoom levels
+//
+
+void R_DrawBorder (int x, int y, int w, int h)
+{
+  int g = g_border_offset;
+
+  V_FillPatch(brdr_t.lumpnum, 1, x,       y - g,  w,            brdr_t.height,  VPT_NONE); // top
+  V_FillPatch(brdr_b.lumpnum, 1, x,       y + h,  w,            brdr_b.height,  VPT_NONE); // bottom
+  V_FillPatch(brdr_l.lumpnum, 1, x - g,   y,      brdr_l.width, h,              VPT_NONE); // left
+  V_FillPatch(brdr_r.lumpnum, 1, x + w,   y,      brdr_r.width, h,              VPT_NONE); // right
+
+  // Draw beveled edge.
+  V_DrawNumPatch(x - g, y - g, 1, brdr_tl.lumpnum, CR_DEFAULT, VPT_NONE); // top left
+  V_DrawNumPatch(x + w, y - g, 1, brdr_tr.lumpnum, CR_DEFAULT, VPT_NONE); // top right
+  V_DrawNumPatch(x - g, y + h, 1, brdr_bl.lumpnum, CR_DEFAULT, VPT_NONE); // bottom left
+  V_DrawNumPatch(x + w, y + h, 1, brdr_br.lumpnum, CR_DEFAULT, VPT_NONE); // bottom right
+}
+
+//
 // R_FillBackScreen
 // Fills the back screen with a pattern
 //  for variable screen sizes
@@ -587,20 +609,11 @@ void R_FillBackScreen (void)
   // e6y: wide-res
   if (ratio_multiplier != ratio_scale || wide_offsety)
   {
-    int only_stbar;
-
-    int screenblocks;
-
-    screenblocks = R_ViewSize();
+    int screenblocks = R_ViewSize();
+    int only_stbar = screenblocks >= 10;
 
     if (V_IsOpenGLMode())
-    {
       only_stbar = (automap ? screenblocks >= 10 : screenblocks == 10);
-    }
-    else
-    {
-      only_stbar = screenblocks >= 10;
-    }
 
     if (only_stbar && ST_SCALED_OFFSETX > 0)
     {
@@ -636,20 +649,7 @@ void R_FillBackScreen (void)
 
   V_FillFlat(grnrock.lumpnum, 1, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
 
-  // line between view and status bar
-  if ((ratio_multiplier != ratio_scale || wide_offsety) && (automap || scaledviewwidth == SCREENWIDTH))
-    V_FillPatch(brdr_b.lumpnum, 1, 0, SCREENHEIGHT - ST_SCALED_HEIGHT, SCREENWIDTH, brdr_b.height, VPT_NONE);
-
-  V_FillPatch(brdr_t.lumpnum, 1, viewwindowx, viewwindowy - g_border_offset, scaledviewwidth, brdr_t.height, VPT_NONE);
-  V_FillPatch(brdr_b.lumpnum, 1, viewwindowx, viewwindowy + viewheight, scaledviewwidth, brdr_b.height, VPT_NONE);
-  V_FillPatch(brdr_l.lumpnum, 1, viewwindowx - g_border_offset, viewwindowy, brdr_l.width, viewheight, VPT_NONE);
-  V_FillPatch(brdr_r.lumpnum, 1, viewwindowx + scaledviewwidth, viewwindowy, brdr_r.width, viewheight, VPT_NONE);
-
-  // Draw beveled edge.
-  V_DrawNumPatch(viewwindowx - g_border_offset, viewwindowy - g_border_offset, 1, brdr_tl.lumpnum, CR_DEFAULT, VPT_NONE);
-  V_DrawNumPatch(viewwindowx + scaledviewwidth, viewwindowy - g_border_offset, 1, brdr_tr.lumpnum, CR_DEFAULT, VPT_NONE);
-  V_DrawNumPatch(viewwindowx - g_border_offset, viewwindowy + viewheight, 1, brdr_bl.lumpnum, CR_DEFAULT, VPT_NONE);
-  V_DrawNumPatch(viewwindowx + scaledviewwidth, viewwindowy + viewheight, 1, brdr_br.lumpnum, CR_DEFAULT, VPT_NONE);
+  R_DrawBorder(viewwindowx, viewwindowy, scaledviewwidth, viewheight);
 
   if (stbar_solid_bg)
     R_FillBackColor();
