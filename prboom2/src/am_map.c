@@ -2454,12 +2454,91 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
   }
 }
 
+static void AM_DrawNiceEasyKeys(void)
+{
+  int i;
+  mobj_t* t;
+  mpoint_t p;
+  angle_t angle;
+
+  // return if IDDT
+  if (dsda_RevealAutomap() == 2)
+    return;
+
+  // for all sectors
+  for (i = 0; i < numsectors; i++)
+  {
+    if (!(players[displayplayer].cheats & CF_NOCLIP) &&
+      (sectors[i].bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
+      sectors[i].bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
+      sectors[i].bbox[BOXBOTTOM] > am_frame.bbox[BOXTOP] ||
+      sectors[i].bbox[BOXTOP] < am_frame.bbox[BOXBOTTOM]))
+    {
+      continue;
+    }
+
+    t = sectors[i].thinglist;
+    while (t) // for all things in that sector
+    {
+      if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
+      {
+        int nice_key = false;
+        if (hexen)
+        {
+          switch(t->info->doomednum)
+          {
+            // hexen keys
+            case 8030: case 8031: case 8032: case 8033: case 8034: case 8035:
+            case 8036: case 8037: case 8038: case 8039: case 8200:
+            // hexen puzzle parts - use key color
+            case 9002: case 9003: case 9004: case 9005: case 9006: case 9007: case 9008:
+            case 9009: case 9010: case 9011: case 9012: case 9014: case 9015: case 9016:
+            case 9017: case 9018: case 9019: case 9020: case 9021:
+              nice_key++; break;
+          }
+        }
+        else if (heretic) // Heretic Keys
+        {
+          switch(t->info->doomednum)
+          {
+            case 73: // green key
+            case 80: // yellow key
+            case 79: // blue key
+              nice_key++; break;
+          }
+        }
+        else   // Doom Keys
+        {
+          switch(t->info->doomednum)
+          {
+            //jff 1/5/98 treat keys special
+            case 38: case 13: // red keys
+            case 39: case 6:  // yellow keys
+            case 40: case 5:  // blue keys
+              nice_key++; break;
+          }
+        }
+
+        if (nice_key)
+        {
+          AM_GetMobjPosition(t, &p, &angle);
+          if (automap_rotate)
+            AM_rotatePoint(&p);
+          AM_ProcessNiceThing(t, angle, p.x, p.y);
+        }
+        t = t->snext;
+      }
+    }
+  }
+}
+
 static void AM_DrawNiceThings(void)
 {
   int i;
   mobj_t* t;
   mpoint_t p;
   angle_t angle;
+  int showkeys = skill_info.flags & SI_EASY_KEY;
 
   gld_ClearNiceThings();
 
@@ -2511,6 +2590,10 @@ static void AM_DrawNiceThings(void)
     }
   }
 
+  // draw nice easy keys
+  if (showkeys)
+    AM_DrawNiceEasyKeys();
+
   // marked locations on the automap
   {
     float radius;
@@ -2552,138 +2635,6 @@ static void AM_DrawNiceThings(void)
 }
 
 //
-// AM_drawEasyKeys()
-//
-// Always draw the keys on the automap
-// Used for Heretic's easy skill.
-//
-// Also allowed when using the EasyKey flag
-//
-static void AM_drawEasyKeys(int nice_things)
-{
-  int   i;
-  mobj_t* t;
-
-  if (!(skill_info.flags & SI_EASY_KEY))
-    return;
-
-  if (dsda_RevealAutomap() == 2)
-    return;
-
-  // for all sectors
-  for (i=0;i<numsectors;i++)
-  {
-    if (!(players[displayplayer].cheats & CF_NOCLIP) &&
-      (sectors[i].bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
-      sectors[i].bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
-      sectors[i].bbox[BOXBOTTOM] > am_frame.bbox[BOXTOP] ||
-      sectors[i].bbox[BOXTOP] < am_frame.bbox[BOXBOTTOM]))
-    {
-      continue;
-    }
-
-    t = sectors[i].thinglist;
-    while (t) // for all things in that sector
-    {
-      mpoint_t p;
-      angle_t angle;
-      fixed_t scale;
-
-      if (t->info->flags & MF_SPECIAL)
-      {
-        if (map_things_appearance == map_things_appearance_scaled
-          || map_things_appearance == map_things_appearance_box)
-          scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, t->radius)>>FRACTOMAPBITS);// * 16 / 20;
-        else
-          scale = 16<<MAPBITS;
-
-        AM_GetMobjPosition(t, &p, &angle);
-
-        if (automap_rotate)
-          AM_rotatePoint(&p);
-        else if (!nice_things)
-          AM_SetMPointFloatValue(&p);
-
-        //jff 1/5/98 case over doomednum of thing being drawn
-        if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
-        {
-          int color = -1;
-
-          if (heretic)
-          {
-            switch(t->info->doomednum)
-            {
-              case 73: // green key
-                color = mapcolor_p->rkey != -1? mapcolor_p->rkey : mapcolor_p->sprt; break;
-              case 80: // yellow key
-                color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
-              case 79: // blue key
-                color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
-            }
-            if (color != -1)
-            {
-              if (nice_things)
-                AM_ProcessNiceThing(t, angle, p.x, p.y);
-              else
-                AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES,
-                  scale, 0, color, p.x, p.y);
-              t = t->snext;
-              continue;
-            }
-          }
-          else if (hexen)
-          {
-            switch(t->info->doomednum)
-            {
-              // all hexen keys use same key color
-              case 8030: case 8031: case 8032: case 8033: case 8034: case 8035:
-              case 8036: case 8037: case 8038: case 8039: case 8200:
-                color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
-            }
-
-            if (color != -1)
-            {
-              if (nice_things)
-                AM_ProcessNiceThing(t, angle, p.x, p.y);
-              else
-                AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES,
-                  scale, 0, color, p.x, p.y);
-              t = t->snext;
-              continue;
-            }
-          }
-          else // Doom Keys
-          {
-            switch(t->info->doomednum)
-            {
-              //jff 1/5/98 treat keys special
-              case 38: case 13: //jff  red key
-                color = mapcolor_p->rkey != -1? mapcolor_p->rkey : mapcolor_p->sprt; break;
-              case 39: case 6: //jff yellow key
-                color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
-              case 40: case 5: //jff blue key
-                color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
-            }
-
-            if (color != -1)
-            {
-              if (nice_things)
-                AM_ProcessNiceThing(t, angle, p.x, p.y);
-              else
-                AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES,
-                  scale, t->angle, color, p.x, p.y);
-              t = t->snext;
-              continue;
-            }
-          }
-        }
-      }
-      t = t->snext;
-    }
-   }
-}
-
-//
 // AM_drawThings()
 //
 // Draws the things on the automap in double IDDT cheat mode
@@ -2697,6 +2648,7 @@ static void AM_drawThings(void)
   mobj_t* t;
   mline_t* lineguy = thintriangle_guy;
   int lineguylines = NUMTHINTRIANGLEGUYLINES;
+  int showkeys = skill_info.flags & SI_EASY_KEY;
 
 #if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
@@ -2704,15 +2656,12 @@ static void AM_drawThings(void)
     if (map_opengl_nice_things)
     {
       AM_DrawNiceThings();
-      AM_drawEasyKeys(true);
       return;
     }
   }
 #endif
 
-  AM_drawEasyKeys(false);
-
-  if (dsda_RevealAutomap() != 2)
+  if (!showkeys && dsda_RevealAutomap() != 2)
     return;
 
   // for all sectors
@@ -2743,6 +2692,7 @@ static void AM_drawThings(void)
       mpoint_t p;
       angle_t angle;
       fixed_t scale;
+      int color = -1;
 
       //e6y: stop if all enemies from current sector already has been drawn
       if (pass == 1 && enemies == 0)
@@ -2774,34 +2724,58 @@ static void AM_drawThings(void)
         angle = 0x40000000;
       }
 
-      // hexen artifacts use item color
-      if (hexen && mapcolor_p->item)
+      // return if no "easy key"
+      if (!showkeys)
       {
-        int color = -1;
-
-        switch(t->info->doomednum)
-        {
-          case 30: case 32: case 33: case 36: case 82:
-          case 83: case 84: case 86: case 8000: case 8002:
-          case 8003: case 8041: case 10040: case 10110: case 10120:
-            color = mapcolor_p->item != -1? mapcolor_p->item : mapcolor_p->sprt; break;
-        }
-
-        if (color != -1)
-        {
-          AM_drawLineCharacter(lineguy, lineguylines,
-            scale, angle, color, p.x, p.y);
-          t = t->snext;
-          continue;
-        }
+        t = t->snext;
+        continue;
       }
 
       //jff 1/5/98 case over doomednum of thing being drawn
       if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
       {
-        int color = -1;
+        if (hexen) // Hexen keys and puzzle pieces
+        {
+          // hexen keys
+          if (mapcolor_p->ykey)
+          {
+            int hexkey_scale = scale*2; // Hexen keys are very small on automap
+            switch(t->info->doomednum)
+            {
+              // hexen keys
+              case 8030: case 8031: case 8032: case 8033: case 8034: case 8035:
+              case 8036: case 8037: case 8038: case 8039: case 8200:
+                color = mapcolor_p->ykey != -1 ? mapcolor_p->ykey : mapcolor_p->sprt; break;
+            }
 
-        if (heretic)
+            if (color != -1)
+            {
+              AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, hexkey_scale, 0, color, p.x, p.y);
+              t = t->snext;
+              continue;
+            }
+          }
+
+          // hexen puzzle parts - use key color
+          if (mapcolor_p->bkey)
+          {
+            switch(t->info->doomednum)
+            {
+              case 9002: case 9003: case 9004: case 9005: case 9006: case 9007: case 9008:
+              case 9009: case 9010: case 9011: case 9012: case 9014: case 9015: case 9016:
+              case 9017: case 9018: case 9019: case 9020: case 9021:
+                color = mapcolor_p->bkey != -1 ? mapcolor_p->bkey : mapcolor_p->sprt; break;
+            }
+
+            if (color != -1)
+            {
+              AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, t->angle, color, p.x, p.y);
+              t = t->snext;
+              continue;
+            }
+          }
+        }
+        else if (heretic) // Heretic keys
         {
           switch(t->info->doomednum)
           {
@@ -2815,37 +2789,7 @@ static void AM_drawThings(void)
 
           if (color != -1)
           {
-            AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES,
-              scale, 0, color, p.x, p.y);
-            t = t->snext;
-            continue;
-          }
-        }
-        else if (hexen)
-        {
-          int hexen_key = false;
-          switch(t->info->doomednum)
-          {
-            // all hexen keys use same key color
-            case 8030: case 8031: case 8032: case 8033: case 8034: case 8035:
-            case 8036: case 8037: case 8038: case 8039: case 8200:
-              color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; hexen_key++; break;
-            // hexen puzzle parts use key color
-            case 9002: case 9003: case 9004: case 9005: case 9006: case 9007: case 9008:
-            case 9009: case 9010: case 9011: case 9012: case 9014: case 9015: case 9016:
-            case 9017: case 9018: case 9019: case 9020: case 9021:
-              color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
-          }
-
-          if (color != -1)
-          {
-            if (hexen_key)
-              AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES,
-                scale, 0, color, p.x, p.y);
-            else // Hexen puzzle items
-              AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES,
-                scale, t->angle, color, p.x, p.y);
-            hexen_key = false;
+            AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, scale, 0, color, p.x, p.y);
             t = t->snext;
             continue;
           }
@@ -2865,23 +2809,55 @@ static void AM_drawThings(void)
 
           if (color != -1)
           {
-            AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES,
-              scale, t->angle, color, p.x, p.y);
+            AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, t->angle, color, p.x, p.y);
             t = t->snext;
             continue;
           }
         }
       }
 
+      // return if not IDDT
+      if (dsda_RevealAutomap() != 2)
+      {
+        t = t->snext;
+        continue;
+      }
+
+      // hexen artifacts use item color
+      if (hexen && mapcolor_p->item)
+      {
+        switch(t->info->doomednum)
+        {
+          case 30: case 32: case 33: case 36: case 82:
+          case 83: case 84: case 86: case 8000: case 8002:
+          case 8003: case 8041: case 10040: case 10110: case 10120:
+            color = mapcolor_p->item != -1 ? mapcolor_p->item : mapcolor_p->sprt; break;
+        }
+
+        if (color != -1)
+        {
+          AM_drawLineCharacter(lineguy, lineguylines, scale, angle, color, p.x, p.y);
+          t = t->snext;
+          continue;
+        }
+      }
+
+      // friends color
+      if (t->flags & MF_FRIEND && !t->player)
+        color = mapcolor_p->frnd;
+      // countable kills color - red (cph 2006/07/30)
+      else if ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL)
+        color = mapcolor_p->enemy;
+      // countable items color - yellow (bbm 2/28/03)
+      else if (t->flags & MF_COUNTITEM)
+        color = mapcolor_p->item;
+      // generic sprite color
+      else 
+        color = mapcolor_p->sprt;
+
       //jff 1/5/98 end added code for keys
       //jff previously entire code
-      AM_drawLineCharacter(lineguy, lineguylines, scale, angle,
-        t->flags & MF_FRIEND && !t->player ? mapcolor_p->frnd :
-        /* cph 2006/07/30 - Show count-as-kills in red. */
-        ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) ? mapcolor_p->enemy :
-        /* bbm 2/28/03 Show countable items in yellow. */
-        t->flags & MF_COUNTITEM ? mapcolor_p->item : mapcolor_p->sprt,
-        p.x, p.y);
+      AM_drawLineCharacter(lineguy, lineguylines, scale, angle, color, p.x, p.y);
       t = t->snext;
     }
    }
