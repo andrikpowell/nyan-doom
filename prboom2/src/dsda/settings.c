@@ -327,7 +327,7 @@ dboolean dsda_DisableHorizAutoaim(void) {
 }
 
 int dsda_TranslucencyPercent(void) {
-  if (allow_incompatibility) return 66;
+  if (!allow_incompatibility) return 66;
 
   return dsda_IntConfig(dsda_config_tran_filter_pct);
 }
