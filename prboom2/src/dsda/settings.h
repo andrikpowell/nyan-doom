@@ -61,6 +61,7 @@ dboolean dsda_BonusPalette(void);
 dboolean dsda_PowerPalette(void);
 dboolean dsda_RenderWipeScreen(void);
 dboolean dsda_WipeAtFullSpeed(void);
+dboolean dsda_ShowAutomapKeys(void);
 dboolean dsda_DisableHorizAutoaim(void);
 int dsda_ShowAliveMonsters(void);
 int dsda_ShowDataDisk(void);

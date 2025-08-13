@@ -318,6 +318,10 @@ int dsda_ShowAliveMonsters(void) {
   return dsda_IntConfig(dsda_config_show_alive_monsters);
 }
 
+dboolean dsda_ShowAutomapKeys(void) {
+  return dsda_IntConfig(dsda_config_map_show_keys) && allow_incompatibility;
+}
+
 dboolean dsda_DisableHorizAutoaim(void) {
   return dsda_IntConfig(dsda_config_disable_horiz_autoaim) && allow_incompatibility;
 }

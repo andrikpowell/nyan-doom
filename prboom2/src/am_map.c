@@ -2538,7 +2538,7 @@ static void AM_DrawNiceThings(void)
   mobj_t* t;
   mpoint_t p;
   angle_t angle;
-  int showkeys = skill_info.flags & SI_EASY_KEY;
+  int showkeys = skill_info.flags & SI_EASY_KEY || dsda_ShowAutomapKeys();
 
   gld_ClearNiceThings();
 
@@ -2648,7 +2648,7 @@ static void AM_drawThings(void)
   mobj_t* t;
   mline_t* lineguy = thintriangle_guy;
   int lineguylines = NUMTHINTRIANGLEGUYLINES;
-  int showkeys = skill_info.flags & SI_EASY_KEY;
+  int showkeys = skill_info.flags & SI_EASY_KEY || dsda_ShowAutomapKeys();
 
 #if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())

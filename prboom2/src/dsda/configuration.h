@@ -335,6 +335,7 @@ typedef enum {
   dsda_config_multiple_area_maps,
   dsda_config_map_blinking_locks,
   dsda_config_map_secret_after,
+  dsda_config_map_show_keys,
   dsda_config_map_coordinates,
   dsda_config_map_totals,
   dsda_config_map_time,

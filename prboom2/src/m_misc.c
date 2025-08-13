@@ -310,6 +310,7 @@ cfg_def_t cfg_defs[] =
   SETTING_HEADING("Automap settings"),
   MIGRATED_SETTING(dsda_config_map_blinking_locks),
   MIGRATED_SETTING(dsda_config_map_secret_after),
+  MIGRATED_SETTING(dsda_config_map_show_keys),
   MIGRATED_SETTING(dsda_config_map_coordinates),
   MIGRATED_SETTING(dsda_config_map_totals),
   MIGRATED_SETTING(dsda_config_map_time),
