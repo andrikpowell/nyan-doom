@@ -653,7 +653,7 @@ static int dsda_SkipIwadDemos(void)
   int pwaddemos = W_PWADLumpNameExists("DEMO1");
   int pwadmaps = W_PWADMapsExist();
 
-  if ((pwadmaps && !pwaddemos) || lumpinfo[W_CheckNumForName("DEMO1")].size == 0)
+  if (doom_v11 || (pwadmaps && !pwaddemos) || lumpinfo[W_CheckNumForName("DEMO1")].size == 0)
     return true;
 
   return false;
