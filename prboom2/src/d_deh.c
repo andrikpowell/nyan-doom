@@ -1652,28 +1652,32 @@ void deh_changeCompTranslucency(void)
   // Set translucency
   if (translucency_active)
   {
-    // Set projectiles translucency
-    if (config_trans_missile)
+    // Only if translucency config is active
+    if (boom_translucent_sprites)
     {
-      for (i = 0; (size_t)i < sizeof(missile_transucency) / sizeof(missile_transucency[0]); i++)
-        if (!edited_mobjinfo_bits[missile_transucency[i]])
+      // Set projectiles translucency
+      if (config_trans_missile)
+      {
+        for (i = 0; (size_t)i < sizeof(missile_transucency) / sizeof(missile_transucency[0]); i++)
+          if (!edited_mobjinfo_bits[missile_transucency[i]])
             mobjinfo[missile_transucency[i]].flags |= MF_TRANSLUCENT;
-    }
+      }
 
-    // Set effects translucency
-    if (config_trans_fx)
-    {
-      for (i = 0; (size_t)i < sizeof(fx_translucency) / sizeof(fx_translucency[0]); i++)
-        if (!edited_mobjinfo_bits[fx_translucency[i]])
+      // Set effects translucency
+      if (config_trans_fx)
+      {
+        for (i = 0; (size_t)i < sizeof(fx_translucency) / sizeof(fx_translucency[0]); i++)
+          if (!edited_mobjinfo_bits[fx_translucency[i]])
             mobjinfo[fx_translucency[i]].flags |= MF_TRANSLUCENT;
-    }
+      }
 
-    // Set powerups translucency
-    if (config_trans_powerup)
-    {
-      for (i = 0; (size_t)i < sizeof(powerup_translucency) / sizeof(powerup_translucency[0]); i++)
-        if (!edited_mobjinfo_bits[powerup_translucency[i]])
+      // Set powerups translucency
+      if (config_trans_powerup)
+      {
+        for (i = 0; (size_t)i < sizeof(powerup_translucency) / sizeof(powerup_translucency[0]); i++)
+          if (!edited_mobjinfo_bits[powerup_translucency[i]])
             mobjinfo[powerup_translucency[i]].flags |= MF_TRANSLUCENT;
+      }
     }
   }
 
