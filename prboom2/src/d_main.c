@@ -653,7 +653,7 @@ static int dsda_SkipIwadDemos(void)
   int pwaddemos = W_PWADLumpNameExists("DEMO1");
   int pwadmaps = W_PWADMapsExist();
 
-  if (doom_v11 || (pwadmaps && !pwaddemos) || lumpinfo[W_CheckNumForName("DEMO1")].size == 0)
+  if (pwadmaps && !pwaddemos || lumpinfo[W_CheckNumForName("DEMO1")].size == 0 || doom_v11)
     return true;
 
   return false;
@@ -687,7 +687,7 @@ static void D_PageDrawer(void)
     V_ClearBorder(pagename);
     V_DrawNamePatchAnimateFS(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
   }
-  else if (dsda_SkipIwadDemos() && W_PWADLumpNameExists("CREDIT"))
+  else if ((dsda_SkipIwadDemos() && W_PWADLumpNameExists("CREDIT")) || doom_v11)
     M_DrawCredits();
   else
     M_DrawCreditsDynamic();
