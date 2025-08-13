@@ -1877,9 +1877,63 @@ void deh_applyCompatibility(void)
       mobjinfo[MT_SKULL].flags &= ~(MF_COUNTKILL);
   }
 
-  // Add rad suits to item count for Doom v1.1
-  if (doom_v11 && !edited_mobjinfo_bits[MT_MISC14])
-    mobjinfo[MT_MISC14].flags |= (MF_COUNTITEM);
+  if (doom_v11)
+  {
+    int i;
+
+    // Add rad suits to item count for Doom v1.1
+    if(!edited_mobjinfo_bits[MT_MISC14])
+      mobjinfo[MT_MISC14].flags |= (MF_COUNTITEM);
+
+    // Doom v1.1 - link missing sounds
+    doom_S_sfx[sfx_pdiehi].link = &doom_S_sfx[sfx_pldeth];
+    doom_S_sfx[sfx_tink].link   = &doom_S_sfx[sfx_stnmov];
+    doom_S_sfx[sfx_itmbk].link  = &doom_S_sfx[sfx_itemup];
+    doom_S_sfx[sfx_getpow].link = &doom_S_sfx[sfx_itemup];
+
+    // Following changes actually also apply to 1.2, but I'm not gonna add them to that right now
+    //
+    // Boss spider is not fullbright when attacking
+    if (!edited_mobjinfo_bits[MT_SPIDER])
+      if (states[S_SPID_ATK1].frame == FF_FULLBRIGHT)
+        for (i = S_SPID_ATK1; i <= S_SPID_ATK4; ++i)
+          states[i].frame &= ~FF_FULLBRIGHT;
+
+    // Powerups are not fullbright
+    // soulsphere
+    if (!edited_mobjinfo_bits[MT_MISC12])
+      if (states[S_SOUL].frame == FF_FULLBRIGHT)
+        for (i = S_SOUL; i <= S_SOUL6; ++i)
+          states[i].frame &= ~FF_FULLBRIGHT;
+
+    // invulnerability
+    if (!edited_mobjinfo_bits[MT_INV])
+      if (states[S_PINV].frame == FF_FULLBRIGHT)
+        for (i = S_PINV; i <= S_PINV4; ++i)
+          states[i].frame &= ~FF_FULLBRIGHT;
+
+    // berserk
+    if (!edited_mobjinfo_bits[MT_MISC13])
+      if (states[S_PSTR].frame == FF_FULLBRIGHT)
+        states[S_PSTR].frame &= ~FF_FULLBRIGHT;
+
+    // partial invisibility
+    if (!edited_mobjinfo_bits[MT_INS])
+      if (states[S_PINS].frame == FF_FULLBRIGHT)
+        for (i = S_PINS; i <= S_PINS4; ++i)
+          states[i].frame &= ~FF_FULLBRIGHT;
+
+    // radiation suit
+    if (!edited_mobjinfo_bits[MT_MISC14])
+      if (states[S_SUIT].frame == FF_FULLBRIGHT)
+        states[S_SUIT].frame &= ~FF_FULLBRIGHT;
+
+    // computer map
+    if (!edited_mobjinfo_bits[MT_MISC15])
+      if (states[S_PMAP].frame == FF_FULLBRIGHT)
+        for (i = S_PMAP; i <= S_PMAP6; ++i)
+          states[i].frame &= ~FF_FULLBRIGHT;
+  }
 
   deh_changeCompTranslucency();
 }

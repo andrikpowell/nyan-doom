@@ -198,15 +198,6 @@ static void dsda_InitDoom(void) {
   g_sfx_console = sfx_radio;
   g_sfx_idnut = sfx_idnut; // nyan
 
-  // Doom v1.1 - link missing sounds
-  if (doom_v11)
-  {
-    doom_S_sfx[sfx_pdiehi].link = &doom_S_sfx[sfx_pldeth];
-    doom_S_sfx[sfx_tink].link = &doom_S_sfx[sfx_stnmov];
-    doom_S_sfx[sfx_itmbk].link = &doom_S_sfx[sfx_itemup];
-    doom_S_sfx[sfx_getpow].link = &doom_S_sfx[sfx_itemup];
-  }
-
   g_door_normal = normal;
   g_door_raise_in_5_mins = waitRaiseDoor;
   g_door_open = openDoor;
