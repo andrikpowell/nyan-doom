@@ -319,11 +319,13 @@ int dsda_ShowAliveMonsters(void) {
 }
 
 dboolean dsda_DisableHorizAutoaim(void) {
-  return dsda_IntConfig(dsda_config_disable_horiz_autoaim) && !dsda_StrictMode() && allow_incompatibility;
+  return dsda_IntConfig(dsda_config_disable_horiz_autoaim) && allow_incompatibility;
 }
 
 int dsda_TranslucencyPercent(void) {
-  return (!dsda_StrictMode() && allow_incompatibility) ? dsda_IntConfig(dsda_config_tran_filter_pct) : 66;
+  if (allow_incompatibility) return 66;
+
+  return dsda_IntConfig(dsda_config_tran_filter_pct);
 }
 
 int dsda_ShowDataDisk(void) {
