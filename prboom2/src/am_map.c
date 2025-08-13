@@ -2724,13 +2724,6 @@ static void AM_drawThings(void)
         angle = 0x40000000;
       }
 
-      // return if no "easy key"
-      if (!showkeys)
-      {
-        t = t->snext;
-        continue;
-      }
-
       //jff 1/5/98 case over doomednum of thing being drawn
       if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
       {
