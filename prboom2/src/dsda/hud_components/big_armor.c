@@ -48,7 +48,7 @@ static void dsda_DrawComponent(void) {
     lump = armor_lump_green;
   }
   else {
-    armor = player->armorpoints[ARMOR_ARMOR];
+    armor = st_armor;
     if (armor <= 0) {
       cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
       lump = armor_lump_green;
@@ -69,7 +69,7 @@ static void dsda_DrawComponent(void) {
   y += patch_vertical_spacing;
 
   dsda_DrawBigNumber(x, y, patch_delta_x, 0,
-                     cm, local->component.vpt, 3, st_armor);
+                     cm, local->component.vpt, 3, armor);
 }
 
 void dsda_InitBigArmorHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

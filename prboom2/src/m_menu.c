@@ -1961,7 +1961,7 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
       nyan_config_loading_disk, dsda_config_fuzzmode, dsda_config_enhanced_liteamp,
       nyan_config_item_bonus_flash, nyan_config_colored_blood, dsda_config_translucent_sprites,
       dsda_config_translucent_ghosts, dsda_config_translucent_missiles, dsda_config_translucent_powerups,
-      dsda_config_translucent_effects, dsda_config_hud_animated_count, dsda_config_sts_traditional_keys,
+      dsda_config_translucent_effects, dsda_config_sts_traditional_keys,
       nyan_config_hud_berserk, nyan_config_hud_armoricon, nyan_config_ex_status_widget,
       nyan_config_ex_status_armor, nyan_config_ex_status_berserk, nyan_config_ex_status_areamap,
       nyan_config_ex_status_backpack, nyan_config_ex_status_radsuit, nyan_config_ex_status_invis,

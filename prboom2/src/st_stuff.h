@@ -113,6 +113,7 @@ extern armor_icon_t armor_icon;
 // [Alaux]
 extern int st_health;
 extern int st_armor;
+extern int SmoothCount(int shownval, int realval);
 
 // [crispy] blinking key or skull in the status bar
 extern int sts_blink_keys;

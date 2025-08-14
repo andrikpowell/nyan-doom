@@ -310,6 +310,11 @@ void SB_Ticker(void)
     int delta;
     int curHealth;
 
+    // Allow for animated heatlh / armor counts
+    // Note that st_armor isn't used for Hexen due to armor types
+    st_health = SmoothCount(st_health, players[consoleplayer].mo->health);
+    st_armor  = SmoothCount(st_armor, players[consoleplayer].armorpoints[ARMOR_ARMOR]);
+
     if (heretic && leveltime & 1 && !dsda_PausedOutsideDemo())
     {
         ChainWiggle = P_Random(pr_heretic) & 1;
