@@ -127,6 +127,16 @@ SDL_Rect src_rect = { 0, 0, 0, 0 };
 SDL_Rect window_rect = { 0, 0, 0, 0 };
 SDL_Rect viewport_rect = { 0, 0, 0, 0 };
 
+void *I_GetSDLWindow(void)
+{
+    return sdl_window;
+}
+
+void *I_GetSDLRenderer(void)
+{
+    return sdl_renderer;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // Input code
 int             leds_always_off = 0; // Expected by m_misc, not relevant
@@ -690,7 +700,7 @@ void I_PreInitGraphics(void)
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
 
-  I_AtExit(I_ShutdownSDL, true, "I_ShutdownSDL", exit_priority_normal);
+  //I_AtExit(I_ShutdownSDL, true, "I_ShutdownSDL", exit_priority_normal);
 }
 
 // e6y: resolution limitation is removed

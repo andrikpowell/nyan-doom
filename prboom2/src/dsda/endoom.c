@@ -469,6 +469,8 @@ void dsda_WindowEndoom(void)
 
     // Set up text mode screen
 
+    TXT_PreInit(I_GetSDLWindow(), I_GetSDLRenderer());
+
     if (!TXT_Init())
     {
         lprintf(LO_ERROR, "Failed to initialize libtextscreen");

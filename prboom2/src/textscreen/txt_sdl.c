@@ -107,6 +107,25 @@ static const SDL_Color ega_colors[] =
     {0xfe, 0xfe, 0xfe, 0xff},          // 15: Bright white
 };
 
+//
+// Initialize text mode screen
+//
+// Returns 1 if successful, 0 if an error occurred
+//
+
+void TXT_PreInit(SDL_Window *preset_window, SDL_Renderer *preset_renderer)
+{
+    if (preset_window != NULL)
+    {
+        TXT_SDLWindow = preset_window;
+    }
+
+    if (preset_renderer != NULL)
+    {
+        renderer = preset_renderer;
+    }
+}
+
 int TXT_Init(void)
 {
     int flags = 0;
