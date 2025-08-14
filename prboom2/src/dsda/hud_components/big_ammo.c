@@ -27,6 +27,8 @@ typedef struct {
 
 static local_component_t* local;
 
+static int patch_delta_x;
+
 int dsda_AmmoColorBig(player_t* player) {
   int ammo_percent;
 
@@ -58,13 +60,21 @@ static void dsda_DrawComponent(void) {
 
   ammo = player->ammo[ammo_type];
 
-  dsda_DrawBigNumber(local->component.x, local->component.y, PATCH_DELTA_X, 0,
+  dsda_DrawBigNumber(local->component.x, local->component.y, patch_delta_x, 0,
                      dsda_TextCR(dsda_AmmoColorBig(player)), local->component.vpt, 3, ammo);
 }
 
 void dsda_InitBigAmmoHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
+
+  // Raven text needs smaller spacing
+  if (heretic)
+    patch_delta_x = 10;
+  else if (hexen)
+    patch_delta_x = 10;
+  else
+    patch_delta_x = 14;
 
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
 }
