@@ -293,9 +293,6 @@ void SB_Init(void)
     spinbooklump = W_GetNumForName("SPINBK0");
     spinflylump = W_GetNumForName("SPFLY0");
 
-    // [FG] support widescreen status bar backgrounds
-    ST_SetScaledWidth();
-
     ST_LoadTextColors();
 }
 
@@ -1008,9 +1005,6 @@ static void Hexen_SB_Init(void)
         LumpKILLS = W_GetNumForName("KILLS");
     }
     SB_SetClassData();
-
-    // [FG] support widescreen status bar backgrounds
-    ST_SetScaledWidth();
 
     ST_LoadTextColors();
 }

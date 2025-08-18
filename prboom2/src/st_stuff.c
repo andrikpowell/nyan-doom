@@ -73,8 +73,6 @@ berserk_icon_t berserk_icon;
 armor_icon_t armor_icon;
 
 int ST_SCALED_HEIGHT;
-int ST_SCALED_WIDTH;
-int ST_SCALED_OFFSETX;
 
 // Check if STBAR exists
 static dboolean stbar_exists;
@@ -466,47 +464,6 @@ void ST_LoadTextColors(void)
   cr_ammo_warning = dsda_TextCR(dsda_tc_stbar_ammo_warning);
   cr_ammo_ok = dsda_TextCR(dsda_tc_stbar_ammo_ok);
   cr_ammo_full = dsda_TextCR(dsda_tc_stbar_ammo_full);
-}
-
-// [FG] support widescreen status bar backgrounds
-
-void ST_SetScaledWidth(void)
-{
-  int width = 0;
-
-  // Set stbar width if stbar is found
-  if (!doom_v11 || stbar_exists)
-  {
-    if (Check_Stbar_Animate && animateLumps)
-        width = stbarbg_ani.width;
-    else if (Check_Stbar_Wide && widescreenLumps)
-        width = stbarbg_ws.width;
-    else
-        width = stbarbg.width;
-  }
-
-  if (width == 0 || raven)
-      width = ST_WIDTH;
-
-  switch (stretch_hud(render_stretch_hud))
-  {
-    case patch_stretch_not_adjusted:
-      ST_SCALED_WIDTH  = width * patches_scalex;
-      break;
-    case patch_stretch_doom_format:
-      ST_SCALED_WIDTH  = width * WIDE_SCREENWIDTH / 320;
-      break;
-    case patch_stretch_fit_to_width:
-      ST_SCALED_WIDTH  = width * SCREENWIDTH / 320;
-      break;
-  }
-
-  ST_SCALED_WIDTH = (ST_SCALED_WIDTH + 3) & (int)~3;
-
-  if (ST_SCALED_WIDTH > SCREENWIDTH)
-      ST_SCALED_WIDTH = SCREENWIDTH;
-
-  ST_SCALED_OFFSETX = (SCREENWIDTH - ST_SCALED_WIDTH) / 2;
 }
 
 static void ST_refreshBackground(void)
@@ -1380,9 +1337,6 @@ static void ST_loadGraphics(void)
     }
   R_SetPatchNum(&faces[facenum++], "STFGOD0");
   R_SetPatchNum(&faces[facenum++], "STFDEAD0");
-
-  // [FG] support widescreen status bar backgrounds
-  ST_SetScaledWidth();
 
   ST_LoadTextColors();
 }

@@ -639,7 +639,7 @@ void R_FillBackScreen (void)
     if (V_IsOpenGLMode() && !automap)
       only_stbar = (screenblocks == 10);
 
-    if (only_stbar && ST_SCALED_OFFSETX > 0)
+    if (only_stbar)
     {
       int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
 

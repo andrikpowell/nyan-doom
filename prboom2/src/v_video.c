@@ -1504,9 +1504,6 @@ void SetRatio(int width, int height)
   SCREEN_320x200 =
     (SCREENWIDTH == 320) && (SCREENHEIGHT == 200) &&
     (WIDE_SCREENWIDTH == 320) && (WIDE_SCREENHEIGHT == 200);
-
-  // [FG] support widescreen status bar backgrounds
-  ST_SetScaledWidth();
 }
 
 void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags)
