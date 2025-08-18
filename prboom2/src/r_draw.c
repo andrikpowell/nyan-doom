@@ -712,10 +712,7 @@ void R_DrawViewBorder(void)
   if ((ratio_multiplier != ratio_scale || wide_offsety) && R_StatusBarVisible())
   {
     for (i = (SCREENHEIGHT - ST_SCALED_HEIGHT); i < SCREENHEIGHT; i++)
-    {
-      R_CopyScreenBufferSection(0, i, ST_SCALED_OFFSETX);
-      R_CopyScreenBufferSection(SCREENWIDTH - ST_SCALED_OFFSETX, i, ST_SCALED_OFFSETX);
-    }
+      R_CopyScreenBufferSection(0, i, SCREENWIDTH);
   }
 
   if ( viewheight >= ( SCREENHEIGHT - ST_SCALED_HEIGHT ))
