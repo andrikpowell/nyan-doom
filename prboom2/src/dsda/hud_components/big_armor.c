@@ -63,7 +63,7 @@ static void dsda_DrawComponent(void) {
     }
   }
 
-  V_DrawNumPatch(x, y, FG, lump, CR_DEFAULT, local->component.vpt);
+  V_DrawNumPatch(x, y, lump, CR_DEFAULT, local->component.vpt);
 
   x += patch_spacing;
   y += patch_vertical_spacing;

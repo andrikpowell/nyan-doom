@@ -92,7 +92,7 @@ int dsda_ConsoleHeight(void) {
 }
 
 static void dsda_DrawConsole(void) {
-  console_height = V_FillHeightVPT(0, 0, 16, 0, CONSOLE_TEXT_FLAGS);
+  console_height = V_FillHeightVPT(0, 16, 0, CONSOLE_TEXT_FLAGS);
   HUlib_drawTextLine(&hu_console_prompt, false);
   HUlib_drawTextLine(&hu_console_message, false);
 }

@@ -348,17 +348,17 @@ static void D_DrawPause(void)
   {
     if (!netgame)
     {
-      V_DrawNamePatch(160, viewwindowy + 5, 0, "PAUSED", CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatch(160, viewwindowy + 5, "PAUSED", CR_DEFAULT, VPT_STRETCH);
     }
     else
     {
-      V_DrawNamePatch(160, 70, 0, "PAUSED", CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatch(160, 70, "PAUSED", CR_DEFAULT, VPT_STRETCH);
     }
   }
   else if (heretic)
     MN_DrawPause();
   else
-    V_DrawNamePatch((320 - V_NamePatchWidth("M_PAUSE")) / 2, 4, 0, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatch((320 - V_NamePatchWidth("M_PAUSE")) / 2, 4, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
 
   V_EndUIDraw();
 }
@@ -517,7 +517,7 @@ void D_Display (fixed_t frac)
 
   V_BeginMenuDraw();
   if (M_MenuIsShaded())
-    M_ShadedScreen(0);
+    M_ShadedScreen();
   V_EndMenuDraw();
 
   // menus go directly to the screen
@@ -669,7 +669,7 @@ static void D_PageDrawer(void)
     V_DrawRawScreen(pagename);
     if (demosequence == 1)
     {
-      V_DrawNamePatch(4, 160, 0, "ADVISOR", CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatch(4, 160, "ADVISOR", CR_DEFAULT, VPT_STRETCH);
     }
     return;
   }
@@ -685,7 +685,7 @@ static void D_PageDrawer(void)
   {
     // e6y: wide-res
     V_ClearBorder(pagename);
-    V_DrawNamePatchAnimateFS(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchAnimateFS(0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
   }
   else if ((dsda_SkipIwadDemos() && W_PWADLumpNameExists("CREDIT")) || doom_v11)
     M_DrawCredits();

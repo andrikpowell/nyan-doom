@@ -204,9 +204,11 @@ extern V_CopyRect_f V_CopyRect;
 void V_CopyScreen(int srcscrn, int destscrn);
 
 // V_FillRect
-typedef void (*V_FillRect_f)(int scrn, int x, int y,
+typedef void (*V_FillRectGen_f)(int scrn, int x, int y,
                              int width, int height, byte colour);
-extern V_FillRect_f V_FillRect;
+extern V_FillRectGen_f V_FillRectGen;
+#define V_FillRect(x,y,w,h,c) V_FillRectGen(0,x,y,w,h,c)
+#define V_FillRectBG(x,y,w,h,c) V_FillRectGen(1,x,y,w,h,c)
 
 // CPhipps - patch drawing
 // Consolidated into the 3 really useful functions:
@@ -223,18 +225,20 @@ typedef void (*V_DrawNumPatchGenPrecise_f)(float x, float y, int scrn,
 extern V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise;
 
 // V_DrawNumPatch - Draws the patch from lump "num"
-#define V_DrawNumPatch(x,y,s,n,t,f) V_DrawNumPatchGen(x,y,s,n,false,t,f)
-#define V_DrawNumPatchPrecise(x,y,s,n,t,f) V_DrawNumPatchGenPrecise(x,y,s,n,false,t,f)
+#define V_DrawNumPatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,0,n,false,t,f)
+#define V_DrawNumPatchPrecise(x,y,n,t,f) V_DrawNumPatchGenPrecise(x,y,0,n,false,t,f)
+#define V_DrawNumPatchBG(x,y,n,t,f) V_DrawNumPatchGen(x,y,1,n,false,t,f)
 
 // V_DrawNamePatch - Draws the patch from lump "name"
-#define V_DrawNamePatch(x,y,s,n,t,f) V_DrawNumPatchGen(x,y,s,W_GetNumForName(n),false,t,f)
-#define V_DrawNamePatchPrecise(x,y,s,n,t,f) V_DrawNumPatchGenPrecise(x,y,s,W_GetNumForName(n),false,t,f)
+#define V_DrawNamePatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,0,W_GetNumForName(n),false,t,f)
+#define V_DrawNamePatchPrecise(x,y,n,t,f) V_DrawNumPatchGenPrecise(x,y,0,W_GetNumForName(n),false,t,f)
+#define V_DrawNamePatchBG(x,y,n,t,f) V_DrawNumPatchGen(x,y,1,W_GetNumForName(n),false,t,f)
 
 // These functions center patches if width > 320 :
-#define V_DrawNumPatchFS(x,y,s,n,t,f) V_DrawNumPatchGen(x,y,s,n,true,t,f)
-#define V_DrawNumPatchPreciseFS(x,y,s,n,t,f) V_DrawNumPatchGenPrecise(x,y,s,n,true,t,f)
-#define V_DrawNamePatchFS(x,y,s,n,t,f) V_DrawNumPatchGen(x,y,s,W_GetNumForName(n),true,t,f)
-#define V_DrawNamePatchPreciseFS(x,y,s,n,t,f) V_DrawNumPatchGenPrecise(x,y,s,W_GetNumForName(n),true,t,f)
+#define V_DrawNumPatchFS(x,y,n,t,f) V_DrawNumPatchGen(x,y,0,n,true,t,f)
+#define V_DrawNumPatchPreciseFS(x,y,n,t,f) V_DrawNumPatchGenPrecise(x,y,0,n,true,t,f)
+#define V_DrawNamePatchFS(x,y,n,t,f) V_DrawNumPatchGen(x,y,0,W_GetNumForName(n),true,t,f)
+#define V_DrawNamePatchPreciseFS(x,y,n,t,f) V_DrawNumPatchGenPrecise(x,y,0,W_GetNumForName(n),true,t,f)
 
 /* cph -
  * Functions to return width & height of a patch.
@@ -247,26 +251,32 @@ extern V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise;
 // e6y
 typedef void (*V_FillFlat_f)(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags);
 extern V_FillFlat_f V_FillFlat;
-#define V_FillFlatName(flatname, scrn, x, y, width, height, flags) \
-  V_FillFlat(R_FlatNumForName(flatname), (scrn), (x), (y), (width), (height), (flags))
-#define V_FillFlatNum(lump, scrn, x, y, width, height, flags) \
-  V_FillFlat((lump), (scrn), (x), (y), (width), (height), (flags))
+#define V_FillNameFlat(flatname, x, y, width, height, flags) \
+  V_FillFlat(R_FlatNumForName(flatname), 0, (x), (y), (width), (height), (flags))
+#define V_FillNumFlat(lump, x, y, width, height, flags) \
+  V_FillFlat((lump), 0, (x), (y), (width), (height), (flags))
+#define V_FillNumFlatBG(lump, x, y, width, height, flags) \
+  V_FillFlat((lump), 1, (x), (y), (width), (height), (flags))
 
 typedef void (*V_FillPatch_f)(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags);
 extern V_FillPatch_f V_FillPatch;
-#define V_FillPatchName(name, scrn, x, y, width, height, flags) \
-  V_FillPatch(W_GetNumForName(name), (scrn), (x), (y), (width), (height), (flags))
+#define V_FillNamePatch(name, x, y, width, height, flags) \
+  V_FillPatch(W_GetNumForName(name), 0, (x), (y), (width), (height), (flags))
+#define V_FillNumPatch(lump, x, y, width, height, flags) \
+  V_FillPatch(lump, 0, (x), (y), (width), (height), (flags))
+#define V_FillNumPatchBG(lump, x, y, width, height, flags) \
+  V_FillPatch(lump, 1, (x), (y), (width), (height), (flags))
 
 
 /* cphipps 10/99: function to tile a flat over the screen */
-typedef void (*V_DrawBackground_f)(const char* flatname, int scrn);
+typedef void (*V_DrawBackground_f)(int lump, int scrn);
 extern V_DrawBackground_f V_DrawBackground;
+#define V_DrawBackgroundName(flatname) \
+  V_DrawBackground(R_FlatNumForName(flatname), 0)
+#define V_DrawBackgroundNum(lump) \
+  V_DrawBackground(lump, 0)
 
-/* cphipps 10/99: function to tile an animated flat over the screen */
-typedef void (*V_DrawBackgroundNum_f)(int lump, int scrn);
-extern V_DrawBackgroundNum_f V_DrawBackgroundNum;
-
-typedef void (*V_DrawShaded_f)(int scrn, int x, int y, int width, int height, int shade);
+typedef void (*V_DrawShaded_f)(int x, int y, int width, int height, int shade);
 extern V_DrawShaded_f V_DrawShaded;
 
 // CPhipps - function to set the palette to palette number pal.
@@ -332,8 +342,8 @@ int V_BloodColor(int blood);
 
 #include "gl_struct.h"
 
-void V_FillRectVPT(int scrn, int x, int y, int width, int height, byte color, enum patch_translation_e flags);
-int V_FillHeightVPT(int scrn, int y, int height, byte color, enum patch_translation_e flags);
+void V_FillRectVPT(int x, int y, int width, int height, byte color, enum patch_translation_e flags);
+int V_FillHeightVPT(int y, int height, byte color, enum patch_translation_e flags);
 
 // heretic
 

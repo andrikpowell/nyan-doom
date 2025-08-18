@@ -303,7 +303,7 @@ static void FUNC_V_FillPatch(int lump, int scrn, int x, int y, int width, int he
   {
     for (sx = x; sx < x + width; sx += w)
     {
-      V_DrawNumPatch(sx, sy, scrn, lump, CR_DEFAULT, flags);
+      V_DrawNumPatchGen(sx, sy, scrn, lump, false, CR_DEFAULT, flags);
     }
   }
 }
@@ -314,19 +314,9 @@ static void FUNC_V_FillPatch(int lump, int scrn, int x, int y, int width, int he
  * cphipps - used to have M_DrawBackground, but that was used the framebuffer
  * directly, so this is my code from the equivalent function in f_finale.c
  */
-static void FUNC_V_DrawBackground(const char* flatname, int scrn)
+static void FUNC_V_DrawBackground(int lump, int scrn)
 {
-  V_FillFlatName(flatname, scrn, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
-}
-
-/*
- * V_DrawBackgroundNum tiles a 64x64 animated patch (via number for animated lumps)
- * over the entire screen, providing the background for the Help and Setup screens,
- * and plot text between levels.
- */
-static void FUNC_V_DrawBackgroundNum(int lump, int scrn)
-{
-  V_FillFlatNum(lump, scrn, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
+  V_FillFlat(lump, scrn, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
 }
 
 //
@@ -642,7 +632,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 // This uses a dark colormap to create
 // a dark faded background under menus.
 //
-static void FUNC_V_DrawShaded(int scrn, int x, int y, int width, int height, int shade)
+static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 { 
   const lighttable_t *darkcolormap;
   extern dboolean LevelUseFullBright;
@@ -651,15 +641,15 @@ static void FUNC_V_DrawShaded(int scrn, int x, int y, int width, int height, int
   int ix, iy;
 
   // Compensate for Hexen FOGMAP
-  darkcolormap = (hexen && !LevelUseFullBright) ? (const lighttable_t *)colormap_lump : colormaps[scrn];
+  darkcolormap = (hexen && !LevelUseFullBright) ? (const lighttable_t *)colormap_lump : colormaps[0];
 
   for (iy = y; iy < y + height; ++iy)
   {
-    dest = screens[scrn].data + screens[scrn].pitch * iy + x;
+    dest = screens[0].data + screens[0].pitch * iy + x;
 
     for (ix = x; ix < x + width; ++ix)
     {
-      *dest = darkcolormap[shade * 256 + dest[scrn]];
+      *dest = darkcolormap[shade * 256 + dest[0]];
       dest++;
     }
   }
@@ -770,11 +760,7 @@ static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byt
 static void WRAP_gld_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
 }
-static void WRAP_gld_DrawBackground(const char *flatname, int n)
-{
-  gld_FillFlatName(flatname, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
-}
-static void WRAP_gld_DrawBackgroundNum(int lump, int n)
+static void WRAP_gld_DrawBackground(int lump, int n)
 {
   gld_FillFlatNum(lump, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
 }
@@ -805,7 +791,7 @@ static void WRAP_gld_DrawLine(fline_t* fl, int color)
 {
   gld_DrawLine_f(fl->a.fx, fl->a.fy, fl->b.fx, fl->b.fy, color);
 }
-static void WRAP_gld_DrawShaded(int scrn, int x, int y, int width, int height, int shade)
+static void WRAP_gld_DrawShaded(int x, int y, int width, int height, int shade)
 {
   gld_DrawShaded(x, y, width, height, shade);
 }
@@ -820,15 +806,14 @@ static void NULL_FillRect(int scrn, int x, int y, int width, int height, byte co
 static void NULL_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
-static void NULL_DrawBackground(const char *flatname, int n) {}
-static void NULL_DrawBackgroundNum(int lump, int n) {}
+static void NULL_DrawBackground(int lump, int n) {}
 static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags) {}
 static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags) {}
 static void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
 static void NULL_PlotPixelWu(int scrn, int x, int y, byte color, int weight) {}
 static void NULL_DrawLine(fline_t* fl, int color) {}
 static void NULL_DrawLineWu(fline_t* fl, int color) {}
-static void NULL_DrawShaded(int scrn, int x, int y, int width, int height, int shade) {}
+static void NULL_DrawShaded(int x, int y, int width, int height, int shade) {}
 
 static video_mode_t current_videomode = VID_MODESW;
 
@@ -839,13 +824,12 @@ V_EndUIDraw_f V_EndAutomapDraw = NULL_EndAutomapDraw;
 V_BeginUIDraw_f V_BeginMenuDraw = NULL_BeginMenuDraw;
 V_EndUIDraw_f V_EndMenuDraw = NULL_EndMenuDraw;
 V_CopyRect_f V_CopyRect = NULL_CopyRect;
-V_FillRect_f V_FillRect = NULL_FillRect;
+V_FillRectGen_f V_FillRectGen = NULL_FillRect;
 V_DrawNumPatchGen_f V_DrawNumPatchGen = NULL_DrawNumPatch;
 V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise = NULL_DrawNumPatchPrecise;
 V_FillFlat_f V_FillFlat = NULL_FillFlat;
 V_FillPatch_f V_FillPatch = NULL_FillPatch;
 V_DrawBackground_f V_DrawBackground = NULL_DrawBackground;
-V_DrawBackgroundNum_f V_DrawBackgroundNum = NULL_DrawBackgroundNum;
 V_PlotPixel_f V_PlotPixel = NULL_PlotPixel;
 V_PlotPixelWu_f V_PlotPixelWu = NULL_PlotPixelWu;
 V_DrawLine_f V_DrawLine = NULL_DrawLine;
@@ -866,13 +850,12 @@ void V_InitMode(video_mode_t mode) {
       V_BeginMenuDraw = NULL_BeginMenuDraw;
       V_EndMenuDraw = NULL_EndMenuDraw;
       V_CopyRect = FUNC_V_CopyRect;
-      V_FillRect = V_FillRect8;
+      V_FillRectGen = V_FillRect8;
       V_DrawNumPatchGen = FUNC_V_DrawNumPatch;
       V_DrawNumPatchGenPrecise = FUNC_V_DrawNumPatchPrecise;
       V_FillFlat = FUNC_V_FillFlat;
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
-      V_DrawBackgroundNum = FUNC_V_DrawBackgroundNum;
       V_PlotPixel = V_PlotPixel8;
       V_PlotPixelWu = V_PlotPixelWu8;
       V_DrawLine = WRAP_V_DrawLine;
@@ -889,13 +872,12 @@ void V_InitMode(video_mode_t mode) {
       V_BeginMenuDraw = WRAP_gld_BeginMenuDraw;
       V_EndMenuDraw = WRAP_gld_EndMenuDraw;
       V_CopyRect = WRAP_gld_CopyRect;
-      V_FillRect = WRAP_gld_FillRect;
+      V_FillRectGen = WRAP_gld_FillRect;
       V_DrawNumPatchGen = WRAP_gld_DrawNumPatch;
       V_DrawNumPatchGenPrecise = WRAP_gld_DrawNumPatchPrecise;
       V_FillFlat = WRAP_gld_FillFlat;
       V_FillPatch = WRAP_gld_FillPatch;
       V_DrawBackground = WRAP_gld_DrawBackground;
-      V_DrawBackgroundNum = WRAP_gld_DrawBackgroundNum;
       V_PlotPixel = V_PlotPixelGL;
       V_PlotPixelWu = V_PlotPixelWuGL;
       V_DrawLine = WRAP_gld_DrawLine;
@@ -1357,17 +1339,17 @@ static void V_DrawBorder(byte pillarboxcolor)
   if (bordtop > 0)
   {
     // Top
-    V_FillRect(0, 0, 0, SCREENWIDTH, bordtop, pillarboxcolor);
+    V_FillRect(0, 0, SCREENWIDTH, bordtop, pillarboxcolor);
     // Bottom
-    V_FillRect(0, 0, SCREENHEIGHT - bordbottom, SCREENWIDTH, bordbottom, pillarboxcolor);
+    V_FillRect(0, SCREENHEIGHT - bordbottom, SCREENWIDTH, bordbottom, pillarboxcolor);
   }
 
   if (bordleft > 0)
   {
     // Left
-    V_FillRect(0, 0, bordtop, bordleft, SCREENHEIGHT - bordbottom - bordtop, pillarboxcolor);
+    V_FillRect(0, bordtop, bordleft, SCREENHEIGHT - bordbottom - bordtop, pillarboxcolor);
     // Right
-    V_FillRect(0, SCREENWIDTH - bordright, bordtop, bordright, SCREENHEIGHT - bordbottom - bordtop, pillarboxcolor);
+    V_FillRect(SCREENWIDTH - bordright, bordtop, bordright, SCREENHEIGHT - bordbottom - bordtop, pillarboxcolor);
   }
 }
 
@@ -1599,13 +1581,13 @@ void V_ChangeScreenResolution(void)
   }
 }
 
-void V_FillRectVPT(int scrn, int x, int y, int width, int height, byte color, enum patch_translation_e flags)
+void V_FillRectVPT(int x, int y, int width, int height, byte color, enum patch_translation_e flags)
 {
   V_GetWideRect(&x, &y, &width, &height, flags);
-  V_FillRect(scrn, x, y, width, height, color);
+  V_FillRect(x, y, width, height, color);
 }
 
-int V_FillHeightVPT(int scrn, int y, int height, byte color, enum patch_translation_e flags)
+int V_FillHeightVPT(int y, int height, byte color, enum patch_translation_e flags)
 {
   stretch_param_t *params = dsda_StretchParams(flags);
   int sy = y;
@@ -1613,7 +1595,7 @@ int V_FillHeightVPT(int scrn, int y, int height, byte color, enum patch_translat
   y = params->video->y1lookup[y];
   height = params->video->y2lookup[sy + height - 1] - y + 1;
   y += params->deltay1;
-  V_FillRect(scrn, 0, y, SCREENWIDTH, height, color);
+  V_FillRect(0, y, SCREENWIDTH, height, color);
 
   return height;
 }
@@ -1645,7 +1627,7 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
   // custom widescreen assets are a different format
   if (R_IsPatchLump(lump_num))
   {
-    V_DrawNamePatchFS(0, 0, 0, lump_name, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchFS(0, 0, lump_name, CR_DEFAULT, VPT_STRETCH);
     return;
   }
 
@@ -1698,33 +1680,33 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
       if ((x_pos < 0) || (x_pos > SCREENWIDTH - width))
         continue;
 
-      V_FillRect(0, x_pos, y, width, height, *raw);
+      V_FillRect(x_pos, y, width, height, *raw);
     }
 }
 
 void V_DrawShadowedNumPatch(int x, int y, int lump)
 {
-  V_DrawNumPatch(x, y, 0, lump, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
 }
 
 void V_DrawShadowedNamePatch(int x, int y, const char* name)
 {
-  V_DrawNamePatch(x, y, 0, name, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(x, y, name, CR_DEFAULT, VPT_STRETCH);
 }
 
 void V_DrawTLNumPatch(int x, int y, int lump)
 {
-  V_DrawNumPatch(x, y, 0, lump, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
 }
 
 void V_DrawTLNamePatch(int x, int y, const char* name)
 {
-  V_DrawNamePatch(x, y, 0, name, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(x, y, name, CR_DEFAULT, VPT_STRETCH);
 }
 
 void V_DrawAltTLNumPatch(int x, int y, int lump)
 {
-  V_DrawNumPatch(x, y, 0, lump, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
 }
 
 // void V_DrawShadowedPatch(int x, int y, patch_t *patch)

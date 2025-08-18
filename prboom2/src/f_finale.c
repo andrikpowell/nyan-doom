@@ -565,10 +565,10 @@ void F_TextWrite (void)
   if (finalepatch)
   {
     V_ClearBorder(finalepatch);
-    V_DrawNamePatchAnimateFS(0, 0, 0, finalepatch, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchAnimateFS(0, 0, finalepatch, CR_DEFAULT, VPT_STRETCH);
   }
   else
-    V_DrawBackground(finaleflat, 0);
+    V_DrawBackgroundName(finaleflat);
 
   { // draw some of the text onto the screen
     int         cx = 10;
@@ -603,7 +603,7 @@ void F_TextWrite (void)
         break;
 
       // CPhipps - patch drawing updated
-      V_DrawNumPatch(cx, cy, 0, hud_font.font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNumPatch(cx, cy, hud_font.font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
       cx+=w;
     }
   }
@@ -882,7 +882,7 @@ static void F_CastPrint (const char* text) // CPhipps - static, const char*
 
     w = hud_font.font[c].width;
     // CPhipps - patch drawing updated
-    V_DrawNumPatch(cx, 180, 0, hud_font.font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNumPatch(cx, 180, hud_font.font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
     cx+=w;
   }
 }
@@ -903,7 +903,7 @@ void F_CastDrawer (void)
   V_ClearBorder(castbackground);
   // erase the entire screen to a background
   // CPhipps - patch drawing updated
-  V_DrawNamePatchAnimateFS(0,0,0, castbackground, CR_DEFAULT, VPT_STRETCH); // Ty 03/30/98 bg texture extern
+  V_DrawNamePatchAnimateFS(0,0, castbackground, CR_DEFAULT, VPT_STRETCH); // Ty 03/30/98 bg texture extern
 
   F_CastPrint (*(castorder[castnum].name));
 
@@ -914,7 +914,7 @@ void F_CastDrawer (void)
   flip = (dboolean)(sprframe->flip & 1);
 
   // CPhipps - patch drawing updated
-  V_DrawNumPatch(160, 170, 0, lump+firstspritelump, CR_DEFAULT,
+  V_DrawNumPatch(160, 170, lump+firstspritelump, CR_DEFAULT,
      VPT_STRETCH | (flip ? VPT_FLIP : 0));
 }
 
@@ -1007,14 +1007,14 @@ void F_BunnyScroll (void)
     F_BunnyApplyWidth();
 
     if (scrolled <= 0) {
-      V_DrawNamePatchAnimateFS(0, 0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatchAnimateFS(0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
     } else if (scrolled >= 320) {
-      V_DrawNamePatchAnimateFS(p1offset, 0, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatchAnimateFS(p1offset, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
       if (p1offset > 0)
-        V_DrawNamePatchAnimateFS(-320, 0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
+        V_DrawNamePatchAnimateFS(-320, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
     } else {
-      V_DrawNamePatchAnimateFS(p1offset + 320 - scrolled, 0, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
-      V_DrawNamePatchAnimateFS(-scrolled, 0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatchAnimateFS(p1offset + 320 - scrolled, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatchAnimateFS(-scrolled, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
     }
     if (p2width == 320)
       V_ClearBorder(scrollpic1);
@@ -1028,7 +1028,7 @@ void F_BunnyScroll (void)
   if (finalecount < 1180)
   {
     // CPhipps - patch drawing updated
-    V_DrawNamePatch((320-13*8)/2, (200-8*8)/2,0, "END0", CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, "END0", CR_DEFAULT, VPT_STRETCH);
     laststage = 0;
     return;
   }
@@ -1044,7 +1044,7 @@ void F_BunnyScroll (void)
 
   sprintf (name,"END%i",stage);
   // CPhipps - patch drawing updated
-  V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, 0, name, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, name, CR_DEFAULT, VPT_STRETCH);
 }
 
 void F_StartPostFinale (void)
@@ -1102,7 +1102,7 @@ void F_Drawer (void)
     if (finalelump)
     {
       V_ClearBorder(finalelump); // e6y: wide-res
-      V_DrawNamePatchAnimateFS(0, 0, 0, finalelump, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatchAnimateFS(0, 0, finalelump, CR_DEFAULT, VPT_STRETCH);
     }
   }
 }

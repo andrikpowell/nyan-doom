@@ -323,8 +323,8 @@ static void DrDeathTally(void)
     static dboolean showTotals;
     int temp;
 
-    V_DrawNamePatch(TALLY_TOP_X, TALLY_TOP_Y, 0, "tallytop", CR_DEFAULT, VPT_STRETCH);
-    V_DrawNamePatch(TALLY_LEFT_X, TALLY_LEFT_Y, 0, "tallylft", CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatch(TALLY_TOP_X, TALLY_TOP_Y, "tallytop", CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatch(TALLY_LEFT_X, TALLY_LEFT_Y, "tallylft", CR_DEFAULT, VPT_STRETCH);
     if (intertime < TALLY_EFFECT_TICKS)
     {
         showTotals = false;
@@ -460,7 +460,7 @@ static void DrawHubText(void)
         {
             break;
         }
-        V_DrawNumPatch(cx, cy, 0, lump, CR_DEFAULT, VPT_STRETCH);
+        V_DrawNumPatch(cx, cy, lump, CR_DEFAULT, VPT_STRETCH);
         cx += width;
     }
 }

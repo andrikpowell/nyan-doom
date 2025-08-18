@@ -127,11 +127,11 @@ static void TextWrite(void)
     {                           // Chess pic, draw the correct character graphic
         if (netgame)
         {
-            V_DrawNamePatch(20, 0, 0, "chessall", CR_DEFAULT, VPT_STRETCH);
+            V_DrawNamePatch(20, 0, "chessall", CR_DEFAULT, VPT_STRETCH);
         }
         else if (PlayerClass[consoleplayer] > 1)
         {
-            V_DrawNumPatch(60, 0, 0,
+            V_DrawNumPatch(60, 0,
                            W_GetNumForName("chessc") + PlayerClass[consoleplayer] - 2,
                            CR_DEFAULT, VPT_STRETCH);
         }
@@ -181,7 +181,7 @@ static void TextWrite(void)
         {
             break;
         }
-        V_DrawNumPatch(cx, cy, 0, lump, CR_DEFAULT, VPT_STRETCH);
+        V_DrawNumPatch(cx, cy, lump, CR_DEFAULT, VPT_STRETCH);
         cx += width;
     }
 }
@@ -244,11 +244,11 @@ static void DrawPic(void)
     {                           // Chess pic, draw the correct character graphic
         if (netgame)
         {
-            V_DrawNamePatch(20, 0, 0, "chessall", CR_DEFAULT, VPT_STRETCH);
+            V_DrawNamePatch(20, 0, "chessall", CR_DEFAULT, VPT_STRETCH);
         }
         else if (PlayerClass[consoleplayer] > 1)
         {
-            V_DrawNumPatch(60, 0, 0,
+            V_DrawNumPatch(60, 0,
                            W_GetNumForName("chessc") + PlayerClass[consoleplayer] - 2,
                            CR_DEFAULT, VPT_STRETCH);
         }

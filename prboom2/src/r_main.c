@@ -1056,7 +1056,7 @@ static void R_InitDrawScene(void)
     if (dsda_IntConfig(dsda_config_flashing_hom))
     { // killough 2/10/98: add flashing red HOM indicators
       unsigned char color=(gametic % 20) < 9 ? 0xb0 : 0;
-      V_FillRect(0, viewwindowx, viewwindowy, viewwidth, viewheight, color);
+      V_FillRect(viewwindowx, viewwindowy, viewwidth, viewheight, color);
       R_DrawViewBorder();
     }
 

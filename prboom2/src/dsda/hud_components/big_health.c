@@ -50,7 +50,7 @@ static void dsda_DrawComponent(void) {
        player->health <= hud_health_green ? dsda_TextCR(dsda_tc_stbar_health_ok) :
        dsda_TextCR(dsda_tc_stbar_health_super);
 
-  V_DrawNumPatch(x, y, FG,
+  V_DrawNumPatch(x, y,
                  player->powers[pw_strength] ? strength_lump : health_lump,
                  CR_DEFAULT, local->component.vpt);
 

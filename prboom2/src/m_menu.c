@@ -200,10 +200,10 @@ static dboolean messageNeedsInput; // timed message = no input from user
 
 static void (*messageRoutine)(int response);
 
-static void M_DrawBackground(const char *flat, int scrn)
+static void M_DrawBackground(const char *flat)
 {
   if (dsda_IntConfig(dsda_config_menu_background) == 2)
-    V_DrawBackground(flat, scrn);
+    V_DrawBackgroundName(flat);
 }
 
 // we are going to be entering a savegame string
@@ -491,7 +491,7 @@ static void M_DrawMainMenu(void)
 {
   if (raven) return MN_DrawMainMenu();
   // CPhipps - patch drawing updated
-  V_DrawNamePatchAnimate(94, 2, 0, mdoom, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatchAnimate(94, 2, mdoom, CR_DEFAULT, VPT_STRETCH);
 }
 
 /////////////////////////////
@@ -655,7 +655,7 @@ static void M_DrawEpisode(void)
   if (raven) return MN_DrawEpisode();
 
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(54, EpiDef.y - 25, 0, "M_EPISOD", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(54, EpiDef.y - 25, "M_EPISOD", CR_DEFAULT, VPT_STRETCH);
 }
 
 void M_Episode(int choice)
@@ -702,8 +702,8 @@ static void M_DrawSkillMenu(void)
   if (raven) return MN_DrawSkillMenu();
 
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(96, 14, 0, "M_NEWG", CR_DEFAULT, VPT_STRETCH);
-  V_DrawNamePatch(54, 38, 0, "M_SKILL",CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(96, 14, "M_NEWG", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(54, 38, "M_SKILL", CR_DEFAULT, VPT_STRETCH);
 }
 
 void M_NewGame(int choice)
@@ -870,7 +870,7 @@ static void M_DrawLoad(void)
 
   //jff 3/15/98 use symbolic load position
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(72 ,LOADGRAPHIC_Y, 0, "M_LOADG", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(72 ,LOADGRAPHIC_Y, "M_LOADG", CR_DEFAULT, VPT_STRETCH);
   for (i = 0 ; i < load_end ; i++) {
     M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
     M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], CR_DEFAULT);
@@ -890,15 +890,15 @@ static void M_DrawSaveLoadBorder(int x,int y)
 {
   int i;
 
-  V_DrawNamePatch(x-8, y+7, 0, "M_LSLEFT", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(x-8, y+7, "M_LSLEFT", CR_DEFAULT, VPT_STRETCH);
 
   for (i = 0 ; i < 24 ; i++)
     {
-      V_DrawNamePatch(x, y+7, 0, "M_LSCNTR", CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatch(x, y+7, "M_LSCNTR", CR_DEFAULT, VPT_STRETCH);
       x += 8;
     }
 
-  V_DrawNamePatch(x, y+7, 0, "M_LSRGHT", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(x, y+7, "M_LSRGHT", CR_DEFAULT, VPT_STRETCH);
 }
 
 //
@@ -1111,7 +1111,7 @@ static void M_DrawSave(void)
 
   //jff 3/15/98 use symbolic load position
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(72, LOADGRAPHIC_Y, 0, "M_SAVEG", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(72, LOADGRAPHIC_Y, "M_SAVEG", CR_DEFAULT, VPT_STRETCH);
   for (i = 0 ; i < load_end ; i++)
     {
     M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
@@ -1264,7 +1264,7 @@ static void M_DrawOptions(void)
 
   // CPhipps - patch drawing updated
   // proff/nicolas 09/20/98 -- changed for hi-res
-  V_DrawNamePatch(108, 15, 0, "M_OPTTTL", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(108, 15, "M_OPTTTL", CR_DEFAULT, VPT_STRETCH);
 }
 
 void M_Options(int choice)
@@ -1398,7 +1398,7 @@ static void M_DrawSound(void)
   if (raven) return MN_DrawSound();
 
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(60, 38, 0, "M_SVOL", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(60, 38, "M_SVOL", CR_DEFAULT, VPT_STRETCH);
 
   M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),16,16,snd_SfxVolume);
   snprintf(num, sizeof(num), "%3d", snd_SfxVolume);
@@ -2263,14 +2263,14 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
     {
       int xx = x, yy = y - 1, ww = 8, hh = 8;
       V_GetWideRect(&xx, &yy, &ww, &hh, VPT_STRETCH);
-      V_FillRect(0, xx, yy, ww, hh, playpal_darkest);
+      V_FillRect(xx, yy, ww, hh, playpal_darkest);
       xx = x + 1, yy = y, ww = 6, hh = 6;
       V_GetWideRect(&xx, &yy, &ww, &hh, VPT_STRETCH);
-      V_FillRect(0, xx, yy, ww, hh, (byte)ch);
+      V_FillRect(xx, yy, ww, hh, (byte)ch);
     }
 
     if (!ch) // don't show this item in automap mode
-      V_DrawNamePatch(x+1,y,0,"M_PALNO", CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatch(x+1,y,"M_PALNO", CR_DEFAULT, VPT_STRETCH);
     if (M_ItemSelected(s) && !setup_select)
       M_DrawString(x + 8, y, color, " <");
     return;
@@ -2319,7 +2319,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
       {
         int xx = (x+cursor_start-1), yy = y, ww = char_width, hh = 9;
         V_GetWideRect(&xx, &yy, &ww, &hh, VPT_STRETCH);
-        V_FillRect(0, xx, yy, ww, hh, playpal_lightest);
+        V_FillRect(xx, yy, ww, hh, playpal_lightest);
       }
     }
     else {
@@ -2437,7 +2437,7 @@ static void M_DrawScreenItems(const setup_menu_t* base_src, int base_y)
 
     xx = 310, yy = base_y + scroll_i * scrollbar_scale, ww = 2, hh = limit_i * scrollbar_scale;
     V_GetWideRect(&xx, &yy, &ww, &hh, VPT_STRETCH);
-    V_FillRect(0, xx, yy, ww, hh, colrngs[cr_scrollbar][playpal_lightest]);
+    V_FillRect(xx, yy, ww, hh, colrngs[cr_scrollbar][playpal_lightest]);
   }
 
   i = 0;
@@ -2548,7 +2548,7 @@ void M_DrawTabs(const char **pages, int m, int y)
 
 void M_DrawDelVerify(void)
 {
-  V_DrawNamePatch(VERIFYBOXXORG,VERIFYBOXYORG,0,"M_VBOX",CR_DEFAULT,VPT_STRETCH);
+  V_DrawNamePatch(VERIFYBOXXORG,VERIFYBOXYORG,"M_VBOX",CR_DEFAULT,VPT_STRETCH);
 
   if (whichSkull) {
     strcpy(menu_buffer,"Delete savegame? (Y or N)");
@@ -3040,7 +3040,7 @@ static void M_DrawKeybnd(void)
 
   // Set up the Key Binding screen
 
-  M_DrawBackground(g_menu_flat, 0); // Draw background
+  M_DrawBackground(g_menu_flat); // Draw background
 
   // proff/nicolas 09/20/98 -- changed for hi-res
   M_DrawTitle(2, "KEY BINDINGS", cr_title); // M_KEYBND
@@ -3112,7 +3112,7 @@ static void M_DrawWeapons(void)
 {
   M_ChangeMenu(NULL, mnact_full);
 
-  M_DrawBackground(g_menu_flat, 0); // Draw background
+  M_DrawBackground(g_menu_flat); // Draw background
 
   // proff/nicolas 09/20/98 -- changed for hi-res
   M_DrawTitle(2, "WEAPONS", cr_title); // M_WEAP
@@ -3339,7 +3339,7 @@ static void M_DrawColPal(void)
 
   // proff/nicolas 09/20/98 -- changed for hi-res
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(COLORPALXORIG-5, COLORPALYORIG-5, 0, "M_COLORS", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(COLORPALXORIG-5, COLORPALYORIG-5, "M_COLORS", CR_DEFAULT, VPT_STRETCH);
 
   // Draw the cursor around the paint chip
   // (cpx,cpy) is the upper left-hand corner of the paint chip
@@ -3348,7 +3348,7 @@ static void M_DrawColPal(void)
   cpy = COLORPALYORIG+color_palette_y*(CHIP_SIZE)-1;
   palsel = raven ? "H_PALSEL" : "M_PALSEL";
   // proff 12/6/98: Drawing of colorchips completly changed for hi-res, it now uses a patch
-  V_DrawNamePatch(cpx,cpy,0,palsel,CR_DEFAULT,VPT_STRETCH); // PROFF_GL_FIX
+  V_DrawNamePatch(cpx,cpy,palsel,CR_DEFAULT,VPT_STRETCH); // PROFF_GL_FIX
 }
 
 // The drawing part of the Automap Setup initialization. Draw the
@@ -3358,7 +3358,7 @@ static void M_DrawAutoMap(void)
 {
   M_ChangeMenu(NULL, mnact_full);
 
-  M_DrawBackground(g_menu_flat, 0); // Draw background
+  M_DrawBackground(g_menu_flat); // Draw background
 
   // CPhipps - patch drawing updated
   M_DrawTitle(2, "AUTOMAP", cr_title); // M_AUTO
@@ -3647,7 +3647,7 @@ static void M_DrawGeneral(void)
 {
   M_ChangeMenu(NULL, mnact_full);
 
-  M_DrawBackground(g_menu_flat, 0); // Draw background
+  M_DrawBackground(g_menu_flat); // Draw background
 
   // proff/nicolas 09/20/98 -- changed for hi-res
   M_DrawTitle(2, "GENERAL", cr_title); // M_GENERL
@@ -3844,7 +3844,7 @@ static void M_DrawDisplay(void)
 {
   M_ChangeMenu(NULL, mnact_full);
 
-  M_DrawBackground(g_menu_flat, 0);
+  M_DrawBackground(g_menu_flat);
 
   M_DrawTitle(2, "DISPLAY", cr_title); // M_DSPLAY
   M_DrawInstructions();
@@ -3924,7 +3924,7 @@ static void M_DrawCompatibility(void)
 {
   M_ChangeMenu(NULL, mnact_full);
 
-  M_DrawBackground(g_menu_flat, 0);
+  M_DrawBackground(g_menu_flat);
 
   M_DrawTitle(2, "COMPATIBILITY", cr_title); // M_COMP
   M_DrawInstructions();
@@ -4060,7 +4060,7 @@ static void M_DrawSkillBuilder(void)
 {
   M_ChangeMenu(NULL, mnact_full);
 
-  M_DrawBackground(g_menu_flat, 0);
+  M_DrawBackground(g_menu_flat);
 
   M_DrawTitle(2, "CUSTOM SKILL BUILDER", cr_title); // M_CSTSKL
   M_DrawInstructions();
@@ -4145,7 +4145,7 @@ static void M_DrawDemos(void)
 {
   M_ChangeMenu(NULL, mnact_full);
 
-  M_DrawBackground(g_menu_flat, 0); // Draw background
+  M_DrawBackground(g_menu_flat); // Draw background
 
   // proff/nicolas 09/20/98 -- changed for hi-res
   M_DrawTitle(2, "DEMOS", cr_title); // M_DEMOS
@@ -4677,7 +4677,7 @@ static void M_DrawLevelTable(void)
 {
   M_ChangeMenu(NULL, mnact_full);
 
-  M_DrawBackground(g_menu_flat, 0);
+  M_DrawBackground(g_menu_flat);
 
   M_DrawTitle(2, "LEVEL TABLE", cr_title); // M_LVLTBL
   if (current_setup_menu != level_table_page[wad_stats_summary_page])
@@ -4826,7 +4826,7 @@ static void M_DrawExtHelp(void)
   inhelpscreens = true;              // killough 5/1/98
   // CPhipps - patch drawing updated
   V_ClearBorder(namebfr); // Adds background for widescreen on sides.
-  V_DrawNamePatchAnimateFS(0, 0, 0, namebfr, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatchAnimateFS(0, 0, namebfr, CR_DEFAULT, VPT_STRETCH);
 }
 
 //
@@ -4943,7 +4943,7 @@ static void M_DrawString(int cx, int cy, int color, const char* ch)
     // desired color, colrngs[color]
 
     // CPhipps - patch drawing updated
-    V_DrawNumPatch(cx, cy, 0, menu_font->font[c].lumpnum, color, VPT_STRETCH | VPT_TRANS);
+    V_DrawNumPatch(cx, cy, menu_font->font[c].lumpnum, color, VPT_STRETCH | VPT_TRANS);
     // The screen is cramped, so trim one unit from each
     // character so they butt up against each other.
     cx += w + g_menu_font_spacing;
@@ -4997,7 +4997,7 @@ static void M_DrawHelp (void)
   M_ChangeMenu(NULL, mnact_full);
 
   V_ClearBorder(helplump);
-  V_DrawNamePatchAnimateFS(0, 0, 0, helplump, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatchAnimateFS(0, 0, helplump, CR_DEFAULT, VPT_STRETCH);
 }
 
 //
@@ -5012,7 +5012,7 @@ static void M_DrawAd (void)
   if (pwad_help2_check || doom_v11 || gamemode == shareware)
   {
     V_ClearBorder(help2);
-    V_DrawNamePatchAnimateFS(0, 0, 0, help2, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchAnimateFS(0, 0, help2, CR_DEFAULT, VPT_STRETCH);
   }
   else
     M_DrawCredits();
@@ -5047,7 +5047,7 @@ void M_DrawCredits(void)     // killough 10/98: credit screen
   inhelpscreens = true;
 
   V_ClearBorder(credit);
-  V_DrawNamePatchAnimateFS(0, 0, 0, credit, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatchAnimateFS(0, 0, credit, CR_DEFAULT, VPT_STRETCH);
 }
 
 void M_DrawCreditsDynamic(void)     // Dynamic Credits
@@ -5055,7 +5055,7 @@ void M_DrawCreditsDynamic(void)     // Dynamic Credits
   inhelpscreens = true;
 
   // force drawing an animated background
-  V_DrawBackgroundAnimate(aniflat, 0);
+  V_DrawBackgroundAnimate(aniflat);
   M_DrawTitleImage(91, 6, "NYANLOGO", PROJECT_NAME " v" PROJECT_VERSION, cr_logo);
   M_DrawTitleImage(91, 25, "NYANNAME", "by Andrik 'Arsinikk' Powell", cr_logo);
   M_DrawScreenItems(cred_settings, 48);
@@ -6796,7 +6796,7 @@ static void M_GradualShade(void)
   oldtic = gametic;
 }
 
-void M_ShadedScreen(int scrn)
+void M_ShadedScreen(void)
 {
   int gradualShade = dsda_IntConfig(nyan_config_gradual_menu_fade);
   int automapShade = automap_overlay == 2 && automap_active;
@@ -6808,7 +6808,7 @@ void M_ShadedScreen(int scrn)
   // Always run gradual shade for smooth setting change transition
   M_GradualShade();
 
-  V_DrawShaded(scrn, 0, 0, SCREENWIDTH, SCREENHEIGHT, screenshade);
+  V_DrawShaded(0, 0, SCREENWIDTH, SCREENHEIGHT, screenshade);
 }
 
 //
@@ -6896,7 +6896,7 @@ void M_Drawer (void)
 
       if (!lumps_missing && currentMenu->menuitems[i].name[0] &&
           !(currentMenu->menuitems[i].flags & MENUF_OPTLUMP))
-        V_DrawNamePatch(x, y, 0, currentMenu->menuitems[i].name,
+        V_DrawNamePatch(x, y, currentMenu->menuitems[i].name,
                         currentMenu->menuitems[i].color, VPT_STRETCH);
 
       else if (alttext)
@@ -6917,9 +6917,9 @@ void M_Drawer (void)
 
         // CPhipps - patch drawing updated
         if (Check_Skull_Animate && animateLumps)
-            V_DrawNamePatchAnimate(ix, iy, scrn, mskull1, color, flags);
+            V_DrawNamePatchAnimate(ix, iy, mskull1, color, flags);
         else
-            V_DrawNamePatch(ix, iy, scrn, skullName[whichSkull], color, flags);
+            V_DrawNamePatch(ix, iy, skullName[whichSkull], color, flags);
     }
   }
 
@@ -7029,14 +7029,14 @@ static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int therm
   if (raven) return MN_DrawSlider(x, y, thermWidth, thermRange, thermDot);
 
   xx = x;
-  V_DrawNamePatch(xx, y, 0, "M_THERML", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(xx, y, "M_THERML", CR_DEFAULT, VPT_STRETCH);
   xx += 8;
   for (i=0;i<thermWidth;i++)
   {
-    V_DrawNamePatch(xx, y, 0, "M_THERMM", CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatch(xx, y, "M_THERMM", CR_DEFAULT, VPT_STRETCH);
     xx += 8;
   }
-  V_DrawNamePatch(xx, y, 0, "M_THERMR", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(xx, y, "M_THERMR", CR_DEFAULT, VPT_STRETCH);
 
   if (thermDot >= thermRange)
   {
@@ -7045,7 +7045,7 @@ static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int therm
 
   dot_offset = 8 * thermDot * thermWidth / thermRange;
   dot_offset -= thermRange / thermWidth;
-  V_DrawNamePatch(x + 8 + dot_offset, y, 0, "M_THERMO", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(x + 8 + dot_offset, y, "M_THERMO", CR_DEFAULT, VPT_STRETCH);
 }
 
 //
@@ -7055,7 +7055,7 @@ static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int therm
 static void M_DrawEmptyCell (menu_t* menu,int item)
 {
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(menu->x - 10, menu->y+item*LINEHEIGHT - 1, 0,
+  V_DrawNamePatch(menu->x - 10, menu->y+item*LINEHEIGHT - 1,
       "M_CELL1", CR_DEFAULT, VPT_STRETCH);
 }
 
@@ -7066,7 +7066,7 @@ static void M_DrawEmptyCell (menu_t* menu,int item)
 static void M_DrawSelCell (menu_t* menu,int item)
 {
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(menu->x - 10, menu->y+item*LINEHEIGHT - 1, 0,
+  V_DrawNamePatch(menu->x - 10, menu->y+item*LINEHEIGHT - 1,
       "M_CELL2", CR_DEFAULT, VPT_STRETCH);
 }
 
@@ -7142,7 +7142,7 @@ static void M_WriteText (int x,int y, const char* string, int cm)
       break;
     // proff/nicolas 09/20/98 -- changed for hi-res
     // CPhipps - patch drawing updated
-    V_DrawNumPatch(cx, cy, 0, menu_font->font[c].lumpnum, cm, flags);
+    V_DrawNumPatch(cx, cy, menu_font->font[c].lumpnum, cm, flags);
     cx+=w;
   }
 }
@@ -7165,7 +7165,7 @@ static void M_DrawTitleImage(int x, int y, const char *patch, const char *text, 
     int flags = VPT_STRETCH;
     if (cm != CR_DEFAULT)
     flags |= VPT_TRANS;
-    V_DrawNumPatch(x, y, 0, lumpnum, cm, flags);
+    V_DrawNumPatch(x, y, lumpnum, cm, flags);
   }
   else
   {

@@ -166,7 +166,7 @@ void drawKey(player_t* player, int* x, int* y, const char* (*key)(player_t*)) {
   name = key(player);
 
   if (name)
-    V_DrawNamePatch(*x, *y, FG, name, CR_DEFAULT, local->component.vpt);
+    V_DrawNamePatch(*x, *y, name, CR_DEFAULT, local->component.vpt);
 
   if (local->horizontal)
     *x += PATCH_DELTA;
@@ -188,7 +188,7 @@ static void dsda_DrawComponent(void) {
 
     for (i = 0; i < NUMCARDS; ++i)
       if (player->cards[i]) {
-        V_DrawNumPatch(x, y, 0, key_patch_num[i], CR_DEFAULT, local->component.vpt);
+        V_DrawNumPatch(x, y, key_patch_num[i], CR_DEFAULT, local->component.vpt);
         x += R_NumPatchWidth(key_patch_num[i]) + 4;
       }
 

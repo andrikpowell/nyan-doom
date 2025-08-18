@@ -460,7 +460,7 @@ void dsda_DoomFDrawer(void) {
   else {
     // e6y: wide-res
     V_ClearBorder(end_data->end_pic);
-    V_DrawNamePatchAnimateFS(0, 0, 0, end_data->end_pic, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchAnimateFS(0, 0, end_data->end_pic, CR_DEFAULT, VPT_STRETCH);
   }
 }
 

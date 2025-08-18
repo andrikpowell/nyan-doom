@@ -60,7 +60,7 @@ void drawPowerupStatusIcon(player_t* player, int* x, int* y, int powerup, const 
         flags |= VPT_TRANS;
 
     if ((!blinking && powerup) || (blinking && (powerup > BLINKTHRESHOLD || (powerup & 8))))
-        V_DrawNamePatch(*x, *y, FG, lumpname, color, flags);
+        V_DrawNamePatch(*x, *y, lumpname, color, flags);
 
     x += patch_spacing;
     y += patch_vertical_spacing;

@@ -300,7 +300,7 @@ void HU_DrawCrosshair(void)
   {
     float x = crosshair.target_screen_x;
     float y = crosshair.target_screen_y;
-    V_DrawNumPatchPrecise(x, y, 0, crosshair.lump, cm, crosshair.flags);
+    V_DrawNumPatchPrecise(x, y, crosshair.lump, cm, crosshair.flags);
   }
   else
   {
@@ -319,7 +319,7 @@ void HU_DrawCrosshair(void)
       y = (200 - st_height - crosshair.h) / 2;
     }
 
-    V_DrawNumPatch(x, y, 0, crosshair.lump, cm, crosshair.flags);
+    V_DrawNumPatch(x, y, crosshair.lump, cm, crosshair.flags);
   }
 }
 

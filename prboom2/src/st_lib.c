@@ -125,7 +125,7 @@ static void STlib_drawNum
   // in the special case of 0, you draw 0
   if (!num)
     // CPhipps - patch drawing updated, reformatted
-    V_DrawNumPatch(x - w, n->y, FG, n->p[0].lumpnum, cm,
+    V_DrawNumPatch(x - w, n->y, n->p[0].lumpnum, cm,
        (((cm!=CR_DEFAULT) && sts_colored_numbers) ? VPT_TRANS : VPT_NONE) | VPT_ALIGN_BOTTOM);
 
   // draw the new number
@@ -133,7 +133,7 @@ static void STlib_drawNum
   while (num && numdigits--) {
     // CPhipps - patch drawing updated, reformatted
     x -= w;
-    V_DrawNumPatch(x, n->y, FG, n->p[num % 10].lumpnum, cm,
+    V_DrawNumPatch(x, n->y, n->p[num % 10].lumpnum, cm,
        (((cm!=CR_DEFAULT) && sts_colored_numbers) ? VPT_TRANS : VPT_NONE) | VPT_ALIGN_BOTTOM);
     num /= 10;
   }
@@ -142,7 +142,7 @@ static void STlib_drawNum
   //jff 2/16/98 add color translation to digit output
   // cph - patch drawing updated, load by name instead of acquiring pointer earlier
   if (neg)
-    V_DrawNamePatch(x - w, n->y, FG, "STTMINUS", cm,
+    V_DrawNamePatch(x - w, n->y, "STTMINUS", cm,
        (((cm!=CR_DEFAULT) && sts_colored_numbers) ? VPT_TRANS : VPT_NONE) | VPT_ALIGN_BOTTOM);
 }
 
@@ -207,7 +207,7 @@ void STlib_updatePercent
     // killough 2/21/98: fix percents not updated;
     /* CPhipps - make %'s only be updated if number changed */
     // CPhipps - patch drawing updated
-    V_DrawNumPatch(per->n.x, per->n.y, FG, per->p->lumpnum,
+    V_DrawNumPatch(per->n.x, per->n.y, per->p->lumpnum,
        sts_pct_always_gray ? CR_GRAY : cm,
        (sts_colored_numbers || sts_pct_always_gray ? VPT_TRANS : VPT_NONE) | VPT_ALIGN_BOTTOM);
   }
@@ -260,7 +260,7 @@ void STlib_updateMultIcon
         I_Error("STlib_updateMultIcon: y - ST_Y < 0");
 #endif
     if (*mi->inum != -1)  // killough 2/16/98: redraw only if != -1
-      V_DrawNumPatch(mi->x, mi->y, FG, mi->p[*mi->inum].lumpnum, CR_DEFAULT, VPT_ALIGN_BOTTOM);
+      V_DrawNumPatch(mi->x, mi->y, mi->p[*mi->inum].lumpnum, CR_DEFAULT, VPT_ALIGN_BOTTOM);
   }
 }
 
@@ -292,6 +292,6 @@ void STlib_updateColorIcon
         I_Error("STlib_updateColorIcon: y - ST_Y < 0");
 #endif
     if (*mi->inum != -1)  // killough 2/16/98: redraw only if != -1
-      V_DrawNumPatch(mi->x, mi->y, FG, mi->p[*mi->inum].lumpnum, cm, flags);
+      V_DrawNumPatch(mi->x, mi->y, mi->p[*mi->inum].lumpnum, cm, flags);
   }
 }

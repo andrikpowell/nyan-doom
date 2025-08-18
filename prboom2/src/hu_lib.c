@@ -172,7 +172,7 @@ void HUlib_drawTextLine
         break;
       // killough 1/18/98 -- support multiple lines:
       // CPhipps - patch drawing updated
-      V_DrawNumPatch(x, y, FG, l->f[c - l->sc].lumpnum, l->cm, VPT_TRANS | l->flags);
+      V_DrawNumPatch(x, y, l->f[c - l->sc].lumpnum, l->cm, VPT_TRANS | l->flags);
       x += w;
     }
     else
@@ -189,7 +189,7 @@ void HUlib_drawTextLine
   {
     // killough 1/18/98 -- support multiple lines
     // CPhipps - patch drawing updated
-    V_DrawNumPatch(x, y, FG, l->f['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | l->flags);
+    V_DrawNumPatch(x, y, l->f['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | l->flags);
   }
 }
 

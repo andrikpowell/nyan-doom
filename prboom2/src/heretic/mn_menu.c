@@ -465,7 +465,7 @@ void MN_Drawer(void)
   {
     y = currentMenu->y + (itemOn * ITEM_HEIGHT) + SELECTOR_YOFFSET;
     selName = (MenuTime & 16 ? "M_SLCTR1" : "M_SLCTR2");
-    V_DrawNamePatch(x + SELECTOR_XOFFSET, y, 0, selName, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatch(x + SELECTOR_XOFFSET, y, selName, CR_DEFAULT, VPT_STRETCH);
   }
   // MenuItem_t *item;
   // const char *message;
@@ -540,9 +540,9 @@ void MN_DrawMainMenu(void)
   if (hexen) return Hexen_MN_DrawMainMenu();
 
   frame = (MenuTime / 3) % 18;
-  V_DrawNamePatch(88, 0, 0, "M_HTIC", CR_DEFAULT, VPT_STRETCH);
-  V_DrawNumPatch(40, 10, 0, SkullBaseLump + (17 - frame), CR_DEFAULT, VPT_STRETCH);
-  V_DrawNumPatch(232, 10, 0, SkullBaseLump + frame, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(88, 0, "M_HTIC", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNumPatch(40, 10, SkullBaseLump + (17 - frame), CR_DEFAULT, VPT_STRETCH);
+  V_DrawNumPatch(232, 10, SkullBaseLump + frame, CR_DEFAULT, VPT_STRETCH);
 }
 
 static void Hexen_MN_DrawMainMenu(void)
@@ -550,9 +550,9 @@ static void Hexen_MN_DrawMainMenu(void)
   int frame;
 
   frame = (MenuTime / 5) % 7;
-  V_DrawNamePatch(88, 0, 0, "M_HTIC", CR_DEFAULT, VPT_STRETCH);
-  V_DrawNumPatch(37, 80, 0, SkullBaseLump + (frame + 2) % 7, CR_DEFAULT, VPT_STRETCH);
-  V_DrawNumPatch(278, 80, 0, SkullBaseLump + frame, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(88, 0, "M_HTIC", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNumPatch(37, 80, SkullBaseLump + (frame + 2) % 7, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNumPatch(278, 80, SkullBaseLump + frame, CR_DEFAULT, VPT_STRETCH);
 }
 
 // Class menu is in the episode slot for hexen
@@ -574,8 +574,8 @@ void MN_DrawEpisode(void)
 
   MN_DrTextB("CHOOSE CLASS:", 34, 24);
   class = (pclass_t) itemOn;
-  V_DrawNamePatch(174, 8, 0, boxLumpName[class], CR_DEFAULT, VPT_STRETCH);
-  V_DrawNumPatch(174 + 24, 8 + 12, 0, W_GetNumForName(walkLumpName[class]) + ((MenuTime >> 3) & 3),
+  V_DrawNamePatch(174, 8, boxLumpName[class], CR_DEFAULT, VPT_STRETCH);
+  V_DrawNumPatch(174 + 24, 8 + 12, W_GetNumForName(walkLumpName[class]) + ((MenuTime >> 3) & 3),
                  CR_DEFAULT, VPT_STRETCH);
 }
 
@@ -612,7 +612,7 @@ static void MN_DrawFileSlots(int x, int y)
 
   for (i = 0; i < g_menu_save_page_size; i++)
   {
-    V_DrawNamePatch(x, y, 0, "M_FSLOT", CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatch(x, y, "M_FSLOT", CR_DEFAULT, VPT_STRETCH);
     MN_DrTextA(savegamestrings[i], x + 5, y + 5);
     y += ITEM_HEIGHT;
   }
@@ -680,7 +680,7 @@ void MN_DrTextA(const char *text, int x, int y)
     else
     {
       lump = MN_SafeFontALump(c - 33);
-      V_DrawNumPatch(x, y, 0, lump, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
       x += R_NumPatchWidth(lump) - 1;
     }
   }
@@ -737,7 +737,7 @@ void MN_DrTextB(const char *text, int x, int y)
     else
     {
       lump = FontBBaseLump + c - 33;
-      V_DrawNumPatch(x, y, 0, lump, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
       x += R_NumPatchWidth(lump) - 1;
     }
   }
@@ -785,18 +785,18 @@ void MN_DrawSlider(int x, int y, int width, int range, int slot)
   width -= 4;
 
   xx = x - 12;
-  V_DrawNamePatch(xx, y, 0, "M_SLDLT", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(xx, y, "M_SLDLT", CR_DEFAULT, VPT_STRETCH);
   xx += 32;
   for (i=0;i<width;i++)
   {
     const char* name;
     name = (slider_img & 1 ? "M_SLDMD1" : "M_SLDMD2");
     slider_img ^= 1;
-    V_DrawNamePatch(xx, y, 0, name, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatch(xx, y, name, CR_DEFAULT, VPT_STRETCH);
 
     xx += 8;
   }
-  V_DrawNamePatch(xx, y, 0, "M_SLDRT", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(xx, y, "M_SLDRT", CR_DEFAULT, VPT_STRETCH);
 
   if (slot >= range)
   {
@@ -807,7 +807,7 @@ void MN_DrawSlider(int x, int y, int width, int range, int slot)
 
   slot_offset = 8 * slot * width / range;
   slot_offset -= range / width;
-  V_DrawNamePatch(x + 20 + slot_offset, y + 7, 0, "M_SLDKB", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(x + 20 + slot_offset, y + 7, "M_SLDKB", CR_DEFAULT, VPT_STRETCH);
 }
 
 // hexen
@@ -827,7 +827,7 @@ void MN_DrTextAYellow(const char *text, int x, int y)
       else
       {
         lump = FontAYellowBaseLump + c - 33;
-        V_DrawNumPatch(x, y, 0, lump, CR_DEFAULT, VPT_STRETCH);
+        V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
         x += R_NumPatchWidth(lump) - 1;
       }
     }

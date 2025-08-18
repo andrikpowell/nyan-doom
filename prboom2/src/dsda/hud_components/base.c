@@ -104,7 +104,7 @@ static void dsda_DrawBigDigit(int x, int y, int cm, int vpt, int digit) {
     return;
 
   snprintf(digit_lump, sizeof(digit_lump), digit_lump_format, digit);
-  V_DrawNamePatch(x, y, FG, digit_lump, cm, vpt | ((sts_colored_numbers ? VPT_TRANS : VPT_NONE)));
+  V_DrawNamePatch(x, y, digit_lump, cm, vpt | ((sts_colored_numbers ? VPT_TRANS : VPT_NONE)));
 }
 
 static int digit_mod[6] = { 1, 10, 100, 1000, 10000, 100000 };

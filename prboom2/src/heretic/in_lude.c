@@ -170,13 +170,13 @@ static void IN_DrawInterpic(void)
 
   // e6y: wide-res
   V_ClearBorder(name);
-  V_DrawNamePatchFS(0, 0, 0, name, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatchFS(0, 0, name, CR_DEFAULT, VPT_STRETCH);
 }
 
 static void IN_DrawBeenThere(int i)
 {
   V_DrawNamePatch(
-    YAHspot[gameepisode - 1][i].x, YAHspot[gameepisode - 1][i].y, 0,
+    YAHspot[gameepisode - 1][i].x, YAHspot[gameepisode - 1][i].y,
     "IN_X", CR_DEFAULT, VPT_STRETCH
   );
 }
@@ -184,7 +184,7 @@ static void IN_DrawBeenThere(int i)
 static void IN_DrawGoingThere(int i)
 {
   V_DrawNamePatch(
-    YAHspot[gameepisode - 1][i].x, YAHspot[gameepisode - 1][i].y, 0,
+    YAHspot[gameepisode - 1][i].x, YAHspot[gameepisode - 1][i].y,
     "IN_YAH", CR_DEFAULT, VPT_STRETCH
   );
 }
@@ -573,7 +573,7 @@ void IN_DrawStatBack(void)
 {
     // e6y: wide-res
     V_ClearBorder(NULL);
-    V_DrawBackground("FLOOR16", 0);
+    V_DrawBackgroundName("FLOOR16");
 }
 
 //========================================================================

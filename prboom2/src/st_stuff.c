@@ -520,24 +520,24 @@ static void ST_refreshBackground(void)
 
       // Draw Normal stbar if it exists
       if (stbar_exists)
-        V_DrawNamePatchAnimateFS(ST_X, y, BG, stbar, CR_DEFAULT, flags);
+        V_DrawNamePatchAnimateFS(ST_X, y, stbar, CR_DEFAULT, flags);
 
       // Draw Doom v1.1 two part statusbar (if stbar not found)
       if (doom_v11 && !stbar_exists)
       {
-        V_DrawNamePatch(ST_X, y, BG, "STMBARL", CR_DEFAULT, flags);
-        V_DrawNamePatch(ST_ARMSBGX, y, BG, "STMBARR", CR_DEFAULT, flags);
+        V_DrawNamePatch(ST_X, y, "STMBARL", CR_DEFAULT, flags);
+        V_DrawNamePatch(ST_ARMSBGX, y, "STMBARR", CR_DEFAULT, flags);
       }
 
       if (!deathmatch)
       {
-        V_DrawNamePatchAnimate(ST_ARMSBGX, y, BG, starms, CR_DEFAULT, flags);
+        V_DrawNamePatchAnimate(ST_ARMSBGX, y, starms, CR_DEFAULT, flags);
       }
 
       // killough 3/7/98: make face background change with displayplayer
       if (netgame)
       {
-        V_DrawNumPatch(ST_FX, y, BG, faceback.lumpnum,
+        V_DrawNumPatch(ST_FX, y, faceback.lumpnum,
            displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT,
            displayplayer ? (VPT_TRANS | VPT_ALIGN_BOTTOM) : flags);
       }
@@ -949,11 +949,11 @@ void ST_updateBlinkingKeys(player_t* plyr)
               if (R_StatusBarVisible())
               {
                 if (i == 0)
-                    V_DrawNamePatch(153, 180, 0, "bkeyicon", CR_DEFAULT, VPT_STRETCH);
+                    V_DrawNamePatch(153, 180, "bkeyicon", CR_DEFAULT, VPT_STRETCH);
                 else if (i == 1)
-                    V_DrawNamePatch(153, 164, 0, "ykeyicon", CR_DEFAULT, VPT_STRETCH);
+                    V_DrawNamePatch(153, 164, "ykeyicon", CR_DEFAULT, VPT_STRETCH);
                 else if (i == 2)
-                    V_DrawNamePatch(153, 172, 0, "gkeyicon", CR_DEFAULT, VPT_STRETCH);
+                    V_DrawNamePatch(153, 172, "gkeyicon", CR_DEFAULT, VPT_STRETCH);
               }
             }
             else
@@ -1199,7 +1199,7 @@ void ST_DrawDisk(void)
     stretch_param_t *params = dsda_StretchParams(VPT_STRETCH);
     float screenwidth_sml = (SCREENWIDTH - params->deltax1) * 320.0f / params->video->width;
 
-    V_DrawNumPatchPrecise(screenwidth_sml - 10 - icon.width, 5, 0, icon.lumpnum, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNumPatchPrecise(screenwidth_sml - 10 - icon.width, 5, icon.lumpnum, CR_DEFAULT, VPT_STRETCH);
 
     if (!--drawdisktics)
       drawdisk = false;

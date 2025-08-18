@@ -47,7 +47,7 @@ void drawBerserkIcon(player_t* player, int* x, int* y, const char* (*hasBerserk)
     name = hasBerserk(player);
 
     if (name)
-        V_DrawNamePatch(*x, *y, FG, name, color, flags);
+        V_DrawNamePatch(*x, *y, name, color, flags);
 }
 
 static void dsda_DrawComponent(void) {

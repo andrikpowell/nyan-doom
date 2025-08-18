@@ -44,9 +44,9 @@ void N_ReloadAnimateLumps(void);
 int N_GetPatchAnimateNum(const char* lump, dboolean animation);
 void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elump, int speed);
 
-void V_DrawNamePatchAnimate(const int x, const int y, const int scrn, const char* lump, const int color, const int flags);
-void V_DrawNamePatchAnimateFS(const int x, const int y, const int scrn, const char* lump, const int color, const int flags);
-void V_DrawBackgroundAnimate(const char* lump, const int scrn);
+void V_DrawNamePatchAnimate(const int x, const int y, const char* lump, const int color, const int flags);
+void V_DrawNamePatchAnimateFS(const int x, const int y, const char* lump, const int color, const int flags);
+void V_DrawBackgroundAnimate(const char* lump);
 
 // Also called by F_BunnyScroll()
 const int N_CheckAnimate(const char* lump);

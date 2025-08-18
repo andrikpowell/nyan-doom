@@ -3069,11 +3069,11 @@ static void AM_drawMarks(void)
 
             if (am_frame.precise)
             {
-              V_DrawNamePatchPrecise(fx, fy, FB, namebuf, CR_DEFAULT, flags);
+              V_DrawNamePatchPrecise(fx, fy, namebuf, CR_DEFAULT, flags);
             }
             else
             {
-              V_DrawNamePatch(x, y, FB, namebuf, CR_DEFAULT, flags);
+              V_DrawNamePatch(x, y, namebuf, CR_DEFAULT, flags);
             }
           }
 
@@ -3229,9 +3229,9 @@ void AM_Drawer (dboolean minimap)
   }
 
   if (!automap_overlay) // cph - If not overlay mode, clear background for the automap
-    V_FillRect(FB, f_x, f_y, f_w, f_h, (byte)mapcolor_p->back); //jff 1/5/98 background default color
+    V_FillRect(f_x, f_y, f_w, f_h, (byte)mapcolor_p->back); //jff 1/5/98 background default color
   if (automap_overlay == 2 && !M_MenuIsShaded())
-    V_DrawShaded(FB, f_x, f_y, f_w, f_h, screenshade);
+    V_DrawShaded(f_x, f_y, f_w, f_h, screenshade);
 
   if (map_textured)
   {

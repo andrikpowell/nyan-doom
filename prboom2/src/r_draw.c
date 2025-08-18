@@ -561,8 +561,8 @@ void R_FillBackColor (void)
   }
 
   V_BeginMenuDraw();
-  V_FillRect(1, 0, stbar_top, SCREENWIDTH, ST_SCALED_BORDER, col_top);
-  V_FillRect(1, 0, stbar_top + ST_SCALED_BORDER, SCREENWIDTH, ST_SCALED_HEIGHT - ST_SCALED_BORDER, col);
+  V_FillRectBG(0, stbar_top, SCREENWIDTH, ST_SCALED_BORDER, col_top);
+  V_FillRectBG(0, stbar_top + ST_SCALED_BORDER, SCREENWIDTH, ST_SCALED_HEIGHT - ST_SCALED_BORDER, col);
   V_EndMenuDraw();
 }
 
@@ -576,16 +576,16 @@ void R_DrawBorder (int x, int y, int w, int h)
 {
   int g = g_border_offset;
 
-  V_FillPatch(brdr_t.lumpnum, 1, x,       y - g,  w,            brdr_t.height,  VPT_NONE); // top
-  V_FillPatch(brdr_b.lumpnum, 1, x,       y + h,  w,            brdr_b.height,  VPT_NONE); // bottom
-  V_FillPatch(brdr_l.lumpnum, 1, x - g,   y,      brdr_l.width, h,              VPT_NONE); // left
-  V_FillPatch(brdr_r.lumpnum, 1, x + w,   y,      brdr_r.width, h,              VPT_NONE); // right
+  V_FillNumPatchBG(brdr_t.lumpnum, x,       y - g,  w,            brdr_t.height,  VPT_NONE); // top
+  V_FillNumPatchBG(brdr_b.lumpnum, x,       y + h,  w,            brdr_b.height,  VPT_NONE); // bottom
+  V_FillNumPatchBG(brdr_l.lumpnum, x - g,   y,      brdr_l.width, h,              VPT_NONE); // left
+  V_FillNumPatchBG(brdr_r.lumpnum, x + w,   y,      brdr_r.width, h,              VPT_NONE); // right
 
   // Draw beveled edge.
-  V_DrawNumPatch(x - g, y - g, 1, brdr_tl.lumpnum, CR_DEFAULT, VPT_NONE); // top left
-  V_DrawNumPatch(x + w, y - g, 1, brdr_tr.lumpnum, CR_DEFAULT, VPT_NONE); // top right
-  V_DrawNumPatch(x - g, y + h, 1, brdr_bl.lumpnum, CR_DEFAULT, VPT_NONE); // bottom left
-  V_DrawNumPatch(x + w, y + h, 1, brdr_br.lumpnum, CR_DEFAULT, VPT_NONE); // bottom right
+  V_DrawNumPatchBG(x - g, y - g, brdr_tl.lumpnum, CR_DEFAULT, VPT_NONE); // top left
+  V_DrawNumPatchBG(x + w, y - g, brdr_tr.lumpnum, CR_DEFAULT, VPT_NONE); // top right
+  V_DrawNumPatchBG(x - g, y + h, brdr_bl.lumpnum, CR_DEFAULT, VPT_NONE); // bottom left
+  V_DrawNumPatchBG(x + w, y + h, brdr_br.lumpnum, CR_DEFAULT, VPT_NONE); // bottom right
 }
 
 //
@@ -626,14 +626,14 @@ void R_FillBackScreen (void)
         return;
       }
 
-      V_FillFlat(grnrock.lumpnum, 1, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, VPT_STRETCH);
+      V_FillNumFlatBG(grnrock.lumpnum, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, VPT_STRETCH);
 
       // raven_note: I think this looks bad and KEX ports don't render it, so I'm skipping it...
       if (!raven)
       {
         // line between view and status bar
-        V_FillPatch(brdr_b.lumpnum, 1, 0, stbar_top, ST_SCALED_OFFSETX, brdr_b.height, VPT_NONE);
-        V_FillPatch(brdr_b.lumpnum, 1, SCREENWIDTH - ST_SCALED_OFFSETX, stbar_top, ST_SCALED_OFFSETX, brdr_b.height, VPT_NONE);
+        V_FillNumPatchBG(brdr_b.lumpnum, 0, stbar_top, ST_SCALED_OFFSETX, brdr_b.height, VPT_NONE);
+        V_FillNumPatchBG(brdr_b.lumpnum, SCREENWIDTH - ST_SCALED_OFFSETX, stbar_top, ST_SCALED_OFFSETX, brdr_b.height, VPT_NONE);
       }
 
       V_EndUIDraw();
@@ -647,7 +647,7 @@ void R_FillBackScreen (void)
     return;
   }
 
-  V_FillFlat(grnrock.lumpnum, 1, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
+  V_FillNumFlatBG(grnrock.lumpnum, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
 
   R_DrawBorder(viewwindowx, viewwindowy, scaledviewwidth, viewheight);
 

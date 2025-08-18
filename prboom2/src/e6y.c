@@ -795,16 +795,16 @@ int HU_DrawDemoProgress(int force)
     int inner_h = bar_h * 2/3;
     int inner_y = SCREENHEIGHT - bar_h + (bar_h - inner_h) / 2;
 
-    V_FillRect(0, 0, bar_y, len, bar_h, playpal_lightest);
+    V_FillRect(0, bar_y, len, bar_h, playpal_lightest);
     if (len > 4)
-      V_FillRect(0, 2, inner_y, len - 4, inner_h, playpal_darkest);
+      V_FillRect(2, inner_y, len - 4, inner_h, playpal_darkest);
 
     // playback key frames in light blue
     for (int i = 0; i < playback_kf_size; i++)
     {
       if (!playback_key_frames[i].buffer) continue;
       x = MIN(SCREENWIDTH, (int)((int64_t)SCREENWIDTH * playback_key_frames[i].game_tic_count / tics_count));
-      V_FillRect(0, x, inner_y, 1, inner_h, colrngs[CR_LIGHTBLUE][playpal_lightest]);
+      V_FillRect(x, inner_y, 1, inner_h, colrngs[CR_LIGHTBLUE][playpal_lightest]);
     }
 
     // rewind key frames in green
@@ -812,25 +812,25 @@ int HU_DrawDemoProgress(int force)
     {
       if (!auto_key_frames[i].kf.buffer) continue;
       x= MIN(SCREENWIDTH, (int)((int64_t)SCREENWIDTH * auto_key_frames[i].kf.game_tic_count / tics_count));
-      V_FillRect(0, x, inner_y, 1, inner_h, colrngs[CR_GREEN][playpal_lightest]);
+      V_FillRect(x, inner_y, 1, inner_h, colrngs[CR_GREEN][playpal_lightest]);
     }
 
     // quick key frame in red
     if (quick_kf.buffer)
     {
       x = MIN(SCREENWIDTH, (int)((int64_t)SCREENWIDTH * quick_kf.game_tic_count / tics_count));
-      V_FillRect(0, x, inner_y, 1, inner_h, colrngs[CR_RED][playpal_lightest]);
+      V_FillRect(x, inner_y, 1, inner_h, colrngs[CR_RED][playpal_lightest]);
     }
 
-    V_FillRect(0, len - 1, bar_y, 2, bar_h, playpal_lightest);
+    V_FillRect(len - 1, bar_y, 2, bar_h, playpal_lightest);
 
     return true;
   }
   else if (dsda_IntConfig(dsda_config_hudadd_demoprogressbar))
   {
-    V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, playpal_lightest);
+    V_FillRect(0, SCREENHEIGHT - 4, len - 0, 4, playpal_lightest);
     if (len > 4)
-      V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, playpal_darkest);
+      V_FillRect(2, SCREENHEIGHT - 3, len - 4, 2, playpal_darkest);
 
     return true;
   }
