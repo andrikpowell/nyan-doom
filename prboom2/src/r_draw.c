@@ -567,25 +567,50 @@ void R_FillBackColor (void)
 }
 
 //
+// R_DrawStbarBorder
+// Draws border on top of stbar
+// (not in Raven)
+//
+
+static void R_DrawStbarBorder (void)
+{
+  int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
+  int x = 0;
+  int y = stbar_top;
+  int w = SCREENWIDTH;
+  int h = brdr_b.height;
+  enum patch_translation_e flags = VPT_NONE;
+
+  // raven_note: I think this looks bad and KEX ports don't render it, so I'm skipping it...
+  if (!raven)
+    V_FillNumPatchBG(brdr_b.lumpnum, x, y, w, h, flags);
+}
+
+//
 // R_DrawBorder
 // Draws borders around viewport
 // for lower zoom levels
 //
 
-void R_DrawBorder (int x, int y, int w, int h)
+static void R_DrawBorder (int x, int y, int w, int h)
 {
   int g = g_border_offset;
+  int t = brdr_t.height;
+  int b = brdr_b.height;
+  int l = brdr_l.width;
+  int r = brdr_r.width;
+  enum patch_translation_e flags = VPT_NONE;
 
-  V_FillNumPatchBG(brdr_t.lumpnum, x,       y - g,  w,            brdr_t.height,  VPT_NONE); // top
-  V_FillNumPatchBG(brdr_b.lumpnum, x,       y + h,  w,            brdr_b.height,  VPT_NONE); // bottom
-  V_FillNumPatchBG(brdr_l.lumpnum, x - g,   y,      brdr_l.width, h,              VPT_NONE); // left
-  V_FillNumPatchBG(brdr_r.lumpnum, x + w,   y,      brdr_r.width, h,              VPT_NONE); // right
+  V_FillNumPatchBG(brdr_t.lumpnum, x,       y - g,  w, t, flags); // top
+  V_FillNumPatchBG(brdr_b.lumpnum, x,       y + h,  w, b, flags); // bottom
+  V_FillNumPatchBG(brdr_l.lumpnum, x - g,   y,      l, h, flags); // left
+  V_FillNumPatchBG(brdr_r.lumpnum, x + w,   y,      r, h, flags); // right
 
   // Draw beveled edge.
-  V_DrawNumPatchBG(x - g, y - g, brdr_tl.lumpnum, CR_DEFAULT, VPT_NONE); // top left
-  V_DrawNumPatchBG(x + w, y - g, brdr_tr.lumpnum, CR_DEFAULT, VPT_NONE); // top right
-  V_DrawNumPatchBG(x - g, y + h, brdr_bl.lumpnum, CR_DEFAULT, VPT_NONE); // bottom left
-  V_DrawNumPatchBG(x + w, y + h, brdr_br.lumpnum, CR_DEFAULT, VPT_NONE); // bottom right
+  V_DrawNumPatchBG(x - g, y - g, brdr_tl.lumpnum, CR_DEFAULT, flags); // top left
+  V_DrawNumPatchBG(x + w, y - g, brdr_tr.lumpnum, CR_DEFAULT, flags); // top right
+  V_DrawNumPatchBG(x - g, y + h, brdr_bl.lumpnum, CR_DEFAULT, flags); // bottom left
+  V_DrawNumPatchBG(x + w, y + h, brdr_br.lumpnum, CR_DEFAULT, flags); // bottom right
 }
 
 //
@@ -609,10 +634,10 @@ void R_FillBackScreen (void)
   if (ratio_multiplier != ratio_scale || wide_offsety)
   {
     int screenblocks = R_ViewSize();
-    int only_stbar = screenblocks >= 10;
+    int only_stbar = (screenblocks >= 10);
 
-    if (V_IsOpenGLMode())
-      only_stbar = (automap ? screenblocks >= 10 : screenblocks == 10);
+    if (V_IsOpenGLMode() && !automap)
+      only_stbar = (screenblocks == 10);
 
     if (only_stbar && ST_SCALED_OFFSETX > 0)
     {
@@ -631,13 +656,8 @@ void R_FillBackScreen (void)
 
       V_FillNumFlatBG(grnrock.lumpnum, 0, y, SCREENWIDTH, h, VPT_STRETCH);
 
-      // raven_note: I think this looks bad and KEX ports don't render it, so I'm skipping it...
-      if (!raven)
-      {
-        // line between view and status bar
-        V_FillNumPatchBG(brdr_b.lumpnum, 0, stbar_top, ST_SCALED_OFFSETX, brdr_b.height, VPT_NONE);
-        V_FillNumPatchBG(brdr_b.lumpnum, SCREENWIDTH - ST_SCALED_OFFSETX, stbar_top, ST_SCALED_OFFSETX, brdr_b.height, VPT_NONE);
-      }
+      // line between view and status bar
+      R_DrawStbarBorder();
 
       V_EndUIDraw();
       return;
