@@ -22,9 +22,7 @@ extern int AnimateTime;
 extern int animateLumps;
 extern int widescreenLumps;
 
-extern int Check_Stbar_Wide;
 extern int Check_Skull_Animate;
-extern int Check_Stbar_Animate;
 
 typedef struct
 {

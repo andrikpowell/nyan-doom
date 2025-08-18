@@ -536,10 +536,7 @@ void R_FillBackColor (void)
   static int prevlump = -1;
   const int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
   const int ST_SCALED_BORDER = brdr_b.height * patches_scaley/2;
-  int lump = stbarbg.lumpnum;
-
-  if (Check_Stbar_Animate && animateLumps)
-    lump = N_GetPatchAnimateNum(W_LumpName(stbarbg.lumpnum), false);
+  int lump = N_GetPatchAnimateNum(W_LumpName(stbarbg.lumpnum), false);
 
   if (prevlump != lump)
   {

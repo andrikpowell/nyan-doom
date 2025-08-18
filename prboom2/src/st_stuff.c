@@ -341,8 +341,6 @@ static patchnum_t faceback; // CPhipps - single background, translated for diffe
 
 //e6y: status bar background
 patchnum_t stbarbg;
-patchnum_t stbarbg_ws;
-patchnum_t stbarbg_ani;
 patchnum_t grnrock;
 patchnum_t brdr_t, brdr_b, brdr_l, brdr_r;
 patchnum_t brdr_tl, brdr_tr, brdr_bl, brdr_br;
@@ -1196,10 +1194,6 @@ void ST_Drawer(void)
 static void ST_loadDoomStbar(void)
 {
   stbar_exists = W_LumpNameExists(stbar);
-
-  // Extra stbars
-  if (Check_Stbar_Animate)  R_SetPatchNum(&stbarbg_ani, "S_STBAR");
-  if (Check_Stbar_Wide)     R_SetPatchNum(&stbarbg_ws, "W_STBAR");
 
   // Main stbar
   if (stbar_exists)         R_SetPatchNum(&stbarbg, stbar);
