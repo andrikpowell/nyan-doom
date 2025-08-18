@@ -352,7 +352,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_sts_solid_bg_color] = {
     "sts_solid_bg_color", dsda_config_sts_solid_bg_color,
-    CONF_BOOL(0), NULL, NOT_STRICT, ST_SetResolution
+    CONF_BOOL(0), &sts_solid_bg_color, NOT_STRICT, ST_SetResolution
   },
   [dsda_config_strict_mode] = {
     "dsda_strict_mode", dsda_config_strict_mode,

@@ -769,6 +769,7 @@ static void ST_updateFaceWidget(void)
 
 int sts_traditional_keys; // killough 2/28/98: traditional status bar keys
 int sts_blink_keys; // [crispy] blinking key or skull in the status bar
+int sts_solid_bg_color;
 
 void ST_SetKeyBlink(player_t* player, int blue, int yellow, int red)
 {

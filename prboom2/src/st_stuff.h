@@ -110,6 +110,8 @@ typedef enum
 extern berserk_icon_t berserk_icon;
 extern armor_icon_t armor_icon;
 
+extern int sts_solid_bg_color;
+
 // [Alaux]
 extern int st_health;
 extern int st_armor;

@@ -599,7 +599,6 @@ void R_DrawBorder (int x, int y, int w, int h)
 void R_FillBackScreen (void)
 {
   int automap = automap_on;
-  int stbar_solid_bg = dsda_IntConfig(dsda_config_sts_solid_bg_color);
 
   if (grnrock.lumpnum == 0)
     return;
@@ -623,7 +622,7 @@ void R_FillBackScreen (void)
       int y = V_IsOpenGLMode() ? 0            : stbar_top;
       int h = V_IsOpenGLMode() ? SCREENHEIGHT : ST_SCALED_HEIGHT;
 
-      if (stbar_solid_bg)
+      if (sts_solid_bg_color)
       {
         R_FillBackColor();
         V_EndUIDraw();
@@ -655,7 +654,7 @@ void R_FillBackScreen (void)
 
   R_DrawBorder(viewwindowx, viewwindowy, scaledviewwidth, viewheight);
 
-  if (stbar_solid_bg)
+  if (sts_solid_bg_color)
     R_FillBackColor();
 
   V_EndUIDraw();
