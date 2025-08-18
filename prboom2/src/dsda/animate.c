@@ -33,8 +33,6 @@
 int animateLumps;
 int widescreenLumps;
 
-int Check_Skull_Animate;
-
 #define MAXANIMS 32
 static animate_t* n_lastanim;
 static animate_t* n_anims;
@@ -139,7 +137,6 @@ void N_InitAnimateLumps(void) {
         N_AddPatchAnimateLump("STBAR", "S_STBAR", "E_STBAR", 8);
         // Disabled for now
         //N_LoadAnimateLump();
-        Check_Skull_Animate = N_CheckAnimate(mskull1);
     }
 }
 

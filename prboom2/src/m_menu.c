@@ -6909,17 +6909,15 @@ void M_Drawer (void)
     // DRAW SKULL
     if (max > 0)
     {
+        int skullani = N_CheckAnimate(mskull1) && animateLumps;
         int ix = x + SKULLXOFF;
         int iy = currentMenu->y - 5 + itemOn * LINEHEIGHT;
-        int scrn = 0;
-        int color = CR_DEFAULT;
-        int flags = VPT_STRETCH;
 
         // CPhipps - patch drawing updated
-        if (Check_Skull_Animate && animateLumps)
-            V_DrawNamePatchAnimate(ix, iy, mskull1, color, flags);
+        if (skullani)
+            V_DrawNamePatchAnimate(ix, iy, mskull1, CR_DEFAULT, VPT_STRETCH);
         else
-            V_DrawNamePatch(ix, iy, skullName[whichSkull], color, flags);
+            V_DrawNamePatch(ix, iy, skullName[whichSkull], CR_DEFAULT, VPT_STRETCH);
     }
   }
 

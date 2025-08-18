@@ -22,8 +22,6 @@ extern int AnimateTime;
 extern int animateLumps;
 extern int widescreenLumps;
 
-extern int Check_Skull_Animate;
-
 typedef struct
 {
     int lump;
