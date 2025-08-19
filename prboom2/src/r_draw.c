@@ -566,7 +566,6 @@ void R_FillBackColor (void)
 //
 // R_DrawStbarBorder
 // Draws border on top of stbar
-// (not in Raven)
 //
 
 static void R_DrawStbarBorder (void)
@@ -578,9 +577,11 @@ static void R_DrawStbarBorder (void)
   int h = brdr_b.height;
   enum patch_translation_e flags = VPT_NONE;
 
-  // raven_note: I think this looks bad and KEX ports don't render it, so I'm skipping it...
-  if (!raven)
-    V_FillNumPatchBG(brdr_b.lumpnum, x, y, w, h, flags);
+  // heretic_note: I think this looks bad, so I'm skipping it...
+  if (heretic)
+    return;
+
+  V_FillNumPatchBG(brdr_b.lumpnum, x, y, w, h, flags);
 }
 
 //
