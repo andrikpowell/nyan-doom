@@ -19,10 +19,6 @@
 
 #include "big_health.h"
 
-#define PATCH_DELTA_X 14
-#define PATCH_SPACING 2
-#define PATCH_VERTICAL_SPACING 2
-
 typedef struct {
   dsda_patch_component_t component;
 } local_component_t;
@@ -70,14 +66,14 @@ void dsda_InitBigHealthHC(int x_offset, int y_offset, int vpt, int* args, int ar
   if (heretic) {
     health_lump = R_NumPatchForSpriteIndex(HERETIC_SPR_PTN2);
     strength_lump = health_lump;
-    patch_delta_x = 10;
+    patch_delta_x = 9;
     patch_vertical_spacing = 6;
     patch_spacing = 4;
   }
   else if (hexen) {
     health_lump = R_NumPatchForSpriteIndex(HEXEN_SPR_PTN2);
     strength_lump = health_lump;
-    patch_delta_x = 10;
+    patch_delta_x = 8;
     patch_vertical_spacing = 6;
     patch_spacing = 4;
   }

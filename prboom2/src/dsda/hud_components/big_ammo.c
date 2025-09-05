@@ -19,8 +19,6 @@
 
 #include "big_ammo.h"
 
-#define PATCH_DELTA_X 14
-
 typedef struct {
   dsda_patch_component_t component;
 } local_component_t;
@@ -70,9 +68,9 @@ void dsda_InitBigAmmoHC(int x_offset, int y_offset, int vpt, int* args, int arg_
 
   // Raven text needs smaller spacing
   if (heretic)
-    patch_delta_x = 10;
+    patch_delta_x = 9;
   else if (hexen)
-    patch_delta_x = 10;
+    patch_delta_x = 8;
   else
     patch_delta_x = 14;
 

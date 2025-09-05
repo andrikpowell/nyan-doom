@@ -79,14 +79,14 @@ void dsda_InitBigArmorHC(int x_offset, int y_offset, int vpt, int* args, int arg
   if (heretic) {
     armor_lump_green = R_NumPatchForSpriteIndex(HERETIC_SPR_SHLD);
     armor_lump_blue = R_NumPatchForSpriteIndex(HERETIC_SPR_SHD2);
-    patch_delta_x = 10;
+    patch_delta_x = 9;
     patch_vertical_spacing = 6;
     patch_spacing = 2;
   }
   else if (hexen) {
     armor_lump_green = R_NumPatchForSpriteIndex(HEXEN_SPR_ARM3);
     armor_lump_blue = R_NumPatchForSpriteIndex(HEXEN_SPR_ARM3);
-    patch_delta_x = 10;
+    patch_delta_x = 8;
     patch_vertical_spacing = 4;
     patch_spacing = 2;
   }

@@ -47,9 +47,9 @@ void dsda_InitBigHealthTextHC(int x_offset, int y_offset, int vpt, int* args, in
   local = *data;
 
   if (heretic)
-    patch_delta_x = 10;
+    patch_delta_x = 9;
   else if (hexen)
-    patch_delta_x = 10;
+    patch_delta_x = 8;
   else
     patch_delta_x = 14;
 
