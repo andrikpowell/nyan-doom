@@ -36,8 +36,12 @@ static void dsda_DrawComponent(void) {
   int health;
   int x, y;
   int cm;
+  int flags;
 
   player = &players[displayplayer];
+  health = st_health < 0 ? 0 : st_health;
+
+  flags = local->component.vpt;
   x = local->component.x;
   y = local->component.y;
 
@@ -48,15 +52,16 @@ static void dsda_DrawComponent(void) {
 
   V_DrawNumPatch(x, y,
                  player->powers[pw_strength] ? strength_lump : health_lump,
-                 CR_DEFAULT, local->component.vpt);
+                 CR_DEFAULT, flags);
 
   x += patch_spacing;
   y += patch_vertical_spacing;
 
-  health = st_health < 0 ? 0 : st_health;
+  // Numbers need offsets (so 1 doesn't have a big space)
+  flags &= ~VPT_NOOFFSET;
 
   dsda_DrawBigNumber(x, y, patch_delta_x, 0,
-                     cm, local->component.vpt, 3, health);
+                     cm, flags, 3, health);
 }
 
 void dsda_InitBigHealthHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

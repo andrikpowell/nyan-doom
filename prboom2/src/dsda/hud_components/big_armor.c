@@ -37,8 +37,10 @@ static void dsda_DrawComponent(void) {
   int cm;
   int lump;
   int armor;
+  int flags;
 
   player = &players[displayplayer];
+  flags = local->component.vpt;
   x = local->component.x;
   y = local->component.y;
 
@@ -63,13 +65,16 @@ static void dsda_DrawComponent(void) {
     }
   }
 
-  V_DrawNumPatch(x, y, lump, CR_DEFAULT, local->component.vpt);
+  V_DrawNumPatch(x, y, lump, CR_DEFAULT, flags);
 
   x += patch_spacing;
   y += patch_vertical_spacing;
 
+  // Numbers need offsets (so 1 doesn't have a big space)
+  flags &= ~VPT_NOOFFSET;
+
   dsda_DrawBigNumber(x, y, patch_delta_x, 0,
-                     cm, local->component.vpt, 3, armor);
+                     cm, flags, 3, armor);
 }
 
 void dsda_InitBigArmorHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
