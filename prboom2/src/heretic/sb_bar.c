@@ -719,6 +719,7 @@ void DrawMainBar(void)
 {
     int i;
     int temp;
+    int curArmor;
 
     if (hexen) return Hexen_DrawMainBar();
 
@@ -817,11 +818,12 @@ void DrawMainBar(void)
     }
 
     // Armor
-    if (oldarmor != CPlayer->armorpoints[ARMOR_ARMOR])
+    curArmor = st_armor; // CPlayer->armorpoints[ARMOR_ARMOR]
+    if (oldarmor != curArmor)
     {
         V_DrawNumPatch(224,  171, LumpARMCLEAR, CR_DEFAULT, VPT_STRETCH);
-        DrINumber(CPlayer->armorpoints[ARMOR_ARMOR], 228, 170);
-        oldarmor = CPlayer->armorpoints[ARMOR_ARMOR];
+        DrINumber(curArmor, 228, 170);
+        oldarmor = curArmor;
     }
 }
 

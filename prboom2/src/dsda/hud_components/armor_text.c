@@ -46,14 +46,18 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
     );
   }
   else {
+    int armor;
+
+    armor = st_armor; // player->armorpoints[ARMOR_ARMOR]
+
     snprintf(
       str,
       max_size,
       "%sARM %3d%%",
-      player->armorpoints[ARMOR_ARMOR] <= 0 ? dsda_TextColor(dsda_tc_exhud_armor_zero) :
+      armor <= 0 ? dsda_TextColor(dsda_tc_exhud_armor_zero) :
         player->armortype == 1 ? dsda_TextColor(dsda_tc_exhud_armor_one) :
         dsda_TextColor(dsda_tc_exhud_armor_two),
-      player->armorpoints[ARMOR_ARMOR]
+      armor
     );
   }
 }
