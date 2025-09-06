@@ -59,7 +59,7 @@ static void dsda_DrawComponent(void) {
   ammo = player->ammo[ammo_type];
 
   dsda_DrawBigNumber(local->component.x, local->component.y, patch_delta_x, 0,
-                     dsda_TextCR(dsda_AmmoColorBig(player)), local->component.vpt, 3, ammo);
+                     dsda_TextCR(dsda_AmmoColorBig(player)), local->component.vpt, 3, ammo, false);
 }
 
 void dsda_InitBigAmmoHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

@@ -37,6 +37,7 @@ static void dsda_DrawComponent(void) {
   int x, y;
   int cm;
   int flags;
+  int negative;
 
   player = &players[displayplayer];
   flags = local->component.vpt;
@@ -45,6 +46,9 @@ static void dsda_DrawComponent(void) {
 
   // Animated health
   health = st_health;
+
+  // Add support for Hexen "Red Numbers"
+  negative = hexen && (health <= 24);
 
   cm = health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
        health <= hud_health_yellow ? dsda_TextCR(dsda_tc_stbar_health_warning) :
@@ -62,7 +66,7 @@ static void dsda_DrawComponent(void) {
   flags &= ~VPT_NOOFFSET;
 
   dsda_DrawBigNumber(x, y, patch_delta_x, 0,
-                     cm, flags, 3, health);
+                     cm, flags, 3, health, negative);
 }
 
 void dsda_InitBigHealthHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

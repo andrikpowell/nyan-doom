@@ -21,6 +21,7 @@
 
 static char digit_lump[9];
 static const char* digit_lump_format;
+static const char* digit_negative_lump_format;
 
 int dsda_HudComponentY(int y_offset, int vpt, double ratio) {
   int dsda_ExHudVerticalOffset(void);
@@ -83,9 +84,14 @@ void dsda_InitPatchHC(dsda_patch_component_t* component, int x_offset, int y_off
   component->vpt = vpt;
 
   if (raven)
+  {
     digit_lump_format = "IN%.1d";
+    digit_negative_lump_format = "INRED%.1d";
+  }
   else
-    digit_lump_format = "STTNUM%.1d";
+  {
+    digit_lump_format = digit_negative_lump_format = "STTNUM%.1d";
+  }
 }
 
 int dsda_HexenArmor(player_t* player) {
@@ -97,20 +103,21 @@ int dsda_HexenArmor(player_t* player) {
   return FixedDiv(temp, 5 * FRACUNIT) >> FRACBITS;
 }
 
-static void dsda_DrawBigDigit(int x, int y, int cm, int vpt, int digit) {
-  extern int sts_colored_numbers;
+static void dsda_DrawBigDigit(int x, int y, int cm, int vpt, int digit, int negative) {
+  const char* digit_lump_type = negative && !sts_colored_numbers ? digit_negative_lump_format : digit_lump_format;
+  int flags = sts_colored_numbers ? VPT_TRANS : VPT_NONE;
 
   if (digit > 9 || digit < 0)
     return;
 
-  snprintf(digit_lump, sizeof(digit_lump), digit_lump_format, digit);
-  V_DrawNamePatch(x, y, digit_lump, cm, vpt | ((sts_colored_numbers ? VPT_TRANS : VPT_NONE)));
+  snprintf(digit_lump, sizeof(digit_lump), digit_lump_type, digit);
+  V_DrawNamePatch(x, y, digit_lump, cm, vpt | flags);
 }
 
 static int digit_mod[6] = { 1, 10, 100, 1000, 10000, 100000 };
 static int digit_div[6] = { 1,  1,  10,  100,  1000,  10000 };
 
-void dsda_DrawBigNumber(int x, int y, int delta_x, int delta_y, int cm, int vpt, int count, int n) {
+void dsda_DrawBigNumber(int x, int y, int delta_x, int delta_y, int cm, int vpt, int count, int n, int negative) {
   int i;
   int digit, any_digit;
 
@@ -124,7 +131,7 @@ void dsda_DrawBigNumber(int x, int y, int delta_x, int delta_y, int cm, int vpt,
     any_digit |= digit;
 
     if (any_digit || i == 1)
-      dsda_DrawBigDigit(x, y, cm, vpt, digit);
+      dsda_DrawBigDigit(x, y, cm, vpt, digit, negative);
 
     x += delta_x;
   }

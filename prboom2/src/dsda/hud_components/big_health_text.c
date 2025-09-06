@@ -30,9 +30,13 @@ static int patch_delta_x;
 static void dsda_DrawComponent(void) {
   int cm;
   int health;
+  int negative;
 
   // Animated health
   health = st_health;
+
+  // Add support for Hexen "Red Numbers"
+  negative = hexen && (health <= 24);
 
   cm = health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
        health <= hud_health_yellow ? dsda_TextCR(dsda_tc_stbar_health_warning) :
@@ -40,7 +44,7 @@ static void dsda_DrawComponent(void) {
        dsda_TextCR(dsda_tc_stbar_health_super);
 
   dsda_DrawBigNumber(local->component.x, local->component.y, patch_delta_x, 0,
-                     cm, local->component.vpt, 3, health);
+                     cm, local->component.vpt, 3, health, negative);
 }
 
 void dsda_InitBigHealthTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

@@ -74,7 +74,7 @@ static void dsda_DrawComponent(void) {
   flags &= ~VPT_NOOFFSET;
 
   dsda_DrawBigNumber(x, y, patch_delta_x, 0,
-                     cm, flags, 3, armor);
+                     cm, flags, 3, armor, false);
 }
 
 void dsda_InitBigArmorHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
