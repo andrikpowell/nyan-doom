@@ -691,7 +691,7 @@ void DrawCommonBar(void)
 
             healthPos = (healthPos * 256) / 100;
             chainY =
-                (HealthMarker == CPlayer->mo->health) ? 191 : 191 + ChainWiggle;
+                (HealthMarker == CPlayer->mo->health || CPlayer->mo->health <= 0) ? 191 : 191 + ChainWiggle;
             V_DrawNumPatch(0,  190, LumpCHAINBACK, CR_DEFAULT, VPT_STRETCH);
             V_DrawNumPatch(2 + (healthPos % 17),  chainY, LumpCHAIN, CR_DEFAULT, VPT_STRETCH);
             V_DrawNumPatch(17 + healthPos,  chainY, LumpLIFEGEM, CR_DEFAULT, VPT_STRETCH);
