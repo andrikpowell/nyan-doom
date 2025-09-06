@@ -39,15 +39,16 @@ static void dsda_DrawComponent(void) {
   int flags;
 
   player = &players[displayplayer];
-  health = st_health < 0 ? 0 : st_health;
-
   flags = local->component.vpt;
   x = local->component.x;
   y = local->component.y;
 
-  cm = player->health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
-       player->health <= hud_health_yellow ? dsda_TextCR(dsda_tc_stbar_health_warning) :
-       player->health <= hud_health_green ? dsda_TextCR(dsda_tc_stbar_health_ok) :
+  // Animated health
+  health = st_health;
+
+  cm = health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
+       health <= hud_health_yellow ? dsda_TextCR(dsda_tc_stbar_health_warning) :
+       health <= hud_health_green ? dsda_TextCR(dsda_tc_stbar_health_ok) :
        dsda_TextCR(dsda_tc_stbar_health_super);
 
   V_DrawNumPatch(x, y,

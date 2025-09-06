@@ -304,48 +304,14 @@ void SB_Init(void)
 
 void SB_Ticker(void)
 {
-    int delta;
-    int curHealth;
-
-    // Allow for animated heatlh / armor counts
+    // Allow for animated health / armor counts
     // Note that st_armor isn't used for Hexen due to armor types
-    st_health = SmoothCount(st_health, players[consoleplayer].mo->health);
-    st_armor  = SmoothCount(st_armor, players[consoleplayer].armorpoints[ARMOR_ARMOR]);
+    st_health = HealthMarker = SmoothCount(HealthMarker, players[consoleplayer].mo->health, true);
+    st_armor  = SmoothCount(st_armor, players[consoleplayer].armorpoints[ARMOR_ARMOR], false);
 
     if (heretic && leveltime & 1 && !dsda_PausedOutsideDemo())
     {
         ChainWiggle = P_Random(pr_heretic) & 1;
-    }
-    curHealth = players[consoleplayer].mo->health;
-    if (curHealth < 0)
-    {
-        curHealth = 0;
-    }
-    if (curHealth < HealthMarker)
-    {
-        delta = (HealthMarker - curHealth) >> 2;
-        if (delta < 1)
-        {
-            delta = 1;
-        }
-        else if (delta > sb_ticker_delta_cap)
-        {
-            delta = sb_ticker_delta_cap;
-        }
-        HealthMarker -= delta;
-    }
-    else if (curHealth > HealthMarker)
-    {
-        delta = (curHealth - HealthMarker) >> 2;
-        if (delta < 1)
-        {
-            delta = 1;
-        }
-        else if (delta > sb_ticker_delta_cap)
-        {
-            delta = sb_ticker_delta_cap;
-        }
-        HealthMarker += delta;
     }
 }
 

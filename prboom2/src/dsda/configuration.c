@@ -91,6 +91,7 @@ extern int weapon_preferences[2][NUMWEAPONS + 1];
 extern int demo_smoothturns;
 extern int demo_smoothturnsfactor;
 extern int sts_colored_numbers;
+extern int sts_animated_count;
 extern int sts_pct_always_gray;
 extern int sts_traditional_keys;
 extern int sts_blink_keys;
@@ -340,7 +341,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_hud_animated_count] = {
     "hud_animated_count", dsda_config_hud_animated_count,
-    CONF_BOOL(0), NULL, NOT_STRICT, HU_InitThresholds
+    CONF_BOOL(0), &sts_animated_count, NOT_STRICT, HU_InitThresholds
   },
   [dsda_config_sts_traditional_keys] = {
     "sts_traditional_keys", dsda_config_sts_traditional_keys,

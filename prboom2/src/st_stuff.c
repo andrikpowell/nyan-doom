@@ -360,8 +360,9 @@ static patchnum_t arms[6][2];
 // ready-weapon widget
 static st_number_t w_ready;
 
-// [Alaux]
-int st_health = 100;
+// smooth health / armor values
+int sts_animated_count;
+int st_health = 0;
 int st_armor = 0;
 
  // in deathmatch only, summary of frags stats
@@ -936,29 +937,51 @@ void ST_updateBlinkingKeys(player_t* plyr)
   }
 }
 
-// [Alaux]
-int SmoothCount(int shownval, int realval)
+// Based off Raven Animated Numbers
+int SmoothCount(int smoothval, int realval, int override)
 {
-  int step = realval - shownval;
+    int delta;
+    int curval;
+    int ticker_delta_cap = 8;
 
-  if (!smooth_counts || !step)
-  {
-    return realval;
-  }
-  else
-  {
-    int sign = step / abs(step);
-    step = BETWEEN(1, 7, abs(step) / 20);
-    shownval += (step+1)*sign;
-
-    if (  (sign > 0 && shownval > realval)
-        ||(sign < 0 && shownval < realval))
+    if (!sts_animated_count && !override)
     {
-      shownval = realval;
+      return realval;
     }
 
-    return shownval;
-  }
+    curval = realval;
+    if (curval < 0)
+    {
+        curval = 0;
+    }
+    if (curval < smoothval)
+    {
+        delta = (smoothval - curval) >> 2;
+        if (delta < 1)
+        {
+            delta = 1;
+        }
+        else if (delta > ticker_delta_cap)
+        {
+            delta = ticker_delta_cap;
+        }
+        smoothval -= delta;
+    }
+    else if (curval > smoothval)
+    {
+        delta = (curval - smoothval) >> 2;
+        if (delta < 1)
+        {
+            delta = 1;
+        }
+        else if (delta > ticker_delta_cap)
+        {
+            delta = ticker_delta_cap;
+        }
+        smoothval += delta;
+    }
+
+    return smoothval;
 }
 
 int st_palette = 0;
@@ -1037,8 +1060,8 @@ void ST_Ticker(void)
 {
   if (raven) return SB_Ticker();
 
-  st_health = SmoothCount(st_health, plyr->health);
-  st_armor  = SmoothCount(st_armor, plyr->armorpoints[ARMOR_ARMOR]);
+  st_health = SmoothCount(st_health, plyr->health, false);
+  st_armor  = SmoothCount(st_armor, plyr->armorpoints[ARMOR_ARMOR], false);
 
   st_clock++;
   st_randomnumber = M_Random();

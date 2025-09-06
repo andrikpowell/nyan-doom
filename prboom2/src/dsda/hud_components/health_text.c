@@ -27,6 +27,7 @@ static local_component_t* local;
 
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
   player_t* player;
+  int health = st_health;
 
   player = &players[displayplayer];
 
@@ -34,11 +35,11 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
     str,
     max_size,
     "%sHEL %3d%%",
-    player->health <= hud_health_red ? dsda_TextColor(dsda_tc_exhud_health_bad) :
-      player->health <= hud_health_yellow ? dsda_TextColor(dsda_tc_exhud_health_warning) :
-      player->health <= hud_health_green ? dsda_TextColor(dsda_tc_exhud_health_ok) :
+    health <= hud_health_red ? dsda_TextColor(dsda_tc_exhud_health_bad) :
+      health <= hud_health_yellow ? dsda_TextColor(dsda_tc_exhud_health_warning) :
+      health <= hud_health_green ? dsda_TextColor(dsda_tc_exhud_health_ok) :
       dsda_TextColor(dsda_tc_exhud_health_super),
-    player->health
+    health
   );
 }
 

@@ -81,7 +81,6 @@ static custom_message_t title_message[MAX_MAXPLAYERS];
 static custom_message_t *title_message_p;
 
 //jff 2/16/98 status color change levels
-int smooth_counts;
 int hud_ammo_red;      // ammo percent less than which status is red
 int hud_ammo_yellow;   // ammo percent less is yellow more green
 int hud_health_red;    // health amount less than which status is red
@@ -90,7 +89,6 @@ int hud_health_green;  // health amount above is blue, below is green
 
 void HU_InitThresholds(void)
 {
-  smooth_counts = dsda_IntConfig(dsda_config_hud_animated_count);
   hud_health_red = dsda_IntConfig(dsda_config_hud_health_red);
   hud_health_yellow = dsda_IntConfig(dsda_config_hud_health_yellow);
   hud_health_green = dsda_IntConfig(dsda_config_hud_health_green);

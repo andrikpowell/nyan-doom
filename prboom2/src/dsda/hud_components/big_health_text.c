@@ -28,18 +28,19 @@ static local_component_t* local;
 static int patch_delta_x;
 
 static void dsda_DrawComponent(void) {
-  player_t* player;
   int cm;
+  int health;
 
-  player = &players[displayplayer];
+  // Animated health
+  health = st_health;
 
-  cm = player->health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
-       player->health <= hud_health_yellow ? dsda_TextCR(dsda_tc_stbar_health_warning) :
-       player->health <= hud_health_green ? dsda_TextCR(dsda_tc_stbar_health_ok) :
+  cm = health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
+       health <= hud_health_yellow ? dsda_TextCR(dsda_tc_stbar_health_warning) :
+       health <= hud_health_green ? dsda_TextCR(dsda_tc_stbar_health_ok) :
        dsda_TextCR(dsda_tc_stbar_health_super);
 
   dsda_DrawBigNumber(local->component.x, local->component.y, patch_delta_x, 0,
-                     cm, local->component.vpt, 3, st_health);
+                     cm, local->component.vpt, 3, health);
 }
 
 void dsda_InitBigHealthTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
