@@ -1327,7 +1327,7 @@ static byte V_GetBorderColor(const char* lump)
   return col;
 }
 
-static void V_DrawBorder(byte pillarboxcolor)
+static void V_DrawBorder(byte pillarboxcolor, int screenfill)
 {
   int bordtop, bordbottom, bordleft, bordright;
 
@@ -1335,6 +1335,13 @@ static void V_DrawBorder(byte pillarboxcolor)
   bordright = wide_offset2x - wide_offsetx;
   bordtop = wide_offsety;
   bordbottom = wide_offset2y - wide_offsety;
+
+  if (screenfill)
+  {
+    // Draw color under image - fixes eternall.wad's partly transparent CREDIT
+    V_FillRect(0, 0, SCREENWIDTH, SCREENHEIGHT, pillarboxcolor);
+    return;
+  }
 
   if (bordtop > 0)
   {
@@ -1353,14 +1360,14 @@ static void V_DrawBorder(byte pillarboxcolor)
   }
 }
 
-void V_ClearBorder(const char* lump)
+void V_ClearBorderbox(const char* lump, int screenfill)
 {
   dboolean ColorBorder = dsda_IntConfig(dsda_config_colored_borderbox) && (lump != NULL);
 
   if (render_stretch_hud == patch_stretch_fit_to_width)
     return;
 
-  V_DrawBorder(ColorBorder ? V_GetBorderColor(lump) : 0);
+  V_DrawBorder(ColorBorder ? V_GetBorderColor(lump) : 0, screenfill);
 }
 
 // DWF 2012-05-10
@@ -1602,6 +1609,9 @@ int V_FillHeightVPT(int y, int height, byte color, enum patch_translation_e flag
 // heretic_note: is something already implemented to handle this?
 void V_DrawRawScreen(const char *lump_name)
 {
+  // e6y: wide-res
+  V_ClearBorder(lump_name);
+
   V_DrawRawScreenSection(lump_name, 0, 0, 200);
 }
 
@@ -1613,13 +1623,6 @@ void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y
   const byte* raw;
   int lump_num = W_CheckNumForName(lump_name);
   int lump_width = W_LumpLength(lump_num) / 200;
-
-  // e6y: wide-res
-  // NOTE: the size isn't quite right on all resolutions,
-  // which causes the black bars on the edge of heretic E3's
-  // bottom endscreen to overlap the top screen during scrolling.
-  // this happens in both software and GL at the time of writing.
-  V_ClearBorder(lump_name);
 
   // custom widescreen assets are a different format
   if (R_IsPatchLump(lump_num))

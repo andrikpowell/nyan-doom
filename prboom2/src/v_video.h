@@ -331,7 +331,11 @@ int V_GetPlaypalCount(void);
 SDL_Color V_GetPatchColor (int lumpnum);
 
 // e6y: wide-res
-void V_ClearBorder(const char* lump);
+void V_ClearBorderbox(const char* lump, int screenfill);
+#define V_ClearBorder(lumpname) \
+  V_ClearBorderbox(lumpname, true)
+#define V_ClearBorderNoFill(lumpname) \
+  V_ClearBorderbox(lumpname, false)
 
 void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags);
 

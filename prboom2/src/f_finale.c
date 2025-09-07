@@ -1005,6 +1005,7 @@ void F_BunnyScroll (void)
   {
     int scrolled = 320 - (finalecount-230)/2;
     F_BunnyApplyWidth();
+    V_ClearBorder(scrollpic1);
 
     if (scrolled <= 0) {
       V_DrawNamePatchAnimateFS(0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
@@ -1017,7 +1018,7 @@ void F_BunnyScroll (void)
       V_DrawNamePatchAnimateFS(-scrolled, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
     }
     if (p2width == 320)
-      V_ClearBorder(scrollpic1);
+      V_ClearBorderNoFill(scrollpic1);
   }
 
   if (!end_patches_exist)
