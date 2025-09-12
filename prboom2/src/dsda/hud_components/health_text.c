@@ -26,10 +26,7 @@ typedef struct {
 static local_component_t* local;
 
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
-  player_t* player;
   int health = st_health;
-
-  player = &players[displayplayer];
 
   snprintf(
     str,

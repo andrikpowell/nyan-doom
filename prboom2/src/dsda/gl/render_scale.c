@@ -46,7 +46,7 @@ void dsda_GLSetRenderViewportParams() {
   gl_scale_y = (float)viewport_rect.h / (float)SCREENHEIGHT;
 
   // elim - This will be zero if no statusbar is being drawn
-  gl_statusbar_height = (int)ceilf(gl_scale_y * (float)ST_SCALED_HEIGHT) * R_PartialView();
+  gl_statusbar_height = ceilf(gl_scale_y * (float)ST_SCALED_HEIGHT) * R_PartialView();
 
   gl_scene_offset_x = (int)(viewwindowx * gl_scale_x);
   gl_scene_offset_y = (int)(viewwindowy * gl_scale_y);

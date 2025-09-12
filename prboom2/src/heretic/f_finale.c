@@ -223,10 +223,10 @@ static void F_DemonScroll(void)
 
   if (scrolled <= 0) {
     V_DrawRawScreenOffset("FINAL2", 0, 0, VPT_STRETCH);
-  } else if (scrolled >= 200) {
+  } else if (scrolled >= lump_height) {
     V_DrawRawScreenOffset("FINAL1", 0, 0, VPT_STRETCH);
   } else {
-    V_DrawRawScreenOffset("FINAL1", 0, (float)(200 - scrolled), VPT_STRETCH);
+    V_DrawRawScreenOffset("FINAL1", 0, (float)(lump_height - scrolled), VPT_STRETCH);
     V_DrawRawScreenOffset("FINAL2", 0, -scrolled, VPT_STRETCH);
   }
 }
