@@ -1514,6 +1514,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "automap_overlay", dsda_config_automap_overlay,
     dsda_config_int, 0, 2, { 0 }, &automap_overlay
   },
+  [dsda_config_automap_background] = {
+    "automap_background", dsda_config_automap_background,
+    dsda_config_int, 0, 2, { 2 }, &autopage
+  },
+  [dsda_config_automap_parallax] = {
+    "automap_parallax", dsda_config_automap_parallax,
+    CONF_BOOL(1), &autopage_parallax
+  },
   [dsda_config_automap_linesize] = {
     "automap_linesize", dsda_config_automap_linesize,
     dsda_config_int, 0, 4, { 0 }, NULL, NOT_STRICT

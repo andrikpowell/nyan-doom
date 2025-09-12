@@ -134,6 +134,10 @@ const char* g_menu_flat;
 int g_menu_save_page_size;
 int g_menu_font_spacing;
 
+const char* g_autopage;
+int g_autopage_width;
+int g_autopage_height;
+
 const char* g_skyflatname;
 
 dboolean started_demo = false;
@@ -210,6 +214,10 @@ static void dsda_InitDoom(void) {
   g_menu_flat = "FLOOR4_6";
   g_menu_save_page_size = 7;
   g_menu_font_spacing = -1;
+
+  g_autopage = "AUTOPAGE";
+  g_autopage_width = 320;
+  g_autopage_height = 158;
 
   g_skyflatname = "F_SKY1";
 
@@ -384,6 +392,10 @@ static void dsda_InitHeretic(void) {
   g_menu_save_page_size = 5;
   g_menu_font_spacing = 0;
 
+  g_autopage = "AUTOPAGE";
+  g_autopage_width = 320;
+  g_autopage_height = 158;
+
   g_skyflatname = "F_SKY1";
 
   // convert heretic mobj types to shared type
@@ -531,6 +543,9 @@ static void dsda_InitHexen(void) {
   g_mf_shadow = 0; // doesn't exist in hexen
 
   g_menu_flat = "F_032";
+  g_autopage = "AUTOPAGE";
+  g_autopage_width = 320;
+  g_autopage_height = 158;
   g_menu_save_page_size = 5;
   g_menu_font_spacing = 0;
 

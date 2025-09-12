@@ -63,6 +63,7 @@
 #include "dsda/input.h"
 #include "dsda/map_format.h"
 #include "dsda/messenger.h"
+#include "dsda/pause.h"
 #include "dsda/settings.h"
 #include "dsda/skill_info.h"
 #include "dsda/stretch.h"
@@ -150,6 +151,17 @@ static map_things_appearance_t map_things_appearance;
 #define MTOF_F(x) (((float)(x)*scale_mtof)/(float)FRACUNIT/(float)FRACUNIT)
 #define CXMTOF_F(x)  ((float)f_x + MTOF_F((x)-m_x))
 #define CYMTOF_F(y)  ((float)f_y + (f_h - MTOF_F((y)-m_y)))
+
+extern const char* g_autopage;
+extern int g_autopage_width;
+extern int g_autopage_height;
+
+static int maplump_width;
+static int maplump_height;
+static short mapystart = 0;     // y-value for the start of the map bitmap...used in parallax stuff.
+static short mapxstart = 0;     //x-value for the bitmap.
+static short prev_mapxstart, prev_mapystart; // [crispy] for interpolation
+static short next_mapxstart, next_mapystart; // [crispy] for interpolation
 
 //
 //  The vector graphics for the automap.
@@ -298,6 +310,9 @@ int automap_overlay;
 int automap_rotate;
 int automap_follow;
 int automap_grid;
+int autopage;
+int autopage_fade;
+int autopage_parallax;
 
 // location of window on screen
 static int  f_x;
@@ -316,6 +331,7 @@ static fixed_t m_x, m_y;     // LL x,y window location on the map (map coords)
 static fixed_t m_x2, m_y2;   // UR x,y window location on the map (map coords)
 
 static fixed_t prev_m_x, prev_m_y;
+static fixed_t next_m_x, next_m_y; // [crispy] for interpolation
 
 //
 // width/height of window on map (map coords)
@@ -346,6 +362,7 @@ static fixed_t scale_ftom;
 static fixed_t prev_scale_mtof = (fixed_t)INITSCALEMTOF;
 
 static player_t *plr;           // the player represented by an arrow
+static vertex_t oldplr;
 
 // killough 2/22/98: Remove limit on automap marks,
 // and make variables external for use in savegames.
@@ -417,6 +434,8 @@ static void AM_activateNewScale(void)
   m_y -= m_h/2;
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
+  next_m_x = m_x; // [crispy]
+  next_m_y = m_y; // [crispy]
 }
 
 //
@@ -459,6 +478,8 @@ static void AM_restoreScaleAndLoc(void)
   }
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
+  next_m_x = m_x; // [crispy]
+  next_m_y = m_y; // [crispy]
 
   // Change the scaling multipliers
   scale_mtof = FixedDiv(f_w<<FRACBITS, m_w);
@@ -544,10 +565,142 @@ static void AM_findMinMaxBoundaries(void)
 
 void AM_SetMapCenter(fixed_t x, fixed_t y)
 {
-  m_x = (x >> FRACTOMAPBITS) - m_w / 2;
-  m_y = (y >> FRACTOMAPBITS) - m_h / 2;
+  next_m_x = m_x = (x >> FRACTOMAPBITS) - m_w / 2;
+  next_m_y = m_y = (y >> FRACTOMAPBITS) - m_h / 2;
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
+}
+
+static void AM_UpdateParallax(void)
+{
+    dboolean minimap = !automap_active;
+
+    int dmapx;
+    int dmapy;
+
+    if (automap_follow && !dsda_Paused())
+    {
+        dmapx = (MTOF(plr->mo->x) >> FRACTOMAPBITS) - (MTOF(oldplr.x) >> FRACTOMAPBITS);    //fixed point
+        dmapy = (MTOF(oldplr.y) >> FRACTOMAPBITS) - (MTOF(plr->mo->y) >> FRACTOMAPBITS);
+
+        oldplr.x = plr->mo->x;
+        oldplr.y = plr->mo->y;
+
+        if (!automap_rotate)
+        {
+          if (autopage_parallax && !minimap) // disable parallax on minimap (same reason above)
+          {
+            mapxstart += dmapx >> 1;
+            mapystart += dmapy >> 1;
+          }
+        }
+
+        while (mapxstart >= maplump_width)
+            mapxstart -= maplump_width;
+        while (mapxstart < 0)
+            mapxstart += maplump_width;
+        while (mapystart >= maplump_height)
+            mapystart -= maplump_height;
+        while (mapystart < 0)
+            mapystart += maplump_height;
+
+        // [crispy] Follow mode interpolation does not need the special
+        // treatment that non-follow mode gets.
+        next_mapxstart = mapxstart;
+        next_mapystart = mapystart;
+    }
+}
+
+static void AM_ParallaxPanSmooth(fixed_t incx, fixed_t incy)
+{
+  dboolean minimap = !automap_active;
+
+  // next_m_x and next_m_y clipping happen in AM_changeWindowLoc
+
+  // [crispy] Disable map background scroll in non-follow + rotate mode.
+  // The combination of the two effects is unappealing and slightly
+  // nauseating.
+  if (!automap_rotate)
+  {
+    if (autopage_parallax && !minimap) // disable parallax on minimap (same reason above)
+    {
+      if (incx)
+          next_mapxstart += MTOF(incx+FRACUNIT/2);
+      if (incy)
+          next_mapystart -= MTOF(incy+FRACUNIT/2);
+    }
+  }
+
+  // The following code was commented out in the released Hexen source,
+  // but I believe we need to do this here to stop the background moving
+  // when we reach the map boundaries. (In the released source it's done
+  // in AM_clearFB).
+
+  if(next_mapxstart >= maplump_width)
+      next_mapxstart -= maplump_width;
+  if(next_mapxstart < 0)
+      next_mapxstart += maplump_width;
+  if(next_mapystart >= maplump_height)
+      next_mapystart -= maplump_height;
+  if(next_mapystart < 0)
+      next_mapystart += maplump_height;
+  // - end of code that was commented-out
+}
+
+static void AM_ParallaxPan(fixed_t incx, fixed_t incy)
+{
+  dboolean minimap = !automap_active;
+
+  // [crispy] Disable map background scroll in non-follow + rotate mode.
+  // The combination of the two effects is unappealing and slightly
+  // nauseating.
+  if (!automap_rotate)
+  {
+    if (autopage_parallax && !minimap) // disable parallax on minimap (same reason above)
+    {
+        mapxstart = incx ? prev_mapxstart + MTOF(incx+FRACUNIT/2) : mapxstart;
+        mapystart = incy ? prev_mapystart - MTOF(incy+FRACUNIT/2) : mapystart;
+    }
+  }
+
+  // The following code was commented out in the released Hexen source,
+  // but I believe we need to do this here to stop the background moving
+  // when we reach the map boundaries. (In the released source it's done
+  // in AM_clearFB).
+
+  if(mapxstart >= maplump_width)
+      mapxstart -= maplump_width;
+  if(mapxstart < 0)
+      mapxstart += maplump_width;
+  if(mapystart >= maplump_height)
+      mapystart -= maplump_height;
+  if(mapystart < 0)
+      mapystart += maplump_height;
+  // - end of code that was commented-out
+}
+
+// [crispy] Function called by AM_Ticker for stable panning interpolation
+static void AM_changeWindowLocSmooth(void)
+{
+    fixed_t incx, incy;
+
+    incx = m_paninc.x;
+    incy = m_paninc.y;
+
+    if (m_paninc.x || m_paninc.y)
+    {
+      dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
+    }
+  
+    if (automap_rotate)
+    {
+      AM_rotate(&incx, &incy, viewangle - ANG90);
+    }
+
+    next_m_x += incx;
+    next_m_y += incy;
+
+    AM_ParallaxPanSmooth(incx, incy);
 }
 
 //
@@ -588,15 +741,33 @@ static void AM_changeWindowLoc(void)
   if (!automap_rotate)
   {
     if (m_x + m_w/2 > max_x)
-      m_x = max_x - m_w/2;
+    {
+      next_m_x = m_x = max_x - m_w/2;
+      next_mapxstart = mapxstart;
+      incx = 0;
+    }
     else if (m_x + m_w/2 < min_x)
-      m_x = min_x - m_w/2;
+    {
+      next_m_x = m_x = min_x - m_w/2;
+      next_mapxstart = mapxstart;
+      incx = 0;
+    }
 
     if (m_y + m_h/2 > max_y)
-      m_y = max_y - m_h/2;
+    {
+      next_m_y = m_y = max_y - m_h/2;
+      next_mapystart = mapystart;
+      incy = 0;
+    }
     else if (m_y + m_h/2 < min_y)
-      m_y = min_y - m_h/2;
+    {
+      next_m_y = m_y = min_y - m_h/2;
+      next_mapystart = mapystart;
+      incy = 0;
+    }
   }
+
+  AM_ParallaxPan(incx, incy);
 
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
@@ -618,6 +789,7 @@ static void AM_SetScale(void)
     b = FixedDiv(scale_h, max_h);
     min_scale_mtof = a < b ? a : b;
     max_scale_mtof = FixedDiv(scale_h, 2 * PLAYERRADIUS);
+    next_mapxstart = next_mapystart = mapxstart = mapystart = 0;
   }
 
   scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
@@ -677,6 +849,7 @@ void AM_initPlayerTrail(void)
 static void AM_initVariables(void)
 {
   int pnum;
+  stretch_param_t *params = dsda_StretchParams(VPT_STRETCH);
 
   AM_initPlayerTrail();
 
@@ -699,6 +872,12 @@ static void AM_initVariables(void)
   ftom_zoommul = FRACUNIT;
   mtof_zoommul = FRACUNIT;
 
+  if (!W_LumpNameExists(g_autopage)) // Raven AUTOPAGE RAW format (custom size)
+    g_autopage_width = g_autopage_height = 64;
+
+  maplump_width = (g_autopage_width * params->video->width) / 320;
+  maplump_height = (g_autopage_height * params->video->height) / 200;
+
   m_w = FTOM(f_w);
   m_h = FTOM(f_h);
 
@@ -709,8 +888,10 @@ static void AM_initVariables(void)
         break;
 
   plr = &players[pnum];
-  m_x = (plr->mo->x >> FRACTOMAPBITS) - m_w/2;//e6y
-  m_y = (plr->mo->y >> FRACTOMAPBITS) - m_h/2;//e6y
+  oldplr.x = plr->mo->x;
+  oldplr.y = plr->mo->y;
+  next_m_x = m_x = (plr->mo->x >> FRACTOMAPBITS) - m_w/2;//e6y
+  next_m_x = m_y = (plr->mo->y >> FRACTOMAPBITS) - m_h/2;//e6y
   AM_Ticker();
   AM_changeWindowLoc();
 
@@ -1345,11 +1526,18 @@ static void AM_doFollowPlayer(void)
 void AM_Ticker (void)
 {
   prev_scale_mtof = scale_mtof;
-  prev_m_x = m_x;
-  prev_m_y = m_y;
+
+  // [crispy] sync up for interpolation
+  m_x = prev_m_x = next_m_x;
+  m_y = prev_m_y = next_m_y;
+  mapxstart = prev_mapxstart = next_mapxstart;
+  mapystart = prev_mapystart = next_mapystart;
 
   if (stop_zooming && leveltime - zoom_leveltime != 1)
     AM_StopZooming();
+
+  if (m_paninc.x || m_paninc.y)
+    AM_changeWindowLocSmooth();
 }
 
 //
@@ -3261,6 +3449,34 @@ static void AM_setFrameVariables(void)
   am_frame.precise = (V_IsOpenGLMode());
 }
 
+//=============================================================================
+//
+// AM_DrawBackground
+//
+//=============================================================================
+
+static void AM_DrawBackground (void)
+{
+  if (automap_bg) { // Automap Parallax Background
+    V_BeginUIDraw(); // OpenGL doesn't like flats in AutomapDraw()
+
+    if (W_LumpNameExists(g_autopage)) // Raven AUTOPAGE RAW format (custom size)
+      V_FillNameRawAdv(g_autopage, f_x, f_y, g_autopage_width, g_autopage_height, f_w, f_h, mapxstart, mapystart, VPT_STRETCH);
+
+    else if (W_FlatNameExists(g_autopage)) // AUTOPAGE flat format (64x64)
+      V_FillNameFlatAdv(g_autopage, f_x, f_y, f_w, f_h, mapxstart, mapystart, VPT_STRETCH);
+
+    else // AUTOPAGE flat format (64x64) - fallback
+      V_FillNameFlatAdv("FLOOR4_6", f_x, f_y, f_w, f_h, mapxstart, mapystart, VPT_STRETCH);
+
+    V_EndUIDraw();
+
+    return;
+  }
+
+  V_FillRect(f_x, f_y, f_w, f_h, (byte)mapcolor_p->back); //jff 1/5/98 background default color
+}
+
 //
 // AM_Drawer()
 //
@@ -3299,8 +3515,8 @@ void AM_Drawer (dboolean minimap)
   }
 
   if (!automap_overlay) // cph - If not overlay mode, clear background for the automap
-    V_FillRect(f_x, f_y, f_w, f_h, (byte)mapcolor_p->back); //jff 1/5/98 background default color
-  if (automap_overlay == 2 && !M_MenuIsShaded())
+    AM_DrawBackground();
+  if (automap_overlay == 2 && !M_MenuIsShaded())   // If fade overlay mode, add shaded background
     V_DrawShaded(f_x, f_y, f_w, f_h, screenshade);
 
   if (map_textured)
@@ -3317,6 +3533,7 @@ void AM_Drawer (dboolean minimap)
   AM_drawThings(); //jff 1/5/98 default double IDDT sprite
   AM_DrawConnections();
   AM_drawCrosshair(mapcolor_p->hair);   //jff 1/7/98 default crosshair color
+  AM_UpdateParallax();
 
   if (V_IsOpenGLMode())
   {
