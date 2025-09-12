@@ -1529,6 +1529,62 @@ static dboolean AM_clipMline
 }
 #undef DOOUTCODE
 
+
+//
+// AM_MlineWeight()
+//
+// Add weight to automap lines by duplicating them slightly offset.
+//
+
+#define V_DrawLineFunc(line_data, color) (!raven && map_use_multisampling ? V_DrawLineWu(line_data, color) : V_DrawLine(line_data, color))
+
+static void AM_MlineWeight(mline_t*  ml, int   color)
+{
+  static fline_t fl;
+  int i;
+  int line_thickness = dsda_IntConfig(dsda_config_automap_linesize);
+
+  if (!line_thickness)
+    return;
+
+  if (AM_clipMline(ml, &fl))
+  {
+    for (i = 0; i <= line_thickness; i++)
+    {
+      if (abs(fl.a.y - fl.b.y) > abs(fl.a.x - fl.b.x))
+      {
+        if (fl.a.x > 0 && fl.b.x > 0)
+        {
+            fl.a.x--;
+            fl.b.x--;
+            V_DrawLineFunc(&fl, color);
+        }
+        else if (fl.a.x < f_w - 1 && fl.b.x < f_w - 1)
+        {
+            fl.a.x++;
+            fl.b.x++;
+            V_DrawLineFunc(&fl, color);
+        }
+      }
+      else
+      {
+        if (fl.a.y > 0 && fl.b.y > 0)
+        {
+            fl.a.y--;
+            fl.b.y--;
+            V_DrawLineFunc(&fl, color);
+        }
+        else if (fl.a.y < f_h - 1 && fl.b.y < f_h - 1)
+        {
+            fl.a.y++;
+            fl.b.y++;
+            V_DrawLineFunc(&fl, color);
+        }
+      }
+    }
+  }
+}
+
 //
 // AM_drawMline()
 //
@@ -1559,6 +1615,8 @@ static void AM_drawMline
     else
       V_DrawLine(&fl, color);
   }
+
+  AM_MlineWeight(ml, color);
 }
 
 //

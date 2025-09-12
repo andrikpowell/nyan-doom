@@ -211,6 +211,7 @@ void gld_DrawMapLines(void)
   if (map_lines.count > 0)
   {
     map_point_t *point = (map_point_t*)map_lines.data;
+    int line_thickness = dsda_IntConfig(dsda_config_automap_linesize);
 
     gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -219,7 +220,9 @@ void gld_DrawMapLines(void)
     glVertexPointer(2, GL_FLOAT, sizeof(point[0]), &point->x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(point[0]), &point->r);
 
+    glLineWidth(1 + line_thickness); // scale automap lines
     glDrawArrays(GL_LINES, 0, map_lines.count * 2);
+    glLineWidth(1); // reset line width
 
     gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
     glDisableClientState(GL_VERTEX_ARRAY);
