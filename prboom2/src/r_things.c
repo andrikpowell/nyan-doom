@@ -1247,9 +1247,7 @@ static void R_DrawPSprite (pspdef_t *psp)
     if (leveltime > 1)
     {
       // Interpolate weapon only when not changing screensize
-      extern dboolean ScreenSize_Interpolate;
-
-      if (lump == psp_inter.lump && ScreenSize_Interpolate)
+      if (lump == psp_inter.lump && weapon_smooth)
       {
         int deltax = vis->x2 - vis->x1;
         vis->x1 = psp_inter.x1 + FixedMul (tic_vars.frac, (vis->x1 - psp_inter.x1));

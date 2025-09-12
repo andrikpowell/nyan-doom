@@ -53,6 +53,7 @@
 #include "hexen/a_action.h"
 
 int movement_smooth;
+dboolean weapon_smooth;
 dboolean isExtraDDisplay = false;
 
 typedef enum
@@ -496,6 +497,8 @@ void R_StopAllInterpolations(void)
 void R_RestoreInterpolations(void)
 {
   int i;
+
+  weapon_smooth = true; // Interpolate weapon only when not changing screensize
 
   if (!movement_smooth)
     return;

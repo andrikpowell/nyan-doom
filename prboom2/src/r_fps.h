@@ -38,6 +38,7 @@
 #include "doomstat.h"
 
 extern int movement_smooth;
+extern dboolean weapon_smooth;
 extern dboolean isExtraDDisplay;
 
 typedef struct {
