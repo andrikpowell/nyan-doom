@@ -3471,6 +3471,9 @@ static void AM_DrawBackground (void)
 
     V_EndUIDraw();
 
+    if (autopage_fade) // Darken flat
+      V_DrawShaded(f_x, f_y, f_w, f_h, autopage_fade * 31 / 100);
+
     return;
   }
 

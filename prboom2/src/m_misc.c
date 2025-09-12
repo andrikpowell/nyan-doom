@@ -321,6 +321,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_map_trail_size),
   MIGRATED_SETTING(dsda_config_automap_overlay),
   MIGRATED_SETTING(dsda_config_automap_background),
+  MIGRATED_SETTING(dsda_config_automap_background_shade),
   MIGRATED_SETTING(dsda_config_automap_parallax),
   MIGRATED_SETTING(dsda_config_automap_linesize),
   MIGRATED_SETTING(dsda_config_automap_rotate),

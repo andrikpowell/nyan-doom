@@ -3189,6 +3189,7 @@ setup_menu_t auto_appearance_settings[] =
   { "GL textured display", S_YESNO, m_conf, AA_X, dsda_config_map_textured, DEPEND_GL },
   EMPTY_LINE,
   { "Automap background", S_CHOICE, m_conf, AA_X, dsda_config_automap_background, 0, automap_background_list },
+  { "Background shade %", S_NUM, m_conf, AA_X, dsda_config_automap_background_shade, EXCLUDE(dsda_config_automap_background, false) },
   { "Parallex Effect", S_YESNO, m_conf, AA_X, dsda_config_automap_parallax, EXCLUDE(dsda_config_automap_background, false) },
   EMPTY_LINE,
   TITLE_DEPEND("GL Translucency", AA_X, dsda_config_videomode, "OpenGL"),

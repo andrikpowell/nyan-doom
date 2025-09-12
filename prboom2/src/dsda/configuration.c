@@ -1518,6 +1518,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "automap_background", dsda_config_automap_background,
     dsda_config_int, 0, 2, { 2 }, &autopage
   },
+  [dsda_config_automap_background_shade] = {
+    "automap_background_shade", dsda_config_automap_background_shade,
+    dsda_config_int, 0, 100, { 0 }, &autopage_fade
+  },
   [dsda_config_automap_parallax] = {
     "automap_parallax", dsda_config_automap_parallax,
     CONF_BOOL(1), &autopage_parallax
