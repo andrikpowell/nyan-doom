@@ -496,6 +496,7 @@ float Get_TextSpeed(void)
 void F_Ticker(void)
 {
   int i;
+  int next_level = false;
 
   if (heretic) return Heretic_F_Ticker();
   if (hexen) return Hexen_F_Ticker();
@@ -505,13 +506,13 @@ void F_Ticker(void)
     return;
   }
 
-  if (!demo_compatibility)
+  if (!demo_compatibility || allow_incompatibility) // Allow for textscreen skip for Doom 1 + wait for Doom 2
     WI_checkForAccelerate();  // killough 3/28/98: check for acceleration
   else
     if (gamemode == commercial && finalecount > 50) // check for skipping
       for (i = 0; i < g_maxplayers; i++)
         if (players[i].cmd.buttons)
-          goto next_level;      // go on to the next level
+          next_level = true;      // go on to the next level
 
   // advance animation
   finalecount++;
@@ -533,17 +534,23 @@ void F_Ticker(void)
             else
               F_StartPostFinale();
           }
+        else if (demo_compatibility && allow_incompatibility) // Vanilla Doom 2
+          next_level = true; // extended wait for Vanilla Doom 2 text screens, but also advance :)
         else   // you must press a button to continue in Doom 2
-          if (!demo_compatibility && midstage)
+          if ((!demo_compatibility || allow_incompatibility) && midstage)
             {
-            next_level:
-              if (F_ShowCast())
-                F_StartCast(NULL, NULL, true); // cast of Doom 2 characters
-              else
-                gameaction = ga_worlddone;  // next level, e.g. MAP07
+              next_level = true;
             }
       }
     }
+
+  if (next_level)
+  {
+    if (F_ShowCast())
+      F_StartCast(NULL, NULL, true); // cast of Doom 2 characters
+    else
+      gameaction = ga_worlddone; // next level, e.g. MAP07
+  }
 }
 
 //

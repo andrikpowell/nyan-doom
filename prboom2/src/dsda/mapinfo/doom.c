@@ -400,7 +400,7 @@ int dsda_DoomFTicker(void) {
   const int TEXTWAIT = 250;
   const int NEWTEXTWAIT = 1000;
 
-  if (!demo_compatibility)
+  if (!demo_compatibility || allow_incompatibility)
     WI_checkForAccelerate();
   else {
     int i;
