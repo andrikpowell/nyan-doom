@@ -297,6 +297,11 @@ static void FUNC_V_FillRaw(int lump, int scrn, int x, int y, int lumpwidth, int 
   }
 }
 
+static void FUNC_V_FillRawPrecise(int lump, int scrn, float x, float y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags)
+{
+  FUNC_V_FillRaw(lump, scrn, (int)x, (int)y, lumpwidth, lumpheight, width, height, x_offset, y_offset, flags);
+}
+
 static void FUNC_V_FillFlat(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
   FUNC_V_FillRaw(lump + firstflat, scrn, x, y, 64, 64, width, height, x, y, flags);
@@ -763,6 +768,10 @@ static void WRAP_gld_FillRaw(int lump, int n, int x, int y, int lumpwidth, int l
 {
   gld_FillRaw(lump, x, y, lumpwidth, lumpheight, width, height, x_offset, y_offset, flags);
 }
+static void WRAP_gld_FillRawPrecise(int lump, int n, float x, float y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags)
+{
+  gld_FillRaw_f(lump, x, y, lumpwidth, lumpheight, width, height, x_offset, y_offset, flags);
+}
 static void WRAP_gld_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
 {
   gld_FillFlat(lump, x, y, width, height, flags);
@@ -805,6 +814,7 @@ static void NULL_FillRect(int scrn, int x, int y, int width, int height, byte co
 static void NULL_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillRaw(int lump, int n, int x, int y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags) {}
+static void NULL_FillRawPrecise(int lump, int n, float x, float y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags) {}
 static void NULL_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags) {}
 static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags) {}
@@ -828,6 +838,7 @@ V_DrawNumPatchGen_f V_DrawNumPatchGen = NULL_DrawNumPatch;
 V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise = NULL_DrawNumPatchPrecise;
 V_FillFlat_f V_FillFlat = NULL_FillFlat;
 V_FillRaw_f V_FillRaw = NULL_FillRaw;
+V_FillRawPrecise_f V_FillRawPrecise = NULL_FillRawPrecise;
 V_FillPatch_f V_FillPatch = NULL_FillPatch;
 V_PlotPixel_f V_PlotPixel = NULL_PlotPixel;
 V_PlotPixelWu_f V_PlotPixelWu = NULL_PlotPixelWu;
@@ -854,6 +865,7 @@ void V_InitMode(video_mode_t mode) {
       V_DrawNumPatchGenPrecise = FUNC_V_DrawNumPatchPrecise;
       V_FillFlat = FUNC_V_FillFlat;
       V_FillRaw = FUNC_V_FillRaw;
+      V_FillRawPrecise = FUNC_V_FillRawPrecise;
       V_FillPatch = FUNC_V_FillPatch;
       V_PlotPixel = V_PlotPixel8;
       V_PlotPixelWu = V_PlotPixelWu8;
@@ -876,6 +888,7 @@ void V_InitMode(video_mode_t mode) {
       V_DrawNumPatchGenPrecise = WRAP_gld_DrawNumPatchPrecise;
       V_FillFlat = WRAP_gld_FillFlat;
       V_FillRaw = WRAP_gld_FillRaw;
+      V_FillRawPrecise = WRAP_gld_FillRawPrecise;
       V_FillPatch = WRAP_gld_FillPatch;
       V_PlotPixel = V_PlotPixelGL;
       V_PlotPixelWu = V_PlotPixelWuGL;

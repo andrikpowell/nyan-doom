@@ -272,6 +272,14 @@ extern V_FillRaw_f V_FillRaw;
 #define V_FillNumRaw(lump, x, y, lumpwidth, lumpheight, width, height, flags) \
   V_FillRaw((lump), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
 
+// FillRawPrecise
+typedef void (*V_FillRawPrecise_f)(int lump, int scrn, float x, float y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags);
+extern V_FillRawPrecise_f V_FillRawPrecise;
+#define V_FillNameRawPrecise(name, x, y, lumpwidth, lumpheight, width, height, flags) \
+  V_FillRawPrecise(W_GetNumForName(name), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
+#define V_FillNumRawPrecise(lump, x, y, lumpwidth, lumpheight, width, height, flags) \
+  V_FillRawPrecise((lump), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
+
 // FillRaw (with offsets)
 #define V_FillNameRawAdv(name, x, y, lumpwidth, lumpheight, width, height, x_offset, y_offset, flags) \
   V_FillRaw(W_GetNumForName(name), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), (x_offset), (y_offset), (flags))

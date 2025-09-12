@@ -590,7 +590,7 @@ void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int cm, enum patc
   gld_DrawNumPatch_f((float)x, (float)y, lump, center, cm, flags);
 }
 
-void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags)
+void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
   float fU1, fU2, fV1, fV2;
@@ -652,6 +652,11 @@ void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_
     glTexCoord2f(fU2, fV1); glVertex2f((float)(x + dst_width),(float)(y));
     glTexCoord2f(fU2, fV2); glVertex2f((float)(x + dst_width),(float)(y + dst_height));
   glEnd();
+}
+
+void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags)
+{
+  gld_FillRaw_f(lump, (float)x, (float)y, src_width, src_height, dst_width, dst_height, x_offset, y_offset, flags);
 }
 
 void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
