@@ -44,9 +44,7 @@ void V_DrawNamePatchAnimate(const int x, const int y, const char* lump, const in
 void V_DrawNamePatchAnimateFS(const int x, const int y, const char* lump, const int color, const int flags);
 void V_DrawBackgroundAnimate(const char* lump);
 
-// Also called by F_BunnyScroll()
-const int N_CheckAnimate(const char* lump);
-const int N_CheckWide(const char* lump);
+const int N_CheckAnimate(const char* lump); // called in m_menu.c for M_SKULL1/2
 const char* PrefixCombine(const char *lump_prefix, const char *lump_main);
 
 #endif

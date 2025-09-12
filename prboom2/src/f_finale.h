@@ -54,7 +54,4 @@ void F_StartCast (const char* background, const char* music, dboolean loop_music
 void F_StartScroll (const char* right, const char* left, const char* music, dboolean loop_music);
 void F_StartPostFinale (void);
 
-void F_BunnyLumpSetup(void);
-void F_BunnyApplyWidth(void);
-
 #endif

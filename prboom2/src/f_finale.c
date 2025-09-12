@@ -960,66 +960,11 @@ void F_StartScroll (const char* right, const char* left, const char* music, dboo
   F_StartScrollMusic(music, loop_music);
 }
 
-const rpatch_t *p1, *p2;
-static int  p1offset, p2width;
-
-#define R_PatchAnimateByName(name, fallback) (N_CheckAnimate(name) ? R_PatchByName(PrefixCombine("S_", name)) : fallback)
-#define R_PatchWideByName(name, fallback)    (N_CheckWide(name)    ? R_PatchByName(PrefixCombine("W_", name)) : fallback)
-
-void F_BunnyApplyWidth(void)
-{
-  p1 = R_PatchByName(scrollpic1);
-  p2 = R_PatchByName(scrollpic2);
-
-  if (widescreenLumps)
-  {
-    p1 = R_PatchWideByName(scrollpic1, p1);
-    p2 = R_PatchWideByName(scrollpic2, p2);
-  }
-
-  if (animateLumps)
-  {
-    p1 = R_PatchAnimateByName(scrollpic1, p1);
-    p2 = R_PatchAnimateByName(scrollpic2, p2);
-  }
-
-  p2width = p2->width;
-  if (p1->width == 320)
-  {
-    // Unity or original PFUBs.
-    p1offset = (p2width - 320) / 2;
-  }
-  else
-  {
-    // Widescreen mod PFUBs.
-    p1offset = 0;
-  }
-}
-
-void F_BunnyScroll (void)
+static void F_DrawEndPatches (void)
 {
   char        name[10];
   int         stage;
   static int  laststage;
-
-  {
-    int scrolled = 320 - (finalecount-230)/2;
-    F_BunnyApplyWidth();
-    V_ClearBorder(scrollpic1);
-
-    if (scrolled <= 0) {
-      V_DrawNamePatchAnimateFS(0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
-    } else if (scrolled >= 320) {
-      V_DrawNamePatchAnimateFS(p1offset, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
-      if (p1offset > 0)
-        V_DrawNamePatchAnimateFS(-320, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
-    } else {
-      V_DrawNamePatchAnimateFS(p1offset + 320 - scrolled, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
-      V_DrawNamePatchAnimateFS(-scrolled, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
-    }
-    if (p2width == 320)
-      V_ClearBorderNoFill(scrollpic1);
-  }
 
   if (!end_patches_exist)
     return;
@@ -1046,6 +991,40 @@ void F_BunnyScroll (void)
   sprintf (name,"END%i",stage);
   // CPhipps - patch drawing updated
   V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, name, CR_DEFAULT, VPT_STRETCH);
+}
+
+void F_BunnyScroll (void)
+{
+  rpatch_t *p1, *p2;
+  int p1offset, p2width, ogwidth;
+  float scrolled;
+
+  // Get patch sizes (if widescreen or not)
+  p1 = R_PatchByNum(N_GetPatchAnimateNum(scrollpic1, false));
+  p2 = R_PatchByNum(N_GetPatchAnimateNum(scrollpic2, false));
+
+  // Set patch offsets
+  p1offset = (p1->width == 320) ? ((p2->width - 320) / 2) : 0;
+  p2width = p2->width;
+
+  // Start scrolling!
+  int scrolled = 320 - (finalecount-230)/2;
+  V_ClearBorder(scrollpic1);
+
+  if (scrolled <= 0) {
+    V_DrawNamePatchAnimateFS(0, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
+  } else if (scrolled >= 320) {
+    V_DrawNamePatchAnimateFS(p1offset, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
+    if (p1offset > 0)
+      V_DrawNamePatchAnimateFS(-320, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
+  } else {
+    V_DrawNamePatchAnimateFS(p1offset + 320 - scrolled, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchAnimateFS(-scrolled, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
+  }
+  if (p2width == 320)
+    V_ClearBorderNoFill(scrollpic1);
+
+  F_DrawEndPatches();
 }
 
 void F_StartPostFinale (void)
