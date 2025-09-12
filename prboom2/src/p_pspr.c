@@ -288,6 +288,7 @@ static int P_SwitchWeaponMBF21(player_t *player)
 int P_SwitchWeapon(player_t *player)
 {
   int *prefer;
+  int check_first_weapon;
   int currentweapon, newweapon;
   int i;
 
@@ -307,6 +308,9 @@ int P_SwitchWeapon(player_t *player)
   if (demo_compatibility)
     currentweapon = newweapon = wp_nochange;
 
+  // Support for strip cheat (and Heretic IDKFA)
+  check_first_weapon = allow_incompatibility ? player->weaponowned[wp_pistol] : true;
+
   // killough 2/8/98: follow preferences and fix BFG/SSG bugs
 
   do
@@ -320,7 +324,7 @@ int P_SwitchWeapon(player_t *player)
         newweapon = wp_fist;
         break;
       case 2:
-        if (player->ammo[am_clip])
+        if (check_first_weapon && player->ammo[am_clip])
           newweapon = wp_pistol;
         break;
       case 3:
@@ -2450,8 +2454,12 @@ void P_UpdateBeak(player_t * player, pspdef_t * psp)
 static dboolean Heretic_P_CheckAmmo(player_t * player)
 {
     ammotype_t ammo;
+    int check_first_weapon;
     weaponinfo_t *checkweaponinfo;
     int count;
+
+    // Support for strip cheat (and Heretic IDKFA)
+    check_first_weapon = allow_incompatibility ? player->weaponowned[wp_goldwand] : true;
 
     ammo = wpnlev1info[player->readyweapon].ammo;
     if (player->powers[pw_weaponlevel2] && !deathmatch)
@@ -2490,7 +2498,8 @@ static dboolean Heretic_P_CheckAmmo(player_t * player)
         {
             player->pendingweapon = wp_mace;
         }
-        else if (player->ammo[am_goldwand] > checkweaponinfo[wp_goldwand].ammopershot)
+        else if (check_first_weapon
+                 && player->ammo[am_goldwand] > checkweaponinfo[wp_goldwand].ammopershot)
         {
             player->pendingweapon = wp_goldwand;
         }
