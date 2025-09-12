@@ -150,6 +150,8 @@ static void cheat_script();
 
 // nyan
 static void cheat_nut();
+static void cheat_suicide();
+static void cheat_strip();
 
 //-----------------------------------------------------------------------------
 //
@@ -307,6 +309,8 @@ cheatseq_t cheat[] = {
   // nyan
   CHEAT("idnut", NULL, NULL, cht_always, cheat_nut, 0, false),
   CHEAT("camera", NULL, NULL, not_demo, cheat_camera, 0, false),
+  CHEAT("strip", NULL, NULL, not_demo, cheat_strip, 0, false),
+  CHEAT("killme", NULL, NULL, not_demo, cheat_suicide, 0, false),
 
   // end-of-list marker
   {NULL}
@@ -398,21 +402,29 @@ void M_CheatGod(void)
     dsda_AddMessage(s_STSTR_DQDOFF);
 }
 
-static void cheat_god_joke(void)
-{
-    P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
-    dsda_AddMessage(HERETIC_TXT_CHEATIDDQD);
-}
+static int raven_iddqd;
 
 static void cheat_god_which(void)
 {
   if (raven)
   {
-    cheat_god_joke();
+    raven_iddqd = true;
+    cheat_suicide();
     return;
   }
 
   cheat_god();
+}
+
+static void cheat_suicide()
+{
+  int message;
+
+  message = raven_iddqd;
+  raven_iddqd = false; // reset value
+
+  P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
+  dsda_AddMessage(message ? HERETIC_TXT_CHEATIDDQD : "Fuck my life");
 }
 
 static void cheat_god()
@@ -514,9 +526,28 @@ static void cheat_k()
       }
 }
 
-static void cheat_kfa_joke(void)
+static int raven_idkfa;
+
+static void cheat_kfa_which()
 {
-  int i;
+  if (raven && M_CheatAllowed(not_demo))
+  {
+    // take away weapons... skip keys
+    raven_idkfa = true;
+    cheat_strip();
+    return;
+  }
+
+  cheat_kfa();
+}
+
+static void cheat_strip()
+{
+  int i, startweapon, endweapon;
+  int message;
+
+  message = raven_idkfa;
+  raven_idkfa = false; // reset value
 
   if (hexen)
   {
@@ -526,8 +557,12 @@ static void cheat_kfa_joke(void)
 
   if (heretic && plyr->chickenTics) return;
 
+  // Set weapons per game
+  startweapon = heretic ? wp_goldwand : wp_pistol;
+  endweapon = heretic ? wp_gauntlets : wp_supershotgun;
+
   // Take weapons away
-  for(i = wp_goldwand; i <= wp_gauntlets; i++)
+  for(i = startweapon; i <= endweapon; i++)
   {
     if ((i==wp_bfg || i==wp_plasma) && gamemode==shareware)
       break;
@@ -537,20 +572,8 @@ static void cheat_kfa_joke(void)
 
   // Force weapon switch
   plyr->pendingweapon = wp_staff;
-  dsda_AddMessage(HERETIC_TXT_CHEATIDKFA);
+  dsda_AddMessage(message ? HERETIC_TXT_CHEATIDKFA : "Stripped down to the bone");
   return;
-}
-
-static void cheat_kfa_which()
-{
-  if (raven && M_CheatAllowed(not_demo))
-  {
-    // take away weapons... skip keys
-    cheat_kfa_joke();
-    return;
-  }
-
-  cheat_kfa();
 }
 
 static void cheat_kfa()
