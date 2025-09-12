@@ -370,7 +370,7 @@ int V_FillHeightVPT(int y, int height, byte color, enum patch_translation_e flag
 // heretic
 
 void V_DrawRawScreen(const char *lump_name);
-void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y_offset, int dest_y_limit);
+void V_DrawRawScreenOffset(const char *lump_name, int x_offset, int y_offset, enum patch_translation_e flags);
 void V_DrawShadowedNumPatch(int x, int y, int lump);
 void V_DrawShadowedNamePatch(int x, int y, const char* name);
 void V_DrawTLNumPatch(int x, int y, int lump);

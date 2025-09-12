@@ -1603,84 +1603,56 @@ int V_FillHeightVPT(int y, int height, byte color, enum patch_translation_e flag
   return height;
 }
 
-// heretic
+//
+//
+// Heretic / Hexen
+//
+//
 
-// heretic_note: is something already implemented to handle this?
 void V_DrawRawScreen(const char *lump_name)
 {
   // e6y: wide-res
   V_ClearBorder(lump_name);
 
-  V_DrawRawScreenSection(lump_name, 0, 0, 200);
+  V_DrawRawScreenOffset(lump_name, 0, 0, VPT_STRETCH);
 }
 
-void V_DrawRawScreenSection(const char *lump_name, int source_offset, int dest_y_offset, int dest_y_limit)
+void V_DrawRawScreenOffset(const char *lump_name, int x_offset, int y_offset, enum patch_translation_e flags)
 {
-  int i, j;
-  float x_factor = 0, y_factor = 0;
-  int x_offset, y_offset;
-  const byte* raw;
   int lump_num = W_CheckNumForName(lump_name);
-  int lump_width = W_LumpLength(lump_num) / 200;
+  int lumpheight = 200;
+  int lumpwidth = W_LumpLength(lump_num) / lumpheight;
 
-  // custom widescreen assets are a different format
-  if (R_IsPatchLump(lump_num))
+  if (!R_IsPatchLump(lump_num))
   {
-    V_DrawNamePatchFS(0, 0, lump_name, CR_DEFAULT, VPT_STRETCH);
-    return;
-  }
+    stretch_param_t* stretch;
+    float ratio_x, ratio_y;
+    int width = lumpwidth;
+    int height = lumpheight;
 
-  // aspect ratio correction
-  switch (render_stretch_hud) {
-    case patch_stretch_not_adjusted:
-      x_factor = (float)SCREENWIDTH / 320;
-      y_factor = (float)SCREENHEIGHT / 200;
-      if (y_factor < x_factor)
-        x_factor = y_factor;
-      break;
-    case patch_stretch_doom_format:
-      x_factor = (float)WIDE_SCREENWIDTH / 320;
-      y_factor = (float)WIDE_SCREENHEIGHT / 200;
-      if (y_factor < x_factor)
-        x_factor = y_factor;
-      break;
-    case patch_stretch_fit_to_width:
-      x_factor = (float)SCREENWIDTH / 320;
-      y_factor = (float)SCREENHEIGHT / 200;
-      break;
-  }
-
-  x_offset = (int)((SCREENWIDTH - (x_factor * lump_width)) / 2);
-  y_offset = (int)((dest_y_offset * y_factor) - (source_offset * y_factor / lump_width));
-
-  // TODO: create a V_FillRaw alias and call that instead of the gld_ func directly,
-  // though that means there needs to be a software version too (that's ideally a
-  // bit more efficient than the current code's thousands-of-little-boxes approach)
-  if (V_IsOpenGLMode()) {
-    gld_FillRawName(lump_name, x_offset, y_offset, lump_width, 200, lump_width * x_factor, 200 * y_factor, VPT_STRETCH_REAL);
-    return;
-  }
-
-  raw = (const byte *)W_LumpByName(lump_name) + source_offset;
-
-  for (j = dest_y_offset; j < dest_y_offset + dest_y_limit; ++j)
-    for (i = 0; i < lump_width; ++i, ++raw)
+    if (flags & VPT_STRETCH_MASK)
     {
-      int x, y, width, height, x_pos;
+      // ratio Correction
+      stretch = dsda_StretchParams(VPT_STRETCH);
+      ratio_x = stretch->video->width / 320.f;
+      ratio_y = stretch->video->height / 200.f;
 
-      x = (int)(i * x_factor);
-      y = (int)(j * y_factor);
-      width = (int)((i + 1) * x_factor) - x;
-      height = (int)((j + 1) * y_factor) - y;
+      // scale variables based on ratio factors
+      width = (int)(lumpwidth * ratio_x);
+      height = (int)(lumpheight * ratio_y);
 
-      x_pos = x_offset + x;
-
-      // Don't draw pixels outside screen
-      if ((x_pos < 0) || (x_pos > SCREENWIDTH - width))
-        continue;
-
-      V_FillRect(x_pos, y, width, height, *raw);
+      x_offset = (int)((SCREENWIDTH - (lumpwidth * ratio_x)) / 2);
+      y_offset = (int)((y_offset * ratio_y));
     }
+
+    // draw the RAW screen
+    V_FillNumRaw(lump_num, x_offset, y_offset, lumpwidth, lumpheight, width, height, VPT_STRETCH);
+  }
+  else
+  {
+    // custom widescreen assets are a different format
+    V_DrawNamePatchFS(x_offset, y_offset, lump_name, CR_DEFAULT, VPT_STRETCH);
+  }
 }
 
 void V_DrawShadowedNumPatch(int x, int y, int lump)

@@ -202,30 +202,19 @@ static void Heretic_F_TextWrite(void)
 
 static void F_DemonScroll(void)
 {
-  static int yval = 0;
-  static int nextscroll = 0;
-  int lump_width = W_LumpLength(W_CheckNumForName("FINAL2")) / 200;
+  int scrolled = 200 - (finalecount-70)/3;
+  int lump_height = 200;
+  int lump_width = W_LumpLength(W_CheckNumForName("FINAL2")) / lump_height;
 
   V_ClearBorder("FINAL1");
 
-  if (finalecount < 70)
-  {
-    V_DrawRawScreenSection("FINAL1", 0, 0, 200);
-    nextscroll = finalecount;
-  }
-  else if (yval < 200)
-  {
-    V_DrawRawScreenSection("FINAL2", (200 - yval) * lump_width, 0, yval);
-    V_DrawRawScreenSection("FINAL1", 0, yval, 200 - yval);
-    if (finalecount >= nextscroll)
-    {
-      yval++;
-      nextscroll = finalecount + 3;
-    }
-  }
-  else
-  {                           //else, we'll just sit here and wait, for now
-    V_DrawRawScreenSection("FINAL2", 0, 0, 200);
+  if (scrolled <= 0) {
+    V_DrawRawScreenOffset("FINAL2", 0, 0, VPT_STRETCH);
+  } else if (scrolled >= 200) {
+    V_DrawRawScreenOffset("FINAL1", 0, 0, VPT_STRETCH);
+  } else {
+    V_DrawRawScreenOffset("FINAL1", 0, 200 - scrolled, VPT_STRETCH);
+    V_DrawRawScreenOffset("FINAL2", 0, -scrolled, VPT_STRETCH);
   }
 }
 
