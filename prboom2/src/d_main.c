@@ -481,26 +481,23 @@ void D_Display (fixed_t frac)
     use_boom_cm=false;
     frame_fixedcolormap = 0;
 
-    R_RestoreInterpolations();
-
     // Draw statusbar for software with full view and solid automap
     if (V_IsSoftwareMode() && R_FullView() && automap_on)
       R_DrawViewBorder();
-
-    DSDA_ADD_CONTEXT(sf_status_bar);
-    ST_Drawer();
-    DSDA_REMOVE_CONTEXT(sf_status_bar);
-
-    // Interpolate weapon only when not changing screensize
-    ScreenSize_Interpolate = true;
 
     if (automap_active)
     {
       AM_Drawer(false);
     }
 
-    if (raven)
-      SB_DrawHorns();
+    R_RestoreInterpolations();
+
+    // Interpolate weapon only when not changing screensize
+    ScreenSize_Interpolate = true;
+
+    DSDA_ADD_CONTEXT(sf_status_bar);
+    ST_Drawer();
+    DSDA_REMOVE_CONTEXT(sf_status_bar);
 
     DSDA_ADD_CONTEXT(sf_hud);
     HU_Drawer();

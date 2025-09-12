@@ -648,29 +648,22 @@ void SB_PaletteFlash(dboolean forceChange)
 //
 //---------------------------------------------------------------------------
 
-void SB_DrawHorns(void)
-{
-    dboolean statusbaron = R_StatusBarVisible();
-
-    if (statusbaron && !dsda_HideHorns())
-    {
-        V_BeginUIDraw();
-        if (heretic)
-        {
-            V_DrawNumPatch(0,  148, LumpLTFCTOP, CR_DEFAULT, VPT_STRETCH);
-            V_DrawNumPatch(290,  148, LumpRTFCTOP, CR_DEFAULT, VPT_STRETCH);
-        }
-        else
-        {
-            V_DrawNumPatch(0, 134, LumpH2TOP, CR_DEFAULT, VPT_STRETCH);
-        }
-        V_EndUIDraw();
-    }
-}
-
 void DrawCommonBar(void)
 {
     int healthPos;
+
+    if (!dsda_HideHorns())
+    {
+      if (heretic)
+      {
+          V_DrawNumPatch(0,  148, LumpLTFCTOP, CR_DEFAULT, VPT_STRETCH);
+          V_DrawNumPatch(290,  148, LumpRTFCTOP, CR_DEFAULT, VPT_STRETCH);
+      }
+      else
+      {
+          V_DrawNumPatch(0, 134, LumpH2TOP, CR_DEFAULT, VPT_STRETCH);
+      }
+    }
 
     if (oldhealth != HealthMarker)
     {
