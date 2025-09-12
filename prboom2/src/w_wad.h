@@ -171,8 +171,10 @@ const void* W_LockLumpNum(int lump);
 int W_LumpNumExists(int lump);
 int W_LumpNameExists(const char *name);
 int W_LumpNameExists2(const char *name, int ns);
+int W_FlatNameExists(const char *name);
 int W_PWADLumpNumExists(int lump);
 int W_PWADLumpNameExists(const char *name);
+int W_PWADFlatNameExists(const char *name);
 int W_PWADMapsExist(void);
 
 // CPhipps - convenience macros
