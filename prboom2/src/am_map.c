@@ -593,7 +593,7 @@ static void AM_changeWindowLoc(void)
 //
 // AM_SetScale
 //
-void AM_SetScale(void)
+static void AM_SetScale(void)
 {
   {
     fixed_t a, b;
@@ -617,7 +617,7 @@ void AM_SetScale(void)
 //
 // AM_SetPosition
 //
-void AM_SetPosition(void)
+static void AM_SetPosition(void)
 {
   if (automap_active)
   {
@@ -763,7 +763,7 @@ void AM_InitParams(void)
   map_opengl_nice_things = dsda_IntConfig(dsda_config_map_things_nice);
 }
 
-void AM_ExchangeScales(int full_automap, int *last_full_automap)
+static void AM_ExchangeScales(int full_automap, int *last_full_automap)
 {
   static int full_min_scale_mtof;
   static int full_max_scale_mtof;
@@ -1247,7 +1247,7 @@ static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a)
   *x = tmpx;
 }
 
-void AM_rotatePoint(mpoint_t *p)
+static void AM_rotatePoint(mpoint_t *p)
 {
   fixed_t tmpx;
 
@@ -3146,7 +3146,7 @@ void M_ChangeMapMultisamling(void)
 //
 //=============================================================================
 
-void AM_drawSubsectors(void)
+static void AM_drawSubsectors(void)
 {
   if (V_IsOpenGLMode())
   {

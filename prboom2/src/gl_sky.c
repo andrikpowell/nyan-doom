@@ -102,7 +102,7 @@ void gld_InitFrameSky(void)
   SkyBox.y_offset = 0;
 }
 
-void gld_DrawFakeSkyStrips(void)
+static void gld_DrawFakeSkyStrips(void)
 {
   int i;
 
@@ -222,7 +222,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
 }
 
 // The fussy arithmetic to correctly scale and translate the sky texture lives here.
-void gld_SkyTransform(GLWall* wall)
+static void gld_SkyTransform(GLWall* wall)
 {
   // Make apparent scale of sky closer to software
   const float scale_correction = 0.80f;
@@ -384,7 +384,7 @@ void gld_DrawSkyCaps(void)
 #define GPART(c)			(((c)>>8)&0xff)
 #define BPART(c)			((c)&0xff)
 
-void averageColor(PalEntry_t * PalEntry, const unsigned int *data, int size, fixed_t maxout_factor)
+static void averageColor(PalEntry_t * PalEntry, const unsigned int *data, int size, fixed_t maxout_factor)
 {
   int i;
   int maxv;

@@ -135,7 +135,7 @@ void Heretic_F_Ticker(void)
 =======================
 */
 
-void Heretic_F_TextWrite(void)
+static void Heretic_F_TextWrite(void)
 {
   int count;
   const char *ch;
@@ -198,7 +198,7 @@ void Heretic_F_TextWrite(void)
 ==================
 */
 
-void F_DemonScroll(void)
+static void F_DemonScroll(void)
 {
   static int yval = 0;
   static int nextscroll = 0;
@@ -235,7 +235,7 @@ void F_DemonScroll(void)
 ==================
 */
 
-void F_DrawUnderwater(void)
+static void F_DrawUnderwater(void)
 {
   switch (finalestage)
   {

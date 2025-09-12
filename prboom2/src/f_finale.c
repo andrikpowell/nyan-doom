@@ -95,7 +95,7 @@ dboolean F_ShowCast(void)
 
 // Arsinikk - Checks whether intermission text matches original text and if new text is provided from PWAD.
 // used for the skip intermission config option.
-int dsda_CheckInterText(void)
+static int dsda_CheckInterText(void)
 {
     int SkipText = 0;
     int lump = 0;
