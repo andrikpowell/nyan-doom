@@ -85,9 +85,11 @@ static void cheat_mus();
 static void cheat_musrr();
 static void cheat_camera();
 static void cheat_choppers();
+static void cheat_god_which();
 static void cheat_god();
 static void cheat_fa();
 static void cheat_k();
+static void cheat_kfa_which();
 static void cheat_kfa();
 static void cheat_noclip();
 static void cheat_pw();
@@ -175,8 +177,8 @@ static void cheat_nut();
 cheatseq_t cheat[] = {
   CHEAT("idmus",      NULL,   "Change music",     cht_always, cheat_mus, -2, false),
   CHEAT("idchoppers", NULL,   "Chainsaw",         not_demo, cheat_choppers, 0, false),
-  CHEAT("iddqd",      NULL,   "God mode",         not_classic_demo,  cheat_god, 0, false),
-  CHEAT("idkfa",      NULL,   "Ammo & Keys",      not_demo, cheat_kfa, 0, false),
+  CHEAT("iddqd",      NULL,   "God mode",         not_doom_classic_demo,  cheat_god_which, 0, false),
+  CHEAT("idkfa",      NULL,   "Ammo & Keys",      not_demo, cheat_kfa_which, 0, false),
   CHEAT("idfa",       NULL,   "Ammo",             not_demo, cheat_fa, 0, false),
   CHEAT("idspispopd", NULL,   "No Clipping 1",    not_classic_demo,  cheat_noclip, 0, false),
   CHEAT("idclip",     NULL,   "No Clipping 2",    not_classic_demo,  cheat_noclip, 0, false),
@@ -396,6 +398,23 @@ void M_CheatGod(void)
     dsda_AddMessage(s_STSTR_DQDOFF);
 }
 
+static void cheat_god_joke(void)
+{
+    P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
+    dsda_AddMessage(HERETIC_TXT_CHEATIDDQD);
+}
+
+static void cheat_god_which(void)
+{
+  if (raven)
+  {
+    cheat_god_joke();
+    return;
+  }
+
+  cheat_god();
+}
+
 static void cheat_god()
 {                                    // 'dqd' cheat for toggleable god mode
   if (demorecording)
@@ -493,6 +512,45 @@ static void cheat_k()
         plyr->cards[i] = true;
         dsda_AddMessage("Keys Added");
       }
+}
+
+static void cheat_kfa_joke(void)
+{
+  int i;
+
+  if (hexen)
+  {
+    for (i = wp_second; i < HEXEN_NUMWEAPONS; i++)
+      plyr->weaponowned[i] = false;
+  }
+
+  if (heretic && plyr->chickenTics) return;
+
+  // Take weapons away
+  for(i = wp_goldwand; i <= wp_gauntlets; i++)
+  {
+    if ((i==wp_bfg || i==wp_plasma) && gamemode==shareware)
+      break;
+
+    plyr->weaponowned[i] = false;
+  }
+
+  // Force weapon switch
+  plyr->pendingweapon = wp_staff;
+  dsda_AddMessage(HERETIC_TXT_CHEATIDKFA);
+  return;
+}
+
+static void cheat_kfa_which()
+{
+  if (raven && M_CheatAllowed(not_demo))
+  {
+    // take away weapons... skip keys
+    cheat_kfa_joke();
+    return;
+  }
+
+  cheat_kfa();
 }
 
 static void cheat_kfa()
@@ -1418,11 +1476,17 @@ static dboolean M_ClassicDemo(void)
   return (demorecording || demoplayback) && !dsda_AllowCasualExCmdFeatures();
 }
 
-static dboolean M_CheatAllowed(int when)
+static dboolean M_ClassicDoomDemo(void)
+{
+  return !raven ? M_ClassicDemo() : (demorecording || demoplayback);
+}
+
+dboolean M_CheatAllowed(int when)
 {
   return !dsda_StrictMode() &&
          !(when & not_demo         && (demorecording || demoplayback)) &&
          !(when & not_classic_demo && M_ClassicDemo()) &&
+         !(when & not_doom_classic_demo && M_ClassicDoomDemo()) &&
          !(when & not_menu         && menuactive);
 }
 

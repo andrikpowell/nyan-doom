@@ -43,11 +43,14 @@
 
 /* killough 4/16/98: Cheat table structure */
 
+extern dboolean M_CheatAllowed(int when);
+
 typedef enum {
   cht_always = 0,
   not_demo = 1,
   not_menu = 2,
   not_classic_demo = 4, // allowed in dsda demo format
+  not_doom_classic_demo = 5,
 } cheat_when_t;
 
 typedef struct cheatseq_s {
