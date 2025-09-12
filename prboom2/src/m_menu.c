@@ -6595,6 +6595,10 @@ dboolean M_Responder(event_t* ev) {
   if (dsda_InputActivated(dsda_input_screenshot))
     I_QueueScreenshot();
 
+  // Cancel ESC command when under Heretic's Underwater Palette
+  if (heretic && F_BlockingInput())
+    return false;
+
   if (!menuactive)
   {
     if (M_InactiveMenuResponder(ch, action, ev))

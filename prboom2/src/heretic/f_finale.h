@@ -24,5 +24,6 @@ dboolean Heretic_F_Responder(event_t * event);
 void Heretic_F_Drawer(void);
 void Heretic_F_Ticker(void);
 void Heretic_F_StartFinale(void);
+dboolean F_BlockingInput(void);
 
 #endif

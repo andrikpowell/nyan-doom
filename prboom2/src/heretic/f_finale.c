@@ -31,6 +31,7 @@
 
 static int finalestage;                // 0 = text, 1 = art screen
 static int finalecount;
+static dboolean heretic_e2_palette;
 
 #define TEXTSPEED       3
 #define TEXTWAIT        250
@@ -84,23 +85,24 @@ void Heretic_F_StartFinale(void)
   S_ChangeMusic(heretic_mus_cptd, true);
 }
 
-static dboolean F_BlockingInput(void)   // Avoid bringing up menu when loading Heretic's custom E2 palette
+dboolean F_BlockingInput(void)   // Avoid bringing up menu when loading Heretic's custom E2 palette
 {
-  return finalestage == 1 && gameepisode == 2;
+  return heretic_e2_palette && finalestage == 1 && gameepisode == 2;
 }
 
 dboolean Heretic_F_Responder(event_t * event)
 {
-  if (F_BlockingInput())
-  {                           // we're showing the water pic, make any key kick to demo mode
-    V_SetPlayPal(playpal_default);
-    finalestage++;
-    return true;
-  }
-
   if (event->type != ev_keydown)
   {
     return false;
+  }
+
+  if (F_BlockingInput())
+  {                           // we're showing the water pic, make any key kick to demo mode
+    finalestage++;
+    S_StartVoidSound(g_sfx_swtchx);
+    V_SetPlayPal(playpal_default);
+    return true;
   }
 
   return false;
@@ -237,6 +239,8 @@ static void F_DemonScroll(void)
 
 static void F_DrawUnderwater(void)
 {
+  heretic_e2_palette = false;
+
   switch (finalestage)
   {
     case 1:
@@ -248,10 +252,12 @@ static void F_DrawUnderwater(void)
       }
       V_SetPlayPal(playpal_heretic_e2end);
       V_DrawRawScreen("E2END");
+      heretic_e2_palette = true;
 
       break;
     case 2:
       V_DrawRawScreen("TITLE");
+      heretic_e2_palette = false;
   }
 }
 
