@@ -392,10 +392,6 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
       gld_BindFlat(gltexture, 0);
 
-      // Enhanced Light Amp - Allow dark areas to be seen
-      if(NYAN_LITEAMP && (light <= 64))
-        light = 64;
-
       light = gld_Calc2DLightLevel(floorlight);
       gld_StaticLightAlpha(light, alpha);
 
@@ -1854,6 +1850,10 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   if (plane->picnum & PL_SKYFLAT || plane->picnum == skyflatnum) // don't draw if sky
     return;
 
+  // Enhanced Light Amp - Allow dark areas to be seen
+  if(NYAN_LITEAMP && (plane->lightlevel <= 64))
+    plane->lightlevel = 64;
+
   if (!ceiling) // if it is a floor ...
   {
     // get the texture. flattranslation is maintained by doom and
@@ -1861,10 +1861,6 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     flat.gltexture=gld_RegisterFlat(flattranslation[plane->picnum], true, true);
     if (!flat.gltexture)
       return;
-
-    // Enhanced Light Amp - Allow dark areas to be seen
-    if(NYAN_LITEAMP && (plane->lightlevel <= 64))
-      plane->lightlevel = 64;
 
     // get the lightlevel from floorlightlevel
     flat.light=gld_CalcLightLevel(plane->lightlevel+gld_GetGunFlashLight());
@@ -1969,10 +1965,6 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     flat.gltexture=gld_RegisterFlat(flattranslation[plane->picnum], true, true);
     if (!flat.gltexture)
       return;
-
-    // Enhanced Light Amp - Allow dark areas to be seen
-    if(NYAN_LITEAMP && (plane->lightlevel <= 64))
-      plane->lightlevel = 64;
 
     // get the lightlevel from ceilinglightlevel
     flat.light=gld_CalcLightLevel(plane->lightlevel+gld_GetGunFlashLight());
