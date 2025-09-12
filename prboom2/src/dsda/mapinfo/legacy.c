@@ -771,8 +771,10 @@ int dsda_LegacyEnterPic(const char** enter_pic) {
 }
 
 int dsda_LegacyBorderTexture(const char** border_texture) {
-  *border_texture = heretic ? "FLOOR30" :
-                    gamemode == commercial ? "GRNROCK" : "FLOOR7_2";
+  if (heretic)
+    *border_texture = gamemode == shareware ? "FLOOR04" : "FLOOR30"; // "FLAT513"
+  else
+    *border_texture = gamemode == commercial ? "GRNROCK" : "FLOOR7_2";
 
   return true;
 }
