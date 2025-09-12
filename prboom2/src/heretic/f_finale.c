@@ -217,7 +217,6 @@ static void F_DemonScroll(void)
 {
   float scrolled = 200 - ((float)finalecount-70)/3;
   int lump_height = 200;
-  int lump_width = W_LumpLength(W_CheckNumForName("FINAL2")) / lump_height;
 
   V_ClearBorder("FINAL1");
 

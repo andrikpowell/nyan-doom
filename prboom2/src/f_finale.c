@@ -1000,18 +1000,17 @@ static void F_DrawEndPatches (void)
   V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, name, CR_DEFAULT, VPT_STRETCH);
 }
 
+#define R_PatchAnimateByName(name) (R_PatchByNum(N_GetPatchAnimateNum(name, false)))
+
 void F_BunnyScroll (void)
 {
   rpatch_t *p1, *p2;
   int p1offset, p2width;
-  int p1num, p2num;
   float scrolled;
 
   // Get patch sizes (if widescreen or not)
-  p1num = N_GetPatchAnimateNum(scrollpic1, false);
-  p2num = N_GetPatchAnimateNum(scrollpic2, false);
-  p1 = R_PatchByNum(p1num);
-  p2 = R_PatchByNum(p2num);
+  p1 = R_PatchAnimateByName(scrollpic1);
+  p2 = R_PatchAnimateByName(scrollpic2);
 
   // Set patch offsets
   p1offset = (p1->width == 320) ? ((p2->width - 320) / 2) : 0;
