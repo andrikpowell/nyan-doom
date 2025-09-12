@@ -35,6 +35,13 @@ static dboolean heretic_e2_palette;
 
 #define TEXTSPEED       3
 #define TEXTWAIT        250
+#define NEWTEXTWAIT     1000
+
+// Stuff needed to advance forward
+extern void WI_checkForAccelerate(void);
+extern float Get_TextSpeed(void);
+extern int acceleratestage;
+extern int midstage;
 
 static const char *finaletext;
 static const char *finaleflat;
@@ -79,6 +86,8 @@ void Heretic_F_StartFinale(void)
       break;
   }
 
+  acceleratestage = midstage = 0;
+
   finalestage = 0;
   finalecount = 0;
   FontABaseLump = W_GetNumForName("FONTA_S") + 1;
@@ -118,12 +127,16 @@ dboolean Heretic_F_Responder(event_t * event)
 
 void Heretic_F_Ticker(void)
 {
+  if (allow_incompatibility)
+    WI_checkForAccelerate();
+
   finalecount++;
-  if (!finalestage && finalecount > strlen(finaletext) * TEXTSPEED + TEXTWAIT)
+
+  if (!finalestage)
   {
-    finalecount = 0;
-    if (!finalestage)
+    if (finalecount > strlen(finaletext) * TEXTSPEED + (midstage ? NEWTEXTWAIT : TEXTWAIT) || (midstage && acceleratestage))
     {
+      finalecount = 0;
       finalestage = 1;
     }
   }
@@ -161,7 +174,7 @@ static void Heretic_F_TextWrite(void)
   cy = 5;
   ch = finaletext;
 
-  count = (finalecount - 10) / TEXTSPEED;
+  count = (int)((float)(finalecount - 10) / Get_TextSpeed());
   if (count < 0)
     count = 0;
   for (; count; count--)
