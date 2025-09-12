@@ -151,20 +151,15 @@ static map_things_appearance_t map_things_appearance;
 #define CXMTOF_F(x)  ((float)f_x + MTOF_F((x)-m_x))
 #define CYMTOF_F(y)  ((float)f_y + (f_h - MTOF_F((y)-m_y)))
 
-#define R ((8*PLAYERRADIUS)/7)
-mline_t raven_keysquare[] = {
-	{ { 0, 0 }, { R/4, -R/2 } },
-	{ { R/4, -R/2 }, { R/2, -R/2 } },
-	{ { R/2, -R/2 }, { R/2, R/2 } },
-	{ { R/2, R/2 }, { R/4, R/2 } },
-	{ { R/4, R/2 }, { 0, 0 } }, // handle part type thing
-	{ { 0, 0 }, { -R, 0 } }, // stem
-	{ { -R, 0 }, { -R, -R/2 } }, // end lockpick part
-	{ { -3*R/4, 0 }, { -3*R/4, -R/4 } }
-	};
-#undef R
-#define RAVEN_NUMKEYSQUARELINES (sizeof(raven_keysquare)/sizeof(mline_t))
+//
+//  The vector graphics for the automap.
+//  A line drawing of the player pointing right,
+//   starting from the middle. (Raven player is a blade)
+//
+static int numplyrlines;
+static mline_t *player_arrow;
 
+// Raven Player Arrow
 #define R ((8*PLAYERRADIUS)/7)
 mline_t raven_player_arrow[] = {
   { { -R+R/4, 0 }, { 0, 0} }, // center line.
@@ -181,11 +176,7 @@ mline_t raven_player_arrow[] = {
 #undef R
 #define RAVEN_NUMPLYRLINES (sizeof(raven_player_arrow)/sizeof(mline_t))
 
-//
-// The vector graphics for the automap.
-//  A line drawing of the player pointing right,
-//   starting from the middle.
-//
+// Doom Player Arrow
 #define R ((8*PLAYERRADIUS)/7)
 mline_t doom_player_arrow[] =
 {
@@ -200,9 +191,14 @@ mline_t doom_player_arrow[] =
 #undef R
 #define NUMPLYRLINES (sizeof(doom_player_arrow)/sizeof(mline_t))
 
-static int numplyrlines;
-static mline_t *player_arrow;
+//
+//  A line drawing of the player pointing right,
+//   starting from the middle. (Raven player is longer)
+//
+static int numcheatplyrlines;
+static mline_t *cheat_player_arrow;
 
+// Raven Cheat Arrow
 #define R ((8*PLAYERRADIUS)/7)
 mline_t raven_cheat_player_arrow[] = {
   { { -R+R/8, 0 }, { R, 0 } }, // -----
@@ -225,6 +221,7 @@ mline_t raven_cheat_player_arrow[] = {
 #undef R
 #define RAVEN_NUMCHEATPLYRLINES (sizeof(raven_cheat_player_arrow)/sizeof(mline_t))
 
+// Doom Cheat Arrow
 #define R ((8*PLAYERRADIUS)/7)
 mline_t doom_cheat_player_arrow[] =
 { // killough 3/22/98: He's alive, Jim :)
@@ -246,9 +243,7 @@ mline_t doom_cheat_player_arrow[] =
 #undef R
 #define NUMCHEATPLYRLINES (sizeof(doom_cheat_player_arrow)/sizeof(mline_t))
 
-static int numcheatplyrlines;
-static mline_t *cheat_player_arrow;
-
+// Doom Key line drawing (X shape)
 //jff 1/5/98 new symbol for keys on automap
 #define R (FRACUNIT)
 mline_t cross_mark[] =
@@ -260,6 +255,22 @@ mline_t cross_mark[] =
 #define NUMCROSSMARKLINES (sizeof(cross_mark)/sizeof(mline_t))
 //jff 1/5/98 end of new symbol
 
+// Raven Key line drawing
+#define R ((8*PLAYERRADIUS)/7)
+mline_t raven_keysquare[] = {
+	{ { 0, 0 }, { R/4, -R/2 } },
+	{ { R/4, -R/2 }, { R/2, -R/2 } },
+	{ { R/2, -R/2 }, { R/2, R/2 } },
+	{ { R/2, R/2 }, { R/4, R/2 } },
+	{ { R/4, R/2 }, { 0, 0 } }, // handle part type thing
+	{ { 0, 0 }, { -R, 0 } }, // stem
+	{ { -R, 0 }, { -R, -R/2 } }, // end lockpick part
+	{ { -3*R/4, 0 }, { -3*R/4, -R/4 } }
+	};
+#undef R
+#define RAVEN_NUMKEYSQUARELINES (sizeof(raven_keysquare)/sizeof(mline_t))
+
+// Default triangle shape
 #define R (FRACUNIT)
 mline_t thintriangle_guy[] =
 {
@@ -270,6 +281,7 @@ mline_t thintriangle_guy[] =
 #undef R
 #define NUMTHINTRIANGLEGUYLINES (sizeof(thintriangle_guy)/sizeof(mline_t))
 
+// Box radius shape
 #define R (FRACUNIT)
 mline_t thingbox_guy[] =
 {
