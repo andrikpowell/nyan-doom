@@ -74,7 +74,6 @@
 #include "i_sound.h"
 #include "smooth.h"
 #include "r_fps.h"
-#include "r_main.h"
 #include "r_segs.h"
 #include "f_finale.h"
 #include "e6y.h"//e6y
@@ -331,7 +330,6 @@ static void M_ExtHelpNextScreen(int);
 static void M_ExtHelp(int);
 static int  M_GetKeyString(int,int);
 static void M_InitCompStr(void);
-static void M_InitMapcolors(void);
 
 void M_ChangeDemoSmoothTurns(void);
 void M_ChangeFullScreen(void);

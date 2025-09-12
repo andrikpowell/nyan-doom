@@ -155,6 +155,10 @@ void dsda_ResetExTextOffsets(void) {
     InitExTextParam(&stretch_params_table[patch_stretch_ex_text][k], k);
 }
 
+// Raven HUD breaks in "patch_stretch_not_adjusted",
+// so let's use "patch_stretch_doom_format" settings
+#define stretch_hud(a) ((raven && (a) == patch_stretch_not_adjusted) ? patch_stretch_doom_format : (a))
+
 static void InitStretchParam(stretch_param_t* offsets, int stretch, enum patch_translation_e flags) {
   memset(offsets, 0, sizeof(*offsets));
 

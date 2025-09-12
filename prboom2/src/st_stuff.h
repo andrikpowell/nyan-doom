@@ -52,7 +52,6 @@
 extern int ST_SCALED_HEIGHT;
 extern int ST_SCALED_Y;
 
-void ST_SetScaledWidth(void);
 void ST_LoadTextColors(void);
 
 extern dboolean drawdisk;
