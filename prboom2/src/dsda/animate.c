@@ -317,6 +317,16 @@ void V_DrawNamePatchAnimateFS(const int x, const int y, const char* lump, const 
     V_DrawNumPatchFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags);
 }
 
+void V_DrawNamePatchPreciseAnimate(float x, float y, const char* lump, const int color, const int flags)
+{
+    V_DrawNumPatchPrecise(x, y, N_GetPatchAnimateNum(lump, true), color, flags);
+}
+
+void V_DrawNamePatchPreciseAnimateFS(float x, float y, const char* lump, const int color, const int flags)
+{
+    V_DrawNumPatchPreciseFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags);
+}
+
 void V_DrawBackgroundAnimate(const char* lump)
 {
     extern const char* g_menu_flat;

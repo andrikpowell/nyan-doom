@@ -42,6 +42,8 @@ void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elum
 
 void V_DrawNamePatchAnimate(const int x, const int y, const char* lump, const int color, const int flags);
 void V_DrawNamePatchAnimateFS(const int x, const int y, const char* lump, const int color, const int flags);
+void V_DrawNamePatchPreciseAnimate(float x, float y, const char* lump, const int color, const int flags);
+void V_DrawNamePatchPreciseAnimateFS(float x, float y, const char* lump, const int color, const int flags);
 void V_DrawBackgroundAnimate(const char* lump);
 
 const int N_CheckAnimate(const char* lump); // called in m_menu.c for M_SKULL1/2
