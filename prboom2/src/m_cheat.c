@@ -259,7 +259,6 @@ cheatseq_t cheat[] = {
 
   // Obscure TNT cheats
   CHEAT("tntka",      NULL,   NULL,               not_demo, cheat_k, 0, false),         // Ty 04/11/98 - Added TNTKA
-  CHEAT("idk",        NULL,   NULL,               not_demo, cheat_k, 0, false),         // MBF version of TNTKA
   CHEAT("hom",        NULL,   NULL,               cht_always, cheat_hom, 0, false),     // killough 2/07/98: HOM autodetector
   CHEAT("smart",      NULL,   NULL,               not_demo, cheat_smart, 0, false),     // killough 2/21/98: smart monster toggle
   CHEAT("pitch",      NULL,   NULL,               cht_always, cheat_pitch, 0, false),   // killough 2/21/98: pitched sound toggle
