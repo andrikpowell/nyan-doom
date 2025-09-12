@@ -535,7 +535,9 @@ void R_FillBackColor (void)
   static byte col_top;
   static int prevlump = -1;
   const int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
-  const int ST_SCALED_BORDER = brdr_b.height * patches_scaley/2;
+  stretch_param_t* stretch = dsda_StretchParams(VPT_STRETCH);
+  float ratio_y = stretch->video->height / 200.f;
+  const int ST_SCALED_BORDER = (int)(brdr_b.height * ratio_y)/2;
   int lump = N_GetPatchAnimateNum(W_LumpName(stbarbg.lumpnum), false);
 
   if (prevlump != lump)
