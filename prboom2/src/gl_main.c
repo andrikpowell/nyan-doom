@@ -590,10 +590,11 @@ void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int cm, enum patc
   gld_DrawNumPatch_f((float)x, (float)y, lump, center, cm, flags);
 }
 
-void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_width, int dst_height, enum patch_translation_e flags)
+void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
   float fU1, fU2, fV1, fV2;
+  float uOffset, vOffset;
 
   //e6y: Boom colormap should not be applied for background
   int saved_boom_cm = boom_cm;
@@ -611,6 +612,9 @@ void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_
   fU1 = 0;
   fV1 = 0;
 
+  uOffset = 0;
+  vOffset = 0;
+
   // [XA] ...this flag means "stretch". welp.
   if (flags & VPT_STRETCH_REAL)
   {
@@ -623,12 +627,24 @@ void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_
 
     fU2 = (float)dst_width / (float)gltexture->realtexwidth / (params->video->width / 320.f);
     fV2 = (float)dst_height / (float)gltexture->realtexheight / (params->video->height / 200.f);
+
+    uOffset = (float)x_offset / (float)gltexture->realtexwidth / (params->video->width / 320.f);
+    vOffset = (float)y_offset / (float)gltexture->realtexheight / (params->video->height / 200.f);
   }
   else
   {
     fU2 = (float)dst_width / (float)gltexture->realtexwidth;
     fV2 = (float)dst_height / (float)gltexture->realtexheight;
+
+    uOffset = (float)x_offset / (float)gltexture->realtexwidth;
+    vOffset = (float)y_offset / (float)gltexture->realtexheight;
   }
+
+  // Add Offsets
+  fU1 += uOffset;
+  fU2 += uOffset;
+  fV1 += vOffset;
+  fV2 += vOffset;
 
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(fU1, fV1); glVertex2f((float)(x),(float)(y));

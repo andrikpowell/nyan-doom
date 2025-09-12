@@ -235,61 +235,71 @@ static void FUNC_V_CopyRect(int srcscrn, int destscrn,
     }
 }
 
-#define FILL_FLAT(dest_type, dest_pitch, pal_func)\
-{\
-  const byte *src, *src_p;\
-  dest_type *dest, *dest_p;\
-  for (sy = y ; sy < y + height; sy += 64)\
-  {\
-    h = (y + height - sy < 64 ? y + height - sy : 64);\
-    dest = (dest_type *)screens[scrn].data + dest_pitch * sy + x;\
-    src = data + 64 * ((sy - y) % 64);\
-    for (sx = x; sx < x + width; sx += 64)\
-    {\
-      src_p = src;\
-      dest_p = dest;\
-      w = (x + width - sx < 64 ? x + width - sx : 64);\
-      for (j = 0; j < h; j++)\
-      {\
-        for (i = 0; i < w; i++)\
-        {\
-          dest_p[i] = pal_func(src_p[i], VID_COLORWEIGHTMASK);\
-        }\
-        dest_p += dest_pitch;\
-        src_p += 64;\
-      }\
-      dest += 64;\
-    }\
-  }\
-}\
+static void FUNC_V_FillRaw(int lump, int scrn, int x, int y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags)
+{
+  int x0, y0;
+  int x1, y1;
+  int w, h;
+  int xoff, yoff;
+  
+  // Clipping Stuff
+  {
+    x0 = x;
+    y0 = y;
+    x1 = x + width;
+    y1 = y + height;
+
+    if (x0 < 0)
+      x0 = 0;
+
+    if (y0 < 0)
+      y0 = 0;
+
+    if (x1 > SCREENWIDTH)
+      x1 = SCREENWIDTH;
+
+    if (y1 > SCREENHEIGHT)
+      y1 = SCREENHEIGHT;
+
+    w = x1 - x0;
+    h = y1 - y0;
+
+    if (w <= 0 || h <= 0)
+      return;
+
+    xoff = x0 - x + x_offset;
+    yoff = y0 - y + y_offset;
+  }
+
+  // Actual Drawing Stuff
+  {
+    int sx, sy, src_x_offset, src_y_offset;
+    const byte *data = W_LumpByNum(lump);
+    int pitch = screens[scrn].pitch;
+    byte *dest = screens[scrn].data + y0 * pitch + x0;
+
+    // Ratio Correction
+    stretch_param_t* stretch = dsda_StretchParams(flags);
+    float ratio_x = stretch->video->width / 320.f;
+    float ratio_y = stretch->video->height / 200.f;
+
+    for (sy = 0; sy < h; ++sy)
+    {
+      src_y_offset = (int)((sy + yoff) / ratio_y) % lumpheight;
+      const byte *row = data + src_y_offset * lumpwidth;
+
+      for (sx = 0; sx < w; ++sx)
+      {
+        src_x_offset = (int)((sx + xoff) / ratio_x) % lumpwidth;
+        dest[sy * pitch + sx] = row[src_x_offset];
+      }
+    }
+  }
+}
 
 static void FUNC_V_FillFlat(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
-  const byte *data;
-  byte *dest;
-  int sx, sy;
-  int pitch, src_x_offset, src_y_offset;
-  float ratio_x, ratio_y;
-  stretch_param_t* stretch;
-
-  stretch = dsda_StretchParams(flags);
-  pitch = screens[scrn].pitch;
-  data = W_LumpByNum(lump + firstflat);
-
-  ratio_x = stretch->video->width / 320.f;
-  ratio_y = stretch->video->height / 200.f;
-
-  for (sy = y; sy < y + height; ++sy)
-  {
-    src_y_offset = 64 * ((int) (sy / ratio_y) % 64);
-    dest = screens[scrn].data + pitch * sy + x;
-
-    for (sx = x; sx < x + width; ++sx)
-    {
-      src_x_offset = (int) ((sx - x) / ratio_x) % 64;
-      *dest++ = data[src_x_offset + src_y_offset];
-    }
-  }
+  FUNC_V_FillRaw(lump + firstflat, scrn, x, y, 64, 64, width, height, x, y, flags);
 }
 
 static void FUNC_V_FillPatch(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags)
@@ -306,17 +316,6 @@ static void FUNC_V_FillPatch(int lump, int scrn, int x, int y, int width, int he
       V_DrawNumPatchGen(sx, sy, scrn, lump, false, CR_DEFAULT, flags);
     }
   }
-}
-
-/*
- * V_DrawBackground tiles a 64x64 patch over the entire screen, providing the
- * background for the Help and Setup screens, and plot text betwen levels.
- * cphipps - used to have M_DrawBackground, but that was used the framebuffer
- * directly, so this is my code from the equivalent function in f_finale.c
- */
-static void FUNC_V_DrawBackground(int lump, int scrn)
-{
-  V_FillFlat(lump, scrn, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
 }
 
 //
@@ -760,9 +759,9 @@ static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byt
 static void WRAP_gld_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
 }
-static void WRAP_gld_DrawBackground(int lump, int n)
+static void WRAP_gld_FillRaw(int lump, int n, int x, int y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags)
 {
-  gld_FillFlatNum(lump, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH);
+  gld_FillRaw(lump, x, y, lumpwidth, lumpheight, width, height, x_offset, y_offset, flags);
 }
 static void WRAP_gld_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
 {
@@ -805,8 +804,8 @@ static void NULL_EndMenuDraw(void) {}
 static void NULL_FillRect(int scrn, int x, int y, int width, int height, byte colour) {}
 static void NULL_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
+static void NULL_FillRaw(int lump, int n, int x, int y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags) {}
 static void NULL_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
-static void NULL_DrawBackground(int lump, int n) {}
 static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags) {}
 static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags) {}
 static void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
@@ -828,8 +827,8 @@ V_FillRectGen_f V_FillRectGen = NULL_FillRect;
 V_DrawNumPatchGen_f V_DrawNumPatchGen = NULL_DrawNumPatch;
 V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise = NULL_DrawNumPatchPrecise;
 V_FillFlat_f V_FillFlat = NULL_FillFlat;
+V_FillRaw_f V_FillRaw = NULL_FillRaw;
 V_FillPatch_f V_FillPatch = NULL_FillPatch;
-V_DrawBackground_f V_DrawBackground = NULL_DrawBackground;
 V_PlotPixel_f V_PlotPixel = NULL_PlotPixel;
 V_PlotPixelWu_f V_PlotPixelWu = NULL_PlotPixelWu;
 V_DrawLine_f V_DrawLine = NULL_DrawLine;
@@ -854,8 +853,8 @@ void V_InitMode(video_mode_t mode) {
       V_DrawNumPatchGen = FUNC_V_DrawNumPatch;
       V_DrawNumPatchGenPrecise = FUNC_V_DrawNumPatchPrecise;
       V_FillFlat = FUNC_V_FillFlat;
+      V_FillRaw = FUNC_V_FillRaw;
       V_FillPatch = FUNC_V_FillPatch;
-      V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel8;
       V_PlotPixelWu = V_PlotPixelWu8;
       V_DrawLine = WRAP_V_DrawLine;
@@ -876,8 +875,8 @@ void V_InitMode(video_mode_t mode) {
       V_DrawNumPatchGen = WRAP_gld_DrawNumPatch;
       V_DrawNumPatchGenPrecise = WRAP_gld_DrawNumPatchPrecise;
       V_FillFlat = WRAP_gld_FillFlat;
+      V_FillRaw = WRAP_gld_FillRaw;
       V_FillPatch = WRAP_gld_FillPatch;
-      V_DrawBackground = WRAP_gld_DrawBackground;
       V_PlotPixel = V_PlotPixelGL;
       V_PlotPixelWu = V_PlotPixelWuGL;
       V_DrawLine = WRAP_gld_DrawLine;

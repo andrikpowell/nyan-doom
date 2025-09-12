@@ -78,12 +78,12 @@ void gld_EndMenuDraw(void);
 void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int cm, enum patch_translation_e flags);
 void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int cm, enum patch_translation_e flags);
 
-void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_width, int dst_height, enum patch_translation_e flags);
+void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags);
 #define gld_FillRawName(name, x, y, src_width, src_height, dst_width, dst_height, flags) \
-  gld_FillRaw(W_GetNumForName(name), (x), (y), (src_width), (src_height), (dst_width), (dst_height), (flags))
+  gld_FillRaw(W_GetNumForName(name), (x), (y), (src_width), (src_height), (dst_width), (dst_height), 0, 0, (flags))
 
 #define gld_FillFlat(lump, x, y, width, height, flags) \
-  gld_FillRaw((firstflat+lump), (x), (y), 64, 64, (width), (height), (flags))
+  gld_FillRaw((firstflat+lump), (x), (y), 64, 64, (width), (height), (x), (y), (flags))
 #define gld_FillFlatName(flatname, x, y, width, height, flags) \
   gld_FillFlat(R_FlatNumForName(flatname), (x), (y), (width), (height), (flags))
 #define gld_FillFlatNum(lump, x, y, width, height, flags) \

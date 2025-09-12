@@ -258,23 +258,41 @@ extern V_FillFlat_f V_FillFlat;
 #define V_FillNumFlatBG(lump, x, y, width, height, flags) \
   V_FillFlat((lump), 1, (x), (y), (width), (height), (flags))
 
+// FillFlat (with offsets)
+#define V_FillNameFlatAdv(flatname, x, y, width, height, x_offset, y_offset, flags) \
+  V_FillRaw((firstflat+R_FlatNumForName(flatname)), 0, (x), (y), 64, 64, (width), (height), (x_offset), (y_offset), (flags))
+#define V_FillNumFlatAdv(flatname, x, y, width, height, x_offset, y_offset, flags) \
+  V_FillRaw((firstflat+flatname), 0, (x), (y), 64, 64, (width), (height), (x_offset), (y_offset), (flags))
+
+// FillRaw
+typedef void (*V_FillRaw_f)(int lump, int scrn, int x, int y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags);
+extern V_FillRaw_f V_FillRaw;
+#define V_FillNameRaw(name, x, y, lumpwidth, lumpheight, width, height, flags) \
+  V_FillRaw(W_GetNumForName(name), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
+#define V_FillNumRaw(lump, x, y, lumpwidth, lumpheight, width, height, flags) \
+  V_FillRaw((lump), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
+
+// FillRaw (with offsets)
+#define V_FillNameRawAdv(name, x, y, lumpwidth, lumpheight, width, height, x_offset, y_offset, flags) \
+  V_FillRaw(W_GetNumForName(name), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), (x_offset), (y_offset), (flags))
+#define V_FillNumRawAdv(lump, x, y, lumpwidth, lumpheight, width, height, x_offset, y_offset, flags) \
+  V_FillRaw((lump), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), (x_offset), (y_offset), (flags))
+
 typedef void (*V_FillPatch_f)(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags);
 extern V_FillPatch_f V_FillPatch;
 #define V_FillNamePatch(name, x, y, width, height, flags) \
   V_FillPatch(W_GetNumForName(name), 0, (x), (y), (width), (height), (flags))
 #define V_FillNumPatch(lump, x, y, width, height, flags) \
-  V_FillPatch(lump, 0, (x), (y), (width), (height), (flags))
+  V_FillPatch((lump), 0, (x), (y), (width), (height), (flags))
 #define V_FillNumPatchBG(lump, x, y, width, height, flags) \
-  V_FillPatch(lump, 1, (x), (y), (width), (height), (flags))
+  V_FillPatch((lump), 1, (x), (y), (width), (height), (flags))
 
 
 /* cphipps 10/99: function to tile a flat over the screen */
-typedef void (*V_DrawBackground_f)(int lump, int scrn);
-extern V_DrawBackground_f V_DrawBackground;
 #define V_DrawBackgroundName(flatname) \
-  V_DrawBackground(R_FlatNumForName(flatname), 0)
+  V_FillNameFlat((flatname), 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH)
 #define V_DrawBackgroundNum(lump) \
-  V_DrawBackground(lump, 0)
+  V_FillNumFlat((lump), 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH)
 
 typedef void (*V_DrawShaded_f)(int x, int y, int width, int height, int shade);
 extern V_DrawShaded_f V_DrawShaded;
