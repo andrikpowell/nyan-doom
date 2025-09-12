@@ -202,7 +202,7 @@ static void Heretic_F_TextWrite(void)
 
 static void F_DemonScroll(void)
 {
-  int scrolled = 200 - (finalecount-70)/3;
+  float scrolled = 200 - ((float)finalecount-70)/3;
   int lump_height = 200;
   int lump_width = W_LumpLength(W_CheckNumForName("FINAL2")) / lump_height;
 
@@ -213,7 +213,7 @@ static void F_DemonScroll(void)
   } else if (scrolled >= 200) {
     V_DrawRawScreenOffset("FINAL1", 0, 0, VPT_STRETCH);
   } else {
-    V_DrawRawScreenOffset("FINAL1", 0, 200 - scrolled, VPT_STRETCH);
+    V_DrawRawScreenOffset("FINAL1", 0, (float)(200 - scrolled), VPT_STRETCH);
     V_DrawRawScreenOffset("FINAL2", 0, -scrolled, VPT_STRETCH);
   }
 }

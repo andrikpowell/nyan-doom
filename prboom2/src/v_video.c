@@ -1630,7 +1630,7 @@ void V_DrawRawScreen(const char *lump_name)
   V_DrawRawScreenOffset(lump_name, 0, 0, VPT_STRETCH);
 }
 
-void V_DrawRawScreenOffset(const char *lump_name, int x_offset, int y_offset, enum patch_translation_e flags)
+void V_DrawRawScreenOffset(const char *lump_name, float x_offset, float y_offset, enum patch_translation_e flags)
 {
   int lump_num = W_CheckNumForName(lump_name);
   int lumpheight = 200;
@@ -1654,17 +1654,17 @@ void V_DrawRawScreenOffset(const char *lump_name, int x_offset, int y_offset, en
       width = (int)(lumpwidth * ratio_x);
       height = (int)(lumpheight * ratio_y);
 
-      x_offset = (int)((SCREENWIDTH - (lumpwidth * ratio_x)) / 2);
-      y_offset = (int)((y_offset * ratio_y));
+      x_offset = (float)((SCREENWIDTH - (lumpwidth * ratio_x)) / 2);
+      y_offset = (float)((y_offset * ratio_y));
     }
 
     // draw the RAW screen
-    V_FillNumRaw(lump_num, x_offset, y_offset, lumpwidth, lumpheight, width, height, VPT_STRETCH);
+    V_FillNumRawPrecise(lump_num, x_offset, y_offset, lumpwidth, lumpheight, width, height, VPT_STRETCH);
   }
   else
   {
     // custom widescreen assets are a different format
-    V_DrawNamePatchFS(x_offset, y_offset, lump_name, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchPreciseFS(x_offset, y_offset, lump_name, CR_DEFAULT, VPT_STRETCH);
   }
 }
 

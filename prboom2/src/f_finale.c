@@ -1008,7 +1008,7 @@ void F_BunnyScroll (void)
   p2width = p2->width;
 
   // Start scrolling!
-  int scrolled = 320 - (finalecount-230)/2;
+  scrolled = 320 - ((float)finalecount-230)/2;
   V_ClearBorder(scrollpic1);
 
   if (scrolled <= 0) {
@@ -1018,8 +1018,8 @@ void F_BunnyScroll (void)
     if (p1offset > 0)
       V_DrawNamePatchAnimateFS(-320, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
   } else {
-    V_DrawNamePatchAnimateFS(p1offset + 320 - scrolled, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
-    V_DrawNamePatchAnimateFS(-scrolled, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchPreciseAnimateFS((float)(p1offset + 320) - scrolled, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchPreciseAnimateFS(-scrolled, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
   }
   if (p2width == 320)
     V_ClearBorderNoFill(scrollpic1);
