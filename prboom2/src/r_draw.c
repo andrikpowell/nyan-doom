@@ -629,7 +629,7 @@ void R_FillBackScreen (void)
   V_BeginUIDraw();
 
   // e6y: wide-res
-  if (ratio_multiplier != ratio_scale || wide_offsety)
+  if ((ratio_multiplier != ratio_scale || wide_offsety) && R_StatusBarVisible())
   {
     int screenblocks = R_ViewSize();
     int only_stbar = (screenblocks >= 10);
@@ -641,10 +641,6 @@ void R_FillBackScreen (void)
     {
       int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
 
-      // OpenGL has no way to adjust y-offset independent from height
-      int y = V_IsOpenGLMode() ? 0            : stbar_top;
-      int h = V_IsOpenGLMode() ? SCREENHEIGHT : ST_SCALED_HEIGHT;
-
       if (sts_solid_bg_color)
       {
         R_FillBackColor();
@@ -652,7 +648,7 @@ void R_FillBackScreen (void)
         return;
       }
 
-      V_FillNumFlatBG(grnrock.lumpnum, 0, y, SCREENWIDTH, h, VPT_STRETCH);
+      V_FillNumFlatBG(grnrock.lumpnum, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, VPT_STRETCH);
 
       // line between view and status bar
       R_DrawStbarBorder();
