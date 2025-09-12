@@ -83,7 +83,7 @@ void dsda_InitBigArmorHC(int x_offset, int y_offset, int vpt, int* args, int arg
 
   if (heretic) {
     armor_lump_green = R_NumPatchForSpriteIndex(HERETIC_SPR_SHLD);
-    armor_lump_blue = R_NumPatchForSpriteIndex(HERETIC_SPR_SHD2);
+    armor_lump_blue = (gamemode != shareware) ? R_NumPatchForSpriteIndex(HERETIC_SPR_SHD2) : armor_lump_green;
     patch_delta_x = 9;
     patch_vertical_spacing = 6;
     patch_spacing = 2;
