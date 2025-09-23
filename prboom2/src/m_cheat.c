@@ -1513,25 +1513,27 @@ dboolean M_CheatAllowed(int when)
          !(when & not_menu         && menuactive);
 }
 
+static int update_cheats = true;
+
 static void cht_InitCheats(void)
 {
-  static int init = false;
-
-  if (!init)
+  if (update_cheats)
   {
     cheatseq_t* cht;
 
-    init = true;
+    update_cheats = false;
 
-    for (cht = cheat; cht->cheat; cht++)
+    for (cht = cheat; WHICH_CHEAT(cht); cht++)
     {
-      cht->sequence_len = strlen(cht->cheat);
-    }
-    for (cht = cheat; cht->deh_cheat; cht++)
-    {
-      cht->sequence_len = strlen(cht->deh_cheat);
+      cht->sequence_len = strlen(WHICH_CHEAT(cht));
     }
   }
+}
+
+void cht_UpdateCheats(void)
+{
+  update_cheats = true;
+  cht_InitCheats();
 }
 
 //

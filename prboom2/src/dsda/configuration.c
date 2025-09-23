@@ -148,6 +148,7 @@ void dsda_RefreshPistolStart(void);
 void dsda_RefreshAlwaysPistolStart(void);
 void S_ToggleRandomMusic(void);
 void P_UpdateTranMap(void);
+void cht_UpdateCheats(void);
 
 void dsda_TrackConfigFeatures(void) {
   if (!demorecording)
@@ -1004,7 +1005,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_deh_change_cheats] = {
     "dsda_deh_change_cheats", dsda_config_deh_change_cheats,
-    CONF_BOOL(1)
+    CONF_BOOL(1), NULL, NOT_STRICT, cht_UpdateCheats
   },
   [dsda_config_movement_strafe50] = {
     "movement_strafe50", dsda_config_movement_strafe50,
