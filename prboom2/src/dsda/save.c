@@ -185,6 +185,30 @@ void dsda_UnArchiveGameModifiers(void)
   dsda_UpdateIntConfig(dsda_config_coop_spawns,saved_coop_spawns,true);
 }
 
+skill_info_t saved_custom_skill;
+
+void dsda_ArchiveCustomSkill(void)
+{
+  // don't store info if normal skill
+  if (gameskill != (num_skills - 1))
+    return;
+
+  saved_custom_skill = skill_infos[num_skills - 1];  // custom skill (-1 to match gameskill)
+
+  P_SAVE_X(saved_custom_skill);
+}
+
+void dsda_UnArchiveCustomSkill(void)
+{
+  // don't store info if normal skill
+  if (gameskill != (num_skills - 1))
+    return;
+
+  P_LOAD_X(saved_custom_skill);
+
+  skill_infos[num_skills - 1] = saved_custom_skill;  // custom skill (-1 to match gameskill)
+}
+
 void dsda_ArchiveAll(void) {
   dsda_ArchiveContext();
 
@@ -203,6 +227,7 @@ void dsda_ArchiveAll(void) {
   P_ArchiveMap();
 
   dsda_ArchiveGameModifiers();
+  dsda_ArchiveCustomSkill();
   dsda_ArchiveInternal();
 }
 
@@ -224,6 +249,7 @@ void dsda_UnArchiveAll(void) {
   P_MapEnd();
 
   dsda_UnArchiveGameModifiers();
+  dsda_UnArchiveCustomSkill();
   dsda_UnArchiveInternal();
 }
 
