@@ -27,8 +27,6 @@ extern int saved_coop_spawns;
 
 void dsda_ArchiveAll(void);
 void dsda_UnArchiveAll(void);
-void dsda_ArchiveGameModifiers(void);
-void dsda_UnArchiveGameModifiers(void);
 void dsda_InitSaveDir(void);
 char* dsda_SaveDir(void);
 char* dsda_SaveGameName(int slot, dboolean via_excmd);
