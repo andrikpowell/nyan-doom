@@ -160,8 +160,7 @@ static int maplump_width;
 static int maplump_height;
 static short mapystart = 0;     // y-value for the start of the map bitmap...used in parallax stuff.
 static short mapxstart = 0;     //x-value for the bitmap.
-static short prev_mapxstart, prev_mapystart; // [crispy] for interpolation
-static short next_mapxstart, next_mapystart; // [crispy] for interpolation
+static short prev_mapxstart, prev_mapystart;
 
 //
 //  The vector graphics for the automap.
@@ -331,7 +330,6 @@ static fixed_t m_x, m_y;     // LL x,y window location on the map (map coords)
 static fixed_t m_x2, m_y2;   // UR x,y window location on the map (map coords)
 
 static fixed_t prev_m_x, prev_m_y;
-static fixed_t next_m_x, next_m_y; // [crispy] for interpolation
 
 //
 // width/height of window on map (map coords)
@@ -434,8 +432,6 @@ static void AM_activateNewScale(void)
   m_y -= m_h/2;
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
-  next_m_x = m_x; // [crispy]
-  next_m_y = m_y; // [crispy]
 }
 
 //
@@ -478,8 +474,6 @@ static void AM_restoreScaleAndLoc(void)
   }
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
-  next_m_x = m_x; // [crispy]
-  next_m_y = m_y; // [crispy]
 
   // Change the scaling multipliers
   scale_mtof = FixedDiv(f_w<<FRACBITS, m_w);
@@ -565,8 +559,8 @@ static void AM_findMinMaxBoundaries(void)
 
 void AM_SetMapCenter(fixed_t x, fixed_t y)
 {
-  next_m_x = m_x = (x >> FRACTOMAPBITS) - m_w / 2;
-  next_m_y = m_y = (y >> FRACTOMAPBITS) - m_h / 2;
+  m_x = (x >> FRACTOMAPBITS) - m_w / 2;
+  m_y = (y >> FRACTOMAPBITS) - m_h / 2;
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
 }
@@ -594,57 +588,11 @@ static void AM_UpdateParallax(void)
             mapystart += dmapy >> 1;
           }
         }
-
-        while (mapxstart >= maplump_width)
-            mapxstart -= maplump_width;
-        while (mapxstart < 0)
-            mapxstart += maplump_width;
-        while (mapystart >= maplump_height)
-            mapystart -= maplump_height;
-        while (mapystart < 0)
-            mapystart += maplump_height;
-
-        // [crispy] Follow mode interpolation does not need the special
-        // treatment that non-follow mode gets.
-        next_mapxstart = mapxstart;
-        next_mapystart = mapystart;
     }
-}
 
-static void AM_ParallaxPanSmooth(fixed_t incx, fixed_t incy)
-{
-  dboolean minimap = !automap_active;
-
-  // next_m_x and next_m_y clipping happen in AM_changeWindowLoc
-
-  // [crispy] Disable map background scroll in non-follow + rotate mode.
-  // The combination of the two effects is unappealing and slightly
-  // nauseating.
-  if (!automap_rotate)
-  {
-    if (autopage_parallax && !minimap) // disable parallax on minimap (same reason above)
-    {
-      if (incx)
-          next_mapxstart += MTOF(incx+FRACUNIT/2);
-      if (incy)
-          next_mapystart -= MTOF(incy+FRACUNIT/2);
-    }
-  }
-
-  // The following code was commented out in the released Hexen source,
-  // but I believe we need to do this here to stop the background moving
-  // when we reach the map boundaries. (In the released source it's done
-  // in AM_clearFB).
-
-  if(next_mapxstart >= maplump_width)
-      next_mapxstart -= maplump_width;
-  if(next_mapxstart < 0)
-      next_mapxstart += maplump_width;
-  if(next_mapystart >= maplump_height)
-      next_mapystart -= maplump_height;
-  if(next_mapystart < 0)
-      next_mapystart += maplump_height;
-  // - end of code that was commented-out
+    // Clamp parallax values
+    mapxstart = (mapxstart % maplump_width + maplump_width) % maplump_width;
+    mapystart = (mapystart % maplump_height + maplump_height) % maplump_height;
 }
 
 static void AM_ParallaxPan(fixed_t incx, fixed_t incy)
@@ -658,49 +606,10 @@ static void AM_ParallaxPan(fixed_t incx, fixed_t incy)
   {
     if (autopage_parallax && !minimap) // disable parallax on minimap (same reason above)
     {
-        mapxstart = incx ? prev_mapxstart + MTOF(incx+FRACUNIT/2) : mapxstart;
-        mapystart = incy ? prev_mapystart - MTOF(incy+FRACUNIT/2) : mapystart;
+      mapxstart += MTOF(incx) >> 1;
+      mapystart -= MTOF(incy) >> 1;
     }
   }
-
-  // The following code was commented out in the released Hexen source,
-  // but I believe we need to do this here to stop the background moving
-  // when we reach the map boundaries. (In the released source it's done
-  // in AM_clearFB).
-
-  if(mapxstart >= maplump_width)
-      mapxstart -= maplump_width;
-  if(mapxstart < 0)
-      mapxstart += maplump_width;
-  if(mapystart >= maplump_height)
-      mapystart -= maplump_height;
-  if(mapystart < 0)
-      mapystart += maplump_height;
-  // - end of code that was commented-out
-}
-
-// [crispy] Function called by AM_Ticker for stable panning interpolation
-static void AM_changeWindowLocSmooth(void)
-{
-    fixed_t incx, incy;
-
-    incx = m_paninc.x;
-    incy = m_paninc.y;
-
-    if (m_paninc.x || m_paninc.y)
-    {
-      dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
-    }
-  
-    if (automap_rotate)
-    {
-      AM_rotate(&incx, &incy, viewangle - ANG90);
-    }
-
-    next_m_x += incx;
-    next_m_y += incy;
-
-    AM_ParallaxPanSmooth(incx, incy);
 }
 
 //
@@ -742,27 +651,23 @@ static void AM_changeWindowLoc(void)
   {
     if (m_x + m_w/2 > max_x)
     {
-      next_m_x = m_x = max_x - m_w/2;
-      next_mapxstart = mapxstart;
+      m_x = max_x - m_w/2;
       incx = 0;
     }
     else if (m_x + m_w/2 < min_x)
     {
-      next_m_x = m_x = min_x - m_w/2;
-      next_mapxstart = mapxstart;
+      m_x = min_x - m_w/2;
       incx = 0;
     }
 
     if (m_y + m_h/2 > max_y)
     {
-      next_m_y = m_y = max_y - m_h/2;
-      next_mapystart = mapystart;
+      m_y = max_y - m_h/2;
       incy = 0;
     }
     else if (m_y + m_h/2 < min_y)
     {
-      next_m_y = m_y = min_y - m_h/2;
-      next_mapystart = mapystart;
+      m_y = min_y - m_h/2;
       incy = 0;
     }
   }
@@ -789,7 +694,7 @@ static void AM_SetScale(void)
     b = FixedDiv(scale_h, max_h);
     min_scale_mtof = a < b ? a : b;
     max_scale_mtof = FixedDiv(scale_h, 2 * PLAYERRADIUS);
-    next_mapxstart = next_mapystart = mapxstart = mapystart = 0;
+    mapxstart = mapystart = 0;
   }
 
   scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
@@ -890,8 +795,8 @@ static void AM_initVariables(void)
   plr = &players[pnum];
   oldplr.x = plr->mo->x;
   oldplr.y = plr->mo->y;
-  next_m_x = m_x = (plr->mo->x >> FRACTOMAPBITS) - m_w/2;//e6y
-  next_m_x = m_y = (plr->mo->y >> FRACTOMAPBITS) - m_h/2;//e6y
+  m_x = (plr->mo->x >> FRACTOMAPBITS) - m_w/2;//e6y
+  m_y = (plr->mo->y >> FRACTOMAPBITS) - m_h/2;//e6y
   AM_Ticker();
   AM_changeWindowLoc();
 
@@ -1526,18 +1431,13 @@ static void AM_doFollowPlayer(void)
 void AM_Ticker (void)
 {
   prev_scale_mtof = scale_mtof;
-
-  // [crispy] sync up for interpolation
-  m_x = prev_m_x = next_m_x;
-  m_y = prev_m_y = next_m_y;
-  mapxstart = prev_mapxstart = next_mapxstart;
-  mapystart = prev_mapystart = next_mapystart;
+  prev_m_x = m_x;
+  prev_m_y = m_y;
+  prev_mapxstart = mapxstart;
+  prev_mapystart = mapystart;
 
   if (stop_zooming && leveltime - zoom_leveltime != 1)
     AM_StopZooming();
-
-  if (m_paninc.x || m_paninc.y)
-    AM_changeWindowLocSmooth();
 }
 
 //
