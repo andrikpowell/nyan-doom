@@ -105,7 +105,7 @@ int dsda_HexenArmor(player_t* player) {
 
 static void dsda_DrawBigDigit(int x, int y, int cm, int vpt, int digit, int negative) {
   const char* digit_lump_type = negative && !sts_colored_numbers ? digit_negative_lump_format : digit_lump_format;
-  int flags = sts_colored_numbers ? VPT_TRANS : VPT_NONE;
+  int flags = sts_colored_numbers ? VPT_COLOR : VPT_NONE;
 
   if (digit > 9 || digit < 0)
     return;

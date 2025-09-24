@@ -56,7 +56,7 @@ static void dsda_DrawComponent(void) {
                 color = CR_DEFAULT;
 
             if (color != CR_DEFAULT)
-                flags |= VPT_TRANS;
+                flags |= VPT_COLOR;
 
             V_DrawNumPatch(x, y+2, lump, color, flags);
         }

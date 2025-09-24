@@ -57,7 +57,7 @@ void drawPowerupStatusIcon(player_t* player, int* x, int* y, int powerup, const 
         color = CR_DEFAULT;
 
     if (color != CR_DEFAULT)
-        flags |= VPT_TRANS;
+        flags |= VPT_COLOR;
 
     if ((!blinking && powerup) || (blinking && (powerup > BLINKTHRESHOLD || (powerup & 8))))
         V_DrawNamePatch(*x, *y, lumpname, color, flags);

@@ -515,7 +515,7 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int cm, enu
   int cmap;
   int leftoffset, topoffset;
 
-  cmap = ((flags & VPT_TRANS) ? cm : CR_DEFAULT);
+  cmap = ((flags & VPT_COLOR) ? cm : CR_DEFAULT);
   gltexture=gld_RegisterPatch(lump, cmap, false, V_IsUILightmodeIndexed());
   gld_BindPatch(gltexture, cmap);
 

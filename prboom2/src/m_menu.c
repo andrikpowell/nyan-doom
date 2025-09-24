@@ -4949,7 +4949,7 @@ static void M_DrawString(int cx, int cy, int color, const char* ch)
     // desired color, colrngs[color]
 
     // CPhipps - patch drawing updated
-    V_DrawNumPatch(cx, cy, menu_font->font[c].lumpnum, color, VPT_STRETCH | VPT_TRANS);
+    V_DrawNumPatch(cx, cy, menu_font->font[c].lumpnum, color, VPT_STRETCH | VPT_COLOR);
     // The screen is cramped, so trim one unit from each
     // character so they butt up against each other.
     cx += w + g_menu_font_spacing;
@@ -7127,7 +7127,7 @@ static void M_WriteText (int x,int y, const char* string, int cm)
 
   flags = VPT_STRETCH;
   if (cm != CR_DEFAULT)
-    flags |= VPT_TRANS;
+    flags |= VPT_COLOR;
 
   while(1) {
     c = *ch++;
@@ -7172,7 +7172,7 @@ static void M_DrawTitleImage(int x, int y, const char *patch, const char *text, 
   {
     int flags = VPT_STRETCH;
     if (cm != CR_DEFAULT)
-    flags |= VPT_TRANS;
+    flags |= VPT_COLOR;
     V_DrawNumPatch(x, y, lumpnum, cm, flags);
   }
   else

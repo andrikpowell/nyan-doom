@@ -172,7 +172,7 @@ void HU_InitCrosshair(void)
   crosshair.w = R_NumPatchWidth(crosshair.lump);
   crosshair.h = R_NumPatchHeight(crosshair.lump);
 
-  crosshair.flags = VPT_TRANS;
+  crosshair.flags = VPT_COLOR;
   if (hudadd_crosshair_scale)
     crosshair.flags |= VPT_STRETCH;
 }

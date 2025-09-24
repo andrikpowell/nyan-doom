@@ -495,7 +495,7 @@ static void ST_refreshBackground(void)
       {
         V_DrawNumPatch(ST_FX, y, faceback.lumpnum,
            displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT,
-           displayplayer ? (VPT_TRANS | VPT_ALIGN_BOTTOM) : flags);
+           displayplayer ? (VPT_COLOR | VPT_ALIGN_BOTTOM) : flags);
       }
     }
 }

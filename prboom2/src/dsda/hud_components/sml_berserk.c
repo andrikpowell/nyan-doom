@@ -42,7 +42,7 @@ void drawBerserkIcon(player_t* player, int* x, int* y, const char* (*hasBerserk)
         color = CR_DEFAULT;
 
     if (color != CR_DEFAULT)
-        flags |= VPT_TRANS;  
+        flags |= VPT_COLOR;  
 
     name = hasBerserk(player);
 

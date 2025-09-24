@@ -124,7 +124,7 @@ static void STlib_drawNum
   if (!num)
     // CPhipps - patch drawing updated, reformatted
     V_DrawNumPatch(x - w, n->y, n->p[0].lumpnum, cm,
-       (((cm!=CR_DEFAULT) && sts_colored_numbers) ? VPT_TRANS : VPT_NONE) | VPT_ALIGN_BOTTOM);
+       (((cm!=CR_DEFAULT) && sts_colored_numbers) ? VPT_COLOR : VPT_NONE) | VPT_ALIGN_BOTTOM);
 
   // draw the new number
   //jff 2/16/98 add color translation to digit output
@@ -132,7 +132,7 @@ static void STlib_drawNum
     // CPhipps - patch drawing updated, reformatted
     x -= w;
     V_DrawNumPatch(x, n->y, n->p[num % 10].lumpnum, cm,
-       (((cm!=CR_DEFAULT) && sts_colored_numbers) ? VPT_TRANS : VPT_NONE) | VPT_ALIGN_BOTTOM);
+       (((cm!=CR_DEFAULT) && sts_colored_numbers) ? VPT_COLOR : VPT_NONE) | VPT_ALIGN_BOTTOM);
     num /= 10;
   }
 
@@ -141,7 +141,7 @@ static void STlib_drawNum
   // cph - patch drawing updated, load by name instead of acquiring pointer earlier
   if (neg)
     V_DrawNamePatch(x - w, n->y, "STTMINUS", cm,
-       (((cm!=CR_DEFAULT) && sts_colored_numbers) ? VPT_TRANS : VPT_NONE) | VPT_ALIGN_BOTTOM);
+       (((cm!=CR_DEFAULT) && sts_colored_numbers) ? VPT_COLOR : VPT_NONE) | VPT_ALIGN_BOTTOM);
 }
 
 /*
@@ -207,7 +207,7 @@ void STlib_updatePercent
     // CPhipps - patch drawing updated
     V_DrawNumPatch(per->n.x, per->n.y, per->p->lumpnum,
        sts_pct_always_gray ? CR_GRAY : cm,
-       (sts_colored_numbers || sts_pct_always_gray ? VPT_TRANS : VPT_NONE) | VPT_ALIGN_BOTTOM);
+       (sts_colored_numbers || sts_pct_always_gray ? VPT_COLOR : VPT_NONE) | VPT_ALIGN_BOTTOM);
   }
 
   STlib_updateNum(&per->n, cm);
@@ -281,7 +281,7 @@ void STlib_updateColorIcon
     cm = CR_DEFAULT;
 
   if (cm != CR_DEFAULT)
-    flags |= VPT_TRANS;
+    flags |= VPT_COLOR;
 
   if (*mi->on)
   {

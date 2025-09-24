@@ -387,7 +387,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
   // CPhipps - null translation pointer => no translation
   if (!trans)
-    flags &= ~VPT_TRANS;
+    flags &= ~VPT_COLOR;
 
   // [FG] automatically center wide patches without horizontal offset
   if (center)
@@ -429,7 +429,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
         byte *dest = desttop + post->topdelta*screens[scrn].pitch;
         int count = post->length;
 
-        if (!(flags & VPT_TRANS)) {
+        if (!(flags & VPT_COLOR)) {
           if ((count-=4)>=0)
             do {
               register byte s0,s1;
@@ -498,7 +498,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     drawvars.topleft = screens[scrn].data;
     drawvars.pitch = screens[scrn].pitch;
 
-    if (flags & VPT_TRANS) {
+    if (flags & VPT_COLOR) {
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, RDRAW_FILTER_NONE);
       dcvars.translation = trans;
     } else {

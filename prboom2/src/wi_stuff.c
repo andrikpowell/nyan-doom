@@ -524,7 +524,7 @@ static void WI_DrawString(int cx, int cy, const char* ch)
     if (cx + w > 320)
       break;
 
-    V_DrawNumPatch(cx, cy, hud_font.font[c].lumpnum, CR_GRAY, VPT_STRETCH | VPT_TRANS);
+    V_DrawNumPatch(cx, cy, hud_font.font[c].lumpnum, CR_GRAY, VPT_STRETCH | VPT_COLOR);
     cx += w;
   }
 }
@@ -1477,10 +1477,10 @@ void WI_drawDeathmatchStats(void)
       //int trans = playernumtotrans[i];
       V_DrawNamePatch(x-halfface, DM_MATRIXY - WI_SPACINGY,
          facebackp, i ? CR_LIMIT+i : CR_DEFAULT,
-         VPT_STRETCH | (i ? VPT_TRANS : 0));
+         VPT_STRETCH | (i ? VPT_COLOR : 0));
       V_DrawNamePatch(DM_MATRIXX-halfface, y,
          facebackp, i ? CR_LIMIT+i : CR_DEFAULT,
-         VPT_STRETCH | (i ? VPT_TRANS : 0));
+         VPT_STRETCH | (i ? VPT_COLOR : 0));
 
       if (i == me)
       {
@@ -1785,7 +1785,7 @@ void WI_drawNetgameStats(void)
     x = NG_STATSX;
     V_DrawNamePatch(x-fwidth, y, facebackp,
        i ? CR_LIMIT+i : CR_DEFAULT,
-       VPT_STRETCH | (i ? VPT_TRANS : 0));
+       VPT_STRETCH | (i ? VPT_COLOR : 0));
 
     if (i == me)
       V_DrawNamePatch(x-fwidth, y, star, CR_DEFAULT, VPT_STRETCH);
