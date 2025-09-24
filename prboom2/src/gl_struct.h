@@ -92,6 +92,7 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
 #define gld_FillPatchName(name, x, y, width, height, flags) \
   gld_FillPatch(W_GetNumForName(name), (x), (y), (width), (height), (flags))
 
+void gld_DrawPoint(int x, int y, int BaseColor);
 void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor);
 void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor);
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel);

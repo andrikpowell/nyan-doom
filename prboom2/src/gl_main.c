@@ -753,6 +753,10 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
   color_rgb_t color;
   unsigned char a;
   map_line_t *line;
+  float dx, dy, length, px, py, thickness;
+
+  // Set line thickness
+  thickness = AM_GetLineWeight() * 0.5f;
 
   a = ((automap_overlay == 1) ? map_lines_overlay_trans * 255 / 100 : 255);
   if (a == 0)
@@ -760,26 +764,84 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
 
   color = gld_LookupIndexedColor(BaseColor, V_IsUILightmodeIndexed() || V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed());
 
-  line = M_ArrayGetNewItem(&map_lines, sizeof(line[0]));
+  line = M_ArrayGetNewItem(&map_lines, sizeof(*line));
 
-  line->point[0].x = x0;
-  line->point[0].y = y0;
-  line->point[0].r = color.r;
-  line->point[0].g = color.g;
-  line->point[0].b = color.b;
-  line->point[0].a = a;
+  dx = x1 - x0;
+  dy = y1 - y0;
 
-  line->point[1].x = x1;
-  line->point[1].y = y1;
-  line->point[1].r = color.r;
-  line->point[1].g = color.g;
-  line->point[1].b = color.b;
-  line->point[1].a = a;
+  length = sqrtf(dx * dx + dy * dy);
+  if (length == 0.0f)
+    return;
+
+  dx /= length;
+  dy /= length;
+
+  px = -dy * thickness;
+  py = dx * thickness;
+
+  // Set points for shape
+  line->point[0].x = x0 + px;
+  line->point[0].y = y0 + py;
+
+  line->point[1].x = x0 - px;
+  line->point[1].y = y0 - py;
+
+  line->point[2].x = x1 - px;
+  line->point[2].y = y1 - py;
+
+  line->point[3].x = x1 + px;
+  line->point[3].y = y1 + py;
+
+  for (int i = 0; i < 4; ++i)
+  {
+    line->point[i].r = color.r;
+    line->point[i].g = color.g;
+    line->point[i].b = color.b;
+    line->point[i].a = a;
+  }
 }
 
 void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
 {
   gld_DrawLine_f((float)x0, (float)y0, (float)x1, (float)y1, BaseColor);
+}
+
+void gld_DrawPoint(int x, int y, int BaseColor)
+{
+  float thickness = (dsda_IntConfig(dsda_config_automap_linesize) + 1) * 0.5f; // Set thickness
+  float half = thickness * 0.5f;
+
+  color_rgb_t rgb = gld_LookupIndexedColor(BaseColor, V_IsUILightmodeIndexed() || V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed());
+  unsigned char a = 255;
+
+  map_point_t v[6];
+
+  v[0].x = x - half; v[0].y = y - half;
+  v[1].x = x + half; v[1].y = y - half;
+  v[2].x = x + half; v[2].y = y + half;
+
+  v[3].x = x + half; v[3].y = y + half;
+  v[4].x = x - half; v[4].y = y + half;
+  v[5].x = x - half; v[5].y = y - half;
+
+  for (int i = 0; i < 6; i++) {
+    v[i].r = rgb.r;
+    v[i].g = rgb.g;
+    v[i].b = rgb.b;
+    v[i].a = a;
+  }
+
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
+  glDisable(GL_TEXTURE_2D);
+
+  glVertexPointer(2, GL_FLOAT, sizeof(map_point_t), &v[0].x);
+  glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(map_point_t), &v[0].r);
+  glDrawArrays(GL_TRIANGLES, 0, 6);
+
+  glEnable(GL_TEXTURE_2D);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
 }
 
 

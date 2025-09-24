@@ -790,8 +790,7 @@ static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, d
   gld_DrawNumPatch_f(x,y,lump,center,cm,flags);
 }
 static void V_PlotPixelGL(int scrn, int x, int y, byte color) {
-  gld_DrawLine(x-1, y, x+1, y, color);
-  gld_DrawLine(x, y-1, x, y+1, color);
+  gld_DrawPoint(x, y, color);
 }
 static void V_PlotPixelWuGL(int scrn, int x, int y, byte color, int weight) {
   V_PlotPixelGL(scrn, x, y, color);

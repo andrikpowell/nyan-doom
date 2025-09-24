@@ -84,13 +84,15 @@ typedef struct map_point_s
 
 typedef struct map_line_s
 {
-  map_point_t point[2];
+  map_point_t point[4];
 } PACKEDATTR map_line_t;
 
 extern array_t map_lines;
 
 #define MAPBITS 12
 #define FRACTOMAPBITS (FRACBITS-MAPBITS)
+
+extern int AM_GetLineWeight(void);
 
 // Called by main loop.
 dboolean AM_Responder (event_t* ev);

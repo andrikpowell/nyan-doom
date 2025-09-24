@@ -1624,52 +1624,64 @@ static dboolean AM_clipMline
 // Add weight to automap lines by duplicating them slightly offset.
 //
 
+int AM_GetLineWeight(void) {
+  int thickness = dsda_IntConfig(dsda_config_automap_linesize);
+
+  // if auto setting
+  if (!thickness)
+  {
+    thickness = (int)round(SCREENHEIGHT / 640);
+    if (thickness < 1) thickness = 1;
+    if (thickness > 4) thickness = 4;
+  }
+
+  // else return the linesize
+  return thickness;
+}
+
+static int AM_LineClamp(int val, int min, int max) {
+  if (val < min) return min;
+  if (val > max) return max;
+  return val;
+}
+
 #define V_DrawLineFunc(line_data, color) (!raven && map_use_multisampling ? V_DrawLineWu(line_data, color) : V_DrawLine(line_data, color))
 
-static void AM_MlineWeight(mline_t*  ml, int   color)
+static void AM_MlineWeight(mline_t* ml, int color)
 {
   static fline_t fl;
-  int i;
-  int line_thickness = dsda_IntConfig(dsda_config_automap_linesize);
+  int i, dx, dy, vertical;
+  int line_thickness = AM_GetLineWeight();
 
-  if (!line_thickness)
+  if (line_thickness <= 1 || !AM_clipMline(ml, &fl))
     return;
 
-  if (AM_clipMline(ml, &fl))
+  dx = fl.b.x - fl.a.x;
+  dy = fl.b.y - fl.a.y;
+  vertical = (abs(dy) > abs(dx));
+
+  for (i = 0; i < line_thickness; i++)
   {
-    for (i = 0; i <= line_thickness; i++)
+    fline_t fl2 = fl;
+    int offset = i - line_thickness / 2;
+
+    if (vertical)
     {
-      if (abs(fl.a.y - fl.b.y) > abs(fl.a.x - fl.b.x))
-      {
-        if (fl.a.x > 0 && fl.b.x > 0)
-        {
-            fl.a.x--;
-            fl.b.x--;
-            V_DrawLineFunc(&fl, color);
-        }
-        else if (fl.a.x < f_w - 1 && fl.b.x < f_w - 1)
-        {
-            fl.a.x++;
-            fl.b.x++;
-            V_DrawLineFunc(&fl, color);
-        }
-      }
-      else
-      {
-        if (fl.a.y > 0 && fl.b.y > 0)
-        {
-            fl.a.y--;
-            fl.b.y--;
-            V_DrawLineFunc(&fl, color);
-        }
-        else if (fl.a.y < f_h - 1 && fl.b.y < f_h - 1)
-        {
-            fl.a.y++;
-            fl.b.y++;
-            V_DrawLineFunc(&fl, color);
-        }
-      }
+      fl2.a.x += offset;
+      fl2.b.x += offset;
     }
+    else
+    {
+      fl2.a.y += offset;
+      fl2.b.y += offset;
+    }
+
+    fl2.a.x = AM_LineClamp(fl2.a.x, f_x, f_x + f_w - 1);
+    fl2.a.y = AM_LineClamp(fl2.a.y, f_y, f_y + f_h - 1);
+    fl2.b.x = AM_LineClamp(fl2.b.x, f_x, f_x + f_w - 1);
+    fl2.b.y = AM_LineClamp(fl2.b.y, f_y, f_y + f_h - 1);
+
+    V_DrawLineFunc(&fl2, color);
   }
 }
 
