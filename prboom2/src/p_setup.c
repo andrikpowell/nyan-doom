@@ -3643,14 +3643,35 @@ void P_MustRebuildBlockmap(void)
   must_rebuild_blockmap = true;
 }
 
+// following values from https://zdoom.org/wiki/ZScript_constants
+// 40% - MF_SHADOW (Heretic) + MF_ALTSHADOW (Hexen)
+// 60% - MF_SHADOW (Hexen)
+
+int tranmap_pct          = 66;    // Doom + Boom Transmap
+int tinttable_pct        = 40;    // Heretic MF_SHADOW + Hexen MF_ALTSHADOW
+int alt_tinttable_pct    = 60;    // Hexen MF_SHADOW
+
+int P_ConvertTrans(int val) {
+  if (val <= 0)
+    val = 1;
+  else if (val >= 100)
+    val = 99;
+  
+  return val;
+}
+
 void P_UpdateTranMap(void) {
-  extern float gl_filter_pct;
-  extern int tran_filter_pct;
+  // Master Percentage - I'm just gonna force this
+  //int global_tran_filter_pct = raven ? 40 : 66;
 
-  tran_filter_pct = dsda_TranslucencyPercent();
-  gl_filter_pct = tran_filter_pct * 0.01f;
+  // main percentages
+  tran_filter_pct       = raven ? tinttable_pct : tranmap_pct;
+  alttint_filter_pct    = raven ? alt_tinttable_pct : P_ConvertTrans(100-tran_filter_pct); // reverse translucency under translucency o.O
 
-  main_tranmap = dsda_DefaultTranMap();
+  gl_alttint_filter_pct    = raven ? P_ConvertTrans(tran_filter_pct + 20) : P_ConvertTrans(tran_filter_pct - 20); // reverse translucency under translucency o.O
+
+  // store main transmaps
+  main_tranmap      = dsda_DefaultTranMap();
 }
 
 //

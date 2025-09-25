@@ -17,6 +17,8 @@
 
 #include <string.h>
 
+#include "doomdef.h"
+#include "doomstat.h"
 #include "md5.h"
 #include "lprintf.h"
 #include "m_file.h"
@@ -32,6 +34,8 @@ static char* tranmap_base_dir;
 static char* tranmap_palette_dir;
 static dsda_cksum_t playpal_cksum;
 int tran_filter_pct;
+int alttint_filter_pct;
+int gl_alttint_filter_pct;
 static const int tranmap_length = 256 * 256;
 static const byte* tranmap_data[100];
 
@@ -191,6 +195,8 @@ const byte* dsda_TranMap(unsigned int alpha) {
 
 const byte* dsda_DefaultTranMap(void) {
   int lump;
+
+  if (raven) return W_LumpByName("TINTTAB");
 
   lump = W_CheckNumForName("TRANMAP");
 

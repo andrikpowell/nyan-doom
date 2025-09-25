@@ -539,7 +539,10 @@ static void dsda_InitHexen(void) {
 
   g_st_height = 39;
   g_border_offset = 4;
-  g_mf_translucent = MF_SHADOW; // hexen_note: how does ALTSHADOW fit in?
+  g_mf_translucent = MF_SHADOW; // hexen_note: SHADOW is actually opposite of normal translucency o.O
+  // g_mf_alt_translucent = MF_ALTSHADOW;
+  // hexen_note: ALTSHADOW is translucency like Boom + Heretic
+  // I'm not using g_mf_alt_translucent because it doesn't update in realtime (which causes issues with the minotaur fade)
   g_mf_shadow = 0; // doesn't exist in hexen
 
   g_menu_flat = "F_032";
