@@ -357,54 +357,20 @@ void V_Init (void)
 // (indeed, laziness of the people who wrote the 'clones' of the original V_DrawPatch
 //  means that their inner loops weren't so well optimised, so merging code may even speed them).
 //
-static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
-        dboolean center, int cm, enum patch_translation_e flags)
+static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
+        const byte *colortr, enum patch_translation_e flags)
 {
-  const byte *trans;
-
-  stretch_param_t *params;
-
-  if (cm == CR_DEFAULT)
-    trans = &colormaps[0][0];
-  else if (cm == CR_DARKEN)
-    trans = &colormaps[0][256 * 15];
-  else if (cm < CR_LIMIT)
-    trans = colrngs[cm];
-  else
-    trans = translationtables + 256*((cm - CR_LIMIT) - 1);
-
-  if (!(flags & VPT_NOOFFSET))
-  {
-    y -= patch->topoffset;
-    x -= patch->leftoffset;
-  }
-
-  // CPhipps - auto-no-stretch if not high-res
-  if ((flags & VPT_STRETCH_MASK) && SCREEN_320x200)
-    flags &= ~VPT_STRETCH_MASK;
-
-  params = dsda_StretchParams(flags);
-
-  // CPhipps - null translation pointer => no translation
-  if (!trans)
-    flags &= ~VPT_COLOR;
-
-  // [FG] automatically center wide patches without horizontal offset
-  if (center)
-  {
-    if (patch->width > 320 && patch->leftoffset == 0)
-      x -= (patch->width - 320) / 2;
-  }
-
-  if (!(flags & VPT_STRETCH_MASK)) {
-    int             col;
-    byte           *desttop = screens[scrn].data+y*screens[scrn].pitch+x;
+    int    col;
+    int    pitch = screens[scrn].pitch;
     int    w = patch->width;
+    byte   *desttop = screens[scrn].data+y*pitch+x;
+
+    int TR = flags & VPT_COLOR;
 
     if (y<0 || y+patch->height > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT)) {
       // killough 1/19/98: improved error message:
-      lprintf(LO_WARN, "V_DrawMemPatch8: Patch (%d,%d)-(%d,%d) exceeds LFB in vertical direction (horizontal is clipped)\n"
-              "Bad V_DrawMemPatch8 (flags=%u)", x, y, x+patch->width, y+patch->height, flags);
+      lprintf(LO_WARN, "V_DrawPatch: Patch (%d,%d)-(%d,%d) exceeds LFB in vertical direction (horizontal is clipped)\n"
+              "Bad V_DrawPatch (flags=%u)", x, y, x+patch->width, y+patch->height, flags);
       return;
     }
 
@@ -423,64 +389,73 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
         const rpost_t *post = &column->posts[i];
+        const byte *source;
+        byte *dest;
+        int count;
+
         // killough 2/21/98: Unrolled and performance-tuned
 
-        const byte *source = column->pixels + post->topdelta;
-        byte *dest = desttop + post->topdelta*screens[scrn].pitch;
-        int count = post->length;
+        source = column->pixels + post->topdelta;
+        dest = desttop + post->topdelta * pitch;
+        count = post->length;
 
-        if (!(flags & VPT_COLOR)) {
+    // color translated patch
+        if (TR) {
+          if ((count-=4)>=0)
+            do {
+              register byte s0,s1;
+              s0 = source[0];
+              s1 = source[1];
+              s0 = colortr[s0];
+              s1 = colortr[s1];
+              dest[0] = s0;
+              dest[pitch] = s1;
+              dest += pitch*2;
+              s0 = source[2];
+              s1 = source[3];
+              s0 = colortr[s0];
+              s1 = colortr[s1];
+              source += 4;
+              dest[0] = s0;
+              dest[pitch] = s1;
+              dest += pitch*2;
+            } while ((count-=4)>=0);
+          if (count+=4)
+            do {
+              *dest = colortr[*source++];
+              dest += pitch;
+            } while (--count);
+        }
+    // normal patch
+        else {
           if ((count-=4)>=0)
             do {
               register byte s0,s1;
               s0 = source[0];
               s1 = source[1];
               dest[0] = s0;
-              dest[screens[scrn].pitch] = s1;
-              dest += screens[scrn].pitch*2;
+              dest[pitch] = s1;
+              dest += pitch*2;
               s0 = source[2];
               s1 = source[3];
               source += 4;
               dest[0] = s0;
-              dest[screens[scrn].pitch] = s1;
-              dest += screens[scrn].pitch*2;
+              dest[pitch] = s1;
+              dest += pitch*2;
             } while ((count-=4)>=0);
           if (count+=4)
             do {
               *dest = *source++;
-              dest += screens[scrn].pitch;
-            } while (--count);
-        } else {
-          // CPhipps - merged translation code here
-          if ((count-=4)>=0)
-            do {
-              register byte s0,s1;
-              s0 = source[0];
-              s1 = source[1];
-              s0 = trans[s0];
-              s1 = trans[s1];
-              dest[0] = s0;
-              dest[screens[scrn].pitch] = s1;
-              dest += screens[scrn].pitch*2;
-              s0 = source[2];
-              s1 = source[3];
-              s0 = trans[s0];
-              s1 = trans[s1];
-              source += 4;
-              dest[0] = s0;
-              dest[screens[scrn].pitch] = s1;
-              dest += screens[scrn].pitch*2;
-            } while ((count-=4)>=0);
-          if (count+=4)
-            do {
-              *dest = trans[*source++];
-              dest += screens[scrn].pitch;
+              dest += pitch;
             } while (--count);
         }
       }
     }
-  }
-  else {
+}
+
+static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
+        const byte *colortr, enum patch_translation_e flags)
+{
     // CPhipps - move stretched patch drawing code here
     //         - reformat initialisers, move variables into inner blocks
 
@@ -492,16 +467,20 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     R_DrawColumn_f colfunc;
     draw_column_vars_t dcvars;
     draw_vars_t olddrawvars = drawvars;
+    stretch_param_t *params = dsda_StretchParams(flags);
+
+    int TR = flags & VPT_COLOR;
 
     R_SetDefaultDrawColumnVars(&dcvars);
 
     drawvars.topleft = screens[scrn].data;
     drawvars.pitch = screens[scrn].pitch;
 
-    if (flags & VPT_COLOR) {
+    if (TR) {    // color translated patch
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, RDRAW_FILTER_NONE);
-      dcvars.translation = trans;
-    } else {
+      dcvars.translation = colortr;
+    }
+    else {    // normal patch
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, RDRAW_FILTER_NONE);
     }
 
@@ -625,9 +604,72 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
     R_ResetColumnBuffer();
     drawvars = olddrawvars;
-  }
 }
 
+typedef struct {
+  const byte *colortr;
+  enum patch_translation_e flags;
+} v_patchinfo_t;
+
+v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
+{
+  v_patchinfo_t patch;
+  extern int dsda_ExHudTranslucency(void);
+
+  patch.flags = flags;
+
+  // color translation
+  if (cm == CR_DEFAULT)
+    patch.colortr = &colormaps[0][0];
+  else if (cm == CR_DARKEN)
+    patch.colortr = &colormaps[0][256 * 15];
+  else if (cm < CR_LIMIT)
+    patch.colortr = colrngs[cm];
+  else
+    patch.colortr = translationtables + 256*((cm - CR_LIMIT) - 1);
+
+  // CPhipps - null translation pointer => no translation
+  if (!patch.colortr)
+    patch.flags &= ~VPT_COLOR;
+
+  return patch;
+}
+
+void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
+        dboolean center, int cm, enum patch_translation_e flags)
+{
+  v_patchinfo_t patchinfo = {0}, shadowinfo = {0};
+
+  // remove offsets
+  if (!(flags & VPT_NOOFFSET))
+  {
+    y -= patch->topoffset;
+    x -= patch->leftoffset;
+  }
+
+  // CPhipps - auto-no-stretch if not high-res
+  if ((flags & VPT_STRETCH_MASK) && SCREEN_320x200)
+    flags &= ~VPT_STRETCH_MASK;
+
+  // [FG] automatically center wide patches without horizontal offset
+  if (center)
+  {
+    if (patch->width > 320 && patch->leftoffset == 0)
+      x -= (patch->width - 320) / 2;
+  }
+
+  patchinfo  = V_GetMainDrawInfo(cm, flags);
+
+  // Draw patch unscaled
+  if (!(flags & VPT_STRETCH_MASK)) {
+    V_DrawPatch(x, y, scrn, patch, patchinfo.colortr, patchinfo.flags);
+  }
+
+  // Or draw scaled patch with pipelines
+  else {
+    V_DrawPatchStretch(x, y, scrn, patch, patchinfo.colortr, patchinfo.flags);
+  }
+}
 
 //
 // FUNC_V_DrawShaded
