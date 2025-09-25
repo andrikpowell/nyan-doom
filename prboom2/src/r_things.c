@@ -134,7 +134,7 @@ void R_UpdateVisSpriteTranMap(vissprite_t *vis, mobj_t *thing)
 {
   if (thing && thing->tranmap)
     vis->tranmap = thing->tranmap;
-  else if (vis->mobjflags & g_mf_translucent)
+  else if (vis->mobjflags & g_mf_translucent || vis->mobjflags & MF_ALTSHADOW)
     vis->tranmap = main_tranmap;
   else
     vis->tranmap = NULL;
@@ -539,38 +539,17 @@ static void R_DrawVisSprite(vissprite_t *vis)
   const rpatch_t *patch = R_PatchByNum(vis->patch+firstspritelump);
   R_DrawColumn_f colfunc;
   draw_column_vars_t dcvars;
+  int isColor = 0;
+  int isTranslucenct = 0;
+  int hexen_shadow = 0;
 
   R_SetDefaultDrawColumnVars(&dcvars);
 
   dcvars.colormap = vis->colormap;
 
-  // hexen_note: colfunc: No idea how to merge this right now...
-  // if (vis->mobjflags & (MF_SHADOW | MF_ALTSHADOW))
-  // {
-  //     if (vis->mobjflags & MF_TRANSLATION)
-  //     {
-  //         colfunc = R_DrawTranslatedTLColumn;
-  //         dc_translation = translationtables - 256
-  //             + (vis->pclass - 1) * ((g_maxplayers - 1) * 256) +
-  //             ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT - 8));
-  //     }
-  //     else if (vis->mobjflags & MF_SHADOW)
-  //     {                       // Draw using shadow column function
-  //         colfunc = tlcolfunc;
-  //     }
-  //     else
-  //     {
-  //         colfunc = R_DrawAltTLColumn;
-  //     }
-  // }
-  // else if (vis->mobjflags & MF_TRANSLATION)
-  // {
-  //     // Draw using translated column function
-  //     colfunc = R_DrawTranslatedColumn;
-  //     dc_translation = translationtables - 256
-  //         + (vis->pclass - 1) * ((g_maxplayers - 1) * 256) +
-  //         ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT - 8));
-  // }
+  // Add second Hexen translucent function
+  if (hexen && vis->mobjflags & MF_SHADOW)
+    hexen_shadow++;
 
   // killough 4/11/98: rearrange and handle translucent sprites
   // mixed with translucent/non-translucenct 2s normals
@@ -580,25 +559,35 @@ static void R_DrawVisSprite(vissprite_t *vis)
     R_ResetFuzzCol(colheight); // Reset fuzz column for new sprite
     colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ, RDRAW_FILTER_POINT);    // killough 3/14/98
   }
-  else if (vis->color)
-  {
-    colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, RDRAW_FILTER_POINT);
-    dcvars.translation = colrngs[vis->color];
-  }
-  else if (vis->mobjflags & MF_TRANSLATION)
-  {
-    colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, RDRAW_FILTER_POINT);
-    dcvars.translation = translationtables - 256 +
-      ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
-  }
-  else if (vis->tranmap) // phares
-  {
-    colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLUCENT, RDRAW_FILTER_POINT);
-    tranmap = vis->tranmap;
-  }
   else
   {
-    colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, RDRAW_FILTER_POINT); // killough 3/14/98, 4/11/98
+    if (vis->color || vis->mobjflags & MF_TRANSLATION)
+    {
+      if (vis->color)
+        dcvars.translation = colrngs[vis->color];
+      else
+      {
+        dcvars.translation = translationtables - 256 +
+          (raven ? ((vis->pclass - 1) * ((g_maxplayers - 1) * 256)) : 0) +
+          ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT - 8) );
+      }
+      isColor++;
+    }
+
+    if (vis->tranmap)
+    {
+      tranmap = vis->tranmap;
+      isTranslucenct++;
+    }
+
+    if (isColor && isTranslucenct)
+      colfunc = R_GetDrawColumnFunc(hexen_shadow ? RDC_PIPELINE_ALT_TRTL : RDC_PIPELINE_TRTL, RDRAW_FILTER_POINT);
+    else if (isTranslucenct)
+      colfunc = R_GetDrawColumnFunc(hexen_shadow ? RDC_PIPELINE_ALT_TL : RDC_PIPELINE_TRANSLUCENT, RDRAW_FILTER_POINT);
+    else if (isColor)
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, RDRAW_FILTER_POINT);
+    else
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, RDRAW_FILTER_POINT); // killough 3/14/98, 4/11/98
   }
 
 // proff 11/06/98: Changed for high-res

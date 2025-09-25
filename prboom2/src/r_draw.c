@@ -147,11 +147,14 @@ static int fuzzcellsize;
 
 // render pipelines
 #define RDC_STANDARD      1
-#define RDC_TRANSLUCENT   2
-#define RDC_TRANSLATED    4
-#define RDC_FUZZ          8
+#define RDC_TRANSLUCENT   2 // translucent
+#define RDC_TRANSLATED    4 // color
+#define RDC_TRTL          8 // Translucent + color
+#define RDC_ALT_TL       16 // alt-translucent
+#define RDC_ALT_TRTL     32 // alt-translucent + color
+#define RDC_FUZZ         64
 // no color mapping
-#define RDC_NOCOLMAP     16
+#define RDC_NOCOLMAP    128
 
 draw_vars_t drawvars = {
   NULL, // topleft
@@ -239,6 +242,24 @@ void R_ResetColumnBuffer(void)
 #define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL
 #include "r_drawflush.inl"
 
+#define R_DRAWCOLUMN_PIPELINE RDC_ALT_TL
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeAltTL
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTAltTL
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadAltTL
+#include "r_drawflush.inl"
+
+#define R_DRAWCOLUMN_PIPELINE RDC_ALT_TRTL
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeAltTRTL
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTAltTRTL
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadAltTRTL
+#include "r_drawflush.inl"
+
+#define R_DRAWCOLUMN_PIPELINE RDC_TRTL
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTRTL
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTRTL
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTRTL
+#include "r_drawflush.inl"
+
 #define R_DRAWCOLUMN_PIPELINE RDC_FUZZ
 #define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz
 #define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz
@@ -318,6 +339,59 @@ byte *translationtables;
 #undef R_DRAWCOLUMN_PIPELINE_TYPE
 
 //
+// R_DrawAltTLColumn
+// Used to draw sprites with reverse translucency!
+//
+
+#define R_DRAWCOLUMN_PIPELINE_TYPE RDC_PIPELINE_ALT_TL
+#define R_DRAWCOLUMN_PIPELINE_BASE RDC_ALT_TL
+
+#define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawAltTLColumn ## postfix
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeAltTL
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTAltTL
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadAltTL
+#include "r_drawcolpipeline.inl"
+
+#undef R_DRAWCOLUMN_PIPELINE_BASE
+#undef R_DRAWCOLUMN_PIPELINE_TYPE
+
+//
+// R_DrawAltTRTLColumn
+// Used to draw sprites with specific colours
+//  with reverse translucency!
+//
+
+#define R_DRAWCOLUMN_PIPELINE_TYPE RDC_PIPELINE_ALT_TRTL
+#define R_DRAWCOLUMN_PIPELINE_BASE RDC_ALT_TRTL
+
+#define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawAltTRTLColumn ## postfix
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeAltTRTL
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTAltTRTL
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadAltTRTL
+#include "r_drawcolpipeline.inl"
+
+#undef R_DRAWCOLUMN_PIPELINE_BASE
+#undef R_DRAWCOLUMN_PIPELINE_TYPE
+
+//
+// R_DrawTRTLColumn
+// Used to draw sprites with specific colours
+//  with translucency!
+//
+
+#define R_DRAWCOLUMN_PIPELINE_TYPE RDC_PIPELINE_TRTL
+#define R_DRAWCOLUMN_PIPELINE_BASE RDC_TRTL
+
+#define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawTRTLColumn ## postfix
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTRTL
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTRTL
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTRTL
+#include "r_drawcolpipeline.inl"
+
+#undef R_DRAWCOLUMN_PIPELINE_BASE
+#undef R_DRAWCOLUMN_PIPELINE_TYPE
+
+//
 // Framebuffer postprocessing.
 // Creates a fuzzy image by copying pixels
 //  from adjacent ones to left and right.
@@ -343,12 +417,18 @@ static R_DrawColumn_f drawcolumnfuncs[RDRAW_FILTER_MAXFILTERS][RDC_PIPELINE_MAXP
     R_DrawColumn_PointUV,
     R_DrawTLColumn_PointUV,
     R_DrawTranslatedColumn_PointUV,
+    R_DrawTRTLColumn_PointUV,
+    R_DrawAltTLColumn_PointUV,
+    R_DrawAltTRTLColumn_PointUV,
     R_DrawFuzzColumn_PointUV,
   },
   {
     R_DrawColumn_PointUV_PointZ,
     R_DrawTLColumn_PointUV_PointZ,
     R_DrawTranslatedColumn_PointUV_PointZ,
+    R_DrawTRTLColumn_PointUV_PointZ,
+    R_DrawAltTLColumn_PointUV_PointZ,
+    R_DrawAltTRTLColumn_PointUV_PointZ,
     R_DrawFuzzColumn_PointUV_PointZ,
   },
 };

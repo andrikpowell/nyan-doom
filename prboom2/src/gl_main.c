@@ -2548,6 +2548,8 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
     sprite.alpha = thing->alpha;
   else if (sprite.flags & g_mf_translucent)
     sprite.alpha = gl_filter_pct;
+  else if (sprite.flags & MF_ALTSHADOW)
+    sprite.alpha = gl_filter_pct;
   else
     sprite.alpha = 1.f;
 

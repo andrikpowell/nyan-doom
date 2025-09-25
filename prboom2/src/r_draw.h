@@ -40,6 +40,9 @@ enum column_pipeline_e {
   RDC_PIPELINE_STANDARD,
   RDC_PIPELINE_TRANSLUCENT,
   RDC_PIPELINE_TRANSLATED,
+  RDC_PIPELINE_TRTL,       // translated + translucency
+  RDC_PIPELINE_ALT_TL,     // reverse translucency
+  RDC_PIPELINE_ALT_TRTL,   // translated + reverse translucency
   RDC_PIPELINE_FUZZ,
   RDC_PIPELINE_MAXPIPELINES,
 };

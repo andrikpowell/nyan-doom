@@ -28,11 +28,15 @@
  *
  *-----------------------------------------------------------------------------*/
 
-#if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT)
-#define GETDESTCOLOR(col1, col2) (temptranmap[((col1)<<8)+(col2)])
-#else
-#define GETDESTCOLOR(col) (col)
-#endif
+#define R_DRAWCOLUMN_TRANSLUCENT     (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT || R_DRAWCOLUMN_PIPELINE & RDC_TRTL )
+#define R_DRAWCOLUMN_TRANSLUCENT_REVERSE (R_DRAWCOLUMN_PIPELINE & RDC_ALT_TRTL || R_DRAWCOLUMN_PIPELINE & RDC_ALT_TL)
+
+#define R_DRAWCOLUMN_ANY_TRANSLUCENT (R_DRAWCOLUMN_TRANSLUCENT || R_DRAWCOLUMN_TRANSLUCENT_REVERSE)
+
+#define GETDESTCOLOR(col1, col2) \
+     (R_DRAWCOLUMN_TRANSLUCENT         ? temptranmap[((col1) << 8) + (col2)] : \
+      R_DRAWCOLUMN_TRANSLUCENT_REVERSE ? temptranmap[(col1) + ((col2) << 8)] : \
+      (col1))
 
 #define BLOCKY_FUZZ (dsda_IntConfig(dsda_config_fuzzmode)==0 || dsda_StrictMode())
 #define REFRACTION_FUZZ (dsda_IntConfig(dsda_config_fuzzmode)==1 && !dsda_StrictMode())
@@ -169,7 +173,7 @@ static void R_FLUSHWHOLE_FUNCNAME(void)
 
       while(--count >= 0)
       {
-#if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT)
+#if (R_DRAWCOLUMN_ANY_TRANSLUCENT)
          *dest = GETDESTCOLOR(*dest, *source);
 #else
          *dest = *source;
@@ -217,7 +221,7 @@ static void R_FLUSHHEADTAIL_FUNCNAME(void)
 
          while(--count >= 0)
          {
-#if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT)
+#if (R_DRAWCOLUMN_ANY_TRANSLUCENT)
             // haleyjd 09/11/04: use temptranmap here
             *dest = GETDESTCOLOR(*dest, *source);
 #else
@@ -238,7 +242,7 @@ static void R_FLUSHHEADTAIL_FUNCNAME(void)
 
          while(--count >= 0)
          {
-#if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT)
+#if (R_DRAWCOLUMN_ANY_TRANSLUCENT)
             // haleyjd 09/11/04: use temptranmap here
             *dest = GETDESTCOLOR(*dest, *source);
 #else
@@ -266,7 +270,7 @@ static void R_FLUSHQUAD_FUNCNAME(void)
 
    count = commonbot - commontop + 1;
 
-#if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT)
+#if (R_DRAWCOLUMN_ANY_TRANSLUCENT)
    while(--count >= 0)
    {
       dest[0] = GETDESTCOLOR(dest[0], source[0]);
@@ -300,6 +304,9 @@ static void R_FLUSHQUAD_FUNCNAME(void)
 
 #undef GETDESTCOLOR
 #undef R_DRAWCOLUMN_PIPELINE
+#undef R_DRAWCOLUMN_TRANSLUCENT
+#undef R_DRAWCOLUMN_TRANSLUCENT_REVERSE
+#undef R_DRAWCOLUMN_ANY_TRANSLUCENT
 #undef R_FLUSHWHOLE_FUNCNAME
 #undef R_FLUSHHEADTAIL_FUNCNAME
 #undef R_FLUSHQUAD_FUNCNAME

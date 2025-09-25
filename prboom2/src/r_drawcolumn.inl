@@ -28,7 +28,13 @@
  *
  *-----------------------------------------------------------------------------*/
 
-#if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLATED)
+#define R_DRAWCOLUMN_TRANSLATED (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLATED || R_DRAWCOLUMN_PIPELINE & RDC_TRTL || R_DRAWCOLUMN_PIPELINE & RDC_ALT_TRTL )
+#define R_DRAWCOLUMN_TRANSLUCENT (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT || R_DRAWCOLUMN_PIPELINE & RDC_TRTL )
+#define R_DRAWCOLUMN_TRANSLUCENT_REVERSE ( R_DRAWCOLUMN_PIPELINE & RDC_ALT_TRTL || R_DRAWCOLUMN_PIPELINE & RDC_ALT_TL)
+
+#define R_DRAWCOLUMN_ANY_TRANSLUCENT (R_DRAWCOLUMN_TRANSLUCENT || R_DRAWCOLUMN_TRANSLUCENT_REVERSE)
+
+#if (R_DRAWCOLUMN_TRANSLATED)
 #define GETCOL_MAPPED(col) (translation[(col)])
 #else
 #define GETCOL_MAPPED(col) (col)
@@ -42,7 +48,7 @@
 
 #define GETCOL(frac) GETCOL_DEPTH(source[(frac)>>FRACBITS])
 
-#if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT)
+#if (R_DRAWCOLUMN_ANY_TRANSLUCENT)
 #define COLTYPE (COL_TRANS)
 #elif (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ)
 #define COLTYPE (COL_FUZZ)
@@ -114,7 +120,7 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
          tempyl[0] = commontop = dcvars->yl;
          tempyh[0] = commonbot = dcvars->yh;
          temptype = COLTYPE;
-#if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT)
+#if (R_DRAWCOLUMN_ANY_TRANSLUCENT)
          temptranmap = tranmap;
 #elif (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ)
          tempfuzzmap = fullcolormap; // SoM 7-28-04: Fix the fuzz problem.
@@ -149,7 +155,7 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
     const lighttable_t  *colormap = dcvars->colormap;
 #endif
 
-#if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLATED)
+#if (R_DRAWCOLUMN_TRANSLATED)
     const byte          *translation = dcvars->translation;
 #endif
 
@@ -220,5 +226,9 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 #undef GETCOL_DEPTH
 #undef GETCOL
 #undef COLTYPE
+#undef R_DRAWCOLUMN_TRANSLATED
+#undef R_DRAWCOLUMN_TRANSLUCENT
+#undef R_DRAWCOLUMN_TRANSLUCENT_REVERSE
+#undef R_DRAWCOLUMN_ANY_TRANSLUCENT
 #undef R_DRAWCOLUMN_FUNCNAME
 #undef R_DRAWCOLUMN_PIPELINE
