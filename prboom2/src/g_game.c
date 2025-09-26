@@ -96,6 +96,7 @@
 #include "dsda/console.h"
 #include "dsda/demo.h"
 #include "dsda/excmd.h"
+#include "dsda/exhud.h"
 #include "dsda/exdemo.h"
 #include "dsda/features.h"
 #include "dsda/key_frame.h"
@@ -4350,7 +4351,7 @@ static dboolean InventoryMoveLeft(void)
 
     plr = &players[consoleplayer];
 
-    if (R_FullView())
+    if (R_FullView() && !dsda_CheckBigArtifactBar())
     {
         inv_ptr--;
         if (inv_ptr < 0)
@@ -4389,7 +4390,7 @@ static dboolean InventoryMoveRight(void)
 
     plr = &players[consoleplayer];
 
-    if (R_FullView())
+    if (R_FullView() && !dsda_CheckBigArtifactBar())
     {
         inv_ptr++;
         if (inv_ptr >= plr->inventorySlotNum)

@@ -58,6 +58,7 @@ typedef enum {
   exhud_big_armor,
   exhud_big_armor_text,
   exhud_big_artifact,
+  exhud_big_artifact_bar,
   exhud_sml_berserk,
   exhud_sml_armor,
   exhud_status_widget,
@@ -134,6 +135,13 @@ exhud_component_t components_template[exhud_component_count] = {
     dsda_UpdateBigArtifactHC,
     dsda_DrawBigArtifactHC,
     "big_artifact",
+    .default_vpt = VPT_EX_TEXT | VPT_EX_TRANS,
+  },
+  [exhud_big_artifact_bar] = {
+    dsda_InitBigArtifactBarHC,
+    dsda_UpdateBigArtifactBarHC,
+    dsda_DrawBigArtifactBarHC,
+    "big_artifact_bar",
     .default_vpt = VPT_EX_TEXT | VPT_EX_TRANS,
   },
   [exhud_sml_berserk] = {
@@ -743,6 +751,10 @@ void dsda_DrawExIntermission(void) {
       (!components[i].strict || !dsda_StrictMode())
     )
       components[i].draw(components[i].data);
+}
+
+dboolean dsda_CheckBigArtifactBar(void) {
+  return (!dsda_HideHUD() && (components[exhud_big_artifact_bar].on == true));
 }
 
 void dsda_ToggleRenderStats(void) {

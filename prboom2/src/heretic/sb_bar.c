@@ -838,6 +838,59 @@ void DrawInventoryBar(void)
     }
 }
 
+int fullscreen_inventory = false;
+int inventory_open = false;
+
+void DrawInventoryBarTranslucent(int x, int y, int vpt)
+{
+    enum patch_translation_e flags = hexen ? VPT_ALT_TRANSMAP : VPT_TRANSMAP;
+
+    if (inventory)
+    {
+        int i, j, lump;
+        int artibox_x   = heretic ? x+12    : x+12; // same
+        int artibox_y   = heretic ? y       : y;    // same
+        int artifact_x  = heretic ? x+12    : x+10;
+        int artifact_y  = heretic ? y       : y;    // same
+        int sml_num_x   = heretic ? x-22    : x-27;
+        int sml_num_y   = heretic ? y+22    : y+22; // same
+        int select_x    = heretic ? x+12    : x+11;
+        int select_y    = heretic ? y+29    : y;
+        int gem_xl      = heretic ? x       : x+2;
+        int gem_xr      = heretic ? x+231   : x+230;
+        int gem_y       = heretic ? y-1     : y;
+
+        fullscreen_inventory = true;
+        inventory_open = true;
+
+        j = inv_ptr - curpos;
+        for (i = 0; i < 7; i++)
+        {
+            V_DrawNamePatch(artibox_x + i * 31, artibox_y, "ARTIBOX", CR_DEFAULT, vpt | flags);  
+            if (CPlayer->inventorySlotNum > j + i && CPlayer->inventory[j + i].type != arti_none)
+            {
+                V_DrawNumPatch(artifact_x + i * 31, artifact_y,lumparti[CPlayer->inventory[j + i].type], CR_DEFAULT, vpt);
+                DrSmallNumber(CPlayer->inventory[j + i].count, sml_num_x + i * 31, sml_num_y);
+            }
+        }
+        V_DrawNumPatch(select_x + curpos * 31,  select_y, LumpSELECTBOX, CR_DEFAULT, vpt);
+        if (j != 0)
+        {
+            lump = !(leveltime & 4) ? LumpINVLFGEM1 : LumpINVLFGEM2;
+            V_DrawNumPatch(gem_xl, gem_y, lump, CR_DEFAULT, vpt);
+        }
+        if (CPlayer->inventorySlotNum - j > 7)
+        {
+            lump = !(leveltime & 4) ? LumpINVRTGEM1 : LumpINVRTGEM2;
+            V_DrawNumPatch(gem_xr, gem_y, lump, CR_DEFAULT, vpt);
+        }
+    }
+    else
+    {
+        inventory_open = false;
+    }
+}
+
 void DrawArtifact(int x, int y, int vpt)
 {
   inventory_t *inv;
@@ -847,13 +900,16 @@ void DrawArtifact(int x, int y, int vpt)
   const int delta_y = heretic ? 22 : 21;
   enum patch_translation_e flags = hexen ? VPT_ALT_TRANSMAP : VPT_TRANSMAP;
 
-  inv = &players[displayplayer].inventory[inv_ptr];
-
-  if (inv->type > 0)
+  if (!inventory_open)
   {
-    V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | flags);
-    V_DrawNumPatch(x, y, lumparti[inv->type], CR_DEFAULT, vpt);
-    DrSmallNumberVPT(inv->count, x + delta_x, y + delta_y, vpt);
+    inv = &players[displayplayer].inventory[inv_ptr];
+
+    if (inv->type > 0)
+    {
+        V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | flags);
+        V_DrawNumPatch(x, y, lumparti[inv->type], CR_DEFAULT, vpt);
+        DrSmallNumberVPT(inv->count, x + delta_x, y + delta_y, vpt);
+    }
   }
 }
 
