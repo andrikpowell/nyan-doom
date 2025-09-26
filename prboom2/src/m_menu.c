@@ -3782,6 +3782,12 @@ static const char* armor_icon_list[] =
   NULL
 };
 
+// Gonna keep this here for dev purposes
+//
+//static const char* render_stretch_list[] = {
+//  "Not Adjusted", "Doom Format", "Fit to Width", NULL
+//};
+
 setup_menu_t display_statbar_settings[] =  // Demos Settings screen
 {
   { "Solid Color Background", S_YESNO, m_conf, G_X, dsda_config_sts_solid_bg_color },
@@ -3801,6 +3807,8 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   { "Health Good/Extra", S_NUM, m_conf, G_X, dsda_config_hud_health_green },
   { "Ammo Low/Ok", S_NUM, m_conf, G_X, dsda_config_hud_ammo_red },
   { "Ammo Ok/Good", S_NUM, m_conf, G_X, dsda_config_hud_ammo_yellow },
+  //EMPTY_LINE,
+  //{ "Appearance", S_CHOICE, m_conf, G_X, dsda_config_render_stretch_hud, 0, render_stretch_list },
 
   PREV_PAGE(display_nyan_settings),
   NEXT_PAGE(display_hud_settings),

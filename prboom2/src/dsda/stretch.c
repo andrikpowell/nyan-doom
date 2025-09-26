@@ -155,14 +155,10 @@ void dsda_ResetExTextOffsets(void) {
     InitExTextParam(&stretch_params_table[patch_stretch_ex_text][k], k);
 }
 
-// Raven HUD breaks in "patch_stretch_not_adjusted",
-// so let's use "patch_stretch_doom_format" settings
-#define stretch_hud(a) ((raven && (a) == patch_stretch_not_adjusted) ? patch_stretch_doom_format : (a))
-
 static void InitStretchParam(stretch_param_t* offsets, int stretch, enum patch_translation_e flags) {
   memset(offsets, 0, sizeof(*offsets));
 
-  switch (stretch_hud(stretch)) {
+  switch (stretch) {
     case patch_stretch_not_adjusted:
       if (flags == VPT_ALIGN_WIDE) {
         offsets->video = &video_stretch;
@@ -275,7 +271,7 @@ void dsda_EvaluatePatchScale(void) {
       SCREENHEIGHT < 200 || WIDE_SCREENHEIGHT < 200)
     render_stretch_hud = patch_stretch_fit_to_width;
 
-  switch (stretch_hud(render_stretch_hud)) {
+  switch (render_stretch_hud) {
     case patch_stretch_not_adjusted:
       wide_offset2x = SCREENWIDTH - patches_scalex * 320;
       wide_offset2y = SCREENHEIGHT - patches_scaley * 200;
