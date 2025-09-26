@@ -59,6 +59,7 @@ int dsda_DoomPrepareEntering(void);
 int dsda_DoomPrepareFinished(void);
 int dsda_DoomMapLightning(int* lightning);
 int dsda_DoomApplyFadeTable(void);
+int dsda_DoomMapFadeTable(void);
 int dsda_DoomMapCluster(int* cluster, int map);
 int dsda_DoomSky1Texture(short* texture);
 int dsda_DoomSky2Texture(short* texture);

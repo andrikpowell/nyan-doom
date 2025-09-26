@@ -545,36 +545,39 @@ int dsda_HexenMapLightning(int* lightning) {
 int dsda_HexenApplyFadeTable(void) {
   extern dboolean LevelUseFullBright;
   extern const lighttable_t** colormaps;
-
-  int fade_lump;
+  extern const lighttable_t** fademap;
+  extern R_UpdateLightTables(void);
+  extern dboolean V_IsOpenGLMode(void);
+  extern gld_FlushTextures(void);
 
   if (!hexen)
     return false;
 
-  fade_lump = CurrentMap->fadetable;
+  fademap = colormaps[1] = (const lighttable_t *) W_LumpByNum(CurrentMap->fadetable);
 
-  colormaps[0] = (const lighttable_t *) W_LumpByNum(fade_lump);
-
-  if (fade_lump == W_GetNumForName("COLORMAP"))
+  if (CurrentMap->fadetable == W_GetNumForName(DEFAULT_FADE_TABLE))
     LevelUseFullBright = true;
   else
     LevelUseFullBright = false; // Probably fog ... don't use fullbright sprites
 
+  R_UpdateLightTables();
+
+  if (V_IsOpenGLMode())
+    gld_FlushTextures();
+
   return true;
 }
 
-int dsda_HexenFadeExists(void) {
-  int fade_lump;
+int dsda_HexenMapFadeTable(void) {
+  extern dboolean LevelUseFullBright;
 
   if (!hexen)
     return false;
 
-  fade_lump = CurrentMap->fadetable;
-
-  if (fade_lump != W_GetNumForName("COLORMAP"))
+  if (CurrentMap->fadetable != W_GetNumForName(DEFAULT_FADE_TABLE))
     return true;
-  else
-    return false;
+
+  return false;
 }
 
 int dsda_HexenMapCluster(int* cluster, int map) {

@@ -158,8 +158,7 @@ const lighttable_t *(*scalelight)[MAXLIGHTSCALE];
 const lighttable_t *(*zlight)[MAXLIGHTZ];
 const lighttable_t *fullcolormap;
 const lighttable_t **colormaps;
-
-const byte* colormap_lump;
+const lighttable_t *fademap;
 
 // killough 3/20/98, 4/4/98: end dynamic colormaps
 
@@ -495,6 +494,51 @@ static void R_InitLightTables (void)
             c_zlight[t][i][j] = colormaps[t] + level;
         }
     }
+}
+
+// Required for updating Hexen fadetable
+void R_UpdateLightTables (void)
+{
+  int i, ii;
+  for (i=0; i< LIGHTLEVELS; i++)
+  {
+    int j, startmap = ((LIGHTLEVELS-LIGHTBRIGHT-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
+    for (j=0; j<MAXLIGHTZ; j++)
+      {
+        int scale = FixedDiv ((320/2*FRACUNIT), (j+1)<<LIGHTZSHIFT);
+        int t, level = startmap - (scale >>= LIGHTSCALESHIFT)/DISTMAP;
+
+        if (level < 0)
+          level = 0;
+        else
+          if (level >= NUMCOLORMAPS)
+            level = NUMCOLORMAPS-1;
+
+        level *= 256;
+        for (t=0; t<numcolormaps; t++)
+          c_zlight[t][i][j] = colormaps[t] + level;
+      }
+  }
+
+  for (ii=0; ii< LIGHTLEVELS; ii++)
+  {
+    int jj, startmap = ((LIGHTLEVELS-LIGHTBRIGHT-ii)*2)*NUMCOLORMAPS/LIGHTLEVELS;
+    for (jj=0 ; jj<MAXLIGHTSCALE ; jj++)
+    {
+      int tt, level2 = startmap - jj/DISTMAP;
+
+      if (level2 < 0)
+        level2 = 0;
+
+      if (level2 >= NUMCOLORMAPS)
+        level2 = NUMCOLORMAPS-1;
+
+      level2 *= 256;
+
+      for (tt=0; tt<numcolormaps; tt++)
+        c_scalelight[tt][ii][jj] = colormaps[tt] + level2;
+    }
+  }
 }
 
 //
@@ -947,6 +991,13 @@ void R_ResetColorMap(void)
   fixedcolormap = 0;
 }
 
+// Applying Hexen fogmap to colormap 1.
+// Not ideal, but this is my current solution / hack.
+// It's better than replacing colormaps[0]
+// which introduces many more issues.
+//
+#define FADETABLE 1
+
 //
 // R_SetupFrame
 //
@@ -992,6 +1043,8 @@ static void R_SetupFrame (player_t *player)
     if (cm < 0 || cm > numcolormaps)
       cm = 0;
   }
+  else if (dsda_MapFadeTable()) // Hexen Fog - fadetable
+    cm = FADETABLE;
   else
     cm = map_info.default_colormap;
 

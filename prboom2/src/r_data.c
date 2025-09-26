@@ -379,13 +379,12 @@ static void R_InitSpriteLumps(void)
 static void R_InitColormaps(void)
 {
   int i;
-  extern const byte* colormap_lump;
   // MAP_FORMAT_TODO: not sure about this
   if (hexen)
   {
     firstcolormaplump = -1;
     lastcolormaplump = -1;
-    numcolormaps = 1;
+    numcolormaps = 2; // Hexen FOGMAP in colormaps[1]
   }
   else
   {
@@ -394,10 +393,13 @@ static void R_InitColormaps(void)
     numcolormaps = lastcolormaplump - firstcolormaplump;
   }
   colormaps = Z_Malloc(sizeof(*colormaps) * numcolormaps);
-  colormap_lump = W_LumpByName("COLORMAP");
-  colormaps[0] = (const lighttable_t *)colormap_lump;
+  colormaps[0] = fademap = (const lighttable_t *)W_LumpByName("COLORMAP");
   for (i=1; i<numcolormaps; i++)
     colormaps[i] = (const lighttable_t *)W_LumpByNum(i+firstcolormaplump);
+
+  // Add Hexen fadetable
+  if (hexen)
+    colormaps[1] = fademap;
   // cph - always lock
 }
 

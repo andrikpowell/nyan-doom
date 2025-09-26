@@ -596,6 +596,10 @@ int dsda_UApplyFadeTable(void) {
   return false;
 }
 
+int dsda_UMapFadeTable(void) {
+  return false;
+}
+
 int dsda_UMapCluster(int* cluster, int map) {
   return false;
 }

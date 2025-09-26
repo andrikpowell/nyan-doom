@@ -101,6 +101,7 @@ const char* dsda_BorderTexture(void);
 void dsda_PrepareEntering(void);
 void dsda_PrepareFinished(void);
 int dsda_MapLightning(void);
+int dsda_MapFadeTable(void);
 void dsda_ApplyFadeTable(void);
 int dsda_MapCluster(int map);
 short dsda_Sky1Texture(void);

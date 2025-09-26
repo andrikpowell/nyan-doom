@@ -716,6 +716,10 @@ int dsda_DoomApplyFadeTable(void) {
   return false;
 }
 
+int dsda_DoomMapFadeTable(void) {
+  return false;
+}
+
 int dsda_DoomMapCluster(int* cluster, int map) {
   if (!current_map)
     return false;

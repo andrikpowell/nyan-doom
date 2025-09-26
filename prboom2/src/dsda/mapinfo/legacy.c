@@ -817,6 +817,10 @@ int dsda_LegacyApplyFadeTable(void) {
   return true;
 }
 
+int dsda_LegacyMapFadeTable(void) {
+  return true;
+}
+
 int dsda_LegacyMapCluster(int* cluster, int map) {
   *cluster = -1;
 

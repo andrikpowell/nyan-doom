@@ -655,6 +655,20 @@ int dsda_MapLightning(void) {
   return lightning;
 }
 
+int dsda_MapFadeTable(void) {
+  if (dsda_DoomMapFadeTable())
+    return true;
+
+  if (dsda_HexenMapFadeTable())
+    return true;
+
+  if (dsda_UMapFadeTable())
+    return true;
+
+  dsda_LegacyMapFadeTable();
+  return false;
+}
+
 void dsda_ApplyFadeTable(void) {
   if (dsda_DoomApplyFadeTable())
     return;
