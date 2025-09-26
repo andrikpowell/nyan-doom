@@ -618,6 +618,8 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   //Set rgb colors
   r = g = b = (flags & VPT_SHADOW) ? 0.0f : 1.0f;
 
+  alpha = 1.0f;
+
   // Add translucency
   if (flags & VPT_SHADOW || flags & VPT_EX_TRANS || flags & VPT_TRANSMAP || flags & VPT_ALT_TRANSMAP)
   {
@@ -744,7 +746,6 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
 {
   int sx, sy, w, h;
   int scaled_x, scaled_y;
-  stretch_param_t *params = dsda_StretchParams(flags);
 
   w = R_NumPatchWidth(lump);
   h = R_NumPatchHeight(lump);

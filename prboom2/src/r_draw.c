@@ -576,7 +576,6 @@ void R_DrawSpan(draw_span_vars_t *dsvars) {
   const fixed_t xstep = dsvars->xstep;
   const fixed_t ystep = dsvars->ystep;
   const byte *source = dsvars->source;
-  const byte *source2 = dsvars->source2; // hexen - doublesky
   const byte *colormap = dsvars->colormap;
   byte *dest = drawvars.topleft + dsvars->y*drawvars.pitch + dsvars->x1;
 
@@ -714,9 +713,9 @@ static void R_DrawStbarBorder (void)
     if (stretch)
     {
       // Apply screen scaling when in stretch mode
-      x = (int)floorf((x - params->deltax1) * 320.0f / params->video->width);
-      y = (int)floorf((y - params->deltay1) * 200.0f / params->video->height);
-      w = (int)(ceilf(w * 320.0f / params->video->width) + 0.5f);
+      x = floorf((x - params->deltax1) * 320.0f / params->video->width);
+      y = floorf((y - params->deltay1) * 200.0f / params->video->height);
+      w = ceilf(w * 320.0f / params->video->width) + 0.5f;
     }
     else
     {
@@ -752,10 +751,10 @@ static void R_DrawBorder (int x, int y, int w, int h)
     if (stretch)
     {
       // Apply screen scaling when in stretch mode
-      x = (int)floorf((x - params->deltax1) * 320.0f / params->video->width);
-      y = (int)floorf((y - params->deltay1) * 200.0f / params->video->height);
-      w = (int)ceilf(w * 320.0f / params->video->width);
-      h = (int)ceilf(h * 200.0f / params->video->height);
+      x = floorf((x - params->deltax1) * 320.0f / params->video->width);
+      y = floorf((y - params->deltay1) * 200.0f / params->video->height);
+      w = ceilf(w * 320.0f / params->video->width);
+      h = ceilf(h * 200.0f / params->video->height);
 
       // Avoid gaps between viewport and border
       x += 1;

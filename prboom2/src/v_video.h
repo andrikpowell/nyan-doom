@@ -361,6 +361,9 @@ void V_SetPlayPal(int playpal_index);
 void V_ToggleFullscreen(void);
 void V_ChangeScreenResolution(void);
 
+extern int dsda_MenuTranslucency(void);
+extern int dsda_ExHudTranslucency(void);
+
 // CPhipps - function to plot a pixel
 
 // V_PlotPixel

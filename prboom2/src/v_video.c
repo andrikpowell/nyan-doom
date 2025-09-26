@@ -312,7 +312,6 @@ static void FUNC_V_FillFlat(int lump, int scrn, int x, int y, int width, int hei
 static void FUNC_V_FillPatch(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
   int sx, sy, w, h;
-  stretch_param_t *params = dsda_StretchParams(flags);
 
   w = R_NumPatchWidth(lump);
   h = R_NumPatchHeight(lump);
@@ -895,8 +894,6 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
 
 v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype) {
   v_patchinfo_t shadow = { 0 };
-  extern int dsda_MenuTranslucency(void);
-  extern int dsda_ExHudTranslucency(void);
 
   if ((shadowtype == SHADOW_DEFAULT && !dsda_MenuTranslucency()))
     shadowtype = 0;

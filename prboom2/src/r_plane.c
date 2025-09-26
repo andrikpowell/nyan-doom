@@ -447,7 +447,7 @@ static void R_DoDrawPlane(visplane_t *pl)
 
   if (pl->minx <= pl->maxx) {
     if (pl->picnum == skyflatnum || pl->picnum & PL_SKYFLAT) { // sky flat
-      int texture, texture2;
+      int texture, texture2 = 0;
       const rpatch_t *tex_patch, *tex_patch2;
       angle_t an, an2, flip;
 
@@ -553,7 +553,7 @@ static void R_DoDrawPlane(visplane_t *pl)
       {
         const rpatch_t *patch, *patch2;
 
-        patch = R_HackedSkyPatch(textures[texture]);
+        patch = patch2 = R_HackedSkyPatch(textures[texture]);
         if (DoubleSky) patch2 = R_HackedSkyPatch(textures[texture2]);
 
         if (patch)
@@ -576,7 +576,7 @@ static void R_DoDrawPlane(visplane_t *pl)
         }
       }
 
-      tex_patch = R_TextureCompositePatchByNum(texture);
+      tex_patch = tex_patch2 = R_TextureCompositePatchByNum(texture);
       if (DoubleSky) tex_patch2 = R_TextureCompositePatchByNum(texture2);
 
       // killough 10/98: Use sky scrolling offset, and possibly flip picture

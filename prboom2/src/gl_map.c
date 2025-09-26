@@ -211,7 +211,6 @@ void gld_DrawMapLines(void)
   if (map_lines.count > 0)
   {
     map_line_t *lines = (map_line_t *)map_lines.data;
-    size_t num_lines = map_lines.count;
     map_point_t *points = &lines[0].point[0];
 
     gld_EnableTexture2D(GL_TEXTURE0_ARB, false);

@@ -124,7 +124,9 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
     {
       if (dcvars->clip_top > dcvars->yl)
       {
+    #if (!(R_DRAWCOLUMN_PIPELINE & RDC_FUZZ))
         int delta = dcvars->clip_top - dcvars->yl;
+    #endif
 
         dcvars->yl = dcvars->clip_top;
 

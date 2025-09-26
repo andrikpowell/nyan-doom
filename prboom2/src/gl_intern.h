@@ -455,7 +455,7 @@ extern SkyBoxParams_t SkyBox;
 extern GLfloat gl_whitecolor[];
 void gld_InitSky(void);
 void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int skytype);
-void gld_GetSkyCapColors(void);
+void gld_GetSkyCapColors(int skylayer);
 void gld_InitFrameSky(void);
 void gld_DrawStripsSky(int skylayer);
 void gld_DrawScreenSkybox(void);
