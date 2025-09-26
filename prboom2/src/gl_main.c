@@ -505,12 +505,30 @@ void gld_EndMenuDraw(void)
   glsl_PopNullShader();
 }
 
+#define NO_TRANS -1
+
+float gld_GetTranslucency(enum patch_translation_e flags)
+{
+  int trans_percent = NO_TRANS;
+
+  if (flags & VPT_TRANSMAP)
+    trans_percent = tran_filter_pct;
+  else if (flags & VPT_ALT_TRANSMAP)
+    trans_percent = gl_alttint_filter_pct;
+
+  if (trans_percent != NO_TRANS)
+    return trans_percent * 0.01f;
+  else
+    return 1.0f;
+}
+
 void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int cm, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
   float width,height;
   float xpos, ypos;
+  float r, g, b, alpha;
   int cmap;
   int leftoffset, topoffset;
 
@@ -551,6 +569,24 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int cm, enu
       x -= (float)(gltexture->width - 320) / 2;
   }
 
+  //Set rgb colors
+  r = g = b = 1.0f;
+
+  // Add translucency
+  if (flags & VPT_TRANSMAP || flags & VPT_ALT_TRANSMAP)
+  {
+    alpha = gld_GetTranslucency(flags);
+
+    // If translucent
+    if (alpha != 1.0f)
+    {
+      // calculate ALT translucency as smaller translucency
+      flags &= ~VPT_ALT_TRANSMAP;
+      if (!(flags & VPT_TRANSMAP))
+        flags |= VPT_TRANSMAP;
+    }
+  }
+
   if (flags & VPT_STRETCH_MASK)
   {
     stretch_param_t *params = dsda_StretchParams(flags);
@@ -574,7 +610,7 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int cm, enu
   // e6y
   // This is a workaround for some on-board Intel video cards.
   // Do you know more elegant solution?
-  glColor3f(1.0f, 1.0f, 1.0f);
+  glColor4f(r, g, b, alpha);
 
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(fU1, fV1); glVertex2f((xpos),(ypos));

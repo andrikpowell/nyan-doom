@@ -61,6 +61,7 @@
 #include "dsda/global.h"
 #include "dsda/palette.h"
 #include "dsda/stretch.h"
+#include "dsda/tranmap.h"
 #include "dsda/text_color.h"
 #include "dsda/mapinfo/hexen.h"
 
@@ -358,7 +359,8 @@ void V_Init (void)
 //  means that their inner loops weren't so well optimised, so merging code may even speed them).
 //
 static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
-        const byte *colortr, enum patch_translation_e flags)
+        const byte *transmap, const byte *colortr,
+        enum patch_translation_e flags)
 {
     int    col;
     int    pitch = screens[scrn].pitch;
@@ -366,6 +368,8 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
     byte   *desttop = screens[scrn].data+y*pitch+x;
 
     int TR = flags & VPT_COLOR;
+    int TL = flags & VPT_TRANSMAP;
+    int ALT_TL = flags & VPT_ALT_TRANSMAP;
 
     if (y<0 || y+patch->height > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT)) {
       // killough 1/19/98: improved error message:
@@ -399,8 +403,63 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
         dest = desttop + post->topdelta * pitch;
         count = post->length;
 
+     // both translucent and color translated
+        if (TR && TL) {
+          if ((count-=4)>=0)
+            do {
+              register byte s0,s1;
+              s0 = source[0];
+              s1 = source[1];
+              s0 = transmap[(*dest<<8)+colortr[s0]];
+              s1 = transmap[(*dest<<8)+colortr[s1]];
+              dest[0] = s0;
+              dest[pitch] = s1;
+              dest += pitch*2;
+              s0 = source[2];
+              s1 = source[3];
+              s0 = transmap[(*dest<<8)+colortr[s0]];
+              s1 = transmap[(*dest<<8)+colortr[s1]];
+              source += 4;
+              dest[0] = s0;
+              dest[pitch] = s1;
+              dest += pitch*2;
+            } while ((count-=4)>=0);
+          if (count+=4)
+            do {
+              *dest = transmap[(*dest<<8)+colortr[*source++]];
+              dest += pitch;
+            } while (--count);
+        }
+     // both reverse translucent and color translated
+        else if (TR && ALT_TL) {
+          if ((count-=4)>=0)
+            do {
+              register byte s0,s1;
+              s0 = source[0];
+              s1 = source[1];
+              s0 = transmap[*dest+(colortr[s0]<<8)];
+              s1 = transmap[*dest+(colortr[s1]<<8)];
+              dest[0] = s0;
+              dest[pitch] = s1;
+              dest += pitch*2;
+              s0 = source[2];
+              s1 = source[3];
+              s0 = transmap[*dest+(colortr[s0]<<8)];
+              s1 = transmap[*dest+(colortr[s1]<<8)];
+              source += 4;
+              dest[0] = s0;
+              dest[pitch] = s1;
+              dest += pitch*2;
+            } while ((count-=4)>=0);
+          if (count+=4)
+            do {
+              *dest = transmap[*dest+colortr[*source<<8]];
+              source++;
+              dest += pitch;
+            } while (--count);
+        }
     // color translated patch
-        if (TR) {
+        else if (TR) {
           if ((count-=4)>=0)
             do {
               register byte s0,s1;
@@ -423,6 +482,61 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
           if (count+=4)
             do {
               *dest = colortr[*source++];
+              dest += pitch;
+            } while (--count);
+        }
+    // reverse translucent patch
+        else if (ALT_TL) {
+          if ((count-=4)>=0)
+            do {
+              register byte s0,s1;
+              s0 = source[0];
+              s1 = source[1];
+              s0 = transmap[*dest+(s0<<8)];
+              s1 = transmap[*dest+(s1<<8)];
+              dest[0] = s0;
+              dest[pitch] = s1;
+              dest += pitch*2;
+              s0 = source[2];
+              s1 = source[3];
+              s0 = transmap[*dest+(s0<<8)];
+              s1 = transmap[*dest+(s1<<8)];
+              source += 4;
+              dest[0] = s0;
+              dest[pitch] = s1;
+              dest += pitch*2;
+            } while ((count-=4)>=0);
+          if (count+=4)
+            do {
+              *dest = transmap[*dest+(*source<<8)];
+              source++;
+              dest += pitch;
+            } while (--count);
+        }
+    // translucent patch
+        else if (TL) {
+          if ((count-=4)>=0)
+            do {
+              register byte s0,s1;
+              s0 = source[0];
+              s1 = source[1];
+              s0 = transmap[(*dest<<8)+s0];
+              s1 = transmap[(*dest<<8)+s1];
+              dest[0] = s0;
+              dest[pitch] = s1;
+              dest += pitch*2;
+              s0 = source[2];
+              s1 = source[3];
+              s0 = transmap[(*dest<<8)+s0];
+              s1 = transmap[(*dest<<8)+s1];
+              source += 4;
+              dest[0] = s0;
+              dest[pitch] = s1;
+              dest += pitch*2;
+            } while ((count-=4)>=0);
+          if (count+=4)
+            do {
+              *dest = transmap[(*dest<<8)+*source++];
               dest += pitch;
             } while (--count);
         }
@@ -454,7 +568,8 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
 }
 
 static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
-        const byte *colortr, enum patch_translation_e flags)
+        const byte *transmap, const byte *colortr,
+        enum patch_translation_e flags)
 {
     // CPhipps - move stretched patch drawing code here
     //         - reformat initialisers, move variables into inner blocks
@@ -470,15 +585,35 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
     stretch_param_t *params = dsda_StretchParams(flags);
 
     int TR = flags & VPT_COLOR;
+    int TL = flags & VPT_TRANSMAP;
+    int ALT_TL = flags & VPT_ALT_TRANSMAP;
 
     R_SetDefaultDrawColumnVars(&dcvars);
 
     drawvars.topleft = screens[scrn].data;
     drawvars.pitch = screens[scrn].pitch;
 
-    if (TR) {    // color translated patch
+    if (TR && TL) {     // both translucent and color translated
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRTL, RDRAW_FILTER_NONE);
+      dcvars.translation = colortr;
+      tranmap = transmap;
+    }
+    else if (TR && ALT_TL) {     // both translucent and color translated
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_ALT_TRTL, RDRAW_FILTER_NONE);
+      dcvars.translation = colortr;
+      tranmap = transmap;
+    }
+    else if (TR) {    // color translated patch
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, RDRAW_FILTER_NONE);
       dcvars.translation = colortr;
+    }
+    else if (ALT_TL) {     // both translucent and color translated
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_ALT_TL, RDRAW_FILTER_NONE);
+      tranmap = transmap;
+    }
+    else if (TL) {    // translucent patch
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLUCENT, RDRAW_FILTER_NONE);
+      tranmap = transmap;
     }
     else {    // normal patch
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, RDRAW_FILTER_NONE);
@@ -607,7 +742,9 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
 }
 
 typedef struct {
+  int trans;
   const byte *colortr;
+  const byte *transmap;
   enum patch_translation_e flags;
 } v_patchinfo_t;
 
@@ -616,7 +753,9 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
   v_patchinfo_t patch;
   extern int dsda_ExHudTranslucency(void);
 
+  patch.transmap = NULL;
   patch.flags = flags;
+  patch.trans = -1;
 
   // color translation
   if (cm == CR_DEFAULT)
@@ -631,6 +770,14 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
   // CPhipps - null translation pointer => no translation
   if (!patch.colortr)
     patch.flags &= ~VPT_COLOR;
+
+  if (patch.flags & VPT_TRANSMAP)
+    patch.trans = tran_filter_pct;
+  else if (patch.flags & VPT_ALT_TRANSMAP)
+    patch.trans = alttint_filter_pct;
+
+  if (patch.trans != -1)
+    patch.transmap = dsda_TranMap(patch.trans);
 
   return patch;
 }
@@ -662,12 +809,12 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
   // Draw patch unscaled
   if (!(flags & VPT_STRETCH_MASK)) {
-    V_DrawPatch(x, y, scrn, patch, patchinfo.colortr, patchinfo.flags);
+    V_DrawPatch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, patchinfo.flags);
   }
 
   // Or draw scaled patch with pipelines
   else {
-    V_DrawPatchStretch(x, y, scrn, patch, patchinfo.colortr, patchinfo.flags);
+    V_DrawPatchStretch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, patchinfo.flags);
   }
 }
 

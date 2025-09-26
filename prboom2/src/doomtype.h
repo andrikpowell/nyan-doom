@@ -163,6 +163,8 @@ enum patch_translation_e {
   VPT_COLOR   = 512, // Translate image via a translation table
   VPT_NOOFFSET = 1024,
   VPT_STRETCH_REAL       = 2048, // [XA] VPT_STRETCH in gld_fillRect means "tile", rather than "stretch"... these flags probably need a rename.
+  VPT_TRANSMAP = 4096,
+  VPT_ALT_TRANSMAP = 8192,
 };
 
 extern int global_patch_top_offset;
