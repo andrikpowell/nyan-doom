@@ -449,6 +449,7 @@ void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars) {
   dcvars->translation = NULL;
   dcvars->edgeslope = dcvars->drawingmasked = 0;
   dcvars->flags = 0;
+  dcvars->clip_top = dcvars->clip_bottom = 0;
 
   // heretic
   dcvars->baseclip = -1;

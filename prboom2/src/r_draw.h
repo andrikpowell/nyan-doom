@@ -81,6 +81,8 @@ typedef struct draw_column_vars_s
   // 1 if R_DrawColumn* is currently drawing a masked column, otherwise 0
   int                 drawingmasked;
   unsigned int        flags; //e6y: for detect patches ind colfunc()
+  int clip_top;     // New!
+  int clip_bottom;  // New!
 
   // heretic
   int baseclip;
