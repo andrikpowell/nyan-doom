@@ -1004,7 +1004,7 @@ static void F_DrawEndPatches (void)
 
 void F_BunnyScroll (void)
 {
-  rpatch_t *p1, *p2;
+  const rpatch_t *p1, *p2;
   int p1offset, p2width;
   float scrolled;
 

@@ -278,7 +278,7 @@ static void FUNC_V_FillRaw(int lump, int scrn, int x, int y, int lumpwidth, int 
     const byte *data = W_LumpByNum(lump);
     int pitch = screens[scrn].pitch;
     byte *dest = screens[scrn].data + y0 * pitch + x0;
-    byte *row;
+    const byte *row;
 
     // Ratio Correction
     stretch_param_t* stretch = dsda_StretchParams(flags);
