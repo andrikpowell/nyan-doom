@@ -28,6 +28,7 @@
 
 #include "dsda/pause.h"
 #include "dsda/settings.h"
+#include "dsda/stretch.h"
 
 #include "heretic/def.h"
 #include "heretic/dstrings.h"
@@ -432,32 +433,6 @@ static void DrSmallNumber(int val, int x, int y)
     DrSmallNumberVPT(val, x, y, VPT_STRETCH);
 }
 
-//---------------------------------------------------------------------------
-//
-// PROC ShadeLine
-//
-//---------------------------------------------------------------------------
-
-static void ShadeLine(int x, int y, int height, int shade)
-{
-    // HERETIC_TODO: ShadeLine
-    // byte *dest;
-    // byte *shades;
-    //
-    // x <<= crispy->hires;
-    // y <<= crispy->hires;
-    // height <<= crispy->hires;
-    //
-    // shades = colormaps + 9 * 256 + shade * 2 * 256;
-    // dest = I_VideoBuffer + y * SCREENWIDTH + x;
-    // while (height--)
-    // {
-    //     if (crispy->hires)
-    //         *(dest + 1) = *(shades + *dest);
-    //     *(dest) = *(shades + *dest);
-    //     dest += SCREENWIDTH;
-    // }
-}
 
 //---------------------------------------------------------------------------
 //
@@ -467,13 +442,14 @@ static void ShadeLine(int x, int y, int height, int shade)
 
 static void ShadeChain(void)
 {
-    int i;
+    int x, y, w, h;
+    x = 19, y = 190, w = 16, h = 10;
+    V_GetWideRect(&x, &y, &w, &h, VPT_STRETCH);
+    V_FillRectShaded(x, y, w, h, 16, 0, false);
 
-    for (i = 0; i < 16; i++)
-    {
-        ShadeLine(277 + i, 190, 10, i / 2);
-        ShadeLine(19 + i, 190, 10, 7 - (i / 2));
-    }
+    x = 277, y = 190, w = 16, h = 10;
+    V_GetWideRect(&x, &y, &w, &h, VPT_STRETCH);
+    V_FillRectShaded(x, y, w, h, 0, 16, false);
 }
 
 //---------------------------------------------------------------------------

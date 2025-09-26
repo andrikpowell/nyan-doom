@@ -1020,6 +1020,51 @@ void gld_FillBlock(int x, int y, int width, int height, int col, int trans_perce
   glsl_PopNullShader();
 }
 
+void gld_FillBlockShaded(int x, int y, int w, int h, int start_shade, int end_shade, int vertical)
+{
+  color_rgb_t color = gld_LookupIndexedColor(playpal_darkest, V_IsUILightmodeIndexed() || V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed());
+  int steps, shade;
+  int x_pos, y_pos;
+
+  glsl_PushNullShader();
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
+
+  glBegin(GL_TRIANGLE_STRIP);
+
+  steps = vertical ? h + 1 : w + 1;
+  if (steps <= 1)
+    return;
+
+  for (int i = 0; i < steps; i++)
+  {
+    shade = start_shade + ((end_shade - start_shade) * i) / (steps - 1);
+
+    glColor4f(color.r / 255.0f,
+              color.g / 255.0f,
+              color.b / 255.0f,
+              ((float)shade / 7.0f) * 0.6f);
+
+    if (vertical)
+    {
+      y_pos = y + i;
+      glVertex2i(x, y_pos);
+      glVertex2i(x + w, y_pos);
+    }
+    else
+    {
+      x_pos = x + i;
+      glVertex2i(x_pos, y);
+      glVertex2i(x_pos, y + h);
+    }
+  }
+
+  glEnd();
+
+  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
+  glsl_PopNullShader();
+}
+
 void gld_DrawShaded(int x, int y, int width, int height, int shade)
 {
   color_rgb_t color = gld_LookupIndexedColor(playpal_darkest, V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed());

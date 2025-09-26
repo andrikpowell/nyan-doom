@@ -1132,6 +1132,40 @@ static void FUNC_V_FillRectTrans8(int scrn, int x, int y, int width, int height,
   }
 }
 
+//
+// First, I tried to implement V_ShadeLine from Vanilla Heretic.
+// Problem is that due to the x/y lookuptables, sometimes
+// the shadow would result in weird behaviours under
+// the resolutions 426x200 / 640x400.
+//
+// V_FillRectShaded() fixes these issues
+// as well as being more useful
+//
+void FUNC_V_FillRectShaded(int x, int y, int w, int h, int start_shade, int end_shade, int vertical)
+{
+  byte *dest = screens[0].data + y * screens[0].pitch + x;
+  int pitch = screens[0].pitch;
+
+  int blocks = vertical ? h : w;
+  if (blocks <= 1) return;
+
+  for (int j = 0; j < h; j++)
+  {
+    for (int i = 0; i < w; i++)
+    {
+      int block_size = vertical ? j : i;
+      int shade = start_shade + ((end_shade - start_shade) * block_size) / (blocks - 1);
+      //if (shade < 0) shade = 0;
+      //if (shade > 32) shade = 31;
+
+      const byte *shades = colormaps[0] + 9 * 256 + shade * 256;
+      dest[i] = shades[dest[i]];
+    }
+
+    dest += pitch;
+  }
+}
+
 static void WRAP_V_DrawLine(fline_t* fl, int color);
 static void V_PlotPixel8(int scrn, int x, int y, byte color);
 
@@ -1169,6 +1203,9 @@ static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byt
 static void WRAP_gld_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, const byte* tranmap)
 {
   gld_FillBlock(x,y,width,height,colour,shadow_ui_filter_pct);
+}
+static void WRAP_gld_FillRectShaded(int x, int y, int w, int h, int start_shade, int end_shade, int vertical) {
+  gld_FillBlockShaded(x,y,w,h,start_shade,end_shade,vertical);
 }
 static void WRAP_gld_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
@@ -1238,6 +1275,7 @@ static void NULL_BeginMenuDraw(void) {}
 static void NULL_EndMenuDraw(void) {}
 static void NULL_FillRect(int scrn, int x, int y, int width, int height, byte colour) {}
 static void NULL_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, const byte* transmap) {}
+static void NULL_FillRectShaded(int x, int y, int width, int height, int start_shade, int end_shade, int vertical) {}
 static void NULL_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillRaw(int lump, int n, int x, int y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags) {}
@@ -1264,6 +1302,7 @@ V_EndUIDraw_f V_EndMenuDraw = NULL_EndMenuDraw;
 V_CopyRect_f V_CopyRect = NULL_CopyRect;
 V_FillRectGen_f V_FillRectGen = NULL_FillRect;
 V_FillRectTrans_f V_FillRectTrans = NULL_FillRectTrans;
+V_FillRectShaded_f V_FillRectShaded = NULL_FillRectShaded;
 V_DrawNumPatchGen_f V_DrawNumPatchGen = NULL_DrawNumPatch;
 V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise = NULL_DrawNumPatchPrecise;
 V_DrawShadowedNumPatchGen_f V_DrawShadowedNumPatchGen = NULL_DrawShadowedNumPatch;
@@ -1294,6 +1333,7 @@ void V_InitMode(video_mode_t mode) {
       V_CopyRect = FUNC_V_CopyRect;
       V_FillRectGen = V_FillRect8;
       V_FillRectTrans = FUNC_V_FillRectTrans8;
+      V_FillRectShaded = FUNC_V_FillRectShaded;
       V_DrawNumPatchGen = FUNC_V_DrawNumPatch;
       V_DrawNumPatchGenPrecise = FUNC_V_DrawNumPatchPrecise;
       V_DrawShadowedNumPatchGen = FUNC_V_DrawShadowedNumPatch;
@@ -1320,6 +1360,7 @@ void V_InitMode(video_mode_t mode) {
       V_CopyRect = WRAP_gld_CopyRect;
       V_FillRectGen = WRAP_gld_FillRect;
       V_FillRectTrans = WRAP_gld_FillRectTrans;
+      V_FillRectShaded = WRAP_gld_FillRectShaded;
       V_DrawNumPatchGen = WRAP_gld_DrawNumPatch;
       V_DrawNumPatchGenPrecise = WRAP_gld_DrawNumPatchPrecise;
       V_DrawShadowedNumPatchGen = WRAP_gld_DrawShadowedNumPatch;

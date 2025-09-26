@@ -217,6 +217,9 @@ extern V_FillRectTrans_f V_FillRectTrans;
 #define V_FillRectTransMenu(x,y,w,h,c) V_FillRectTrans(0,x,y,w,h,c,ui_shadowmap)
 #define V_FillRectTransMenuBG(x,y,w,h,c) V_FillRectTrans(1,x,y,w,h,c,ui_shadowmap)
 
+typedef void (*V_FillRectShaded_f)(int x, int y, int width, int height, int start_shade, int end_shade, int vertical);
+extern V_FillRectShaded_f V_FillRectShaded;
+
 // CPhipps - patch drawing
 // Consolidated into the 3 really useful functions:
 
