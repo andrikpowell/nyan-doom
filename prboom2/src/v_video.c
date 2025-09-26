@@ -1010,14 +1010,23 @@ static cacheshade = false;
 
 static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 { 
-  const lighttable_t *darkcolormap;
-  extern dboolean LevelUseFullBright;
-  extern const byte* colormap_lump;
   byte* dest;
   int ix, iy;
 
-  // Compensate for Hexen FOGMAP
-  darkcolormap = (hexen && !LevelUseFullBright) ? (const lighttable_t *)colormap_lump : colormaps[0];
+  if (shade <= 0 || shade > FULLSHADE) return;
+
+  // Cache shade for performance :)
+  if (!cacheshade)
+  {
+    for (int s = 0; s <= FULLSHADE; s++)
+    {
+      for (int c = 0; c < 256; c++)
+      {
+        shademap[s][c] = colormaps[0][s * 256 + c];
+      }
+    }
+    cacheshade = true;
+  }
 
   for (iy = y; iy < y + height; ++iy)
   {
@@ -1025,7 +1034,7 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 
     for (ix = x; ix < x + width; ++ix)
     {
-      *dest = darkcolormap[shade * 256 + dest[0]];
+      dest[0] = shademap[shade][dest[0]];
       dest++;
     }
   }
