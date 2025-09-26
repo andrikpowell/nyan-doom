@@ -166,6 +166,7 @@ enum patch_translation_e {
   VPT_TRANSMAP = 4096,
   VPT_ALT_TRANSMAP = 8192,
   VPT_SHADOW = 16384,
+  VPT_EX_TRANS = 32768, // exhud translucency
 };
 
 extern int global_patch_top_offset;

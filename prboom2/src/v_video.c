@@ -776,6 +776,20 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
   else if (patch.flags & VPT_ALT_TRANSMAP)
     patch.trans = alttint_filter_pct;
 
+  // ExHUD translucency logic
+  if ((patch.flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
+  {
+    patch.trans = exhud_tran_filter_pct;
+  
+    if (patch.flags & VPT_TRANSMAP)
+      patch.trans = exhud_tint_filter_pct;
+    else if (patch.flags & VPT_ALT_TRANSMAP)
+      patch.trans = exhud_alttint_filter_pct;
+  
+    if (!(patch.flags & VPT_TRANSMAP))
+      patch.flags |= VPT_TRANSMAP;
+  }
+
   if (patch.trans != -1)
     patch.transmap = dsda_TranMap(patch.trans);
 
@@ -785,6 +799,7 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
 v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype) {
   v_patchinfo_t shadow = { 0 };
   extern int dsda_MenuTranslucency(void);
+  extern int dsda_ExHudTranslucency(void);
 
   if ((shadowtype == SHADOW_DEFAULT && !dsda_MenuTranslucency()))
     shadowtype = 0;
@@ -802,6 +817,10 @@ v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype
     shadow.flags |= VPT_TRANSMAP;
   if (!(shadow.flags & VPT_COLOR))
     shadow.flags |= VPT_COLOR;
+
+  // Ex hud stuff
+  if ((shadow.flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
+    shadow.trans = exhud_shadow_filter_pct;
 
   if (shadow.trans != -1)
     shadow.transmap = dsda_TranMap(shadow.trans);

@@ -510,6 +510,7 @@ void gld_EndMenuDraw(void)
 float gld_GetTranslucency(int shadowtype, enum patch_translation_e flags)
 {
   int trans_percent = NO_TRANS;
+  extern int dsda_ExHudTranslucency(void);
 
   // apply translucency
   if (flags & VPT_SHADOW)
@@ -522,6 +523,19 @@ float gld_GetTranslucency(int shadowtype, enum patch_translation_e flags)
       trans_percent = tran_filter_pct;
     else if (flags & VPT_ALT_TRANSMAP)
       trans_percent = gl_alttint_filter_pct;
+  }
+
+  // apply translucency under exhud
+  if (flags & VPT_EX_TRANS && dsda_ExHudTranslucency())
+  {
+    if (flags & VPT_SHADOW)
+      trans_percent = exhud_shadow_filter_pct;
+    else if (flags & VPT_TRANSMAP)
+      trans_percent = exhud_tint_filter_pct;
+    else if (flags & VPT_ALT_TRANSMAP)
+      trans_percent = gl_exhud_alttint_filter_pct;
+    else
+      trans_percent = exhud_tran_filter_pct;
   }
 
   if (trans_percent != NO_TRANS)
@@ -581,7 +595,7 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   r = g = b = (flags & VPT_SHADOW) ? 0.0f : 1.0f;
 
   // Add translucency
-  if (flags & VPT_SHADOW || flags & VPT_TRANSMAP || flags & VPT_ALT_TRANSMAP)
+  if (flags & VPT_SHADOW || flags & VPT_EX_TRANS || flags & VPT_TRANSMAP || flags & VPT_ALT_TRANSMAP)
   {
     alpha = gld_GetTranslucency(shadowtype, flags);
 

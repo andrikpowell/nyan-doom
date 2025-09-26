@@ -3670,7 +3670,14 @@ void P_UpdateTranMap(void) {
   shadow_filter_pct     = hexen ? alt_tinttable_pct : tinttable_pct;
   shadow_ui_filter_pct  = P_ConvertTrans(dsda_MenuTranslucencyPercent());  // ui stuff (menu text shadows) - never use tinttable
 
+  // exhud percentages
+  exhud_tran_filter_pct    = P_ConvertTrans(dsda_ExHudTranslucencyPercent());
+  exhud_shadow_filter_pct  = P_ConvertTrans((int)(((float)shadow_filter_pct/100.0)*((float)exhud_tran_filter_pct/100.0)*100.0));
+  exhud_tint_filter_pct    = P_ConvertTrans((int)(((float)tran_filter_pct/100.0)*((float)exhud_tran_filter_pct/100.0)*100.0)); // translucency under translucency o.O
+  exhud_alttint_filter_pct = P_ConvertTrans(100-exhud_tint_filter_pct); // reverse translucency under translucency o.O
+
   gl_alttint_filter_pct    = raven ? P_ConvertTrans(tran_filter_pct + 20) : P_ConvertTrans(tran_filter_pct - 20); // reverse translucency under translucency o.O
+  gl_exhud_alttint_filter_pct = raven ? P_ConvertTrans(exhud_tint_filter_pct + 20) : P_ConvertTrans(exhud_tint_filter_pct - 20); // reverse translucency under translucency o.O
 
   // store main transmaps
   main_tranmap      = dsda_DefaultTranMap();

@@ -1726,6 +1726,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "tran_menu_filter_pct", dsda_config_menu_tran_filter_pct,
     dsda_config_int, 0, 100, { 50 }, NULL, NOT_STRICT, P_UpdateTranMap
   },
+  [dsda_config_ex_text_tran_filter] = {
+    "ex_text_tran_filter", dsda_config_ex_text_tran_filter,
+    CONF_BOOL(0), NULL, NOT_STRICT, P_UpdateTranMap
+  },
+  [dsda_config_ex_text_tran_filter_pct] = {
+    "ex_text_tran_filter_pct", dsda_config_ex_text_tran_filter_pct,
+    dsda_config_int, 0, 100, { 66 }, NULL, NOT_STRICT, P_UpdateTranMap
+  },
   [dsda_config_translucent_sprites] = {
     "boom_translucent_sprites", dsda_config_translucent_sprites,
     dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), deh_changeCompTranslucency

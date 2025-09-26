@@ -3816,6 +3816,8 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   { "Level Stat Format", S_CHOICE, m_conf, G_X, dsda_config_stats_format, 0, stat_format_list, DEPEND(dsda_config_exhud, true) },
   { "Ex Hud Scale %", S_NUM, m_conf, G_X, dsda_config_ex_text_scale_x, EXHUD_ON },
   { "Ex Hud Ratio %", S_NUM, m_conf, G_X, dsda_config_ex_text_ratio_y, EXHUD_ON },
+  { "Ex Hud Translucency", S_YESNO, m_conf, G_X, dsda_config_ex_text_tran_filter, EXHUD_ON },
+  { "Ex Hud Translucency %", S_NUM, m_conf, G_X, dsda_config_ex_text_tran_filter_pct, EXHUD_ON },
   { "Ex Hud Free Text", S_NAME, m_conf, G_X, dsda_config_free_text, EXHUD_ON },
   EMPTY_LINE,
   TITLE("Status Widget", G_X),

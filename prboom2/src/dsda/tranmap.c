@@ -34,10 +34,15 @@ static char* tranmap_base_dir;
 static char* tranmap_palette_dir;
 static dsda_cksum_t playpal_cksum;
 int tran_filter_pct;
+int exhud_tran_filter_pct;
+int exhud_tint_filter_pct;
+int exhud_alttint_filter_pct;
 int shadow_filter_pct;
 int alttint_filter_pct;
+int exhud_shadow_filter_pct;
 int shadow_ui_filter_pct;
 int gl_alttint_filter_pct;
+int gl_exhud_alttint_filter_pct;
 static const int tranmap_length = 256 * 256;
 static const byte* tranmap_data[100];
 
