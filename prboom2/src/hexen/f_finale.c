@@ -181,7 +181,7 @@ static void TextWrite(void)
         {
             break;
         }
-        V_DrawNumPatch(cx, cy, lump, CR_DEFAULT, VPT_STRETCH);
+        V_DrawMenuNumPatch(cx, cy, lump, CR_DEFAULT, VPT_STRETCH);
         cx += width;
     }
 }

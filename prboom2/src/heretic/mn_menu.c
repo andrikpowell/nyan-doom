@@ -737,7 +737,7 @@ void MN_DrTextB(const char *text, int x, int y)
     else
     {
       lump = FontBBaseLump + c - 33;
-      V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
+      V_DrawMenuNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
       x += R_NumPatchWidth(lump) - 1;
     }
   }

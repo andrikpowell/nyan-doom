@@ -23,7 +23,9 @@
 const byte* dsda_TranMap(unsigned int alpha);
 const byte* dsda_DefaultTranMap(void);
 extern int tran_filter_pct;
+extern int shadow_filter_pct;
 extern int alttint_filter_pct;
+extern int shadow_ui_filter_pct;
 extern int gl_alttint_filter_pct;
 
 #endif

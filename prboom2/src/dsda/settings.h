@@ -66,6 +66,8 @@ dboolean dsda_DisableHorizAutoaim(void);
 int dsda_ShowAliveMonsters(void);
 int dsda_ShowDataDisk(void);
 int dsda_TranslucencyPercent(void);
+int dsda_MenuTranslucency(void);
+int dsda_MenuTranslucencyPercent(void);
 int dsda_CycleShowAliveMonsters(void);
 int dsda_RevealAutomap(void);
 void dsda_ResetRevealMap(void);

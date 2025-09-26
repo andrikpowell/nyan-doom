@@ -394,6 +394,8 @@ typedef enum {
   dsda_config_render_linearsky,
   dsda_config_aspect_ratio_correction,
   dsda_config_tran_filter_pct,
+  dsda_config_menu_tran_filter,
+  dsda_config_menu_tran_filter_pct,
   dsda_config_translucent_sprites,
   dsda_config_translucent_missiles,
   dsda_config_translucent_powerups,

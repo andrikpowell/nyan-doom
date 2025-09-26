@@ -200,7 +200,7 @@ static void Heretic_F_TextWrite(void)
     width = R_NumPatchWidth(lump);
     if (cx + width > SCREENWIDTH)
       break;
-    V_DrawNumPatch(cx, cy, lump, CR_DEFAULT, VPT_STRETCH);
+    V_DrawMenuNumPatch(cx, cy, lump, CR_DEFAULT, VPT_STRETCH);
     cx += width;
   }
 }

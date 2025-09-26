@@ -524,7 +524,7 @@ static void WI_DrawString(int cx, int cy, const char* ch)
     if (cx + w > 320)
       break;
 
-    V_DrawNumPatch(cx, cy, hud_font.font[c].lumpnum, CR_GRAY, VPT_STRETCH | VPT_COLOR);
+    V_DrawMenuNumPatch(cx, cy, hud_font.font[c].lumpnum, CR_GRAY, VPT_STRETCH | VPT_COLOR);
     cx += w;
   }
 }
@@ -612,7 +612,7 @@ void WI_drawLF(void)
 
   // CPhipps - patch drawing updated
   // draw "Finished!"
-  V_DrawNamePatch((320 - V_NamePatchWidth(finished))/2, y,
+  V_DrawMenuNamePatch((320 - V_NamePatchWidth(finished))/2, y,
      finished, CR_DEFAULT, VPT_STRETCH);
 }
 
@@ -635,7 +635,7 @@ void WI_drawEL(void)
 
   // draw "Entering"
   // CPhipps - patch drawing updated
-  V_DrawNamePatch((320 - V_NamePatchWidth(entering)) / 2,
+  V_DrawMenuNamePatch((320 - V_NamePatchWidth(entering)) / 2,
     y, entering, CR_DEFAULT, VPT_STRETCH);
 
   y += (5 * V_NamePatchHeight(entering)) / 4;
@@ -728,7 +728,7 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
   if (fits && i<2)
   {
     // CPhipps - patch drawing updated
-    V_DrawNamePatch(lnodes[wbs->epsd][n].x, lnodes[wbs->epsd][n].y,
+    V_DrawMenuNamePatch(lnodes[wbs->epsd][n].x, lnodes[wbs->epsd][n].y,
        c[i], CR_DEFAULT, VPT_STRETCH);
   }
   else
@@ -933,14 +933,14 @@ static int WI_drawNum (int x, int y, int n, int digits)
   {
     x -= fontwidth;
     // CPhipps - patch drawing updated
-    V_DrawNumPatch(x, y, num[ n % 10 ].lumpnum, CR_DEFAULT, VPT_STRETCH);
+    V_DrawMenuNumPatch(x, y, num[ n % 10 ].lumpnum, CR_DEFAULT, VPT_STRETCH);
     n /= 10;
   }
 
   // draw a minus sign if necessary
   if (neg)
     // CPhipps - patch drawing updated
-    V_DrawNamePatch(x-=8, y, wiminus, CR_DEFAULT, VPT_STRETCH);
+    V_DrawMenuNamePatch(x-=8, y, wiminus, CR_DEFAULT, VPT_STRETCH);
 
   return x;
 }
@@ -960,7 +960,7 @@ static void WI_drawPercent(int x, int y, int p)
     return;
 
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(x, y, percent, CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(x, y, percent, CR_DEFAULT, VPT_STRETCH);
   WI_drawNum(x, y, p, -1);
 }
 
@@ -992,11 +992,11 @@ static void WI_drawTime(int x, int y, int t)
       // draw
       if (t)
   // CPhipps - patch drawing updated
-        V_DrawNamePatch(x, y, colon, CR_DEFAULT, VPT_STRETCH);
+        V_DrawMenuNamePatch(x, y, colon, CR_DEFAULT, VPT_STRETCH);
       else break;
     }
   else // "sucks" (maybe should be "addicted", even I've never had a 100 hour game ;)
-    V_DrawNamePatch(x - V_NamePatchWidth(sucks),
+    V_DrawMenuNamePatch(x - V_NamePatchWidth(sucks),
         y, sucks, CR_DEFAULT, VPT_STRETCH);
 }
 
@@ -1053,10 +1053,10 @@ void WI_initNoState(void)
 
 static void WI_drawTimeStats(int cnt_time, int cnt_total_time, int cnt_par)
 {
-  V_DrawNamePatch(SP_TIMEX, SP_TIMEY, time1, CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(SP_TIMEX, SP_TIMEY, time1, CR_DEFAULT, VPT_STRETCH);
   WI_drawTime(320/2 - SP_TIMEX, SP_TIMEY, cnt_time);
 
-  V_DrawNamePatch(SP_TIMEX, (SP_TIMEY+200)/2, total, CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(SP_TIMEX, (SP_TIMEY+200)/2, total, CR_DEFAULT, VPT_STRETCH);
   WI_drawTime(320/2 - SP_TIMEX, (SP_TIMEY+200)/2, cnt_total_time);
 
   // Ty 04/11/98: redid logic: should skip only if with pwad but
@@ -1076,7 +1076,7 @@ static void WI_drawTimeStats(int cnt_time, int cnt_total_time, int cnt_par)
       display_count =
         wbs->fake_partime && cnt_par >= 0 ? wbs->fake_partime / TICRATE : cnt_par;
 
-      V_DrawNamePatch(320/2 + SP_TIMEX, SP_TIMEY, par, CR_DEFAULT, VPT_STRETCH);
+      V_DrawMenuNamePatch(320/2 + SP_TIMEX, SP_TIMEY, par, CR_DEFAULT, VPT_STRETCH);
       WI_drawTime(320 - SP_TIMEX, SP_TIMEY, display_count);
     }
   }
@@ -1461,11 +1461,11 @@ void WI_drawDeathmatchStats(void)
   WI_drawLF();
 
   // draw stat titles (top line)
-  V_DrawNamePatch(DM_TOTALSX-V_NamePatchWidth(total)/2,
+  V_DrawMenuNamePatch(DM_TOTALSX-V_NamePatchWidth(total)/2,
      DM_MATRIXY-WI_SPACINGY+10, total, CR_DEFAULT, VPT_STRETCH);
 
-  V_DrawNamePatch(DM_KILLERSX, DM_KILLERSY, killers, CR_DEFAULT, VPT_STRETCH);
-  V_DrawNamePatch(DM_VICTIMSX, DM_VICTIMSY, victims, CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(DM_KILLERSX, DM_KILLERSY, killers, CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(DM_VICTIMSX, DM_VICTIMSY, victims, CR_DEFAULT, VPT_STRETCH);
 
   // draw P?
   x = DM_MATRIXX + DM_SPACINGX;
@@ -1475,18 +1475,18 @@ void WI_drawDeathmatchStats(void)
   {
     if (playeringame[i]) {
       //int trans = playernumtotrans[i];
-      V_DrawNamePatch(x-halfface, DM_MATRIXY - WI_SPACINGY,
+      V_DrawMenuNamePatch(x-halfface, DM_MATRIXY - WI_SPACINGY,
          facebackp, i ? CR_LIMIT+i : CR_DEFAULT,
          VPT_STRETCH | (i ? VPT_COLOR : 0));
-      V_DrawNamePatch(DM_MATRIXX-halfface, y,
+      V_DrawMenuNamePatch(DM_MATRIXX-halfface, y,
          facebackp, i ? CR_LIMIT+i : CR_DEFAULT,
          VPT_STRETCH | (i ? VPT_COLOR : 0));
 
       if (i == me)
       {
-        V_DrawNamePatch(x-halfface, DM_MATRIXY - WI_SPACINGY,
+        V_DrawMenuNamePatch(x-halfface, DM_MATRIXY - WI_SPACINGY,
            bstar, CR_DEFAULT, VPT_STRETCH);
-        V_DrawNamePatch(DM_MATRIXX-halfface, y,
+        V_DrawMenuNamePatch(DM_MATRIXX-halfface, y,
            star, CR_DEFAULT, VPT_STRETCH);
       }
     }
@@ -1760,17 +1760,17 @@ void WI_drawNetgameStats(void)
   WI_drawLF();
 
   // draw stat titles (top line)
-  V_DrawNamePatch(NG_STATSX+NG_SPACINGX-V_NamePatchWidth(kills),
+  V_DrawMenuNamePatch(NG_STATSX+NG_SPACINGX-V_NamePatchWidth(kills),
      NG_STATSY, kills, CR_DEFAULT, VPT_STRETCH);
 
-  V_DrawNamePatch(NG_STATSX+2*NG_SPACINGX-V_NamePatchWidth(items),
+  V_DrawMenuNamePatch(NG_STATSX+2*NG_SPACINGX-V_NamePatchWidth(items),
      NG_STATSY, items, CR_DEFAULT, VPT_STRETCH);
 
-  V_DrawNamePatch(NG_STATSX+3*NG_SPACINGX-V_NamePatchWidth(secret),
+  V_DrawMenuNamePatch(NG_STATSX+3*NG_SPACINGX-V_NamePatchWidth(secret),
      NG_STATSY, secret, CR_DEFAULT, VPT_STRETCH);
 
   if (dofrags)
-    V_DrawNamePatch(NG_STATSX+4*NG_SPACINGX-V_NamePatchWidth(frags),
+    V_DrawMenuNamePatch(NG_STATSX+4*NG_SPACINGX-V_NamePatchWidth(frags),
        NG_STATSY, frags, CR_DEFAULT, VPT_STRETCH);
 
   // draw stats
@@ -1783,12 +1783,12 @@ void WI_drawNetgameStats(void)
       continue;
 
     x = NG_STATSX;
-    V_DrawNamePatch(x-fwidth, y, facebackp,
+    V_DrawMenuNamePatch(x-fwidth, y, facebackp,
        i ? CR_LIMIT+i : CR_DEFAULT,
        VPT_STRETCH | (i ? VPT_COLOR : 0));
 
     if (i == me)
-      V_DrawNamePatch(x-fwidth, y, star, CR_DEFAULT, VPT_STRETCH);
+      V_DrawMenuNamePatch(x-fwidth, y, star, CR_DEFAULT, VPT_STRETCH);
 
     x += NG_SPACINGX;
     if (cnt_kills)
@@ -2002,15 +2002,15 @@ void WI_drawStats(void)
 
   WI_drawLF();
 
-  V_DrawNamePatch(SP_STATSX, SP_STATSY, kills, CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(SP_STATSX, SP_STATSY, kills, CR_DEFAULT, VPT_STRETCH);
   if (cnt_kills)
     WI_drawPercent(320 - SP_STATSX, SP_STATSY, cnt_kills[0]);
 
-  V_DrawNamePatch(SP_STATSX, SP_STATSY+lh, items, CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(SP_STATSX, SP_STATSY+lh, items, CR_DEFAULT, VPT_STRETCH);
   if (cnt_items)
     WI_drawPercent(320 - SP_STATSX, SP_STATSY+lh, cnt_items[0]);
 
-  V_DrawNamePatch(SP_STATSX, SP_STATSY+2*lh, sp_secret, CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(SP_STATSX, SP_STATSY+2*lh, sp_secret, CR_DEFAULT, VPT_STRETCH);
   if (cnt_secret)
     WI_drawPercent(320 - SP_STATSX, SP_STATSY+2*lh, cnt_secret[0]);
 
