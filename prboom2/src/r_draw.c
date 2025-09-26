@@ -802,7 +802,7 @@ void R_FillBackScreen (void)
   V_BeginUIDraw();
 
   // e6y: wide-res
-  if ((ratio_multiplier != ratio_scale || wide_offsety) && R_StatusBarVisible())
+  if (ratio_multiplier != ratio_scale || wide_offsety)
   {
     int screenblocks = R_ViewSize();
     int only_stbar = (screenblocks >= 10);
@@ -876,7 +876,7 @@ void R_DrawViewBorder(void)
   }
 
   // e6y: wide-res
-  if ((ratio_multiplier != ratio_scale || wide_offsety) && R_StatusBarVisible())
+  if (ratio_multiplier != ratio_scale || wide_offsety)
   {
     for (i = (SCREENHEIGHT - ST_SCALED_HEIGHT); i < SCREENHEIGHT; i++)
       R_CopyScreenBufferSection(0, i, SCREENWIDTH);
