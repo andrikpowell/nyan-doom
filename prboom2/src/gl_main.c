@@ -995,7 +995,7 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
     gld_EndFuzz();
 }
 
-void gld_FillBlock(int x, int y, int width, int height, int col)
+void gld_FillBlock(int x, int y, int width, int height, int col, int trans_percent)
 {
   color_rgb_t color = gld_LookupIndexedColor(col, V_IsUILightmodeIndexed() || V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed());
 
@@ -1003,9 +1003,10 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 
   gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
 
-  glColor3f((float)color.r/255.0f,
+  glColor4f((float)color.r/255.0f,
             (float)color.g/255.0f,
-            (float)color.b/255.0f);
+            (float)color.b/255.0f,
+            (float)trans_percent*0.01f);
 
   glBegin(GL_TRIANGLE_STRIP);
     glVertex2i( x, y );

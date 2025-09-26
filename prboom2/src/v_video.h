@@ -210,6 +210,13 @@ extern V_FillRectGen_f V_FillRectGen;
 #define V_FillRect(x,y,w,h,c) V_FillRectGen(0,x,y,w,h,c)
 #define V_FillRectBG(x,y,w,h,c) V_FillRectGen(1,x,y,w,h,c)
 
+// V_FillRectTrans
+typedef void (*V_FillRectTrans_f)(int scrn, int x, int y,
+                             int width, int height, byte colour, const byte* transmap);
+extern V_FillRectTrans_f V_FillRectTrans;
+#define V_FillRectTransMenu(x,y,w,h,c) V_FillRectTrans(0,x,y,w,h,c,ui_shadowmap)
+#define V_FillRectTransMenuBG(x,y,w,h,c) V_FillRectTrans(1,x,y,w,h,c,ui_shadowmap)
+
 // CPhipps - patch drawing
 // Consolidated into the 3 really useful functions:
 

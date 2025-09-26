@@ -1115,6 +1115,23 @@ static void V_FillRect8(int scrn, int x, int y, int width, int height, byte colo
   }
 }
 
+static void FUNC_V_FillRectTrans8(int scrn, int x, int y, int width, int height, byte colour, const byte* transmap)
+{
+  byte* dest;
+  int pitch = screens[scrn].pitch;
+
+  for (int iy = y; iy < y + height; ++iy)
+  {
+    dest = screens[scrn].data + pitch * iy + x;
+
+    for (int ix = 0; ix < width; ++ix)
+    {
+      *dest = transmap[(*dest << 8) | colour];
+      dest++;
+    }
+  }
+}
+
 static void WRAP_V_DrawLine(fline_t* fl, int color);
 static void V_PlotPixel8(int scrn, int x, int y, byte color);
 
@@ -1147,7 +1164,11 @@ static void WRAP_gld_EndMenuDraw(void)
 }
 static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byte colour)
 {
-  gld_FillBlock(x,y,width,height,colour);
+  gld_FillBlock(x,y,width,height,colour,100);
+}
+static void WRAP_gld_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, const byte* tranmap)
+{
+  gld_FillBlock(x,y,width,height,colour,shadow_ui_filter_pct);
 }
 static void WRAP_gld_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
@@ -1216,6 +1237,7 @@ static void NULL_EndAutomapDraw(void) {}
 static void NULL_BeginMenuDraw(void) {}
 static void NULL_EndMenuDraw(void) {}
 static void NULL_FillRect(int scrn, int x, int y, int width, int height, byte colour) {}
+static void NULL_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, const byte* transmap) {}
 static void NULL_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillRaw(int lump, int n, int x, int y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags) {}
@@ -1241,6 +1263,7 @@ V_BeginUIDraw_f V_BeginMenuDraw = NULL_BeginMenuDraw;
 V_EndUIDraw_f V_EndMenuDraw = NULL_EndMenuDraw;
 V_CopyRect_f V_CopyRect = NULL_CopyRect;
 V_FillRectGen_f V_FillRectGen = NULL_FillRect;
+V_FillRectTrans_f V_FillRectTrans = NULL_FillRectTrans;
 V_DrawNumPatchGen_f V_DrawNumPatchGen = NULL_DrawNumPatch;
 V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise = NULL_DrawNumPatchPrecise;
 V_DrawShadowedNumPatchGen_f V_DrawShadowedNumPatchGen = NULL_DrawShadowedNumPatch;
@@ -1270,6 +1293,7 @@ void V_InitMode(video_mode_t mode) {
       V_EndMenuDraw = NULL_EndMenuDraw;
       V_CopyRect = FUNC_V_CopyRect;
       V_FillRectGen = V_FillRect8;
+      V_FillRectTrans = FUNC_V_FillRectTrans8;
       V_DrawNumPatchGen = FUNC_V_DrawNumPatch;
       V_DrawNumPatchGenPrecise = FUNC_V_DrawNumPatchPrecise;
       V_DrawShadowedNumPatchGen = FUNC_V_DrawShadowedNumPatch;
@@ -1295,6 +1319,7 @@ void V_InitMode(video_mode_t mode) {
       V_EndMenuDraw = WRAP_gld_EndMenuDraw;
       V_CopyRect = WRAP_gld_CopyRect;
       V_FillRectGen = WRAP_gld_FillRect;
+      V_FillRectTrans = WRAP_gld_FillRectTrans;
       V_DrawNumPatchGen = WRAP_gld_DrawNumPatch;
       V_DrawNumPatchGenPrecise = WRAP_gld_DrawNumPatchPrecise;
       V_DrawShadowedNumPatchGen = WRAP_gld_DrawShadowedNumPatch;
