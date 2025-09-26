@@ -191,6 +191,10 @@ void M_ChangeMessages(void);
 void M_LeaveSetupMenu(void);
 void M_ClearMenus(void);
 
+extern setup_menu_t auto_colors_settings[];
+extern setup_menu_t auto_heretic_colors_settings[];
+extern setup_menu_t auto_hexen_colors_settings[];
+
 extern dboolean delete_verify;
 
 dboolean M_ConsoleOpen(void);

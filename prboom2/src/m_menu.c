@@ -1694,16 +1694,22 @@ static void M_BlinkingArrowRight(const setup_menu_t *s)
         strcat(menu_buffer, " <");
 }
 
-
-setup_menu_t auto_colors_settings[];
-setup_menu_t auto_heretic_colors_settings[];
-setup_menu_t auto_hexen_colors_settings[];
-
-static void M_UpdateSetupMenu(setup_menu_t *new_setup_menu)
+static setup_menu_t *M_ChooseSetupMenu(setup_menu_t *new_setup_menu)
 {
   // Mega Raven Hack! - Swap out automap color pages
   if (raven && new_setup_menu == auto_colors_settings)
-    new_setup_menu = heretic ? auto_heretic_colors_settings : auto_hexen_colors_settings;
+  {
+    if (heretic)    new_setup_menu = auto_heretic_colors_settings;
+    else if (hexen) new_setup_menu = auto_hexen_colors_settings;
+  }
+
+  return new_setup_menu;
+}
+
+static void M_UpdateSetupMenu(setup_menu_t *new_setup_menu)
+{
+  // Process setup menus (in case of game specific)
+  new_setup_menu = M_ChooseSetupMenu(new_setup_menu);
 
   current_setup_menu = new_setup_menu;
   set_menu_itemon = M_GetSetupMenuItemOn();
@@ -3153,6 +3159,9 @@ static const char *auto_pages[] =
 
 setup_menu_t auto_options_settings[];
 setup_menu_t auto_appearance_settings[];
+setup_menu_t auto_colors_settings[];
+setup_menu_t auto_heretic_colors_settings[];
+setup_menu_t auto_hexen_colors_settings[];
 
 setup_menu_t* auto_settings[] =
 {
