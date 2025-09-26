@@ -782,10 +782,38 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
   return patch;
 }
 
+v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype) {
+  v_patchinfo_t shadow = { 0 };
+  extern int dsda_MenuTranslucency(void);
+
+  if ((shadowtype == SHADOW_DEFAULT && !dsda_MenuTranslucency()))
+    shadowtype = 0;
+
+  if (!shadowtype)
+    return shadow;
+
+  shadow.colortr = &colormaps[0][256 * 31]; // close to black
+  shadow.transmap = NULL;
+  shadow.flags = flags | VPT_SHADOW;
+  shadow.trans = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : tran_filter_pct;
+
+  // Shadow always has translucency and color
+  if (!(shadow.flags & VPT_TRANSMAP))
+    shadow.flags |= VPT_TRANSMAP;
+  if (!(shadow.flags & VPT_COLOR))
+    shadow.flags |= VPT_COLOR;
+
+  if (shadow.trans != -1)
+    shadow.transmap = dsda_TranMap(shadow.trans);
+
+  return shadow;
+}
+
 void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
-        dboolean center, int cm, enum patch_translation_e flags)
+        dboolean center, int shadowtype, int cm, enum patch_translation_e flags)
 {
   v_patchinfo_t patchinfo = {0}, shadowinfo = {0};
+  int shadow_x, shadow_y;
 
   // remove offsets
   if (!(flags & VPT_NOOFFSET))
@@ -806,14 +834,34 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   }
 
   patchinfo  = V_GetMainDrawInfo(cm, flags);
+  shadowinfo = V_GetShadowDrawInfo(flags, shadowtype);
+
+  // Clamp shadow so it doesn't exceed screen bounds,
+  // Stops V_DrawPatch vertical overflow error.
+  {
+    shadow_x = x + shadowtype;
+    shadow_y = y + shadowtype;
+
+    if (shadow_x < 0) shadow_x = 0;
+    if (shadow_x + patch->width > SCREENWIDTH)
+        shadow_x = SCREENWIDTH - patch->width;
+
+    if (shadow_y < 0) shadow_y = 0;
+    if (shadow_y + patch->height > SCREENHEIGHT)
+        shadow_y = SCREENHEIGHT - patch->height;
+  }
 
   // Draw patch unscaled
   if (!(flags & VPT_STRETCH_MASK)) {
+    if (shadowtype)
+      V_DrawPatch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, shadowinfo.flags);
     V_DrawPatch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, patchinfo.flags);
   }
 
   // Or draw scaled patch with pipelines
   else {
+    if (shadowtype)
+      V_DrawPatchStretch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, shadowinfo.flags);
     V_DrawPatchStretch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, patchinfo.flags);
   }
 }
@@ -826,6 +874,11 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 // This uses a dark colormap to create
 // a dark faded background under menus.
 //
+
+#define FULLSHADE 20
+byte shademap[FULLSHADE + 1][256];
+static cacheshade = false;
+
 static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 { 
   const lighttable_t *darkcolormap;
@@ -859,13 +912,25 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 static void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
          dboolean center, int cm, enum patch_translation_e flags)
 {
-  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, cm, flags);
+  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, false, cm, flags);
 }
 
 static void FUNC_V_DrawNumPatchPrecise(float x, float y, int scrn, int lump,
          dboolean center, int cm, enum patch_translation_e flags)
 {
-  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, cm, flags);
+  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, false, cm, flags);
+}
+
+static void FUNC_V_DrawShadowedNumPatch(int x, int y, int scrn, int lump,
+         dboolean center, int shadowtype, int cm, enum patch_translation_e flags)
+{
+  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, shadowtype, cm, flags);
+}
+
+static void FUNC_V_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump,
+         dboolean center, int shadowtype, int cm, enum patch_translation_e flags)
+{
+  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, shadowtype, cm, flags);
 }
 
 static int currentPaletteIndex = 0;
@@ -972,11 +1037,29 @@ static void WRAP_gld_FillPatch(int lump, int n, int x, int y, int width, int hei
 }
 static void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch(x,y,lump,center,cm,flags);
+  gld_DrawNumPatch(x,y,lump,center,false,cm,flags);
 }
 static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f(x,y,lump,center,cm,flags);
+  gld_DrawNumPatch_f(x,y,lump,center,false,cm,flags);
+}
+static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int offset, int cm, enum patch_translation_e flags)
+{
+  int shadow = (offset == SHADOW_DEFAULT && dsda_MenuTranslucency());
+
+  if (shadow)
+    gld_DrawNumPatch(x+offset,y+offset,lump,center,offset,cm,flags|VPT_SHADOW); // draw offset shadow
+
+  gld_DrawNumPatch(x,y,lump,center,false,cm,flags);
+}
+static void WRAP_gld_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int offset, int cm, enum patch_translation_e flags)
+{
+  int shadow = (offset == SHADOW_DEFAULT && dsda_MenuTranslucency());
+
+  if (shadow)
+    gld_DrawNumPatch_f(x+offset,y+offset,lump,center,offset,cm,flags|VPT_SHADOW); // draw offset shadow
+
+  gld_DrawNumPatch_f(x,y,lump,center,false,cm,flags);
 }
 static void V_PlotPixelGL(int scrn, int x, int y, byte color) {
   gld_DrawPoint(x, y, color);
@@ -1007,6 +1090,8 @@ static void NULL_FillRawPrecise(int lump, int n, float x, float y, int lumpwidth
 static void NULL_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags) {}
 static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags) {}
+static void NULL_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadow, int cm, enum patch_translation_e flags) {}
+static void NULL_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadow, int cm, enum patch_translation_e flags) {}
 static void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
 static void NULL_PlotPixelWu(int scrn, int x, int y, byte color, int weight) {}
 static void NULL_DrawLine(fline_t* fl, int color) {}
@@ -1025,6 +1110,8 @@ V_CopyRect_f V_CopyRect = NULL_CopyRect;
 V_FillRectGen_f V_FillRectGen = NULL_FillRect;
 V_DrawNumPatchGen_f V_DrawNumPatchGen = NULL_DrawNumPatch;
 V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise = NULL_DrawNumPatchPrecise;
+V_DrawShadowedNumPatchGen_f V_DrawShadowedNumPatchGen = NULL_DrawShadowedNumPatch;
+V_DrawShadowedNumPatchGenPrecise_f V_DrawShadowedNumPatchGenPrecise = NULL_DrawShadowedNumPatchPrecise;
 V_FillFlat_f V_FillFlat = NULL_FillFlat;
 V_FillRaw_f V_FillRaw = NULL_FillRaw;
 V_FillRawPrecise_f V_FillRawPrecise = NULL_FillRawPrecise;
@@ -1052,6 +1139,8 @@ void V_InitMode(video_mode_t mode) {
       V_FillRectGen = V_FillRect8;
       V_DrawNumPatchGen = FUNC_V_DrawNumPatch;
       V_DrawNumPatchGenPrecise = FUNC_V_DrawNumPatchPrecise;
+      V_DrawShadowedNumPatchGen = FUNC_V_DrawShadowedNumPatch;
+      V_DrawShadowedNumPatchGenPrecise = FUNC_V_DrawShadowedNumPatchPrecise;
       V_FillFlat = FUNC_V_FillFlat;
       V_FillRaw = FUNC_V_FillRaw;
       V_FillRawPrecise = FUNC_V_FillRawPrecise;
@@ -1075,6 +1164,8 @@ void V_InitMode(video_mode_t mode) {
       V_FillRectGen = WRAP_gld_FillRect;
       V_DrawNumPatchGen = WRAP_gld_DrawNumPatch;
       V_DrawNumPatchGenPrecise = WRAP_gld_DrawNumPatchPrecise;
+      V_DrawShadowedNumPatchGen = WRAP_gld_DrawShadowedNumPatch;
+      V_DrawShadowedNumPatchGenPrecise = WRAP_gld_DrawShadowedNumPatchPrecise;
       V_FillFlat = WRAP_gld_FillFlat;
       V_FillRaw = WRAP_gld_FillRaw;
       V_FillRawPrecise = WRAP_gld_FillRawPrecise;
@@ -1857,127 +1948,22 @@ void V_DrawRawScreenOffset(const char *lump_name, float x_offset, float y_offset
   }
 }
 
-void V_DrawShadowedNumPatch(int x, int y, int lump)
-{
-  V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
-}
-
-void V_DrawShadowedNamePatch(int x, int y, const char* name)
-{
-  V_DrawNamePatch(x, y, name, CR_DEFAULT, VPT_STRETCH);
-}
-
 void V_DrawTLNumPatch(int x, int y, int lump)
 {
-  V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH | VPT_TRANSMAP);
 }
 
 void V_DrawTLNamePatch(int x, int y, const char* name)
 {
-  V_DrawNamePatch(x, y, name, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(x, y, name, CR_DEFAULT, VPT_STRETCH | VPT_TRANSMAP);
 }
 
-void V_DrawAltTLNumPatch(int x, int y, int lump)
+void V_DrawReverseTLNumPatch(int x, int y, int lump)
 {
-  V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH | VPT_ALT_TRANSMAP);
 }
 
-// void V_DrawShadowedPatch(int x, int y, patch_t *patch)
-// {
-//     int count, col;
-//     column_t *column;
-//     pixel_t *desttop, *dest;
-//     byte *source;
-//     pixel_t *desttop2, *dest2;
-//     int w;
-//
-//     y -= SHORT(patch->topoffset);
-//     x -= SHORT(patch->leftoffset);
-//
-//     if (x < 0
-//      || x + SHORT(patch->width) > ORIGWIDTH
-//      || y < 0
-//      || y + SHORT(patch->height) > ORIGHEIGHT)
-//     {
-//         I_Error("Bad V_DrawShadowedPatch");
-//     }
-//
-//     col = 0;
-//     desttop = dest_screen + ((y * dy) >> FRACBITS) * SCREENWIDTH + ((x * dx) >> FRACBITS);
-//     desttop2 = dest_screen + (((y + 2) * dy) >> FRACBITS) * SCREENWIDTH + (((x + 2) * dx) >> FRACBITS);
-//
-//     w = SHORT(patch->width);
-//     for (; col < w << FRACBITS; x++, col+=dxi, desttop++, desttop2++)
-//     {
-//         column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col >> FRACBITS]));
-//
-//         // step through the posts in a column
-//
-//         while (column->topdelta != 0xff)
-//         {
-//             int srccol = 0;
-//             source = (byte *) column + 3;
-//             dest = desttop + ((column->topdelta * dy) >> FRACBITS) * SCREENWIDTH;
-//             dest2 = desttop2 + ((column->topdelta * dy) >> FRACBITS) * SCREENWIDTH;
-//             count = (column->length * dy) >> FRACBITS;
-//
-//             while (count--)
-//             {
-//                 *dest2 = tinttable[((*dest2) << 8)];
-//                 dest2 += SCREENWIDTH;
-//                 *dest = source[srccol >> FRACBITS];
-//                 srccol += dyi;
-//                 dest += SCREENWIDTH;
-//
-//             }
-//             column = (column_t *) ((byte *) column + column->length + 4);
-//         }
-//     }
-// }
-
-// void V_DrawTLPatch(int x, int y, patch_t * patch)
-// {
-//     int count, col;
-//     column_t *column;
-//     pixel_t *desttop, *dest;
-//     byte *source;
-//     int w;
-//
-//     y -= SHORT(patch->topoffset);
-//     x -= SHORT(patch->leftoffset);
-//
-//     if (x < 0
-//      || x + SHORT(patch->width) > ORIGWIDTH
-//      || y < 0
-//      || y + SHORT(patch->height) > ORIGHEIGHT)
-//     {
-//         I_Error("Bad V_DrawTLPatch");
-//     }
-//
-//     col = 0;
-//     desttop = dest_screen + ((y * dy) >> FRACBITS) * SCREENWIDTH + ((x * dx) >> FRACBITS);
-//
-//     w = SHORT(patch->width);
-//     for (; col < w << FRACBITS; x++, col+=dxi, desttop++)
-//     {
-//         column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col >> FRACBITS]));
-//
-//         // step through the posts in a column
-//
-//         while (column->topdelta != 0xff)
-//         {
-//             int srccol = 0;
-//             source = (byte *) column + 3;
-//             dest = desttop + ((column->topdelta * dy) >> FRACBITS) * SCREENWIDTH;
-//             count = (column->length * dy) >> FRACBITS;
-//
-//             while (count--)
-//             {
-//                 *dest = tinttable[((*dest) << 8) + source[srccol >> FRACBITS]];
-//                 srccol += dyi;
-//                 dest += SCREENWIDTH;
-//             }
-//             column = (column_t *) ((byte *) column + column->length + 4);
-//         }
-//     }
-// }
+void V_DrawReverseTLNamePatch(int x, int y, const char* lump)
+{
+  V_DrawNamePatch(x, y, lump, CR_DEFAULT, VPT_STRETCH | VPT_ALT_TRANSMAP);
+}

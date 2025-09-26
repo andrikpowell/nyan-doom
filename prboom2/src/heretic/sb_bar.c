@@ -384,19 +384,19 @@ static void DrBNumber(signed int val, int x, int y)
     if (val > 99)
     {
         lump = FontBNumBase + val / 100;
-        V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2, y, lump);
+        V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2, y, lump, CR_DEFAULT, VPT_STRETCH);
     }
     val = val % 100;
     xpos += 12;
     if (val > 9 || oldval > 99)
     {
         lump = FontBNumBase + val / 10;
-        V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2, y, lump);
+        V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2, y, lump, CR_DEFAULT, VPT_STRETCH);
     }
     val = val % 10;
     xpos += 12;
     lump = FontBNumBase + val;
-    V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2, y, lump);
+    V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2, y, lump, CR_DEFAULT, VPT_STRETCH);
 }
 
 //---------------------------------------------------------------------------
@@ -863,13 +863,17 @@ void DrawInventoryBar(void)
 void DrawArtifact(int x, int y, int vpt)
 {
   inventory_t *inv;
+  const int box_x = x + (heretic ? 0 : 3);
+  const int box_y = y + (heretic ? 0 : 0);
   const int delta_x = heretic ? 22 : 19;
   const int delta_y = heretic ? 22 : 21;
+  enum patch_translation_e flags = hexen ? VPT_ALT_TRANSMAP : VPT_TRANSMAP;
 
   inv = &players[displayplayer].inventory[inv_ptr];
 
   if (inv->type > 0)
   {
+    V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | flags);
     V_DrawNumPatch(x, y, lumparti[inv->type], CR_DEFAULT, vpt);
     DrSmallNumberVPT(inv->count, x + delta_x, y + delta_y, vpt);
   }
@@ -1207,14 +1211,17 @@ void DrawKeyBar(void)
             {
                 continue;
             }
+            // 60% opacity
             if (CPlayer->armorpoints[i] <= (pclass[CPlayer->pclass].armor_increment[i] >> 2))
+            {
+                V_DrawReverseTLNumPatch(150 + 31 * i, 164, W_GetNumForName("armslot1") + i);
+            }
+            // 40% opacity
+            else if (CPlayer->armorpoints[i] <= (pclass[CPlayer->pclass].armor_increment[i] >> 1))
             {
                 V_DrawTLNumPatch(150 + 31 * i, 164, W_GetNumForName("armslot1") + i);
             }
-            else if (CPlayer->armorpoints[i] <= (pclass[CPlayer->pclass].armor_increment[i] >> 1))
-            {
-                V_DrawAltTLNumPatch(150 + 31 * i, 164, W_GetNumForName("armslot1") + i);
-            }
+            // 100% opacity
             else
             {
                 V_DrawNumPatch(150 + 31 * i, 164,

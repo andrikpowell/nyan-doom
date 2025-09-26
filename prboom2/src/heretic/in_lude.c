@@ -698,7 +698,7 @@ void IN_DrawSingleStats(void)
         sounds++;
     }
     IN_DrawNumber(players[consoleplayer].killcount, 200, 65 - yoffset, 3);
-    V_DrawShadowedNamePatch(237, 65 - yoffset, "FONTB15");
+    V_DrawShadowedNamePatch(237, 65 - yoffset, "FONTB15", CR_DEFAULT, VPT_STRETCH);
     IN_DrawNumber(totalkills, 248, 65 - yoffset, 3);
     if (intertime < 60)
     {
@@ -710,7 +710,7 @@ void IN_DrawSingleStats(void)
         sounds++;
     }
     IN_DrawNumber(players[consoleplayer].itemcount, 200, 90 - yoffset, 3);
-    V_DrawShadowedNamePatch(237, 90 - yoffset, "FONTB15");
+    V_DrawShadowedNamePatch(237, 90 - yoffset, "FONTB15", CR_DEFAULT, VPT_STRETCH);
     IN_DrawNumber(totalitems, 248, 90 - yoffset, 3);
     if (intertime < 90)
     {
@@ -722,7 +722,7 @@ void IN_DrawSingleStats(void)
         sounds++;
     }
     IN_DrawNumber(players[consoleplayer].secretcount, 200, 115 - yoffset, 3);
-    V_DrawShadowedNamePatch(237, 115 - yoffset, "FONTB15");
+    V_DrawShadowedNamePatch(237, 115 - yoffset, "FONTB15", CR_DEFAULT, VPT_STRETCH);
     IN_DrawNumber(totalsecret, 248, 115 - yoffset, 3);
     if (intertime < 150)
     {
@@ -790,7 +790,7 @@ void IN_DrawCoopStats(void)
     {
         if (playeringame[i])
         {
-            V_DrawShadowedNumPatch(25, ypos, patchFaceOkayBase + i);
+            V_DrawShadowedNumPatch(25, ypos, patchFaceOkayBase + i, CR_DEFAULT, VPT_STRETCH);
             if (intertime < 40)
             {
                 sounds = 0;
@@ -803,11 +803,11 @@ void IN_DrawCoopStats(void)
                 sounds++;
             }
             IN_DrawNumber(killPercent[i], 85, ypos + 10, 3);
-            V_DrawShadowedNamePatch(121, ypos + 10, "FONTB05");
+            V_DrawShadowedNamePatch(121, ypos + 10, "FONTB05", CR_DEFAULT, VPT_STRETCH);
             IN_DrawNumber(bonusPercent[i], 160, ypos + 10, 3);
-            V_DrawShadowedNamePatch(196, ypos + 10, "FONTB05");
+            V_DrawShadowedNamePatch(196, ypos + 10, "FONTB05", CR_DEFAULT, VPT_STRETCH);
             IN_DrawNumber(secretPercent[i], 237, ypos + 10, 3);
-            V_DrawShadowedNamePatch(273, ypos + 10, "FONTB05");
+            V_DrawShadowedNamePatch(273, ypos + 10, "FONTB05", CR_DEFAULT, VPT_STRETCH);
             ypos += 37;
         }
     }
@@ -847,12 +847,12 @@ void IN_DrawDMStats(void)
                 V_DrawShadowedNumPatch(
                   40,
                   ((ypos << FRACBITS) + dSlideY[i] * intertime) >> FRACBITS,
-                  patchFaceOkayBase + i
+                  patchFaceOkayBase + i, CR_DEFAULT, VPT_STRETCH
                 );
                 V_DrawShadowedNumPatch(
                   ((xpos << FRACBITS) + dSlideX[i] * intertime) >> FRACBITS,
                   18,
-                  patchFaceDeadBase + i
+                  patchFaceDeadBase + i, CR_DEFAULT, VPT_STRETCH
                 );
             }
         }
@@ -875,8 +875,8 @@ void IN_DrawDMStats(void)
         {
             if (intertime < 100 || i == consoleplayer)
             {
-                V_DrawShadowedNumPatch(40, ypos, patchFaceOkayBase + i);
-                V_DrawShadowedNumPatch(xpos, 18, patchFaceDeadBase + i);
+                V_DrawShadowedNumPatch(40, ypos, patchFaceOkayBase + i, CR_DEFAULT, VPT_STRETCH);
+                V_DrawShadowedNumPatch(xpos, 18, patchFaceDeadBase + i, CR_DEFAULT, VPT_STRETCH);
             }
             else
             {
@@ -997,14 +997,14 @@ void IN_DrawNumber(int val, int x, int y, int digits)
     if (digits == 4)
     {
         lump = FontBNumbers[val / 1000];
-        V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2 - 12, y, lump);
+        V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2 - 12, y, lump, CR_DEFAULT, VPT_STRETCH);
     }
     if (digits > 2)
     {
         if (realdigits > 2)
         {
             lump = FontBNumbers[val / 100];
-            V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2, y, lump);
+            V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2, y, lump, CR_DEFAULT, VPT_STRETCH);
         }
         xpos += 12;
     }
@@ -1014,23 +1014,23 @@ void IN_DrawNumber(int val, int x, int y, int digits)
         if (val > 9)
         {
             lump = FontBNumbers[val / 10];
-            V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2, y, lump);
+            V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2, y, lump, CR_DEFAULT, VPT_STRETCH);
         }
         else if (digits == 2 || oldval > 99)
         {
-            V_DrawShadowedNumPatch(xpos, y, FontBNumbers[0]);
+            V_DrawShadowedNumPatch(xpos, y, FontBNumbers[0], CR_DEFAULT, VPT_STRETCH);
         }
         xpos += 12;
     }
     val = val % 10;
     lump = FontBNumbers[val];
-    V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2, y, lump);
+    V_DrawShadowedNumPatch(xpos + 6 - R_NumPatchWidth(lump) / 2, y, lump, CR_DEFAULT, VPT_STRETCH);
     if (neg)
     {
         V_DrawShadowedNamePatch(
           xpos + 6 - R_NamePatchWidth("FONTB13") / 2 - 12 * (realdigits),
           y,
-          "FONTB13"
+          "FONTB13", CR_DEFAULT, VPT_STRETCH
         );
     }
 }
@@ -1054,7 +1054,7 @@ void IN_DrTextB(const char *text, int x, int y)
         else
         {
             int lump = FontBLump + c - 33;
-            V_DrawShadowedNumPatch(x, y, lump);
+            V_DrawShadowedNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
             x += R_NumPatchWidth(lump) - 1;
         }
     }

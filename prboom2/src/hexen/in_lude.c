@@ -460,7 +460,7 @@ static void DrawHubText(void)
         {
             break;
         }
-        V_DrawNumPatch(cx, cy, lump, CR_DEFAULT, VPT_STRETCH);
+        V_DrawShadowedNumPatch(cx, cy, lump, CR_DEFAULT, VPT_STRETCH);
         cx += width;
     }
 }

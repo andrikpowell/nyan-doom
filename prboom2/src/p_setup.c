@@ -3667,11 +3667,14 @@ void P_UpdateTranMap(void) {
   // main percentages
   tran_filter_pct       = raven ? tinttable_pct : tranmap_pct;
   alttint_filter_pct    = raven ? alt_tinttable_pct : P_ConvertTrans(100-tran_filter_pct); // reverse translucency under translucency o.O
+  shadow_filter_pct     = hexen ? alt_tinttable_pct : tinttable_pct;
+  shadow_ui_filter_pct  = P_ConvertTrans(dsda_MenuTranslucencyPercent());  // ui stuff (menu text shadows) - never use tinttable
 
   gl_alttint_filter_pct    = raven ? P_ConvertTrans(tran_filter_pct + 20) : P_ConvertTrans(tran_filter_pct - 20); // reverse translucency under translucency o.O
 
   // store main transmaps
   main_tranmap      = dsda_DefaultTranMap();
+  ui_shadowmap      = dsda_TranMap(shadow_ui_filter_pct);
 }
 
 //

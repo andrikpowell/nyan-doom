@@ -165,6 +165,7 @@ enum patch_translation_e {
   VPT_STRETCH_REAL       = 2048, // [XA] VPT_STRETCH in gld_fillRect means "tile", rather than "stretch"... these flags probably need a rename.
   VPT_TRANSMAP = 4096,
   VPT_ALT_TRANSMAP = 8192,
+  VPT_SHADOW = 16384,
 };
 
 extern int global_patch_top_offset;

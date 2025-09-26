@@ -75,8 +75,8 @@ void gld_EndAutomapDraw(void);
 void gld_BeginMenuDraw(void);
 void gld_EndMenuDraw(void);
 
-void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int cm, enum patch_translation_e flags);
-void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int cm, enum patch_translation_e flags);
+void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, int cm, enum patch_translation_e flags);
+void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, int cm, enum patch_translation_e flags);
 
 void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags);
 void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags);

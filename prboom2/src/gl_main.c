@@ -507,14 +507,22 @@ void gld_EndMenuDraw(void)
 
 #define NO_TRANS -1
 
-float gld_GetTranslucency(enum patch_translation_e flags)
+float gld_GetTranslucency(int shadowtype, enum patch_translation_e flags)
 {
   int trans_percent = NO_TRANS;
 
-  if (flags & VPT_TRANSMAP)
-    trans_percent = tran_filter_pct;
-  else if (flags & VPT_ALT_TRANSMAP)
-    trans_percent = gl_alttint_filter_pct;
+  // apply translucency
+  if (flags & VPT_SHADOW)
+  {
+    trans_percent = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : shadow_filter_pct;
+  }
+  else
+  {
+    if (flags & VPT_TRANSMAP)
+      trans_percent = tran_filter_pct;
+    else if (flags & VPT_ALT_TRANSMAP)
+      trans_percent = gl_alttint_filter_pct;
+  }
 
   if (trans_percent != NO_TRANS)
     return trans_percent * 0.01f;
@@ -522,7 +530,7 @@ float gld_GetTranslucency(enum patch_translation_e flags)
     return 1.0f;
 }
 
-void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int cm, enum patch_translation_e flags)
+void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, int cm, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
@@ -570,12 +578,12 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int cm, enu
   }
 
   //Set rgb colors
-  r = g = b = 1.0f;
+  r = g = b = (flags & VPT_SHADOW) ? 0.0f : 1.0f;
 
   // Add translucency
-  if (flags & VPT_TRANSMAP || flags & VPT_ALT_TRANSMAP)
+  if (flags & VPT_SHADOW || flags & VPT_TRANSMAP || flags & VPT_ALT_TRANSMAP)
   {
-    alpha = gld_GetTranslucency(flags);
+    alpha = gld_GetTranslucency(shadowtype, flags);
 
     // If translucent
     if (alpha != 1.0f)
@@ -620,9 +628,9 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int cm, enu
   glEnd();
 }
 
-void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int cm, enum patch_translation_e flags)
+void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, int cm, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f((float)x, (float)y, lump, center, cm, flags);
+  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, cm, flags);
 }
 
 void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags)
