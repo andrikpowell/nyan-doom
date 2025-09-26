@@ -312,15 +312,25 @@ static void FUNC_V_FillFlat(int lump, int scrn, int x, int y, int width, int hei
 static void FUNC_V_FillPatch(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
   int sx, sy, w, h;
+  stretch_param_t *params = dsda_StretchParams(flags);
 
   w = R_NumPatchWidth(lump);
   h = R_NumPatchHeight(lump);
 
   for (sy = y; sy < y + height; sy += h)
   {
+    int remaining_height = (y + height) - sy;
+    int patch_draw_height = MIN(h, remaining_height);
+
     for (sx = x; sx < x + width; sx += w)
     {
-      V_DrawNumPatchGen(sx, sy, scrn, lump, false, 0, 0, 0, 0, CR_DEFAULT, flags);
+      int remaining_width = (x + width) - sx;
+      int patch_draw_width = MIN(w, remaining_width);
+
+      int clip_right  = w - patch_draw_width;    // pixels to crop from right
+      int clip_bottom = h - patch_draw_height;   // pixels to crop from bottom
+
+      V_DrawNumPatchCropBG(sx, sy, lump, 0, clip_bottom, 0, clip_right, CR_DEFAULT, flags);
     }
   }
 }

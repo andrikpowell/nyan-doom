@@ -658,13 +658,29 @@ static void R_DrawStbarBorder (void)
   int y = stbar_top;
   int w = SCREENWIDTH;
   int h = brdr_b.height;
-  enum patch_translation_e flags = VPT_NONE;
+  enum patch_translation_e flags = VPT_STRETCH;
 
-  // heretic_note: I think this looks bad, so I'm skipping it...
-  if (heretic)
-    return;
+  // Resize border
+  {
+    stretch_param_t *params = dsda_StretchParams(flags);
+    dboolean stretch = !SCREEN_320x200;
 
-  V_FillNumPatchBG(brdr_b.lumpnum, x, y, w, h, flags);
+    if (stretch)
+    {
+      // Apply screen scaling when in stretch mode
+      x = (int)floorf((x - params->deltax1) * 320.0f / params->video->width);
+      y = (int)floorf((y - params->deltay1) * 200.0f / params->video->height);
+      w = (int)(ceilf(w * 320.0f / params->video->width) + 0.5f);
+    }
+    else
+    {
+      x = (x - params->deltax1) * 320 / params->video->width;
+      y = (y - params->deltay1) * 200 / params->video->height;
+      w = (w * 320 / params->video->width);
+    }
+  }
+
+  V_FillNumPatchBG(brdr_b.lumpnum, x, y, w, h, flags); // bottom
 }
 
 //
@@ -680,7 +696,35 @@ static void R_DrawBorder (int x, int y, int w, int h)
   int b = brdr_b.height;
   int l = brdr_l.width;
   int r = brdr_r.width;
-  enum patch_translation_e flags = VPT_NONE;
+  enum patch_translation_e flags = VPT_STRETCH;
+
+  // Resize border
+  {
+    stretch_param_t *params = dsda_StretchParams(flags);
+    dboolean stretch = !SCREEN_320x200;
+
+    if (stretch)
+    {
+      // Apply screen scaling when in stretch mode
+      x = (int)floorf((x - params->deltax1) * 320.0f / params->video->width);
+      y = (int)floorf((y - params->deltay1) * 200.0f / params->video->height);
+      w = (int)ceilf(w * 320.0f / params->video->width);
+      h = (int)ceilf(h * 200.0f / params->video->height);
+
+      // Avoid gaps between viewport and border
+      x += 1;
+      y += 1;
+      w -= 2;
+      h -= 2;
+    }
+    else
+    {
+      x = (x - params->deltax1) * 320 / params->video->width;
+      y = (y - params->deltay1) * 200 / params->video->height;
+      w = w * 320 / params->video->width;
+      h = h * 200 / params->video->height;
+    }
+  }
 
   V_FillNumPatchBG(brdr_t.lumpnum, x,       y - g,  w, t, flags); // top
   V_FillNumPatchBG(brdr_b.lumpnum, x,       y + h,  w, b, flags); // bottom

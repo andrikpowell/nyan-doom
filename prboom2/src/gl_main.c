@@ -742,44 +742,32 @@ void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_
 
 void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
 {
-  GLTexture *gltexture;
-  float fU1, fU2, fV1, fV2;
+  int sx, sy, w, h;
+  int scaled_x, scaled_y;
+  stretch_param_t *params = dsda_StretchParams(flags);
 
-  //e6y: Boom colormap should not be applied for background
-  int saved_boom_cm = boom_cm;
-  boom_cm = 0;
+  w = R_NumPatchWidth(lump);
+  h = R_NumPatchHeight(lump);
 
-  gltexture = gld_RegisterPatch(lump, CR_DEFAULT, false, V_IsUILightmodeIndexed());
-  gld_BindPatch(gltexture, CR_DEFAULT);
-
-  if (!gltexture)
-    return;
-
-  x = x - gltexture->leftoffset;
-  y = y - gltexture->topoffset;
-
-  //e6y
-  boom_cm = saved_boom_cm;
-
-  if (flags & VPT_STRETCH)
+  for (sy = y; sy < y + height; sy += h)
   {
-    x = x * SCREENWIDTH / 320;
-    y = y * SCREENHEIGHT / 200;
-    width = width * SCREENWIDTH / 320;
-    height = height * SCREENHEIGHT / 200;
+    int remaining_height = (y + height) - sy;
+    int patch_draw_height = MIN(h, remaining_height);
+
+    for (sx = x; sx < x + width; sx += w)
+    {
+      int remaining_width = (x + width) - sx;
+      int patch_draw_width = MIN(w, remaining_width);
+
+      int clip_right  = w - patch_draw_width;
+      int clip_bottom = h - patch_draw_height;
+
+      scaled_x = sx;
+      scaled_y = sy;
+
+      gld_DrawNumPatch(scaled_x, scaled_y, lump, false, false, 0, clip_bottom, 0, clip_right, CR_DEFAULT, flags);
+    }
   }
-
-  fU1 = 0;
-  fV1 = 0;
-  fU2 = (float)width / (float)gltexture->realtexwidth;
-  fV2 = (float)height / (float)gltexture->realtexheight;
-
-  glBegin(GL_TRIANGLE_STRIP);
-    glTexCoord2f(fU1, fV1); glVertex2f((float)(x),(float)(y));
-    glTexCoord2f(fU1, fV2); glVertex2f((float)(x),(float)(y + height));
-    glTexCoord2f(fU2, fV1); glVertex2f((float)(x + width),(float)(y));
-    glTexCoord2f(fU2, fV2); glVertex2f((float)(x + width),(float)(y + height));
-  glEnd();
 }
 
 // [XA] some UI functions may run before fullcolormap has
