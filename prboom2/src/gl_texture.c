@@ -616,7 +616,7 @@ static void gld_AddColormapToTexture(GLTexture *gltexture, unsigned char *buffer
 // a "pre-baked" version of the sky texture with the given
 // palette (i.e. normal, pain flash, etc.) and gamma applied.
 // the game selects the correct texture to use on the fly.
-static void gld_AddIndexedSkyToTexture(GLTexture *gltexture, unsigned char *buffer, const rpatch_t *patch, int palette_index, int gamma_level)
+static void gld_AddIndexedSkyToTexture(GLTexture *gltexture, unsigned char *buffer, const rpatch_t *patch, int palette_index, int gamma_level, int skylayer)
 {
   int x,y,j;
   int xs,xe;
@@ -699,7 +699,13 @@ static void gld_AddIndexedSkyToTexture(GLTexture *gltexture, unsigned char *buff
           buffer[pos+1]=gtable[playpal[source[j]*3+1]];
           buffer[pos+2]=gtable[playpal[source[j]*3+2]];
         }
-        buffer[pos+3]=255;
+
+        // Cut out black pixels
+        // Can't use a flag here, cuz it doesn't apply to palette/gamma
+        if (skylayer && (source[j] == 0))
+            buffer[pos+3]=0; // transparent
+        else
+            buffer[pos+3]=255; // opaque
       }
     }
   }
@@ -914,7 +920,7 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int wi
   return true;
 }
 
-void gld_BindTexture(GLTexture *gltexture, unsigned int flags, dboolean sky)
+void gld_BindTexture(GLTexture *gltexture, unsigned int flags, int sky)
 {
   const rpatch_t *patch;
   unsigned char *buffer;
@@ -962,9 +968,9 @@ void gld_BindTexture(GLTexture *gltexture, unsigned int flags, dboolean sky)
     patch=R_TextureCompositePatchByNum(gltexture->index);
   }
 
-  if (sky)
+  if (sky > 0)
   {
-    gld_AddIndexedSkyToTexture(gltexture, buffer, patch, gld_paletteIndex, usegamma);
+    gld_AddIndexedSkyToTexture(gltexture, buffer, patch, gld_paletteIndex, usegamma, sky);
   }
   else
   {
@@ -1207,9 +1213,9 @@ GLTexture *gld_RegisterSkyTexture(int texture_num, dboolean force)
   return basetexture;
 }
 
-void gld_BindSkyTexture(GLTexture *gltexture)
+void gld_BindSkyTexture(GLTexture *gltexture, int skylayer)
 {
-  gld_BindTexture(gltexture, 0, true);
+  gld_BindTexture(gltexture, 0, true + skylayer);
 }
 
 GLTexture *gld_RegisterColormapTexture(int palette_index, int gamma_level, dboolean fullbright)

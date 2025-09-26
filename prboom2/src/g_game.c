@@ -1219,7 +1219,8 @@ static void G_DoLoadLevel (void)
   //  setting one.
 
   skyflatnum = R_FlatNumForName(g_skyflatname);
-  skytexture = dsda_SkyTexture();
+  skytexture = dsda_SkyTexture(1);
+  if (DoubleSky) skytexture2 = dsda_SkyTexture(2);
   R_SetFloorNum(&grnrock, dsda_BorderTexture());
 
   // [RH] Set up details about sky rendering

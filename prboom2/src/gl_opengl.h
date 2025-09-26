@@ -147,6 +147,7 @@ typedef enum
   TMF_MASKBIT = 1,
   TMF_OPAQUEBIT = 2,
   TMF_INVERTBIT = 4,
+  TMF_MASKBLACKBIT = 7,
 
   TM_MODULATE = 0,
   TM_MASK = TMF_MASKBIT,
@@ -154,6 +155,7 @@ typedef enum
   TM_INVERT = TMF_INVERTBIT,
   //TM_INVERTMASK = TMF_MASKBIT | TMF_INVERTBIT
   TM_INVERTOPAQUE = TMF_INVERTBIT | TMF_OPAQUEBIT,
+  TM_MASKBLACK = TMF_MASKBLACKBIT, // Hexen DoubleSky (cut out black pixels)
 } tex_mode_e;
 void SetTextureMode(tex_mode_e type);
 

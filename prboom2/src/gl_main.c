@@ -1574,13 +1574,13 @@ void gld_AddWall(seg_t *seg)
     {
       wall.ytop=MAXCOORD*2; // Simply using MAXCOORD would result in HOM when the floor is at a height close to the limit
       wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
-      gld_AddSkyTexture(&wall, frontsector->ceilingsky, frontsector->ceilingsky, SKY_CEILING);
+      gld_AddSkyTexture(&wall, frontsector->ceilingsky, frontsector->ceilingsky, frontsector, SKY_CEILING);
     }
     if (frontsector->floorpic==skyflatnum)
     {
       wall.ytop=(float)frontsector->floorheight/MAP_SCALE;
       wall.ybottom=-MAXCOORD*2;  // Simply using MAXCOORD would result in HOM when the ceiling is at a height close to the limit
-      gld_AddSkyTexture(&wall, frontsector->floorsky, frontsector->floorsky, SKY_FLOOR);
+      gld_AddSkyTexture(&wall, frontsector->floorsky, frontsector->floorsky, frontsector, SKY_FLOOR);
     }
     temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true, false, true, false);
     if (temptex && frontsector->ceilingheight > frontsector->floorheight)
@@ -1672,7 +1672,7 @@ void gld_AddWall(seg_t *seg)
         // Old code: wall.ybottom=(float)backsector->floorheight/MAP_SCALE;
         wall.ybottom=((float)(backsector->floorheight +
           (specific_rowoffset > 0 ? specific_rowoffset : 0)))/MAP_SCALE;
-        gld_AddSkyTexture(&wall, frontsector->ceilingsky, backsector->ceilingsky, SKY_CEILING);
+        gld_AddSkyTexture(&wall, frontsector->ceilingsky, backsector->ceilingsky, frontsector, SKY_CEILING);
       }
       else
       {
@@ -1684,7 +1684,7 @@ void gld_AddWall(seg_t *seg)
           {
             fix_sky_bleed = true;
           }
-          gld_AddSkyTexture(&wall, frontsector->ceilingsky, backsector->ceilingsky, SKY_CEILING);
+          gld_AddSkyTexture(&wall, frontsector->ceilingsky, backsector->ceilingsky, frontsector, SKY_CEILING);
         }
         else
         {
@@ -1701,7 +1701,7 @@ void gld_AddWall(seg_t *seg)
             {
               wall.ybottom=(float)max_ceiling/MAP_SCALE;
             }
-            gld_AddSkyTexture(&wall, frontsector->ceilingsky, backsector->ceilingsky, SKY_CEILING);
+            gld_AddSkyTexture(&wall, frontsector->ceilingsky, backsector->ceilingsky, frontsector, SKY_CEILING);
           }
         }
       }
@@ -1894,14 +1894,14 @@ bottomtexture:
          )
       {
         wall.ytop=(float)backsector->floorheight/MAP_SCALE;
-        gld_AddSkyTexture(&wall, frontsector->floorsky, backsector->floorsky, SKY_FLOOR);
+        gld_AddSkyTexture(&wall, frontsector->floorsky, backsector->floorsky, frontsector, SKY_FLOOR);
       }
       else
       {
         if (bottomtexture == NO_TEXTURE && midtexture == NO_TEXTURE)
         {
           wall.ytop=(float)max_floor/MAP_SCALE;
-          gld_AddSkyTexture(&wall, frontsector->floorsky, backsector->floorsky, SKY_CEILING);
+          gld_AddSkyTexture(&wall, frontsector->floorsky, backsector->floorsky, frontsector, SKY_CEILING);
         }
         else
         {
@@ -1910,7 +1910,7 @@ bottomtexture:
             backsector->floorheight >= frontsector->ceilingheight)
           {
             wall.ytop=(float)min_floor/MAP_SCALE;
-            gld_AddSkyTexture(&wall, frontsector->floorsky, backsector->floorsky, SKY_FLOOR);
+            gld_AddSkyTexture(&wall, frontsector->floorsky, backsector->floorsky, frontsector, SKY_FLOOR);
           }
         }
       }
@@ -2833,7 +2833,8 @@ void gld_DrawScene(player_t *player)
 
   if (gl_drawskys == skytype_skydome)
   {
-    gld_DrawDomeSkyBox();
+    gld_DrawDomeSkyBox(0);                // Draw Normal Skybox
+    if (DoubleSky) gld_DrawDomeSkyBox(1); // Draw Second Layer Skybox
   }
 
   if (gl_ext_arb_vertex_buffer_object)
@@ -2947,7 +2948,8 @@ void gld_DrawScene(player_t *player)
     dsda_RecordDrawSegs(gld_drawinfo.num_items[GLDIT_SWALL]);
     // fake strips of sky
     glsl_PushNullShader();
-    gld_DrawStripsSky();
+    gld_DrawStripsSky(0);                   // normal opaque sky
+    if (DoubleSky) gld_DrawStripsSky(1);    // sky with alpha
     glsl_PopNullShader();
   }
 

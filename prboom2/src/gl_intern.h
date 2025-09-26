@@ -135,6 +135,12 @@ typedef struct
   GLTexture *gltexture;
   byte flag;
   seg_t *seg;
+
+  // Hexen DoubleSky stuff
+  GLTexture *gltexlayer;
+  float skylayer_pitch;
+  float skylayer_yaw;
+  float skylayer_offset;
 } GLWall;
 
 typedef enum
@@ -352,7 +358,7 @@ void gld_PreprocessDetail(void);
 
 extern GLuint* last_glTexID;
 GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force, dboolean indexed, dboolean sky);
-void gld_BindTexture(GLTexture *gltexture, unsigned int flags, dboolean sky);
+void gld_BindTexture(GLTexture *gltexture, unsigned int flags, int sky);
 GLTexture *gld_RegisterPatch(int lump, int cm, dboolean is_sprite, dboolean indexed);
 void gld_BindPatch(GLTexture *gltexture, int cm);
 GLTexture *gld_RegisterRaw(int lump, int width, int height, dboolean mipmap, dboolean indexed);
@@ -362,7 +368,7 @@ void gld_BindRaw(GLTexture *gltexture, unsigned int flags);
 #define gld_BindFlat(gltexture, flags) \
   gld_BindRaw((gltexture), (flags))
 GLTexture *gld_RegisterSkyTexture(int texture_num, dboolean force);
-void gld_BindSkyTexture(GLTexture *gltexture);
+void gld_BindSkyTexture(GLTexture *gltexture, int skylayer);
 GLTexture *gld_RegisterColormapTexture(int palette_index, int gamma_level, dboolean fullbright);
 void gld_BindColormapTexture(GLTexture *gltexture, int palette_index, int gamma_level, dboolean fullbright);
 void gld_InitColormapTextures(dboolean fullbright);
@@ -440,6 +446,7 @@ typedef struct SkyBoxParams_s
   unsigned int type;
   GLWall wall;
   float x_offset, y_offset;
+  float x_offset_layer; // Hexen DoubleSky
   // 0 - no colormap; 1 - INVUL inverse colormap
   PalEntry_t FloorSkyColor[2];
   PalEntry_t CeilingSkyColor[2];
@@ -447,14 +454,14 @@ typedef struct SkyBoxParams_s
 extern SkyBoxParams_t SkyBox;
 extern GLfloat gl_whitecolor[];
 void gld_InitSky(void);
-void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype);
+void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int skytype);
 void gld_GetSkyCapColors(void);
 void gld_InitFrameSky(void);
-void gld_DrawStripsSky(void);
+void gld_DrawStripsSky(int skylayer);
 void gld_DrawScreenSkybox(void);
 void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y);
-void gld_DrawDomeSkyBox(void);
-void gld_DrawSkyCaps(void);
+void gld_DrawDomeSkyBox(int skylayer);
+void gld_DrawSkyCaps(int skylayer);
 
 // VBO
 typedef struct vbo_vertex_s
