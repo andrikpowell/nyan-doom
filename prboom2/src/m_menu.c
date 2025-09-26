@@ -2452,7 +2452,7 @@ static void M_DrawScreenItems(const setup_menu_t* base_src, int base_y)
 
     xx = 310, yy = base_y + scroll_i * scrollbar_scale, ww = 2, hh = limit_i * scrollbar_scale;
     V_GetWideRect(&xx, &yy, &ww, &hh, VPT_STRETCH);
-    V_FillRect(xx, yy, ww, hh, colrngs[cr_scrollbar][playpal_lightest]);
+    V_FillRectTransMenu(xx, yy, ww, hh, colrngs[cr_scrollbar][playpal_lightest]);
   }
 
   i = 0;
