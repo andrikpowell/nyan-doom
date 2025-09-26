@@ -506,7 +506,9 @@ void SB_Drawer(dboolean statusbaron)
     }
     else
     {
-        V_DrawNumPatch(0, 134, LumpH2BAR, CR_DEFAULT, VPT_STRETCH);
+        int crop = (R_NumPatchWidth(LumpH2BAR) / 2) - 0;
+        V_DrawNumPatchCrop(0, 134, LumpH2BAR, 0, 29, crop, crop, CR_DEFAULT, VPT_STRETCH);  // cut off sides
+        V_DrawNumPatchCrop(0, 134, LumpH2BAR, 26, 0, 0, 0, CR_DEFAULT, VPT_STRETCH);        // keep middle
     }
 
     oldhealth = -1;
