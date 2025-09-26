@@ -46,7 +46,18 @@
   #define GETCOL_DEPTH(col) colormap[GETCOL_MAPPED(col)]
 #endif
 
+// If Hexen double sky is active, check for transparency in sky 1
+// Translucency works by skipping black (byte 0)
+#if (R_DRAWCOLUMN_PIPELINE & RDC_DOUBLESKY)
+  #define SKY1_TRANS(frac) source[(frac)>>FRACBITS]
+  #define GETCOL(frac) \
+    SKY1_TRANS(frac) == 0 \
+      ? GETCOL_DEPTH(source2[(frac)>>FRACBITS]) \
+      : GETCOL_DEPTH(source[(frac)>>FRACBITS])
+#else
+// Otherwise draw normal sky
 #define GETCOL(frac) GETCOL_DEPTH(source[(frac)>>FRACBITS])
+#endif
 
 #if (R_DRAWCOLUMN_ANY_TRANSLUCENT)
 #define COLTYPE (COL_TRANS)
@@ -176,6 +187,10 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 #if (!(R_DRAWCOLUMN_PIPELINE & RDC_FUZZ))
   {
     const byte          *source = dcvars->source;
+
+#if (R_DRAWCOLUMN_PIPELINE & RDC_DOUBLESKY)
+    const byte          *source2 = dcvars->source2;
+#endif
 
 #if (!(R_DRAWCOLUMN_PIPELINE & RDC_NOCOLMAP))
     const lighttable_t  *colormap = dcvars->colormap;

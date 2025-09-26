@@ -48,6 +48,7 @@
 //
 int skyflatnum;
 int skytexture;
+int skytexture2;
 int skytexturemid;
 
 int skystretch;

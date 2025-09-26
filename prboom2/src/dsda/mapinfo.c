@@ -497,19 +497,19 @@ const char* dsda_MapAuthor(void) {
   return author;
 }
 
-int dsda_SkyTexture(void) {
+int dsda_SkyTexture(int skynum) {
   int sky;
 
-  if (dsda_DoomSkyTexture(&sky))
+  if (dsda_DoomSkyTexture(skynum, &sky))
     return sky;
 
-  if (dsda_HexenSkyTexture(&sky))
+  if (dsda_HexenSkyTexture(skynum, &sky))
     return sky;
 
-  if (dsda_USkyTexture(&sky))
+  if (dsda_USkyTexture(skynum, &sky))
     return sky;
 
-  dsda_LegacySkyTexture(&sky);
+  dsda_LegacySkyTexture(skynum, &sky);
 
   return sky;
 }

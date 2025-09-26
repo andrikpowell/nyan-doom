@@ -41,6 +41,7 @@
 
 extern int skyflatnum;
 extern int skytexture;
+extern int skytexture2;
 extern int skytexturemid;
 
 #define SKYSTRETCH_HEIGHT 228

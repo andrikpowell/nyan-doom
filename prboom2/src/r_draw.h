@@ -43,6 +43,7 @@ enum column_pipeline_e {
   RDC_PIPELINE_TRTL,       // translated + translucency
   RDC_PIPELINE_ALT_TL,     // reverse translucency
   RDC_PIPELINE_ALT_TRTL,   // translated + reverse translucency
+  RDC_PIPELINE_DOUBLESKY,
   RDC_PIPELINE_FUZZ,
   RDC_PIPELINE_MAXPIPELINES,
 };
@@ -86,6 +87,9 @@ typedef struct draw_column_vars_s
 
   // heretic
   int baseclip;
+
+  // hexen double sky
+  const byte *source2;
 } draw_column_vars_t;
 
 void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars);
@@ -100,6 +104,7 @@ typedef struct {
   fixed_t             xstep;
   fixed_t             ystep;
   const byte          *source; // start of a 64*64 tile image
+  const byte          *source2; // hexen double sky
   const lighttable_t  *colormap;
 
   fixed_t xoffs;

@@ -415,6 +415,9 @@ static void R_MakeSpans(int x, unsigned int t1, unsigned int b1,
 // heretic has a hack: sky textures are defined with 128 height, but the patches are 200
 // heretic textures with only one patch point their columns to the original patch data
 // when drawing skies, it used this to "overrun" into the lower patch pixels
+//
+// note: results in sky changing size when screen changes size o.O
+// but this behaviour is accurate to vanilla heretic
 const rpatch_t *R_HackedSkyPatch(texture_t *texture)
 {
   if (heretic && texture->patchcount == 1)
@@ -438,110 +441,15 @@ static void R_DoDrawPlane(visplane_t *pl)
 {
   register int x;
   draw_column_vars_t dcvars;
-  R_DrawColumn_f colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, RDRAW_FILTER_POINT);
+  R_DrawColumn_f colfunc = R_GetDrawColumnFunc(DoubleSky ? RDC_PIPELINE_DOUBLESKY : RDC_PIPELINE_STANDARD, RDRAW_FILTER_POINT);;
 
   R_SetDefaultDrawColumnVars(&dcvars);
 
   if (pl->minx <= pl->maxx) {
-    // hexen_note: Skies
-    // if (pl->picnum == skyflatnum)
-    // {                       // Sky flat
-    //     #define SKYTEXTUREMIDSHIFTED 200
-    //
-    //     byte *source;
-    //     byte *source2;
-    //     int offset;
-    //     int skyTexture;
-    //     int offset2;
-    //     int skyTexture2;
-    //
-    //     if (DoubleSky)
-    //     {                   // Render 2 layers, sky 1 in front
-    //         offset = Sky1ColumnOffset >> 16;
-    //         skyTexture = texturetranslation[Sky1Texture];
-    //         offset2 = Sky2ColumnOffset >> 16;
-    //         skyTexture2 = texturetranslation[Sky2Texture];
-    //         for (x = pl->minx; x <= pl->maxx; x++)
-    //         {
-    //             dc_yl = pl->top[x];
-    //             dc_yh = pl->bottom[x];
-    //             if (dc_yl <= dc_yh)
-    //             {
-    //                 count = dc_yh - dc_yl;
-    //                 if (count < 0)
-    //                 {
-    //                     return;
-    //                 }
-    //                 angle = (viewangle + xtoviewangle[x])
-    //                     >> ANGLETOSKYSHIFT;
-    //                 source = R_GetColumn(skyTexture, angle + offset);
-    //                 source2 = R_GetColumn(skyTexture2, angle + offset2);
-    //                 dest = ylookup[dc_yl] + columnofs[x];
-    //                 frac = SKYTEXTUREMIDSHIFTED * FRACUNIT + (dc_yl - centery) * fracstep;
-    //                 do
-    //                 {
-    //                     if (source[frac >> FRACBITS])
-    //                     {
-    //                         *dest = source[frac >> FRACBITS];
-    //                         frac += fracstep;
-    //                     }
-    //                     else
-    //                     {
-    //                         *dest = source2[frac >> FRACBITS];
-    //                         frac += fracstep;
-    //                     }
-    //                     dest += SCREENWIDTH;
-    //                 }
-    //                 while (count--);
-    //             }
-    //         }
-    //         continue;       // Next visplane
-    //     }
-    //     else
-    //     {                   // Render single layer
-    //         if (pl->special == 200)
-    //         {               // Use sky 2
-    //             offset = Sky2ColumnOffset >> 16;
-    //             skyTexture = texturetranslation[Sky2Texture];
-    //         }
-    //         else
-    //         {               // Use sky 1
-    //             offset = Sky1ColumnOffset >> 16;
-    //             skyTexture = texturetranslation[Sky1Texture];
-    //         }
-    //         for (x = pl->minx; x <= pl->maxx; x++)
-    //         {
-    //             dc_yl = pl->top[x];
-    //             dc_yh = pl->bottom[x];
-    //             if (dc_yl <= dc_yh)
-    //             {
-    //                 count = dc_yh - dc_yl;
-    //                 if (count < 0)
-    //                 {
-    //                     return;
-    //                 }
-    //                 angle = (viewangle + xtoviewangle[x])
-    //                     >> ANGLETOSKYSHIFT;
-    //                 source = R_GetColumn(skyTexture, angle + offset);
-    //                 dest = ylookup[dc_yl] + columnofs[x];
-    //                 frac = SKYTEXTUREMIDSHIFTED * FRACUNIT + (dc_yl - centery) * fracstep;
-    //                 do
-    //                 {
-    //                     *dest = source[frac >> FRACBITS];
-    //                     dest += SCREENWIDTH;
-    //                     frac += fracstep;
-    //                 }
-    //                 while (count--);
-    //             }
-    //         }
-    //         continue;       // Next visplane
-    //     }
-    // }
-
     if (pl->picnum == skyflatnum || pl->picnum & PL_SKYFLAT) { // sky flat
-      int texture;
-      const rpatch_t *tex_patch;
-      angle_t an, flip;
+      int texture, texture2;
+      const rpatch_t *tex_patch, *tex_patch2;
+      angle_t an, an2, flip;
 
       // killough 10/98: allow skies to come from sidedefs.
       // Allows scrolling and/or animated skies, as well as
@@ -549,8 +457,34 @@ static void R_DoDrawPlane(visplane_t *pl)
       // to use info lumps.
 
       an = viewangle;
+      an2 = viewangle;
 
-      if (pl->picnum & PL_SKYFLAT_LINE)
+      if (hexen)
+      {
+        dcvars.texturemid = skytexturemid;    // Default y-offset
+        flip = 0;                         // Doom flips it
+
+        if (DoubleSky)
+        {
+          texture  = texturetranslation[skytexture]; // Default texture
+          texture2 = texturetranslation[skytexture2]; // DoubleSky layer
+          an  += (angle_t)(((int64_t)Sky1ColumnOffset << ANGLETOSKYSHIFT) >> FRACBITS);
+          an2 += (angle_t)(((int64_t)Sky2ColumnOffset << ANGLETOSKYSHIFT) >> FRACBITS);
+        }
+        // SKY2 - Special
+        else if (pl->special == 200)
+        {
+          texture = texturetranslation[skytexture2];
+          an  += (angle_t)(((int64_t)Sky2ColumnOffset << ANGLETOSKYSHIFT) >> FRACBITS);
+        }
+        // SKY1 - Default
+        else
+        {
+          texture = texturetranslation[skytexture];
+          an  += (angle_t)(((int64_t)Sky1ColumnOffset << ANGLETOSKYSHIFT) >> FRACBITS);
+        }
+      }
+      else if (pl->picnum & PL_SKYFLAT_LINE)
       {
         // Sky Linedef
         const line_t *l = &lines[pl->picnum & ~PL_SKYFLAT_LINE];
@@ -617,9 +551,10 @@ static void R_DoDrawPlane(visplane_t *pl)
       dcvars.iscale = skyiscale;
 
       {
-        const rpatch_t *patch;
+        const rpatch_t *patch, *patch2;
 
         patch = R_HackedSkyPatch(textures[texture]);
+        if (DoubleSky) patch2 = R_HackedSkyPatch(textures[texture2]);
 
         if (patch)
         {
@@ -633,6 +568,7 @@ static void R_DoDrawPlane(visplane_t *pl)
               dcvars.source = R_GetPatchColumn(patch, (an + xtoskyangle[x]) >> ANGLETOSKYSHIFT)->pixels;
               dcvars.prevsource = R_GetPatchColumn(patch, (an + xtoskyangle[x-1]) >> ANGLETOSKYSHIFT)->pixels;
               dcvars.nextsource = R_GetPatchColumn(patch, (an + xtoskyangle[x+1]) >> ANGLETOSKYSHIFT)->pixels;
+              if (DoubleSky) dcvars.source2 = R_GetPatchColumn(patch2, (an2 + xtoskyangle[x]) >> ANGLETOSKYSHIFT)->pixels;
               colfunc(&dcvars);
             }
 
@@ -641,6 +577,7 @@ static void R_DoDrawPlane(visplane_t *pl)
       }
 
       tex_patch = R_TextureCompositePatchByNum(texture);
+      if (DoubleSky) tex_patch2 = R_TextureCompositePatchByNum(texture2);
 
       // killough 10/98: Use sky scrolling offset, and possibly flip picture
       for (x = pl->minx; (dcvars.x = x) <= pl->maxx; x++)
@@ -649,6 +586,7 @@ static void R_DoDrawPlane(visplane_t *pl)
           dcvars.source = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x])^flip) >> ANGLETOSKYSHIFT);
           dcvars.prevsource = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x-1])^flip) >> ANGLETOSKYSHIFT);
           dcvars.nextsource = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x+1])^flip) >> ANGLETOSKYSHIFT);
+          if (DoubleSky) dcvars.source2 = R_GetTextureColumn(tex_patch2, ((an2 + xtoskyangle[x])^flip) >> ANGLETOSKYSHIFT);
           colfunc(&dcvars);
         }
     }

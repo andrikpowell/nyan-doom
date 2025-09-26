@@ -47,7 +47,7 @@ int dsda_DoomBossAction(mobj_t* mo);
 int dsda_DoomMapLumpName(const char** name, int episode, int map);
 int dsda_DoomMapAuthor(const char** author);
 int dsda_DoomHUTitle(dsda_string_t* str);
-int dsda_DoomSkyTexture(int* sky);
+int dsda_DoomSkyTexture(int skynum, int* sky);
 int dsda_DoomPrepareInitNew(void);
 int dsda_DoomPrepareIntermission(int* result);
 int dsda_DoomPrepareFinale(int* result);

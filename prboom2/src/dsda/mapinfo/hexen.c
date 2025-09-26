@@ -348,8 +348,14 @@ int dsda_HexenHUTitle(dsda_string_t* str) {
   return true;
 }
 
-int dsda_HexenSkyTexture(int* sky) {
-  return false; // TODO
+int dsda_HexenSkyTexture(int skynum, int* sky) {
+  if (map_format.doublesky)
+  {
+    if (skynum == 2)
+      *sky = Sky2Texture;
+    else
+      *sky = Sky1Texture;
+  }
 }
 
 int dsda_HexenPrepareInitNew(void) {

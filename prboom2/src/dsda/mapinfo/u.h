@@ -47,7 +47,7 @@ int dsda_UBossAction(mobj_t* mo);
 int dsda_UMapLumpName(const char** name, int episode, int map);
 int dsda_UMapAuthor(const char** author);
 int dsda_UHUTitle(dsda_string_t* str);
-int dsda_USkyTexture(int* sky);
+int dsda_USkyTexture(int skynum, int* sky);
 int dsda_UPrepareInitNew(void);
 int dsda_UPrepareIntermission(int* result);
 int dsda_UPrepareFinale(int* result);

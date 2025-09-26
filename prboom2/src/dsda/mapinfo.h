@@ -90,7 +90,7 @@ int dsda_BossAction(mobj_t* mo);
 const char* dsda_MapLumpName(int episode, int map);
 const char* dsda_MapAuthor(void);
 void dsda_HUTitle(dsda_string_t* str);
-int dsda_SkyTexture(void);
+int dsda_SkyTexture(int skynum);
 void dsda_PrepareInitNew(void);
 void dsda_PrepareIntermission(int* behaviour);
 void dsda_PrepareFinale(int* behaviour);

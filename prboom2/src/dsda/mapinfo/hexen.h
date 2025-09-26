@@ -47,7 +47,7 @@ int dsda_HexenBossAction(mobj_t* mo);
 int dsda_HexenMapLumpName(const char** name, int episode, int map);
 int dsda_HexenMapAuthor(const char** author);
 int dsda_HexenHUTitle(dsda_string_t* str);
-int dsda_HexenSkyTexture(int* sky);
+int dsda_HexenSkyTexture(int skynum, int* sky);
 int dsda_HexenPrepareInitNew(void);
 int dsda_HexenPrepareIntermission(int* result);
 int dsda_HexenPrepareFinale(int* result);

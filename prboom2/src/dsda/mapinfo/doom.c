@@ -528,7 +528,7 @@ int dsda_DoomHUTitle(dsda_string_t* str) {
   return true;
 }
 
-int dsda_DoomSkyTexture(int* sky) {
+int dsda_DoomSkyTexture(int skynum, int* sky) {
   if (!current_map || !current_map->sky1.lump)
     return false;
 

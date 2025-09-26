@@ -154,9 +154,10 @@ int min_fuzzcellsize;
 #define RDC_TRTL          8 // Translucent + color
 #define RDC_ALT_TL       16 // alt-translucent
 #define RDC_ALT_TRTL     32 // alt-translucent + color
-#define RDC_FUZZ         64
+#define RDC_DOUBLESKY    64
+#define RDC_FUZZ        128
 // no color mapping
-#define RDC_NOCOLMAP    128
+#define RDC_NOCOLMAP    256
 
 draw_vars_t drawvars = {
   NULL, // topleft
@@ -238,6 +239,12 @@ void R_ResetColumnBuffer(void)
 #define R_FLUSHQUAD_FUNCNAME R_FlushQuad
 #include "r_drawflush.inl"
 
+#define R_DRAWCOLUMN_PIPELINE RDC_DOUBLESKY
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeDoubleSky
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTDoubleSky
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadDoubleSky
+#include "r_drawflush.inl"
+
 #define R_DRAWCOLUMN_PIPELINE RDC_TRANSLUCENT
 #define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL
 #define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL
@@ -289,6 +296,25 @@ byte *translationtables;
 #define R_FLUSHWHOLE_FUNCNAME R_FlushWhole
 #define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT
 #define R_FLUSHQUAD_FUNCNAME R_FlushQuad
+#include "r_drawcolpipeline.inl"
+
+#undef R_DRAWCOLUMN_PIPELINE_BASE
+#undef R_DRAWCOLUMN_PIPELINE_TYPE
+
+//
+// R_DrawDoubleSkyColumn
+//
+// Doesn't draw black pixels on source2
+// Draws source underneath
+//
+
+#define R_DRAWCOLUMN_PIPELINE_TYPE RDC_PIPELINE_DOUBLESKY
+#define R_DRAWCOLUMN_PIPELINE_BASE RDC_DOUBLESKY
+
+#define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawDoubleSkyColumn ## postfix
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeDoubleSky
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTDoubleSky
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadDoubleSky
 #include "r_drawcolpipeline.inl"
 
 #undef R_DRAWCOLUMN_PIPELINE_BASE
@@ -422,6 +448,7 @@ static R_DrawColumn_f drawcolumnfuncs[RDRAW_FILTER_MAXFILTERS][RDC_PIPELINE_MAXP
     R_DrawTRTLColumn_PointUV,
     R_DrawAltTLColumn_PointUV,
     R_DrawAltTRTLColumn_PointUV,
+    R_DrawDoubleSkyColumn_PointUV,
     R_DrawFuzzColumn_PointUV,
   },
   {
@@ -431,6 +458,7 @@ static R_DrawColumn_f drawcolumnfuncs[RDRAW_FILTER_MAXFILTERS][RDC_PIPELINE_MAXP
     R_DrawTRTLColumn_PointUV_PointZ,
     R_DrawAltTLColumn_PointUV_PointZ,
     R_DrawAltTRTLColumn_PointUV_PointZ,
+    R_DrawDoubleSkyColumn_PointUV_PointZ,
     R_DrawFuzzColumn_PointUV_PointZ,
   },
 };
@@ -454,6 +482,9 @@ void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars) {
 
   // heretic
   dcvars->baseclip = -1;
+
+  // hexen - doublesky
+  dcvars->source2 = NULL;
 }
 
 //
@@ -545,6 +576,7 @@ void R_DrawSpan(draw_span_vars_t *dsvars) {
   const fixed_t xstep = dsvars->xstep;
   const fixed_t ystep = dsvars->ystep;
   const byte *source = dsvars->source;
+  const byte *source2 = dsvars->source2; // hexen - doublesky
   const byte *colormap = dsvars->colormap;
   byte *dest = drawvars.topleft + dsvars->y*drawvars.pitch + dsvars->x1;
 

@@ -567,10 +567,8 @@ int dsda_LegacyHUTitle(dsda_string_t* str) {
   return true;
 }
 
-int dsda_LegacySkyTexture(int* sky) {
-  if (map_format.doublesky)
-    *sky = Sky1Texture;
-  else if (heretic) {
+int dsda_LegacySkyTexture(int skynum, int* sky) {
+  if (heretic) {
     static const char *sky_lump_names[5] = {
         "SKY1", "SKY2", "SKY3", "SKY1", "SKY3"
     };

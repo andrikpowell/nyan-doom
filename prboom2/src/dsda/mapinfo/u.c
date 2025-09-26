@@ -394,7 +394,7 @@ int dsda_UHUTitle(dsda_string_t* str) {
   return true;
 }
 
-int dsda_USkyTexture(int* sky) {
+int dsda_USkyTexture(int skynum, int* sky) {
   if (!gamemapinfo || !gamemapinfo->skytexture[0])
     return false;
 
