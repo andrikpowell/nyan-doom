@@ -118,6 +118,12 @@ typedef enum {
  * Moved from m_menu.c to m_menu.h so that m_misc.c can use it.
  */
 
+typedef struct setup_menu_dependent_s {
+  dsda_config_identifier_t config_id;   /* what config this depends on */
+  int value;                            /* what config value */
+  int exclude;                          /* whether value is included or excluded */
+} setup_menu_dependent_t;
+
 typedef struct setup_menu_s
 {
   const char  *m_text;  /* text to display */
@@ -127,9 +133,8 @@ typedef struct setup_menu_s
   dsda_config_identifier_t config_id;
   int input; // composite input identifier
   const char **selectstrings; /* list of strings for choice value */
-  dsda_config_identifier_t dependent_id;
-  const char *dependent_input;
-  int dependent_exclude;
+  const setup_menu_dependent_t *dependents; /* what dependents this setting depends on */
+  int dependent_num; /* how many dependent configs */
   struct setup_menu_s *menu;  /* next or prev menu */
   void (*action)(void); // killough 10/98: function to call after changing
 } setup_menu_t;
