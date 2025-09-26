@@ -320,7 +320,7 @@ static void FUNC_V_FillPatch(int lump, int scrn, int x, int y, int width, int he
   {
     for (sx = x; sx < x + width; sx += w)
     {
-      V_DrawNumPatchGen(sx, sy, scrn, lump, false, CR_DEFAULT, flags);
+      V_DrawNumPatchGen(sx, sy, scrn, lump, false, 0, 0, 0, 0, CR_DEFAULT, flags);
     }
   }
 }
@@ -360,12 +360,14 @@ void V_Init (void)
 //
 static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
         const byte *transmap, const byte *colortr,
+        int clip_top, int clip_bottom, int clip_left, int clip_right,
         enum patch_translation_e flags)
 {
     int    col;
     int    pitch = screens[scrn].pitch;
     int    w = patch->width;
-    byte   *desttop = screens[scrn].data+y*pitch+x;
+    int    start_col = clip_left;
+    int    end_col = patch->width - clip_right - 1;
 
     int TR = flags & VPT_COLOR;
     int TL = flags & VPT_TRANSMAP;
@@ -380,28 +382,55 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
 
     w--; // CPhipps - note: w = width-1 now, speeds up flipping
 
-    for (col=0 ; col<=w ; desttop++, col++, x++) {
+    if (flags & VPT_FLIP)
+    {
+      int tmp = start_col;
+      start_col = w - end_col;
+      end_col = w - tmp;
+    }
+
+    for (col = start_col; col <= end_col; col++) {
       int i;
       const int colindex = (flags & VPT_FLIP) ? (w - col) : (col);
       const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
+      int screen_x = x + col;
+      byte *desttop = screens[scrn].data+y*screens[scrn].pitch+screen_x;
 
-      if (x < 0)
+      // screen_x accounts for crop
+      if (screen_x < 0)
         continue;
-      if (x >= SCREENWIDTH)
+      if (screen_x >= SCREENWIDTH)
         break;
 
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
         const rpost_t *post = &column->posts[i];
+        int post_start, post_end, clipped_start, clipped_end;
         const byte *source;
         byte *dest;
         int count;
 
+     // here's our patch cropping code
+        {        
+          post_start = post->topdelta;
+          post_end = post_start + post->length;
+
+     // vertical clipping
+          clipped_start = post_start < clip_top ? clip_top : post_start;
+          clipped_end = patch->height - clip_bottom;
+          if (post_end > clipped_end)
+              post_end = clipped_end;
+
+     // fully clipped out
+          if (post_end <= clipped_start)
+              continue;
+        }
+
         // killough 2/21/98: Unrolled and performance-tuned
 
-        source = column->pixels + post->topdelta;
-        dest = desttop + post->topdelta * pitch;
-        count = post->length;
+        source = column->pixels + clipped_start;
+        dest = desttop + clipped_start * pitch;
+        count = post_end - clipped_start;
 
      // both translucent and color translated
         if (TR && TL) {
@@ -569,6 +598,7 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
 
 static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
         const byte *transmap, const byte *colortr,
+        int clip_top, int clip_bottom, int clip_left, int clip_right,
         enum patch_translation_e flags)
 {
     // CPhipps - move stretched patch drawing code here
@@ -583,6 +613,8 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
     draw_column_vars_t dcvars;
     draw_vars_t olddrawvars = drawvars;
     stretch_param_t *params = dsda_StretchParams(flags);
+    int screen_clip_left, screen_clip_right;
+    int screen_clip_top, screen_clip_bottom;
 
     int TR = flags & VPT_COLOR;
     int TL = flags & VPT_TRANSMAP;
@@ -621,6 +653,53 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
 
     DXI = params->video->xstep;
     DYI = params->video->ystep;
+
+    // Stretch cropping code (required for dcvars.clip_top and dcvars.clip_bottom)
+    {
+        int clip_x1, clip_x2, clip_y1, clip_y2;
+        int clip_deltay1 = params->deltay1;
+
+        clip_x1 = x + clip_left;
+        clip_x2 = x + patch->width - clip_right;
+        clip_y1 = y + clip_top;
+        clip_y2 = y + patch->height - clip_bottom;
+
+        // Left
+        if (clip_x1 < 0 || clip_x1 > 320)
+          screen_clip_left = (clip_x1 * params->video->width) / 320;
+        else
+          screen_clip_left = params->video->x1lookup[clip_x1];
+
+        // Right
+        if (clip_x2 < 0 || clip_x2 > 320)
+          screen_clip_right = (clip_x2 * params->video->width) / 320;
+        else
+          screen_clip_right = params->video->x2lookup[clip_x2];
+
+        // Top
+        if (clip_y1 < 0 || clip_y1 > 200)
+          screen_clip_top = (clip_y1 * params->video->height) / 200;
+        else
+          screen_clip_top = params->video->y1lookup[clip_y1];
+
+        // Bottom
+        if (clip_y2 < 0 || clip_y2 > 200)
+          screen_clip_bottom = (clip_y2 * params->video->height) / 200;
+        else
+          screen_clip_bottom = params->video->y2lookup[(clip_y2 - 1)]; // -1 needed here to match "bottom" below
+
+        if (TOP_ALIGNMENT(flags & VPT_STRETCH_MASK))
+          clip_deltay1 += global_patch_top_offset;
+
+        screen_clip_left   += params->deltax1;
+        screen_clip_right  += params->deltax2;
+        screen_clip_top    += clip_deltay1;
+        screen_clip_bottom += clip_deltay1;
+
+        // This is what actually does the y patch cropping
+        dcvars.clip_top    = screen_clip_top;
+        dcvars.clip_bottom = screen_clip_bottom;
+    }
 
     left = (x < 0 || x > 320 ? (x * params->video->width) / 320 : params->video->x1lookup[x]);
     top =  (y < 0 || y > 200 ? (y * params->video->height) / 200 : params->video->y1lookup[y]);
@@ -663,6 +742,14 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
         continue;
       if (dcvars.x >= SCREENWIDTH)
         break;
+
+      // clamp for crop
+      {
+        if (dcvars.x < screen_clip_left)
+          continue;
+        if (dcvars.x >= screen_clip_right)
+          break;
+      }
 
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
@@ -829,7 +916,9 @@ v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype
 }
 
 void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
-        dboolean center, int shadowtype, int cm, enum patch_translation_e flags)
+        dboolean center, int shadowtype,
+        int clip_top, int clip_bottom, int clip_left, int clip_right,
+        int cm, enum patch_translation_e flags)
 {
   v_patchinfo_t patchinfo = {0}, shadowinfo = {0};
   int shadow_x, shadow_y;
@@ -844,6 +933,17 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   // CPhipps - auto-no-stretch if not high-res
   if ((flags & VPT_STRETCH_MASK) && SCREEN_320x200)
     flags &= ~VPT_STRETCH_MASK;
+
+  // Clamp crop values if they exceed patch size
+  if (clip_left + clip_right >= patch->width) {
+      clip_left = 0;
+      clip_right = 0;
+  }
+
+  if (clip_top + clip_bottom >= patch->height) {
+      clip_top = 0;
+      clip_bottom = 0;
+  }
 
   // [FG] automatically center wide patches without horizontal offset
   if (center)
@@ -873,15 +973,15 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   // Draw patch unscaled
   if (!(flags & VPT_STRETCH_MASK)) {
     if (shadowtype)
-      V_DrawPatch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, shadowinfo.flags);
-    V_DrawPatch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, patchinfo.flags);
+      V_DrawPatch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, clip_top, clip_bottom, clip_left, clip_right, shadowinfo.flags);
+    V_DrawPatch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, clip_top, clip_bottom, clip_left, clip_right, patchinfo.flags);
   }
 
   // Or draw scaled patch with pipelines
   else {
     if (shadowtype)
-      V_DrawPatchStretch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, shadowinfo.flags);
-    V_DrawPatchStretch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, patchinfo.flags);
+      V_DrawPatchStretch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, clip_top, clip_bottom, clip_left, clip_right, shadowinfo.flags);
+    V_DrawPatchStretch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, clip_top, clip_bottom, clip_left, clip_right, patchinfo.flags);
   }
 }
 
@@ -928,28 +1028,32 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 // static inline; other compilers have different behaviour.
 // This inline is _only_ for the function below
 
-static void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
-         dboolean center, int cm, enum patch_translation_e flags)
+static void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center,
+         int clip_top, int clip_bottom, int clip_left, int clip_right,
+         int cm, enum patch_translation_e flags)
 {
-  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, false, cm, flags);
+  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, false, clip_top, clip_bottom, clip_left, clip_right, cm, flags);
 }
 
-static void FUNC_V_DrawNumPatchPrecise(float x, float y, int scrn, int lump,
-         dboolean center, int cm, enum patch_translation_e flags)
+static void FUNC_V_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center,
+         float clip_top, float clip_bottom, float clip_left, float clip_right,
+         int cm, enum patch_translation_e flags)
 {
-  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, false, cm, flags);
+  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, false, (int)clip_top, (int)clip_bottom, (int)clip_left, (int)clip_right, cm, flags);
 }
 
-static void FUNC_V_DrawShadowedNumPatch(int x, int y, int scrn, int lump,
-         dboolean center, int shadowtype, int cm, enum patch_translation_e flags)
+static void FUNC_V_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadowtype,
+         int clip_top, int clip_bottom, int clip_left, int clip_right,
+         int cm, enum patch_translation_e flags)
 {
-  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, shadowtype, cm, flags);
+  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, shadowtype, clip_top, clip_bottom, clip_left, clip_right, cm, flags);
 }
 
-static void FUNC_V_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump,
-         dboolean center, int shadowtype, int cm, enum patch_translation_e flags)
+static void FUNC_V_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadowtype,
+         float clip_top, float clip_bottom, float clip_left, float clip_right,
+         int cm, enum patch_translation_e flags)
 {
-  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, shadowtype, cm, flags);
+  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, shadowtype, (int)clip_top, (int)clip_bottom, (int)clip_left, (int)clip_right, cm, flags);
 }
 
 static int currentPaletteIndex = 0;
@@ -1054,31 +1158,31 @@ static void WRAP_gld_FillPatch(int lump, int n, int x, int y, int width, int hei
 {
   gld_FillPatch(lump, x, y, width, height, flags);
 }
-static void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags)
+static void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch(x,y,lump,center,false,cm,flags);
+  gld_DrawNumPatch(x,y,lump,center,false,clip_top,clip_bottom,clip_left,clip_right,cm,flags);
 }
-static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags)
+static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f(x,y,lump,center,false,cm,flags);
+  gld_DrawNumPatch_f(x,y,lump,center,false,clip_top,clip_bottom,clip_left,clip_right,cm,flags);
 }
-static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int offset, int cm, enum patch_translation_e flags)
+static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int offset, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags)
 {
   int shadow = (offset == SHADOW_DEFAULT && dsda_MenuTranslucency());
 
   if (shadow)
-    gld_DrawNumPatch(x+offset,y+offset,lump,center,offset,cm,flags|VPT_SHADOW); // draw offset shadow
+    gld_DrawNumPatch(x+offset,y+offset,lump,center,offset,0,0,0,0,cm,flags|VPT_SHADOW); // draw offset shadow
 
-  gld_DrawNumPatch(x,y,lump,center,false,cm,flags);
+  gld_DrawNumPatch(x,y,lump,center,false,0,0,0,0,cm,flags);
 }
-static void WRAP_gld_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int offset, int cm, enum patch_translation_e flags)
+static void WRAP_gld_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int offset, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags)
 {
   int shadow = (offset == SHADOW_DEFAULT && dsda_MenuTranslucency());
 
   if (shadow)
-    gld_DrawNumPatch_f(x+offset,y+offset,lump,center,offset,cm,flags|VPT_SHADOW); // draw offset shadow
+    gld_DrawNumPatch_f(x+offset,y+offset,lump,center,offset,0,0,0,0,cm,flags|VPT_SHADOW); // draw offset shadow
 
-  gld_DrawNumPatch_f(x,y,lump,center,false,cm,flags);
+  gld_DrawNumPatch_f(x,y,lump,center,false,0,0,0,0,cm,flags);
 }
 static void V_PlotPixelGL(int scrn, int x, int y, byte color) {
   gld_DrawPoint(x, y, color);
@@ -1107,10 +1211,10 @@ static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, 
 static void NULL_FillRaw(int lump, int n, int x, int y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags) {}
 static void NULL_FillRawPrecise(int lump, int n, float x, float y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags) {}
 static void NULL_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
-static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags) {}
-static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int cm, enum patch_translation_e flags) {}
-static void NULL_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadow, int cm, enum patch_translation_e flags) {}
-static void NULL_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadow, int cm, enum patch_translation_e flags) {}
+static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags) {}
+static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags) {}
+static void NULL_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadow, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags) {}
+static void NULL_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadow, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags) {}
 static void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
 static void NULL_PlotPixelWu(int scrn, int x, int y, byte color, int weight) {}
 static void NULL_DrawLine(fline_t* fl, int color) {}

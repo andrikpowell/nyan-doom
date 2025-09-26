@@ -106,6 +106,32 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
     frac = dcvars->texturemid + (dcvars->yl-centery)*fracstep;
 #endif
 
+  // Crop to custom region
+  if (dcvars->flags & DRAW_COLUMN_ISPATCH)
+  {
+    if (dcvars->clip_top != 0 || dcvars->clip_bottom != 0)
+    {
+      if (dcvars->clip_top > dcvars->yl)
+      {
+        int delta = dcvars->clip_top - dcvars->yl;
+
+        dcvars->yl = dcvars->clip_top;
+
+    #if (!(R_DRAWCOLUMN_PIPELINE & RDC_FUZZ))
+          frac += fracstep * delta;
+    #endif
+      }
+
+      if (dcvars->clip_bottom < dcvars->yh)
+        dcvars->yh = dcvars->clip_bottom;
+
+      count = dcvars->yh - dcvars->yl;
+
+      if (count < 0)
+        return;
+    }
+  }
+
   // Framebuffer destination address.
    // SoM: MAGIC
    {

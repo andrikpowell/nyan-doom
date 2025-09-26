@@ -544,10 +544,12 @@ float gld_GetTranslucency(int shadowtype, enum patch_translation_e flags)
     return 1.0f;
 }
 
-void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, int cm, enum patch_translation_e flags)
+void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
+  float crop_u1, crop_u2, crop_v1, crop_v2;
+  float crop_width, crop_height, x_crop, y_crop;
   float width,height;
   float xpos, ypos;
   float r, g, b, alpha;
@@ -560,17 +562,39 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
 
   if (!gltexture)
     return;
-  fV1=0.0f;
-  fV2=gltexture->scaleyfac;
+
+  // Clamp crop values if they exceed patch size
+  if (clip_left + clip_right >= gltexture->width)
+    clip_left = clip_right = 0;
+
+  if (clip_top + clip_bottom >= gltexture->height)
+    clip_top = clip_bottom = 0;
+
+  // Calculate crop factors
+  {
+    crop_u1 = ((float)clip_left / gltexture->realtexwidth) * gltexture->scalexfac;
+    crop_u2 = ((float)(gltexture->realtexwidth - clip_right) / gltexture->realtexwidth) * gltexture->scalexfac;
+    crop_v1 = ((float)clip_top / gltexture->realtexheight) * gltexture->scaleyfac;
+    crop_v2 = ((float)(gltexture->realtexheight - clip_bottom) / gltexture->realtexheight) * gltexture->scaleyfac;
+
+    crop_width  = gltexture->realtexwidth  * (crop_u2 - crop_u1);
+    crop_height = gltexture->realtexheight * (crop_v2 - crop_v1);
+    x_crop = crop_u1 * gltexture->realtexwidth;
+    y_crop = crop_v1 * gltexture->realtexheight;
+  }
+
+  fV1 = crop_v1;
+  fV2 = crop_v2;
+
   if (flags & VPT_FLIP)
   {
-    fU1=gltexture->scalexfac;
-    fU2=0.0f;
+    fU1=crop_u2;
+    fU2=crop_u1;
   }
   else
   {
-    fU1=0.0f;
-    fU2=gltexture->scalexfac;
+    fU1=crop_u1;
+    fU2=crop_u2;
   }
 
   if (flags & VPT_NOOFFSET)
@@ -613,20 +637,20 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   {
     stretch_param_t *params = dsda_StretchParams(flags);
 
-    xpos   = (float)((x - leftoffset) * params->video->width)  / 320.0f + params->deltax1;
-    ypos   = (float)((y - topoffset)  * params->video->height) / 200.0f + params->deltay1;
-    width  = (float)(gltexture->realtexwidth     * params->video->width)  / 320.0f;
-    height = (float)(gltexture->realtexheight    * params->video->height) / 200.0f;
+    xpos   = (float)((x - leftoffset + x_crop) * params->video->width)  / 320.0f + params->deltax1;
+    ypos   = (float)((y - topoffset + y_crop)  * params->video->height) / 200.0f + params->deltay1;
+    width  = (float)(crop_width * params->video->width)  / 320.0f;
+    height = (float)(crop_height * params->video->height) / 200.0f;
 
     if (TOP_ALIGNMENT(flags & VPT_STRETCH_MASK))
       ypos += global_patch_top_offset;
   }
   else
   {
-    xpos   = (float)(x - leftoffset);
-    ypos   = (float)(y - topoffset);
-    width  = (float)(gltexture->realtexwidth);
-    height = (float)(gltexture->realtexheight);
+    xpos   = (float)(x - leftoffset + x_crop);
+    ypos   = (float)(y - topoffset + y_crop);
+    width  = crop_width;
+    height = crop_height;
   }
 
   // e6y
@@ -642,9 +666,9 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   glEnd();
 }
 
-void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, int cm, enum patch_translation_e flags)
+void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, cm, flags);
+  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, (float)clip_top, (float)clip_bottom, (float)clip_left, (float)clip_right, cm, flags);
 }
 
 void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags)
