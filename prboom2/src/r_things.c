@@ -531,14 +531,16 @@ static void R_UpdateFuzzCellSize(vissprite_t *vis)
     const rpatch_t *patch       = R_PatchByNum(vis->patch + firstspritelump);
     int sprite_height           = LittleShort(patch->height);
     float sprite_screen_height  = FixedMul(sprite_height << FRACBITS, vis->scale) >> FRACBITS;
+    float screen_space_factor;
+    float base_fuzzcellsize;
 
     // Set screen height to match sprite height
     if (vis->scale == 0)
       sprite_screen_height = (float)sprite_height;
 
     // Dynamically adjust minimum fuzz size based on screen height (resolution)
-    float screen_space_factor   = sprite_screen_height / sprite_height;
-    float base_fuzzcellsize     = screen_space_factor / 3;
+    screen_space_factor   = sprite_screen_height / (float)sprite_height;
+    base_fuzzcellsize     = screen_space_factor / 3;
 
     // distance fuzz limit for higher resolutions
     if (base_fuzzcellsize < (float)min_fuzzcellsize)

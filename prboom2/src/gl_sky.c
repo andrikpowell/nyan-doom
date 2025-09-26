@@ -145,7 +145,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
   line_t *l = NULL;
   int sky = texturetranslation[skytexture];
   int sky_bg = DoubleSky ? texturetranslation[skytexture2] : false;
-  angle_t fg_skyoffset, bg_skyoffset, skyoffset_angle;
+  angle_t fg_skyoffset = 0, bg_skyoffset = 0, skyoffset_angle = 0;
 
   wall->gltexture = NULL;
 
