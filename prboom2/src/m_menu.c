@@ -1974,22 +1974,34 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
     int options[] =
     { dsda_config_render_wipescreen, dsda_config_skill_easy_brain,
       nyan_config_loading_disk, dsda_config_fuzzmode, dsda_config_fuzzscale, dsda_config_enhanced_liteamp,
-      nyan_config_item_bonus_flash, nyan_config_colored_blood, dsda_config_translucent_sprites,
-      dsda_config_translucent_ghosts, dsda_config_translucent_missiles, dsda_config_translucent_powerups,
-      dsda_config_translucent_effects, dsda_config_sts_traditional_keys,
+      nyan_config_item_bonus_flash, nyan_config_colored_blood, dsda_config_sts_traditional_keys,
       nyan_config_hud_berserk, nyan_config_hud_armoricon, nyan_config_ex_status_widget,
       nyan_config_ex_status_armor, nyan_config_ex_status_berserk, nyan_config_ex_status_areamap,
       nyan_config_ex_status_backpack, nyan_config_ex_status_radsuit, nyan_config_ex_status_invis,
-      nyan_config_ex_status_liteamp, nyan_config_ex_status_invuln
+      nyan_config_ex_status_liteamp, nyan_config_ex_status_invuln, 
+    };
+
+    int options2[] =
+    { dsda_config_tran_filter_pct, dsda_config_translucent_sprites,
+      dsda_config_translucent_ghosts, dsda_config_translucent_missiles, dsda_config_translucent_powerups,
+      dsda_config_translucent_effects
     };
 
     const char* titles[] =
-    { "Status Widget" };
+    { "Status Widget", "Boom Translucency" };
 
+    // Disable + turn off
     for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
       if(s->config_id == options[i])
       {
         dsda_UpdateIntConfig(options[i], 0, false);
+        return true;
+      }
+
+    // Disable
+    for (int i = 0; (size_t)i < sizeof(options2) / sizeof(options2[0]); i++)
+      if(s->config_id == options2[i])
+      {
         return true;
       }
 
@@ -3751,12 +3763,14 @@ setup_menu_t display_nyan_settings[] = {
   { "Flashing Item Bonuses", S_YESNO, m_conf, G_X, nyan_config_item_bonus_flash },
   { "Colored Blood", S_CHOICE, m_conf, G_X, nyan_config_colored_blood, 0, colored_blood_list },
   EMPTY_LINE,
-  TITLE("Translucency", G_X),
+  TITLE("Menu Translucency", G_X),
   { "Menu Shadows", S_YESNO, m_conf, G_X, dsda_config_menu_tran_filter },
   { "Menu Shadows %", S_NUM, m_conf, G_X, dsda_config_menu_tran_filter_pct },
-  //{ "Translucency %", S_NUM, m_conf, G_X, dsda_config_tran_filter_pct },
+  EMPTY_LINE,
+  TITLE("Boom Translucency", G_X),
   { "Translucent Sprites", S_CHOICE, m_conf, G_X, dsda_config_translucent_sprites, 0, translucent_list },
   { "Translucent Ghosts", S_YESNO, m_conf, G_X, dsda_config_translucent_ghosts },
+  { "Translucency %", S_NUM, m_conf, G_X, dsda_config_tran_filter_pct },
   EMPTY_LINE,
   { "Projectiles", S_YESNO, m_conf, G_X, dsda_config_translucent_missiles, 0, m_null, EXCLUDE(dsda_config_translucent_sprites, 0) },
   { "Powerups", S_YESNO, m_conf, G_X, dsda_config_translucent_powerups, 0, m_null, EXCLUDE(dsda_config_translucent_sprites, 0) },

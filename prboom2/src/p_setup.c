@@ -3665,7 +3665,7 @@ void P_UpdateTranMap(void) {
   //int global_tran_filter_pct = raven ? 40 : 66;
 
   // main percentages
-  tran_filter_pct       = raven ? tinttable_pct : tranmap_pct;
+  tran_filter_pct       = raven ? tinttable_pct : dsda_TranslucencyPercent(); // Allow translucency customisation only for Doom / Boom
   alttint_filter_pct    = raven ? alt_tinttable_pct : P_ConvertTrans(100-tran_filter_pct); // reverse translucency under translucency o.O
   shadow_filter_pct     = hexen ? alt_tinttable_pct : tinttable_pct;
   shadow_ui_filter_pct  = P_ConvertTrans(dsda_MenuTranslucencyPercent());  // ui stuff (menu text shadows) - never use tinttable
