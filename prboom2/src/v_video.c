@@ -1003,7 +1003,7 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
 #define FULLSHADE 20
 byte shademap[FULLSHADE + 1][256];
-static cacheshade = false;
+static dboolean cacheshade = false;
 
 static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 { 

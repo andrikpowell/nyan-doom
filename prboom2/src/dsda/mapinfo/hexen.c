@@ -350,8 +350,8 @@ int dsda_HexenHUTitle(dsda_string_t* str) {
 
 int dsda_HexenSkyTexture(int skynum, int* sky) {
   if (!CurrentMap ||
-     (sky == 1 && !CurrentMap->sky1Texture) ||
-     (sky == 2 && !CurrentMap->sky2Texture) )
+     (skynum == 1 && !CurrentMap->sky1Texture) ||
+     (skynum == 2 && !CurrentMap->sky2Texture) )
     return false;
 
   if (skynum == 2)
@@ -559,7 +559,7 @@ int dsda_HexenMapLightning(int* lightning) {
 int dsda_HexenApplyFadeTable(void) {
   extern dboolean LevelUseFullBright;
   extern const lighttable_t** colormaps;
-  extern const lighttable_t** fademap;
+  extern const lighttable_t* fademap;
   extern void R_UpdateLightTables(void);
   extern dboolean V_IsOpenGLMode(void);
   extern void gld_FlushTextures(void);

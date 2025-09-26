@@ -537,7 +537,7 @@ static void R_UpdateFuzzCellSize(vissprite_t *vis)
       sprite_screen_height = (float)sprite_height;
 
     // Dynamically adjust minimum fuzz size based on screen height (resolution)
-    float screen_space_factor   = (float)(sprite_screen_height / (float)sprite_height);
+    float screen_space_factor   = sprite_screen_height / sprite_height;
     float base_fuzzcellsize     = screen_space_factor / 3;
 
     // distance fuzz limit for higher resolutions
