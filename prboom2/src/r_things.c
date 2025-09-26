@@ -526,6 +526,32 @@ static void R_SetSpritelights(int lightlevel)
   spritelights = scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
 }
 
+static void R_UpdateFuzzCellSize(vissprite_t *vis)
+{
+    const rpatch_t *patch       = R_PatchByNum(vis->patch + firstspritelump);
+    int sprite_height           = LittleShort(patch->height);
+    float sprite_screen_height  = FixedMul(sprite_height << FRACBITS, vis->scale) >> FRACBITS;
+
+    // Set screen height to match sprite height
+    if (vis->scale == 0)
+      sprite_screen_height = (float)sprite_height;
+
+    // Dynamically adjust minimum fuzz size based on screen height (resolution)
+    float screen_space_factor   = sprite_screen_height / (float)sprite_height;
+    float base_fuzzcellsize     = screen_space_factor / 3;
+
+    // distance fuzz limit for higher resolutions
+    if (base_fuzzcellsize < (float)min_fuzzcellsize)
+      base_fuzzcellsize = (float)min_fuzzcellsize;
+
+    // clamp fuzz
+    if (base_fuzzcellsize < 1) base_fuzzcellsize = 1;
+    if (base_fuzzcellsize > base_fuzzcellsize * 3) base_fuzzcellsize = base_fuzzcellsize * 3;
+    
+    // update fuzzcellsize
+    fuzzcellsize = (int)(base_fuzzcellsize);
+}
+
 
 //
 // R_DrawVisSprite
@@ -557,6 +583,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
   if (!dcvars.colormap)   // NULL colormap = shadow draw
   {
     R_ResetFuzzCol(colheight); // Reset fuzz column for new sprite
+    R_UpdateFuzzCellSize(vis);
     colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ, RDRAW_FILTER_POINT);    // killough 3/14/98
   }
   else

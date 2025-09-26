@@ -332,6 +332,7 @@ typedef enum {
   dsda_config_weaponbob,
   dsda_config_quake_intensity,
   dsda_config_fuzzmode,
+  dsda_config_fuzzscale,
   dsda_config_multiple_area_maps,
   dsda_config_map_blinking_locks,
   dsda_config_map_secret_after,

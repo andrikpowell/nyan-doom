@@ -1973,7 +1973,7 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
   {
     int options[] =
     { dsda_config_render_wipescreen, dsda_config_skill_easy_brain,
-      nyan_config_loading_disk, dsda_config_fuzzmode, dsda_config_enhanced_liteamp,
+      nyan_config_loading_disk, dsda_config_fuzzmode, dsda_config_fuzzscale, dsda_config_enhanced_liteamp,
       nyan_config_item_bonus_flash, nyan_config_colored_blood, dsda_config_translucent_sprites,
       dsda_config_translucent_ghosts, dsda_config_translucent_missiles, dsda_config_translucent_powerups,
       dsda_config_translucent_effects, dsda_config_sts_traditional_keys,
@@ -3739,12 +3739,14 @@ setup_menu_t display_options_settings[] = {
 };
 
 static const char* fuzz_mode_list[] = { "Vanilla", "Refraction", "Shadow", NULL };
+static const char* fuzz_scale_list[] = { "Default", "3/4", "1/2", NULL };
 static const char* colored_blood_list[] = { "OFF", "ON", "FORCED", NULL };
 static const char* translucent_list[] = { "Off", "Default", "w/ Vanilla", NULL };
 
 setup_menu_t display_nyan_settings[] = {
   { "Colored Borderbox", S_YESNO, m_conf, G_X, dsda_config_colored_borderbox },
   { "Software Fuzz Mode", S_CHOICE, m_conf, G_X, dsda_config_fuzzmode, 0, fuzz_mode_list, dsda_config_videomode, SOFTWARE_MODE },
+  { "Fuzz Scale at Distance", S_CHOICE, m_conf, G_X, dsda_config_fuzzscale, 0, fuzz_scale_list, dsda_config_videomode, SOFTWARE_MODE },
   { "Enhanced Lite Amp Effect", S_YESNO, m_conf, G_X, dsda_config_enhanced_liteamp },
   { "Flashing Item Bonuses", S_YESNO, m_conf, G_X, nyan_config_item_bonus_flash },
   { "Colored Blood", S_CHOICE, m_conf, G_X, nyan_config_colored_blood, 0, colored_blood_list },

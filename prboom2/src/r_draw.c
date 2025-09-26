@@ -144,7 +144,8 @@ static int fuzzoffset[FUZZTABLE];
 static int fuzzpos = 0;
 
 // Fuzz cell size for scaled software fuzz
-static int fuzzcellsize;
+int fuzzcellsize;
+int min_fuzzcellsize;
 
 // render pipelines
 #define RDC_STANDARD      1
@@ -579,6 +580,16 @@ void R_InitBuffersRes(void)
 //  of a pixel to draw.
 //
 
+void R_UpdateFuzzSize(void)
+{
+  int scale = dsda_IntConfig(dsda_config_fuzzscale);
+
+  if (!tallscreen)
+    min_fuzzcellsize = (SCREENHEIGHT + 100) / (200 + (scale*100));  // Just set this til it looked good at 2k resolution (lowest 3 pixels at distance)
+  else
+    min_fuzzcellsize = (SCREENWIDTH + 160) / (320 + (scale*160));  // Just set this til it looked good at 2k resolution (lowest 3 pixels at distance)
+}
+
 void R_InitBuffer(int width, int height)
 {
   int i=0;
@@ -602,6 +613,8 @@ void R_InitBuffer(int width, int height)
     fuzzcellsize = (SCREENHEIGHT + 100) / 200;
   else
     fuzzcellsize = (SCREENWIDTH + 160) / 320;
+
+  R_UpdateFuzzSize();
 }
 
 //

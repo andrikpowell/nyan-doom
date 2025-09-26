@@ -149,6 +149,7 @@ void dsda_RefreshAlwaysPistolStart(void);
 void S_ToggleRandomMusic(void);
 void P_UpdateTranMap(void);
 void cht_UpdateCheats(void);
+void R_UpdateFuzzSize(void);
 
 void dsda_TrackConfigFeatures(void) {
   if (!demorecording)
@@ -1458,6 +1459,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_fuzzmode] = {
     "dsda_fuzzmode", dsda_config_fuzzmode,
     dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0)
+  },
+  [dsda_config_fuzzscale] = {
+    "dsda_fuzzscale", dsda_config_fuzzscale,
+    dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0), R_UpdateFuzzSize
   },
   [dsda_config_multiple_area_maps] = {
     "dsda_multiple_area_maps", dsda_config_multiple_area_maps,
