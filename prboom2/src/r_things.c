@@ -534,6 +534,10 @@ static void R_UpdateFuzzCellSize(vissprite_t *vis)
     float screen_space_factor;
     float base_fuzzcellsize;
 
+    // Don't scale fuzz for player weapon sprites
+    if (vis->mobjflags & MF_PLAYERSPRITE)
+      return;
+
     // Set screen height to match sprite height
     if (vis->scale == 0)
       sprite_screen_height = (float)sprite_height;
