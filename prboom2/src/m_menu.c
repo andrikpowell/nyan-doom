@@ -5166,7 +5166,7 @@ static int M_GetPixelWidth(const char* ch)
 int M_GetPixelWidthCount(const char* str, int start_index, int count)
 {
   int width = 0;
-  char c;
+  int c;
 
   str += start_index;
   for (int i = 0; i < count && str[i]; i++) {

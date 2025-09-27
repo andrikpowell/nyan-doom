@@ -894,7 +894,7 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
   // if close, just go wtih 100
   if (patch.trans == 99)
   {
-    patch.trans != NO_TRANS;
+    patch.trans = NO_TRANS;
     patch.flags &= ~VPT_TRANSMAP;
   }
 
@@ -936,7 +936,7 @@ v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype
   // if close, just go wtih 100
   if (shadow.trans == 99)
   {
-    shadow.trans != NO_TRANS;
+    shadow.trans = NO_TRANS;
     shadow.flags &= ~VPT_TRANSMAP;
   }
 

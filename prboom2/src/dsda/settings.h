@@ -70,6 +70,8 @@ int dsda_MenuTranslucency(void);
 int dsda_MenuTranslucencyPercent(void);
 int dsda_ExHudTranslucency(void);
 int dsda_ExHudTranslucencyPercent(void);
+int dsda_ShadowTranslucency(void);
+int dsda_ShadowTranslucencyPercent(void);
 int dsda_CycleShowAliveMonsters(void);
 int dsda_RevealAutomap(void);
 void dsda_ResetRevealMap(void);
