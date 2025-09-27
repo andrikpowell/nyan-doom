@@ -1161,10 +1161,8 @@ void FUNC_V_FillRectShaded(int x, int y, int w, int h, int start_shade, int end_
     {
       int block_size = vertical ? j : i;
       int shade = start_shade + ((end_shade - start_shade) * block_size) / (blocks - 1);
-      //if (shade < 0) shade = 0;
-      //if (shade > 32) shade = 31;
 
-      const byte *shades = colormaps[0] + 9 * 256 + shade * 256;
+      const byte *shades = colormaps[0] + 9 * 256 + (shade * 2) * 256;
       dest[i] = shades[dest[i]];
     }
 

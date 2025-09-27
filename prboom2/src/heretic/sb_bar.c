@@ -445,11 +445,11 @@ static void ShadeChain(void)
     int x, y, w, h;
     x = 19, y = 190, w = 16, h = 10;
     V_GetWideRect(&x, &y, &w, &h, VPT_STRETCH);
-    V_FillRectShaded(x, y, w, h, 16, 0, false);
+    V_FillRectShaded(x, y, w, h, 7, 0, false);
 
     x = 277, y = 190, w = 16, h = 10;
     V_GetWideRect(&x, &y, &w, &h, VPT_STRETCH);
-    V_FillRectShaded(x, y, w, h, 0, 16, false);
+    V_FillRectShaded(x, y, w, h, 0, 7, false);
 }
 
 //---------------------------------------------------------------------------
