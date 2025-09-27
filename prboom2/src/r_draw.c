@@ -715,7 +715,7 @@ static void R_DrawStbarBorder (void)
       // Apply screen scaling when in stretch mode
       x = floorf((x - params->deltax1) * 320.0f / params->video->width);
       y = floorf((y - params->deltay1) * 200.0f / params->video->height);
-      w = ceilf(w * 320.0f / params->video->width) + 0.5f;
+      w = ceilf(w * 320.0f / params->video->width) + 1.0f;
     }
     else
     {
