@@ -410,6 +410,8 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const rp
 
   if ((cm==CR_DEFAULT) || (cm==CR_LIMIT))
     outr=&colormaps[0][0];
+  else if (cm==CR_SHADOW)
+    outr=&colormaps[0][256 * 31];
   else if (cm==CR_DARKEN)
     outr=&colormaps[0][256 * 15];
   else if (cm<CR_LIMIT)

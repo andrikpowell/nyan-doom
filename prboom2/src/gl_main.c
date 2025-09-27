@@ -558,10 +558,18 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   float crop_width, crop_height, x_crop, y_crop;
   float width,height;
   float xpos, ypos;
-  float r, g, b, alpha;
+  float alpha;
   int cmap;
   int leftoffset, topoffset;
 
+  // Add shadow properties
+  if (flags & VPT_SHADOW)
+  {
+    flags |= VPT_COLOR;
+    cm = CR_SHADOW;
+  }
+
+  alpha = 1.0f;
   cmap = ((flags & VPT_COLOR) ? cm : CR_DEFAULT);
   gltexture=gld_RegisterPatch(lump, cmap, false, V_IsUILightmodeIndexed());
   gld_BindPatch(gltexture, cmap);
@@ -621,11 +629,6 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
       x -= (float)(gltexture->width - 320) / 2;
   }
 
-  //Set rgb colors
-  r = g = b = (flags & VPT_SHADOW) ? 0.0f : 1.0f;
-
-  alpha = 1.0f;
-
   // Add translucency
   if (flags & VPT_SHADOW || flags & VPT_EX_TRANS || flags & VPT_TRANSMAP || flags & VPT_ALT_TRANSMAP)
   {
@@ -664,7 +667,7 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   // e6y
   // This is a workaround for some on-board Intel video cards.
   // Do you know more elegant solution?
-  glColor4f(r, g, b, alpha);
+  glColor4f(1.0f, 1.0f, 1.0f, alpha);
 
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(fU1, fV1); glVertex2f((xpos),(ypos));

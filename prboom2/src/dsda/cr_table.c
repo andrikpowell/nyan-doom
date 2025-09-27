@@ -191,6 +191,21 @@ static void dsda_LoadCRLumps(byte* buffer) {
   }
 }
 
+static int dsda_GetShadowIndex(const byte *playpal) {
+  double best_L = 999.0;
+  int best_i = 0;
+
+  for (int i = 0; i < 256; ++i) {
+    double L = dsda_PaletteEntryLightness(playpal, i);
+    if (L < best_L) {
+      best_L = L;
+      best_i = i;
+    }
+  }
+
+  return best_i;
+}
+
 byte* dsda_GenerateCRTable(void) {
   int cr_i;
   int orig_i;
@@ -198,10 +213,12 @@ byte* dsda_GenerateCRTable(void) {
   byte* buffer;
   const byte* playpal;
   int dark_i;
+  int shadow_i;
 
   dsda_LoadCRLump();
 
   playpal = W_LumpByName("PLAYPAL");
+  shadow_i = dsda_GetShadowIndex(playpal);
 
   buffer = Z_Malloc(256 * CR_LIMIT);
 
@@ -273,6 +290,9 @@ byte* dsda_GenerateCRTable(void) {
 
         buffer[(dark_i ? CR_DARKEN * 256 : 0) + cr_i * 256 + orig_i] = best_i;
       }
+
+      // Add CR_SHADOW (darkest index of playpal)
+      buffer[(dark_i ? CR_DARKEN * 256 : 0) + CR_SHADOW * 256 + orig_i] = shadow_i;
     }
   }
 

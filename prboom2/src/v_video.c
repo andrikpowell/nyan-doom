@@ -858,6 +858,8 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
   // color translation
   if (cm == CR_DEFAULT)
     patch.colortr = &colormaps[0][0];
+  else if (cm == CR_SHADOW)
+    patch.colortr = &colormaps[0][256 * 31];
   else if (cm == CR_DARKEN)
     patch.colortr = &colormaps[0][256 * 15];
   else if (cm < CR_LIMIT)
