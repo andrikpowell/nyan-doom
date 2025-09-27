@@ -40,11 +40,15 @@ void N_ReloadAnimateLumps(void);
 int N_GetPatchAnimateNum(const char* lump, dboolean animation);
 void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elump, int speed);
 
-void V_DrawNamePatchAnimate(const int x, const int y, const char* lump, const int color, const int flags);
-void V_DrawNamePatchAnimateFS(const int x, const int y, const char* lump, const int color, const int flags);
-void V_DrawNamePatchPreciseAnimate(float x, float y, const char* lump, const int color, const int flags);
-void V_DrawNamePatchPreciseAnimateFS(float x, float y, const char* lump, const int color, const int flags);
 void V_DrawBackgroundAnimate(const char* lump);
+
+#define V_DrawNamePatchAnimate(x,y,lump,color,flags) V_DrawNumPatch(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
+#define V_DrawNamePatchAnimateFS(x,y,lump,color,flags) V_DrawNumPatchFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
+#define V_DrawNamePatchAnimatePrecise(x,y,lump,color,flags) V_DrawNumPatchPrecise(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
+#define V_DrawNamePatchAnimatePreciseFS(x,y,lump,color,flags) V_DrawNumPatchPreciseFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
+
+#define V_DrawMenuNamePatchAnimate(x,y,lump,color,flags) V_DrawMenuNumPatch(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
+#define V_DrawMenuNamePatchAnimateFS(x,y,lump,color,flags) V_DrawMenuNumPatchFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
 
 const int N_CheckAnimate(const char* lump); // called in m_menu.c for M_SKULL1/2
 const char* PrefixCombine(const char *lump_prefix, const char *lump_main);

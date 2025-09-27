@@ -540,9 +540,9 @@ void MN_DrawMainMenu(void)
   if (hexen) return Hexen_MN_DrawMainMenu();
 
   frame = (MenuTime / 3) % 18;
-  V_DrawNamePatch(88, 0, "M_HTIC", CR_DEFAULT, VPT_STRETCH);
-  V_DrawNumPatch(40, 10, SkullBaseLump + (17 - frame), CR_DEFAULT, VPT_STRETCH);
-  V_DrawNumPatch(232, 10, SkullBaseLump + frame, CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(88, 0, "M_HTIC", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNumPatch(40, 10, SkullBaseLump + (17 - frame), CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNumPatch(232, 10, SkullBaseLump + frame, CR_DEFAULT, VPT_STRETCH);
 }
 
 static void Hexen_MN_DrawMainMenu(void)
@@ -550,9 +550,9 @@ static void Hexen_MN_DrawMainMenu(void)
   int frame;
 
   frame = (MenuTime / 5) % 7;
-  V_DrawNamePatch(88, 0, "M_HTIC", CR_DEFAULT, VPT_STRETCH);
-  V_DrawNumPatch(37, 80, SkullBaseLump + (frame + 2) % 7, CR_DEFAULT, VPT_STRETCH);
-  V_DrawNumPatch(278, 80, SkullBaseLump + frame, CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(88, 0, "M_HTIC", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNumPatch(37, 80, SkullBaseLump + (frame + 2) % 7, CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNumPatch(278, 80, SkullBaseLump + frame, CR_DEFAULT, VPT_STRETCH);
 }
 
 // Class menu is in the episode slot for hexen
@@ -612,7 +612,7 @@ static void MN_DrawFileSlots(int x, int y)
 
   for (i = 0; i < g_menu_save_page_size; i++)
   {
-    V_DrawNamePatch(x, y, "M_FSLOT", CR_DEFAULT, VPT_STRETCH);
+    V_DrawMenuNamePatch(x, y, "M_FSLOT", CR_DEFAULT, VPT_STRETCH);
     MN_DrTextA(savegamestrings[i], x + 5, y + 5);
     y += ITEM_HEIGHT;
   }
@@ -785,18 +785,18 @@ void MN_DrawSlider(int x, int y, int width, int range, int slot)
   width -= 4;
 
   xx = x - 12;
-  V_DrawNamePatch(xx, y, "M_SLDLT", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(xx, y, "M_SLDLT", CR_DEFAULT, VPT_STRETCH);
   xx += 32;
   for (i=0;i<width;i++)
   {
     const char* name;
     name = (slider_img & 1 ? "M_SLDMD1" : "M_SLDMD2");
     slider_img ^= 1;
-    V_DrawNamePatch(xx, y, name, CR_DEFAULT, VPT_STRETCH);
+    V_DrawMenuNamePatch(xx, y, name, CR_DEFAULT, VPT_STRETCH);
 
     xx += 8;
   }
-  V_DrawNamePatch(xx, y, "M_SLDRT", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(xx, y, "M_SLDRT", CR_DEFAULT, VPT_STRETCH);
 
   if (slot >= range)
   {

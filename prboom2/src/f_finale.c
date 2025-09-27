@@ -1027,8 +1027,8 @@ void F_BunnyScroll (void)
     if (p1offset > 0)
       V_DrawNamePatchAnimateFS(-320, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
   } else {
-    V_DrawNamePatchPreciseAnimateFS((float)(p1offset + 320) - scrolled, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
-    V_DrawNamePatchPreciseAnimateFS(-scrolled, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchAnimatePreciseFS((float)(p1offset + 320) - scrolled, 0, scrollpic1, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchAnimatePreciseFS(-scrolled, 0, scrollpic2, CR_DEFAULT, VPT_STRETCH);
   }
   if (p2width == 320)
     V_ClearBorderNoFill(scrollpic1);

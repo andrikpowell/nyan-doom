@@ -288,6 +288,11 @@ extern V_DrawShadowedNumPatchGenPrecise_f V_DrawShadowedNumPatchGenPrecise;
 #define V_DrawMenuNamePatch(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,0,W_GetNumForName(n),false,SHADOW_DEFAULT,0,0,0,0,t,f)
 #define V_DrawMenuNamePatchPrecise(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,0,W_GetNumForName(n),false,SHADOW_DEFAULT,0,0,0,0,t,f)
 
+#define V_DrawMenuNumPatchFS(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,0,n,true,SHADOW_DEFAULT,0,0,0,0,t,f)
+#define V_DrawMenuNamePatchFS(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,0,W_GetNumForName(n),true,SHADOW_DEFAULT,0,0,0,0,t,f)
+#define V_DrawMenuNumPatchPreciseFS(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,0,n,true,SHADOW_DEFAULT,0,0,0,0,t,f)
+#define V_DrawMenuNamePatchPreciseFS(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,0,W_GetNumForName(n),true,SHADOW_DEFAULT,0,0,0,0,t,f)
+
 /* cph -
  * Functions to return width & height of a patch.
  * Doesn't really belong here, but is often used in conjunction with

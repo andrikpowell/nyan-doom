@@ -497,7 +497,7 @@ static void M_DrawMainMenu(void)
 {
   if (raven) return MN_DrawMainMenu();
   // CPhipps - patch drawing updated
-  V_DrawNamePatchAnimate(94, 2, mdoom, CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatchAnimate(94, 2, mdoom, CR_DEFAULT, VPT_STRETCH);
 }
 
 /////////////////////////////
@@ -7133,7 +7133,7 @@ void M_Drawer (void)
 
         // CPhipps - patch drawing updated
         if (skullani)
-            V_DrawNamePatchAnimate(ix, iy, mskull1, CR_DEFAULT, VPT_STRETCH);
+            V_DrawMenuNamePatchAnimate(ix, iy, mskull1, CR_DEFAULT, VPT_STRETCH);
         else
             V_DrawMenuNamePatch(ix, iy, skullName[whichSkull], CR_DEFAULT, VPT_STRETCH);
     }
@@ -7245,14 +7245,14 @@ static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int therm
   if (raven) return MN_DrawSlider(x, y, thermWidth, thermRange, thermDot);
 
   xx = x;
-  V_DrawNamePatch(xx, y, "M_THERML", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(xx, y, "M_THERML", CR_DEFAULT, VPT_STRETCH);
   xx += 8;
   for (i=0;i<thermWidth;i++)
   {
-    V_DrawNamePatch(xx, y, "M_THERMM", CR_DEFAULT, VPT_STRETCH);
+    V_DrawMenuNamePatch(xx, y, "M_THERMM", CR_DEFAULT, VPT_STRETCH);
     xx += 8;
   }
-  V_DrawNamePatch(xx, y, "M_THERMR", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(xx, y, "M_THERMR", CR_DEFAULT, VPT_STRETCH);
 
   if (thermDot >= thermRange)
   {

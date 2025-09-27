@@ -307,26 +307,6 @@ int N_GetPatchAnimateNum(const char* lump, dboolean animation)
     return W_GetNumForName(lump);
 }
 
-void V_DrawNamePatchAnimate(const int x, const int y, const char* lump, const int color, const int flags)
-{
-    V_DrawNumPatch(x, y, N_GetPatchAnimateNum(lump, true), color, flags);
-}
-
-void V_DrawNamePatchAnimateFS(const int x, const int y, const char* lump, const int color, const int flags)
-{
-    V_DrawNumPatchFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags);
-}
-
-void V_DrawNamePatchPreciseAnimate(float x, float y, const char* lump, const int color, const int flags)
-{
-    V_DrawNumPatchPrecise(x, y, N_GetPatchAnimateNum(lump, true), color, flags);
-}
-
-void V_DrawNamePatchPreciseAnimateFS(float x, float y, const char* lump, const int color, const int flags)
-{
-    V_DrawNumPatchPreciseFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags);
-}
-
 void V_DrawBackgroundAnimate(const char* lump)
 {
     extern const char* g_menu_flat;

@@ -1144,11 +1144,11 @@ static void DrawAnimatedIcons(void)
             {
                 if (hitCenterFrame && (frame != 15 && frame != 0))
                 {
-                    V_DrawNumPatch(20, sb_icon_y, spinflylump + 15, CR_DEFAULT, VPT_STRETCH);
+                    V_DrawMenuNumPatch(20, sb_icon_y, spinflylump + 15, CR_DEFAULT, VPT_STRETCH);
                 }
                 else
                 {
-                    V_DrawNumPatch(20, sb_icon_y, spinflylump + frame, CR_DEFAULT, VPT_STRETCH);
+                    V_DrawMenuNumPatch(20, sb_icon_y, spinflylump + frame, CR_DEFAULT, VPT_STRETCH);
                     hitCenterFrame = false;
                 }
             }
@@ -1156,12 +1156,12 @@ static void DrawAnimatedIcons(void)
             {
                 if (!hitCenterFrame && (frame != 15 && frame != 0))
                 {
-                    V_DrawNumPatch(20, sb_icon_y, spinflylump + frame, CR_DEFAULT, VPT_STRETCH);
+                    V_DrawMenuNumPatch(20, sb_icon_y, spinflylump + frame, CR_DEFAULT, VPT_STRETCH);
                     hitCenterFrame = false;
                 }
                 else
                 {
-                    V_DrawNumPatch(20, sb_icon_y, spinflylump + 15, CR_DEFAULT, VPT_STRETCH);
+                    V_DrawMenuNumPatch(20, sb_icon_y, spinflylump + 15, CR_DEFAULT, VPT_STRETCH);
                     hitCenterFrame = true;
                 }
             }
@@ -1174,7 +1174,7 @@ static void DrawAnimatedIcons(void)
             || !(CPlayer->powers[pw_weaponlevel2] & 16))
         {
             frame = (leveltime / 3) & 15;
-            V_DrawNumPatch(300, sb_icon_y, spinbooklump + frame, CR_DEFAULT, VPT_STRETCH);
+            V_DrawMenuNumPatch(300, sb_icon_y, spinbooklump + frame, CR_DEFAULT, VPT_STRETCH);
         }
     }
 
@@ -1185,7 +1185,7 @@ static void DrawAnimatedIcons(void)
             || !(CPlayer->powers[pw_speed] & 16))
         {
             frame = (leveltime / 3) & 15;
-            V_DrawNumPatch(60, sb_icon_y, SpinSpeedLump + frame, CR_DEFAULT, VPT_STRETCH);
+            V_DrawMenuNumPatch(60, sb_icon_y, SpinSpeedLump + frame, CR_DEFAULT, VPT_STRETCH);
         }
     }
 
@@ -1196,7 +1196,7 @@ static void DrawAnimatedIcons(void)
             || !(CPlayer->powers[pw_invulnerability] & 16))
         {
             frame = (leveltime / 3) & 15;
-            V_DrawNumPatch(260, sb_icon_y, SpinDefenseLump + frame, CR_DEFAULT, VPT_STRETCH);
+            V_DrawMenuNumPatch(260, sb_icon_y, SpinDefenseLump + frame, CR_DEFAULT, VPT_STRETCH);
         }
     }
 
@@ -1207,7 +1207,7 @@ static void DrawAnimatedIcons(void)
             || !(CPlayer->powers[pw_minotaur] & 16))
         {
             frame = (leveltime / 3) & 15;
-            V_DrawNumPatch(300, sb_icon_y, SpinMinotaurLump + frame, CR_DEFAULT, VPT_STRETCH);
+            V_DrawMenuNumPatch(300, sb_icon_y, SpinMinotaurLump + frame, CR_DEFAULT, VPT_STRETCH);
         }
     }
 }
