@@ -124,12 +124,14 @@ typedef struct setup_menu_dependent_s {
   int exclude;                          /* whether value is included or excluded */
 } setup_menu_dependent_t;
 
+typedef uint64_t menu_flags_t;
+
 typedef struct setup_menu_s
 {
-  const char  *m_text;  /* text to display */
-  int         m_flags;  /* phares 4/17/98: flag bits S_* (defined above) */
-  setup_group m_group;  /* Group */
-  short       m_x;      /* screen x position (left is 0) */
+  const char   *m_text;  /* text to display */
+  menu_flags_t m_flags;  /* phares 4/17/98: flag bits S_* (defined above) */
+  setup_group  m_group;  /* Group */
+  short        m_x;      /* screen x position (left is 0) */
   dsda_config_identifier_t config_id;
   int input; // composite input identifier
   const char **selectstrings; /* list of strings for choice value */

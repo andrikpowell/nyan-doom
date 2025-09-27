@@ -114,38 +114,44 @@
  *  Setup Screen. They can be OR'ed together where appropriate
  */
 
-#define S_HILITE   0x00000001 // Cursor is sitting on this item
-#define S_SELECT   0x00000002 // We're changing this item
-#define S_TITLE    0x00000004 // Title item
-#define S_YESNO    0x00000008 // Yes or No item
-#define S_CRITEM   0x00000010 // Message color
-#define S_COLOR    0x00000020 // Automap color
-#define S_LABEL    0x00000040
-#define S_TC_SEL   0x00000080
-#define S_PREV     0x00000100 // Previous menu exists
-#define S_NEXT     0x00000200 // Next menu exists
-#define S_INPUT    0x00000400 // Composite input binding
-#define S_WEAP     0x00000800 // Weapon #
-#define S_NUM      0x00001000 // Numerical item
-#define S_SKIP     0x00002000 // Cursor can't land here
-#define S_KEEP     0x00004000 // Don't swap key out
-#define S_END      0x00008000 // Last item in list (dummy)
-#define S_LEVWARN  0x00010000 // killough 8/30/98: Always warn about pending change
-#define S_NOSELECT 0x00020000
-#define S_CENTER   0x00040000
-#define S_FILE     0x00080000 // killough 10/98: Filenames
-#define S_LEFTJUST 0x00100000 // killough 10/98: items which are left-justified
-#define S_CREDIT   0x00200000 // killough 10/98: credit
-#define S_THERMO   0x00400000 // Slider for choosing a value
-#define S_CHOICE   0x00800000 // this item has several values
-#define S_DISABLED 0x01000000
-#define S_NAME     0x02000000
-#define S_RESET_Y  0x04000000
-#define S_FUNC     0x08000000
-// #define S_      0x10000000
-// #define S_      0x20000000
-#define S_STR      0x40000000 // need to refactor things...
-#define S_NOCLEAR  0x80000000
+#define S_HILITE   0x00000001ULL // Cursor is sitting on this item
+#define S_SELECT   0x00000002ULL // We're changing this item
+#define S_TITLE    0x00000004ULL // Title item
+#define S_YESNO    0x00000008ULL // Yes or No item
+#define S_CRITEM   0x00000010ULL // Message color
+#define S_COLOR    0x00000020ULL // Automap color
+#define S_LABEL    0x00000040ULL
+#define S_TC_SEL   0x00000080ULL
+#define S_PREV     0x00000100ULL // Previous menu exists
+#define S_NEXT     0x00000200ULL // Next menu exists
+#define S_INPUT    0x00000400ULL // Composite input binding
+#define S_WEAP     0x00000800ULL // Weapon #
+#define S_NUM      0x00001000ULL // Numerical item
+#define S_SKIP     0x00002000ULL // Cursor can't land here
+#define S_KEEP     0x00004000ULL // Don't swap key out
+#define S_END      0x00008000ULL // Last item in list (dummy)
+#define S_LEVWARN  0x00010000ULL // killough 8/30/98: Always warn about pending change
+#define S_NOSELECT 0x00020000ULL
+#define S_CENTER   0x00040000ULL
+#define S_FILE     0x00080000ULL // killough 10/98: Filenames
+#define S_LEFTJUST 0x00100000ULL // killough 10/98: items which are left-justified
+#define S_CREDIT   0x00200000ULL // killough 10/98: credit
+#define S_THERMO   0x00400000ULL // Slider for choosing a value
+#define S_CHOICE   0x00800000ULL // this item has several values
+#define S_DISABLED 0x01000000ULL
+#define S_NAME     0x02000000ULL
+#define S_RESET_Y  0x04000000ULL
+#define S_FUNC     0x08000000ULL
+// #define S_      0x10000000ULL
+// #define S_      0x20000000ULL
+#define S_STR      0x40000000ULL // need to refactor things...
+// #define S_      0x80000000ULL
+// #define S_      0x000000100000000ULL
+// #define S_      0x000000200000000ULL
+// #define S_      0x000000400000000ULL
+// #define S_      0x000000800000000ULL
+// #define S_      0x000001000000000ULL
+#define S_NOCLEAR  0x800000000000000ULL
 
 /* S_SHOWDESC  = the set of items whose description should be displayed
  * S_SHOWSET   = the set of items whose setting should be displayed
@@ -1680,7 +1686,7 @@ static void M_SetSetupMenuItemOn (const int x)
 
 static dboolean M_ItemSelected(const setup_menu_t *s)
 {
-    int flags = s->m_flags;
+    menu_flags_t flags = s->m_flags;
 
     if (s == current_setup_menu + set_menu_itemon && whichSkull && !(flags & S_NOSELECT))
       return true;
@@ -2080,7 +2086,7 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
   return false;
 }
 
-static int GetItemColor(int flags)
+static int GetItemColor(menu_flags_t flags)
 {
     return (flags & S_TITLE && flags & S_DISABLED) ? cr_title + CR_DARKEN :
             flags & S_DISABLED ? cr_label + CR_DARKEN :
@@ -2090,7 +2096,7 @@ static int GetItemColor(int flags)
             cr_label; // killough 10/98
 }
 
-static int GetOptionColor(int flags)
+static int GetOptionColor(menu_flags_t flags)
 {
     return flags & S_DISABLED ? cr_value + CR_DARKEN :
            flags & S_SELECT ? cr_value_edit :
@@ -2111,7 +2117,7 @@ static int GetOptionColor(int flags)
 static void M_DrawItem(const setup_menu_t* s, int y)
 {
   int x = s->m_x;
-  int flags = s->m_flags;
+  menu_flags_t flags = s->m_flags;
   char text[66];
   char *p, *t;
   int w = 0;
@@ -2172,7 +2178,8 @@ static char gather_buffer[MAXGATHER+1];  // killough 10/98: make input character
 
 static void M_DrawSetting(const setup_menu_t* s, int y)
 {
-  int x = s->m_x, flags = s->m_flags, color;
+  int x = s->m_x, color;
+  menu_flags_t flags = s->m_flags;
 
   if (M_ItemDisabled(s))
     flags |= S_DISABLED;
@@ -2600,7 +2607,7 @@ static void M_DrawInstructionString(int cr, const char *str)
 
 static void M_DrawInstructions(void)
 {
-  int flags = current_setup_menu[set_menu_itemon].m_flags;
+  menu_flags_t flags = current_setup_menu[set_menu_itemon].m_flags;
 
   // There are different instruction messages depending on whether you
   // are changing an item or just sitting on it.
@@ -5796,7 +5803,7 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
 
   if (action == MENU_ENTER)
   {
-    int flags = ptr1->m_flags;
+    menu_flags_t flags = ptr1->m_flags;
 
     if (M_ItemDisabled(ptr1))
       return true;
