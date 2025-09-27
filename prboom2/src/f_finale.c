@@ -86,13 +86,6 @@ void WI_checkForAccelerate(void);    // killough 3/28/98: used to
 extern int acceleratestage;          // accelerate intermission screens
 int midstage;                 // whether we're in "mid-stage"
 
-dboolean F_ShowCast(void)
-{
-  return gamemap == 30 ||
-         (gamemission == pack_nerve && allow_incompatibility && gamemap == 8) ||
-         dsda_FinaleShortcut();
-}
-
 // Arsinikk - Checks whether intermission text matches original text and if new text is provided from PWAD.
 // used for the skip intermission config option.
 static int dsda_CheckInterText(void)
@@ -448,6 +441,8 @@ void F_StartFinale (void)
                        (gamemission == pack_plut) ? s_P4TEXT : s_C4TEXT;
         }
         break;
+      case indetermined:
+        break;
     }
   }
 
@@ -492,6 +487,13 @@ float Get_TextSpeed(void)
 //
 // killough 5/10/98: add back v1.9 demo compatibility
 //
+
+dboolean F_ShowCast(void)
+{
+  return gamemap == 30 ||
+         (gamemission == pack_nerve && allow_incompatibility && gamemap == 8) ||
+         dsda_FinaleShortcut();
+}
 
 void F_Ticker(void)
 {
@@ -995,7 +997,7 @@ static void F_DrawEndPatches (void)
     laststage = stage;
   }
 
-  sprintf (name,"END%i",stage);
+  snprintf(name, sizeof name, "END%i", stage);
   // CPhipps - patch drawing updated
   V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, name, CR_DEFAULT, VPT_STRETCH);
 }

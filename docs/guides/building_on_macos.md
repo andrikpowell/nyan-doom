@@ -1,60 +1,61 @@
 # Building Nyan-Doom on macOS
-This is a basic guide for building Nyan-Doom for a x86_64 or arm64 macOS target using brew. 
-## Configure brew
-[brew](https://brew.sh) is a package manager for macOS and Linux. we will use it to download everything we need to build Nyan-Doom.
 
-To install it we need to run:
-```
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-On x86_64 machines, brew will be installed in `/usr/local/homebrew`.
+This is a basic guide for making a release build of Nyan Doom on macOS using tools and libraries from brew.
 
-On arm64 machines, brew will be installed in `/opt/homebrew`.
-## Install Build Dependencies
-Install cmake, SDL2 and additional dependencies for Nyan-Doom:
-```
-brew install cmake pkgconf libopenmpt fluid-synth libvorbis libzip mad portmidi sdl2 sdl2_image sdl2_mixer
-```
-## Build Nyan-Doom
-Make a clone of the Nyan-Doom Git repository:
+## Prerequisites
+
+In order to build Nyan Doom, the following tools are needed:
+- Xcode's Command Line Tools, installed by running `xcode-select --install` from a terminal.
+- The Homebrew package manager, refer to [this page](https://brew.sh/) for installation.
+
+This guide assumes all the commands are ran from the root directory of the repository, make sure to move into the
+directory after cloning the sources:
+
 ```
 git clone https://github.com/andrikpowell/nyan-doom.git
-```
-Prepare the build folder, generate the build system, and compile:
-```
 cd nyan-doom
-cmake -Sprboom2 -Bbuild -DCMAKE_BUILD_TYPE=Release -DENABLE_LTO=ON
+```
+
+## Installing Dependencies
+
+All the tools and library dependencies can be installed in a single command:
+
+```
+brew bundle
+```
+
+## Building
+
+Nyan Doom is built using CMake. The project first needs to be configured:
+
+```
+cmake -S prboom2 -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
+```
+
+If successful, the project can be built using the following command:
+
+```
 cmake --build build
 ```
 
-The newly built binaries are located in the build folder.
+## Installing
 
-## Collect DYLIB Files
-Create a release folder next to the build folder and copy the Binaries and .wad files to it:
+Nyan Doom can be installed system-wide by running the following command:
 ```
-mkdir release
-cp ./build/nyan-doom ./release/nyan-doom
-cp ./build/*.wad ./release/
+cmake --install build
 ```
 
-Install the "dylibbundler" program and use it to bundle the .dylib files:
+The default installation location is `/usr/local`, this can be changed by configuring the project with
+`--install-prefix /custom/install/prefix`
+
+## Packaging
+
+CPack is used to create relocatable packages that do not depend on having all the dependencies installed system-wide.
+The package can be generated **from the build directory** with the following command:
 
 ```
-brew install dylibbundler
-
-cd ./release
-dylibbundler -od -b -x ./nyan-doom -d ./libs/ -p @executable_path/libs
+cd build
+cpack -G External
 ```
 
-## Final Steps
-
-Since this is a release build, it's customary to remove symbols from the binaries (and since we are changing the binary file, we will need to codesign it again):
-
-```
-strip ./nyan-doom
-codesign --force --deep --preserve-metadata=entitlements,requirements,flags,runtime --sign - "./nyan-doom"
-```
-Finally, add the files to an archive with today's date:
-```
-zip -r ./nyan-doom-$(date +"%Y%m%d")-mac.zip . -x .\*
-```
+This will generate a file called `nyan-doom-x.y.z-Darwin.zip` (where `x.y.z` corresponds to the current version).

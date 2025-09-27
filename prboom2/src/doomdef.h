@@ -158,6 +158,7 @@ extern int SCREEN_320x200;
 // at the intermission screen, the game final animation, or a demo.
 
 typedef enum {
+  GS_DEFAULT = -1,
   GS_LEVEL,
   GS_INTERMISSION,
   GS_FINALE,

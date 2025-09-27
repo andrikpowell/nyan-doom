@@ -1346,9 +1346,9 @@ void M_QuitDOOM(int choice)
   // or one at random, between 1 and maximum number.
   // Ty 03/27/98 - externalized DOSY as a string s_DOSY that's in the sprintf
   if (language != english)
-    sprintf(endstring,"%s\n\n%s",s_DOSY, *endmsg[0] );
+    snprintf(endstring, sizeof(endstring), "%s\n\n%s",s_DOSY, *endmsg[0] );
   else         // killough 1/18/98: fix endgame message calculation:
-    sprintf(endstring,"%s\n\n%s", *endmsg[gametic%(NUM_QUITMESSAGES-1)+1], s_DOSY);
+    snprintf(endstring, sizeof(endstring), "%s\n\n%s", *endmsg[gametic%(NUM_QUITMESSAGES-1)+1], s_DOSY);
 
   if (dsda_SkipQuitPrompt())
     M_QuitResponse(true);
@@ -2248,9 +2248,9 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
       value = dsda_IntConfig(s->config_id);
 
       if (flags & S_PERC)
-        sprintf(menu_buffer, "%d%%", value); // add %
+        snprintf(menu_buffer, sizeof(menu_buffer), "%d%%", value); // add %
       else
-        sprintf(menu_buffer, "%d", value);
+        snprintf(menu_buffer, sizeof(menu_buffer), "%d", value);
 
       if (flags & S_CRITEM)
       {
@@ -2296,7 +2296,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
       else
         format = "MB%d";
 
-      sprintf(menu_buffer + strlen(menu_buffer), format, input->mouseb + 1);
+      snprintf(menu_buffer + strlen(menu_buffer), sizeof(menu_buffer) - strlen(menu_buffer),format, input->mouseb + 1);
       any_input = true;
     }
 
@@ -2307,7 +2307,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
       else
         format = "%s";
 
-      sprintf(menu_buffer + strlen(menu_buffer), format,
+      snprintf(menu_buffer + strlen(menu_buffer), sizeof(menu_buffer) - strlen(menu_buffer), format,
               dsda_GameControllerButtonName(input->joyb));
       any_input = true;
     }
@@ -2479,9 +2479,9 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
     if (flags & S_STR)
     {
       if (setup_select && (s->m_flags & (S_HILITE | S_SELECT)))
-        sprintf(menu_buffer, "%s", entry_string_index);
+        snprintf(menu_buffer, sizeof(menu_buffer), "%s", entry_string_index);
       else
-        sprintf(menu_buffer, "%s", dsda_StringConfig(s->config_id));
+        snprintf(menu_buffer, sizeof(menu_buffer), "%s", dsda_StringConfig(s->config_id));
     }
     else
     {
@@ -2493,7 +2493,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
         value = dsda_IntConfig(s->config_id);
 
       if (s->selectstrings == NULL) {
-        sprintf(menu_buffer, "%d", value);
+        snprintf(menu_buffer, sizeof(menu_buffer), "%d", value);
       } else {
         strcpy(menu_buffer, s->selectstrings[value]);
       }
@@ -2507,7 +2507,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
   if (flags & S_THERMO) {
     M_DrawThermo(x, y, 8, dsda_UpperLimitConfig(s->config_id) + 1, dsda_IntConfig(s->config_id));
 
-    sprintf(menu_buffer, "%d", dsda_IntConfig(s->config_id));
+    snprintf(menu_buffer, sizeof(menu_buffer), "%d", dsda_IntConfig(s->config_id));
 
     M_BlinkingArrowRight(s);
     M_DrawMenuString(x + 80, y + 3, color);
@@ -3385,6 +3385,7 @@ setup_menu_t auto_colors_settings[] =  // 2st AutoMap Settings screen
   {"computer map unseen line"       ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_unsn},
   {"line w/no floor/ceiling changes",S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_flat},
   {"general sprite"                 ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_sprt},
+  {"pickup sprite"                  ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_pickup},
   {"countable enemy sprite"         ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_enemy},      // cph 2006/06/30
   {"countable item sprite"          ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_item},       // mead 3/4/2003
   {"crosshair"                      ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hair},

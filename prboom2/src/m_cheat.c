@@ -81,7 +81,7 @@
 //
 //-----------------------------------------------------------------------------
 
-static void cheat_mus();
+static void cheat_mus(char buf[3]);
 static void cheat_musrr();
 static void cheat_camera();
 static void cheat_choppers();
@@ -92,16 +92,16 @@ static void cheat_k();
 static void cheat_kfa_which();
 static void cheat_kfa();
 static void cheat_noclip();
-static void cheat_pw();
+static void cheat_pw(int pw);
 static void cheat_behold();
 static void cheat_clev();
-static void cheat_clevx();
+static void cheat_clevx(char buf[3]);
 static void cheat_mypos();
 static void cheat_rate();
 static void cheat_comp();
-static void cheat_compx();
+static void cheat_compx(char buf[3]);
 static void cheat_skill();
-static void cheat_skillx();
+static void cheat_skillx(char buf[1]);
 static void cheat_friction();
 static void cheat_pushers();
 static void cheat_massacre();
@@ -120,13 +120,13 @@ static void cheat_fast();
 static void cheat_nuke();
 static void cheat_key();
 static void cheat_keyx();
-static void cheat_keyxx();
+static void cheat_keyxx(int key);
 static void cheat_key_doom();
 static void cheat_key_heretic();
 static void cheat_weap();
-static void cheat_weapx();
+static void cheat_weapx(char buf[3]);
 static void cheat_ammo();
-static void cheat_ammox();
+static void cheat_ammox(char buf[1]);
 static void cheat_smart();
 static void cheat_pitch();
 static void cheat_megaarmour();
@@ -139,14 +139,14 @@ static void cheat_fly();
 static void cheat_reset_health();
 static void cheat_tome();
 static void cheat_chicken();
-static void cheat_artifact();
+static void cheat_artifact(char buf[3]);
 
 // hexen
 static void cheat_inventory();
 static void cheat_puzzle();
-static void cheat_class();
+static void cheat_class(char buf[2]);
 static void cheat_init();
-static void cheat_script();
+static void cheat_script(char buf[3]);
 
 // nyan
 static void cheat_nut();
@@ -318,8 +318,7 @@ cheatseq_t cheat[] = {
 
 //-----------------------------------------------------------------------------
 
-static void cheat_mus(buf)
-char buf[3];
+static void cheat_mus(char buf[3])
 {
   int epsd, map;
 
@@ -1318,8 +1317,7 @@ static void cheat_weap()
   dsda_AddMessage(gamemode == commercial ? "Weapon number 1-9" : "Weapon number 1-8");
 }
 
-static void cheat_weapx(buf)
-char buf[3];
+static void cheat_weapx(char buf[3])
 {
   int w = *buf - '1';
 
@@ -1348,8 +1346,7 @@ static void cheat_ammo()
   dsda_AddMessage("Ammo 1-4, Backpack");
 }
 
-static void cheat_ammox(buf)
-char buf[1];
+static void cheat_ammox(char buf[1])
 {
   int a = *buf - '1';
   if (*buf == 'b')  // Ty 03/27/98 - strings *not* externalized

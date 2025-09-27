@@ -148,8 +148,7 @@ extern int          extra_brightness;
 // The available bit-depth modes
 typedef enum {
   VID_MODESW,
-  VID_MODEGL,
-  VID_MODEMAX
+  VID_MODEGL
 } video_mode_t;
 
 void V_InitMode(video_mode_t mode);

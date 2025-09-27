@@ -85,7 +85,9 @@ void dsda_LoadSkillLump(void);
 void dsda_UpdateCustomSkill(int custom_skill);
 void dsda_CheckCustomSkill(void);
 
+void dsda_AlterGameFlags(void);
 void dsda_InitGameModifiers(void);
+void dsda_ResetGameModifiers(void);
 void dsda_RefreshPistolStart(void);
 void dsda_RefreshAlwaysPistolStart(void);
 

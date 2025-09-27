@@ -825,7 +825,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   if (players[consoleplayer].mo && players[consoleplayer].mo->pitch && !dsda_MouseLook())
     dsda_QueueExCmdLook(XC_LOOK_RESET);
 
-  if (dsda_AllowFreeLook())
+  if (dsda_FreeAim())
   {
     short look;
 
@@ -1745,6 +1745,9 @@ void G_Ticker (void)
 
     case GS_DEMOSCREEN:
       D_PageTicker();
+      break;
+
+    case GS_DEFAULT:
       break;
   }
 
@@ -3235,6 +3238,7 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 {
   char buf[10];
   char *p = buf;
+  const byte* data_p = (byte*)buf;
 
   if (compatibility_level == tasdoom_compatibility)
   {
@@ -3267,8 +3271,7 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 
   dsda_WriteTicToDemo(buf, p - buf);
 
-  p = buf; // make SURE it is exactly the same
-  G_ReadOneTick(cmd, (const byte **) &p);
+  G_ReadOneTick(cmd, &data_p);
 }
 
 // These functions are used to read and write game-specific options in demos
@@ -4015,7 +4018,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
     {
       demo_tics_count = dsda_DemoTicsCount(p, demobuffer, demolength);
 
-      sprintf(demo_len_st, "\x1b\x35/%d:%02d",
+      snprintf(demo_len_st, sizeof(demo_len_st), "\x1b\x35/%d:%02d",
         demo_tics_count / TICRATE / 60,
         (demo_tics_count % (60 * TICRATE)) / TICRATE);
     }
@@ -4246,7 +4249,9 @@ void P_WalkTicker()
   if (dsda_InputActive(dsda_input_strafeleft))
     side -= sidemove[speed];
 
-  forward += mousey;
+  if (dsda_IntConfig(dsda_config_vertmouse))
+    forward += mousey;
+
   if (strafe)
     side += mousex / 4;       /* mead  Don't want to strafe as fast as turns.*/
   else

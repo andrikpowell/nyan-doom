@@ -123,9 +123,10 @@ SDL_Renderer *sdl_renderer;
 SDL_Texture *sdl_texture;
 static SDL_GLContext sdl_glcontext;
 unsigned int windowid = 0;
-SDL_Rect src_rect = { 0, 0, 0, 0 };
-SDL_Rect window_rect = { 0, 0, 0, 0 };
-SDL_Rect viewport_rect = { 0, 0, 0, 0 };
+SDL_Rect src_rect = { 0, 0, 0, 0 };       // Drawn pixels, independent of window size
+SDL_Rect window_rect = { 0, 0, 0, 0 };    // Physical window
+SDL_Rect renderer_rect = { 0, 0, 0, 0 };  // The window, but with HiDPI accounted
+SDL_Rect viewport_rect = { 0, 0, 0, 0 };  // The renderer, but without the black bars
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code
@@ -894,59 +895,6 @@ static void I_FillScreenResolutionsList(void)
 }
 
 // e6y
-// Function for trying to set the closest supported resolution if the requested mode can't be set correctly.
-// For example dsda-doom.exe -geom 1025x768 -nowindow will set 1024x768.
-// It should be used only for fullscreen modes.
-static void I_ClosestResolution (int *width, int *height)
-{
-  int display_index = 0;
-  int twidth, theight;
-  int cwidth = 0, cheight = 0;
-  int i, count;
-  unsigned int closest = UINT_MAX;
-  unsigned int dist;
-
-  if (!SDL_WasInit(SDL_INIT_VIDEO))
-    return;
-
-  count = SDL_GetNumDisplayModes(display_index);
-
-  if (count > 0)
-  {
-    for(i=0; i<count; ++i)
-    {
-      SDL_DisplayMode mode;
-      SDL_GetDisplayMode(display_index, i, &mode);
-
-      twidth = mode.w;
-      theight = mode.h;
-
-      if (twidth == *width && theight == *height)
-        return;
-
-      //if (iteration == 0 && (twidth < *width || theight < *height))
-      //  continue;
-
-      dist = (twidth - *width) * (twidth - *width) +
-             (theight - *height) * (theight - *height);
-
-      if (dist < closest)
-      {
-        closest = dist;
-        cwidth = twidth;
-        cheight = theight;
-      }
-    }
-    if (closest != 4294967295u)
-    {
-      *width = cwidth;
-      *height = cheight;
-      return;
-    }
-  }
-}
-
-// e6y
 // It is a simple test of CPU cache misses.
 unsigned int I_TestCPUCacheMisses(int width, int height, unsigned int mintime)
 {
@@ -984,21 +932,17 @@ unsigned int I_TestCPUCacheMisses(int width, int height, unsigned int mintime)
 // Calculates the screen resolution, possibly using the supplied guide
 void I_CalculateRes(int width, int height)
 {
-  if (desired_fullscreen && exclusive_fullscreen)
-  {
-    I_ClosestResolution(&width, &height);
-  }
+  SCREENWIDTH = width;
+  SCREENHEIGHT = height;
 
-  if (V_IsOpenGLMode()) {
-    SCREENWIDTH = width;
-    SCREENHEIGHT = height;
+  if (V_IsOpenGLMode())
+  {
     SCREENPITCH = SCREENWIDTH;
-  } else {
+  }
+  else
+  {
     unsigned int count1, count2;
     int pitch1, pitch2;
-
-    SCREENWIDTH = width;//(width+15) & ~15;
-    SCREENHEIGHT = height;
 
     // e6y
     // Trying to optimise screen pitch for reducing of CPU cache misses.
@@ -1475,15 +1419,8 @@ void I_UpdateVideoMode(void)
 
 static void ActivateMouse(void)
 {
-  if (demoplayback && !walkcamera.type)
-  {
-    SDL_ShowCursor(SDL_DISABLE);
-  }
-  else
-  {
-    SDL_SetRelativeMouseMode(SDL_TRUE);
-    SDL_GetRelativeMouseState(NULL, NULL);
-  }
+  SDL_SetRelativeMouseMode(SDL_TRUE);
+  SDL_GetRelativeMouseState(NULL, NULL);
 }
 
 static void DeactivateMouse(void)
@@ -1634,15 +1571,16 @@ void UpdateGrab(void)
 
   grab = MouseShouldBeGrabbed();
 
-  if (grab && !currently_grabbed)
+  if (grab)
   {
-    ActivateMouse();
-  }
+    if (!currently_grabbed)
+      ActivateMouse();
 
-  if (!grab && currently_grabbed)
-  {
-    DeactivateMouse();
+    if (!demoplayback || walkcamera.type)
+      SDL_WarpMouseInWindow(sdl_window, window_rect.w / 2, window_rect.h / 2);
   }
+  else if (currently_grabbed)
+    DeactivateMouse();
 
   currently_grabbed = grab;
 }
@@ -1660,10 +1598,12 @@ static void ApplyWindowResize(SDL_Event *resize_event)
 
 void I_SetWindowRect()
 {
+  SDL_GetWindowSize(sdl_window, &window_rect.w, &window_rect.h);
+
   if (V_IsOpenGLMode())
-    SDL_GL_GetDrawableSize(sdl_window, &window_rect.w, &window_rect.h);
+    SDL_GL_GetDrawableSize(sdl_window, &renderer_rect.w, &renderer_rect.h);
   else
-    SDL_GetRendererOutputSize(sdl_renderer, &window_rect.w, &window_rect.h);
+    SDL_GetRendererOutputSize(sdl_renderer, &renderer_rect.w, &renderer_rect.h);
 }
 
 void I_SetViewportRect()
@@ -1671,19 +1611,19 @@ void I_SetViewportRect()
   float viewport_aspect = (float)SCREENWIDTH / (float)ACTUALHEIGHT;
 
   // Black bars on left and right of viewport
-  if (((float)window_rect.w / (float)window_rect.h) > viewport_aspect)
+  if (((float)renderer_rect.w / (float)renderer_rect.h) > viewport_aspect)
   {
-    viewport_rect.w = (int)((float)window_rect.h * viewport_aspect);
-    viewport_rect.h = window_rect.h;
-    viewport_rect.x = (window_rect.w - viewport_rect.w) >> 1;
+    viewport_rect.w = (int)((float)renderer_rect.h * viewport_aspect);
+    viewport_rect.h = renderer_rect.h;
+    viewport_rect.x = (renderer_rect.w - viewport_rect.w) >> 1;
     viewport_rect.y = 0;
   }
   // Either matching window's aspect ratio, or black bars on top and bottom (ie 21:9 on a 16:9 display)
   else
   {
-    viewport_rect.w = window_rect.w;
-    viewport_rect.h = (int)((float)window_rect.w / viewport_aspect);
+    viewport_rect.w = renderer_rect.w;
+    viewport_rect.h = (int)((float)renderer_rect.w / viewport_aspect);
     viewport_rect.x = 0;
-    viewport_rect.y = (window_rect.h - viewport_rect.h) >> 1;
+    viewport_rect.y = (renderer_rect.h - viewport_rect.h) >> 1;
   }
 }

@@ -468,12 +468,16 @@ set(MUS2MID_SRC
 set(SDLDOOM_SOURCES
     SDL/i_main.c
     SDL/i_sound.c
+    SDL/i_sndfile.c
+    SDL/i_sndfile.h
     SDL/i_sshot.c
     SDL/i_system.c
     SDL/i_video.c
 )
 
 set(DOOMMUSIC_SOURCES
+    MUSIC/xmpplayer.c
+    MUSIC/xmpplayer.h
     MUSIC/flplayer.c
     MUSIC/flplayer.h
     MUSIC/madplayer.c
@@ -493,8 +497,6 @@ set(DOOMMUSIC_SOURCES
     MUSIC/portmidiplayer.h
     MUSIC/vorbisplayer.c
     MUSIC/vorbisplayer.h
-    MUSIC/libopenmptplayer.c
-    MUSIC/libopenmptplayer.h
 )
 
 set(EXTRA_FILES
@@ -557,56 +559,32 @@ function(AddGameExecutable TARGET SOURCES)
     nyan_target_enable_fast_math(${TARGET})
     nyan_target_use_config_h(${TARGET})
 
-    target_include_directories(${TARGET} PRIVATE
-        ${SDL2_INCLUDE_DIRS}
+    target_compile_features(${TARGET}
+        PRIVATE
+        cxx_std_11
+    )
+
+    target_include_directories(${TARGET}
+        PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-    target_link_libraries(${TARGET} PRIVATE
-        libzip::zip
-        ${SDL2_LIBRARIES}
-        SDL2_mixer::SDL2_mixer
-        ZLIB::ZLIB
+    target_link_libraries(${TARGET}
+        PRIVATE
+        nyan::dependencies
     )
-
-    if(WIN32)
-        target_link_libraries(${TARGET} PRIVATE
-            winmm
-            comctl32
-        )
-    endif()
 
     set_target_properties(${TARGET} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${NYAN_OUTPUT_PATH}
-        INTERPROCEDURAL_OPTIMIZATION ${ENABLE_LTO}
         C_STANDARD 99
     )
 
-    if(HAVE_LIBSDL2_IMAGE)
-        target_link_libraries(${TARGET} PRIVATE SDL2_image::SDL2_image)
-    endif()
-
-    if(HAVE_LIBMAD)
-        target_link_libraries(${TARGET} PRIVATE LibMad::libmad)
-    endif()
-
-    if(HAVE_LIBFLUIDSYNTH)
-        target_link_libraries(${TARGET} PRIVATE FluidSynth::libfluidsynth)
-    endif()
-
-    if(HAVE_LIBVORBISFILE)
-        target_link_libraries(${TARGET} PRIVATE Vorbis::vorbisfile)
-    endif()
-
-    if(HAVE_LIBPORTMIDI)
-        target_link_libraries(${TARGET} PRIVATE PortMidi::portmidi)
-    endif()
-
-    if(HAVE_LIBOPENMPT)
-        target_link_libraries(${TARGET} PRIVATE libopenmpt::libopenmpt)
-    endif()
-
     add_dependencies(${TARGET} nyan-doom-wad)
+    add_custom_command(TARGET ${TARGET}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Copying ${WAD_DATA_PATH} to $<TARGET_FILE_DIR:nyan-doom>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${WAD_DATA_PATH} $<TARGET_FILE_DIR:nyan-doom>
+    )
 
     if(MSVC)
         set_target_properties(${TARGET} PROPERTIES
@@ -614,18 +592,11 @@ function(AddGameExecutable TARGET SOURCES)
         )
         add_custom_command(TARGET ${TARGET} POST_BUILD
             COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}\\..\\ICONS\\nyan-doom.exe.manifest\" -outputresource:\"$<TARGET_FILE:nyan-doom>\"\;\#1
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${WAD_DATA_PATH} $<TARGET_FILE_DIR:nyan-doom>
         )
     elseif(WIN32)
         set_target_properties(${TARGET} PROPERTIES
             LINK_FLAGS "-mconsole"
         )
-    endif()
-
-    if(WIN32)
-        set(NYAN_BINARY_INSTALL_DIR ".")
-    else()
-        set(NYAN_BINARY_INSTALL_DIR "${CMAKE_INSTALL_BINDIR}")
     endif()
 
     if(CMAKE_VERSION VERSION_GREATER 3.20
@@ -638,16 +609,11 @@ function(AddGameExecutable TARGET SOURCES)
                 PRE_EXCLUDE_REGEXES "api-ms-" "ext-ms-"
                 POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
                 DIRECTORIES $<TARGET_FILE_DIR:${TARGET}> $ENV{PATH}
-            RUNTIME DESTINATION "${NYAN_BINARY_INSTALL_DIR}"
+            RUNTIME DESTINATION "${NYAN_INSTALL_BINDIR}"
         )
     else()
-        install(TARGETS ${TARGET} RUNTIME DESTINATION "${NYAN_BINARY_INSTALL_DIR}")
+        install(TARGETS ${TARGET} RUNTIME DESTINATION "${NYAN_INSTALL_BINDIR}")
     endif()
-
-    target_link_libraries(${TARGET} PRIVATE
-        ${OPENGL_gl_LIBRARY}
-        ${OPENGL_glu_LIBRARY}
-    )
 endfunction()
 
 AddGameExecutable(nyan-doom "${NYAN_SOURCES}")

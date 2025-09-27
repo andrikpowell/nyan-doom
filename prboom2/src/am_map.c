@@ -485,7 +485,7 @@ void AM_setMarkParams(int num)
   int i, namelen;
   char namebuf[16];
 
-  sprintf(namebuf,"%s", !raven ? "AMMNUM0" : "SMALLIN0");
+  snprintf(namebuf, sizeof(namebuf), "%s", !raven ? "AMMNUM0" : "SMALLIN0");
   namelen = !raven ? 6 : 7;
 
   markpoints[num].w = 0;
@@ -2073,6 +2073,9 @@ static void AM_drawWalls(void)
       case ams_unseen:
         AM_drawMline(&l, mapcolor_p->unsn);
         continue;
+
+      default:
+        continue;
     }
   }
 }
@@ -3014,6 +3017,8 @@ static void AM_drawThings(void)
       // countable items color - yellow (bbm 2/28/03)
       else if (t->flags & MF_COUNTITEM)
         color = mapcolor_p->item;
+      else if (t->flags & MF_SPECIAL)
+        color = mapcolor_p->pickup;
       // generic sprite color
       else 
         color = mapcolor_p->sprt;
@@ -3153,7 +3158,7 @@ static void AM_drawMarks(void)
   int i, namelen;
   char namebuf[16];
 
-  sprintf(namebuf,"%s", !raven ? "AMMNUM0" : "SMALLIN0");
+  snprintf(namebuf, sizeof(namebuf), "%s", !raven ? "AMMNUM0" : "SMALLIN0");
   namelen = !raven ? 6 : 7;
 
   if (map_trail_mode && dsda_RevealAutomap())

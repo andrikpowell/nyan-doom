@@ -220,6 +220,7 @@ static dsda_option_t option_list[] = {
   { "mapcolor_unsn", NULL, 0, 255, dsda_config_mapcolor_unsn },
   { "mapcolor_flat", NULL, 0, 255, dsda_config_mapcolor_flat },
   { "mapcolor_sprt", NULL, 0, 255, dsda_config_mapcolor_sprt },
+  { "mapcolor_pickup", NULL, 0, 255, dsda_config_mapcolor_pickup },
   { "mapcolor_item", NULL, 0, 255, dsda_config_mapcolor_item },
   { "mapcolor_enemy", NULL, 0, 255, dsda_config_mapcolor_enemy },
   { "mapcolor_frnd", NULL, 0, 255, dsda_config_mapcolor_frnd },

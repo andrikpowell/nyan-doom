@@ -139,6 +139,7 @@ typedef enum {
   dsda_config_mapcolor_flat,
   dsda_config_mapcolor_sprt,
   dsda_config_mapcolor_item,
+  dsda_config_mapcolor_pickup,
   dsda_config_mapcolor_hair,
   dsda_config_mapcolor_sngl,
   dsda_config_mapcolor_me,

@@ -1253,7 +1253,7 @@ static void ST_loadGraphics(void)
   // Load the numbers, tall and short
   for (i=0;i<10;i++)
     {
-      sprintf(namebuf, "STTNUM%d", i);
+      snprintf(namebuf, sizeof(namebuf), "STTNUM%d", i);
       R_SetPatchNum(&tallnum[i],namebuf);
       snprintf(namebuf, sizeof(namebuf), "STYSNUM%d", i);
       R_SetPatchNum(&shortnum[i],namebuf);
@@ -1265,7 +1265,7 @@ static void ST_loadGraphics(void)
   // key cards
   for (i=0;i<DOOM_NUMCARDS+3;i++)  //jff 2/23/98 show both keys too
     {
-      sprintf(namebuf, "STKEYS%d", i);
+      snprintf(namebuf, sizeof(namebuf), "STKEYS%d", i);
       R_SetPatchNum(&keys[i], namebuf);
     }
 
@@ -1274,15 +1274,15 @@ static void ST_loadGraphics(void)
     {
       if (chex)
       {
-        sprintf(namebuf, "CHXARMS%d", i);
+        snprintf(namebuf, sizeof(namebuf), "CHXARMS%d", i);
         R_SetPatchNum(&armorstyle1[i], namebuf);
         R_SetPatchNum(&armorstyle2[i], namebuf);
       }
       else
       {
-        sprintf(namebuf, "STFARMS%d", i);
+        snprintf(namebuf, sizeof(namebuf), "STFARMS%d", i);
         R_SetPatchNum(&armorstyle1[i], namebuf);
-        sprintf(namebuf, "STFARM2%d", i);
+        snprintf(namebuf, sizeof(namebuf), "STFARM2%d", i);
         R_SetPatchNum(&armorstyle2[i], namebuf);
       }
     }
@@ -1291,9 +1291,9 @@ static void ST_loadGraphics(void)
   for (i=0;i<DOOM_BERSERKICON;i++)
     {
       if (chex)
-        sprintf(namebuf, "CHXPSTR%d", i);
+        snprintf(namebuf, sizeof(namebuf), "CHXPSTR%d", i);
       else
-        sprintf(namebuf, "STFPSTR%d", i);
+        snprintf(namebuf, sizeof(namebuf), "STFPSTR%d", i);
       R_SetPatchNum(&berserkpatch[i], namebuf);
     }
 
@@ -1317,7 +1317,7 @@ static void ST_loadGraphics(void)
   // arms ownership widgets
   for (i=0;i<6;i++)
     {
-      sprintf(namebuf, "STGNUM%d", i+2);
+      snprintf(namebuf, sizeof(namebuf), "STGNUM%d", i+2);
 
       // gray #
       R_SetPatchNum(&arms[i][0], namebuf);
@@ -1338,18 +1338,18 @@ static void ST_loadGraphics(void)
       int j;
       for (j=0;j<ST_NUMSTRAIGHTFACES;j++)
         {
-          sprintf(namebuf, "STFST%d%d", i, j);
+          snprintf(namebuf, sizeof(namebuf), "STFST%d%d", i, j);
           R_SetPatchNum(&faces[facenum++], namebuf);
         }
-      sprintf(namebuf, "STFTR%d0", i);        // turn right
+      snprintf(namebuf, sizeof(namebuf), "STFTR%d0", i);        // turn right
       R_SetPatchNum(&faces[facenum++], namebuf);
-      sprintf(namebuf, "STFTL%d0", i);        // turn left
+      snprintf(namebuf, sizeof(namebuf), "STFTL%d0", i);        // turn left
       R_SetPatchNum(&faces[facenum++], namebuf);
-      sprintf(namebuf, "STFOUCH%d", i);       // ouch!
+      snprintf(namebuf, sizeof(namebuf), "STFOUCH%d", i);       // ouch!
       R_SetPatchNum(&faces[facenum++], namebuf);
-      sprintf(namebuf, "STFEVL%d", i);        // evil grin ;)
+      snprintf(namebuf, sizeof(namebuf), "STFEVL%d", i);        // evil grin ;)
       R_SetPatchNum(&faces[facenum++], namebuf);
-      sprintf(namebuf, "STFKILL%d", i);       // pissed off
+      snprintf(namebuf, sizeof(namebuf), "STFKILL%d", i);       // pissed off
       R_SetPatchNum(&faces[facenum++], namebuf);
     }
   R_SetPatchNum(&faces[facenum++], "STFGOD0");

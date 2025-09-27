@@ -55,6 +55,7 @@
 
 #include "m_swap.h"
 #include "i_sound.h"
+#include "i_sndfile.h"
 #include "m_misc.h"
 #include "w_wad.h"
 #include "lprintf.h"
@@ -70,6 +71,7 @@
 //e6y
 #include "e6y.h"
 
+#include "dsda/ambient.h"
 #include "dsda/settings.h"
 
 static dboolean registered_non_rw = false;
@@ -156,29 +158,63 @@ static void stopchan(int i)
   }
 }
 
-typedef struct wav_data_s
+// [FG] support multi-channel samples by converting them to mono first
+static Uint8 *ConvertAudioFormat(void **data, SDL_AudioSpec *sample, Uint32 *len)
+{
+  SDL_AudioCVT cvt;
+
+  if (SDL_BuildAudioCVT(&cvt,
+                        sample->format, sample->channels, sample->freq,
+                        AUDIO_S16, 1, snd_samplerate) < 0)
+  {
+    lprintf(LO_WARN, "SDL_BuildAudioCVT: %s\n", SDL_GetError());
+    return NULL;
+  }
+
+  cvt.len = *len;
+  cvt.buf = Z_Malloc(cvt.len * cvt.len_mult);
+  memcpy(cvt.buf, *data, cvt.len);
+
+  if (SDL_ConvertAudio(&cvt) < 0)
+  {
+    Z_Free(cvt.buf);
+    lprintf(LO_WARN, "SDL_ConvertAudio: %s\n", SDL_GetError());
+    return NULL;
+  }
+
+  Z_Free(*data);
+
+  sample->channels = 1;
+  sample->format = AUDIO_S16;
+  sample->freq = snd_samplerate;
+  *data = cvt.buf;
+  *len = cvt.len_cvt;
+
+  return *data;
+}
+
+typedef struct snd_data_s
 {
   int sfxid;
-  const unsigned char *data;
+  unsigned char *data;
   int samplelen;
   int samplerate;
-  int bits;
-  struct wav_data_s *next;
-} wav_data_t;
+  struct snd_data_s *next;
+} snd_data_t;
 
-#define WAV_DATA_HASH_SIZE 32
-static wav_data_t *wav_data_hash[WAV_DATA_HASH_SIZE];
+#define SND_DATA_HASH_SIZE 32
+static snd_data_t *snd_data_hash[SND_DATA_HASH_SIZE];
 
-static wav_data_t *GetWavData(int sfxid, const unsigned char *data, size_t len)
+static snd_data_t *GetSndData(int sfxid, const unsigned char *data, size_t len)
 {
   int key;
-  wav_data_t *target = NULL;
+  snd_data_t *target = NULL;
 
-  key = (sfxid % WAV_DATA_HASH_SIZE);
+  key = (sfxid % SND_DATA_HASH_SIZE);
 
-  if (wav_data_hash[key])
+  if (snd_data_hash[key])
   {
-    wav_data_t *rover = wav_data_hash[key];
+    snd_data_t *rover = snd_data_hash[key];
 
     while (rover)
     {
@@ -192,58 +228,157 @@ static wav_data_t *GetWavData(int sfxid, const unsigned char *data, size_t len)
     }
   }
 
-  if (target == NULL &&
-      len > 44 && !memcmp(data, "RIFF", 4) && !memcmp(data + 8, "WAVEfmt ", 8))
+  if (target == NULL)
   {
-    SDL_RWops *RWops;
-    SDL_AudioSpec wav_spec;
-    Uint8 *wav_buffer = NULL;
-    int bits, samplelen;
+    SDL_AudioSpec sample;
+    void *sampledata;
+    Uint32 samplelen = (Uint32)len;
 
-    RWops = SDL_RWFromConstMem(data, len);
-
-    if (SDL_LoadWAV_RW(RWops, 1, &wav_spec, &wav_buffer, &samplelen) == NULL)
+    if (Load_SNDFile(data, &sample, &sampledata, &samplelen) == NULL)
     {
-      lprintf(LO_WARN, "Could not open wav file: %s\n", SDL_GetError());
+      lprintf(LO_WARN, "Can't open sfx file: %s\n", S_sfx[sfxid].name);
       return NULL;
     }
 
-    if (wav_spec.channels != 1)
+    if (sample.channels != 1 || sample.freq != snd_samplerate
+        || SDL_AUDIO_ISFLOAT(sample.format))
     {
-      lprintf(LO_WARN, "Only mono WAV file is supported");
-      SDL_FreeWAV(wav_buffer);
-      return NULL;
-    }
-
-    if (!SDL_AUDIO_ISINT(wav_spec.format))
-    {
-      lprintf(LO_WARN, "WAV file in unsupported format");
-      SDL_FreeWAV(wav_buffer);
-      return NULL;
-    }
-
-    bits = SDL_AUDIO_BITSIZE(wav_spec.format);
-    if (bits != 8 && bits != 16)
-    {
-      lprintf(LO_WARN, "Only 8 or 16 bit WAV files are supported");
-      SDL_FreeWAV(wav_buffer);
-      return NULL;
+      if (ConvertAudioFormat(&sampledata, &sample, &samplelen) == NULL)
+      {
+        Z_Free(sampledata);
+        return NULL;
+      }
     }
 
     target = Z_Malloc(sizeof(*target));
 
     target->sfxid = sfxid;
-    target->data = wav_buffer;
+    target->data = sampledata;
     target->samplelen = samplelen;
-    target->samplerate = wav_spec.freq;
-    target->bits = bits;
+    target->samplerate = sample.freq;
 
     // use head insertion
-    target->next = wav_data_hash[key];
-    wav_data_hash[key] = target;
+    target->next = snd_data_hash[key];
+    snd_data_hash[key] = target;
   }
 
   return target;
+}
+
+#define FADETIME 1000 // microseconds
+
+static void FadeInOutMono16(short *data, int len, int rate)
+{
+  const int fadelen = rate * FADETIME / 1000000;
+  int i;
+
+  if (len < fadelen)
+    return;
+
+  if (data[0] != 0)
+  {
+    for (i = 0; i < fadelen; i++)
+    {
+      data[i] = data[i] * i / fadelen;
+    }
+  }
+
+  if (data[len - 1] != 0)
+  {
+    for (i = 0; i < fadelen; i++)
+    {
+      data[len - 1 - i] = data[len - 1 - i] * i / fadelen;
+    }
+  }
+}
+
+static void FadeInOutMono8(byte *data, int len, int rate)
+{
+  const int fadelen = rate * FADETIME / 1000000;
+  int i;
+
+  if (len < fadelen)
+    return;
+
+  if (data[0] != 128)
+  {
+    for (i = 0; i < fadelen; i++)
+    {
+      data[i] = (data[i] - 128) * i / fadelen + 128;
+    }
+  }
+
+  if (data[len - 1] != 128)
+  {
+    for (i = 0; i < fadelen; i++)
+    {
+      data[len - 1 - i] = (data[len - 1 - i] - 128) * i / fadelen + 128;
+    }
+  }
+}
+
+#define DMXHDRSIZE 8
+#define DMXPADSIZE 16
+
+INLINE static int GetDMXSampleRate(const byte *data)
+{
+  return ((data[3] << 8) | data[2]);
+}
+
+INLINE static dboolean IsValidDMXSound(int dmx_len, int len)
+{
+  // Don't play DMX format sound lumps that think they're longer than they
+  // really are, only contain padding, or are shorter than the padding size.
+  return (dmx_len <= len - DMXHDRSIZE && dmx_len > DMXPADSIZE * 2);
+}
+
+INLINE static int GetDMXLength(const byte *data)
+{
+  // Read the encoded number of samples. This value includes padding.
+  return ((data[7] << 24) | (data[6] << 16) | (data[5] << 8) | data[4]);
+}
+
+INLINE static dboolean IsDMXSound(const byte *data, int len)
+{
+  return len > DMXHDRSIZE && data[0] == 0x03 && data[1] == 0x00;
+}
+
+void I_CacheSounds(void)
+{
+  int id;
+  for (id = 1; id < num_sfx; id++)
+  {
+    int lump = I_GetSfxLumpNum(&S_sfx[id]);
+    if (lump >= 0)
+    {
+      const byte *data = W_LumpByNum(lump);
+      int len = W_LumpLength(lump);
+
+      if (IsDMXSound(data, len))
+      {
+        int dmx_len = GetDMXLength(data);
+
+        if (IsValidDMXSound(dmx_len, len) && !dsda_IsLoopingAmbientSFX(id))
+        {
+          const int dmx_rate = GetDMXSampleRate(data);
+          byte *dmx_data = W_GetModifiableLumpData(lump);
+          dmx_data = &dmx_data[DMXHDRSIZE + DMXPADSIZE];
+          dmx_len -= DMXPADSIZE * 2;
+          FadeInOutMono8(dmx_data, dmx_len, dmx_rate);
+        }
+      }
+      else
+      {
+        snd_data_t *snd_data = GetSndData(id, data, len);
+
+        if (snd_data && !dsda_IsLoopingAmbientSFX(id))
+        {
+          len = snd_data->samplelen / sizeof(short);
+          FadeInOutMono16((short *)snd_data->data, len, snd_data->samplerate);
+        }
+      }
+    }
+  }
 }
 
 //
@@ -253,29 +388,17 @@ static wav_data_t *GetWavData(int sfxid, const unsigned char *data, size_t len)
 //  (eight, usually) of internal channels.
 // Returns a handle.
 //
-static int addsfx(int sfxid, int channel, const unsigned char *data, size_t len)
+
+static int addsfx(int sfxid, int channel, const channel_info_t *cinfo)
 {
   channel_info_t *ci = channelinfo + channel;
-  wav_data_t *wav_data = GetWavData(sfxid, data, len);
 
   stopchan(channel);
 
-  if (wav_data)
-  {
-    ci->data = wav_data->data;
-    ci->enddata = ci->data + wav_data->samplelen - 1;
-    ci->samplerate = wav_data->samplerate;
-    ci->bits = wav_data->bits;
-  }
-  else
-  {
-    ci->data = data;
-    /* Set pointer to end of raw data. */
-    ci->enddata = ci->data + len - 1;
-    ci->samplerate = (ci->data[3] << 8) + ci->data[2];
-    ci->data += 8; /* Skip header */
-    ci->bits = 8;
-  }
+  ci->data = cinfo->data;
+  ci->enddata = cinfo->enddata;
+  ci->samplerate = cinfo->samplerate;
+  ci->bits = cinfo->bits;
 
   ci->stepremainder = 0;
   // Should be gametic, I presume.
@@ -453,6 +576,8 @@ int I_StartSound(int id, int channel, sfx_params_t *params)
   const unsigned char *data;
   int lump;
   size_t len;
+  snd_data_t *snd_data = NULL;
+  channel_info_t cinfo = {0};
 
   if ((channel < 0) || (channel >= MAX_CHANNELS))
 #ifdef RANGECHECK
@@ -470,19 +595,50 @@ int I_StartSound(int id, int channel, sfx_params_t *params)
   // e6y: Crash with zero-length sounds.
   // Example wad: dakills (http://www.doomworld.com/idgames/index.php?id=2803)
   // The entries DSBSPWLK, DSBSPACT, DSSWTCHN and DSSWTCHX are all zero-length sounds
-  if (len <= 8) return -1;
+  if (len <= DMXHDRSIZE) return -1;
 
-  /* Find padded length */
-  len -= 8;
   // do the lump caching outside the SDL_LockAudio/SDL_UnlockAudio pair
   // use locking which makes sure the sound data is in a malloced area and
   // not in a memory mapped one
   data = (const unsigned char *)W_LockLumpNum(lump);
 
+  if (IsDMXSound(data, len))
+  {
+    const int dmx_len = GetDMXLength(data);
+
+    if (IsValidDMXSound(dmx_len, len))
+    {
+      cinfo.data = &data[DMXHDRSIZE + DMXPADSIZE];
+      cinfo.enddata = &cinfo.data[dmx_len - DMXPADSIZE * 2 - 1];
+      cinfo.samplerate = GetDMXSampleRate(data);
+      cinfo.bits = 8;
+    }
+    else
+    {
+      return -1;
+    }
+  }
+  else
+  {
+    snd_data = GetSndData(id, data, len);
+
+    if (snd_data)
+    {
+      cinfo.data = snd_data->data;
+      cinfo.enddata = &cinfo.data[snd_data->samplelen - 1];
+      cinfo.samplerate = snd_data->samplerate;
+      cinfo.bits = 16;
+    }
+    else
+    {
+      return -1;
+    }
+  }
+
   SDL_LockMutex (sfxmutex);
 
   // Returns a handle (not used).
-  addsfx(id, channel, data, len);
+  addsfx(id, channel, &cinfo);
   updateSoundParams(channel, params);
 
   SDL_UnlockMutex (sfxmutex);
@@ -716,6 +872,8 @@ void I_InitSound(void)
   int audio_channels;
   int audio_buffers;
 
+  I_InitSoundParams();
+
   if (sound_was_initialized || (nomusicparm && nosfxparm))
     return;
 
@@ -729,8 +887,6 @@ void I_InitSound(void)
 
   // Secure and configure sound device first.
   lprintf(LO_DEBUG, "I_InitSound: ");
-
-  I_InitSoundParams();
 
   audio_rate = snd_samplerate;
   audio_channels = 2;
@@ -862,10 +1018,10 @@ static void PlaySong(int handle, int looping);
 #include "MUSIC/musicplayer.h"
 #include "MUSIC/oplplayer.h"
 #include "MUSIC/madplayer.h"
+#include "MUSIC/xmpplayer.h"
 #include "MUSIC/flplayer.h"
 #include "MUSIC/vorbisplayer.h"
 #include "MUSIC/portmidiplayer.h"
-#include "MUSIC/libopenmptplayer.h"
 
 static Mix_Music *music[2] = { NULL, NULL };
 
@@ -882,7 +1038,7 @@ static const music_player_t *music_players[] =
   // mus2midi very often succeeds even on garbage input
   &vorb_player, // vorbisplayer.h
   &mp_player, // madplayer.h
-  &mpt_player, // libopenmptplayer.h
+  &xmp_player, // xmpplayer.h
   &fl_player, // flplayer.h
   &opl_synth_player, // oplplayer.h
   &pm_player, // portmidiplayer.h
@@ -894,7 +1050,7 @@ static int music_player_was_init[NUM_MUS_PLAYERS];
 
 #define PLAYER_VORBIS     "vorbis player"
 #define PLAYER_MAD        "mad mp3 player"
-#define PLAYER_LIBOPENMPT "libopenmpt tracker player"
+#define PLAYER_XMP        "libxmp tracker player"
 #define PLAYER_FLUIDSYNTH "fluidsynth midi player"
 #define PLAYER_OPL        "opl synth player"
 #define PLAYER_PORTMIDI   "portmidi midi player"
@@ -904,7 +1060,7 @@ char music_player_order[NUM_MUS_PLAYERS][200] =
 {
   PLAYER_VORBIS,
   PLAYER_MAD,
-  PLAYER_LIBOPENMPT,
+  PLAYER_XMP,
   PLAYER_FLUIDSYNTH,
   PLAYER_OPL,
   PLAYER_PORTMIDI,
