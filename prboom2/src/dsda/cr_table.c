@@ -226,6 +226,7 @@ byte* dsda_GenerateCRTable(void) {
 
   for (orig_i = 0; orig_i < 256; ++orig_i) {
     double length;
+    int index;
 
     length = dsda_PaletteEntryLightness(playpal, orig_i) / 100.0;
     length -= cr_font.light_lower_bound;
@@ -288,11 +289,26 @@ byte* dsda_GenerateCRTable(void) {
           }
         }
 
-        buffer[(dark_i ? CR_DARKEN * 256 : 0) + cr_i * 256 + orig_i] = best_i;
+        index = (dark_i ? CR_DARKEN * 256 : 0) + cr_i * 256 + orig_i;
+
+        // Make sure CR is setup correctly
+        if (index >= (256 * CR_LIMIT))
+          I_Error("CR buffer overflow at index %d (limit %d)", index, 256 * CR_LIMIT);
+
+        buffer[index] = best_i;
       }
 
       // Add CR_SHADOW (darkest index of playpal)
-      buffer[(dark_i ? CR_DARKEN * 256 : 0) + CR_SHADOW * 256 + orig_i] = shadow_i;
+      if (!dark_i)
+      {
+        index = (CR_SHADOW * 256 + orig_i);
+
+        // Make sure CR is setup correctly
+        if (index >= (256 * CR_LIMIT))
+          I_Error("CR buffer overflow at index %d (limit %d)", index, 256 * CR_LIMIT);
+
+        buffer[index] = shadow_i;
+      }
     }
   }
 
