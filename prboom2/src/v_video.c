@@ -838,6 +838,7 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
 }
 
 typedef struct {
+  dboolean active;
   int trans;
   const byte *colortr;
   const byte *transmap;
@@ -911,8 +912,12 @@ v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype
     shadowtype = 0;
 
   if (!shadowtype)
+  {
+    shadow.active = false;
     return shadow;
+  }
 
+  shadow.active = true;
   shadow.colortr = &colormaps[0][256 * 31]; // close to black
   shadow.transmap = NULL;
   shadow.flags = flags | VPT_SHADOW;
@@ -998,14 +1003,14 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
   // Draw patch unscaled
   if (!(flags & VPT_STRETCH_MASK)) {
-    if (shadowtype)
+    if (shadowinfo.active)
       V_DrawPatch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, clip_top, clip_bottom, clip_left, clip_right, shadowinfo.flags);
     V_DrawPatch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, clip_top, clip_bottom, clip_left, clip_right, patchinfo.flags);
   }
 
   // Or draw scaled patch with pipelines
   else {
-    if (shadowtype)
+    if (shadowinfo.active)
       V_DrawPatchStretch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, clip_top, clip_bottom, clip_left, clip_right, shadowinfo.flags);
     V_DrawPatchStretch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, clip_top, clip_bottom, clip_left, clip_right, patchinfo.flags);
   }
