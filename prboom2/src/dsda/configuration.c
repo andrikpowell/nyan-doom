@@ -1731,6 +1731,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "tran_menu_filter_pct", dsda_config_menu_tran_filter_pct,
     dsda_config_int, 0, 100, { 50 }, NULL, NOT_STRICT, P_UpdateTranMap
   },
+  [dsda_config_shadow_tran_filter] = {
+    "tran_shadow_filter", dsda_config_shadow_tran_filter,
+    CONF_BOOL(0), NULL, NOT_STRICT, P_UpdateTranMap
+  },
+  [dsda_config_shadow_tran_filter_pct] = {
+    "tran_shadow_filter_pct", dsda_config_shadow_tran_filter_pct,
+    dsda_config_int, 0, 100, { 50 }, NULL, NOT_STRICT, P_UpdateTranMap
+  },
   [dsda_config_ex_text_tran_filter] = {
     "ex_text_tran_filter", dsda_config_ex_text_tran_filter,
     CONF_BOOL(0), NULL, NOT_STRICT, P_UpdateTranMap

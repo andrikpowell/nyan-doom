@@ -154,6 +154,8 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_tran_filter_pct),
   MIGRATED_SETTING(dsda_config_menu_tran_filter),
   MIGRATED_SETTING(dsda_config_menu_tran_filter_pct),
+  MIGRATED_SETTING(dsda_config_shadow_tran_filter),
+  MIGRATED_SETTING(dsda_config_shadow_tran_filter_pct),
   MIGRATED_SETTING(dsda_config_translucent_sprites),
   MIGRATED_SETTING(dsda_config_translucent_missiles),
   MIGRATED_SETTING(dsda_config_translucent_powerups),

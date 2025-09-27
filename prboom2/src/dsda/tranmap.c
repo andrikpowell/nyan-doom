@@ -41,6 +41,7 @@ int shadow_filter_pct;
 int alttint_filter_pct;
 int exhud_shadow_filter_pct;
 int shadow_ui_filter_pct;
+int menu_ui_filter_pct;
 int gl_alttint_filter_pct;
 int gl_exhud_alttint_filter_pct;
 static const int tranmap_length = 256 * 256;

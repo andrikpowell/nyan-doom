@@ -30,6 +30,7 @@ extern int shadow_filter_pct;
 extern int alttint_filter_pct;
 extern int exhud_shadow_filter_pct;
 extern int shadow_ui_filter_pct;
+extern int menu_ui_filter_pct;
 extern int gl_alttint_filter_pct;
 extern int gl_exhud_alttint_filter_pct;
 

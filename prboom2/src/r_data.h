@@ -96,7 +96,7 @@ int R_ColormapNumForName(const char *name);      // killough 4/4/98
 
 extern const byte *tranmap;
 extern const byte *main_tranmap;
-extern const byte *ui_shadowmap;
+extern const byte *menu_ui_tranmap;
 
 /* Proff - Added for OpenGL - cph - const char* param */
 void R_SetPatchNum(patchnum_t *patchnum, const char *name);

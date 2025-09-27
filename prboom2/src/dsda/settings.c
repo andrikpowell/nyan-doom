@@ -340,6 +340,14 @@ int dsda_MenuTranslucencyPercent(void) {
   return dsda_IntConfig(dsda_config_menu_tran_filter_pct);
 }
 
+int dsda_ShadowTranslucency(void) {
+  return dsda_IntConfig(dsda_config_shadow_tran_filter);
+}
+
+int dsda_ShadowTranslucencyPercent(void) {
+  return dsda_IntConfig(dsda_config_shadow_tran_filter_pct);
+}
+
 int dsda_ExHudTranslucency(void) {
   return dsda_IntConfig(dsda_config_ex_text_tran_filter);
 }

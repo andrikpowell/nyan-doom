@@ -74,7 +74,7 @@ int  viewwindowy;
 // CPhipps - made const*'s
 const byte *tranmap;          // translucency filter maps 256x256   // phares
 const byte *main_tranmap;     // killough 4/11/98
-const byte *ui_shadowmap;
+const byte *menu_ui_tranmap;
 
 //
 // R_DrawColumn

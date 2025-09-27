@@ -214,8 +214,8 @@ extern V_FillRectGen_f V_FillRectGen;
 typedef void (*V_FillRectTrans_f)(int scrn, int x, int y,
                              int width, int height, byte colour, const byte* transmap);
 extern V_FillRectTrans_f V_FillRectTrans;
-#define V_FillRectTransMenu(x,y,w,h,c) V_FillRectTrans(0,x,y,w,h,c,ui_shadowmap)
-#define V_FillRectTransMenuBG(x,y,w,h,c) V_FillRectTrans(1,x,y,w,h,c,ui_shadowmap)
+#define V_FillRectTransMenu(x,y,w,h,c) V_FillRectTrans(0,x,y,w,h,c,menu_ui_tranmap)
+#define V_FillRectTransMenuBG(x,y,w,h,c) V_FillRectTrans(1,x,y,w,h,c,menu_ui_tranmap)
 
 typedef void (*V_FillRectShaded_f)(int x, int y, int width, int height, int start_shade, int end_shade, int vertical);
 extern V_FillRectShaded_f V_FillRectShaded;
@@ -362,6 +362,7 @@ void V_ToggleFullscreen(void);
 void V_ChangeScreenResolution(void);
 
 extern int dsda_MenuTranslucency(void);
+extern int dsda_ShadowTranslucency(void);
 extern int dsda_ExHudTranslucency(void);
 
 // CPhipps - function to plot a pixel

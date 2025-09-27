@@ -895,7 +895,7 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
 v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype) {
   v_patchinfo_t shadow = { 0 };
 
-  if ((shadowtype == SHADOW_DEFAULT && !dsda_MenuTranslucency()))
+  if ((shadowtype == SHADOW_DEFAULT && !dsda_ShadowTranslucency()))
     shadowtype = 0;
 
   if (!shadowtype)
@@ -1121,7 +1121,7 @@ static void V_FillRect8(int scrn, int x, int y, int width, int height, byte colo
   }
 }
 
-static void FUNC_V_FillRectTrans8(int scrn, int x, int y, int width, int height, byte colour, const byte* transmap)
+static void V_FillRectTrans8(int scrn, int x, int y, int width, int height, byte colour, const byte* transmap)
 {
   byte* dest;
   int pitch = screens[scrn].pitch;
@@ -1136,6 +1136,14 @@ static void FUNC_V_FillRectTrans8(int scrn, int x, int y, int width, int height,
       dest++;
     }
   }
+}
+
+static void FUNC_V_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, const byte* transmap)
+{
+  if (!dsda_MenuTranslucency())
+    V_FillRect8(scrn, x, y, width, height, colour);
+  else
+    V_FillRectTrans8(scrn, x, y, width, height, colour, transmap);
 }
 
 //
@@ -1206,7 +1214,9 @@ static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byt
 }
 static void WRAP_gld_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, const byte* tranmap)
 {
-  gld_FillBlock(x,y,width,height,colour,shadow_ui_filter_pct);
+  int trans = dsda_MenuTranslucency() ? menu_ui_filter_pct : 100;
+
+  gld_FillBlock(x,y,width,height,colour,trans);
 }
 static void WRAP_gld_FillRectShaded(int x, int y, int w, int h, int start_shade, int end_shade, int vertical) {
   gld_FillBlockShaded(x,y,w,h,start_shade,end_shade,vertical);
@@ -1240,7 +1250,7 @@ static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, d
 }
 static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int offset, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags)
 {
-  int shadow = (offset == SHADOW_DEFAULT && dsda_MenuTranslucency());
+  int shadow = (offset == SHADOW_DEFAULT && dsda_ShadowTranslucency());
 
   if (shadow)
     gld_DrawNumPatch(x+offset,y+offset,lump,center,offset,0,0,0,0,cm,flags|VPT_SHADOW); // draw offset shadow
@@ -1249,7 +1259,7 @@ static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboo
 }
 static void WRAP_gld_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int offset, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags)
 {
-  int shadow = (offset == SHADOW_DEFAULT && dsda_MenuTranslucency());
+  int shadow = (offset == SHADOW_DEFAULT && dsda_ShadowTranslucency());
 
   if (shadow)
     gld_DrawNumPatch_f(x+offset,y+offset,lump,center,offset,0,0,0,0,cm,flags|VPT_SHADOW); // draw offset shadow
@@ -1336,7 +1346,7 @@ void V_InitMode(video_mode_t mode) {
       V_EndMenuDraw = NULL_EndMenuDraw;
       V_CopyRect = FUNC_V_CopyRect;
       V_FillRectGen = V_FillRect8;
-      V_FillRectTrans = FUNC_V_FillRectTrans8;
+      V_FillRectTrans = FUNC_V_FillRectTrans;
       V_FillRectShaded = FUNC_V_FillRectShaded;
       V_DrawNumPatchGen = FUNC_V_DrawNumPatch;
       V_DrawNumPatchGenPrecise = FUNC_V_DrawNumPatchPrecise;
