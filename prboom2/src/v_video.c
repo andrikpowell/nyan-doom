@@ -844,6 +844,8 @@ typedef struct {
   enum patch_translation_e flags;
 } v_patchinfo_t;
 
+#define NO_TRANS -1
+
 v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
 {
   v_patchinfo_t patch;
@@ -851,7 +853,7 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
 
   patch.transmap = NULL;
   patch.flags = flags;
-  patch.trans = -1;
+  patch.trans = NO_TRANS;
 
   // color translation
   if (cm == CR_DEFAULT)
@@ -886,7 +888,14 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
       patch.flags |= VPT_TRANSMAP;
   }
 
-  if (patch.trans != -1)
+  // if close, just go wtih 100
+  if (patch.trans == 99)
+  {
+    patch.trans != NO_TRANS;
+    patch.flags &= ~VPT_TRANSMAP;
+  }
+
+  if (patch.trans != NO_TRANS)
     patch.transmap = dsda_TranMap(patch.trans);
 
   return patch;
@@ -894,6 +903,7 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
 
 v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype) {
   v_patchinfo_t shadow = { 0 };
+  shadow.trans = NO_TRANS;
 
   if ((shadowtype == SHADOW_DEFAULT && !dsda_ShadowTranslucency()))
     shadowtype = 0;
@@ -916,7 +926,14 @@ v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype
   if ((shadow.flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
     shadow.trans = exhud_shadow_filter_pct;
 
-  if (shadow.trans != -1)
+  // if close, just go wtih 100
+  if (shadow.trans == 99)
+  {
+    shadow.trans != NO_TRANS;
+    shadow.flags &= ~VPT_TRANSMAP;
+  }
+
+  if (shadow.trans != NO_TRANS)
     shadow.transmap = dsda_TranMap(shadow.trans);
 
   return shadow;

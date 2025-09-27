@@ -538,6 +538,12 @@ float gld_GetTranslucency(int shadowtype, enum patch_translation_e flags)
       trans_percent = exhud_tran_filter_pct;
   }
 
+  // if close, just go wtih 100 or 0
+  if (trans_percent == 99)
+    trans_percent = NO_TRANS;
+  else if (trans_percent == 1)
+    trans_percent = 0.0f;
+
   if (trans_percent != NO_TRANS)
     return trans_percent * 0.01f;
   else
