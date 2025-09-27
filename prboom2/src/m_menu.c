@@ -328,6 +328,7 @@ static void CSPistolStart(void);
 static void CSCurrentLoadout(void);
 
 static int M_GetPixelWidth(const char*);
+static int M_GetPixelWidthCount(const char* ch, int start_i, int n);
 static void M_DrawString(int cx, int cy, int color, const char* ch);
 static void M_DrawMenuString(int,int,int);
 static void M_DrawStringCentered(int,int,int,const char*);
@@ -1860,7 +1861,8 @@ static menu_t LevelTableDef =
 
 // strings must fit in this screen space
 // killough 10/98: reduced, for more general uses
-#define MAXENTRYWIDTH         272
+#define MAXENTRYWIDTH         320
+#define MAXSTRINGWIDTH        300
 
 static int entry_index;
 static char entry_string_index[ENTRY_STRING_BFR_SIZE]; // points to new strings while editing
@@ -2176,6 +2178,39 @@ static char gather_buffer[MAXGATHER+1];  // killough 10/98: make input character
 // displays the appropriate setting value: yes/no, a key binding, a number,
 // a paint chip, etc.
 
+static int entry_scroll_offset = 0;
+static dboolean string_edit = false;
+
+static void M_GetFittingString(char* dest, const char* src, int max_width)
+{
+  int len = 0;
+  int width = 0;
+
+  while (src[len] && width < max_width) {
+    int next_width = M_GetPixelWidthCount(src, 0, len + 1);
+    if (next_width >= max_width)
+      break;
+    width = next_width;
+    len++;
+  }
+
+  strncpy(dest, src, len);
+  dest[len] = '\0';
+}
+
+static void M_GetStringWithEllipsis(char* dest, const char* src, int max_width)
+{
+  const char *ellipsis = "...";
+  int ellipsis_width = M_GetPixelWidth(ellipsis);
+  char temp[ENTRY_STRING_BFR_SIZE];
+
+  // Try to fit substring (leaving space for ellipsis)
+  M_GetFittingString(temp, src, max_width - ellipsis_width);
+
+  // Combine fitted substring + "..."
+  snprintf(dest, ENTRY_STRING_BFR_SIZE, "%s%s", temp, ellipsis);
+}
+
 static void M_DrawSetting(const setup_menu_t* s, int y)
 {
   int x = s->m_x, color;
@@ -2316,38 +2351,93 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
   // Is the item a string?
   if (flags & S_STRING) {
     static char text[ENTRY_STRING_BFR_SIZE];
+    const char* full_string = entry_string_index;
+    const int scroll_margin = 4;  // # of char in front of cursor when deleting
+    const int cursor_margin = 8;
 
     // Are we editing this string? If so, display a cursor under
     // the correct character.
     if (setup_select && (s->m_flags & (S_HILITE|S_SELECT))) {
       int cursor_start, char_width;
+      int max_entry_width, visible_index;
       char c[2];
 
-      strcpy(text, entry_string_index);
+      max_entry_width = MAXENTRYWIDTH - s->m_x - cursor_margin;
 
-      // If the string is too wide for the screen, trim it back,
-      // one char at a time until it fits. This should only occur
-      // while you're editing the string.
+      // If the string is too wide for the screen, scroll the string.
+      // This should only occur while you're editing the string.
 
-      while (M_GetPixelWidth(text) >= MAXENTRYWIDTH) {
-        int len = strlen(text);
-        text[--len] = 0;
-        if (entry_index > len)
-          entry_index--;
+      // Ensure scroll offset is not beyond cursor index (scroll left)
+      // or cursor is not hidden to the left of the visible area (scroll right)
+      if (entry_scroll_offset > entry_index || entry_index < entry_scroll_offset) {
+          entry_scroll_offset = entry_index;
       }
+
+      // Clamp string length
+      {
+        int full_len = (int)strlen(full_string);
+
+        if (entry_scroll_offset > entry_index)
+          entry_scroll_offset = entry_index;
+        if (entry_scroll_offset > full_len)
+          entry_scroll_offset = full_len;
+        if (entry_scroll_offset < 0)
+          entry_scroll_offset = 0;
+      }
+
+      // start string editing — set cursor to end
+      if (!string_edit)
+      {
+        entry_index = strlen(entry_string_index);
+        entry_scroll_offset = 0;
+        string_edit = true;
+      }
+
+      // Scroll back if cursor is getting close to the left edge
+      if (entry_index < entry_scroll_offset + scroll_margin)
+      {
+        if (entry_index >= scroll_margin)
+          entry_scroll_offset = entry_index - scroll_margin;
+        else
+          entry_scroll_offset = 0;
+      }
+
+      // Scroll forward if cursor gets close to right edge
+      while (true) {
+        const char* visible_start = full_string + entry_scroll_offset;
+        int cursor_px = M_GetPixelWidthCount(visible_start, 0, entry_index - entry_scroll_offset);
+
+        if (cursor_px > max_entry_width - cursor_margin) {
+          entry_scroll_offset++;
+        } else {
+          break;
+        }
+      }
+
+      // Get substring that fits in visible area
+      M_GetFittingString(text, full_string + entry_scroll_offset, max_entry_width);
+
+      // visible index for cursor drawing
+      visible_index = entry_index - entry_scroll_offset;
+
+      // Clamp visible_index just in case
+      if (visible_index < 0)
+        visible_index = 0;
+      if (visible_index >= (int)strlen(text))
+        visible_index = (int)strlen(text);
 
       // Find the distance from the beginning of the string to
       // where the cursor should be drawn, plus the width of
       // the char the cursor is under..
 
-      *c = text[entry_index]; // hold temporarily
+      *c = text[visible_index]; // hold temporarily
       c[1] = 0;
       char_width = M_GetPixelWidth(c);
       if (char_width == 1)
         char_width = 7; // default for end of line
-      text[entry_index] = 0; // NULL to get cursor position
+      text[visible_index] = 0; // NULL to get cursor position
       cursor_start = M_GetPixelWidth(text);
-      text[entry_index] = *c; // replace stored char
+      text[visible_index] = *c; // replace stored char
 
       // Now draw the cursor
       // proff 12/6/98: Drawing of cursor changed for hi-res
@@ -2355,12 +2445,24 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
       if (x + cursor_start + char_width < BASE_WIDTH)
       {
         int xx = (x+cursor_start-1), yy = y, ww = char_width, hh = 9;
+        if (ww < 7) ww = 7;  // minimum cursor width
+        if (xx < x) xx = x;  // don't go left of starting x
+
         V_GetWideRect(&xx, &yy, &ww, &hh, VPT_STRETCH);
-        V_FillRect(xx, yy, ww, hh, playpal_lightest);
+        V_FillRectTransMenu(xx, yy, ww, hh, playpal_lightest);
       }
     }
     else {
-      strncpy(text, dsda_StringConfig(s->config_id), ENTRY_STRING_BFR_SIZE - 1);
+      const char* full_string = dsda_StringConfig(s->config_id);
+      int max_display_width = MAXSTRINGWIDTH - s->m_x;
+
+      // When not editing, truncate long strings with "..." if too long
+      if (M_GetPixelWidth(full_string) > max_display_width) {
+        M_GetStringWithEllipsis(text, full_string, max_display_width);
+      } else {
+        strncpy(text, full_string, ENTRY_STRING_BFR_SIZE - 1);
+        text[ENTRY_STRING_BFR_SIZE - 1] = '\0';
+      }
     }
 
     // Draw the setting for the item
@@ -4782,6 +4884,7 @@ static void M_SelectDone(setup_menu_t* ptr)
   S_StartVoidSound(g_sfx_itemup);
   setup_select = false;
   colorbox_active = false;
+  string_edit = false;
 }
 
 //
@@ -5055,6 +5158,29 @@ static int M_GetPixelWidth(const char* ch)
   }
   len -= g_menu_font_spacing; // replace what you took away on the last char only
   return len;
+}
+
+// M_GetPixelWidthCount() returns the number of pixels in the width of
+// the string, with the number of characters taken into account.
+
+int M_GetPixelWidthCount(const char* str, int start_index, int count)
+{
+  int width = 0;
+  char c;
+
+  str += start_index;
+  for (int i = 0; i < count && str[i]; i++) {
+    c = toupper(str[i]) - HU_FONTSTART;
+    if (c < 0 || c > HU_FONTSIZE)
+      width += menu_font->space_width;
+    else
+      width += menu_font->font[c].width;
+
+    if (i + 1 < count && str[i + 1])
+      width += g_menu_font_spacing;
+  }
+
+  return width;
 }
 
 static void M_DrawStringCentered(int cx, int cy, int color, const char* ch)
@@ -5477,18 +5603,24 @@ static dboolean M_StringResponder(int ch, int action, event_t* ev)
 
     if (ptr1->m_flags & S_STRING) // creating/editing a string?
     {
-      if (action == MENU_BACKSPACE) // backspace and DEL
+      if (action == MENU_BACKSPACE) // backspace
       {
-        if (entry_string_index[entry_index] == 0)
-        {
-          if (entry_index > 0)
-            entry_string_index[--entry_index] = 0;
-        }
-        // shift the remainder of the text one char left
-        else
+        if (entry_index > 0)
         {
           int i;
 
+          entry_index--; // Move cursor back
+
+          // Shift string left from new cursor position
+          for (i = entry_index; entry_string_index[i + 1]; ++i)
+            entry_string_index[i] = entry_string_index[i + 1];
+
+          entry_string_index[i] = '\0';
+        }
+        // Basically copy the delete key
+        else
+        {
+          int i;
           for (i = entry_index; entry_string_index[i + 1]; ++i)
             entry_string_index[i] = entry_string_index[i + 1];
           entry_string_index[i] = '\0';
@@ -5516,18 +5648,23 @@ static dboolean M_StringResponder(int ch, int action, event_t* ev)
       // it is dealt with when the string is drawn (above).
 
       else if ((ch >= 32) && (ch <= 126))
-        if ((entry_index + 1) < ENTRY_STRING_BFR_SIZE)
+      {
+        int len = strlen(entry_string_index);
+
+        // check room for new char
+        if (len + 1 < ENTRY_STRING_BFR_SIZE)
         {
           if (shiftdown)
             ch = shiftxform[ch];
-          if (entry_string_index[entry_index] == 0)
-          {
-            entry_string_index[entry_index++] = ch;
-            entry_string_index[entry_index] = 0;
-          }
-          else
-            entry_string_index[entry_index++] = ch;
+
+          // Move existing chars to the right
+          for (int i = len; i >= entry_index; i--)
+            entry_string_index[i + 1] = entry_string_index[i];
+
+          // Insert char
+          entry_string_index[entry_index++] = ch;
         }
+      }
 
       return true;
     }
