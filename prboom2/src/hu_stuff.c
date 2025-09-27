@@ -80,6 +80,9 @@ static custom_message_t *custom_message_p;
 static custom_message_t title_message[MAX_MAXPLAYERS];
 static custom_message_t *title_message_p;
 
+static custom_message_t author_message[MAX_MAXPLAYERS];
+static custom_message_t *author_message_p;
+
 //jff 2/16/98 status color change levels
 int hud_ammo_red;      // ammo percent less than which status is red
 int hud_ammo_yellow;   // ammo percent less is yellow more green
@@ -127,6 +130,9 @@ static void HU_InitMessages(void)
 
   title_message_p = &title_message[displayplayer];
   title_message_p->ticks = 0;
+
+  author_message_p = &author_message[displayplayer];
+  author_message_p->ticks = 0;
 }
 
 static void HU_InitPlayer(void)
@@ -337,16 +343,18 @@ void HU_AnnounceMap(void)
 
       if (hud_author.string)
       {
-        dsda_string_t map_and_author;
-
-        dsda_StringPrintF(&map_and_author, "%s by %s", hud_title.string, hud_author.string);
-
         if (announce_config==2)
+        {
+          dsda_string_t map_and_author;
+          dsda_StringPrintF(&map_and_author, "%s by %s", hud_title.string, hud_author.string);
           dsda_AddAlert(map_and_author.string);
+          dsda_FreeString(&map_and_author);
+        }
         else
-          SetTitleMessage(plr - players, map_and_author.string, 4 * TICRATE, 0);
-
-        dsda_FreeString(&map_and_author);
+        {
+          SetTitleMessage(plr - players, hud_title.string, 4 * TICRATE, 0);
+          SetAuthorMessage(plr - players, hud_author.string, 4 * TICRATE, 0);
+        }
       }
       else
       {
@@ -434,6 +442,22 @@ char* HU_AnnounceMessage(void) {
 }
 
 //
+// Author Map Message
+char* announce_author_message;
+
+static void HU_UpdateAuthorMessage(const char* message)
+{
+  if (announce_author_message)
+    Z_Free(announce_author_message);
+
+  announce_author_message = Z_Strdup(message);
+}
+
+char* HU_AuthorMessage(void) {
+  return author_message_p->ticks > 0 ? announce_author_message : NULL;
+}
+
+//
 // HU_Ticker()
 //
 // Update the hud displays once per frame
@@ -481,6 +505,25 @@ void HU_Ticker(void)
     if (title_message_p->sfx > 0 && title_message_p->sfx < num_sfx)
     {
       S_StartVoidSound(title_message_p->sfx);
+    }
+  }
+
+  // Author messages
+  for (i = 0; i < g_maxplayers; i++)
+  {
+    if (author_message[i].ticks > 0)
+      author_message[i].ticks--;
+  }
+
+  if (author_message_p->msg)
+  {
+    HU_UpdateAuthorMessage(author_message_p->msg);
+
+    author_message_p->msg = NULL;
+
+    if (author_message_p->sfx > 0 && author_message_p->sfx < num_sfx)
+    {
+      S_StartVoidSound(author_message_p->sfx);
     }
   }
 
@@ -542,6 +585,24 @@ int SetTitleMessage(int plr, const char *msg, int ticks, int sfx)
   item.sfx = sfx;
 
   title_message[plr] = item;
+
+  return true;
+}
+
+int SetAuthorMessage(int plr, const char *msg, int ticks, int sfx)
+{
+  custom_message_t item;
+
+  if (plr < 0 || plr >= g_maxplayers || !msg || ticks < 0 || sfx < 0 || sfx >= num_sfx)
+  {
+    return false;
+  }
+
+  item.msg = msg;
+  item.ticks = ticks;
+  item.sfx = sfx;
+
+  author_message[plr] = item;
 
   return true;
 }
