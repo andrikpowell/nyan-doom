@@ -1269,7 +1269,7 @@ static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, d
 }
 static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int offset, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags)
 {
-  int shadow = (offset == SHADOW_DEFAULT && dsda_ShadowTranslucency());
+  int shadow = (offset == SHADOW_DEFAULT && dsda_ShadowTranslucency()) || (offset == SHADOW_RAVEN);
 
   if (shadow)
     gld_DrawNumPatch(x+offset,y+offset,lump,center,offset,0,0,0,0,cm,flags|VPT_SHADOW); // draw offset shadow
@@ -1278,7 +1278,7 @@ static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboo
 }
 static void WRAP_gld_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int offset, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags)
 {
-  int shadow = (offset == SHADOW_DEFAULT && dsda_ShadowTranslucency());
+  int shadow = (offset == SHADOW_DEFAULT && dsda_ShadowTranslucency()) || (offset == SHADOW_RAVEN);
 
   if (shadow)
     gld_DrawNumPatch_f(x+offset,y+offset,lump,center,offset,0,0,0,0,cm,flags|VPT_SHADOW); // draw offset shadow
