@@ -142,7 +142,7 @@
 #define S_NAME     0x02000000ULL
 #define S_RESET_Y  0x04000000ULL
 #define S_FUNC     0x08000000ULL
-// #define S_      0x10000000ULL
+#define S_PERC     0x10000000ULL
 // #define S_      0x20000000ULL
 #define S_STR      0x40000000ULL // need to refactor things...
 // #define S_      0x80000000ULL
@@ -159,13 +159,13 @@
  * S_HASDEFPTR = the set of items whose var field points to default array
  */
 
-#define S_SHOWDESC (S_LABEL|S_TITLE|S_YESNO|S_CRITEM|S_COLOR|S_PREV|S_NEXT|S_INPUT|S_WEAP|S_NUM|S_FILE|S_CREDIT|S_CHOICE|S_FUNC|S_THERMO|S_NAME)
+#define S_SHOWDESC (S_LABEL|S_TITLE|S_YESNO|S_CRITEM|S_COLOR|S_PREV|S_NEXT|S_INPUT|S_WEAP|S_NUM|S_PERC|S_FILE|S_CREDIT|S_CHOICE|S_FUNC|S_THERMO|S_NAME)
 
-#define S_SHOWSET  (S_YESNO|S_CRITEM|S_COLOR|S_INPUT|S_WEAP|S_NUM|S_FILE|S_CHOICE|S_FUNC|S_THERMO|S_NAME)
+#define S_SHOWSET  (S_YESNO|S_CRITEM|S_COLOR|S_INPUT|S_WEAP|S_NUM|S_PERC|S_FILE|S_CHOICE|S_FUNC|S_THERMO|S_NAME)
 
 #define S_STRING (S_FILE|S_NAME)
 
-#define S_HASDEFPTR (S_STRING|S_YESNO|S_NUM|S_WEAP|S_COLOR|S_CRITEM|S_CHOICE)
+#define S_HASDEFPTR (S_STRING|S_YESNO|S_NUM|S_PERC|S_WEAP|S_COLOR|S_CRITEM|S_CHOICE)
 
 /////////////////////////////
 //
@@ -2201,7 +2201,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
 
   // Is the item a simple number?
 
-  if (flags & (S_NUM | S_WEAP | S_CRITEM)) {
+  if (flags & (S_NUM | S_PERC | S_WEAP | S_CRITEM)) {
     // killough 10/98: We must draw differently for items being gathered.
     if (flags & (S_HILITE | S_SELECT) && setup_gather) {
       gather_buffer[gather_count] = 0;
@@ -2212,7 +2212,10 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
 
       value = dsda_IntConfig(s->config_id);
 
-      sprintf(menu_buffer, "%d", value);
+      if (flags & S_PERC)
+        sprintf(menu_buffer, "%d%%", value); // add %
+      else
+        sprintf(menu_buffer, "%d", value);
 
       if (flags & S_CRITEM)
       {
@@ -2613,7 +2616,7 @@ static void M_DrawInstructions(void)
   // are changing an item or just sitting on it.
 
   if (setup_select) {
-    switch (flags & (S_INPUT | S_YESNO | S_WEAP | S_NUM | S_COLOR | S_CRITEM | S_FILE | S_CHOICE | S_THERMO | S_NAME)) {
+    switch (flags & (S_INPUT | S_YESNO | S_WEAP | S_NUM | S_PERC | S_COLOR | S_CRITEM | S_FILE | S_CHOICE | S_THERMO | S_NAME)) {
       case S_INPUT:
         M_DrawInstructionString(cr_info_edit, "Press key or button for this action");
         break;
@@ -2622,6 +2625,9 @@ static void M_DrawInstructions(void)
         break;
       case S_WEAP:
         M_DrawInstructionString(cr_info_edit, "Enter weapon number");
+        break;
+      case S_PERC:
+        M_DrawInstructionString(cr_info_edit, "Enter percent. Press ENTER when finished.");
         break;
       case S_NUM:
         M_DrawInstructionString(cr_info_edit, "Enter value. Press ENTER when finished.");
@@ -3234,13 +3240,13 @@ setup_menu_t auto_appearance_settings[] =
   { "GL textured display", S_YESNO, m_conf, AA_X, dsda_config_map_textured, DEPEND_GL },
   EMPTY_LINE,
   { "Automap background", S_CHOICE, m_conf, AA_X, dsda_config_automap_background, 0, automap_background_list },
-  { "Background shade %", S_NUM, m_conf, AA_X, dsda_config_automap_background_shade, 0, m_null, EXCLUDE(dsda_config_automap_background, false) },
+  { "Background shade", S_PERC, m_conf, AA_X, dsda_config_automap_background_shade, 0, m_null, EXCLUDE(dsda_config_automap_background, false) },
   { "Parallex Effect", S_YESNO, m_conf, AA_X, dsda_config_automap_parallax, 0, m_null, EXCLUDE(dsda_config_automap_background, false) },
   EMPTY_LINE,
   TITLE_DEPEND("GL Translucency", AA_X, dsda_config_videomode, OPENGL_MODE),
-  { "Textured automap %", S_NUM, m_conf, AA_X, dsda_config_map_textured_trans, DEPEND_GL },
-  { "Textured automap on overlay %", S_NUM, m_conf, AA_X, dsda_config_map_textured_overlay_trans, DEPEND_GL },
-  { "Lines on overlay %", S_NUM, m_conf, AA_X, dsda_config_map_lines_overlay_trans, DEPEND_GL },
+  { "Textured automap", S_PERC, m_conf, AA_X, dsda_config_map_textured_trans, DEPEND_GL },
+  { "Textured automap on overlay", S_PERC, m_conf, AA_X, dsda_config_map_textured_overlay_trans, DEPEND_GL },
+  { "Lines on overlay", S_PERC, m_conf, AA_X, dsda_config_map_lines_overlay_trans, DEPEND_GL },
   EMPTY_LINE,
   TITLE("Trail", AA_X),
   { "Player Trail", S_YESNO, m_conf, AA_X, dsda_config_map_trail },
@@ -3771,15 +3777,15 @@ setup_menu_t display_nyan_settings[] = {
   { "Colored Blood", S_CHOICE, m_conf, G_X, nyan_config_colored_blood, 0, colored_blood_list },
   EMPTY_LINE,
   TITLE("Menu Translucency", G_X),
-  { "Translucency", S_YESNO, m_conf, G_X, dsda_config_menu_tran_filter },
-  { "Translucency %", S_NUM, m_conf, G_X, dsda_config_menu_tran_filter_pct },
-  { "Text Shadows", S_YESNO, m_conf, G_X, dsda_config_shadow_tran_filter },
-  { "Text Shadows %", S_NUM, m_conf, G_X, dsda_config_shadow_tran_filter_pct },
+  { "Enable Translucency", S_YESNO, m_conf, G_X, dsda_config_menu_tran_filter },
+  { "Translucency", S_PERC, m_conf, G_X, dsda_config_menu_tran_filter_pct },
+  { "Enable Text Shadows", S_YESNO, m_conf, G_X, dsda_config_shadow_tran_filter },
+  { "Text Shadows", S_PERC, m_conf, G_X, dsda_config_shadow_tran_filter_pct },
   EMPTY_LINE,
   TITLE("Boom Translucency", G_X),
   { "Translucent Sprites", S_CHOICE, m_conf, G_X, dsda_config_translucent_sprites, 0, translucent_list },
   { "Translucent Ghosts", S_YESNO, m_conf, G_X, dsda_config_translucent_ghosts },
-  { "Translucency %", S_NUM, m_conf, G_X, dsda_config_tran_filter_pct },
+  { "Translucency", S_PERC, m_conf, G_X, dsda_config_tran_filter_pct },
   EMPTY_LINE,
   { "Projectiles", S_YESNO, m_conf, G_X, dsda_config_translucent_missiles, 0, m_null, EXCLUDE(dsda_config_translucent_sprites, 0) },
   { "Powerups", S_YESNO, m_conf, G_X, dsda_config_translucent_powerups, 0, m_null, EXCLUDE(dsda_config_translucent_sprites, 0) },
@@ -3825,11 +3831,11 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   TITLE("Coloring", G_X),
   { "Gray %",S_YESNO, m_conf, G_X, dsda_config_sts_pct_always_gray },
   { "Colored Numbers", S_YESNO, m_conf, G_X, dsda_config_sts_colored_numbers },
-  { "Health Low/Ok", S_NUM, m_conf, G_X, dsda_config_hud_health_red },
-  { "Health Ok/Good", S_NUM, m_conf, G_X, dsda_config_hud_health_yellow },
-  { "Health Good/Extra", S_NUM, m_conf, G_X, dsda_config_hud_health_green },
-  { "Ammo Low/Ok", S_NUM, m_conf, G_X, dsda_config_hud_ammo_red },
-  { "Ammo Ok/Good", S_NUM, m_conf, G_X, dsda_config_hud_ammo_yellow },
+  { "Health Low/Ok", S_PERC, m_conf, G_X, dsda_config_hud_health_red },
+  { "Health Ok/Good", S_PERC, m_conf, G_X, dsda_config_hud_health_yellow },
+  { "Health Good/Extra", S_PERC, m_conf, G_X, dsda_config_hud_health_green },
+  { "Ammo Low/Ok", S_PERC, m_conf, G_X, dsda_config_hud_ammo_red },
+  { "Ammo Ok/Good", S_PERC, m_conf, G_X, dsda_config_hud_ammo_yellow },
   //EMPTY_LINE,
   //{ "Appearance", S_CHOICE, m_conf, G_X, dsda_config_render_stretch_hud, 0, render_stretch_list },
 
@@ -3847,10 +3853,10 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
   { "Use Extended Hud", S_YESNO, m_conf, G_X, dsda_config_exhud },
   { "Level Stat Format", S_CHOICE, m_conf, G_X, dsda_config_stats_format, 0, stat_format_list, DEPEND(dsda_config_exhud, true) },
-  { "Ex Hud Scale %", S_NUM, m_conf, G_X, dsda_config_ex_text_scale_x, EXHUD_ON },
-  { "Ex Hud Ratio %", S_NUM, m_conf, G_X, dsda_config_ex_text_ratio_y, EXHUD_ON },
+  { "Ex Hud Scale", S_PERC, m_conf, G_X, dsda_config_ex_text_scale_x, EXHUD_ON },
+  { "Ex Hud Ratio", S_PERC, m_conf, G_X, dsda_config_ex_text_ratio_y, EXHUD_ON },
   { "Ex Hud Translucency", S_YESNO, m_conf, G_X, dsda_config_ex_text_tran_filter, EXHUD_ON },
-  { "Ex Hud Translucency %", S_NUM, m_conf, G_X, dsda_config_ex_text_tran_filter_pct, EXHUD_ON },
+  { "Ex Hud Translucency", S_PERC, m_conf, G_X, dsda_config_ex_text_tran_filter_pct, EXHUD_ON },
   { "Ex Hud Free Text", S_NAME, m_conf, G_X, dsda_config_free_text, EXHUD_ON },
   EMPTY_LINE,
   TITLE("Status Widget", G_X),
@@ -5601,7 +5607,7 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
       return true;
     }
 
-    if (ptr1->m_flags & (S_NUM | S_CRITEM)) // number?
+    if (ptr1->m_flags & (S_NUM | S_PERC | S_CRITEM)) // number?
     {
       if (setup_gather) { // gathering keys for a value?
         /* killough 10/98: Allow negatives, and use a more
@@ -5814,7 +5820,7 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
     //
     // killough 10/98: use friendlier char-based input buffer
 
-    if (flags & (S_NUM | S_CRITEM))
+    if (flags & (S_NUM | S_PERC | S_CRITEM))
     {
       setup_gather = true;
       gather_count = 0;
