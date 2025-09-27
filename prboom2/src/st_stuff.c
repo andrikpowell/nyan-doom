@@ -761,7 +761,7 @@ int ST_BlinkKey(player_t* player, int index)
 
   if (player->keyblinktics & (!heretic ? KEYBLINKMASK : 4*KEYBLINKMASK))
   {
-    if (keyblink == KEYBLINK_EITHER || (KEYBLINK_BOTH && sts_traditional_keys))
+    if (keyblink == KEYBLINK_EITHER || (keyblink == KEYBLINK_BOTH && sts_traditional_keys))
     {
       if (st_keyorskull[index] && st_keyorskull[index] != KEYBLINK_BOTH)
       {

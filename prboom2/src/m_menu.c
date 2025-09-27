@@ -2775,9 +2775,9 @@ static void M_DrawInstructions(void)
 #define FUNCTION(action_name, flags, offset_x, action_func) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, .action = action_func }
 #define DEPEND(config, value)     (const setup_menu_dependent_t[]){{ config, value, false }}, 1
 #define EXCLUDE(config, value)    (const setup_menu_dependent_t[]){{ config, value, true }}, 1
-#define TITLE_DEPEND(page_name, offset_x, config, value) { page_name, S_SKIP | S_TITLE, m_null, offset_x, 0, 0, m_null, DEPEND(config, value)}
-#define DEPEND_SW                 0, m_null, DEPEND(dsda_config_videomode, SOFTWARE_MODE)
-#define DEPEND_GL                 0, m_null, DEPEND(dsda_config_videomode, OPENGL_MODE)
+#define TITLE_DEPEND(page_name, offset_x, config, value) { page_name, S_SKIP | S_TITLE, m_null, offset_x, 0, 0, NULL, DEPEND(config, value)}
+#define DEPEND_SW                 0, NULL, DEPEND(dsda_config_videomode, SOFTWARE_MODE)
+#define DEPEND_GL                 0, NULL, DEPEND(dsda_config_videomode, OPENGL_MODE)
 #define DEPEND_LIST(name, ...) \
   static const setup_menu_dependent_t name[] = { __VA_ARGS__ }; \
   const int name##_count = sizeof(name) / sizeof(name[0])
@@ -3342,8 +3342,8 @@ setup_menu_t auto_appearance_settings[] =
   { "GL textured display", S_YESNO, m_conf, AA_X, dsda_config_map_textured, DEPEND_GL },
   EMPTY_LINE,
   { "Automap background", S_CHOICE, m_conf, AA_X, dsda_config_automap_background, 0, automap_background_list },
-  { "Background shade", S_PERC, m_conf, AA_X, dsda_config_automap_background_shade, 0, m_null, EXCLUDE(dsda_config_automap_background, false) },
-  { "Parallex Effect", S_YESNO, m_conf, AA_X, dsda_config_automap_parallax, 0, m_null, EXCLUDE(dsda_config_automap_background, false) },
+  { "Background shade", S_PERC, m_conf, AA_X, dsda_config_automap_background_shade, 0, NULL, EXCLUDE(dsda_config_automap_background, false) },
+  { "Parallex Effect", S_YESNO, m_conf, AA_X, dsda_config_automap_parallax, 0, NULL, EXCLUDE(dsda_config_automap_background, false) },
   EMPTY_LINE,
   TITLE_DEPEND("GL Translucency", AA_X, dsda_config_videomode, OPENGL_MODE),
   { "Textured automap", S_PERC, m_conf, AA_X, dsda_config_map_textured_trans, DEPEND_GL },
@@ -3352,8 +3352,8 @@ setup_menu_t auto_appearance_settings[] =
   EMPTY_LINE,
   TITLE("Trail", AA_X),
   { "Player Trail", S_YESNO, m_conf, AA_X, dsda_config_map_trail },
-  { "Include Collisions", S_YESNO, m_conf, AA_X, dsda_config_map_trail_collisions, 0, m_null, DEPEND(dsda_config_map_trail, true) },
-  { "Player Trail Size", S_NUM, m_conf, AA_X, dsda_config_map_trail_size, 0, m_null, DEPEND(dsda_config_map_trail, true) },
+  { "Include Collisions", S_YESNO, m_conf, AA_X, dsda_config_map_trail_collisions, 0, NULL, DEPEND(dsda_config_map_trail, true) },
+  { "Player Trail Size", S_NUM, m_conf, AA_X, dsda_config_map_trail_size, 0, NULL, DEPEND(dsda_config_map_trail, true) },
 
   PREV_PAGE(auto_options_settings),
   NEXT_PAGE(auto_colors_settings),
@@ -3653,8 +3653,8 @@ setup_menu_t gen_audio_settings[] = {
   EMPTY_LINE,
   { "Number of Sound Channels", S_NUM, m_conf, G_X, dsda_config_snd_channels },
   { "Limit Overlapping for Same-Sound", S_YESNO, m_conf, G_X, dsda_config_parallel_sfx_active },
-  { "Number of Overlapping Sounds", S_NUM, m_conf, G_X, dsda_config_parallel_sfx_limit, 0, m_null, DEPEND(dsda_config_parallel_sfx_active, true) },
-  { "Sound Replay Window (s)", S_NUM, m_conf, G_X, dsda_config_parallel_sfx_window, 0, m_null, DEPEND(dsda_config_parallel_sfx_active, true) },
+  { "Number of Overlapping Sounds", S_NUM, m_conf, G_X, dsda_config_parallel_sfx_limit, 0, NULL, DEPEND(dsda_config_parallel_sfx_active, true) },
+  { "Sound Replay Window (s)", S_NUM, m_conf, G_X, dsda_config_parallel_sfx_window, 0, NULL, DEPEND(dsda_config_parallel_sfx_active, true) },
   EMPTY_LINE,
   { "SFX For Movement Toggles", S_YESNO, m_conf, G_X, dsda_config_movement_toggle_sfx },
   { "Play SFX For Quicksave", S_YESNO, m_conf, G_X, dsda_config_quicksave_sfx },
@@ -3665,7 +3665,7 @@ setup_menu_t gen_audio_settings[] = {
   FINAL_ENTRY
 };
 
-#define MOUSE_ON   0, m_null, DEPEND(dsda_config_use_mouse, true)
+#define MOUSE_ON   0, NULL, DEPEND(dsda_config_use_mouse, true)
 
 setup_menu_t gen_mouse_settings[] = {
   { "Enable Mouse", S_YESNO, m_conf, G2_X, dsda_config_use_mouse },
@@ -3691,7 +3691,7 @@ setup_menu_t gen_mouse_settings[] = {
 
 #undef MOUSE_ON
 
-#define CONTROLLER_ON   0, m_null, DEPEND(dsda_config_use_game_controller, true)
+#define CONTROLLER_ON   0, NULL, DEPEND(dsda_config_use_game_controller, true)
 
 setup_menu_t gen_controller_settings[] = {
   { "Enable Gamepad", S_YESNO, m_conf, G2_X, dsda_config_use_game_controller },
@@ -3728,9 +3728,9 @@ setup_menu_t gen_misc_settings[] = {
   { "Use Dehacked Cheats", S_YESNO, m_conf, G2_X, dsda_config_deh_change_cheats },
   EMPTY_LINE,
   { "Enable Rewind", S_YESNO, m_conf, G2_X, dsda_config_auto_key_frame_active },
-  { "Rewind Interval (s)", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_interval, 0, m_null, DEPEND(dsda_config_auto_key_frame_active, true) },
-  { "Rewind Depth", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_depth, 0, m_null, DEPEND(dsda_config_auto_key_frame_active, true) },
-  { "Rewind Timeout (ms)", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_timeout, 0, m_null, DEPEND(dsda_config_auto_key_frame_active, true) },
+  { "Rewind Interval (s)", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_interval, 0, NULL, DEPEND(dsda_config_auto_key_frame_active, true) },
+  { "Rewind Depth", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_depth, 0, NULL, DEPEND(dsda_config_auto_key_frame_active, true) },
+  { "Rewind Timeout (ms)", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_timeout, 0, NULL, DEPEND(dsda_config_auto_key_frame_active, true) },
   EMPTY_LINE,
   { "Autosave On Level Start", S_YESNO, m_conf, G2_X, dsda_config_auto_save },
   { "Organize My Save Files", S_YESNO, m_conf, G2_X, dsda_config_organized_saves },
@@ -3890,9 +3890,9 @@ setup_menu_t display_nyan_settings[] = {
   { "Translucent Ghosts", S_YESNO, m_conf, G_X, dsda_config_translucent_ghosts },
   { "Translucency", S_PERC, m_conf, G_X, dsda_config_tran_filter_pct },
   EMPTY_LINE,
-  { "Projectiles", S_YESNO, m_conf, G_X, dsda_config_translucent_missiles, 0, m_null, EXCLUDE(dsda_config_translucent_sprites, 0) },
-  { "Powerups", S_YESNO, m_conf, G_X, dsda_config_translucent_powerups, 0, m_null, EXCLUDE(dsda_config_translucent_sprites, 0) },
-  { "Effects", S_YESNO, m_conf, G_X, dsda_config_translucent_effects, 0, m_null, EXCLUDE(dsda_config_translucent_sprites, 0) },
+  { "Projectiles", S_YESNO, m_conf, G_X, dsda_config_translucent_missiles, 0, NULL, EXCLUDE(dsda_config_translucent_sprites, 0) },
+  { "Powerups", S_YESNO, m_conf, G_X, dsda_config_translucent_powerups, 0, NULL, EXCLUDE(dsda_config_translucent_sprites, 0) },
+  { "Effects", S_YESNO, m_conf, G_X, dsda_config_translucent_effects, 0, NULL, EXCLUDE(dsda_config_translucent_sprites, 0) },
 
   PREV_PAGE(display_options_settings),
   NEXT_PAGE(display_statbar_settings),
@@ -3949,8 +3949,8 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
 
 static const char* stat_format_list[] = { "NYANHUD", "ratio", "percent", "count", "remaining", "dsda classic", NULL };
 
-#define EXHUD_ON           0, m_null, DEPEND(dsda_config_exhud, true)
-#define STATUS_WIDGET_ON   0, m_null, DEPEND(nyan_config_ex_status_widget, true)
+#define EXHUD_ON           0, NULL, DEPEND(dsda_config_exhud, true)
+#define STATUS_WIDGET_ON   0, NULL, DEPEND(nyan_config_ex_status_widget, true)
 
 setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
@@ -3989,7 +3989,7 @@ static const char* secretarea_list[] = { "Off", "On", "Subtle", NULL };
 
 #define HUD_X 245
 
-#define CROSSHAIR_ON  0, m_null, EXCLUDE(dsda_config_hudadd_crosshair, 0)
+#define CROSSHAIR_ON  0, NULL, EXCLUDE(dsda_config_hudadd_crosshair, 0)
 
 setup_menu_t display_crosshair_settings[] =
 {
@@ -4071,7 +4071,7 @@ setup_menu_t comp_options_settings[] = {
 
 #define CP_X 250
 
-#define LR_ON   0, m_null, DEPEND(dsda_config_limit_removing,false)
+#define LR_ON   0, NULL, DEPEND(dsda_config_limit_removing,false)
 
 setup_menu_t comp_emulation_settings[] = {
   { "Limit-Removing", S_YESNO, m_conf, CP_X, dsda_config_limit_removing },
@@ -4217,7 +4217,7 @@ setup_menu_t skill_options_builder[] = {
 };
 
 setup_menu_t skill_options_start[] = {
-  { "Respawn Time", S_NUM, m_conf, SK_X, dsda_config_skill_respawn_time, 0, m_null, DEPEND(dsda_config_skill_respawn_monsters, true) },
+  { "Respawn Time", S_NUM, m_conf, SK_X, dsda_config_skill_respawn_time, 0, NULL, DEPEND(dsda_config_skill_respawn_monsters, true) },
   { "Slow Spawn-Cube Spitter", S_YESNO, m_conf, SK_X, dsda_config_skill_easy_brain },
   { "Disable Pain States", S_YESNO, m_conf, SK_X, dsda_config_skill_no_pain },
   { "Show Automap Keys", S_YESNO, m_conf, SK_X, dsda_config_skill_easy_key },
@@ -4296,7 +4296,7 @@ setup_menu_t demos_tas_settings[] =
 {
   { "Strict Mode", S_YESNO, m_conf, DM_X, dsda_config_strict_mode },
   EMPTY_LINE,
-  { "Wipe At Full Speed", S_YESNO, m_conf, DM_X, dsda_config_wipe_at_full_speed, 0, m_null, DEPEND(dsda_config_render_wipescreen, true) },
+  { "Wipe At Full Speed", S_YESNO, m_conf, DM_X, dsda_config_wipe_at_full_speed, 0, NULL, DEPEND(dsda_config_render_wipescreen, true) },
   { "Show Command Display", S_YESNO, m_conf, DM_X, dsda_config_command_display },
   { "Command History", S_NUM, m_conf, DM_X, dsda_config_command_history_size },
   { "Hide Empty Commands", S_YESNO, m_conf, DM_X, dsda_config_hide_empty_commands },
