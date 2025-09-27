@@ -130,7 +130,8 @@ dboolean HUlib_addCharToTextLine
 //
 void HUlib_drawTextLine
 ( hu_textline_t* l,
-  dboolean drawcursor )
+  dboolean drawcursor,
+  dboolean shadow )
 {
 
   int     i;
@@ -172,7 +173,10 @@ void HUlib_drawTextLine
         break;
       // killough 1/18/98 -- support multiple lines:
       // CPhipps - patch drawing updated
-      V_DrawNumPatch(x, y, l->f[c - l->sc].lumpnum, l->cm, VPT_COLOR | l->flags);
+      if (shadow)
+        V_DrawMenuNumPatch(x, y, l->f[c - l->sc].lumpnum, l->cm, VPT_COLOR | l->flags);
+      else
+        V_DrawNumPatch(x, y, l->f[c - l->sc].lumpnum, l->cm, VPT_COLOR | l->flags);
       x += w;
     }
     else
@@ -189,7 +193,10 @@ void HUlib_drawTextLine
   {
     // killough 1/18/98 -- support multiple lines
     // CPhipps - patch drawing updated
-    V_DrawNumPatch(x, y, l->f['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | l->flags);
+    if (shadow)
+      V_DrawMenuNumPatch(x, y, l->f['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | l->flags);
+    else
+      V_DrawNumPatch(x, y, l->f['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | l->flags);
   }
 }
 
@@ -199,7 +206,7 @@ void HUlib_drawOffsetTextLine(hu_textline_t* l, int offset)
 
   old_y = l->y;
   l->y += offset;
-  HUlib_drawTextLine(l, false);
+  HUlib_drawTextLine(l, false, false);
   l->y = old_y;
 }
 

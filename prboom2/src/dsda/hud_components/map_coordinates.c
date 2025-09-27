@@ -56,5 +56,5 @@ void dsda_UpdateMapCoordinatesHC(void* data) {
 void dsda_DrawMapCoordinatesHC(void* data) {
   local = data;
 
-  dsda_DrawBasicText(&local->component);
+  dsda_DrawBasicShadowedText(&local->component);
 }

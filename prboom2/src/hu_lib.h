@@ -92,7 +92,7 @@ void HUlib_initTextLine
 dboolean HUlib_addCharToTextLine(hu_textline_t *t, char ch);
 
 // draws tline
-void HUlib_drawTextLine(hu_textline_t *l, dboolean drawcursor);
+void HUlib_drawTextLine(hu_textline_t *l, dboolean drawcursor, dboolean shadow);
 void HUlib_drawOffsetTextLine(hu_textline_t* l, int offset);
 
 //e6y

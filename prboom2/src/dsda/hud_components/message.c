@@ -67,5 +67,5 @@ void dsda_UpdateMessageHC(void* data) {
 void dsda_DrawMessageHC(void* data) {
   local = data;
 
-  dsda_DrawBasicText(&local->component);
+  dsda_DrawBasicShadowedText(&local->component);
 }

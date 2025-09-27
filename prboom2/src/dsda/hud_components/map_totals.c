@@ -139,6 +139,6 @@ void dsda_UpdateMapTotalsHC(void* data) {
 void dsda_DrawMapTotalsHC(void* data) {
   local = data;
 
-  dsda_DrawBasicText(&local->label);
-  dsda_DrawBasicText(&local->component);
+  dsda_DrawBasicShadowedText(&local->label);
+  dsda_DrawBasicShadowedText(&local->component);
 }

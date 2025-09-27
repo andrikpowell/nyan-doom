@@ -138,7 +138,11 @@ void dsda_DrawBigNumber(int x, int y, int delta_x, int delta_y, int cm, int vpt,
 }
 
 void dsda_DrawBasicText(dsda_text_t* component) {
-  HUlib_drawTextLine(&component->text, false);
+  HUlib_drawTextLine(&component->text, false, false);
+}
+
+void dsda_DrawBasicShadowedText(dsda_text_t* component) {
+  HUlib_drawTextLine(&component->text, false, true);
 }
 
 void dsda_RefreshHudText(dsda_text_t* component) {
