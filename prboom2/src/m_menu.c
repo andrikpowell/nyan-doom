@@ -3869,7 +3869,7 @@ setup_menu_t display_options_settings[] = {
 };
 
 static const char* fuzz_mode_list[] = { "Vanilla", "Refraction", "Shadow", NULL };
-static const char* fuzz_scale_list[] = { "Default", "3/4", "1/2", NULL };
+static const char* fuzz_scale_list[] = { "Vanilla", "3/4", "1/2", NULL };
 static const char* colored_blood_list[] = { "OFF", "ON", "FORCED", NULL };
 static const char* translucent_list[] = { "Off", "Default", "w/ Vanilla", NULL };
 
