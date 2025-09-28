@@ -149,28 +149,8 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h);
 // Update the whole screen
 void TXT_UpdateScreen(void);
 
-// Set the RGB value for a particular entry in the color palette:
-void TXT_SetColor(txt_color_t color, int r, int g, int b);
-
 // Read a character from the keyboard
 int TXT_GetChar(void);
-
-// Given a Unicode character, get a character that can be used to represent
-// it on the code page being displayed on the screen. If the character cannot
-// be represented, this returns -1.
-int TXT_UnicodeCharacter(unsigned int c);
-
-// Read the current state of modifier keys that are held down.
-int TXT_GetModifierState(txt_modifier_t mod);
-
-// Provides a short description of a key code, placing into the provided
-// buffer. Note that the key is assumed to represent a physical key on the
-// keyboard (like that returned by TXT_INPUT_RAW), and the resulting string
-// takes keyboard layout into consideration. For example,
-// TXT_GetKeyDescription('q') on a French keyboard returns "A".
-// The contents of the filled buffer will be in UTF-8 format, but will never
-// contain characters which can't be shown on the screen.
-void TXT_GetKeyDescription(int key, char *buf, size_t buf_len);
 
 // Retrieve the current position of the mouse
 void TXT_GetMousePosition(int *x, int *y);
@@ -179,23 +159,8 @@ void TXT_GetMousePosition(int *x, int *y);
 // Optional timeout in ms (timeout == 0 : sleep forever)
 void TXT_Sleep(int timeout);
 
-// Change mode for text input.
-void TXT_SetInputMode(txt_input_mode_t mode);
-
 // Set the window title of the window containing the text mode screen
 void TXT_SetWindowTitle(const char *title);
-
-// Safe string copy.
-void TXT_StringCopy(char *dest, const char *src, size_t dest_len);
-
-// Safe string concatenate.
-void TXT_StringConcat(char *dest, const char *src, size_t dest_len);
-
-// Safe version of vsnprintf().
-int TXT_vsnprintf(char *buf, size_t buf_len, const char *s, va_list args) PRINTF_ATTR(3, 0);
-
-// Safe version of snprintf().
-int TXT_snprintf(char *buf, size_t buf_len, const char *s, ...) PRINTF_ATTR(3, 4);
 
 #endif /* #ifndef TXT_MAIN_H */
 

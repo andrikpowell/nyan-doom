@@ -35,9 +35,7 @@ typedef int (*TxtSDLEventCallbackFunc)(SDL_Event *event, void *user_data);
 // callback function.
 // user_data is a void pointer to be passed to the callback function.
 
-void TXT_SDL_SetEventCallback(TxtSDLEventCallbackFunc callback, void *user_data);
-
-void TXT_PreInit(SDL_Window *preset_window, SDL_Renderer *preset_renderer);
+void TXT_PreInit(SDL_Window *preset_window, SDL_Renderer *preset_renderer, int opengl);
 
 extern SDL_Window *TXT_SDLWindow;
 

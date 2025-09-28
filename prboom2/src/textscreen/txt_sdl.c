@@ -26,12 +26,16 @@
 
 #include "txt_main.h"
 #include "txt_sdl.h"
+#include "txt_gl.h"
 #include "txt_utf8.h"
 #include "lprintf.h"
 
 #if defined(_MSC_VER) && !defined(__cplusplus)
 #define inline __inline
 #endif
+
+// Direct functions to GL functions
+static int is_opengl = false;
 
 typedef struct
 {
@@ -113,8 +117,16 @@ static const SDL_Color ega_colors[] =
 // Returns 1 if successful, 0 if an error occurred
 //
 
-void TXT_PreInit(SDL_Window *preset_window, SDL_Renderer *preset_renderer)
+void TXT_PreInit(SDL_Window *preset_window, SDL_Renderer *preset_renderer, int opengl)
 {
+    // OpenGL doesn't use renderer
+    if (opengl)
+    {
+        is_opengl = true;
+        GL_TXT_PreInit(preset_window);
+        return;
+    }
+
     if (preset_window != NULL)
     {
         TXT_SDLWindow = preset_window;
@@ -131,10 +143,8 @@ int TXT_Init(void)
     int flags = 0;
     SDL_RendererInfo info;
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-    {
-        return 0;
-    }
+    if (is_opengl)
+        return GL_TXT_Init();
 
     font = &normal_font;
 
@@ -215,24 +225,23 @@ int TXT_Init(void)
 
 void TXT_Shutdown(void)
 {
+    if (is_opengl)
+    {
+        GL_TXT_Shutdown();
+        return;
+    }
+
     free(screendata);
     screendata = NULL;
     SDL_FreeSurface(screenbuffer);
     screenbuffer = NULL;
-    SDL_QuitSubSystem(SDL_INIT_VIDEO);
-}
-
-void TXT_SetColor(txt_color_t color, int r, int g, int b)
-{
-    SDL_Color c = {r, g, b, 0xff};
-
-    SDL_LockSurface(screenbuffer);
-    SDL_SetPaletteColors(screenbuffer->format->palette, &c, color, 1);
-    SDL_UnlockSurface(screenbuffer);
 }
 
 unsigned char *TXT_GetScreenData(void)
 {
+    if (is_opengl)
+        return GL_TXT_SetScreenData();
+
     return screendata;
 }
 
@@ -381,6 +390,12 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h)
 
 void TXT_UpdateScreen(void)
 {
+    if (is_opengl)
+    {
+        GL_TXT_UpdateScreen();
+        return;
+    }
+
     TXT_UpdateScreenArea(0, 0, TXT_SCREEN_W, TXT_SCREEN_H);
 }
 
@@ -526,6 +541,9 @@ signed int TXT_GetChar(void)
 {
     SDL_Event ev;
 
+    if (is_opengl)
+        return GL_TXT_GetChar();
+
     while (SDL_PollEvent(&ev))
     {
         // If there is an event callback, allow it to intercept this
@@ -608,130 +626,6 @@ signed int TXT_GetChar(void)
     return -1;
 }
 
-int TXT_GetModifierState(txt_modifier_t mod)
-{
-    SDL_Keymod state;
-
-    state = SDL_GetModState();
-
-    switch (mod)
-    {
-        case TXT_MOD_SHIFT:
-            return (state & KMOD_SHIFT) != 0;
-        case TXT_MOD_CTRL:
-            return (state & KMOD_CTRL) != 0;
-        case TXT_MOD_ALT:
-            return (state & KMOD_ALT) != 0;
-        default:
-            return 0;
-    }
-}
-
-int TXT_UnicodeCharacter(unsigned int c)
-{
-    unsigned int i;
-
-    // Check the code page mapping to see if this character maps
-    // to anything.
-
-    for (i = 0; i < arrlen(code_page_to_unicode); ++i)
-    {
-        if (code_page_to_unicode[i] == c)
-        {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-// Returns true if the given UTF8 key name is printable to the screen.
-static int PrintableName(const char *s)
-{
-    const char *p;
-    unsigned int c;
-
-    p = s;
-    while (*p != '\0')
-    {
-        c = TXT_DecodeUTF8(&p);
-        if (TXT_UnicodeCharacter(c) < 0)
-        {
-            return 0;
-        }
-    }
-
-    return 1;
-}
-
-static const char *NameForKey(int key)
-{
-    const char *result;
-    int i;
-
-    // Overrides purely for aesthetical reasons, so that default
-    // window accelerator keys match those of setup.exe.
-    switch (key)
-    {
-        case KEY_ESCAPE: return "ESC";
-        case KEY_ENTER:  return "ENTER";
-        default:
-            break;
-    }
-
-    // This key presumably maps to a scan code that is listed in the
-    // translation table. Find which mapping and once we have a scancode,
-    // we can convert it into a virtual key, then a string via SDL.
-    for (i = 0; i < arrlen(scancode_translate_table); ++i)
-    {
-        if (scancode_translate_table[i] == key)
-        {
-            result = SDL_GetKeyName(SDL_GetKeyFromScancode(i));
-            if (TXT_UTF8_Strlen(result) > 6 || !PrintableName(result))
-            {
-                break;
-            }
-            return result;
-        }
-    }
-
-    // Use US English fallback names, if the localized name is too long,
-    // not found in the scancode table, or contains unprintable chars
-    // (non-extended ASCII character set):
-    for (i = 0; i < arrlen(key_names); ++i)
-    {
-        if (key_names[i].key == key)
-        {
-            return key_names[i].name;
-        }
-    }
-
-    return NULL;
-}
-
-void TXT_GetKeyDescription(int key, char *buf, size_t buf_len)
-{
-    const char *keyname;
-    int i;
-
-    keyname = NameForKey(key);
-
-    if (keyname != NULL)
-    {
-        TXT_StringCopy(buf, keyname, buf_len);
-
-        // Key description should be all-uppercase to match setup.exe.
-        for (i = 0; buf[i] != '\0'; ++i)
-        {
-            buf[i] = toupper(buf[i]);
-        }
-    }
-    else
-    {
-        TXT_snprintf(buf, buf_len, "??%i", key);
-    }
-}
-
 // Searches the desktop screen buffer to determine whether there are any
 // blinking characters.
 
@@ -768,6 +662,12 @@ int TXT_ScreenHasBlinkingChars(void)
 void TXT_Sleep(int timeout)
 {
     unsigned int start_time;
+
+    if (is_opengl)
+    {
+        GL_TXT_Sleep(0);
+        return;
+    }
 
     if (TXT_ScreenHasBlinkingChars())
     {
@@ -814,92 +714,3 @@ void TXT_Sleep(int timeout)
         }
     }
 }
-
-void TXT_SetInputMode(txt_input_mode_t mode)
-{
-    if (mode == TXT_INPUT_TEXT && !SDL_IsTextInputActive())
-    {
-        SDL_StartTextInput();
-    }
-    else if (SDL_IsTextInputActive() && mode != TXT_INPUT_TEXT)
-    {
-        SDL_StopTextInput();
-    }
-
-    input_mode = mode;
-}
-
-void TXT_SetWindowTitle(const char *title)
-{
-    SDL_SetWindowTitle(TXT_SDLWindow, title);
-}
-
-void TXT_SDL_SetEventCallback(TxtSDLEventCallbackFunc callback, void *user_data)
-{
-    event_callback = callback;
-    event_callback_data = user_data;
-}
-
-// Safe string functions.
-
-void TXT_StringCopy(char *dest, const char *src, size_t dest_len)
-{
-    if (dest_len < 1)
-    {
-        return;
-    }
-
-    dest[dest_len - 1] = '\0';
-    strncpy(dest, src, dest_len - 1);
-}
-
-void TXT_StringConcat(char *dest, const char *src, size_t dest_len)
-{
-    size_t offset;
-
-    offset = strlen(dest);
-    if (offset > dest_len)
-    {
-        offset = dest_len;
-    }
-
-    TXT_StringCopy(dest + offset, src, dest_len - offset);
-}
-
-// Safe, portable vsnprintf().
-int TXT_vsnprintf(char *buf, size_t buf_len, const char *s, va_list args)
-{
-    int result;
-
-    if (buf_len < 1)
-    {
-        return 0;
-    }
-
-    // Windows (and other OSes?) has a vsnprintf() that doesn't always
-    // append a trailing \0. So we must do it, and write into a buffer
-    // that is one byte shorter; otherwise this function is unsafe.
-    result = vsnprintf(buf, buf_len, s, args);
-
-    // If truncated, change the final char in the buffer to a \0.
-    // A negative result indicates a truncated buffer on Windows.
-    if (result < 0 || result >= buf_len)
-    {
-        buf[buf_len - 1] = '\0';
-        result = buf_len - 1;
-    }
-
-    return result;
-}
-
-// Safe, portable snprintf().
-int TXT_snprintf(char *buf, size_t buf_len, const char *s, ...)
-{
-    va_list args;
-    int result;
-    va_start(args, s);
-    result = TXT_vsnprintf(buf, buf_len, s, args);
-    va_end(args);
-    return result;
-}
-

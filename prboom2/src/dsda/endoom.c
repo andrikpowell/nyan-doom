@@ -34,6 +34,7 @@
 #include "dsda/configuration.h"
 #include "textscreen/txt_main.h"
 #include "textscreen/txt_sdl.h"
+#include "textscreen/txt_gl.h"
 
 #include "endoom.h"
 
@@ -359,7 +360,6 @@ static void RestoreOldMode(void) {
 #endif
 
 int is_opengl = false;
-int needs_refresh = false;
 
 void dsda_CacheEndoom(void) {
   int lump;
@@ -370,10 +370,7 @@ void dsda_CacheEndoom(void) {
   show_endoom = dsda_IntConfig(nyan_config_show_endoom);
 
   if (V_IsOpenGLMode())
-  {
     is_opengl = true;
-    needs_refresh = dsda_IntConfig(dsda_arg_fullscreen);
-  }
 
   if (started_demo)
     return;
@@ -478,25 +475,13 @@ void dsda_WindowEndoom(void)
 
     // Set up text mode screen
 
-    if (needs_refresh)
-    {
-      // fullscreen - Swap OpenGL to software
-      SDL_HideWindow(sdl_window);
-      SDL_ShowWindow(sdl_window);
-    }
-
-    if (!is_opengl)
-      TXT_PreInit(I_GetSDLWindow(), I_GetSDLRenderer());
-    else
-      TXT_PreInit(I_GetSDLWindow(), NULL); // pass window only in GL mode
+    TXT_PreInit(I_GetSDLWindow(), I_GetSDLRenderer(), is_opengl);
 
     if (!TXT_Init())
     {
         lprintf(LO_ERROR, "Failed to initialize libtextscreen");
         return;
     }
-
-    TXT_SetWindowTitle(PROJECT_NAME " " PROJECT_VERSION);
 
     // Write the data to the screen memory
 
