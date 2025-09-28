@@ -850,8 +850,8 @@ typedef struct {
 v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
 {
   v_patchinfo_t patch;
-  extern int dsda_ExHudTranslucency(void);
   int trans_context;
+  extern int dsda_ExHudTranslucency(void);
 
   patch.transmap = NULL;
   patch.flags = flags;
@@ -920,8 +920,8 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
 
 v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype) {
   v_patchinfo_t shadow = { 0 };
-  shadow.trans = NO_TRANS;
   int trans_context;
+  shadow.trans = NO_TRANS;
 
   if ((shadowtype == SHADOW_DEFAULT && !dsda_ShadowTranslucency()))
     shadowtype = 0;
