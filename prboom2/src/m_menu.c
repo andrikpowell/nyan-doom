@@ -3426,6 +3426,7 @@ setup_menu_t auto_heretic_colors_settings[] =  // 2st AutoMap Settings screen
   {"map unseen line"                ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_unsn},
   {"line w/no floor/ceiling changes",S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_flat},
   {"general sprite"                 ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_sprt},
+  {"pickup sprite"                  ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_pickup},
   {"countable enemy sprite"         ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_enemy},      // cph 2006/06/30
   {"countable item sprite"          ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_item},       // mead 3/4/2003
   {"crosshair"                      ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_hair},
@@ -3458,6 +3459,7 @@ setup_menu_t auto_hexen_colors_settings[] =  // 2st AutoMap Settings screen
   {"map unseen line"                ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_unsn},
   {"line w/no floor/ceiling changes",S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_flat},
   {"general sprite"                 ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_sprt},
+  {"pickup sprite"                  ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_pickup},
   {"countable enemy sprite"         ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_enemy},      // cph 2006/06/30
   {"artifact sprite"                ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_item},       // mead 3/4/2003
   {"crosshair"                      ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_hair},
