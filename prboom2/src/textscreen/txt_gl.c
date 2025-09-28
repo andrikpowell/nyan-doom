@@ -203,11 +203,7 @@ int GL_TXT_Init(void)
     if (!glwindow)
         return 0;
 
-    SDL_GetWindowSize(glwindow, &glwindow_w, &glwindow_h);
-
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    SDL_GL_GetDrawableSize(glwindow, &glwindow_w, &glwindow_h);
 
     GL_TXT_SetupOrtho(glwindow_w, glwindow_h);
 
@@ -255,10 +251,11 @@ static const float glpalette[16][3] = {
 
 static void GL_TXT_SetColorFromPalette(int index)
 {
-    glColor4f(glpalette[index][0] / 255.0f,
-             glpalette[index][1] / 255.0f,
-             glpalette[index][2] / 255.0f,
-             1.0f);
+    float r = glpalette[index][0] / 255.0f;
+    float g = glpalette[index][1] / 255.0f;
+    float b = glpalette[index][2] / 255.0f;
+
+    glColor4f(r, g, b, 1.0f);
 }
 
 int GL_TXT_ScreenHasBlinkingChars(void)
@@ -340,9 +337,10 @@ void GL_TXT_UpdateScreen(void)
     if (!glscreendata)
         return;
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
-    glDisable(GL_TEXTURE_2D);
 
     for (int y = 0; y < SCREEN_ROWS; y++) {
         for (int x = 0; x < SCREEN_COLS; x++) {
@@ -484,8 +482,8 @@ void GL_TXT_GetMousePosition(int *x, int *y)
 
     // Translate mouse position from 'pixel' position into character position.
     // We are working here in screen coordinates and not pixels, since this is
-    // what SDL_GetWindowSize() returns.
-    SDL_GetWindowSize(glwindow, &glwindow_w, &glwindow_h);
+    // what SDL_GL_GetDrawableSize() returns.
+    SDL_GL_GetDrawableSize(glwindow, &glwindow_w, &glwindow_h);
     *x = ((*x) * TXT_SCREEN_W) / glwindow_w;
     *y = ((*y) * TXT_SCREEN_H) / glwindow_h;
 
