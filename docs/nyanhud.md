@@ -71,6 +71,7 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
 - `big_health`: shows the player health (color-coded) in the status bar font with the health sprite
 - `big_health_text`: shows the player health (color-coded) in the status bar font
 - `big_artifact`: shows the current artifact as seen on the status bar
+  - works in combination with `big_artifact_bar` (disappears when `big_artifact_bar` is visible)
 - `fps`: shows the current fps
 - `attempts`: shows the current and total demo attempts
 - `render_stats`: shows various render stats (`idrate`)
@@ -134,7 +135,9 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
   - Uses the message font
   - Supports 1 argument: `cycle_author`
   - `cycle_author`: cycles between map title and author on automap
-- `announce_message`: shows the announce map message
+- `announce_message`: shows the announce map message with author on next line
   - Uses the message font
   - Supports 1 argument: `center`
   - `center`: centers the component horizontally
+- `big_artifact_bar`: shows a transparent artifact inventory bar as seen on the status bar
+  - works in combination with `big_artifact` (disappears when `big_artifact_bar` is visible)
