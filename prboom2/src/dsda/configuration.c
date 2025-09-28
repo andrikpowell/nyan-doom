@@ -1474,7 +1474,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_fuzzscale] = {
     "dsda_fuzzscale", dsda_config_fuzzscale,
-    dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0), R_UpdateFuzzSize
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(0), R_UpdateFuzzSize
   },
   [dsda_config_multiple_area_maps] = {
     "dsda_multiple_area_maps", dsda_config_multiple_area_maps,
@@ -1737,15 +1737,15 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_menu_tran_filter] = {
     "tran_menu_filter", dsda_config_menu_tran_filter,
-    CONF_BOOL(0), NULL, NOT_STRICT, P_UpdateTranMap
+    CONF_BOOL(1), NULL, NOT_STRICT, P_UpdateTranMap
   },
   [dsda_config_menu_tran_filter_pct] = {
     "tran_menu_filter_pct", dsda_config_menu_tran_filter_pct,
-    dsda_config_int, 0, 100, { 50 }, NULL, NOT_STRICT, P_UpdateTranMap
+    dsda_config_int, 0, 100, { 66 }, NULL, NOT_STRICT, P_UpdateTranMap
   },
   [dsda_config_shadow_tran_filter] = {
     "tran_shadow_filter", dsda_config_shadow_tran_filter,
-    CONF_BOOL(0), NULL, NOT_STRICT, P_UpdateTranMap
+    CONF_BOOL(1), NULL, NOT_STRICT, P_UpdateTranMap
   },
   [dsda_config_shadow_tran_filter_pct] = {
     "tran_shadow_filter_pct", dsda_config_shadow_tran_filter_pct,
