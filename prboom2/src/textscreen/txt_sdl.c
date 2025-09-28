@@ -82,15 +82,6 @@ static const txt_font_t *font;
 // Mapping from SDL keyboard scancode to internal key code.
 static const int scancode_translate_table[] = SCANCODE_TO_KEYS_ARRAY;
 
-// String names of keys. This is a fallback; we usually use the SDL API.
-static const struct {
-    int key;
-    const char *name;
-} key_names[] = KEY_NAMES_ARRAY;
-
-// Unicode key mapping; see codepage.h.
-static const short code_page_to_unicode[] = CODE_PAGE_TO_UNICODE;
-
 static const SDL_Color ega_colors[] =
 {
     {0x00, 0x00, 0x00, 0xff},          // 0: Black
@@ -142,6 +133,7 @@ int TXT_Init(void)
 {
     int flags = 0;
     SDL_RendererInfo info;
+    int logical_h;
 
     if (is_opengl)
         return GL_TXT_Init();
@@ -192,7 +184,7 @@ int TXT_Init(void)
                                         8, 0, 0, 0, 0);
 
     // Apply aspect ratio correction.
-    const int logical_h = screenbuffer->h * 6 / 5;
+    logical_h = screenbuffer->h * 6 / 5;
 
     // Set width and height of the logical viewport for automatic scaling.
     SDL_RenderSetLogicalSize(renderer, screenbuffer->w, logical_h);

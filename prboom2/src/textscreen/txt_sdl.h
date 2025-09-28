@@ -30,11 +30,6 @@
 
 typedef int (*TxtSDLEventCallbackFunc)(SDL_Event *event, void *user_data);
 
-// Set a callback function to call in the SDL event loop.  Useful for
-// intercepting events.  Pass callback=NULL to clear an existing
-// callback function.
-// user_data is a void pointer to be passed to the callback function.
-
 void TXT_PreInit(SDL_Window *preset_window, SDL_Renderer *preset_renderer, int opengl);
 
 extern SDL_Window *TXT_SDLWindow;

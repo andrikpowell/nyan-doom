@@ -68,18 +68,22 @@ static void GL_TXT_SetupOrtho(int w, int h)
 {
     const int logical_width = SCREEN_COLS * FONT_CHAR_W;
     const int logical_height = SCREEN_ROWS * FONT_CHAR_H;
+    int logical_h;
+    float scale, scale_x, scale_y;
+    float scaled_width, scaled_height, scaled_h;
+    float offset_x, offset_y;
 
     // Apply aspect ratio correction.
-    const int logical_h = logical_height * 6 / 5;
+    logical_h = logical_height * 6 / 5;
 
-    float scale_x = (float)w / logical_width;
-    float scale_y = (float)h / logical_h;
-    float scale = (scale_x < scale_y) ? scale_x : scale_y;
+    scale_x = (float)w / logical_width;
+    scale_y = (float)h / logical_h;
+    scale = (scale_x < scale_y) ? scale_x : scale_y;
 
     // Calculate the scaled width and height
-    float scaled_width = logical_width * scale;
-    float scaled_height = logical_height * scale;
-    float scaled_h = logical_h * scale;
+    scaled_width = logical_width * scale;
+    scaled_height = logical_height * scale;
+    scaled_h = logical_h * scale;
 
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
@@ -89,8 +93,8 @@ static void GL_TXT_SetupOrtho(int w, int h)
     glLoadIdentity();
 
     // offsets to center the image
-    float offset_x = (w - scaled_width) / 2.0f;
-    float offset_y = (h - scaled_h) / 2.0f;
+    offset_x = (w - scaled_width) / 2.0f;
+    offset_y = (h - scaled_h) / 2.0f;
 
     // Apply translation and scaling
     glTranslatef(offset_x, offset_y, 0.0f);
@@ -349,9 +353,11 @@ void GL_TXT_UpdateScreen(void)
             int idx = (y * SCREEN_COLS + x) * 2;
             unsigned char chr = glscreendata[idx];
             unsigned char attr = glscreendata[idx + 1];
+            int fg, bg;
+            float px, py;
 
-            int fg = attr & 0x0F;            // 16-color fg
-            int bg = (attr >> 4) & 0x0F;     // 16-color bg fixed here
+            fg = attr & 0x0F;            // 16-color fg
+            bg = (attr >> 4) & 0x0F;     // 16-color bg fixed here
 
             if (bg & 0x8)
             {
@@ -365,8 +371,8 @@ void GL_TXT_UpdateScreen(void)
                 }
             }
 
-            float px = (float)(x * FONT_CHAR_W);
-            float py = (float)(y * FONT_CHAR_H);
+            px = (float)(x * FONT_CHAR_W);
+            py = (float)(y * FONT_CHAR_H);
 
             // Draw background
             GL_TXT_SetColorFromPalette(bg);
