@@ -128,6 +128,16 @@ SDL_Rect window_rect = { 0, 0, 0, 0 };    // Physical window
 SDL_Rect renderer_rect = { 0, 0, 0, 0 };  // The window, but with HiDPI accounted
 SDL_Rect viewport_rect = { 0, 0, 0, 0 };  // The renderer, but without the black bars
 
+void *I_GetSDLWindow(void)
+{
+    return sdl_window;
+}
+
+void *I_GetSDLRenderer(void)
+{
+    return sdl_renderer;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // Input code
 int             leds_always_off = 0; // Expected by m_misc, not relevant
@@ -660,7 +670,7 @@ void I_SetPalette (int pal)
 
 // I_PreInitGraphics
 
-static void I_ShutdownSDL(void)
+void I_ShutdownSDL(void)
 {
   if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
   if (screen) SDL_FreeSurface(screen);
@@ -690,8 +700,6 @@ void I_PreInitGraphics(void)
   {
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
-
-  I_AtExit(I_ShutdownSDL, true, "I_ShutdownSDL", exit_priority_normal);
 }
 
 // e6y: resolution limitation is removed
