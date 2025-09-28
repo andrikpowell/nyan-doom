@@ -2449,7 +2449,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
         if (xx < x) xx = x;  // don't go left of starting x
 
         V_GetWideRect(&xx, &yy, &ww, &hh, VPT_STRETCH);
-        V_FillRectTransMenu(xx, yy, ww, hh, playpal_lightest);
+        V_FillRectTransMenu(xx, yy, ww, hh, colrngs[cr_scrollbar][playpal_lightest]);
       }
     }
     else {
