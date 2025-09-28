@@ -3333,7 +3333,7 @@ setup_menu_t auto_options_settings[] =
 
 #define T_X 180
 
-static const char *automap_background_list[] = { "Off", "On", "Default", NULL };
+static const char *automap_background_list[] = { "Off", "Default", "On", NULL };
 static const char *automap_linesize_list[] = { "Auto", "1x", "2x", "3x", "4x", NULL };
 
 setup_menu_t auto_appearance_settings[] =

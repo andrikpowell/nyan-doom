@@ -1534,7 +1534,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_automap_background] = {
     "automap_background", dsda_config_automap_background,
-    dsda_config_int, 0, 2, { 2 }, &autopage
+    dsda_config_int, 0, 2, { 1 }, &autopage
   },
   [dsda_config_automap_background_shade] = {
     "automap_background_shade", dsda_config_automap_background_shade,

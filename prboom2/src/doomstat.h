@@ -213,7 +213,7 @@ extern int autopage_parallax;
 #define automap_stbar (automap_active && R_StatusBarVisible())
 #define automap_input (automap_active)
 #define automap_hud (automap_active && !automap_overlay)
-#define automap_bg (raven ? autopage > 0 : autopage == 1)
+#define automap_bg (raven ? autopage > 0 : autopage == 2)
 
 typedef enum {
   mnact_nochange = -1,
