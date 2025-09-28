@@ -20,10 +20,6 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-
 #include "doomkeys.h"
 
 #include "txt_gl.h"
