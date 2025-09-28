@@ -896,15 +896,15 @@ static void M_DrawSaveLoadBorder(int x,int y)
 {
   int i;
 
-  V_DrawNamePatch(x-8, y+7, "M_LSLEFT", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(x-8, y+7, "M_LSLEFT", CR_DEFAULT, VPT_STRETCH);
 
   for (i = 0 ; i < 24 ; i++)
     {
-      V_DrawNamePatch(x, y+7, "M_LSCNTR", CR_DEFAULT, VPT_STRETCH);
+      V_DrawMenuNamePatch(x, y+7, "M_LSCNTR", CR_DEFAULT, VPT_STRETCH);
       x += 8;
     }
 
-  V_DrawNamePatch(x, y+7, "M_LSRGHT", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(x, y+7, "M_LSRGHT", CR_DEFAULT, VPT_STRETCH);
 }
 
 //

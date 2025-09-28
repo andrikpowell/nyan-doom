@@ -1177,7 +1177,7 @@ void ST_DrawDisk(void)
     stretch_param_t *params = dsda_StretchParams(VPT_STRETCH);
     float screenwidth_sml = (SCREENWIDTH - params->deltax1) * 320.0f / params->video->width;
 
-    V_DrawNumPatchPrecise(screenwidth_sml - 10 - icon.width, 5, icon.lumpnum, CR_DEFAULT, VPT_STRETCH);
+    V_DrawMenuNumPatchPrecise(screenwidth_sml - 10 - icon.width, 5, icon.lumpnum, CR_DEFAULT, VPT_STRETCH);
 
     if (!--drawdisktics)
       drawdisk = false;
