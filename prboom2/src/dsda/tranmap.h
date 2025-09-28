@@ -20,7 +20,38 @@
 
 #include "doomtype.h"
 
+typedef enum {
+  TMC_MAIN,
+  TMC_ALT,
+  TMC_SHADOW,
+  TMC_UI_MAIN,
+  TMC_UI_SHADOW,
+  TMC_EXHUD,
+  TMC_EXHUD_MAIN,
+  TMC_EXHUD_ALT,
+  TMC_EXHUD_SHADOW,
+  TMC_END
+} tranmap_context_e;
+
+typedef struct {
+  tranmap_context_e id;
+  const char *name;
+} tranmap_context_info_t;
+
+static const tranmap_context_info_t tranmap_contexts[TMC_END] = {
+  { TMC_MAIN,         "main" },
+  { TMC_ALT,          "alt" },
+  { TMC_SHADOW,       "shadow" },
+  { TMC_UI_MAIN,      "ui_main" },
+  { TMC_UI_SHADOW,    "ui_shadow" },
+  { TMC_EXHUD,        "exhud" },
+  { TMC_EXHUD_MAIN,   "exhud_main" },
+  { TMC_EXHUD_ALT,    "exhud_alt" },
+  { TMC_EXHUD_SHADOW, "exhud_shadow" }
+};
+
 const byte* dsda_TranMap(unsigned int alpha);
+const byte* dsda_TranMap_Custom(unsigned int alpha, int context);
 const byte* dsda_DefaultTranMap(void);
 extern int tran_filter_pct;
 extern int exhud_tran_filter_pct;

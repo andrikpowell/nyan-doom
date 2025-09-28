@@ -851,6 +851,7 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
 {
   v_patchinfo_t patch;
   extern int dsda_ExHudTranslucency(void);
+  int trans_context;
 
   patch.transmap = NULL;
   patch.flags = flags;
@@ -873,25 +874,38 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
     patch.flags &= ~VPT_COLOR;
 
   if (patch.flags & VPT_TRANSMAP)
+  {
     patch.trans = tran_filter_pct;
+    trans_context = TMC_MAIN;
+  }
   else if (patch.flags & VPT_ALT_TRANSMAP)
+  {
     patch.trans = alttint_filter_pct;
+    trans_context = TMC_ALT;
+  }
 
   // ExHUD translucency logic
   if ((patch.flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
   {
     patch.trans = exhud_tran_filter_pct;
+    trans_context = TMC_EXHUD;
   
     if (patch.flags & VPT_TRANSMAP)
+    {
       patch.trans = exhud_tint_filter_pct;
+      trans_context = TMC_EXHUD_MAIN;
+    }
     else if (patch.flags & VPT_ALT_TRANSMAP)
+    {
       patch.trans = exhud_alttint_filter_pct;
+      trans_context = TMC_EXHUD_ALT;
+    }
   
     if (!(patch.flags & VPT_TRANSMAP))
       patch.flags |= VPT_TRANSMAP;
   }
 
-  // if close, just go wtih 100
+  // if close, just go with 100
   if (patch.trans == 99)
   {
     patch.trans = NO_TRANS;
@@ -899,7 +913,7 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
   }
 
   if (patch.trans != NO_TRANS)
-    patch.transmap = dsda_TranMap(patch.trans);
+    patch.transmap = dsda_TranMap_Custom(patch.trans, trans_context);
 
   return patch;
 }
@@ -907,6 +921,7 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
 v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype) {
   v_patchinfo_t shadow = { 0 };
   shadow.trans = NO_TRANS;
+  int trans_context;
 
   if ((shadowtype == SHADOW_DEFAULT && !dsda_ShadowTranslucency()))
     shadowtype = 0;
@@ -922,6 +937,7 @@ v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype
   shadow.transmap = NULL;
   shadow.flags = flags | VPT_SHADOW;
   shadow.trans = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : tran_filter_pct;
+  trans_context = (shadowtype == SHADOW_DEFAULT) ? TMC_UI_SHADOW : TMC_SHADOW;
 
   // Shadow always has translucency and color
   if (!(shadow.flags & VPT_TRANSMAP))
@@ -931,9 +947,12 @@ v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype
 
   // Ex hud stuff
   if ((shadow.flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
+  {
     shadow.trans = exhud_shadow_filter_pct;
+    trans_context = TMC_EXHUD_SHADOW;
+  }
 
-  // if close, just go wtih 100
+  // if close, just go with 100
   if (shadow.trans == 99)
   {
     shadow.trans = NO_TRANS;
@@ -941,7 +960,7 @@ v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype
   }
 
   if (shadow.trans != NO_TRANS)
-    shadow.transmap = dsda_TranMap(shadow.trans);
+    shadow.transmap = dsda_TranMap_Custom(shadow.trans, trans_context);
 
   return shadow;
 }

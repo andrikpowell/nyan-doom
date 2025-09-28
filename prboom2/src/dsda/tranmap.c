@@ -213,3 +213,68 @@ const byte* dsda_DefaultTranMap(void) {
 
   return dsda_TranMap(tran_filter_pct);
 }
+
+static byte* custom_tranmap_data[TMC_END];
+static unsigned char custom_tranmap_alpha[TMC_END];
+
+// Initialize this to 255 for all contexts at startup somewhere
+void dsda_InitTranmapCache(void) {
+  for (int i = 0; i < TMC_END; i++) {
+    custom_tranmap_alpha[i] = 255; // invalid alpha
+    custom_tranmap_data[i] = NULL;
+  }
+}
+
+const char* tranmap_context_name(tranmap_context_e context) {
+  if (context > TMC_MAIN && context < TMC_END)
+    return tranmap_contexts[context].name;
+  return "unknown";
+}
+
+const byte* dsda_TranMap_Custom(unsigned int alpha, int context)
+{
+  int length;
+  byte *buffer = NULL;
+  const char* context_name;
+
+  if (alpha > 99)
+    return NULL;
+
+  if (context == TMC_MAIN)
+    return dsda_TranMap(alpha);
+
+  context_name = tranmap_context_name(context);
+
+  if (context <= TMC_MAIN || context >= TMC_END)
+    return NULL;
+
+  if (custom_tranmap_alpha[context] != alpha || !custom_tranmap_data[context])
+  {
+    // Alpha changed or no cache, regenerate
+
+    char* filename;
+
+    if (!tranmap_palette_dir)
+      dsda_InitTranMapPaletteDir();
+
+    length = strlen(tranmap_palette_dir) + strlen(context_name) + 32;
+    filename = Z_Malloc(length);
+    snprintf(filename, length, "%s/tranmap_%s.dat", tranmap_palette_dir, context_name); // "/tranmap_ui_shadow.dat\0"
+
+    // Free old buffer if exists
+    if (custom_tranmap_data[context]) {
+      Z_Free((void*)custom_tranmap_data[context]);
+      custom_tranmap_data[context] = NULL;
+    }
+
+    buffer = dsda_GenerateTranMap(alpha);
+    M_WriteFile(filename, buffer, tranmap_length);
+
+    custom_tranmap_data[context] = buffer;
+    custom_tranmap_alpha[context] = alpha;
+
+    Z_Free(filename);
+  }
+
+  return custom_tranmap_data[context];
+}

@@ -3704,7 +3704,7 @@ void P_UpdateTranMap(void) {
 
   // store main transmaps
   main_tranmap      = dsda_DefaultTranMap();
-  menu_ui_tranmap   = dsda_TranMap(menu_ui_filter_pct); // ui menu translucency
+  menu_ui_tranmap   = dsda_TranMap_Custom(menu_ui_filter_pct, TMC_UI_MAIN); // ui menu translucency
 }
 
 //
