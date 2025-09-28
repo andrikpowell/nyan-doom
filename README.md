@@ -87,7 +87,6 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
 - Known issues
   - Setting the "Status Bar and Menu Appearance" option to "not adjusted" will have no effect for heretic (it will default instead to "Doom format").
   - The "Apply multisampling" automap option is disabled for heretic.
-  - Automap colors are not configurable for heretic.
   - Some of the more advanced features are not implemented for heretic yet, and using them may cause crashes or other odd behaviour.
   - Dehacked support for heretic isn't implemented yet.
   - Some menus extend over the hud.
@@ -107,13 +106,9 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
 - Known issues
   - Setting the "Status Bar and Menu Appearance" option to "not adjusted" will have no effect for hexen (it will default instead to "Doom format")
   - The "Apply multisampling" automap option is disabled for hexen
-  - Automap colors are not configurable for hexen
   - Some of the more advanced features are not implemented for hexen yet, and using them may cause crashes or other odd behaviour.
   - Some menus extend over the hud.
   - Monster counter doesn't work as expected, due to cluster format (ex hud / levelstat)
-  - Hexen-style skies aren't implemented yet (layering, etc)
-  - The ALTSHADOW thing flag isn't affecting the rendering
-  - Dynamic fade palettes aren't being used
   - The yellow message variant isn't implemented
  
 </details>
