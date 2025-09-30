@@ -499,44 +499,46 @@ static void R_InitLightTables (void)
 // Required for updating Hexen fadetable
 void R_UpdateLightTables (void)
 {
-  int i, ii;
+  int i;
+
+  // Calculate the light levels to use
   for (i=0; i< LIGHTLEVELS; i++)
   {
-    int j, startmap = ((LIGHTLEVELS-LIGHTBRIGHT-i)*2)*NUMCOLORMAPLVLS/LIGHTLEVELS;
+    int j;
+    int startmap = ((LIGHTLEVELS-LIGHTBRIGHT-i)*2)*NUMCOLORMAPLVLS/LIGHTLEVELS;
+
+  //  for each level / distance combination.
     for (j=0; j<MAXLIGHTZ; j++)
-      {
-        int scale = FixedDiv ((320/2*FRACUNIT), (j+1)<<LIGHTZSHIFT);
-        int t, level = startmap - (scale >>= LIGHTSCALESHIFT)/DISTMAP;
-
-        if (level < 0)
-          level = 0;
-        else
-          if (level >= NUMCOLORMAPLVLS)
-            level = NUMCOLORMAPLVLS-1;
-
-        level *= 256;
-        for (t=0; t<numcolormaps; t++)
-          c_zlight[t][i][j] = colormaps[t] + level;
-      }
-  }
-
-  for (ii=0; ii< LIGHTLEVELS; ii++)
-  {
-    int jj, startmap = ((LIGHTLEVELS-LIGHTBRIGHT-ii)*2)*NUMCOLORMAPLVLS/LIGHTLEVELS;
-    for (jj=0 ; jj<MAXLIGHTSCALE ; jj++)
     {
-      int tt, level2 = startmap - jj/DISTMAP;
+      int scale = FixedDiv ((320/2*FRACUNIT), (j+1)<<LIGHTZSHIFT);
+      int t, level = startmap - (scale >>= LIGHTSCALESHIFT)/DISTMAP;
 
-      if (level2 < 0)
-        level2 = 0;
+      if (level < 0)
+        level = 0;
+      else
+        if (level >= NUMCOLORMAPLVLS)
+          level = NUMCOLORMAPLVLS-1;
 
-      if (level2 >= NUMCOLORMAPLVLS)
-        level2 = NUMCOLORMAPLVLS-1;
+      level *= 256;
+      for (t=0; t<numcolormaps; t++)
+        c_zlight[t][i][j] = colormaps[t] + level;
+    }
 
-      level2 *= 256;
+  // for each level / scale combination.
+    for (j=0 ; j<MAXLIGHTSCALE ; j++)
+    {
+      int t, level = startmap - j/DISTMAP;
 
-      for (tt=0; tt<numcolormaps; tt++)
-        c_scalelight[tt][ii][jj] = colormaps[tt] + level2;
+      if (level < 0)
+        level = 0;
+
+      if (level >= NUMCOLORMAPLVLS)
+        level = NUMCOLORMAPLVLS-1;
+
+      level *= 256;
+
+      for (t=0; t<numcolormaps; t++)
+        c_scalelight[t][i][j] = colormaps[t] + level;
     }
   }
 }
