@@ -383,30 +383,29 @@ static void R_InitSpriteLumps(void)
 // killough 4/4/98: Add support for C_START/C_END markers
 //
 
+int fadetable_exist = false;
+
 static void R_InitColormaps(void)
 {
   int i;
-  // MAP_FORMAT_TODO: not sure about this
-  if (hexen)
-  {
-    firstcolormaplump = -1;
-    lastcolormaplump = -1;
-    numcolormaps = 2; // Hexen FOGMAP in colormaps[1]
-  }
-  else
-  {
-    firstcolormaplump = W_GetNumForName("C_START");
-    lastcolormaplump  = W_GetNumForName("C_END");
-    numcolormaps = lastcolormaplump - firstcolormaplump;
-  }
-  colormaps = Z_Malloc(sizeof(*colormaps) * numcolormaps);
-  colormaps[0] = fademap = (const lighttable_t *)W_LumpByName("COLORMAP");
-  for (i=1; i<numcolormaps; i++)
-    colormaps[i] = (const lighttable_t *)W_LumpByNum(i+firstcolormaplump);
+  int cm_num;
+  int cm_lump;
 
-  // Add Hexen fadetable
-  if (hexen)
-    colormaps[1] = fademap;
+  firstcolormaplump = W_GetNumForName("C_START");
+  lastcolormaplump  = W_GetNumForName("C_END");
+  numcolormaps = lastcolormaplump - firstcolormaplump;
+
+  // Add fadetable
+  fadetable_exist = hexen ? true : false; // need better check
+  numcolormaps += fadetable_exist; // bump colormaps up by 1
+  cm_num = 1 + fadetable_exist; // skip fadetable - colormaps[1]
+  cm_lump = firstcolormaplump-fadetable_exist; // fadetable offset
+
+  colormaps = Z_Malloc(sizeof(*colormaps) * numcolormaps);
+  colormaps[0] = (const lighttable_t *)W_LumpByName("COLORMAP");\
+
+  for (i=cm_num; i<numcolormaps; i++)
+    colormaps[i] = (const lighttable_t *)W_LumpByNum(i+cm_lump);
   // cph - always lock
 }
 

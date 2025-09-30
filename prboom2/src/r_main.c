@@ -158,7 +158,6 @@ const lighttable_t *(*scalelight)[MAXLIGHTSCALE];
 const lighttable_t *(*zlight)[MAXLIGHTZ];
 const lighttable_t *fullcolormap;
 const lighttable_t **colormaps;
-const lighttable_t *fademap;
 
 // killough 3/20/98, 4/4/98: end dynamic colormaps
 

@@ -559,25 +559,21 @@ int dsda_HexenMapLightning(int* lightning) {
 int dsda_HexenApplyFadeTable(void) {
   extern dboolean LevelUseFullBright;
   extern const lighttable_t** colormaps;
-  extern const lighttable_t* fademap;
   extern void R_UpdateLightTables(void);
-  extern dboolean V_IsOpenGLMode(void);
-  extern void gld_FlushTextures(void);
 
   if (!hexen)
     return false;
 
-  fademap = colormaps[1] = (const lighttable_t *) W_LumpByNum(CurrentMap->fadetable);
+  // Apply fadetable - colormaps[1]
+  colormaps[1] = (const lighttable_t *) W_LumpByNum(CurrentMap->fadetable);
 
   if (CurrentMap->fadetable == W_GetNumForName(DEFAULT_FADE_TABLE))
     LevelUseFullBright = true;
   else
     LevelUseFullBright = false; // Probably fog ... don't use fullbright sprites
 
+  // Update light tables (required for fadetable)
   R_UpdateLightTables();
-
-  if (V_IsOpenGLMode())
-    gld_FlushTextures();
 
   return true;
 }
