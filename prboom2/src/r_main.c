@@ -474,7 +474,7 @@ static void R_InitLightTables (void)
       // SoM: the LIGHTBRIGHT constant must be used to scale the start offset of
       // the colormaps, otherwise the levels are staggered and become slightly
       // darker.
-      int j, startmap = ((LIGHTLEVELS-LIGHTBRIGHT-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
+      int j, startmap = ((LIGHTLEVELS-LIGHTBRIGHT-i)*2)*NUMCOLORMAPLVLS/LIGHTLEVELS;
       for (j=0; j<MAXLIGHTZ; j++)
         {
     // CPhipps - use 320 here instead of SCREENWIDTH, otherwise hires is
@@ -485,8 +485,8 @@ static void R_InitLightTables (void)
           if (level < 0)
             level = 0;
           else
-            if (level >= NUMCOLORMAPS)
-              level = NUMCOLORMAPS-1;
+            if (level >= NUMCOLORMAPLVLS)
+              level = NUMCOLORMAPLVLS-1;
 
           // killough 3/20/98: Initialize multiple colormaps
           level *= 256;
@@ -502,7 +502,7 @@ void R_UpdateLightTables (void)
   int i, ii;
   for (i=0; i< LIGHTLEVELS; i++)
   {
-    int j, startmap = ((LIGHTLEVELS-LIGHTBRIGHT-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
+    int j, startmap = ((LIGHTLEVELS-LIGHTBRIGHT-i)*2)*NUMCOLORMAPLVLS/LIGHTLEVELS;
     for (j=0; j<MAXLIGHTZ; j++)
       {
         int scale = FixedDiv ((320/2*FRACUNIT), (j+1)<<LIGHTZSHIFT);
@@ -511,8 +511,8 @@ void R_UpdateLightTables (void)
         if (level < 0)
           level = 0;
         else
-          if (level >= NUMCOLORMAPS)
-            level = NUMCOLORMAPS-1;
+          if (level >= NUMCOLORMAPLVLS)
+            level = NUMCOLORMAPLVLS-1;
 
         level *= 256;
         for (t=0; t<numcolormaps; t++)
@@ -522,7 +522,7 @@ void R_UpdateLightTables (void)
 
   for (ii=0; ii< LIGHTLEVELS; ii++)
   {
-    int jj, startmap = ((LIGHTLEVELS-LIGHTBRIGHT-ii)*2)*NUMCOLORMAPS/LIGHTLEVELS;
+    int jj, startmap = ((LIGHTLEVELS-LIGHTBRIGHT-ii)*2)*NUMCOLORMAPLVLS/LIGHTLEVELS;
     for (jj=0 ; jj<MAXLIGHTSCALE ; jj++)
     {
       int tt, level2 = startmap - jj/DISTMAP;
@@ -530,8 +530,8 @@ void R_UpdateLightTables (void)
       if (level2 < 0)
         level2 = 0;
 
-      if (level2 >= NUMCOLORMAPS)
-        level2 = NUMCOLORMAPS-1;
+      if (level2 >= NUMCOLORMAPLVLS)
+        level2 = NUMCOLORMAPLVLS-1;
 
       level2 *= 256;
 
@@ -813,11 +813,9 @@ void R_ExecuteSetViewSize (void)
   // e6y
   // Calculate the light levels to use
   //  for each level / scale combination.
-  // Calculate the light levels to use
-  //  for each level / scale combination.
   for (i=0; i<LIGHTLEVELS; i++)
   {
-    int j, startmap = ((LIGHTLEVELS-LIGHTBRIGHT-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
+    int j, startmap = ((LIGHTLEVELS-LIGHTBRIGHT-i)*2)*NUMCOLORMAPLVLS/LIGHTLEVELS;
     for (j=0 ; j<MAXLIGHTSCALE ; j++)
     {
       int t, level = startmap - j/DISTMAP;
@@ -825,8 +823,8 @@ void R_ExecuteSetViewSize (void)
       if (level < 0)
         level = 0;
 
-      if (level >= NUMCOLORMAPS)
-        level = NUMCOLORMAPS-1;
+      if (level >= NUMCOLORMAPLVLS)
+        level = NUMCOLORMAPLVLS-1;
 
       // killough 3/20/98: initialize multiple colormaps
       level *= 256;
@@ -1057,7 +1055,7 @@ static void R_SetupFrame (player_t *player)
 
   //e6y
   frame_fixedcolormap = player->fixedcolormap;
-  if (frame_fixedcolormap < 0 || frame_fixedcolormap > NUMCOLORMAPS)
+  if (frame_fixedcolormap < 0 || frame_fixedcolormap > NUMCOLORMAPLVLS)
   {
     I_Error("<fixedcolormap> value out of range: %d\n", player->fixedcolormap);
   }

@@ -92,7 +92,7 @@ static dboolean dsda_DuplicatePaletteEntry(const byte *playpal, int i, int j) {
   )
     return false;
 
-  for (colormap_i = 0; colormap_i < NUMCOLORMAPS; ++colormap_i)
+  for (colormap_i = 0; colormap_i < NUMCOLORMAPLVLS; ++colormap_i)
     if (colormaps[0][colormap_i * 256 + i] != colormaps[0][colormap_i * 256 + j])
       return false;
 

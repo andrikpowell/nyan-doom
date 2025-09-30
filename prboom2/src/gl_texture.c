@@ -169,7 +169,7 @@ void* NewIntDynArray(int dimCount, int *dims)
 // 32 (pw_invulnerability) -> 8
 static void gld_GetTextureTexID(GLTexture *gltexture, int cm)
 {
-  static int data[NUMCOLORMAPS+1] = {
+  static int data[NUMCOLORMAPLVLS+1] = {
      0,  1,  2,  3,  4,  5,  6,  7,
     -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1,
@@ -1233,7 +1233,7 @@ GLTexture *gld_RegisterColormapTexture(int palette_index, int gamma_level, dbool
     gltexture->index=palette_index;
 
     gltexture->realtexwidth=256;
-    gltexture->realtexheight=(fullbright ? 1 : NUMCOLORMAPS+1); // it's +1 'cause of the invuln palette
+    gltexture->realtexheight=(fullbright ? 1 : NUMCOLORMAPLVLS+1); // it's +1 'cause of the invuln palette
     gltexture->leftoffset=0;
     gltexture->topoffset=0;
     gltexture->tex_width=gld_GetTexDimension(gltexture->realtexwidth);
