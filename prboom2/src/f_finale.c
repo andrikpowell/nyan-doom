@@ -536,8 +536,6 @@ void F_Ticker(void)
             else
               F_StartPostFinale();
           }
-        else if (demo_compatibility && allow_incompatibility) // Vanilla Doom 2
-          next_level = true; // extended wait for Vanilla Doom 2 text screens, but also advance :)
         else   // you must press a button to continue in Doom 2
           if ((!demo_compatibility || allow_incompatibility) && midstage)
             {
