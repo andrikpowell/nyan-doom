@@ -2777,13 +2777,13 @@ static const char *empty_list[] = { NULL };
 #define FUNCTION(action_name, flags, offset_x, action_func) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, .action = action_func }
 #define DEPEND(config, value)     (const setup_menu_dependent_t[]){{ config, value, false }}, 1
 #define EXCLUDE(config, value)    (const setup_menu_dependent_t[]){{ config, value, true }}, 1
+#define DEPEND_MULTI(listname) listname, listname##_count
 #define TITLE_DEPEND(page_name, offset_x, config, value) { page_name, S_SKIP | S_TITLE, m_null, offset_x, 0, 0, empty_list, DEPEND(config, value)}
 #define DEPEND_SW                 0, empty_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE)
 #define DEPEND_GL                 0, empty_list, DEPEND(dsda_config_videomode, OPENGL_MODE)
 #define DEPEND_LIST(name, ...) \
   static const setup_menu_dependent_t name[] = { __VA_ARGS__ }; \
-  const int name##_count = sizeof(name) / sizeof(name[0])
-
+  enum { name##_count = sizeof(name) / sizeof(name[0]) }
 #define DEP(config, value)   { config, value, false }
 #define EXC(config, value)   { config, value, true }
 
@@ -3669,6 +3669,18 @@ setup_menu_t gen_audio_settings[] = {
   FINAL_ENTRY
 };
 
+DEPEND_LIST(freelook_autoaim_mouse_list,
+  DEP(dsda_config_use_mouse, true),
+  DEP(dsda_config_freelook, true)
+);
+
+DEPEND_LIST(freelook_autoaim_pct_mouse_list,
+  DEP(dsda_config_videomode, OPENGL_MODE),
+  DEP(dsda_config_use_mouse, true),
+  DEP(dsda_config_freelook, true),
+  DEP(dsda_config_freelook_autoaim, true)
+);
+
 #define MOUSE_ON   0, empty_list, DEPEND(dsda_config_use_mouse, true)
 
 setup_menu_t gen_mouse_settings[] = {
@@ -3681,6 +3693,8 @@ setup_menu_t gen_mouse_settings[] = {
   EMPTY_LINE,
   { "Enable Free Look", S_YESNO, m_conf, G2_X, dsda_config_freelook, MOUSE_ON },
   { "Invert Free Look", S_YESNO, m_conf, G2_X, dsda_config_movement_mouseinvert, MOUSE_ON },
+  { "Free Look AutoAim", S_YESNO, m_conf, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_autoaim_mouse_list) },
+  { "GL AutoAim from Center", S_PERC, m_conf, G2_X, dsda_config_freelook_autoaim_pct, 0, empty_list, DEPEND_MULTI(freelook_autoaim_pct_mouse_list) },
   EMPTY_LINE,
   { "Mouse Strafe Divisor", S_NUM, m_conf, G2_X, dsda_config_movement_mousestrafedivisor, MOUSE_ON },
   { "Dbl-Click As Use", S_YESNO, m_conf, G2_X, dsda_config_mouse_doubleclick_as_use, MOUSE_ON },
@@ -3697,6 +3711,18 @@ setup_menu_t gen_mouse_settings[] = {
 
 #define CONTROLLER_ON   0, empty_list, DEPEND(dsda_config_use_game_controller, true)
 
+DEPEND_LIST(freelook_autoaim_controller_list,
+  DEP(dsda_config_use_game_controller, true),
+  DEP(dsda_config_freelook, true)
+);
+
+DEPEND_LIST(freelook_autoaim_pct_controller_list,
+  DEP(dsda_config_videomode, OPENGL_MODE),
+  DEP(dsda_config_use_game_controller, true),
+  DEP(dsda_config_freelook, true),
+  DEP(dsda_config_freelook_autoaim, true)
+);
+
 setup_menu_t gen_controller_settings[] = {
   { "Enable Gamepad", S_YESNO, m_conf, G2_X, dsda_config_use_game_controller },
   EMPTY_LINE,
@@ -3709,6 +3735,8 @@ setup_menu_t gen_controller_settings[] = {
   { "Enable Free Look", S_YESNO, m_conf, G2_X, dsda_config_freelook, CONTROLLER_ON },
   { "Invert Free Look", S_YESNO, m_conf, G2_X, dsda_config_invert_analog_look, CONTROLLER_ON },
   { "Swap Analogs", S_YESNO, m_conf, G2_X, dsda_config_swap_analogs, CONTROLLER_ON },
+  { "Free Look AutoAim", S_YESNO, m_conf, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_autoaim_controller_list) },
+  { "GL AutoAim from Center", S_PERC, m_conf, G2_X, dsda_config_freelook_autoaim_pct, 0, empty_list, DEPEND_MULTI(freelook_autoaim_pct_controller_list) },
   EMPTY_LINE,
   { "Left Analog Deadzone", S_NUM, m_conf, G2_X, dsda_config_left_analog_deadzone, CONTROLLER_ON },
   { "Right Analog Deadzone", S_NUM, m_conf, G2_X, dsda_config_right_analog_deadzone, CONTROLLER_ON },

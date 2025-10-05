@@ -77,6 +77,7 @@ typedef struct {
 #define CONF_FEATURE 0x04
 
 #define CONF_BOOL(x) dsda_config_int, 0, 1, { x }
+#define CONF_PERCENT(x) dsda_config_int, 0, 100, { x }
 #define CONF_COLOR(x) dsda_config_int, 0, 255, { x }
 #define CONF_BYTE(x) dsda_config_int, 0, 255, { x }
 #define CONF_STRING(x) dsda_config_string, 0, 0, { .v_string = x }
@@ -368,6 +369,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_freelook] = {
     "allow_freelook", dsda_config_freelook,
     CONF_BOOL(0), NULL, NOT_STRICT, M_ChangeSkyMode
+  },
+  [dsda_config_freelook_autoaim] = {
+    "dsda_freelook_autoaim", dsda_config_freelook_autoaim,
+    CONF_BOOL(1), NULL, STRICT_INT(0)
+  },
+  [dsda_config_freelook_autoaim_pct] = {
+    "dsda_freelook_autoaim_pct", dsda_config_freelook_autoaim_pct,
+    CONF_PERCENT(33), NULL, STRICT_INT(0)
   },
   [dsda_config_autorun] = {
     "autorun", dsda_config_autorun,

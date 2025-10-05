@@ -69,6 +69,14 @@ dboolean dsda_FreeAim(void) {
          || map_info.flags & MI_ALLOW_FREE_LOOK;
 }
 
+dboolean dsda_MouselookAutoAim(void) {
+  return (allow_incompatibility && dsda_IntConfig(dsda_config_freelook_autoaim) && dsda_FreeAim());
+}
+
+int dsda_MouselookAutoAimPercent(void) {
+  return dsda_IntConfig(dsda_config_freelook_autoaim_pct);
+}
+
 void dsda_ReadExCmd(ticcmd_t* cmd, const byte** p) {
   const byte* demo_p = *p;
 
