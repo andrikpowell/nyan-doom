@@ -158,12 +158,10 @@ int dsda_CompatibilityLevel(void) {
   if (complevel_arg->count)
     return complevel_arg->value.v_int;
 
-  if (!demoplayback) {
-    level = dsda_WadCompatibilityLevel();
+  level = dsda_WadCompatibilityLevel();
 
-    if (level >= 0)
-      return level;
-  }
+  if (level >= 0)
+    return level;
 
   return UNSPECIFIED_COMPLEVEL;
 }
