@@ -1502,7 +1502,22 @@ void V_FreeScreens(void) {
 }
 
 static void V_PlotPixel8(int scrn, int x, int y, byte color) {
-  screens[scrn].data[x+screens[scrn].pitch*y] = color;
+  int thickness = (dsda_IntConfig(dsda_config_automap_linesize) + 1);
+  int half = thickness / 2;
+  int dy, dx;
+  int py, px;
+
+  for (dy = -half; dy <= half; dy++)
+  {
+    for (dx = -half; dx <= half; dx++)
+    {
+      px = x + dx;
+      py = y + dy;
+
+      if (px >= 0 && py >= 0 && px < screens[scrn].width && py < screens[scrn].height)
+        screens[scrn].data[px + screens[scrn].pitch * py] = color;
+    }
+  }
 }
 
 #define PUTDOT(xx,yy,cc) V_PlotPixel(0,xx,yy,(byte)cc)
@@ -1614,14 +1629,30 @@ extern SDL_Surface *screen;
 //
 static void V_PlotPixelWu8(int scrn, int x, int y, byte color, int weight)
 {
-  unsigned int bg_color = screens[scrn].data[x+screens[scrn].pitch*y];
-  unsigned int *fg2rgb = Col2RGB8[weight];
-  unsigned int *bg2rgb = Col2RGB8[64 - weight];
-  unsigned int fg = fg2rgb[color];
-  unsigned int bg = bg2rgb[bg_color];
+  int thickness = (dsda_IntConfig(dsda_config_automap_linesize) + 1);
+  int half = thickness / 2;
+  int dx, dy;
+  int px, py;
 
-  fg = (fg + bg) | 0x1f07c1f;
-  V_PlotPixel(scrn, x, y, RGB32k[0][0][fg & (fg >> 15)]);
+  for (dy = -half; dy <= half; dy++) {
+    for (dx = -half; dx <= half; dx++)
+    {
+      px = x + dx;
+      py = y + dy;
+
+      if (px >= 0 && py >= 0 && px < screens[scrn].width && py < screens[scrn].height)
+      {
+        unsigned int bg_color = screens[scrn].data[px + screens[scrn].pitch * py];
+        unsigned int *fg2rgb = Col2RGB8[weight];
+        unsigned int *bg2rgb = Col2RGB8[64 - weight];
+        unsigned int fg = fg2rgb[color];
+        unsigned int bg = bg2rgb[bg_color];
+
+        fg = (fg + bg) | 0x1f07c1f;
+        V_PlotPixel8(scrn, px, py, RGB32k[0][0][fg & (fg >> 15)]);
+      }
+    }
+  }
 }
 
 //
