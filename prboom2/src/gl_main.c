@@ -889,11 +889,12 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
 void gld_DrawPoint(int x, int y, int BaseColor)
 {
   float thickness = (float)AM_GetLineWeight();
-
   color_rgb_t rgb = gld_LookupIndexedColor(BaseColor, V_IsUILightmodeIndexed() || V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed());
-  unsigned char a = 255;
-
   map_point_t v[6];
+
+  unsigned char a = ((automap_overlay == 1) ? map_lines_overlay_trans * 255 / 100 : 255);
+  if (a == 0)
+    return;
 
   v[0].x = x - thickness; v[0].y = y - thickness;
   v[1].x = x + thickness; v[1].y = y - thickness;
