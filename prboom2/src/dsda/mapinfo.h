@@ -83,6 +83,7 @@ int dsda_MusicIndexToLumpNum(int music_index);
 void dsda_MapMusic(int* music_index, int* music_lump, int episode, int map);
 void dsda_IntermissionMusic(int* music_index, int* music_lump);
 void dsda_InterMusic(int* music_index, int* music_lump);
+int dsda_CheckInterText(void);
 void dsda_StartFinale(void);
 int dsda_FTicker(void);
 int dsda_FDrawer(void);

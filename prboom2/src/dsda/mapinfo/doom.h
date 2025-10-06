@@ -40,6 +40,7 @@ int dsda_DoomMusicIndexToLumpNum(int* lump, int music_index);
 int dsda_DoomMapMusic(int* music_index, int* music_lump, int episode, int map);
 int dsda_DoomIntermissionMusic(int* music_index, int* music_lump);
 int dsda_DoomInterMusic(int* music_index, int* music_lump);
+int dsda_DoomCheckInterText(void);
 int dsda_DoomStartFinale(void);
 int dsda_DoomFTicker(void);
 void dsda_DoomFDrawer(void);

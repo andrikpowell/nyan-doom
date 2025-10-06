@@ -309,6 +309,10 @@ int dsda_HexenInterMusic(int* music_index, int* music_lump) {
   return false; // TODO
 }
 
+int dsda_HexenCheckInterText(void) {
+  return false;
+}
+
 int dsda_HexenStartFinale(void) {
   return false; // TODO
 }

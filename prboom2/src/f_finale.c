@@ -41,7 +41,6 @@
 #include "s_sound.h"
 #include "sounds.h"
 #include "d_deh.h"  // Ty 03/22/98 - externalizations
-#include "d_englsh.h"
 
 #include "heretic/f_finale.h"
 #include "hexen/f_finale.h"
@@ -86,170 +85,14 @@ void WI_checkForAccelerate(void);    // killough 3/28/98: used to
 extern int acceleratestage;          // accelerate intermission screens
 int midstage;                 // whether we're in "mid-stage"
 
-// Arsinikk - Checks whether intermission text matches original text and if new text is provided from PWAD.
-// used for the skip intermission config option.
-static int dsda_CheckInterText(void)
+const char* UCheckInterText;
+
+static int dsda_SkipInterText(void)
 {
-    int SkipText = 0;
-    int lump = 0;
-    int PWADlump = 0;
-
-    // Arsinikk - Essentially disable check for ZDoom an other conditions:
-    if(netgame || W_LumpNameExists("UMAPINFO") || map_format.zdoom || dsda_UseMapinfo() || raven)
-      return SkipText;
-
-    switch (gamemode)
-    {
-        // DOOM 1 - E1, E3 or E4, but each nine missions
-        case shareware:
-        case registered:
-        case retail:
-        {
-            switch (gameepisode)
-            {
-            case 1:
-                lump = W_GetNumForName("E1M8");
-                if (!strcmp(E1TEXT, s_E1TEXT)) SkipText = 1;
-                break;
-            case 2:
-                lump = W_GetNumForName("E2M8");
-                if (!strcmp(E2TEXT, s_E2TEXT)) SkipText = 1;
-                break;
-            case 3:
-                lump = W_GetNumForName("E3M8");
-                if (!strcmp(E3TEXT, s_E3TEXT)) SkipText = 1;
-                break;
-            case 4:
-                lump = W_GetNumForName("E4M8");
-                if (!strcmp(E4TEXT, s_E4TEXT)) SkipText = 1;
-                break;
-            default:
-                break;
-            }
-            break;
-        }
-
-        // DOOM II and missions packs with E1, M34
-        case commercial:
-        {
-            // Ty 08/27/98 - added the gamemission logic
-            switch (gamemap)
-            {
-            case 6:
-                lump = W_GetNumForName("MAP06");
-                if (gamemission == pack_tnt) {
-                    if (!strcmp(T1TEXT, s_T1TEXT))
-                        SkipText = 1;
-                }
-                else if (gamemission == pack_plut) {
-                    if (!strcmp(P1TEXT, s_P1TEXT))
-                        SkipText = 1;
-                }
-                else {
-                    if (!strcmp(C1TEXT, s_C1TEXT))
-                        SkipText = 1;
-                }
-                break;
-            case 11:
-                lump = W_GetNumForName("MAP11");
-                if (gamemission == pack_tnt) {
-                    if (!strcmp(T2TEXT, s_T2TEXT))
-                        SkipText = 1;
-                }
-                else if (gamemission == pack_plut) {
-                    if (!strcmp(P2TEXT, s_P2TEXT))
-                        SkipText = 1;
-                }
-                else {
-                    if (!strcmp(C2TEXT, s_C2TEXT))
-                        SkipText = 1;
-                }
-                break;
-            case 20:
-                lump = W_GetNumForName("MAP20");
-                if (gamemission == pack_tnt) {
-                    if (!strcmp(T3TEXT, s_T3TEXT))
-                        SkipText = 1;
-                }
-                else if (gamemission == pack_plut) {
-                    if (!strcmp(P3TEXT, s_P3TEXT))
-                        SkipText = 1;
-                }
-                else {
-                    if (!strcmp(C3TEXT, s_C3TEXT))
-                        SkipText = 1;
-                }
-                break;
-            case 30:
-                lump = W_GetNumForName("MAP30");
-                if (gamemission == pack_tnt) {
-                    if (!strcmp(T4TEXT, s_T4TEXT))
-                        SkipText = 1;
-                }
-                else if (gamemission == pack_plut) {
-                    if (!strcmp(P4TEXT, s_P4TEXT))
-                        SkipText = 1;
-                }
-                else {
-                    if (!strcmp(C4TEXT, s_C4TEXT))
-                        SkipText = 1;
-                }
-                break;
-            case 15:
-                lump = W_GetNumForName("MAP15");
-                if (gamemission == pack_tnt) {
-                    if (!strcmp(T5TEXT, s_T5TEXT))
-                        SkipText = 1;
-                }
-                else if (gamemission == pack_plut) {
-                    if (!strcmp(P5TEXT, s_P5TEXT))
-                        SkipText = 1;
-                }
-                else {
-                    if (!strcmp(C5TEXT, s_C5TEXT))
-                        SkipText = 1;
-                }
-                break;
-            case 31:
-                lump = W_GetNumForName("MAP31");
-                if (gamemission == pack_tnt) {
-                    if (!strcmp(T6TEXT, s_T6TEXT))
-                        SkipText = 1;
-                }
-                else if (gamemission == pack_plut) {
-                    if (!strcmp(P6TEXT, s_P6TEXT))
-                        SkipText = 1;
-                }
-                else {
-                    if (!strcmp(C6TEXT, s_C6TEXT))
-                        SkipText = 1;
-                }
-                break;
-            default:
-                // Ouch.
-                break;
-            }
-            if (gamemission == pack_nerve && gamemap == 8)
-            {
-                lump = W_GetNumForName("MAP08");
-                if (!strcmp(C6TEXT, s_C6TEXT)) SkipText = 1;
-            }
-            break;
-            // Ty 08/27/98 - end gamemission logic
-        }
-
-        // Indeterminate.
-        default:  // Ty 03/30/98 - not externalized
-            break;
-    }
-
-    PWADlump = W_PWADLumpNumExists(lump);
-
-    // Arsinikk - only skip text if lump before story screen is replaced
-    if (!PWADlump)
-      SkipText = 0;
-
-    return SkipText;
+  if (allow_incompatibility && dsda_IntConfig(nyan_config_skip_default_text))
+    return dsda_CheckInterText();
+  
+  return false;
 }
 
 //
@@ -264,7 +107,7 @@ void F_StartFinale (void)
   if (heretic) return Heretic_F_StartFinale();
   if (hexen) return Hexen_F_StartFinale();
 
-  SkipText = allow_incompatibility && dsda_CheckInterText() && dsda_IntConfig(nyan_config_skip_default_text);
+  SkipText = dsda_SkipInterText();
 
   // Arsinikk
   // If iwad story text and option, move forward in Doom 2 / Plutonia / TNT

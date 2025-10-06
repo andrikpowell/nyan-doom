@@ -16,6 +16,7 @@
 //
 
 #include "doomstat.h"
+#include "d_englsh.h"
 #include "f_finale.h"
 #include "g_game.h"
 #include "lprintf.h"
@@ -220,6 +221,180 @@ extern const char* finaleflat;
 extern const char* finalepatch;
 extern int acceleratestage;
 extern int midstage;
+extern const char* UCheckInterText;
+
+int dsda_UCheckInterText(void)
+{
+    int SkipText = false;
+    int MapLump = 0;
+    UCheckInterText = "-";
+
+    // Skip if UMAPINFO doesn't exit
+    if (!gamemapinfo)
+      return false;
+
+    // Disable check for ZDoom (MAPINFO)
+    if (netgame || map_format.zdoom || dsda_UseMapinfo())
+      return false;
+
+    // '-' means that any default intermission was cleared.
+    if (gamemapinfo->intertextsecret && secretexit && gamemapinfo->intertextsecret[0] != '-')
+      UCheckInterText = gamemapinfo->intertextsecret;
+    else if (gamemapinfo->intertext && !secretexit && gamemapinfo->intertext[0] != '-')
+      UCheckInterText = gamemapinfo->intertext;
+
+    // if CheckText is blank, don't skip
+    if (UCheckInterText == "-")
+      return false;
+
+    switch (gamemode)
+    {
+        // DOOM 1 - E1, E3 or E4, but each nine missions
+        case shareware:
+        case registered:
+        case retail:
+        {
+            switch (gameepisode)
+            {
+            case 1:
+                MapLump = W_GetNumForName("E1M8");
+                if (!strcmp(E1TEXT, UCheckInterText)) SkipText = true;
+                break;
+            case 2:
+                MapLump = W_GetNumForName("E2M8");
+                if (!strcmp(E2TEXT, UCheckInterText)) SkipText = true;
+                break;
+            case 3:
+                MapLump = W_GetNumForName("E3M8");
+                if (!strcmp(E3TEXT, UCheckInterText)) SkipText = true;
+                break;
+            case 4:
+                MapLump = W_GetNumForName("E4M8");
+                if (!strcmp(E4TEXT, UCheckInterText)) SkipText = true;
+                break;
+            default:
+                break;
+            }
+            break;
+        }
+
+        // DOOM II and missions packs with E1, M34
+        case commercial:
+        {
+            switch (gamemap)
+            {
+            case 6:
+                MapLump = W_GetNumForName("MAP06");
+                if (gamemission == pack_tnt) {
+                    if (!strcmp(T1TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                else if (gamemission == pack_plut) {
+                    if (!strcmp(P1TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                else {
+                    if (!strcmp(C1TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                break;
+            case 11:
+                MapLump = W_GetNumForName("MAP11");
+                if (gamemission == pack_tnt) {
+                    if (!strcmp(T2TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                else if (gamemission == pack_plut) {
+                    if (!strcmp(P2TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                else {
+                    if (!strcmp(C2TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                break;
+            case 20:
+                MapLump = W_GetNumForName("MAP20");
+                if (gamemission == pack_tnt) {
+                    if (!strcmp(T3TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                else if (gamemission == pack_plut) {
+                    if (!strcmp(P3TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                else {
+                    if (!strcmp(C3TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                break;
+            case 30:
+                MapLump = W_GetNumForName("MAP30");
+                if (gamemission == pack_tnt) {
+                    if (!strcmp(T4TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                else if (gamemission == pack_plut) {
+                    if (!strcmp(P4TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                else {
+                    if (!strcmp(C4TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                break;
+            case 15:
+                MapLump = W_GetNumForName("MAP15");
+                if (gamemission == pack_tnt) {
+                    if (!strcmp(T5TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                else if (gamemission == pack_plut) {
+                    if (!strcmp(P5TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                else {
+                    if (!strcmp(C5TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                break;
+            case 31:
+                MapLump = W_GetNumForName("MAP31");
+                if (gamemission == pack_tnt) {
+                    if (!strcmp(T6TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                else if (gamemission == pack_plut) {
+                    if (!strcmp(P6TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                else {
+                    if (!strcmp(C6TEXT, UCheckInterText))
+                        SkipText = true;
+                }
+                break;
+            default:
+                // Ouch.
+                break;
+            }
+            if (gamemission == pack_nerve && gamemap == 8)
+            {
+                MapLump = W_GetNumForName("MAP08");
+                if (!strcmp(C6TEXT, UCheckInterText)) SkipText = true;
+            }
+            break;
+        }
+
+        default:
+            break;
+    }
+
+    // Only skip text if map before story screen is replaced by PWAD
+    if (!W_PWADLumpNumExists(MapLump))
+      return false;
+
+    return SkipText;
+}
 
 int dsda_UStartFinale(void) {
   if (!gamemapinfo)

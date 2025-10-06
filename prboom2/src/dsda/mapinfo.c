@@ -358,6 +358,26 @@ void dsda_InterMusic(int* music_index, int* music_lump) {
   dsda_LegacyInterMusic(music_index, music_lump);
 }
 
+int dsda_CheckInterText(void) {
+  if (dsda_DoomCheckInterText()) {
+    return false;
+  }
+
+  if (dsda_HexenCheckInterText()) {
+    return false;
+  }
+
+  if (dsda_UCheckInterText()) {
+    return true;
+  }
+
+  if (dsda_LegacyCheckInterText()) {
+    return true;
+  }
+  
+  return false;
+}
+
 typedef enum {
   finale_owner_legacy,
   finale_owner_u,

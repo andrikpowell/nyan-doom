@@ -346,6 +346,10 @@ int dsda_DoomInterMusic(int* music_index, int* music_lump) {
   return true;
 }
 
+int dsda_DoomCheckInterText(void) {
+  return false;
+}
+
 extern int finalestage;
 extern int finalecount;
 extern const char* finaletext;

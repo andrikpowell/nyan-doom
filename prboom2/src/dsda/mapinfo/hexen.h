@@ -40,6 +40,7 @@ int dsda_HexenMusicIndexToLumpNum(int* lump, int music_index);
 int dsda_HexenMapMusic(int* music_index, int* music_lump, int episode, int map);
 int dsda_HexenIntermissionMusic(int* music_index, int* music_lump);
 int dsda_HexenInterMusic(int* music_index, int* music_lump);
+int dsda_HexenCheckInterText(void);
 int dsda_HexenStartFinale(void);
 int dsda_HexenFTicker(void);
 void dsda_HexenFDrawer(void);
