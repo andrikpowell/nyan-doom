@@ -832,7 +832,7 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
   color_rgb_t color;
   unsigned char a;
   map_line_t *line;
-  float thickness, length;
+  float thickness, length, extend;
   float dx, dy, px, py;
 
   // Set line thickness
@@ -855,6 +855,13 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
 
   dx /= length;
   dy /= length;
+
+  // Extend quads a bit to fix weird gaps
+  extend = 1.0f; // adjustable
+  x0 -= dx * extend;
+  y0 -= dy * extend;
+  x1 += dx * extend;
+  y1 += dy * extend;
 
   px = -dy * thickness;
   py = dx * thickness;
