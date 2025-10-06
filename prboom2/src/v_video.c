@@ -42,6 +42,7 @@
 #include <assert.h>
 #include "SDL.h"
 
+#include "am_map.h"
 #include "doomdef.h"
 #include "doomstat.h"
 #include "r_main.h"
@@ -1502,7 +1503,7 @@ void V_FreeScreens(void) {
 }
 
 static void V_PlotPixel8(int scrn, int x, int y, byte color) {
-  int thickness = (dsda_IntConfig(dsda_config_automap_linesize) + 1);
+  int thickness = AM_GetLineWeight();
   int half = thickness / 2;
   int dy, dx;
   int py, px;
@@ -1629,7 +1630,7 @@ extern SDL_Surface *screen;
 //
 static void V_PlotPixelWu8(int scrn, int x, int y, byte color, int weight)
 {
-  int thickness = (dsda_IntConfig(dsda_config_automap_linesize) + 1);
+  int thickness = AM_GetLineWeight();
   int half = thickness / 2;
   int dx, dy;
   int px, py;

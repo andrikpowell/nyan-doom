@@ -832,10 +832,11 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
   color_rgb_t color;
   unsigned char a;
   map_line_t *line;
-  float dx, dy, length, px, py, thickness;
+  float thickness, length;
+  float dx, dy, px, py;
 
   // Set line thickness
-  thickness = AM_GetLineWeight() * 0.5f;
+  thickness = (float)AM_GetLineWeight();
 
   a = ((automap_overlay == 1) ? map_lines_overlay_trans * 255 / 100 : 255);
   if (a == 0)
@@ -887,21 +888,20 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
 
 void gld_DrawPoint(int x, int y, int BaseColor)
 {
-  float thickness = (dsda_IntConfig(dsda_config_automap_linesize) + 1) * 0.5f; // Set thickness
-  float half = thickness * 0.5f;
+  float thickness = (float)AM_GetLineWeight();
 
   color_rgb_t rgb = gld_LookupIndexedColor(BaseColor, V_IsUILightmodeIndexed() || V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed());
   unsigned char a = 255;
 
   map_point_t v[6];
 
-  v[0].x = x - half; v[0].y = y - half;
-  v[1].x = x + half; v[1].y = y - half;
-  v[2].x = x + half; v[2].y = y + half;
+  v[0].x = x - thickness; v[0].y = y - thickness;
+  v[1].x = x + thickness; v[1].y = y - thickness;
+  v[2].x = x + thickness; v[2].y = y + thickness;
 
-  v[3].x = x + half; v[3].y = y + half;
-  v[4].x = x - half; v[4].y = y + half;
-  v[5].x = x - half; v[5].y = y - half;
+  v[3].x = x + thickness; v[3].y = y + thickness;
+  v[4].x = x - thickness; v[4].y = y + thickness;
+  v[5].x = x - thickness; v[5].y = y - thickness;
 
   for (int i = 0; i < 6; i++) {
     v[i].r = rgb.r;
