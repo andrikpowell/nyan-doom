@@ -109,7 +109,6 @@ dboolean dsda_TargetNearScreenCenter(mobj_t* target, float max_distance_fraction
 
 dboolean dsda_PlayerFreelookAutoAim(void)
 {
-  dboolean autoaim = false;
   mobj_t* target = HU_Target();
 
   return target && dsda_TargetNearScreenCenter(target, dsda_MouselookAutoAimPercent() * 0.01f);
