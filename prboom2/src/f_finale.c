@@ -610,7 +610,7 @@ void F_TextWrite (void)
         break;
 
       // CPhipps - patch drawing updated
-      V_DrawNumPatch(cx, cy, hud_font.font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
+      V_DrawMenuNumPatch(cx, cy, hud_font.font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
       cx+=w;
     }
   }
