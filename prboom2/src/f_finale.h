@@ -49,7 +49,7 @@ void F_Drawer (void);
 
 dboolean F_ShowCast(void);
 
-extern const char* UCheckInterText;
+extern int UMAPINFO_Text;
 
 void F_StartFinale (void);
 void F_StartCast (const char* background, const char* music, dboolean loop_music);

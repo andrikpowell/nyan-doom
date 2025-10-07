@@ -424,7 +424,7 @@ int dsda_LegacyInterMusic(int* music_index, int* music_lump) {
   return true;
 }
 
-extern const char* UCheckInterText;
+extern int UMAPINFO_Text;
 
 // Checks whether intermission text matches original text and if new text is provided from PWAD.
 // used for the skip intermission config option.
@@ -438,7 +438,7 @@ int dsda_LegacyCheckInterText(void)
       return false;
 
     // Disable check if UMAPINFO has text
-    if (UCheckInterText != "-")
+    if (UMAPINFO_Text)
       return false;
 
     switch (gamemode)

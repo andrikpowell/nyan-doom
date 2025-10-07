@@ -77,15 +77,7 @@ const char*   finalepatch;
 // Ty 03/22/98 - ... the new s_WHATEVER extern variables are used
 // in the code below instead.
 
-void    F_CastTicker (void);
-dboolean F_CastResponder (event_t *ev);
-void    F_CastDrawer (void);
-
-void WI_checkForAccelerate(void);    // killough 3/28/98: used to
-extern int acceleratestage;          // accelerate intermission screens
-int midstage;                 // whether we're in "mid-stage"
-
-const char* UCheckInterText;
+int UMAPINFO_Text;
 
 static int dsda_SkipInterText(void)
 {
@@ -94,6 +86,14 @@ static int dsda_SkipInterText(void)
   
   return false;
 }
+
+void    F_CastTicker (void);
+dboolean F_CastResponder (event_t *ev);
+void    F_CastDrawer (void);
+
+void WI_checkForAccelerate(void);    // killough 3/28/98: used to
+extern int acceleratestage;          // accelerate intermission screens
+int midstage;                 // whether we're in "mid-stage"
 
 //
 // F_StartFinale

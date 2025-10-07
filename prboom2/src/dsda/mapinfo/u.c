@@ -221,13 +221,16 @@ extern const char* finaleflat;
 extern const char* finalepatch;
 extern int acceleratestage;
 extern int midstage;
-extern const char* UCheckInterText;
+extern int UMAPINFO_Text = false;
 
 int dsda_UCheckInterText(void)
 {
     int SkipText = false;
     int MapLump = 0;
-    UCheckInterText = "-";
+    const char* storyText = "-";
+
+    // UMAPINFO text reset
+    UMAPINFO_Text = false;
 
     // Skip if UMAPINFO doesn't exit
     if (!gamemapinfo)
@@ -239,12 +242,12 @@ int dsda_UCheckInterText(void)
 
     // '-' means that any default intermission was cleared.
     if (gamemapinfo->intertextsecret && secretexit && gamemapinfo->intertextsecret[0] != '-')
-      UCheckInterText = gamemapinfo->intertextsecret;
+      storyText = gamemapinfo->intertextsecret;
     else if (gamemapinfo->intertext && !secretexit && gamemapinfo->intertext[0] != '-')
-      UCheckInterText = gamemapinfo->intertext;
+      storyText = gamemapinfo->intertext;
 
-    // if CheckText is blank, don't skip
-    if (UCheckInterText == "-")
+    // if storyText is blank, don't skip
+    if (!strcmp(storyText, "-"))
       return false;
 
     switch (gamemode)
@@ -258,19 +261,19 @@ int dsda_UCheckInterText(void)
             {
             case 1:
                 MapLump = W_GetNumForName("E1M8");
-                if (!strcmp(E1TEXT, UCheckInterText)) SkipText = true;
+                if (!strcmp(E1TEXT, storyText)) SkipText = true;
                 break;
             case 2:
                 MapLump = W_GetNumForName("E2M8");
-                if (!strcmp(E2TEXT, UCheckInterText)) SkipText = true;
+                if (!strcmp(E2TEXT, storyText)) SkipText = true;
                 break;
             case 3:
                 MapLump = W_GetNumForName("E3M8");
-                if (!strcmp(E3TEXT, UCheckInterText)) SkipText = true;
+                if (!strcmp(E3TEXT, storyText)) SkipText = true;
                 break;
             case 4:
                 MapLump = W_GetNumForName("E4M8");
-                if (!strcmp(E4TEXT, UCheckInterText)) SkipText = true;
+                if (!strcmp(E4TEXT, storyText)) SkipText = true;
                 break;
             default:
                 break;
@@ -286,90 +289,90 @@ int dsda_UCheckInterText(void)
             case 6:
                 MapLump = W_GetNumForName("MAP06");
                 if (gamemission == pack_tnt) {
-                    if (!strcmp(T1TEXT, UCheckInterText))
+                    if (!strcmp(T1TEXT, storyText))
                         SkipText = true;
                 }
                 else if (gamemission == pack_plut) {
-                    if (!strcmp(P1TEXT, UCheckInterText))
+                    if (!strcmp(P1TEXT, storyText))
                         SkipText = true;
                 }
                 else {
-                    if (!strcmp(C1TEXT, UCheckInterText))
+                    if (!strcmp(C1TEXT, storyText))
                         SkipText = true;
                 }
                 break;
             case 11:
                 MapLump = W_GetNumForName("MAP11");
                 if (gamemission == pack_tnt) {
-                    if (!strcmp(T2TEXT, UCheckInterText))
+                    if (!strcmp(T2TEXT, storyText))
                         SkipText = true;
                 }
                 else if (gamemission == pack_plut) {
-                    if (!strcmp(P2TEXT, UCheckInterText))
+                    if (!strcmp(P2TEXT, storyText))
                         SkipText = true;
                 }
                 else {
-                    if (!strcmp(C2TEXT, UCheckInterText))
+                    if (!strcmp(C2TEXT, storyText))
                         SkipText = true;
                 }
                 break;
             case 20:
                 MapLump = W_GetNumForName("MAP20");
                 if (gamemission == pack_tnt) {
-                    if (!strcmp(T3TEXT, UCheckInterText))
+                    if (!strcmp(T3TEXT, storyText))
                         SkipText = true;
                 }
                 else if (gamemission == pack_plut) {
-                    if (!strcmp(P3TEXT, UCheckInterText))
+                    if (!strcmp(P3TEXT, storyText))
                         SkipText = true;
                 }
                 else {
-                    if (!strcmp(C3TEXT, UCheckInterText))
+                    if (!strcmp(C3TEXT, storyText))
                         SkipText = true;
                 }
                 break;
             case 30:
                 MapLump = W_GetNumForName("MAP30");
                 if (gamemission == pack_tnt) {
-                    if (!strcmp(T4TEXT, UCheckInterText))
+                    if (!strcmp(T4TEXT, storyText))
                         SkipText = true;
                 }
                 else if (gamemission == pack_plut) {
-                    if (!strcmp(P4TEXT, UCheckInterText))
+                    if (!strcmp(P4TEXT, storyText))
                         SkipText = true;
                 }
                 else {
-                    if (!strcmp(C4TEXT, UCheckInterText))
+                    if (!strcmp(C4TEXT, storyText))
                         SkipText = true;
                 }
                 break;
             case 15:
                 MapLump = W_GetNumForName("MAP15");
                 if (gamemission == pack_tnt) {
-                    if (!strcmp(T5TEXT, UCheckInterText))
+                    if (!strcmp(T5TEXT, storyText))
                         SkipText = true;
                 }
                 else if (gamemission == pack_plut) {
-                    if (!strcmp(P5TEXT, UCheckInterText))
+                    if (!strcmp(P5TEXT, storyText))
                         SkipText = true;
                 }
                 else {
-                    if (!strcmp(C5TEXT, UCheckInterText))
+                    if (!strcmp(C5TEXT, storyText))
                         SkipText = true;
                 }
                 break;
             case 31:
                 MapLump = W_GetNumForName("MAP31");
                 if (gamemission == pack_tnt) {
-                    if (!strcmp(T6TEXT, UCheckInterText))
+                    if (!strcmp(T6TEXT, storyText))
                         SkipText = true;
                 }
                 else if (gamemission == pack_plut) {
-                    if (!strcmp(P6TEXT, UCheckInterText))
+                    if (!strcmp(P6TEXT, storyText))
                         SkipText = true;
                 }
                 else {
-                    if (!strcmp(C6TEXT, UCheckInterText))
+                    if (!strcmp(C6TEXT, storyText))
                         SkipText = true;
                 }
                 break;
@@ -380,7 +383,7 @@ int dsda_UCheckInterText(void)
             if (gamemission == pack_nerve && gamemap == 8)
             {
                 MapLump = W_GetNumForName("MAP08");
-                if (!strcmp(C6TEXT, UCheckInterText)) SkipText = true;
+                if (!strcmp(C6TEXT, storyText)) SkipText = true;
             }
             break;
         }
@@ -392,6 +395,9 @@ int dsda_UCheckInterText(void)
     // Only skip text if map before story screen is replaced by PWAD
     if (!W_PWADLumpNumExists(MapLump))
       return false;
+
+    // UMAPINFO has new text
+    UMAPINFO_Text = true;
 
     return SkipText;
 }
