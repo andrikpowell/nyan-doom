@@ -221,7 +221,7 @@ extern const char* finaleflat;
 extern const char* finalepatch;
 extern int acceleratestage;
 extern int midstage;
-extern int UMAPINFO_Text = false;
+extern int UMAPINFO_Text;
 
 int dsda_UCheckInterText(void)
 {
