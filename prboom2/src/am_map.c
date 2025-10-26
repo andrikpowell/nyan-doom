@@ -1253,7 +1253,7 @@ static void AM_AddTaggedLineConnections(line_t *line)
 
   AM_HighlightLineCenter(&origin, line);
 
-  FIND_SECTORS(id_p, line->tag)
+  FIND_SECTORS(id_p, line->special_args[0])
   {
     AM_HighlightSectorCenter(&destination, &sectors[*id_p]);
     AM_AddHighlightConnection(origin, destination);
@@ -1617,10 +1617,10 @@ static void AM_HighlightByTag(void)
   {
     highlight.sec = NULL;
     highlight.line = line;
-    highlight.tag = line->tag;
+    highlight.tag = line->special_args[0];
     highlight.thing = 0;
 
-    doom_printf("Highlight line %d, tag %d\n", highlight.line->iLineID, line->tag);
+    doom_printf("Highlight line %d, tag %d\n", highlight.line->iLineID, line->special_args[0]);
   }
   // Nothing
   else
@@ -1686,7 +1686,7 @@ static dboolean AM_ShouldBlinkHighlightLine(line_t *line)
 
     // highlight lines linked to main sector
     if (highlight.tag)
-      return line->tag == highlight.tag;
+      return line->special_args[0] == highlight.tag;
 
     // highlight manual doors
     if (P_IsManualDoor(line))

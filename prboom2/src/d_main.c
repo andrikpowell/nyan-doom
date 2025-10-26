@@ -2268,7 +2268,7 @@ static void D_DoomMainSetup(void)
 
   PostProcessDehacked();
   dsda_AppendZDoomMobjInfo();
-  dsda_ApplyDefaultMapFormat();
+  dsda_ApplyBinaryMapFormat();
 
   deh_InitNyanTweaks();
 
