@@ -33,6 +33,8 @@
 
 #define R_DRAWCOLUMN_ANY_TRANSLUCENT (R_DRAWCOLUMN_TRANSLUCENT || R_DRAWCOLUMN_TRANSLUCENT_REVERSE)
 
+#define R_DRAWCOLUMN_FUZZ (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ || R_DRAWCOLUMN_PIPELINE & RDC_FUZZ_SCALED)
+
 #define GETDESTCOLOR(col1, col2) \
      (R_DRAWCOLUMN_TRANSLUCENT         ? temptranmap[((col1) << 8) + (col2)] : \
       R_DRAWCOLUMN_TRANSLUCENT_REVERSE ? temptranmap[(col1) + ((col2) << 8)] : \
@@ -41,6 +43,9 @@
 #define BLOCKY_FUZZ (dsda_IntConfig(dsda_config_fuzzmode)==0 || dsda_StrictMode())
 #define REFRACTION_FUZZ (dsda_IntConfig(dsda_config_fuzzmode)==1 && !dsda_StrictMode())
 #define SHADOW_FUZZ (dsda_IntConfig(dsda_config_fuzzmode)==2 && !dsda_StrictMode())
+#define FUZZCELLSIZE (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ_SCALED ? scaled_fuzzcellsize : fuzzcellsize)
+#define FUZZPOS_PTR (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ_SCALED ? &scaledfuzzpos : &fuzzpos)
+#define FUZZPOS     (*FUZZPOS_PTR)
 
 //
 // R_FlushWholeOpaque
@@ -52,13 +57,13 @@
 static void R_FLUSHWHOLE_FUNCNAME(void)
 {
    // Scaled software fuzz algorithm
-#if (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ)
+#if (R_DRAWCOLUMN_FUZZ)
 {
    if (BLOCKY_FUZZ || REFRACTION_FUZZ)
    {
       int yl, yh, count;
 
-      if ((temp_x + startx) % fuzzcellsize)
+      if ((temp_x + startx) % FUZZCELLSIZE)
       {
          return;
       }
@@ -80,9 +85,9 @@ static void R_FLUSHWHOLE_FUNCNAME(void)
       }
    #endif
       {
-      byte *dest = drawvars.topleft + yl * drawvars.pitch + startx + temp_x - fuzzcellsize;
+      byte *dest = drawvars.topleft + yl * drawvars.pitch + startx + temp_x - FUZZCELLSIZE;
 
-      int lines = fuzzcellsize - (yl % fuzzcellsize);
+      int lines = FUZZCELLSIZE - (yl % FUZZCELLSIZE);
       static int dark, offset;
 
       if (REFRACTION_FUZZ)
@@ -98,7 +103,7 @@ static void R_FLUSHWHOLE_FUNCNAME(void)
          int mask;
          const byte fuzz = REFRACTION_FUZZ ?
                fullcolormap[dark + dest[offset]] :
-               fullcolormap[6 * 256 + dest[fuzzoffset[fuzzpos]]];
+               fullcolormap[6 * 256 + dest[fuzzoffset[FUZZPOS]]];
 
          count -= lines;
 
@@ -113,22 +118,22 @@ static void R_FLUSHWHOLE_FUNCNAME(void)
 
          do
          {
-               memset(dest, fuzz, fuzzcellsize);
+               memset(dest, fuzz, FUZZCELLSIZE);
                dest += drawvars.pitch;
          } while (--lines);
 
-         ++fuzzpos;
+         ++FUZZPOS;
 
          // Clamp table lookup index.
-         fuzzpos &= (fuzzpos - FUZZTABLE) >> (8 * sizeof(fuzzpos) - 1); // killough 1/99
+         FUZZPOS &= (FUZZPOS - FUZZTABLE) >> (8 * sizeof(FUZZPOS) - 1); // killough 1/99
 
          if (REFRACTION_FUZZ)
          {
-            dark = fuzzdark[fuzzpos];
-            offset = fuzzoffset[fuzzpos];
+            dark = fuzzdark[FUZZPOS];
+            offset = fuzzoffset[FUZZPOS];
          }
 
-         lines = fuzzcellsize;
+         lines = FUZZCELLSIZE;
       } while (count);
       }
    }
@@ -201,7 +206,7 @@ static void R_FLUSHHEADTAIL_FUNCNAME(void)
    int count, colnum = 0;
    int yl, yh;
 
-   #if (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ)
+   #if (R_DRAWCOLUMN_FUZZ)
       // Only whole flushes are supported for fuzz
       R_FLUSHWHOLE_FUNCNAME();
       return;
@@ -263,7 +268,7 @@ static void R_FLUSHQUAD_FUNCNAME(void)
    byte *dest = drawvars.topleft + commontop*drawvars.pitch + startx;
    int count;
 
-   #if (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ)
+   #if (R_DRAWCOLUMN_FUZZ)
       // Only whole flushes are supported for fuzz
       return;
    #endif
@@ -307,6 +312,7 @@ static void R_FLUSHQUAD_FUNCNAME(void)
 #undef R_DRAWCOLUMN_TRANSLUCENT
 #undef R_DRAWCOLUMN_TRANSLUCENT_REVERSE
 #undef R_DRAWCOLUMN_ANY_TRANSLUCENT
+#undef R_DRAWCOLUMN_FUZZ
 #undef R_FLUSHWHOLE_FUNCNAME
 #undef R_FLUSHHEADTAIL_FUNCNAME
 #undef R_FLUSHQUAD_FUNCNAME

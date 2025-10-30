@@ -534,9 +534,12 @@ static void R_UpdateFuzzCellSize(vissprite_t *vis)
     float screen_space_factor;
     float base_fuzzcellsize;
 
-    // Don't scale fuzz for player weapon sprites
-    if (vis->mobjflags & MF_PLAYERSPRITE)
+    // Skip scaling when set to default
+    if (dsda_IntConfig(dsda_config_fuzzscale) == 0)
+    {
+      scaled_fuzzcellsize = fuzzcellsize;
       return;
+    }
 
     // Set screen height to match sprite height
     if (vis->scale == 0)
@@ -555,7 +558,7 @@ static void R_UpdateFuzzCellSize(vissprite_t *vis)
     if (base_fuzzcellsize > base_fuzzcellsize * 3) base_fuzzcellsize = base_fuzzcellsize * 3;
     
     // update fuzzcellsize
-    fuzzcellsize = (int)(base_fuzzcellsize);
+    scaled_fuzzcellsize = (int)(base_fuzzcellsize);
 }
 
 
@@ -588,9 +591,17 @@ static void R_DrawVisSprite(vissprite_t *vis)
 
   if (!dcvars.colormap)   // NULL colormap = shadow draw
   {
-    R_ResetFuzzCol(colheight); // Reset fuzz column for new sprite
-    R_UpdateFuzzCellSize(vis);
-    colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ, RDRAW_FILTER_POINT);    // killough 3/14/98
+    if (vis->mobjflags & MF_PLAYERSPRITE) // Don't scale fuzz for player weapon sprites
+    {
+      R_ResetFuzzCol(colheight); // Reset fuzz column for new sprite
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ, RDRAW_FILTER_POINT);    // killough 3/14/98
+    }
+    else // Nyan distance scaled fuzz
+    {
+      R_ResetFuzzColScaled(colheight);  // Reset fuzz column for new sprite
+      R_UpdateFuzzCellSize(vis);
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ_SCALED, RDRAW_FILTER_POINT);
+    }
   }
   else
   {

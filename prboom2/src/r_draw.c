@@ -142,10 +142,12 @@ static const int fuzzdark[FUZZTABLE] =
 static int fuzzoffset[FUZZTABLE];
 
 static int fuzzpos = 0;
+static int scaledfuzzpos = 0;
 
 // Fuzz cell size for scaled software fuzz
 int fuzzcellsize;
 int min_fuzzcellsize;
+int scaled_fuzzcellsize;
 
 // render pipelines
 #define RDC_STANDARD      1
@@ -156,8 +158,9 @@ int min_fuzzcellsize;
 #define RDC_ALT_TRTL     32 // alt-translucent + color
 #define RDC_DOUBLESKY    64
 #define RDC_FUZZ        128
+#define RDC_FUZZ_SCALED 256
 // no color mapping
-#define RDC_NOCOLMAP    256
+#define RDC_NOCOLMAP    512
 
 draw_vars_t drawvars = {
   NULL, // topleft
@@ -273,6 +276,12 @@ void R_ResetColumnBuffer(void)
 #define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz
 #define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz
 #define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz
+#include "r_drawflush.inl"
+
+#define R_DRAWCOLUMN_PIPELINE RDC_FUZZ_SCALED
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzzScaled
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzzScaled
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzzScaled
 #include "r_drawflush.inl"
 
 //
@@ -440,6 +449,24 @@ byte *translationtables;
 #undef R_DRAWCOLUMN_PIPELINE_BASE
 #undef R_DRAWCOLUMN_PIPELINE_TYPE
 
+//
+// NYAN Distance Scaled Fuzz.
+// Same as the fuzz filter above,
+// but is separate from weapon sprites.
+//
+
+#define R_DRAWCOLUMN_PIPELINE_TYPE RDC_PIPELINE_FUZZ_SCALED
+#define R_DRAWCOLUMN_PIPELINE_BASE RDC_FUZZ_SCALED
+
+#define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawFuzzScaledColumn ## postfix
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzzScaled
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzzScaled
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzzScaled
+#include "r_drawcolpipeline.inl"
+
+#undef R_DRAWCOLUMN_PIPELINE_BASE
+#undef R_DRAWCOLUMN_PIPELINE_TYPE
+
 static R_DrawColumn_f drawcolumnfuncs[RDRAW_FILTER_MAXFILTERS][RDC_PIPELINE_MAXPIPELINES] = {
   {
     R_DrawColumn_PointUV,
@@ -450,6 +477,7 @@ static R_DrawColumn_f drawcolumnfuncs[RDRAW_FILTER_MAXFILTERS][RDC_PIPELINE_MAXP
     R_DrawAltTRTLColumn_PointUV,
     R_DrawDoubleSkyColumn_PointUV,
     R_DrawFuzzColumn_PointUV,
+    R_DrawFuzzScaledColumn_PointUV,
   },
   {
     R_DrawColumn_PointUV_PointZ,
@@ -460,6 +488,7 @@ static R_DrawColumn_f drawcolumnfuncs[RDRAW_FILTER_MAXFILTERS][RDC_PIPELINE_MAXP
     R_DrawAltTRTLColumn_PointUV_PointZ,
     R_DrawDoubleSkyColumn_PointUV_PointZ,
     R_DrawFuzzColumn_PointUV_PointZ,
+    R_DrawFuzzScaledColumn_PointUV_PointZ,
   },
 };
 
@@ -641,9 +670,9 @@ void R_InitBuffer(int width, int height)
     fuzzoffset[i] = fuzzoffset_org[i]*screens[0].pitch;
   
   if (!tallscreen)
-    fuzzcellsize = (SCREENHEIGHT + 100) / 200;
+    fuzzcellsize = scaled_fuzzcellsize = (SCREENHEIGHT + 100) / 200;
   else
-    fuzzcellsize = (SCREENWIDTH + 160) / 320;
+    fuzzcellsize = scaled_fuzzcellsize = (SCREENWIDTH + 160) / 320;
 
   R_UpdateFuzzSize();
 }
@@ -907,9 +936,19 @@ void R_SetFuzzPos(int fp)
   fuzzpos = fp;
 }
 
+void R_SetFuzzPosScaled(int scaledfp)
+{
+  scaledfuzzpos = scaledfp;
+}
+
 int R_GetFuzzPos()
 {
   return fuzzpos;
+}
+
+int R_GetFuzzPosScaled()
+{
+  return scaledfuzzpos;
 }
 
 void R_ResetFuzzCol(int height)
@@ -919,8 +958,18 @@ void R_ResetFuzzCol(int height)
   fuzzpos = (fuzzpos + (height / fuzzcellsize)) % FUZZTABLE;
 }
 
+void R_ResetFuzzColScaled(int height)
+{
+  R_ResetColumnBuffer();
+
+  scaledfuzzpos = (scaledfuzzpos + (height / scaled_fuzzcellsize)) % FUZZTABLE;
+}
+
 void R_CheckFuzzCol(int x, int height)
 {
   if (!(x % fuzzcellsize))
     R_ResetFuzzCol(height);
+
+  if (!(x % scaled_fuzzcellsize))
+    R_ResetFuzzColScaled(height);
 }

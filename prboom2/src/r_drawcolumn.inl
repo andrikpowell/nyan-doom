@@ -33,6 +33,7 @@
 #define R_DRAWCOLUMN_TRANSLUCENT_REVERSE ( R_DRAWCOLUMN_PIPELINE & RDC_ALT_TRTL || R_DRAWCOLUMN_PIPELINE & RDC_ALT_TL)
 
 #define R_DRAWCOLUMN_ANY_TRANSLUCENT (R_DRAWCOLUMN_TRANSLUCENT || R_DRAWCOLUMN_TRANSLUCENT_REVERSE)
+#define R_DRAWCOLUMN_FUZZ (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ || R_DRAWCOLUMN_PIPELINE & RDC_FUZZ_SCALED)
 
 #if (R_DRAWCOLUMN_TRANSLATED)
 #define GETCOL_MAPPED(col) (translation[(col)])
@@ -61,7 +62,7 @@
 
 #if (R_DRAWCOLUMN_ANY_TRANSLUCENT)
 #define COLTYPE (COL_TRANS)
-#elif (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ)
+#elif (R_DRAWCOLUMN_FUZZ)
 #define COLTYPE (COL_FUZZ)
 #else
 #define COLTYPE (COL_OPAQUE)
@@ -71,13 +72,13 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 {
   int              count;
 
-#if (!(R_DRAWCOLUMN_PIPELINE & RDC_FUZZ))
+#if (!(R_DRAWCOLUMN_FUZZ))
   byte             *dest;            // killough
   fixed_t          frac;
   const fixed_t    fracstep = dcvars->iscale;
 #endif
 
-#if (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ)
+#if (R_DRAWCOLUMN_FUZZ)
   // Adjust borders. Low...
   if (!dcvars->yl)
     dcvars->yl = 1;
@@ -110,7 +111,7 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
     I_Error("R_DrawColumn: %i to %i at %i", dcvars->yl, dcvars->yh, dcvars->x);
 #endif
 
-#if (!(R_DRAWCOLUMN_PIPELINE & RDC_FUZZ))
+#if (!(R_DRAWCOLUMN_FUZZ))
   if (dcvars->flags & DRAW_COLUMN_ISPATCH)
     frac = ((dcvars->yl - dcvars->dy) * fracstep) & 0xFFFF;
   else
@@ -124,13 +125,13 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
     {
       if (dcvars->clip_top > dcvars->yl)
       {
-    #if (!(R_DRAWCOLUMN_PIPELINE & RDC_FUZZ))
+    #if (!(R_DRAWCOLUMN_FUZZ))
         int delta = dcvars->clip_top - dcvars->yl;
     #endif
 
         dcvars->yl = dcvars->clip_top;
 
-    #if (!(R_DRAWCOLUMN_PIPELINE & RDC_FUZZ))
+    #if (!(R_DRAWCOLUMN_FUZZ))
           frac += fracstep * delta;
     #endif
       }
@@ -161,13 +162,13 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
          temptype = COLTYPE;
 #if (R_DRAWCOLUMN_ANY_TRANSLUCENT)
          temptranmap = tranmap;
-#elif (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ)
+#elif (R_DRAWCOLUMN_FUZZ)
          tempfuzzmap = fullcolormap; // SoM 7-28-04: Fix the fuzz problem.
 #endif
          R_FlushWholeColumns = R_FLUSHWHOLE_FUNCNAME;
          R_FlushHTColumns    = R_FLUSHHEADTAIL_FUNCNAME;
          R_FlushQuadColumn   = R_FLUSHQUAD_FUNCNAME;
-#if (!(R_DRAWCOLUMN_PIPELINE & RDC_FUZZ))
+#if (!(R_DRAWCOLUMN_FUZZ))
          dest = &tempbuf[dcvars->yl << 2];
 #endif
       } else {
@@ -178,7 +179,7 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
             commontop = dcvars->yl;
          if(dcvars->yh < commonbot)
             commonbot = dcvars->yh;
-#if (!(R_DRAWCOLUMN_PIPELINE & RDC_FUZZ))
+#if (!(R_DRAWCOLUMN_FUZZ))
          dest = &tempbuf[(dcvars->yl << 2) + temp_x];
 #endif
       }
@@ -186,7 +187,7 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
    }
 
 // do nothing else when drawin fuzz columns
-#if (!(R_DRAWCOLUMN_PIPELINE & RDC_FUZZ))
+#if (!(R_DRAWCOLUMN_FUZZ))
   {
     const byte          *source = dcvars->source;
 
@@ -273,5 +274,6 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 #undef R_DRAWCOLUMN_TRANSLUCENT
 #undef R_DRAWCOLUMN_TRANSLUCENT_REVERSE
 #undef R_DRAWCOLUMN_ANY_TRANSLUCENT
+#undef R_DRAWCOLUMN_FUZZ
 #undef R_DRAWCOLUMN_FUNCNAME
 #undef R_DRAWCOLUMN_PIPELINE

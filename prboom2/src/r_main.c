@@ -1090,6 +1090,7 @@ static void R_InitDrawScene(void)
   // Framerate-independent fuzz progression
   static int fuzzgametic = 0;
   static int savedfuzzpos = 0;
+  static int savedfuzzpos_scaled = 0;
 
   if (V_IsOpenGLMode())
   {
@@ -1114,10 +1115,12 @@ static void R_InitDrawScene(void)
     {
       fuzzgametic = gametic;
       savedfuzzpos = R_GetFuzzPos();
+      savedfuzzpos_scaled = R_GetFuzzPosScaled();
     }
     else
     {
       R_SetFuzzPos(savedfuzzpos);
+      R_SetFuzzPosScaled(savedfuzzpos_scaled);
     }
   }
 }

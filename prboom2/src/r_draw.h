@@ -45,6 +45,7 @@ enum column_pipeline_e {
   RDC_PIPELINE_ALT_TRTL,   // translated + reverse translucency
   RDC_PIPELINE_DOUBLESKY,
   RDC_PIPELINE_FUZZ,
+  RDC_PIPELINE_FUZZ_SCALED,
   RDC_PIPELINE_MAXPIPELINES,
 };
 
@@ -152,16 +153,20 @@ void R_DrawViewBorder(void);
 void R_ResetColumnBuffer(void);
 
 void R_SetFuzzPos(int fuzzpos);
+void R_SetFuzzPosScaled(int fuzzpos);
 int R_GetFuzzPos();
+int R_GetFuzzPosScaled();
 
 // height is the height of the last column, in pixels
 void R_ResetFuzzCol(int height);
+void R_ResetFuzzColScaled(int height);
 
 // Calls R_ResetFuzzCol if x is aligned to the fuzz cell grid
 void R_CheckFuzzCol(int x, int height);
 
 extern int fuzzcellsize;
 extern int min_fuzzcellsize;
+extern int scaled_fuzzcellsize;
 
 extern void R_UpdateFuzzSize(void);
 
