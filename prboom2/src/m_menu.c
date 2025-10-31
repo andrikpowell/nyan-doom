@@ -1501,7 +1501,7 @@ static void M_QuickSave(void)
   strftime(description, sizeof(description), "quick %x %X", timeinfo);
 
   G_SaveGame(QUICKSAVESLOT, description);
-  doom_printf("%s", description);
+  doom_printf("%s", dsda_DetailedQuicksave() ? description : "quicksave.");
 
   M_ReadSaveStrings();
 }
@@ -1538,11 +1538,11 @@ static void M_QuickLoad(void)
   if (M_FileExists(name))
   {
     G_LoadGame(QUICKSAVESLOT);
-    doom_printf("quickload");
+    doom_printf("quickload.");
   }
   else
   {
-    doom_printf("no save file");
+    doom_printf("no save file.");
   }
 
   Z_Free(name);
@@ -3766,6 +3766,7 @@ setup_menu_t gen_misc_settings[] = {
   EMPTY_LINE,
   { "Autosave On Level Start", S_YESNO, m_conf, G2_X, dsda_config_auto_save },
   { "Organize My Save Files", S_YESNO, m_conf, G2_X, dsda_config_organized_saves },
+  { "Detailed Quicksave Msg", S_YESNO, m_conf, G2_X, dsda_config_detailed_quicksave },
   { "Data Access Icon", S_CHOICE, m_conf, G2_X, nyan_config_loading_disk, 0, loading_disk_list },
   { "Skip Quit Prompt", S_YESNO, m_conf, G2_X, dsda_config_skip_quit_prompt },
 
