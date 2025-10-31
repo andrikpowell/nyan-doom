@@ -42,11 +42,12 @@ static int gl_clear_box_height;
 
 void dsda_GLSetRenderViewportParams() {
   extern SDL_Rect viewport_rect;
+  float gl_stbar_window_fix = !desired_fullscreen; // window black line fix - TODO: Come up with a better fix
   gl_scale_x = (float)viewport_rect.w / (float)SCREENWIDTH;
   gl_scale_y = (float)viewport_rect.h / (float)SCREENHEIGHT;
 
   // elim - This will be zero if no statusbar is being drawn
-  gl_statusbar_height = ceilf(gl_scale_y * (float)ST_SCALED_HEIGHT) * R_PartialView();
+  gl_statusbar_height = (int)(gl_scale_y * (float)ST_SCALED_HEIGHT + gl_stbar_window_fix) * R_PartialView();
 
   gl_scene_offset_x = (int)(viewwindowx * gl_scale_x);
   gl_scene_offset_y = (int)(viewwindowy * gl_scale_y);
@@ -88,12 +89,13 @@ void dsda_GLSetScreenSpaceScissor(int x, int y, int w, int h)
 void dsda_GLUpdateStatusBarVisible() {
   int saved_visible;
   int current_visible;
+  float gl_stbar_window_fix = !desired_fullscreen; // window black line fix - TODO: Come up with a better fix
 
   saved_visible = (gl_statusbar_height > 0);
   current_visible = R_PartialView();
 
   if (saved_visible != current_visible) {
-    gl_statusbar_height = (int)(gl_scale_y * (float)ST_SCALED_HEIGHT) * R_PartialView();
+    gl_statusbar_height = (int)(gl_scale_y * (float)ST_SCALED_HEIGHT + gl_stbar_window_fix) * R_PartialView();
     gl_scene_height = viewport_rect.h - gl_statusbar_height - (gl_scene_offset_y * 2);
   }
 }
