@@ -100,7 +100,6 @@ typedef enum
   CR_DARKEN_BLACK,
   CR_DARKEN_PURPLE,
   CR_DARKEN_WHITE,
-  CR_SHADOW,
   CR_BLOOD,
   CR_BLOOD_GRAY = CR_BLOOD,
   CR_BLOOD_GREEN,
@@ -110,6 +109,8 @@ typedef enum
   CR_BLOOD_PURPLE,
   CR_BLOOD_WHITE,
   CR_BLOOD_ORANGE,
+  CR_BLOOD_LIMIT,
+  CR_SHADOW = CR_BLOOD_LIMIT,
   CR_LIMIT,
 } crange_idx_e;
 //jff 1/16/98 end palette color range additions

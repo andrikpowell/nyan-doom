@@ -163,7 +163,7 @@ typedef struct {
   int fallback;
 } blood_load_t;
 
-static blood_load_t blood_data[CR_LIMIT - CR_BLOOD] = {
+static blood_load_t blood_data[CR_BLOOD_LIMIT - CR_BLOOD] = {
   { "CRGRAY", CR_GRAY },
   { "CRGREEN", CR_GREEN },
   { "CRBLUE2", CR_BLUE },
@@ -180,7 +180,7 @@ static void dsda_LoadCRLumps(byte* buffer) {
 
   blood_buffer = buffer + CR_BLOOD * 256;
 
-  for (i = 0; i < CR_LIMIT - CR_BLOOD; ++i) {
+  for (i = 0; i < CR_BLOOD_LIMIT - CR_BLOOD; ++i) {
     int lump;
 
     lump = W_CheckNumForName(blood_data[i].name);
