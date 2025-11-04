@@ -190,8 +190,12 @@ static dboolean setup_gather      = false; // gathering keys for value
 static dboolean colorbox_active   = false; // color palette being shown
 
 // submenus
+static dboolean sub_advanced_audio_active = false;
 static dboolean sub_colored_blood_active = false;
 static dboolean sub_trans_active = false;
+static dboolean sub_exhud_active = false;
+static dboolean sub_status_widget_active = false;
+static dboolean sub_crosshair_active = false;
 
 // Stuff for sub setup menus
 static menu_t *prev_menu;
@@ -360,11 +364,19 @@ void M_ChangeUseGLSurface(void);
 void M_ChangeApplyPalette(void);
 
 // submenus
+static void M_Sub_AdvAudio(void);
 static void M_Sub_ColoredBlood(void);
 static void M_Sub_Trans(void);
+static void M_Sub_ExHud(void);
+static void M_Sub_StatusWidget(void);
+static void M_Sub_Crosshair(void);
 
+static void M_Sub_DrawAdvAudio(void);
 static void M_Sub_DrawColoredBlood(void);
 static void M_Sub_DrawTrans(void);
+static void M_Sub_DrawExHud(void);
+static void M_Sub_DrawStatusWidget(void);
+static void M_Sub_DrawCrosshair(void);
 
 menu_t SkillDef;                                              // phares 5/04/98
 
@@ -1806,6 +1818,16 @@ static menu_t DisplayDef =                                           // killough
   0
 };
 
+static menu_t SubAdvAudioDef =                                           // killough 10/98
+{
+  generic_setup_end,
+  &GeneralDef,
+  Generic_Setup,
+  M_Sub_DrawAdvAudio,
+  34,5,      // skull drawn here
+  0
+};
+
 static menu_t SubColoredBloodDef =                                           // killough 10/98
 {
   generic_setup_end,
@@ -1822,6 +1844,36 @@ static menu_t SubTransDef =                                           // killoug
   &DisplayDef,
   Generic_Setup,
   M_Sub_DrawTrans,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubExHudDef =                                           // killough 10/98
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawExHud,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubStatusWidgetDef =                                           // killough 10/98
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawStatusWidget,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubCrosshairDef =                                           // killough 10/98
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawCrosshair,
   34,5,      // skull drawn here
   0
 };
@@ -3815,19 +3867,14 @@ setup_menu_t gen_audio_settings[] = {
   { "SFX Volume", S_THERMO, m_conf, G_X, dsda_config_sfx_volume},
   { "Music Volume", S_THERMO, m_conf, G_X, dsda_config_music_volume},
   EMPTY_LINE,
-  { "Enable v1.1 Pitch Effects", S_YESNO, m_conf, G_X, dsda_config_pitched_sounds },
-  { "Disable Sound Cutoffs", S_YESNO, m_conf, G_X, dsda_config_full_sounds },
   { "Preferred MIDI player", S_CHOICE | S_STR, m_conf, G_X, dsda_config_snd_midiplayer, 0, midiplayers },
   { "Mute When Out of Focus", S_YESNO, m_conf, G_X, dsda_config_mute_unfocused_window },
-  EMPTY_LINE,
-  { "Number of Sound Channels", S_NUM, m_conf, G_X, dsda_config_snd_channels },
-  { "Limit Overlapping for Same-Sound", S_YESNO, m_conf, G_X, dsda_config_parallel_sfx_active },
-  { "Number of Overlapping Sounds", S_NUM, m_conf, G_X, dsda_config_parallel_sfx_limit, 0, empty_list, DEPEND(dsda_config_parallel_sfx_active, true) },
-  { "Sound Replay Window (s)", S_NUM, m_conf, G_X, dsda_config_parallel_sfx_window, 0, empty_list, DEPEND(dsda_config_parallel_sfx_active, true) },
   EMPTY_LINE,
   { "SFX For Movement Toggles", S_YESNO, m_conf, G_X, dsda_config_movement_toggle_sfx },
   { "Play SFX For Quicksave", S_YESNO, m_conf, G_X, dsda_config_quicksave_sfx },
   { "Play Quit SFX (Slower Quit)", S_YESNO, m_conf, G_X, dsda_config_quit_sounds },
+  EMPTY_LINE,
+  FUNCTION("Advanced Sound", S_CENTER, G_X, M_Sub_AdvAudio),
 
   PREV_PAGE(gen_video_settings),
   NEXT_PAGE(gen_mouse_settings),
@@ -3959,6 +4006,53 @@ setup_menu_t gen_nyan_settings[] = {
   FINAL_ENTRY
 };
 
+/////////////////////////////
+//
+// Sub Menu - Advanced Audio
+
+static const char *audio_pages[] =
+{
+  "Advanced Sound",
+  NULL
+};
+
+setup_menu_t audio_adv_settings[];
+
+setup_menu_t* audio_settings[] =
+{
+  audio_adv_settings,
+  NULL
+};
+
+setup_menu_t audio_adv_settings[] = {
+  { "Number of Sound Channels", S_THERMO, m_conf, G_X, dsda_config_snd_channels },
+  EMPTY_LINE,
+  { "Pitch-Shifiting", S_YESNO, m_conf, G_X, dsda_config_pitched_sounds },
+  { "Disable Sound Cutoffs", S_YESNO, m_conf, G_X, dsda_config_full_sounds },
+  EMPTY_LINE,
+  { "Limit Overlapping for Same-Sound", S_YESNO, m_conf, G_X, dsda_config_parallel_sfx_active },
+  { "Number of Overlapping Sounds", S_NUM, m_conf, G_X, dsda_config_parallel_sfx_limit, 0, empty_list, DEPEND(dsda_config_parallel_sfx_active, true) },
+  { "Sound Replay Window (s)", S_NUM, m_conf, G_X, dsda_config_parallel_sfx_window, 0, empty_list, DEPEND(dsda_config_parallel_sfx_active, true) },
+
+  FINAL_ENTRY
+};
+
+static void M_Sub_AdvAudio(void)
+{
+  M_EnterSubSetup(&SubAdvAudioDef, &sub_advanced_audio_active, audio_settings[0]);
+}
+
+static void M_Sub_DrawAdvAudio(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "GENERAL", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(audio_pages, sizeof(audio_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
 
 // To (un)set fullscreen video after menu changes
 void M_ChangeFullScreen(void)
@@ -4016,13 +4110,12 @@ static const char *display_pages[] =
   "Options",
   "Nyan",
   "Status Bar",
-  "EX-HUD",
-  "Misc",
+  "HUD",
   NULL
 };
 
 setup_menu_t display_options_settings[], display_nyan_settings[], display_statbar_settings[];
-setup_menu_t display_hud_settings[], display_crosshair_settings[];
+setup_menu_t display_hud_settings[];
 
 setup_menu_t* display_settings[] =
 {
@@ -4030,7 +4123,6 @@ setup_menu_t* display_settings[] =
   display_nyan_settings,
   display_statbar_settings,
   display_hud_settings,
-  display_crosshair_settings,
   NULL
 };
 
@@ -4144,72 +4236,24 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   FINAL_ENTRY
 };
 
-static const char* stat_format_list[] = { "NYANHUD", "ratio", "percent", "count", "remaining", "dsda classic", NULL };
-
-#define EXHUD_ON           0, empty_list, DEPEND(dsda_config_exhud, true)
-#define STATUS_WIDGET_ON   0, empty_list, DEPEND(nyan_config_ex_status_widget, true)
-
-setup_menu_t display_hud_settings[] =  // Demos Settings screen
-{
-  { "Use Extended Hud", S_YESNO, m_conf, G_X, dsda_config_exhud },
-  { "Level Stat Format", S_CHOICE, m_conf, G_X, dsda_config_stats_format, 0, stat_format_list, DEPEND(dsda_config_exhud, true) },
-  { "Ex Hud Scale", S_PERC, m_conf, G_X, dsda_config_ex_text_scale_x, EXHUD_ON },
-  { "Ex Hud Ratio", S_PERC, m_conf, G_X, dsda_config_ex_text_ratio_y, EXHUD_ON },
-  { "Ex Hud Translucency", S_YESNO, m_conf, G_X, dsda_config_ex_text_tran_filter, EXHUD_ON },
-  { "Ex Hud Translucency", S_PERC, m_conf, G_X, dsda_config_ex_text_tran_filter_pct, EXHUD_ON },
-  { "Ex Hud Free Text", S_NAME, m_conf, G_X, dsda_config_free_text, EXHUD_ON },
-  EMPTY_LINE,
-  TITLE("Status Widget", G_X),
-  { "Use Status Widget", S_YESNO, m_conf, G_X, nyan_config_ex_status_widget },
-  { "Armor", S_YESNO, m_conf, G_X, nyan_config_ex_status_armor, STATUS_WIDGET_ON },
-  { "Berserk", S_YESNO, m_conf, G_X, nyan_config_ex_status_berserk, STATUS_WIDGET_ON },
-  { "Computer Area Map", S_YESNO, m_conf, G_X, nyan_config_ex_status_areamap, STATUS_WIDGET_ON },
-  { "Backpack", S_YESNO, m_conf, G_X, nyan_config_ex_status_backpack, STATUS_WIDGET_ON },
-  { "Radiation Suit", S_YESNO, m_conf, G_X, nyan_config_ex_status_radsuit, STATUS_WIDGET_ON },
-  { "Partial Invisibility", S_YESNO, m_conf, G_X, nyan_config_ex_status_invis, STATUS_WIDGET_ON },
-  { "Light Amplification", S_YESNO, m_conf, G_X, nyan_config_ex_status_liteamp, STATUS_WIDGET_ON },
-  { "Invulnerability", S_YESNO, m_conf, G_X, nyan_config_ex_status_invuln, STATUS_WIDGET_ON },
-
-  PREV_PAGE(display_statbar_settings),
-  NEXT_PAGE(display_crosshair_settings),
-  FINAL_ENTRY
-};
-
-#undef EXHUD_ON
-#undef STATUS_WIDGET_ON
-
-static const char *crosshair_str[] =
-  { "none", "cross", "angle", "dot", "small", "slim", "tiny", "big", NULL };
-
 static const char* announce_map_list[] = { "Off", "On", "Subtle", NULL };
 static const char* secretarea_list[] = { "Off", "On", "Subtle", NULL };  
 
-#define HUD_X 245
-
-#define CROSSHAIR_ON  0, empty_list, EXCLUDE(dsda_config_hudadd_crosshair, 0)
-
-setup_menu_t display_crosshair_settings[] =
+setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
-  TITLE("Messages", HUD_X),
-  { "Show Messages", S_YESNO, m_conf, HUD_X, dsda_config_show_messages },
-  { "Report Revealed Secrets", S_CHOICE, m_conf, HUD_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
-  { "Announce Map On Entry", S_CHOICE, m_conf, HUD_X, dsda_config_announce_map, 0, announce_map_list },
+  TITLE("Messages", G_X),
+  { "Show Messages", S_YESNO, m_conf, G_X, dsda_config_show_messages },
+  { "Report Revealed Secrets", S_CHOICE, m_conf, G_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
+  { "Announce Map On Entry", S_CHOICE, m_conf, G_X, dsda_config_announce_map, 0, announce_map_list },
   { "Detailed Quicksave Msg", S_YESNO, m_conf, G_X, dsda_config_detailed_quicksave },
   EMPTY_LINE,
-  TITLE("Crosshair Settings", HUD_X),
-  { "Enable Crosshair", S_CHOICE, m_conf, HUD_X, dsda_config_hudadd_crosshair, 0, crosshair_str },
-  { "Scale Crosshair", S_YESNO, m_conf, HUD_X, dsda_config_hudadd_crosshair_scale, CROSSHAIR_ON },
-  { "Change Color By Player Health", S_YESNO, m_conf, HUD_X, dsda_config_hudadd_crosshair_health, CROSSHAIR_ON },
-  { "Change Color On Target", S_YESNO, m_conf, HUD_X, dsda_config_hudadd_crosshair_target, CROSSHAIR_ON },
-  { "Lock Crosshair On Target", S_YESNO, m_conf, HUD_X, dsda_config_hudadd_crosshair_lock_target, CROSSHAIR_ON },
-  { "Default Color", S_CHOICE | S_CRITEM, m_conf, HUD_X, dsda_config_hudadd_crosshair_color, 0, color_list, EXCLUDE(dsda_config_hudadd_crosshair, 0) },
-  { "Target Color", S_CHOICE | S_CRITEM, m_conf, HUD_X, dsda_config_hudadd_crosshair_target_color, 0, color_list, EXCLUDE(dsda_config_hudadd_crosshair, 0) },
+  FUNCTION("Ex-Hud", S_CENTER, G_X, M_Sub_ExHud),
+  FUNCTION("Status Widget", S_CENTER, G_X, M_Sub_StatusWidget),
+  FUNCTION("Crosshair", S_CENTER, G_X, M_Sub_Crosshair),
 
-  PREV_PAGE(display_hud_settings),
+  PREV_PAGE(display_statbar_settings),
   FINAL_ENTRY
 };
-
-#undef CROSSHAIR_ON
 
 static void M_Display(int choice)
 {
@@ -4322,6 +4366,174 @@ static void M_Sub_DrawTrans(void)
   M_DrawTitle(2, "DISPLAY", cr_title);
   M_DrawInstructions();
   M_DrawTabs(trans_pages, sizeof(trans_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Ex-HUD
+
+#define EXHUD_ON           0, empty_list, DEPEND(dsda_config_exhud, true)
+
+static const char *exhud_pages[] =
+{
+  "EX-HUD",
+  NULL
+};
+
+setup_menu_t exhud_gen_settings[];
+
+setup_menu_t* exhud_settings[] =
+{
+  exhud_gen_settings,
+  NULL
+};
+
+static const char* stat_format_list[] = { "NYANHUD", "ratio", "percent", "count", "remaining", "dsda classic", NULL };
+
+DEPEND_LIST(exhud_percentage_list,
+  DEP(dsda_config_exhud, true),
+  DEP(dsda_config_ex_text_tran_filter, true)
+);
+
+setup_menu_t exhud_gen_settings[] = {
+  { "Use Extended Hud", S_YESNO, m_conf, G_X, dsda_config_exhud },
+  { "Level Stat Format", S_CHOICE, m_conf, G_X, dsda_config_stats_format, 0, stat_format_list, DEPEND(dsda_config_exhud, true) },
+  { "Ex Hud Free Text", S_NAME, m_conf, G_X, dsda_config_free_text, EXHUD_ON },
+  EMPTY_LINE,
+  { "Ex Hud Scale", S_PERC, m_conf, G_X, dsda_config_ex_text_scale_x, EXHUD_ON },
+  { "Ex Hud Ratio", S_PERC, m_conf, G_X, dsda_config_ex_text_ratio_y, EXHUD_ON },
+  EMPTY_LINE,
+  { "Ex Hud Translucency", S_YESNO, m_conf, G_X, dsda_config_ex_text_tran_filter, EXHUD_ON },
+  { "Percentage", S_PERC, m_conf, G_X, dsda_config_ex_text_tran_filter_pct, 0, empty_list, DEPEND_MULTI(exhud_percentage_list) },
+  FINAL_ENTRY
+};
+
+#undef EXHUD_ON
+
+static void M_Sub_ExHud(void)
+{
+  M_EnterSubSetup(&SubExHudDef, &sub_exhud_active, exhud_settings[0]);
+}
+
+static void M_Sub_DrawExHud(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "DISPLAY", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(exhud_pages, sizeof(exhud_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Status Widget
+
+static const char *status_widget_pages[] =
+{
+  "Status Widget",
+  NULL
+};
+
+setup_menu_t status_widget_gen_settings[];
+
+setup_menu_t* status_widget_settings[] =
+{
+  status_widget_gen_settings,
+  NULL
+};
+
+#define STATUS_WIDGET_ON   0, empty_list, DEPEND(nyan_config_ex_status_widget, true)
+
+setup_menu_t status_widget_gen_settings[] = {
+  { "Use Status Widget", S_YESNO, m_conf, G_X, nyan_config_ex_status_widget },
+  EMPTY_LINE,
+  { "Armor", S_YESNO, m_conf, G_X, nyan_config_ex_status_armor, STATUS_WIDGET_ON },
+  { "Berserk", S_YESNO, m_conf, G_X, nyan_config_ex_status_berserk, STATUS_WIDGET_ON },
+  { "Computer Area Map", S_YESNO, m_conf, G_X, nyan_config_ex_status_areamap, STATUS_WIDGET_ON },
+  { "Backpack", S_YESNO, m_conf, G_X, nyan_config_ex_status_backpack, STATUS_WIDGET_ON },
+  { "Radiation Suit", S_YESNO, m_conf, G_X, nyan_config_ex_status_radsuit, STATUS_WIDGET_ON },
+  { "Partial Invisibility", S_YESNO, m_conf, G_X, nyan_config_ex_status_invis, STATUS_WIDGET_ON },
+  { "Light Amplification", S_YESNO, m_conf, G_X, nyan_config_ex_status_liteamp, STATUS_WIDGET_ON },
+  { "Invulnerability", S_YESNO, m_conf, G_X, nyan_config_ex_status_invuln, STATUS_WIDGET_ON },
+  FINAL_ENTRY
+};
+
+#undef STATUS_WIDGET_ON
+
+static void M_Sub_StatusWidget(void)
+{
+  M_EnterSubSetup(&SubStatusWidgetDef, &sub_status_widget_active, status_widget_settings[0]);
+}
+
+static void M_Sub_DrawStatusWidget(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "DISPLAY", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(status_widget_pages, sizeof(status_widget_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Crosshair
+
+static const char *crosshair_pages[] =
+{
+  "Crosshair",
+  NULL
+};
+
+setup_menu_t display_crosshair_settings[];
+
+setup_menu_t* crosshair_settings[] =
+{
+  display_crosshair_settings,
+  NULL
+};
+
+static const char *crosshair_str[] =
+  { "none", "cross", "angle", "dot", "small", "slim", "tiny", "big", NULL };
+
+#define HUD_X 245
+
+#define CROSSHAIR_ON  0, empty_list, EXCLUDE(dsda_config_hudadd_crosshair, 0)
+
+setup_menu_t display_crosshair_settings[] =
+{
+  { "Enable Crosshair", S_CHOICE, m_conf, HUD_X, dsda_config_hudadd_crosshair, 0, crosshair_str },
+  { "Scale Crosshair", S_YESNO, m_conf, HUD_X, dsda_config_hudadd_crosshair_scale, CROSSHAIR_ON },
+  { "Change Color By Player Health", S_YESNO, m_conf, HUD_X, dsda_config_hudadd_crosshair_health, CROSSHAIR_ON },
+  { "Change Color On Target", S_YESNO, m_conf, HUD_X, dsda_config_hudadd_crosshair_target, CROSSHAIR_ON },
+  { "Lock Crosshair On Target", S_YESNO, m_conf, HUD_X, dsda_config_hudadd_crosshair_lock_target, CROSSHAIR_ON },
+  { "Default Color", S_CHOICE | S_CRITEM, m_conf, HUD_X, dsda_config_hudadd_crosshair_color, 0, color_list, EXCLUDE(dsda_config_hudadd_crosshair, 0) },
+  { "Target Color", S_CHOICE | S_CRITEM, m_conf, HUD_X, dsda_config_hudadd_crosshair_target_color, 0, color_list, EXCLUDE(dsda_config_hudadd_crosshair, 0) },
+  FINAL_ENTRY
+};
+
+#undef CROSSHAIR_ON
+
+static void M_Sub_Crosshair(void)
+{
+  M_EnterSubSetup(&SubCrosshairDef, &sub_crosshair_active, crosshair_settings[0]);
+}
+
+static void M_Sub_DrawCrosshair(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "DISPLAY", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(crosshair_pages, sizeof(crosshair_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -5697,8 +5909,12 @@ void M_LeaveSetupMenu(void)
   set_auto_active = false;
 
   // submenus
+  sub_advanced_audio_active = false;
   sub_colored_blood_active = false;
   sub_trans_active = false;
+  sub_exhud_active = false;
+  sub_status_widget_active = false;
+  sub_crosshair_active = false;
 
   // special types
   colorbox_active = false;
