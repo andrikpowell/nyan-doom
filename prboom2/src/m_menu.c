@@ -4793,7 +4793,7 @@ setup_menu_t overflows_gen_settings[] = {
   FINAL_ENTRY
 };
 
-static void M_Sub_Overflows(int choice)
+static void M_Sub_Overflows(void)
 {
   M_EnterSubSetup(&OverflowsDef, &sub_overflows_active, overflows_settings[0]);
 }
