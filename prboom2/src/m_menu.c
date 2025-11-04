@@ -2246,7 +2246,9 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
 
   // Is the item a simple number?
 
-  if (flags & (S_NUM | S_PERC | S_WEAP | S_CRITEM)) {
+  if (flags & (S_NUM | S_PERC | S_WEAP | S_CRITEM) &&
+      !(flags & S_THERMO)) // skip thermo
+  {
     // killough 10/98: We must draw differently for items being gathered.
     if (flags & (S_HILITE | S_SELECT) && setup_gather) {
       gather_buffer[gather_count] = 0;
@@ -2548,7 +2550,15 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
   if (flags & S_THERMO) {
     M_DrawThermo(x, y, 8, dsda_UpperLimitConfig(s->config_id) + 1, dsda_IntConfig(s->config_id));
 
-    snprintf(menu_buffer, sizeof(menu_buffer), "%d", dsda_IntConfig(s->config_id));
+    if (flags & S_PERC)
+    {
+      int value = 0;
+      if (dsda_IntConfig(s->config_id) != 0)
+        value = (dsda_IntConfig(s->config_id) * 100 / dsda_UpperLimitConfig(s->config_id));
+      snprintf(menu_buffer, sizeof(menu_buffer), "%d%%", value);
+    }
+    else
+      snprintf(menu_buffer, sizeof(menu_buffer), "%d", dsda_IntConfig(s->config_id));
 
     M_BlinkingArrowRight(s);
     M_DrawMenuString(x + 80, y + 3, color);
@@ -5919,7 +5929,8 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
       return true;
     }
 
-    if (ptr1->m_flags & (S_NUM | S_PERC)) // number?
+    if (ptr1->m_flags & (S_NUM | S_PERC) &&  // number?
+       !(ptr1->m_flags & S_THERMO)) // skip thermo
     {
       if (setup_gather) { // gathering keys for a value?
         /* killough 10/98: Allow negatives, and use a more
