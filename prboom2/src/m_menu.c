@@ -193,9 +193,11 @@ static dboolean colorbox_active   = false; // color palette being shown
 static dboolean sub_advanced_audio_active = false;
 static dboolean sub_colored_blood_active = false;
 static dboolean sub_trans_active = false;
+static dboolean sub_statbar_color_active = false;
 static dboolean sub_exhud_active = false;
 static dboolean sub_status_widget_active = false;
 static dboolean sub_crosshair_active = false;
+static dboolean sub_overflows_active = false;
 
 // Stuff for sub setup menus
 static menu_t *prev_menu;
@@ -367,16 +369,20 @@ void M_ChangeApplyPalette(void);
 static void M_Sub_AdvAudio(void);
 static void M_Sub_ColoredBlood(void);
 static void M_Sub_Trans(void);
+static void M_Sub_StatbarColor(void);
 static void M_Sub_ExHud(void);
 static void M_Sub_StatusWidget(void);
 static void M_Sub_Crosshair(void);
+static void M_Sub_Overflows(void);
 
 static void M_Sub_DrawAdvAudio(void);
 static void M_Sub_DrawColoredBlood(void);
 static void M_Sub_DrawTrans(void);
+static void M_Sub_DrawStatbarColor(void);
 static void M_Sub_DrawExHud(void);
 static void M_Sub_DrawStatusWidget(void);
 static void M_Sub_DrawCrosshair(void);
+static void M_Sub_DrawOverflows(void);
 
 menu_t SkillDef;                                              // phares 5/04/98
 
@@ -1848,6 +1854,16 @@ static menu_t SubTransDef =                                           // killoug
   0
 };
 
+static menu_t SubStatbarColorDef =                                           // killough 10/98
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawStatbarColor,
+  34,5,      // skull drawn here
+  0
+};
+
 static menu_t SubExHudDef =                                           // killough 10/98
 {
   generic_setup_end,
@@ -1894,6 +1910,16 @@ static menu_t CompatibilityDef =                                           // ki
   &OptionsDef,
   Generic_Setup,
   M_DrawCompatibility,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t OverflowsDef =                                           // killough 10/98
+{
+  generic_setup_end,
+  &CompatibilityDef,
+  Generic_Setup,
+  M_Sub_DrawOverflows,
   34,5,      // skull drawn here
   0
 };
@@ -3904,7 +3930,7 @@ setup_menu_t gen_mouse_settings[] = {
   { "Acceleration", S_NUM, m_conf, G2_X, dsda_config_mouse_acceleration, MOUSE_ON },
   EMPTY_LINE,
   { "Enable Free Look", S_YESNO, m_conf, G2_X, dsda_config_freelook, MOUSE_ON },
-  { "Invert Free Look", S_YESNO, m_conf, G2_X, dsda_config_movement_mouseinvert, MOUSE_ON },
+  { "Invert Free Look", S_YESNO, m_conf, G2_X, dsda_config_movement_mouseinvert, 0, empty_list, DEPEND_MULTI(freelook_autoaim_mouse_list) },
   { "Free Look AutoAim", S_YESNO, m_conf, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_autoaim_mouse_list) },
   { "GL AutoAim from Center", S_PERC, m_conf, G2_X, dsda_config_freelook_autoaim_pct, 0, empty_list, DEPEND_MULTI(freelook_autoaim_pct_mouse_list) },
   EMPTY_LINE,
@@ -3945,8 +3971,8 @@ setup_menu_t gen_controller_settings[] = {
   { "Acceleration", S_NUM, m_conf, G2_X, dsda_config_analog_look_acceleration, CONTROLLER_ON },
   EMPTY_LINE,
   { "Enable Free Look", S_YESNO, m_conf, G2_X, dsda_config_freelook, CONTROLLER_ON },
-  { "Invert Free Look", S_YESNO, m_conf, G2_X, dsda_config_invert_analog_look, CONTROLLER_ON },
-  { "Swap Analogs", S_YESNO, m_conf, G2_X, dsda_config_swap_analogs, CONTROLLER_ON },
+  { "Invert Free Look", S_YESNO, m_conf, G2_X, dsda_config_invert_analog_look, 0, empty_list, DEPEND_MULTI(freelook_autoaim_controller_list) },
+  { "Swap Analogs", S_YESNO, m_conf, G2_X, dsda_config_swap_analogs, 0, empty_list, DEPEND_MULTI(freelook_autoaim_controller_list) },
   { "Free Look AutoAim", S_YESNO, m_conf, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_autoaim_controller_list) },
   { "GL AutoAim from Center", S_PERC, m_conf, G2_X, dsda_config_freelook_autoaim_pct, 0, empty_list, DEPEND_MULTI(freelook_autoaim_pct_controller_list) },
   EMPTY_LINE,
@@ -4216,18 +4242,10 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   { "Smooth Health/Armor %", S_YESNO, m_conf, G_X, dsda_config_hud_animated_count },
   { "Single Key Display", S_YESNO, m_conf, G_X, dsda_config_sts_traditional_keys },
   { "Blink Missing Keys", S_YESNO, m_conf, G_X, dsda_config_sts_blink_keys },
+  FUNCTION("Coloring", S_CENTER, G_X, M_Sub_StatbarColor),
   EMPTY_LINE,
   { "Berserk Indicator", S_CHOICE, m_conf, G_X, nyan_config_hud_berserk, 0, berserk_icon_list },
   { "Armor Indicator", S_CHOICE, m_conf, G_X, nyan_config_hud_armoricon, 0, armor_icon_list },
-  EMPTY_LINE,
-  TITLE("Coloring", G_X),
-  { "Gray %",S_YESNO, m_conf, G_X, dsda_config_sts_pct_always_gray },
-  { "Colored Numbers", S_YESNO, m_conf, G_X, dsda_config_sts_colored_numbers },
-  { "Health Low/Ok", S_PERC, m_conf, G_X, dsda_config_hud_health_red },
-  { "Health Ok/Good", S_PERC, m_conf, G_X, dsda_config_hud_health_yellow },
-  { "Health Good/Extra", S_PERC, m_conf, G_X, dsda_config_hud_health_green },
-  { "Ammo Low/Ok", S_PERC, m_conf, G_X, dsda_config_hud_ammo_red },
-  { "Ammo Ok/Good", S_PERC, m_conf, G_X, dsda_config_hud_ammo_yellow },
   //EMPTY_LINE,
   //{ "Appearance", S_CHOICE, m_conf, G_X, dsda_config_render_stretch_hud, 0, render_stretch_list },
 
@@ -4269,6 +4287,53 @@ static void M_DrawDisplay(void)
   M_DrawTitle(2, "DISPLAY", cr_title); // M_DSPLAY
   M_DrawInstructions();
   M_DrawTabs(display_pages, sizeof(display_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Statusbar Coloring
+
+static const char *statbar_color_pages[] =
+{
+  "Coloring",
+  NULL
+};
+
+setup_menu_t statbar_color_gen_settings[];
+
+setup_menu_t* statbar_color_settings[] =
+{
+  statbar_color_gen_settings,
+  NULL
+};
+
+setup_menu_t statbar_color_gen_settings[] =  // Demos Settings screen
+{
+  { "Gray %",S_YESNO, m_conf, G_X, dsda_config_sts_pct_always_gray },
+  { "Colored Numbers", S_YESNO, m_conf, G_X, dsda_config_sts_colored_numbers },
+  { "Health Low/Ok", S_PERC, m_conf, G_X, dsda_config_hud_health_red },
+  { "Health Ok/Good", S_PERC, m_conf, G_X, dsda_config_hud_health_yellow },
+  { "Health Good/Extra", S_PERC, m_conf, G_X, dsda_config_hud_health_green },
+  { "Ammo Low/Ok", S_PERC, m_conf, G_X, dsda_config_hud_ammo_red },
+  { "Ammo Ok/Good", S_PERC, m_conf, G_X, dsda_config_hud_ammo_yellow },
+  FINAL_ENTRY
+};
+
+static void M_Sub_StatbarColor(void)
+{
+  M_EnterSubSetup(&SubStatbarColorDef, &sub_statbar_color_active, statbar_color_settings[0]);
+}
+
+static void M_Sub_DrawStatbarColor(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "DISPLAY", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(statbar_color_pages, sizeof(statbar_color_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -4580,17 +4645,13 @@ setup_menu_t comp_options_settings[] = {
 
 #define LR_ON   0, empty_list, DEPEND(dsda_config_limit_removing,false)
 
+DEPEND_LIST(overflow_list,
+  DEP(dsda_config_limit_removing, false),
+);
+
 setup_menu_t comp_emulation_settings[] = {
   { "Limit-Removing", S_YESNO, m_conf, CP_X, dsda_config_limit_removing },
-  EMPTY_LINE,
-  { "WARN ON SPECHITS OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_spechit_warn, LR_ON },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_spechit_emulate, LR_ON },
-  { "WARN ON REJECT OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_reject_warn, LR_ON },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_reject_emulate, LR_ON },
-  { "WARN ON INTERCEPTS OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_intercept_warn, LR_ON },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_intercept_emulate, LR_ON },
-  { "WARN ON DONUT OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_donut_warn, LR_ON },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_donut_emulate, LR_ON },
+  FUNC_DEPEND_MULTI("Overflows", S_CENTER, CP_X, M_Sub_Overflows, overflow_list),
   EMPTY_LINE,
   { "MAPPING ERROR FIXES", S_SKIP | S_TITLE, m_conf, CP_X},
   { "LINEDEFS W/O TAGS APPLY LOCALLY", S_YESNO, m_conf, CP_X, dsda_config_comperr_zerotag },
@@ -4616,6 +4677,58 @@ static void M_DrawCompatibility(void)
   M_DrawTitle(2, "COMPATIBILITY", cr_title); // M_COMP
   M_DrawInstructions();
   M_DrawTabs(comp_pages, sizeof(comp_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Overflows
+
+static const char *overflows_pages[] =
+{
+  "Overflows",
+  NULL
+};
+
+setup_menu_t overflows_gen_settings[];
+
+setup_menu_t* overflows_settings[] =
+{
+  overflows_gen_settings,
+  NULL
+};
+
+setup_menu_t overflows_gen_settings[] = {
+  { "WARN ON SPECHITS OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_spechit_warn, LR_ON },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_spechit_emulate, LR_ON },
+  { "WARN ON REJECT OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_reject_warn, LR_ON },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_reject_emulate, LR_ON },
+  { "WARN ON INTERCEPTS OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_intercept_warn, LR_ON },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_intercept_emulate, LR_ON },
+  { "WARN ON PLAYERINGAME OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_playeringame_warn, LR_ON },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_playeringame_emulate, LR_ON },
+  { "WARN ON DONUT OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_donut_warn, LR_ON },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_donut_emulate, LR_ON },
+  { "WARN ON MISSEDBACKSIDE OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_missedbackside_warn, LR_ON },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_missedbackside_emulate, LR_ON },
+
+  FINAL_ENTRY
+};
+
+static void M_Sub_Overflows(int choice)
+{
+  M_EnterSubSetup(&OverflowsDef, &sub_overflows_active, overflows_settings[0]);
+}
+
+static void M_Sub_DrawOverflows(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "COMPATIBILITY", cr_title); // M_COMP
+  M_DrawInstructions();
+  M_DrawTabs(overflows_pages, sizeof(overflows_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -5912,9 +6025,11 @@ void M_LeaveSetupMenu(void)
   sub_advanced_audio_active = false;
   sub_colored_blood_active = false;
   sub_trans_active = false;
+  sub_statbar_color_active = false;
   sub_exhud_active = false;
   sub_status_widget_active = false;
   sub_crosshair_active = false;
+  sub_overflows_active = false;
 
   // special types
   colorbox_active = false;
