@@ -145,7 +145,7 @@
 #define S_PERC     0x10000000ULL
 #define S_CRBLOOD  0x20000000ULL
 #define S_STR      0x40000000ULL // need to refactor things...
-// #define S_      0x80000000ULL
+#define S_NYAN     0x80000000ULL
 // #define S_      0x000000100000000ULL
 // #define S_      0x000000200000000ULL
 // #define S_      0x000000400000000ULL
@@ -443,6 +443,7 @@ static int cr_info_highlight;
 static int cr_info_edit;
 static int cr_warning;
 static int cr_scrollbar;
+static int cr_nyan_feature;
 
 static void M_LoadTextColors(void)
 {
@@ -460,6 +461,7 @@ static void M_LoadTextColors(void)
   cr_info_edit = dsda_TextCR(dsda_tc_menu_info_edit);
   cr_warning = dsda_TextCR(dsda_tc_menu_warning);
   cr_scrollbar = dsda_TextCR(dsda_tc_menu_scrollbar);
+  cr_nyan_feature = dsda_TextCR(dsda_tc_menu_nyan_feature);
 }
 
 static const dsda_font_t *menu_font;
@@ -1997,6 +1999,69 @@ static int choice_value;
 //
 //
 
+static dboolean M_ItemNyan(const setup_menu_t* s)
+{
+  if (dsda_IntConfig(nyan_config_highlight_nyan_features))
+  {
+    int nyan_features[] =
+    { dsda_config_extra_level_brightness, dsda_config_quicksave_sfx, dsda_config_quit_sounds,
+      dsda_config_freelook_autoaim, dsda_config_freelook_autoaim_pct, dsda_config_deh_change_cheats,
+      dsda_config_auto_key_frame_active, nyan_config_loading_disk,
+
+      nyan_config_menu_play_demo, nyan_config_full_menu_fade, nyan_config_gradual_menu_fade,
+      nyan_config_show_endoom, nyan_config_type_endoom, nyan_config_skip_default_text,
+      nyan_config_ignore_default_map_names, nyan_config_play_random_music,
+      nyan_config_enable_animate_lumps, nyan_config_enable_widescreen_lumps,
+      dsda_config_gl_blend_animations,
+
+      dsda_config_colored_borderbox, dsda_config_fuzzmode, dsda_config_fuzzscale,
+      dsda_config_enhanced_liteamp, nyan_config_item_bonus_flash,
+
+      nyan_config_colored_blood, nyan_config_colored_blood_baron,  nyan_config_colored_blood_knight,
+      nyan_config_colored_blood_caco, nyan_config_colored_blood_spectre,
+
+      dsda_config_hud_animated_count, dsda_config_sts_blink_keys,
+      nyan_config_hud_berserk, nyan_config_hud_armoricon,
+
+      dsda_config_hudadd_secretarea, dsda_config_announce_map, dsda_config_detailed_quicksave,
+
+      dsda_config_menu_tran_filter, dsda_config_menu_tran_filter_pct,
+      dsda_config_shadow_tran_filter, dsda_config_shadow_tran_filter_pct,
+      dsda_config_tran_filter_pct,
+      dsda_config_translucent_missiles, dsda_config_translucent_powerups, dsda_config_translucent_effects,
+
+      dsda_config_stats_format, dsda_config_free_text,
+      dsda_config_ex_text_tran_filter, dsda_config_ex_text_tran_filter_pct,
+
+      nyan_config_ex_status_widget,
+      nyan_config_ex_status_armor, nyan_config_ex_status_berserk,
+      nyan_config_ex_status_areamap, nyan_config_ex_status_backpack,
+      nyan_config_ex_status_radsuit, nyan_config_ex_status_invis,
+      nyan_config_ex_status_liteamp, nyan_config_ex_status_invuln,
+
+      dsda_config_disable_horiz_autoaim, dsda_config_limit_removing,
+      dsda_config_comperr_zerotag, dsda_config_multiple_area_maps,
+
+      dsda_config_map_title_author_cycle, dsda_config_map_show_keys,
+      dsda_config_automap_linesize, dsda_config_automap_background,
+      dsda_config_automap_background_shade, dsda_config_automap_parallax,
+    };
+
+    const char* titles[] =
+    { "Customize", "Ex-Hud", "Status Widget", "Advanced",  };
+
+    for (int i = 0; (size_t)i < sizeof(nyan_features) / sizeof(nyan_features[0]); i++)
+      if(s->config_id == nyan_features[i])
+        return true;
+
+    for (int i = 0; (size_t)i < sizeof(titles) / sizeof(titles[0]); i++)
+      if(s->m_text == titles[i])
+        return true;
+  }
+
+  return false;
+}
+
 #define SOFTWARE_MODE 0
 #define OPENGL_MODE   1
 
@@ -2210,10 +2275,12 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
 static int GetItemColor(menu_flags_t flags)
 {
     return (flags & S_TITLE && flags & S_DISABLED) ? cr_title + CR_DARKEN :
+           (flags & S_NYAN && flags & S_DISABLED) ? cr_nyan_feature + CR_DARKEN :
             flags & S_DISABLED ? cr_label + CR_DARKEN :
             flags & (S_SELECT|S_TC_SEL) ? cr_label_edit :
             flags & S_HILITE ? cr_label_highlight :
             flags & (S_TITLE|S_NEXT|S_PREV) ? cr_title :
+            flags & S_NYAN ? cr_nyan_feature :
             cr_label; // killough 10/98
 }
 
@@ -2246,6 +2313,9 @@ static void M_DrawItem(const setup_menu_t* s, int y)
 
   if (M_ItemDisabled(s))
     flags |= S_DISABLED;
+
+  if (M_ItemNyan(s))
+    flags |= S_NYAN;
  
   color = GetItemColor(flags);
 
@@ -2337,6 +2407,9 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
 
   if (M_ItemDisabled(s))
     flags |= S_DISABLED;
+
+  if (M_ItemNyan(s))
+    flags |= S_NYAN;
 
   // Determine color of the text. This may or may not be used later,
   // depending on whether the item is a text string or not.
@@ -4027,6 +4100,8 @@ setup_menu_t gen_nyan_settings[] = {
   EMPTY_LINE,
   { "Animate Lumps", S_YESNO, m_conf, G2_X, nyan_config_enable_animate_lumps },
   { "Widescreen Lumps", S_YESNO, m_conf, G2_X, nyan_config_enable_widescreen_lumps },
+  EMPTY_LINE,
+  { "Highlight Nyan Features", S_YESNO | S_NYAN, m_conf, G2_X, nyan_config_highlight_nyan_features },
 
   PREV_PAGE(gen_misc_settings),
   FINAL_ENTRY

@@ -513,6 +513,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
    "nyan_enable_animate_lumps", nyan_config_enable_animate_lumps,
    CONF_BOOL(1), NULL, NOT_STRICT, N_ReloadAnimateLumps
   },
+  [nyan_config_highlight_nyan_features] = {
+    "nyan_highlight_nyan_features", nyan_config_highlight_nyan_features,
+    CONF_BOOL(0)
+  },
   [dsda_config_script_0] = {
     "dsda_script_0", dsda_config_script_0,
     CONF_STRING("")

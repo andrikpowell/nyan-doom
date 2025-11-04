@@ -90,6 +90,7 @@ typedef enum {
   nyan_config_play_random_music,
   nyan_config_enable_widescreen_lumps,
   nyan_config_enable_animate_lumps,
+  nyan_config_highlight_nyan_features,
   nyan_config_item_bonus_flash,
   nyan_config_colored_blood,
   nyan_config_colored_blood_baron,

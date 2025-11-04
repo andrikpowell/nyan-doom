@@ -438,6 +438,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_colored_blood_caco),
   MIGRATED_SETTING(nyan_config_colored_blood_spectre),
   MIGRATED_SETTING(nyan_config_loading_disk),
+  MIGRATED_SETTING(nyan_config_highlight_nyan_features),
 
   SETTING_HEADING("Extended HUD Status Widget"),
   MIGRATED_SETTING(nyan_config_ex_status_widget),
