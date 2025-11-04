@@ -1396,7 +1396,7 @@ menuitem_t SoundMenu[]=
 menu_t SoundDef =
 {
   sound_end,
-  &OptionsDef,
+  &MainDef,
   SoundMenu,
   M_DrawSound,
   80,64,
