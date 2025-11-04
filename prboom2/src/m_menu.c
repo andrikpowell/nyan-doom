@@ -143,7 +143,7 @@
 #define S_RESET_Y  0x04000000ULL
 #define S_FUNC     0x08000000ULL
 #define S_PERC     0x10000000ULL
-// #define S_      0x20000000ULL
+#define S_CRBLOOD  0x20000000ULL
 #define S_STR      0x40000000ULL // need to refactor things...
 // #define S_      0x80000000ULL
 // #define S_      0x000000100000000ULL
@@ -159,13 +159,13 @@
  * S_HASDEFPTR = the set of items whose var field points to default array
  */
 
-#define S_SHOWDESC (S_LABEL|S_TITLE|S_YESNO|S_CRITEM|S_COLOR|S_PREV|S_NEXT|S_INPUT|S_WEAP|S_NUM|S_PERC|S_FILE|S_CREDIT|S_CHOICE|S_FUNC|S_THERMO|S_NAME)
+#define S_SHOWDESC (S_LABEL|S_TITLE|S_YESNO|S_CRITEM|S_CRBLOOD|S_COLOR|S_PREV|S_NEXT|S_INPUT|S_WEAP|S_NUM|S_PERC|S_FILE|S_CREDIT|S_CHOICE|S_FUNC|S_THERMO|S_NAME)
 
-#define S_SHOWSET  (S_YESNO|S_CRITEM|S_COLOR|S_INPUT|S_WEAP|S_NUM|S_PERC|S_FILE|S_CHOICE|S_FUNC|S_THERMO|S_NAME)
+#define S_SHOWSET  (S_YESNO|S_CRITEM|S_CRBLOOD|S_COLOR|S_INPUT|S_WEAP|S_NUM|S_PERC|S_FILE|S_CHOICE|S_FUNC|S_THERMO|S_NAME)
 
 #define S_STRING (S_FILE|S_NAME)
 
-#define S_HASDEFPTR (S_STRING|S_YESNO|S_NUM|S_PERC|S_WEAP|S_COLOR|S_CRITEM|S_CHOICE)
+#define S_HASDEFPTR (S_STRING|S_YESNO|S_NUM|S_PERC|S_WEAP|S_COLOR|S_CRITEM|S_CRBLOOD|S_CHOICE)
 
 /////////////////////////////
 //
@@ -2508,6 +2508,30 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
         if (flags & S_DISABLED)
           color += CR_DARKEN;
       }
+      else if (flags & S_CRBLOOD)
+      {
+        if (value == 1)
+          color = CR_GRAY;
+        else if (value == 2)
+          color = CR_GREEN;
+        else if (value == 3)
+          color = CR_BLUE;
+        else if (value == 4)
+          color = CR_YELLOW;
+        else if (value == 5)
+          color = CR_BLACK;
+        else if (value == 6)
+          color = CR_PURPLE;
+        else if (value == 7)
+          color = CR_WHITE;
+        else if (value == 8)
+          color = CR_ORANGE;
+        else
+          color = CR_DEFAULT;
+
+        if (flags & S_DISABLED)
+          color += CR_DARKEN;
+      }
 
       if (s->selectstrings == NULL) {
         snprintf(menu_buffer, sizeof(menu_buffer), "%d", value);
@@ -2735,7 +2759,7 @@ static void M_DrawInstructions(void)
   // are changing an item or just sitting on it.
 
   if (setup_select) {
-    switch (flags & (S_INPUT | S_YESNO | S_WEAP | S_NUM | S_PERC | S_COLOR | S_CRITEM | S_FILE | S_CHOICE | S_THERMO | S_NAME)) {
+    switch (flags & (S_INPUT | S_YESNO | S_WEAP | S_NUM | S_PERC | S_COLOR | S_CRITEM | S_CRBLOOD | S_FILE | S_CHOICE | S_THERMO | S_NAME)) {
       case S_INPUT:
         M_DrawInstructionString(cr_info_edit, "Press key or button for this action");
         break;
@@ -2755,6 +2779,9 @@ static void M_DrawInstructions(void)
         M_DrawInstructionString(cr_info_edit, "Select color and press enter");
         break;
       case S_CRITEM:
+        M_DrawInstructionString(cr_info_edit, "Press left or right to choose color");
+        break;
+      case S_CRBLOOD:
         M_DrawInstructionString(cr_info_edit, "Press left or right to choose color");
         break;
       case S_FILE:
@@ -2820,6 +2847,19 @@ static const char* color_list[] = {
   "BLACK",
   "PURPLE",
   "WHITE", 
+  NULL
+};
+
+static const char* bloodcolor_list[] = {
+  "Default",
+  "Gray",
+  "Green",
+  "Blue",
+  "Yellow",
+  "Black",
+  "Purple",
+  "White",
+  "Orange",
   NULL
 };
 
