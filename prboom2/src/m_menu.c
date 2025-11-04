@@ -2246,7 +2246,15 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
 
   // Is the item a simple number?
 
-  if (flags & (S_NUM | S_PERC | S_WEAP | S_CRITEM) &&
+  if (flags & S_WEAP) // weapon number or color range
+  {
+    snprintf(menu_buffer, sizeof(menu_buffer), "%d", dsda_IntConfig(s->config_id));
+    M_BlinkingArrowRight(s);
+    M_DrawMenuString(x, y, color);
+    return;
+  }
+
+  if (flags & (S_NUM | S_PERC | S_CRITEM) &&
       !(flags & S_THERMO)) // skip thermo
   {
     // killough 10/98: We must draw differently for items being gathered.
