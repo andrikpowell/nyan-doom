@@ -189,6 +189,9 @@ static dboolean setup_select      = false; // changing an item
 static dboolean setup_gather      = false; // gathering keys for value
 static dboolean colorbox_active   = false; // color palette being shown
 
+// submenus
+static dboolean sub_trans_active = false;
+
 // Stuff for sub setup menus
 static menu_t *prev_menu;
 static menu_t *current_menu;
@@ -354,6 +357,10 @@ void M_ChangeFullScreen(void);
 void M_ChangeVideoMode(void);
 void M_ChangeUseGLSurface(void);
 void M_ChangeApplyPalette(void);
+
+// submenus
+static void M_Sub_Trans(void);
+static void M_Sub_DrawTrans(void);
 
 menu_t SkillDef;                                              // phares 5/04/98
 
@@ -1791,6 +1798,16 @@ static menu_t DisplayDef =                                           // killough
   &OptionsDef,
   Generic_Setup,
   M_DrawDisplay,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubTransDef =                                           // killough 10/98
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawTrans,
   34,5,      // skull drawn here
   0
 };
@@ -4048,20 +4065,10 @@ setup_menu_t display_nyan_settings[] = {
   { "Flashing Item Bonuses", S_YESNO, m_conf, G_X, nyan_config_item_bonus_flash },
   { "Colored Blood", S_CHOICE, m_conf, G_X, nyan_config_colored_blood, 0, colored_blood_list },
   EMPTY_LINE,
-  TITLE("Menu Translucency", G_X),
-  { "Enable Translucency", S_YESNO, m_conf, G_X, dsda_config_menu_tran_filter },
-  { "Translucency", S_PERC, m_conf, G_X, dsda_config_menu_tran_filter_pct },
-  { "Enable Extra Shadows", S_YESNO, m_conf, G_X, dsda_config_shadow_tran_filter },
-  { "Extra Shadows", S_PERC, m_conf, G_X, dsda_config_shadow_tran_filter_pct },
-  EMPTY_LINE,
-  TITLE("Boom Translucency", G_X),
+  TITLE("Translucency", G_X),
   { "Translucent Sprites", S_CHOICE, m_conf, G_X, dsda_config_translucent_sprites, 0, translucent_list },
   { "Translucent Ghosts", S_YESNO, m_conf, G_X, dsda_config_translucent_ghosts },
-  { "Translucency", S_PERC, m_conf, G_X, dsda_config_tran_filter_pct },
-  EMPTY_LINE,
-  { "Projectiles", S_YESNO, m_conf, G_X, dsda_config_translucent_missiles, 0, empty_list, EXCLUDE(dsda_config_translucent_sprites, 0) },
-  { "Powerups", S_YESNO, m_conf, G_X, dsda_config_translucent_powerups, 0, empty_list, EXCLUDE(dsda_config_translucent_sprites, 0) },
-  { "Effects", S_YESNO, m_conf, G_X, dsda_config_translucent_effects, 0, empty_list, EXCLUDE(dsda_config_translucent_sprites, 0) },
+  FUNCTION("Advanced", S_CENTER, G_X, M_Sub_Trans),
 
   PREV_PAGE(display_options_settings),
   NEXT_PAGE(display_statbar_settings),
@@ -4197,6 +4204,60 @@ static void M_DrawDisplay(void)
   M_DrawTitle(2, "DISPLAY", cr_title); // M_DSPLAY
   M_DrawInstructions();
   M_DrawTabs(display_pages, sizeof(display_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Translucency
+
+static const char *trans_pages[] =
+{
+  "Translucency Options",
+  NULL
+};
+
+setup_menu_t trans_gen_settings[];
+
+setup_menu_t* trans_settings[] =
+{
+  trans_gen_settings,
+  NULL
+};
+
+setup_menu_t trans_gen_settings[] = {
+  TITLE("UI and Menus", G_X),
+  { "Enable Translucency", S_YESNO, m_conf, G_X, dsda_config_menu_tran_filter },
+  { "Percentage", S_PERC, m_conf, G_X, dsda_config_menu_tran_filter_pct, 0, empty_list, DEPEND(dsda_config_menu_tran_filter, true) },
+  { "Enable Text Shadows", S_YESNO, m_conf, G_X, dsda_config_shadow_tran_filter },
+  { "Percentage", S_PERC, m_conf, G_X, dsda_config_shadow_tran_filter_pct, 0, empty_list, DEPEND(dsda_config_shadow_tran_filter, true) },
+  EMPTY_LINE,
+  TITLE("Boom Translucency", G_X),
+  { "Translucent Sprites", S_CHOICE, m_conf, G_X, dsda_config_translucent_sprites, 0, translucent_list },
+  { "Translucent Ghosts", S_YESNO, m_conf, G_X, dsda_config_translucent_ghosts },
+  { "Percentage", S_PERC, m_conf, G_X, dsda_config_tran_filter_pct },
+  EMPTY_LINE,
+  { "Projectiles", S_YESNO, m_conf, G_X, dsda_config_translucent_missiles, 0, empty_list, EXCLUDE(dsda_config_translucent_sprites, 0) },
+  { "Powerups", S_YESNO, m_conf, G_X, dsda_config_translucent_powerups, 0, empty_list, EXCLUDE(dsda_config_translucent_sprites, 0) },
+  { "Effects", S_YESNO, m_conf, G_X, dsda_config_translucent_effects, 0, empty_list, EXCLUDE(dsda_config_translucent_sprites, 0) },
+
+  FINAL_ENTRY
+};
+
+static void M_Sub_Trans(void)
+{
+  M_EnterSubSetup(&SubTransDef, &sub_trans_active, trans_settings[0]);
+}
+
+static void M_Sub_DrawTrans(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "DISPLAY", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(trans_pages, sizeof(trans_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -5570,6 +5631,9 @@ void M_LeaveSetupMenu(void)
   set_skill_builder_active = false;
   set_weapon_active = false;
   set_auto_active = false;
+
+  // submenus
+  sub_trans_active = false;
 
   // special types
   colorbox_active = false;
