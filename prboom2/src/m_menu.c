@@ -5820,7 +5820,10 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
   {
     if (action == MENU_ENTER) {
       if (M_ItemDisabled(ptr1))
+      {
+        S_StartVoidSound(g_sfx_oof);
         return true;
+      }
       else if (ptr1->action)
         ptr1->action();
 
@@ -6055,7 +6058,10 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
     menu_flags_t flags = ptr1->m_flags;
 
     if (M_ItemDisabled(ptr1))
+    {
+      S_StartVoidSound(g_sfx_oof);
       return true;
+    }
 
     // You've selected an item to change. Highlight it, post a new
     // message about what to do, and get ready to process the
