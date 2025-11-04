@@ -2262,7 +2262,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
       else
         snprintf(menu_buffer, sizeof(menu_buffer), "%d", value);
 
-      if (flags & S_CRITEM)
+      if (flags & S_CRITEM && !(flags & S_CHOICE))
       {
         color = value;
         if (flags & S_DISABLED)
@@ -2501,6 +2501,13 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
         value = choice_value;
       else
         value = dsda_IntConfig(s->config_id);
+
+      if (flags & S_CRITEM)
+      {
+        color = value;
+        if (flags & S_DISABLED)
+          color += CR_DARKEN;
+      }
 
       if (s->selectstrings == NULL) {
         snprintf(menu_buffer, sizeof(menu_buffer), "%d", value);
@@ -2748,7 +2755,7 @@ static void M_DrawInstructions(void)
         M_DrawInstructionString(cr_info_edit, "Select color and press enter");
         break;
       case S_CRITEM:
-        M_DrawInstructionString(cr_info_edit, "Enter value");
+        M_DrawInstructionString(cr_info_edit, "Press left or right to choose color");
         break;
       case S_FILE:
         M_DrawInstructionString(cr_info_edit, "Type/edit filename and Press ENTER");
@@ -2796,6 +2803,25 @@ static const char *empty_list[] = { NULL };
   enum { name##_count = sizeof(name) / sizeof(name[0]) }
 #define DEP(config, value)   { config, value, false }
 #define EXC(config, value)   { config, value, true }
+
+static const char* color_list[] = {
+  "Default",
+  "Brick",
+  "Tan",
+  "Gray",
+  "Green",
+  "Brown",
+  "Gold",
+  "Red",
+  "Blue",
+  "Orange",
+  "YELLOW",
+  "LIGHT BLUE",
+  "BLACK",
+  "PURPLE",
+  "WHITE", 
+  NULL
+};
 
 static void M_SaveSetupPage(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
 {
@@ -4077,8 +4103,8 @@ setup_menu_t display_crosshair_settings[] =
   { "Change Color By Player Health", S_YESNO, m_conf, HUD_X, dsda_config_hudadd_crosshair_health, CROSSHAIR_ON },
   { "Change Color On Target", S_YESNO, m_conf, HUD_X, dsda_config_hudadd_crosshair_target, CROSSHAIR_ON },
   { "Lock Crosshair On Target", S_YESNO, m_conf, HUD_X, dsda_config_hudadd_crosshair_lock_target, CROSSHAIR_ON },
-  { "Default Color", S_CRITEM, m_conf, HUD_X, dsda_config_hudadd_crosshair_color, CROSSHAIR_ON },
-  { "Target Color", S_CRITEM, m_conf, HUD_X, dsda_config_hudadd_crosshair_target_color, CROSSHAIR_ON },
+  { "Default Color", S_CHOICE | S_CRITEM, m_conf, HUD_X, dsda_config_hudadd_crosshair_color, 0, color_list, EXCLUDE(dsda_config_hudadd_crosshair, 0) },
+  { "Target Color", S_CHOICE | S_CRITEM, m_conf, HUD_X, dsda_config_hudadd_crosshair_target_color, 0, color_list, EXCLUDE(dsda_config_hudadd_crosshair, 0) },
 
   PREV_PAGE(display_hud_settings),
   FINAL_ENTRY
@@ -5853,7 +5879,7 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
       return true;
     }
 
-    if (ptr1->m_flags & (S_NUM | S_PERC | S_CRITEM)) // number?
+    if (ptr1->m_flags & (S_NUM | S_PERC)) // number?
     {
       if (setup_gather) { // gathering keys for a value?
         /* killough 10/98: Allow negatives, and use a more
@@ -6069,7 +6095,7 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
     //
     // killough 10/98: use friendlier char-based input buffer
 
-    if (flags & (S_NUM | S_PERC | S_CRITEM))
+    if (flags & (S_NUM | S_PERC))
     {
       setup_gather = true;
       gather_count = 0;
