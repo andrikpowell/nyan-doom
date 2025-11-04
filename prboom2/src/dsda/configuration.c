@@ -82,6 +82,7 @@ typedef struct {
 #define CONF_BYTE(x) dsda_config_int, 0, 255, { x }
 #define CONF_STRING(x) dsda_config_string, 0, 0, { .v_string = x }
 #define CONF_CR(x) dsda_config_int, 0, CR_HUD_LIMIT - 1, { x }
+#define CONF_CR_BLOOD(x) dsda_config_int, 0, 8, { x }
 #define CONF_WEAPON(x) dsda_config_int, 0, 9, { x }
 
 #define NOT_STRICT 0, 0
@@ -1799,6 +1800,22 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [nyan_config_colored_blood] = {
     "nyan_colored_blood", nyan_config_colored_blood,
     dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT, deh_changeColoredBlood
+  },
+  [nyan_config_colored_blood_baron] = {
+    "nyan_colored_blood_baron", nyan_config_colored_blood_baron,
+    CONF_CR_BLOOD(2), NULL, NOT_STRICT, deh_changeColoredBlood
+  },
+  [nyan_config_colored_blood_knight] = {
+    "nyan_colored_blood_knight", nyan_config_colored_blood_knight,
+    CONF_CR_BLOOD(2), NULL, NOT_STRICT, deh_changeColoredBlood
+  },
+  [nyan_config_colored_blood_caco] = {
+    "nyan_colored_blood_caco", nyan_config_colored_blood_caco,
+    CONF_CR_BLOOD(3), NULL, NOT_STRICT, deh_changeColoredBlood
+  },
+  [nyan_config_colored_blood_spectre] = {
+    "nyan_colored_blood_spectre", nyan_config_colored_blood_spectre,
+    CONF_CR_BLOOD(3), NULL, NOT_STRICT, deh_changeColoredBlood
   },
   [nyan_config_loading_disk] = {
     "nyan_loading_disk", nyan_config_loading_disk,

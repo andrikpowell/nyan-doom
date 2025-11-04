@@ -1715,6 +1715,7 @@ int init_blood_check;
 int do_baron_blood;
 int do_knight_blood;
 int do_caco_blood;
+int do_spectre_blood;
 
 static void deh_InitColoredBlood(void)
 {
@@ -1722,6 +1723,7 @@ static void deh_InitColoredBlood(void)
   #define baron mobjinfo[MT_BRUISER]
   #define knight mobjinfo[MT_KNIGHT]
   #define caco mobjinfo[MT_HEAD]
+  #define spectre mobjinfo[MT_SHADOWS]
 
   int edited_baron = !(
       (baron.doomednum == 3003) &&
@@ -1750,9 +1752,17 @@ static void deh_InitColoredBlood(void)
       (!edited_mobjinfo_bits[MT_HEAD])
       );
 
+  int edited_spectre = !(
+      (spectre.doomednum == 58) &&
+      (spectre.radius == 30*FRACUNIT) &&
+      (spectre.height == 56*FRACUNIT) &&
+      (!edited_mobjinfo_bits[MT_SHADOWS])
+      );
+
   do_baron_blood = (baron.bloodcolor == V_BloodColor(0)) ? (edited_baron ? 2 : 1) : 0;
   do_knight_blood = (knight.bloodcolor == V_BloodColor(0)) ? (edited_knight ? 2 : 1) : 0;
   do_caco_blood = (caco.bloodcolor == V_BloodColor(0)) ? (edited_caco ? 2 : 1) : 0;
+  do_spectre_blood = (spectre.bloodcolor == V_BloodColor(0)) ? (edited_spectre ? 2 : 1) : 0;
 
   init_blood_check = true;
 }
@@ -1761,10 +1771,18 @@ void deh_changeColoredBlood(void)
 {
   extern byte* edited_mobjinfo_bits;
   int nyan_blood_color;
+  int baron_blood_color;
+  int knight_blood_color;
+  int caco_blood_color;
+  int spectre_blood_color;
 
   if (raven) return;
 
   nyan_blood_color = dsda_IntConfig(nyan_config_colored_blood);
+  baron_blood_color = dsda_IntConfig(nyan_config_colored_blood_baron);
+  knight_blood_color = dsda_IntConfig(nyan_config_colored_blood_knight);
+  caco_blood_color = dsda_IntConfig(nyan_config_colored_blood_caco);
+  spectre_blood_color = dsda_IntConfig(nyan_config_colored_blood_spectre);
 
   if (!init_blood_check)
     deh_InitColoredBlood();
@@ -1772,7 +1790,7 @@ void deh_changeColoredBlood(void)
   if (do_baron_blood > 0)
   {
     if ((nyan_blood_color==1 && do_baron_blood==1) || nyan_blood_color==2)
-      mobjinfo[MT_BRUISER].bloodcolor = nyan_blood_color ? V_BloodColor(2) : 0;
+      mobjinfo[MT_BRUISER].bloodcolor = (nyan_blood_color > 0) ? V_BloodColor(baron_blood_color) : 0;
     else
       mobjinfo[MT_BRUISER].bloodcolor = 0;
   }
@@ -1780,7 +1798,7 @@ void deh_changeColoredBlood(void)
   if (do_knight_blood > 0)
   {
     if ((nyan_blood_color==1 && do_knight_blood==1) || nyan_blood_color==2)
-      mobjinfo[MT_KNIGHT].bloodcolor = (nyan_blood_color > 0) ? V_BloodColor(2) : 0;
+      mobjinfo[MT_KNIGHT].bloodcolor = (nyan_blood_color > 0) ? V_BloodColor(knight_blood_color) : 0;
     else
       mobjinfo[MT_KNIGHT].bloodcolor = 0;
   }
@@ -1788,9 +1806,17 @@ void deh_changeColoredBlood(void)
   if (do_caco_blood > 0)
   {
     if ((nyan_blood_color==1 && do_caco_blood==1) || nyan_blood_color==2)
-      mobjinfo[MT_HEAD].bloodcolor = (nyan_blood_color >= 0) ? V_BloodColor(3) : 0;
+      mobjinfo[MT_HEAD].bloodcolor = (nyan_blood_color > 0) ? V_BloodColor(caco_blood_color) : 0;
     else
       mobjinfo[MT_HEAD].bloodcolor = 0;
+  }
+
+  if (do_spectre_blood > 0)
+  {
+    if ((nyan_blood_color==1 && do_spectre_blood==1) || nyan_blood_color==2)
+      mobjinfo[MT_SHADOWS].bloodcolor = (nyan_blood_color > 0) ? V_BloodColor(spectre_blood_color) : 0;
+    else
+      mobjinfo[MT_SHADOWS].bloodcolor = 0;
   }
 }
 

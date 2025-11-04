@@ -190,6 +190,7 @@ static dboolean setup_gather      = false; // gathering keys for value
 static dboolean colorbox_active   = false; // color palette being shown
 
 // submenus
+static dboolean sub_colored_blood_active = false;
 static dboolean sub_trans_active = false;
 
 // Stuff for sub setup menus
@@ -359,7 +360,10 @@ void M_ChangeUseGLSurface(void);
 void M_ChangeApplyPalette(void);
 
 // submenus
+static void M_Sub_ColoredBlood(void);
 static void M_Sub_Trans(void);
+
+static void M_Sub_DrawColoredBlood(void);
 static void M_Sub_DrawTrans(void);
 
 menu_t SkillDef;                                              // phares 5/04/98
@@ -1802,6 +1806,16 @@ static menu_t DisplayDef =                                           // killough
   0
 };
 
+static menu_t SubColoredBloodDef =                                           // killough 10/98
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawColoredBlood,
+  34,5,      // skull drawn here
+  0
+};
+
 static menu_t SubTransDef =                                           // killough 10/98
 {
   generic_setup_end,
@@ -2857,6 +2871,7 @@ static const char *empty_list[] = { NULL };
 #define DEPEND(config, value)     (const setup_menu_dependent_t[]){{ config, value, false }}, 1
 #define EXCLUDE(config, value)    (const setup_menu_dependent_t[]){{ config, value, true }}, 1
 #define DEPEND_MULTI(listname) listname, listname##_count
+#define FUNC_DEPEND_MULTI(action_name, flags, offset_x, action_func, listname) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, 0, 0, empty_list, DEPEND_MULTI(listname), .action = action_func }
 #define TITLE_DEPEND(page_name, offset_x, config, value) { page_name, S_SKIP | S_TITLE, m_null, offset_x, 0, 0, empty_list, DEPEND(config, value)}
 #define DEPEND_SW                 0, empty_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE)
 #define DEPEND_GL                 0, empty_list, DEPEND(dsda_config_videomode, OPENGL_MODE)
@@ -4057,13 +4072,19 @@ static const char* fuzz_scale_list[] = { "Vanilla", "3/4", "1/2", NULL };
 static const char* colored_blood_list[] = { "OFF", "ON", "FORCED", NULL };
 static const char* translucent_list[] = { "Off", "Default", "w/ Vanilla", NULL };
 
+DEPEND_LIST(colored_blood_depend_list,
+  EXC(nyan_config_colored_blood, false),
+);
+
 setup_menu_t display_nyan_settings[] = {
   { "Colored Borderbox", S_YESNO, m_conf, G_X, dsda_config_colored_borderbox },
   { "Software Fuzz Mode", S_CHOICE, m_conf, G_X, dsda_config_fuzzmode, 0, fuzz_mode_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
   { "Fuzz Scale at Distance", S_CHOICE, m_conf, G_X, dsda_config_fuzzscale, 0, fuzz_scale_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
   { "Enhanced Lite Amp Effect", S_YESNO, m_conf, G_X, dsda_config_enhanced_liteamp },
   { "Flashing Item Bonuses", S_YESNO, m_conf, G_X, nyan_config_item_bonus_flash },
+  EMPTY_LINE,
   { "Colored Blood", S_CHOICE, m_conf, G_X, nyan_config_colored_blood, 0, colored_blood_list },
+  FUNC_DEPEND_MULTI("Customize", S_CENTER, G_X, M_Sub_ColoredBlood, colored_blood_depend_list),
   EMPTY_LINE,
   TITLE("Translucency", G_X),
   { "Translucent Sprites", S_CHOICE, m_conf, G_X, dsda_config_translucent_sprites, 0, translucent_list },
@@ -4204,6 +4225,49 @@ static void M_DrawDisplay(void)
   M_DrawTitle(2, "DISPLAY", cr_title); // M_DSPLAY
   M_DrawInstructions();
   M_DrawTabs(display_pages, sizeof(display_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Colored Blood
+
+static const char *colored_blood_pages[] =
+{
+  "Colored Blood",
+  NULL
+};
+
+setup_menu_t colored_blood_gen_settings[];
+
+setup_menu_t* colored_blood_settings[] =
+{
+  colored_blood_gen_settings,
+  NULL
+};
+
+setup_menu_t colored_blood_gen_settings[] = {
+  { "Baron of Hell", S_CHOICE | S_CRBLOOD, m_conf, G_X, nyan_config_colored_blood_baron, 0, bloodcolor_list },
+  { "Hell Knight", S_CHOICE | S_CRBLOOD, m_conf, G_X, nyan_config_colored_blood_knight, 0, bloodcolor_list },
+  { "Cacodemon", S_CHOICE | S_CRBLOOD, m_conf, G_X, nyan_config_colored_blood_caco, 0, bloodcolor_list },
+  { "Spectre", S_CHOICE | S_CRBLOOD, m_conf, G_X, nyan_config_colored_blood_spectre, 0, bloodcolor_list },
+  FINAL_ENTRY
+};
+
+static void M_Sub_ColoredBlood(void)
+{
+  M_EnterSubSetup(&SubColoredBloodDef, &sub_colored_blood_active, colored_blood_settings[0]);
+}
+
+static void M_Sub_DrawColoredBlood(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "DISPLAY", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(colored_blood_pages, sizeof(colored_blood_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -5633,6 +5697,7 @@ void M_LeaveSetupMenu(void)
   set_auto_active = false;
 
   // submenus
+  sub_colored_blood_active = false;
   sub_trans_active = false;
 
   // special types
