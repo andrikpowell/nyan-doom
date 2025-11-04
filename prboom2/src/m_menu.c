@@ -175,6 +175,7 @@
 // displayed
 
 static dboolean setup_active      = false; // in one of the setup screens
+static dboolean setup_active_secondary = false;
 static dboolean set_general_active = false;
 static dboolean set_keybnd_active = false; // in key binding setup screens
 static dboolean set_display_active = false;
@@ -188,6 +189,15 @@ static dboolean setup_select      = false; // changing an item
 static dboolean setup_gather      = false; // gathering keys for value
 static dboolean colorbox_active   = false; // color palette being shown
 
+// Stuff for sub setup menus
+static menu_t *prev_menu;
+static menu_t *current_menu;
+static dboolean *prev_setup_flag;
+static dboolean *current_setup_flag;
+static setup_menu_t *prev_setup_menu;
+static setup_menu_t *current_setup_menu;
+static int prev_setup_page;
+static int prev_setup_item;
 
 extern const char* g_menu_flat;
 extern int g_menu_save_page_size;
@@ -2787,7 +2797,18 @@ static const char *empty_list[] = { NULL };
 #define DEP(config, value)   { config, value, false }
 #define EXC(config, value)   { config, value, true }
 
-static void M_EnterSetup(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
+static void M_SaveSetupPage(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
+{
+  prev_menu = current_menu;
+  prev_setup_flag = current_setup_flag;
+  prev_setup_menu = current_setup_menu;
+
+  current_menu = menu;
+  current_setup_flag = setup_flag;
+  current_setup_menu = setup_menu;
+}
+
+static void M_EnterSetupMenu(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
 {
   M_SetupNextMenu(menu);
 
@@ -2797,7 +2818,26 @@ static void M_EnterSetup(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup
   colorbox_active = false;
   setup_gather = false;
 
+  M_SaveSetupPage(menu, setup_flag, setup_menu);
   M_UpdateSetupMenu(setup_menu);
+}
+
+static void M_EnterSetup(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
+{
+  // Enter Setup Menu
+  M_EnterSetupMenu(menu, setup_flag, setup_menu);
+  setup_active_secondary = false;
+}
+
+static void M_EnterSubSetup(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
+{
+  // Set last setup item info
+  M_SetSetupMenuItemOn(set_menu_itemon);
+  prev_setup_item = set_menu_itemon;
+
+  // Enter SubSetup Menu
+  M_EnterSetupMenu(menu, setup_flag, setup_menu);
+  setup_active_secondary = true;
 }
 
 /////////////////////////////
@@ -5390,10 +5430,41 @@ dboolean M_ConsoleOpen(void)
   return menuactive && currentMenu == &dsda_ConsoleDef;
 }
 
+static dboolean MenuBack(void)
+{
+    M_LeaveSetupMenu();
+
+    if (!currentMenu->prevMenu)
+    {
+        return false;
+    }
+
+    M_ChangeMenu(currentMenu->prevMenu, mnact_nochange);
+    itemOn = currentMenu->lastOn;
+    return true;
+}
+
+void M_Back(void)
+{
+    MenuBack();
+}
+
+void M_BackSecondary(void)
+{
+    if (MenuBack())
+    {
+        M_EnterSetup(prev_menu, prev_setup_flag, prev_setup_menu);
+        M_SetSetupMenuItemOn(prev_setup_item);
+        current_page = prev_setup_page;
+    }
+}
+
 void M_LeaveSetupMenu(void)
 {
   M_SetSetupMenuItemOn(set_menu_itemon);
   setup_active = false;
+
+  // menus
   set_general_active = false;
   set_keybnd_active = false;
   set_demos_active = false;
@@ -5402,6 +5473,8 @@ void M_LeaveSetupMenu(void)
   set_skill_builder_active = false;
   set_weapon_active = false;
   set_auto_active = false;
+
+  // special types
   colorbox_active = false;
   level_table_active = false;
 }
@@ -5748,11 +5821,10 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
     if (action == MENU_ENTER) {
       if (M_ItemDisabled(ptr1))
         return true;
-
-      if (ptr1->action)
+      else if (ptr1->action)
         ptr1->action();
 
-      M_SelectDone(ptr1);
+      S_StartVoidSound(g_sfx_pistol);
       return true;
     }
   }
@@ -6035,16 +6107,21 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
 
   if ((action == MENU_ESCAPE) || (action == MENU_BACKSPACE))
   {
-    M_LeaveSetupMenu();
     if (action == MENU_ESCAPE) // Clear all menus
+    {
+      M_LeaveSetupMenu();
       M_ClearMenus();
+    }
     else // MENU_BACKSPACE = return to Setup Menu
+    {
       if (currentMenu->prevMenu)
       {
-        M_ChangeMenu(currentMenu->prevMenu, mnact_nochange);
-        itemOn = currentMenu->lastOn;
-        S_StartVoidSound(g_sfx_swtchn);
+        if (setup_active_secondary)
+          M_BackSecondary();
+        else
+          M_Back();
       }
+    }
     ptr1->m_flags &= ~(S_HILITE|S_SELECT);// phares 4/19/98
     S_StartVoidSound(g_sfx_swtchx);
     return true;
@@ -7212,6 +7289,10 @@ void M_SetupNextMenu(menu_t *menudef)
 {
   M_ChangeMenu(menudef, mnact_nochange);
   itemOn = currentMenu->lastOn;
+
+  // Save last currentpage
+  if (!setup_active_secondary)
+    prev_setup_page = current_page;
 
   current_page = 0;
   previous_page = 0;
