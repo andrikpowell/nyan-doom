@@ -2153,6 +2153,8 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
       dsda_config_overrun_reject_warn,           dsda_config_overrun_reject_emulate,
       dsda_config_overrun_intercept_warn,        dsda_config_overrun_intercept_emulate,
       dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
+      dsda_config_overrun_playeringame_warn,     dsda_config_overrun_playeringame_emulate,
+      dsda_config_overrun_missedbackside_warn,   dsda_config_overrun_missedbackside_emulate,
     };
 
     for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
@@ -3545,6 +3547,7 @@ setup_menu_t weap_pref_settings[] =  // Weapons Settings screen
   TITLE("Gameplay", WP_X),
   { "Boom Weapon Auto Switch", S_YESNO, m_conf, WP_X, dsda_config_switch_when_ammo_runs_out },
   { "Auto Switch Weapon on Pickup", S_YESNO, m_conf, WP_X, dsda_config_switch_weapon_on_pickup },
+  { "Disable Horizontal Autoaim", S_YESNO, m_conf, WP_X, dsda_config_disable_horiz_autoaim },
   EMPTY_LINE,
   TITLE("Cosmetic", WP_X),
   { "View Bob", S_THERMO | S_PERC, m_conf, WP1_X, dsda_config_viewbob },
@@ -4710,7 +4713,6 @@ setup_menu_t comp_options_settings[] = {
   EMPTY_LINE,
   { "Always Pistol Start", S_YESNO, m_conf, G2_X, dsda_config_always_pistol_start },
   { "Allow Jumping", S_YESNO, m_conf, G2_X, dsda_config_allow_jumping },
-  { "Disable Horizontal Autoaim", S_YESNO, m_conf, G2_X, dsda_config_disable_horiz_autoaim },
 
   NEXT_PAGE(comp_emulation_settings),
   FINAL_ENTRY
