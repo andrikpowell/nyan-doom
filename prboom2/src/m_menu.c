@@ -3328,6 +3328,7 @@ static void M_DrawKeybnd(void)
 // The Weapon Screen tables.
 
 #define WP_X 223
+#define WP1_X 150
 
 static const char *weapon_attack_alignment_strings[] = {
   "OFF", "HORIZONTAL", "CENTERED", "BOBBING", NULL
@@ -3342,16 +3343,35 @@ static const char *weapon_attack_alignment_strings[] = {
 
 static const char *weap_pages[] =
 {
+  "Prefs",
   "Priority",
   NULL
 };
 
-setup_menu_t weap_priority_settings[];
+setup_menu_t weap_pref_settings[], weap_priority_settings[];
 
 setup_menu_t* weap_settings[] =
 {
+  weap_pref_settings,
   weap_priority_settings,
   NULL
+};
+
+setup_menu_t weap_pref_settings[] =  // Weapons Settings screen
+{
+  TITLE("Gameplay", WP_X),
+  { "Boom Weapon Auto Switch", S_YESNO, m_conf, WP_X, dsda_config_switch_when_ammo_runs_out },
+  { "Auto Switch Weapon on Pickup", S_YESNO, m_conf, WP_X, dsda_config_switch_weapon_on_pickup },
+  EMPTY_LINE,
+  TITLE("Cosmetic", WP_X),
+  { "View Bob", S_THERMO | S_PERC, m_conf, WP1_X, dsda_config_viewbob },
+  { "Weapon Bob", S_THERMO | S_PERC, m_conf, WP1_X, dsda_config_weaponbob },
+  EMPTY_LINE,
+  { "Weapon Attack Alignment", S_CHOICE, m_conf, WP_X, dsda_config_weapon_attack_alignment, 0, weapon_attack_alignment_strings },
+  { "Hide Weapon", S_YESNO, m_conf, WP_X, dsda_config_hide_weapon },
+
+  NEXT_PAGE(weap_priority_settings),
+  FINAL_ENTRY
 };
 
 setup_menu_t weap_priority_settings[] =  // Weapons Settings screen
@@ -3366,6 +3386,7 @@ setup_menu_t weap_priority_settings[] =  // Weapons Settings screen
   { "8th CHOICE WEAPON", S_WEAP, m_conf, WP_X, dsda_config_weapon_choice_8 },
   { "9th CHOICE WEAPON", S_WEAP, m_conf, WP_X, dsda_config_weapon_choice_9 },
 
+  PREV_PAGE(weap_pref_settings),
   FINAL_ENTRY
 };
 
@@ -3737,15 +3758,6 @@ static const char *render_aspects_list[] = { "auto", "16:9", "16:10", "4:3", "5:
 
 // static const char* render_stretch_list[] = { "Not Adjusted", "Doom Format", "Fit to Width", NULL };
 
-static const char* fake_contrast_list[] =
-{
-  [FAKE_CONTRAST_MODE_OFF] = "Off",
-  [FAKE_CONTRAST_MODE_ON] = "Normal",
-  [FAKE_CONTRAST_MODE_SMOOTH] = "Smooth",
-  NULL
-};
-
-static const char *gl_fade_mode_list[] = { "Normal", "Smooth", NULL };
 
 setup_menu_t gen_video_settings[] = {
   { "Video mode", S_CHOICE | S_STR, m_conf, G_X, dsda_config_videomode, 0, videomodes },
@@ -3760,9 +3772,6 @@ setup_menu_t gen_video_settings[] = {
   { "FPS Limit", S_NUM, m_conf, G_X, dsda_config_fps_limit },
   { "Background FPS Limit", S_NUM, m_conf, G_X, dsda_config_background_fps_limit },
   { "Show FPS", S_YESNO,  m_conf, G_X, dsda_config_show_fps },
-  EMPTY_LINE,
-  { "Fake Contrast", S_CHOICE, m_conf, G_X, dsda_config_fake_contrast_mode, 0, fake_contrast_list },
-  { "GL Light Fade", S_CHOICE, m_conf, G_X, dsda_config_gl_fade_mode, 0, gl_fade_mode_list, DEPEND(dsda_config_videomode, OPENGL_MODE) },
   EMPTY_LINE,
   { "Extra Lighting", S_THERMO, m_conf, G_X, dsda_config_extra_level_brightness },
 
@@ -3878,8 +3887,6 @@ static const char* loading_disk_list[] = { "Off", "disk", "cd-rom", NULL };
 
 setup_menu_t gen_misc_settings[] = {
   { "Death Use Action", S_CHOICE, m_conf, G2_X, dsda_config_death_use_action, 0, death_use_strings },
-  { "Boom Weapon Auto Switch", S_YESNO, m_conf, G2_X, dsda_config_switch_when_ammo_runs_out },
-  { "Auto Switch Weapon on Pickup", S_YESNO, m_conf, G2_X, dsda_config_switch_weapon_on_pickup },
   { "Enable Cheat Code Entry", S_YESNO, m_conf, G2_X, dsda_config_cheat_codes },
   { "Use Dehacked Cheats", S_YESNO, m_conf, G2_X, dsda_config_deh_change_cheats },
   EMPTY_LINE,
@@ -3890,7 +3897,6 @@ setup_menu_t gen_misc_settings[] = {
   EMPTY_LINE,
   { "Autosave On Level Start", S_YESNO, m_conf, G2_X, dsda_config_auto_save },
   { "Organize My Save Files", S_YESNO, m_conf, G2_X, dsda_config_organized_saves },
-  { "Detailed Quicksave Msg", S_YESNO, m_conf, G2_X, dsda_config_detailed_quicksave },
   { "Data Access Icon", S_CHOICE, m_conf, G2_X, nyan_config_loading_disk, 0, loading_disk_list },
   { "Skip Quit Prompt", S_YESNO, m_conf, G2_X, dsda_config_skip_quit_prompt },
 
@@ -3998,18 +4004,24 @@ setup_menu_t* display_settings[] =
 
 #define D_X 226
 
+static const char* fake_contrast_list[] =
+{
+  [FAKE_CONTRAST_MODE_OFF] = "Off",
+  [FAKE_CONTRAST_MODE_ON] = "Normal",
+  [FAKE_CONTRAST_MODE_SMOOTH] = "Smooth",
+  NULL
+};
+
+static const char *gl_fade_mode_list[] = { "Normal", "Smooth", NULL };
 static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
-static const char* viewbob_list[] = { "Off", "25%", "50%", "75%", "100%", NULL };
-static const char* weaponbob_list[] = { "Off", "25%", "50%", "75%", "100%", NULL };
 
 setup_menu_t display_options_settings[] = {
-  { "Hide Weapon", S_YESNO, m_conf, G_X, dsda_config_hide_weapon },
   { "Wipe Screen Effect", S_YESNO,  m_conf, G_X, dsda_config_render_wipescreen },
-  { "View Bobbing", S_CHOICE, m_conf, G_X, dsda_config_viewbob, 0, viewbob_list },
-  { "Weapon Bobbing", S_CHOICE, m_conf, G_X, dsda_config_weaponbob, 0, weaponbob_list },
-  { "Weapon Attack Alignment", S_CHOICE, m_conf, G_X, dsda_config_weapon_attack_alignment, 0, weapon_attack_alignment_strings },
   { "Linear Sky Scrolling", S_YESNO, m_conf, G_X, dsda_config_render_linearsky, DEPEND_SW },
   { "Quake Intensity", S_NUM, m_conf, G_X, dsda_config_quake_intensity },
+  { "Fake Contrast", S_CHOICE, m_conf, G_X, dsda_config_fake_contrast_mode, 0, fake_contrast_list },
+  EMPTY_LINE,
+  { "GL Light Fade", S_CHOICE, m_conf, G_X, dsda_config_gl_fade_mode, 0, gl_fade_mode_list, DEPEND(dsda_config_videomode, OPENGL_MODE) },
   { "GL Health Bars", S_YESNO, m_conf, G_X, dsda_config_gl_health_bar, DEPEND_GL },
   { "GL Blend Animations", S_YESNO, m_conf, G_X, dsda_config_gl_blend_animations, DEPEND_GL },
   EMPTY_LINE,
@@ -4154,6 +4166,7 @@ setup_menu_t display_crosshair_settings[] =
   { "Show Messages", S_YESNO, m_conf, HUD_X, dsda_config_show_messages },
   { "Report Revealed Secrets", S_CHOICE, m_conf, HUD_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
   { "Announce Map On Entry", S_CHOICE, m_conf, HUD_X, dsda_config_announce_map, 0, announce_map_list },
+  { "Detailed Quicksave Msg", S_YESNO, m_conf, G_X, dsda_config_detailed_quicksave },
   EMPTY_LINE,
   TITLE("Crosshair Settings", HUD_X),
   { "Enable Crosshair", S_CHOICE, m_conf, HUD_X, dsda_config_hudadd_crosshair, 0, crosshair_str },
