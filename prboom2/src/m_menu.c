@@ -4658,6 +4658,7 @@ setup_menu_t comp_emulation_settings[] = {
   { "USE PASSES THRU ALL SPECIAL LINES", S_YESNO, m_conf, CP_X, dsda_config_comperr_passuse },
   { "WALK UNDER SOLID HANGING BODIES", S_YESNO, m_conf, CP_X, dsda_config_comperr_hangsolid },
   { "FIX CLIPPING IN LARGE LEVELS", S_YESNO, m_conf, CP_X, dsda_config_comperr_blockmap },
+  { "Pickup Multiple Areamaps", S_YESNO, m_conf, CP_X, dsda_config_multiple_area_maps },
 
   PREV_PAGE(comp_options_settings),
   FINAL_ENTRY
