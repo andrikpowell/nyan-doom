@@ -34,6 +34,7 @@ typedef struct {
 
 extern dsda_font_t hud_font;
 extern dsda_font_t exhud_font;
+extern dsda_font_t yellow_hud_font;
 
 void dsda_InitFont(void);
 

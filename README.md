@@ -85,7 +85,7 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
 - Heretic game logic should be set automatically if you use `HERETIC.WAD` as the iwad. If it doesn't work, please use the `-heretic` commandline option. This flips a switch in the engine that determines all the core game data.
 - Don't need to supply complevel (heretic is complevel 0 by necessity)
 - Known issues
-  - Setting the "Status Bar and Menu Appearance" option to "not adjusted" will have no effect for heretic (it will default instead to "Doom format").
+  - Setting the "Status Bar and Menu Appearance" option to "not adjusted" may look incorrect in heretic.
   - The "Apply multisampling" automap option is disabled for heretic.
   - Some of the more advanced features are not implemented for heretic yet, and using them may cause crashes or other odd behaviour.
   - Dehacked support for heretic isn't implemented yet.
@@ -104,12 +104,11 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
   - You can force hexen engine behaviour with `-hexen` (shouldn't be necessary)
 - Don't need to supply complevel (hexen is complevel 0 by necessity)
 - Known issues
-  - Setting the "Status Bar and Menu Appearance" option to "not adjusted" will have no effect for hexen (it will default instead to "Doom format")
+  - Setting the "Status Bar and Menu Appearance" option to "not adjusted" may look incorrect in hexen.
   - The "Apply multisampling" automap option is disabled for hexen
   - Some of the more advanced features are not implemented for hexen yet, and using them may cause crashes or other odd behaviour.
   - Some menus extend over the hud.
   - Monster counter doesn't work as expected, due to cluster format (ex hud / levelstat)
-  - The yellow message variant isn't implemented
  
 </details>
 

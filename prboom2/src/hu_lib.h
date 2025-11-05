@@ -52,6 +52,7 @@ typedef struct
   int   y;
 
   const patchnum_t* f;                    // font
+  const patchnum_t* fy;                   // hexen - yellow font
   int   sc;                             // start character
   //const char *cr;                       //jff 2/16/52 output color range
   // Proff - Made this an int again. Needed for OpenGL
@@ -92,8 +93,8 @@ void HUlib_initTextLine
 dboolean HUlib_addCharToTextLine(hu_textline_t *t, char ch);
 
 // draws tline
-void HUlib_drawTextLine(hu_textline_t *l, dboolean drawcursor, dboolean shadow);
-void HUlib_drawOffsetTextLine(hu_textline_t* l, int offset);
+void HUlib_drawTextLine(hu_textline_t *l, dboolean yellow, dboolean shadow, dboolean drawcursor);
+void HUlib_drawOffsetTextLine(hu_textline_t* l, dboolean yellow, dboolean shadow, int offset);
 
 //e6y
 void HUlib_setTextXCenter(hu_textline_t* t);

@@ -25,20 +25,23 @@ typedef struct {
 } local_component_t;
 
 static local_component_t* local;
+static dboolean yellow;
 
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
   char* dsda_PlayerMessage(void);
+  int dsda_PlayerMessageIsYellow(void);
 
   char* message;
 
   message = dsda_PlayerMessage();
+  yellow = hexen && dsda_PlayerMessageIsYellow();
 
   if (message)
     snprintf(
       str,
       max_size,
       "%s%s",
-      dsda_TextColor(dsda_tc_hud_message),
+      dsda_TextColor(yellow ? dsda_tc_hud_yellow_message : dsda_tc_hud_message),
       message
     );
   else
@@ -67,5 +70,5 @@ void dsda_UpdateMessageHC(void* data) {
 void dsda_DrawMessageHC(void* data) {
   local = data;
 
-  dsda_DrawBasicShadowedText(&local->component);
+  dsda_DrawYellowShadowedText(&local->component, yellow);
 }

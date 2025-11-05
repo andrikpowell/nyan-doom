@@ -23,12 +23,11 @@
 
 #include "messenger.h"
 
-// hexen_note: use FONTAY_S for yellow messages (new font, y_message, etc)
-
 #define MESSAGE_LIFETIME 140
 
 typedef enum {
   message_alert,
+  message_yellow,
   message_normal,
 } message_priority_t;
 
@@ -71,8 +70,17 @@ static void dsda_AppendMessage(message_t* message) {
   }
 }
 
-static void dsda_QueueMessage(const char* str, message_priority_t priority) {
+static void dsda_QueueMessage(const char* str, message_priority_t priority, dboolean first_time) {
   message_t* new_message;
+  int message_lifetime;
+
+  // Set default message duration
+  message_lifetime = MESSAGE_LIFETIME;
+  
+  // Hexen's Yellow Messages last 5 times longer than normal messages
+  if (first_time)
+    if (priority == message_yellow)
+      message_lifetime = 5*MESSAGE_LIFETIME;  // hexen_note - yellow message
 
   if (current_message) {
     if (current_message->priority < priority)
@@ -83,7 +91,7 @@ static void dsda_QueueMessage(const char* str, message_priority_t priority) {
       Z_Free(current_message->str);
 
       current_message->str = Z_Strdup(str);
-      current_message->tics = MESSAGE_LIFETIME;
+      current_message->tics = message_lifetime;
 
       return;
     }
@@ -92,32 +100,46 @@ static void dsda_QueueMessage(const char* str, message_priority_t priority) {
   new_message = Z_Calloc(1, sizeof(*new_message));
   new_message->str = Z_Strdup(str);
   new_message->priority = priority;
-  new_message->tics = MESSAGE_LIFETIME;
+  new_message->tics = message_lifetime;
 
   dsda_AppendMessage(new_message);
 }
 
 void dsda_AddPlayerAlert(const char* str, player_t* player) {
   if (player == &players[displayplayer])
-    dsda_QueueMessage(str, message_alert);
+    dsda_QueueMessage(str, message_alert, true);
 }
 
 void dsda_AddAlert(const char* str) {
-  dsda_QueueMessage(str, message_alert);
+  dsda_QueueMessage(str, message_alert, true);
+}
+
+void dsda_AddPlayerYellowMessage(const char* str, player_t* player, dboolean ultmsg) {
+  dboolean show_message = ultmsg ? true : dsda_ShowMessages();
+
+  if (show_message && player == &players[displayplayer])
+    dsda_QueueMessage(str, message_yellow, true);
+}
+
+void dsda_AddYellowMessage(const char* str, dboolean ultmsg) {
+  dboolean show_message = ultmsg ? true : dsda_ShowMessages();
+
+  if (show_message)
+    dsda_QueueMessage(str, message_yellow, true);
 }
 
 void dsda_AddPlayerMessage(const char* str, player_t* player) {
   if (dsda_ShowMessages() && player == &players[displayplayer])
-    dsda_QueueMessage(str, message_normal);
+    dsda_QueueMessage(str, message_normal, true);
 }
 
 void dsda_AddMessage(const char* str) {
   if (dsda_ShowMessages())
-    dsda_QueueMessage(str, message_normal);
+    dsda_QueueMessage(str, message_normal, true);
 }
 
 void dsda_AddUnblockableMessage(const char* str) {
-  dsda_QueueMessage(str, message_normal);
+  dsda_QueueMessage(str, message_normal, true);
 }
 
 void dsda_UpdateMessenger(void) {
@@ -143,7 +165,7 @@ void dsda_InitMessenger(void) {
 void dsda_ReplayMessage(void) {
   if (last_message) {
     dsda_ClearMessages();
-    dsda_QueueMessage(last_message->str, last_message->priority);
+    dsda_QueueMessage(last_message->str, last_message->priority, false); // all replay messages should use the default duration (ex: hexen yellow message)
   }
 }
 
@@ -152,4 +174,11 @@ char* dsda_PlayerMessage(void) {
     return NULL;
 
   return current_message->str;
+}
+
+int dsda_PlayerMessageIsYellow(void) {
+  if (!current_message || current_message->priority != message_yellow)
+    return false;
+
+  return true;
 }

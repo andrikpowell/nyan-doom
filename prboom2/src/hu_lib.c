@@ -84,6 +84,7 @@ void HUlib_initTextLine(hu_textline_t* t, int x, int y,
   t->x = x;
   t->y = y;
   t->f = f->font;
+  t->fy = yellow_hud_font.font; // Hexen - Yellow font
   t->sc = f->start;
   t->cm = cm;
   t->flags = flags;
@@ -130,8 +131,9 @@ dboolean HUlib_addCharToTextLine
 //
 void HUlib_drawTextLine
 ( hu_textline_t* l,
-  dboolean drawcursor,
-  dboolean shadow )
+  dboolean yellow,
+  dboolean shadow,
+  dboolean drawcursor )
 {
 
   int     i;
@@ -140,6 +142,9 @@ void HUlib_drawTextLine
   unsigned char c;
   int oc = l->cm; //jff 2/17/98 remember default color
   int y;          // killough 1/18/98 -- support multiple lines
+
+  // Choose which font to use (Hexen Yellow Message)
+  const patchnum_t* font = yellow ? l->fy : l->f;
 
   // draw the new stuff
 
@@ -168,15 +173,15 @@ void HUlib_drawTextLine
     }
     else  if (c != ' ' && c >= l->sc && c <= 127)
     {
-      w = l->f[c - l->sc].width;
-      if (x+w-l->f[c - l->sc].leftoffset > BASE_WIDTH)
+      w = font[c - l->sc].width;
+      if (x+w-font[c - l->sc].leftoffset > BASE_WIDTH)
         break;
       // killough 1/18/98 -- support multiple lines:
       // CPhipps - patch drawing updated
       if (shadow)
-        V_DrawMenuNumPatch(x, y, l->f[c - l->sc].lumpnum, l->cm, VPT_COLOR | l->flags);
+        V_DrawMenuNumPatch(x, y, font[c - l->sc].lumpnum, l->cm, VPT_COLOR | l->flags);
       else
-        V_DrawNumPatch(x, y, l->f[c - l->sc].lumpnum, l->cm, VPT_COLOR | l->flags);
+        V_DrawNumPatch(x, y, font[c - l->sc].lumpnum, l->cm, VPT_COLOR | l->flags);
       x += w;
     }
     else
@@ -189,24 +194,24 @@ void HUlib_drawTextLine
   l->cm = oc; //jff 2/17/98 restore original color
 
   // draw the cursor if requested
-  if (drawcursor && x + l->f['_' - l->sc].width <= BASE_WIDTH)
+  if (drawcursor && x + font['_' - l->sc].width <= BASE_WIDTH)
   {
     // killough 1/18/98 -- support multiple lines
     // CPhipps - patch drawing updated
     if (shadow)
-      V_DrawMenuNumPatch(x, y, l->f['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | l->flags);
+      V_DrawMenuNumPatch(x, y, font['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | l->flags);
     else
-      V_DrawNumPatch(x, y, l->f['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | l->flags);
+      V_DrawNumPatch(x, y, font['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | l->flags);
   }
 }
 
-void HUlib_drawOffsetTextLine(hu_textline_t* l, int offset)
+void HUlib_drawOffsetTextLine(hu_textline_t* l, dboolean yellow, dboolean shadow, int offset)
 {
   int old_y;
 
   old_y = l->y;
   l->y += offset;
-  HUlib_drawTextLine(l, false, false);
+  HUlib_drawTextLine(l, yellow, shadow, false);
   l->y = old_y;
 }
 

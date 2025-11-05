@@ -2830,7 +2830,7 @@ dboolean Hexen_P_GiveArmor(player_t * player, armortype_t armortype, int amount)
 
 void P_SetYellowMessage(player_t * player, const char *message, dboolean ultmsg)
 {
-    dsda_AddPlayerMessage(message, player);
+    dsda_AddPlayerYellowMessage(message, player, ultmsg);
     player->yellowMessage = true;
 }
 

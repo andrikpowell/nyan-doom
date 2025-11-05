@@ -77,6 +77,7 @@ typedef enum {
   dsda_tc_exhud_local_time,
   dsda_tc_exhud_free_text,
   dsda_tc_hud_message,
+  dsda_tc_hud_yellow_message,
   dsda_tc_hud_announce_message,
   dsda_tc_hud_announce_author,
   dsda_tc_hud_secret_message,

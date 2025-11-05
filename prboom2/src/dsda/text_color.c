@@ -90,6 +90,7 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_exhud_local_time] = { "exhud_local_time", CR_GRAY },
   [dsda_tc_exhud_free_text] = { "exhud_free_text", CR_GRAY },
   [dsda_tc_hud_message] = { "hud_message", CR_DEFAULT },
+  [dsda_tc_hud_yellow_message] = { "hud_yellow_message", CR_DEFAULT },
   [dsda_tc_hud_announce_message] = { "hud_announce_message", CR_GOLD },
   [dsda_tc_hud_announce_author] = { "hud_announce_author", CR_DEFAULT },
   [dsda_tc_hud_secret_message] = { "hud_secret_message", CR_GOLD },

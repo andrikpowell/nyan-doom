@@ -21,8 +21,10 @@
 
 static patchnum_t hu_font[HU_FONTSIZE];
 static patchnum_t hu_font2[HU_FONTSIZE];
+static patchnum_t hu_font_yellow[HU_FONTSIZE];
 
 dsda_font_t hud_font;
+dsda_font_t yellow_hud_font;
 dsda_font_t exhud_font;
 
 void dsda_InitFont(void) {
@@ -67,6 +69,33 @@ void dsda_InitFont(void) {
     }
   }
 
+  // Hexen - yellow message
+  j = HU_FONTSTART;
+  for (i = 0; i < HU_FONTSIZE; ++i, ++j) {
+    if (hexen)
+    {
+      if ('0' <= j && j <= '9') {
+        snprintf(buffer, sizeof(buffer), "FONTAY%.2d", j - 32);
+        R_SetPatchNum(&hu_font_yellow[i], buffer);
+      }
+      else if ('A' <= j && j <= 'Z') {
+        snprintf(buffer, sizeof(buffer), "FONTAY%.2d", j - 32);
+        R_SetPatchNum(&hu_font_yellow[i], buffer);
+      }
+      else if (j < 91) {
+        snprintf(buffer, sizeof(buffer), "FONTAY%.2d", j - 32);
+        R_SetPatchNum(&hu_font_yellow[i], buffer);
+        //jff 2/23/98 make all font chars defined, useful or not
+      }
+      else {
+        hu_font_yellow[i] = hu_font[i]; //jff 2/16/98 account for gap
+      }
+    }
+    else {
+      hu_font_yellow[i] = hu_font[i]; //jff 2/16/98 account for gap
+    }
+  }
+
   hud_font.font = hu_font;
   hud_font.height = hu_font['0' - HU_FONTSTART].height;
   hud_font.line_height = hud_font.height + 1;
@@ -78,4 +107,11 @@ void dsda_InitFont(void) {
   exhud_font.line_height = exhud_font.height + 1;
   exhud_font.space_width = 5;
   exhud_font.start = HU_FONTSTART;
+
+  // Hexen - yellow message
+  yellow_hud_font.font = hu_font_yellow;
+  yellow_hud_font.height = hu_font_yellow['0' - HU_FONTSTART].height;
+  yellow_hud_font.line_height = yellow_hud_font.height + 1;
+  yellow_hud_font.space_width = 5;
+  yellow_hud_font.start = HU_FONTSTART;
 }
