@@ -143,39 +143,26 @@ void GL_TXT_UpdateCharacter(int x, int y, unsigned char ch)
     int col = ch % FONT_COLS;
     int row = ch / FONT_COLS;
 
-    const float padding = 0.5f; // half a pixel padding
-    float pw = 1.0f / (float)tex_w;
-    float ph = 1.0f / (float)tex_h;
+    // padding
+    float padding_x = 0.5f / (float)tex_w;
+    float padding_y = 0.5f / (float)tex_h;
 
-    float tx = col * char_w * pw + padding * pw;
-    float ty = row * char_h * ph + padding * ph;
-    float tw = (char_w - 2 * padding) * pw;
-    float th = (char_h - 2 * padding) * ph;
-
-    float ty_top = ty;
-    float ty_bottom = ty + th;
+    // coordinates
+    float u0 = (col * char_w) / (float)tex_w + padding_x;
+    float v0 = (row * char_h) / (float)tex_h + padding_y;
+    float u1 = ((col + 1) * char_w) / (float)tex_w - padding_x;
+    float v1 = ((row + 1) * char_h) / (float)tex_h - padding_y;
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, font_tex);
+
     glBegin(GL_QUADS);
-
-    // Bottom-left
-    glTexCoord2f(tx + tw, ty_bottom);
-    glVertex2i(x, y + char_h);
-
-    // Bottom-right
-    glTexCoord2f(tx, ty_bottom);
-    glVertex2i(x + char_w, y + char_h);
-
-    // Top-right
-    glTexCoord2f(tx, ty_top);
-    glVertex2i(x + char_w, y);
-
-    // Top-left
-    glTexCoord2f(tx + tw, ty_top);
-    glVertex2i(x, y);
-
+    glTexCoord2f(u1, v0); glVertex2i(x, y);                   // Top-left
+    glTexCoord2f(u0, v0); glVertex2i(x + char_w, y);          // Top-right
+    glTexCoord2f(u0, v1); glVertex2i(x + char_w, y + char_h); // Bottom-right
+    glTexCoord2f(u1, v1); glVertex2i(x, y + char_h);          // Bottom-left
     glEnd();
+
     glDisable(GL_TEXTURE_2D);
 }
 
