@@ -93,6 +93,11 @@ static void WaitStop(void)
         Stop();
         gameaction = ga_leavemap;
     }
+    else
+    {
+        // Show "Etheral Travel" graphic
+        V_DrawMenuNamePatch(100, 68, "TELEICON", CR_DEFAULT, VPT_STRETCH);
+    }
 }
 
 static void Stop(void)
