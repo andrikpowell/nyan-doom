@@ -28,12 +28,12 @@
 #include "fonts/normal.h"
 #include "lprintf.h"
 
-#define FONT_CHAR_W 8
-#define FONT_CHAR_H 16
+#define FONT_CHAR_W normal_font.w
+#define FONT_CHAR_H normal_font.h
 #define FONT_COLS 16
 #define FONT_ROWS 16
 #define FONT_WIDTH 128
-#define FONT_HEIGHT 256
+#define FONT_HEIGHT 288
 #define SCREEN_COLS 80
 #define SCREEN_ROWS 25
 
@@ -64,33 +64,28 @@ static void GL_TXT_SetupOrtho(int w, int h)
 {
     const int logical_width = SCREEN_COLS * FONT_CHAR_W;
     const int logical_height = SCREEN_ROWS * FONT_CHAR_H;
-    int logical_h;
     float scale, scale_x, scale_y;
-    float scaled_width, scaled_height, scaled_h;
+    float scaled_width, scaled_height;
     float offset_x, offset_y;
 
-    // Apply aspect ratio correction.
-    logical_h = logical_height * 6 / 5;
-
     scale_x = (float)w / logical_width;
-    scale_y = (float)h / logical_h;
+    scale_y = (float)h / logical_height;
     scale = (scale_x < scale_y) ? scale_x : scale_y;
 
     // Calculate the scaled width and height
     scaled_width = logical_width * scale;
     scaled_height = logical_height * scale;
-    scaled_h = logical_h * scale;
 
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, w, scaled_height, 0, -1, 1);
+    glOrtho(0, w, h, 0, -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
     // offsets to center the image
     offset_x = (w - scaled_width) / 2.0f;
-    offset_y = (h - scaled_h) / 2.0f;
+    offset_y = (h - scaled_height) / 2.0f;
 
     // Apply translation and scaling
     glTranslatef(offset_x, offset_y, 0.0f);
@@ -102,7 +97,7 @@ int GL_TXT_CreateFontTexture(void)
     int i;
     int ch;
     int tx, ty;
-    int row, col;
+    unsigned int row, col;
 
     for (ch = 0; ch < 256; ++ch) {
         tx = (ch % FONT_COLS) * FONT_CHAR_W;
