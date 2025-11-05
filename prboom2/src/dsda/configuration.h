@@ -83,6 +83,7 @@ typedef enum {
   dsda_config_mute_unfocused_window,
   dsda_config_cheat_codes,
   dsda_config_organize_failed_demos,
+  dsda_config_hexen_fast_etheral_travel,
   nyan_config_full_menu_fade,
   nyan_config_gradual_menu_fade,
   nyan_config_skip_default_text,

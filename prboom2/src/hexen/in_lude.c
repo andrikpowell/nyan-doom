@@ -86,9 +86,17 @@ void Hexen_IN_Start(wbstartstruct_t* wbstartstruct)
     SN_StopAllSequences();
 }
 
+static dboolean SkipEtheralTravel(void)
+{
+    if (allow_incompatibility && dsda_IntConfig(dsda_config_hexen_fast_etheral_travel))
+        return true;
+
+    return false;
+}
+
 static void WaitStop(void)
 {
-    if (!--cnt)
+    if (!--cnt || SkipEtheralTravel())
     {
         Stop();
         gameaction = ga_leavemap;
