@@ -60,12 +60,12 @@ static TxtSDLEventCallbackFunc event_callback;
 static void *event_callback_data;
 
 // Font we are using:
-static const txt_font_t *font;
+const txt_font_t *font;
 
 // Mapping from SDL keyboard scancode to internal key code.
 static const int scancode_translate_table[] = SCANCODE_TO_KEYS_ARRAY;
 
-static const SDL_Color ega_colors[] =
+const SDL_Color ega_colors[] =
 {
     {0x00, 0x00, 0x00, 0xff},          // 0: Black
     {0x00, 0x00, 0xa8, 0xff},          // 1: Blue
@@ -209,7 +209,7 @@ void TXT_Shutdown(void)
 unsigned char *TXT_GetScreenData(void)
 {
     if (is_opengl)
-        return GL_TXT_SetScreenData();
+        return GL_TXT_GetScreenData();
 
     return screendata;
 }

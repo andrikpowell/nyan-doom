@@ -159,8 +159,5 @@ void TXT_GetMousePosition(int *x, int *y);
 // Optional timeout in ms (timeout == 0 : sleep forever)
 void TXT_Sleep(int timeout);
 
-// Set the window title of the window containing the text mode screen
-void TXT_SetWindowTitle(const char *title);
-
 #endif /* #ifndef TXT_MAIN_H */
 

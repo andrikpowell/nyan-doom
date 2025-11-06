@@ -32,7 +32,16 @@ typedef int (*TxtSDLEventCallbackFunc)(SDL_Event *event, void *user_data);
 
 void TXT_PreInit(SDL_Window *preset_window, SDL_Renderer *preset_renderer, int opengl);
 
-extern SDL_Window *TXT_SDLWindow;
+typedef struct
+{
+    const char *name;
+    const uint8_t *data;
+    unsigned int w;
+    unsigned int h;
+} txt_font_t;
+
+extern const txt_font_t *font;
+extern const SDL_Color ega_colors[];
 
 #endif /* #ifndef TXT_SDL_H */
 

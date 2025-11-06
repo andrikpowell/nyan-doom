@@ -23,7 +23,7 @@
 void GL_TXT_PreInit(SDL_Window *sdl_window);
 int GL_TXT_Init(void);
 void GL_TXT_Shutdown(void);
-unsigned char *GL_TXT_SetScreenData(void);
+unsigned char *GL_TXT_GetScreenData(void);
 signed int GL_TXT_GetChar(void);
 void GL_TXT_UpdateScreen(void);
 void GL_TXT_Sleep(int timeout);

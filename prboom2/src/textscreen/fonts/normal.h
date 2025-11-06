@@ -2,7 +2,8 @@
    Please see textscreen/fonts/README for copyright
    information. */
 
-#include <stdint.h>
+#include "../txt_main.h"
+
 static const uint8_t normal_font_data[] =
 {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -582,14 +583,6 @@ static const uint8_t normal_font_data[] =
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
-
-typedef struct
-{
-    const char *name;
-    const uint8_t *data;
-    unsigned int w;
-    unsigned int h;
-} txt_font_t;
 
 static const txt_font_t normal_font =
 {
