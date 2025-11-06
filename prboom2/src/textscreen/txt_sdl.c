@@ -16,6 +16,7 @@
 //
 
 #include "SDL.h"
+#include "SDL_opengl.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -26,7 +27,6 @@
 
 #include "txt_main.h"
 #include "txt_sdl.h"
-#include "txt_gl.h"
 #include "txt_utf8.h"
 #include "lprintf.h"
 
@@ -37,13 +37,24 @@
 // Direct functions to GL functions
 static int is_opengl = false;
 
+#define FONT_CHAR_W normal_font.w
+#define FONT_CHAR_H normal_font.h
+#define FONT_WIDTH 128
+#define FONT_HEIGHT 288
+#define SCREEN_COLS 80
+#define SCREEN_ROWS 25
+
+static GLuint gl_texture = 0;
+static int glwindow_w = 0;
+static int glwindow_h = 0;
+
 // Fonts:
 #include "fonts/normal.h"
 
 // Time between character blinks in ms
 #define BLINK_PERIOD 250
 
-SDL_Window *TXT_SDLWindow = NULL;
+static SDL_Window *TXT_SDLWindow = NULL;
 static SDL_Surface *screenbuffer;
 static unsigned char *screendata;
 static SDL_Renderer *renderer;
@@ -60,12 +71,12 @@ static TxtSDLEventCallbackFunc event_callback;
 static void *event_callback_data;
 
 // Font we are using:
-const txt_font_t *font;
+static const txt_font_t *font;
 
 // Mapping from SDL keyboard scancode to internal key code.
 static const int scancode_translate_table[] = SCANCODE_TO_KEYS_ARRAY;
 
-const SDL_Color ega_colors[] =
+static const SDL_Color ega_colors[] =
 {
     {0x00, 0x00, 0x00, 0xff},          // 0: Black
     {0x00, 0x00, 0xa8, 0xff},          // 1: Blue
@@ -93,17 +104,16 @@ const SDL_Color ega_colors[] =
 
 void TXT_PreInit(SDL_Window *preset_window, SDL_Renderer *preset_renderer, int opengl)
 {
+    if (preset_window != NULL)
+    {
+        TXT_SDLWindow = preset_window;
+    }
+
     // OpenGL doesn't use renderer
     if (opengl)
     {
         is_opengl = true;
-        GL_TXT_PreInit(preset_window);
         return;
-    }
-
-    if (preset_window != NULL)
-    {
-        TXT_SDLWindow = preset_window;
     }
 
     if (preset_renderer != NULL)
@@ -195,10 +205,11 @@ int TXT_Init(void)
 void TXT_Shutdown(void)
 {
     if (is_opengl)
-    {
-        GL_TXT_Shutdown();
-        return;
-    }
+        if (gl_texture != 0)
+        {
+            glDeleteTextures(1, &gl_texture);
+            gl_texture = 0;
+        }
 
     free(screendata);
     screendata = NULL;
@@ -208,9 +219,6 @@ void TXT_Shutdown(void)
 
 unsigned char *TXT_GetScreenData(void)
 {
-    if (is_opengl)
-        return GL_TXT_GetScreenData();
-
     return screendata;
 }
 
@@ -368,6 +376,185 @@ void TXT_UpdateScreen(void)
     TXT_UpdateScreenArea(0, 0, TXT_SCREEN_W, TXT_SCREEN_H);
 }
 
+//
+// OpenGL stuff
+//
+
+static void GL_TXT_SetupOrtho(int w, int h)
+{
+    const int logical_width = SCREEN_COLS * FONT_CHAR_W;
+    const int logical_height = SCREEN_ROWS * FONT_CHAR_H;
+    float scale, scale_x, scale_y;
+    float scaled_width, scaled_height;
+    float offset_x, offset_y;
+
+    scale_x = (float)w / logical_width;
+    scale_y = (float)h / logical_height;
+    scale = (scale_x < scale_y) ? scale_x : scale_y;
+
+    // Calculate the scaled width and height
+    scaled_width = logical_width * scale;
+    scaled_height = logical_height * scale;
+
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, w, h, 0, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    // offsets to center the image
+    offset_x = (w - scaled_width) / 2.0f;
+    offset_y = (h - scaled_height) / 2.0f;
+
+    // Apply translation and scaling
+    glTranslatef(offset_x, offset_y, 0.0f);
+    glScalef(scale, scale, 1.0f);
+}
+
+int GL_TXT_Init(void)
+{
+    font = &normal_font;
+
+    screen_image_w = TXT_SCREEN_W * font->w;
+    screen_image_h = TXT_SCREEN_H * font->h;
+
+    screenbuffer = SDL_CreateRGBSurface(0, screen_image_w, screen_image_h, 8, 0, 0, 0, 0);
+    if (!screenbuffer)
+    {
+        lprintf(LO_ERROR, "Failed to create software screenbuffer!\n");
+        return 0;
+    }
+
+    SDL_LockSurface(screenbuffer);
+    SDL_SetPaletteColors(screenbuffer->format->palette, ega_colors, 0, 16);
+    SDL_UnlockSurface(screenbuffer);
+
+    screendata = malloc(TXT_SCREEN_W * TXT_SCREEN_H * 2);
+    memset(screendata, 0, TXT_SCREEN_W * TXT_SCREEN_H * 2);
+
+    if (!TXT_SDLWindow)
+        return 0;
+
+    SDL_GL_GetDrawableSize(TXT_SDLWindow, &glwindow_w, &glwindow_h);
+
+    GL_TXT_SetupOrtho(glwindow_w, glwindow_h);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, FONT_WIDTH, FONT_HEIGHT, 0, GL_RED, GL_UNSIGNED_BYTE, font->data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    return 1;
+}
+
+void GL_TXT_UpdateScreen(void)
+{
+    static GLubyte *texture_data;
+    int tex_w, tex_h, tex_w2, tex_h2;
+
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    SDL_LockSurface(screenbuffer);
+
+    texture_data = NULL;
+    tex_w = TXT_SCREEN_W * FONT_CHAR_W;
+    tex_h = TXT_SCREEN_H * FONT_CHAR_H;
+
+    // We will scale software image by 2x
+    // then scale back down for sharpness
+    tex_w2 = tex_w * 2;
+    tex_h2 = tex_h * 2;
+
+    if (!texture_data)
+        texture_data = malloc(tex_w2 * tex_h2 * 4);
+
+    for (int y = 0; y < TXT_SCREEN_H; y++) {
+        for (int x = 0; x < TXT_SCREEN_W; x++) {
+            unsigned char *p = &screendata[(y * TXT_SCREEN_W + x) * 2];
+            unsigned char chr = p[0];
+            unsigned char attr = p[1];
+            int fg, bg;
+            SDL_Color fg_col, bg_col;
+
+            fg = attr & 0x0F;            // 16-color fg
+            bg = (attr >> 4) & 0x0F;     // 16-color bg fixed here
+
+            if (bg & 0x8)
+            {
+                // blinking
+
+                bg &= ~0x8;
+
+                if (((SDL_GetTicks() / BLINK_PERIOD) % 2) == 0)
+                {
+                    fg = bg;
+                }
+            }
+
+            fg_col = ega_colors[fg];
+            bg_col = ega_colors[bg];
+
+            // Draw character pixels into screen_rgba
+            for (int cy = 0; cy < (int)FONT_CHAR_H; cy++)
+            {
+                unsigned char row = font->data[chr * FONT_CHAR_H + cy];
+                for (int cx = 0; cx < (int)FONT_CHAR_W; cx++)
+                {
+                    int bit = (row >> cx) & 1;
+                    GLubyte r = bit ? fg_col.r : bg_col.r;
+                    GLubyte g = bit ? fg_col.g : bg_col.g;
+                    GLubyte b = bit ? fg_col.b : bg_col.b;
+
+                    int dst_x = x * FONT_CHAR_W * 2 + cx * 2;
+                    int dst_y = y * FONT_CHAR_H * 2 + cy * 2;
+                    for (int dy = 0; dy < 2; dy++)
+                        for (int dx = 0; dx < 2; dx++)
+                        {
+                            int idx = ((dst_y + dy) * tex_w2 + (dst_x + dx)) * 4;
+                            texture_data[idx + 0] = r;
+                            texture_data[idx + 1] = g;
+                            texture_data[idx + 2] = b;
+                            texture_data[idx + 3] = 255;
+                        }
+                }
+            }
+        }
+    }
+
+    SDL_UnlockSurface(screenbuffer);
+
+    // Draw 2x texture
+    if (gl_texture == 0)
+    {
+        glGenTextures(1, &gl_texture);
+        glBindTexture(GL_TEXTURE_2D, gl_texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_w2, tex_h2, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture_data);
+    }
+    else
+    {
+        glBindTexture(GL_TEXTURE_2D, gl_texture);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tex_w2, tex_h2, GL_RGBA, GL_UNSIGNED_BYTE, texture_data);
+    }
+
+    // Draw 2x texture (image) normal size in window
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, gl_texture);
+
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex2f(0, 0);
+        glTexCoord2f(1, 0); glVertex2f((GLfloat)tex_w, 0);
+        glTexCoord2f(1, 1); glVertex2f((GLfloat)tex_w, (GLfloat)tex_h);
+        glTexCoord2f(0, 1); glVertex2f(0, (GLfloat)tex_h);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+
+    SDL_GL_SwapWindow(TXT_SDLWindow);
+}
+
 void TXT_GetMousePosition(int *x, int *y)
 {
     int window_w, window_h;
@@ -510,9 +697,6 @@ signed int TXT_GetChar(void)
 {
     SDL_Event ev;
 
-    if (is_opengl)
-        return GL_TXT_GetChar();
-
     while (SDL_PollEvent(&ev))
     {
         // If there is an event callback, allow it to intercept this
@@ -582,6 +766,14 @@ signed int TXT_GetChar(void)
                     return 0;
                 }
 
+            // Force content resize on OpenGL
+            case SDL_WINDOWEVENT:
+                if (is_opengl && ev.window.event == SDL_WINDOWEVENT_RESIZED)
+                {
+                    GL_TXT_SetupOrtho(ev.window.data1, ev.window.data2);
+                }
+                break;
+
             case SDL_CONTROLLERDEVICEADDED:
             case SDL_CONTROLLERDEVICEREMOVED:
                 SDL_PushEvent(&ev);
@@ -631,12 +823,6 @@ int TXT_ScreenHasBlinkingChars(void)
 void TXT_Sleep(int timeout)
 {
     unsigned int start_time;
-
-    if (is_opengl)
-    {
-        GL_TXT_Sleep(0);
-        return;
-    }
 
     if (TXT_ScreenHasBlinkingChars())
     {

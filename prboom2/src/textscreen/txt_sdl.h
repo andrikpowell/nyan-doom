@@ -40,8 +40,9 @@ typedef struct
     unsigned int h;
 } txt_font_t;
 
-extern const txt_font_t *font;
-extern const SDL_Color ega_colors[];
+// GL stuff
+extern int GL_TXT_Init(void);
+extern void GL_TXT_UpdateScreen(void);
 
 #endif /* #ifndef TXT_SDL_H */
 
