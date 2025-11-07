@@ -2006,7 +2006,7 @@ static dboolean M_ItemNyan(const setup_menu_t* s)
     int nyan_features[] =
     { dsda_config_extra_level_brightness, dsda_config_quicksave_sfx, dsda_config_quit_sounds,
       dsda_config_freelook_autoaim, dsda_config_freelook_autoaim_pct, dsda_config_deh_change_cheats,
-      dsda_config_auto_key_frame_active, nyan_config_loading_disk, dsda_config_hexen_fast_etheral_travel,
+      dsda_config_auto_key_frame_active, nyan_config_loading_disk, dsda_config_hexen_skip_ethereal_travel,
 
       nyan_config_menu_play_demo, nyan_config_full_menu_fade, nyan_config_gradual_menu_fade,
       nyan_config_show_endoom, nyan_config_type_endoom, nyan_config_skip_default_text,
@@ -2259,9 +2259,9 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
   // Disable Hexen only Options
   if (!hexen)
   {
-    if (s->config_id == dsda_config_hexen_fast_etheral_travel)
+    if (s->config_id == dsda_config_hexen_skip_ethereal_travel)
     {
-      dsda_UpdateIntConfig(dsda_config_hexen_fast_etheral_travel, false, false);
+      dsda_UpdateIntConfig(dsda_config_hexen_skip_ethereal_travel, false, false);
       return true;
     }
   }
@@ -4078,7 +4078,7 @@ static const char* loading_disk_list[] = { "Off", "disk", "cd-rom", NULL };
 
 setup_menu_t gen_misc_settings[] = {
   { "Death Use Action", S_CHOICE, m_conf, G2_X, dsda_config_death_use_action, 0, death_use_strings },
-  { "Fast Hexen Etheral Travel", S_YESNO, m_conf, G2_X, dsda_config_hexen_fast_etheral_travel },
+  { "Skip Ethereal Travel", S_YESNO, m_conf, G2_X, dsda_config_hexen_skip_ethereal_travel },
   { "Enable Cheat Code Entry", S_YESNO, m_conf, G2_X, dsda_config_cheat_codes },
   { "Use Dehacked Cheats", S_YESNO, m_conf, G2_X, dsda_config_deh_change_cheats },
   EMPTY_LINE,

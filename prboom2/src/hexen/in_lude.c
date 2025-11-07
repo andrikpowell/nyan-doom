@@ -86,9 +86,9 @@ void Hexen_IN_Start(wbstartstruct_t* wbstartstruct)
     SN_StopAllSequences();
 }
 
-static dboolean SkipEtheralTravel(void)
+static dboolean SkipEtherealTravel(void)
 {
-    if (allow_incompatibility && dsda_IntConfig(dsda_config_hexen_fast_etheral_travel))
+    if (allow_incompatibility && dsda_IntConfig(dsda_config_hexen_skip_ethereal_travel))
         return true;
 
     return false;
@@ -96,14 +96,14 @@ static dboolean SkipEtheralTravel(void)
 
 static void WaitStop(void)
 {
-    if (!--cnt || SkipEtheralTravel())
+    if (!--cnt || SkipEtherealTravel())
     {
         Stop();
         gameaction = ga_leavemap;
     }
     else
     {
-        // Show "Etheral Travel" graphic
+        // Show "Ethereal Travel" graphic
         V_DrawMenuNamePatch(100, 68, "TELEICON", CR_DEFAULT, VPT_STRETCH);
     }
 }

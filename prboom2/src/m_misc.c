@@ -420,7 +420,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_organize_failed_demos),
   MIGRATED_SETTING(dsda_config_demo_end_quit),
   MIGRATED_SETTING(dsda_config_playback_mouse_controls),
-  MIGRATED_SETTING(dsda_config_hexen_fast_etheral_travel),
+  MIGRATED_SETTING(dsda_config_hexen_skip_ethereal_travel),
 
   SETTING_HEADING("Nyan-Doom settings"),
   MIGRATED_SETTING(nyan_config_menu_play_demo),
