@@ -4097,8 +4097,7 @@ setup_menu_t gen_misc_settings[] = {
   FINAL_ENTRY
 };
 
-static const char* endoom_list[] = { "Off", "On", "PWAD only", NULL };
-static const char* endoom_type_list[] = { "Terminal", "Window", NULL };
+static const char* endoom_list[] = { "Off", "On", "Smart", NULL };
 
 setup_menu_t gen_nyan_settings[] = {
   { "Play Demos While In Menus", S_YESNO, m_conf, G2_X, nyan_config_menu_play_demo },

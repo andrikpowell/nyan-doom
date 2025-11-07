@@ -364,10 +364,13 @@ int is_opengl = false;
 void dsda_CacheEndoom(void) {
   int lump;
   int show_endoom;
+  int pwad_only;
 
   output_format = dsda_IntConfig(dsda_config_ansi_endoom);
 
   show_endoom = dsda_IntConfig(nyan_config_show_endoom);
+
+  pwad_only = (show_endoom==2 && !W_PWADLumpNumExists(lump) && W_PWADMapsExist());
 
   if (V_IsOpenGLMode())
     is_opengl = true;
@@ -389,7 +392,7 @@ void dsda_CacheEndoom(void) {
       lump = W_CheckNumForName("ENDOOM");
   }
 
-  if (lump == LUMP_NOT_FOUND || W_LumpLength(lump) != 4000 || (show_endoom==2 && !W_PWADLumpNumExists(lump)))
+  if (lump == LUMP_NOT_FOUND || W_LumpLength(lump) != 4000 || pwad_only)
     return;
 
   endoom = Z_Malloc(4000);
