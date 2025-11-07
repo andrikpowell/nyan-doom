@@ -33,8 +33,6 @@
 
 #include "dsda/configuration.h"
 #include "textscreen/txt_main.h"
-#include "textscreen/txt_sdl.h"
-#include "textscreen/txt_gl.h"
 
 #include "endoom.h"
 

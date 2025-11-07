@@ -262,14 +262,11 @@ set(COMMON_SRC
     textscreen/txt_main.h
     textscreen/txt_sdl.c
     textscreen/txt_sdl.h
-    textscreen/txt_gl.c
-    textscreen/txt_gl.h
     textscreen/txt_utf8.c
     textscreen/txt_utf8.h
-    textscreen/fonts/codepage.h
     textscreen/fonts/convert-font
     textscreen/fonts/normal.h
-    textscreen/fonts/normal.png
+    textscreen/fonts/hauge-8x18-v1-5.png
     textscreen/fonts/README
     dstrings.c
     dstrings.h
