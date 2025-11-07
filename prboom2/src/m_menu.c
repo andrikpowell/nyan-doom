@@ -191,6 +191,8 @@ static dboolean colorbox_active   = false; // color palette being shown
 
 // submenus
 static dboolean sub_advanced_audio_active = false;
+static dboolean sub_mouse_active = false;
+static dboolean sub_gamepad_active = false;
 static dboolean sub_colored_blood_active = false;
 static dboolean sub_trans_active = false;
 static dboolean sub_statbar_color_active = false;
@@ -367,6 +369,8 @@ void M_ChangeApplyPalette(void);
 
 // submenus
 static void M_Sub_AdvAudio(void);
+static void M_Sub_Mouse(void);
+static void M_Sub_Gamepad(void);
 static void M_Sub_ColoredBlood(void);
 static void M_Sub_Trans(void);
 static void M_Sub_StatbarColor(void);
@@ -376,6 +380,8 @@ static void M_Sub_Crosshair(void);
 static void M_Sub_Overflows(void);
 
 static void M_Sub_DrawAdvAudio(void);
+static void M_Sub_DrawMouse(void);
+static void M_Sub_DrawGamepad(void);
 static void M_Sub_DrawColoredBlood(void);
 static void M_Sub_DrawTrans(void);
 static void M_Sub_DrawStatbarColor(void);
@@ -1836,6 +1842,26 @@ static menu_t SubAdvAudioDef =                                           // kill
   0
 };
 
+static menu_t SubMouseDef =                                           // killough 10/98
+{
+  generic_setup_end,
+  &GeneralDef,
+  Generic_Setup,
+  M_Sub_DrawMouse,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubGamepadDef =                                           // killough 10/98
+{
+  generic_setup_end,
+  &GeneralDef,
+  Generic_Setup,
+  M_Sub_DrawGamepad,
+  34,5,      // skull drawn here
+  0
+};
+
 static menu_t SubColoredBloodDef =                                           // killough 10/98
 {
   generic_setup_end,
@@ -2132,7 +2158,13 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
   // Limit-Removing
   if (s->config_id == dsda_config_limit_removing)
   {
-    if (hexen || (dsda_IntConfig(dsda_config_default_complevel) > tasdoom_compatibility))
+    if (hexen)
+    {
+      dsda_UpdateIntConfig(dsda_config_limit_removing, true, true);
+      return true;
+    }
+
+    if (dsda_IntConfig(dsda_config_default_complevel) > tasdoom_compatibility)
     {
       dsda_UpdateIntConfig(dsda_config_limit_removing, false, true);
       return true;
@@ -3030,14 +3062,20 @@ static const char *empty_list[] = { NULL };
 #define FINAL_ENTRY { 0, S_SKIP | S_END, m_null }
 #define EMPTY_LINE { 0, S_SKIP, m_null }
 #define NEW_COLUMN { 0, S_SKIP | S_RESET_Y, m_null }
-#define FUNCTION(action_name, flags, offset_x, action_func) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, .action = action_func }
+
 #define DEPEND(config, value)     (const setup_menu_dependent_t[]){{ config, value, false }}, 1
 #define EXCLUDE(config, value)    (const setup_menu_dependent_t[]){{ config, value, true }}, 1
 #define DEPEND_MULTI(listname) listname, listname##_count
-#define FUNC_DEPEND_MULTI(action_name, flags, offset_x, action_func, listname) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, 0, 0, empty_list, DEPEND_MULTI(listname), .action = action_func }
+
 #define TITLE_DEPEND(page_name, offset_x, config, value) { page_name, S_SKIP | S_TITLE, m_null, offset_x, 0, 0, empty_list, DEPEND(config, value)}
 #define DEPEND_SW                 0, empty_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE)
 #define DEPEND_GL                 0, empty_list, DEPEND(dsda_config_videomode, OPENGL_MODE)
+
+#define FUNC(action_name, flags, offset_x, action_func) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, .action = action_func }
+#define FUNC_DEPEND(action_name, flags, offset_x, action_func, config, value) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, 0, 0, empty_list, DEPEND(config, value), .action = action_func }
+#define FUNC_EXCLUDE(action_name, flags, offset_x, action_func, config, value) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, 0, 0, empty_list, EXCLUDE(config, value), .action = action_func }
+#define FUNC_DEPEND_MULTI(action_name, flags, offset_x, action_func, listname) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, 0, 0, empty_list, DEPEND_MULTI(listname), .action = action_func }
+
 #define DEPEND_LIST(name, ...) \
   static const setup_menu_dependent_t name[] = { __VA_ARGS__ }; \
   enum { name##_count = sizeof(name) / sizeof(name[0]) }
@@ -3556,8 +3594,8 @@ setup_menu_t weap_pref_settings[] =  // Weapons Settings screen
 {
   TITLE("Gameplay", WP_X),
   { "Boom Weapon Auto Switch", S_YESNO, m_conf, WP_X, dsda_config_switch_when_ammo_runs_out },
-  { "Auto Switch Weapon on Pickup", S_YESNO, m_conf, WP_X, dsda_config_switch_weapon_on_pickup },
-  { "Disable Horizontal Autoaim", S_YESNO, m_conf, WP_X, dsda_config_disable_horiz_autoaim },
+  { "Auto Switch on Pickup", S_YESNO, m_conf, WP_X, dsda_config_switch_weapon_on_pickup },
+  { "Direct Vertical Aiming", S_YESNO, m_conf, WP_X, dsda_config_disable_horiz_autoaim },
   EMPTY_LINE,
   TITLE("Cosmetic", WP_X),
   { "View Bob", S_THERMO | S_PERC, m_conf, WP1_X, dsda_config_viewbob },
@@ -3886,22 +3924,22 @@ static const char *gen_pages[] =
 {
   "Video",
   "Audio",
-  "Mouse",
-  "Gamepad",
+  "Devices",
+  "Gamesim",
   "Misc",
   "Nyan",
   NULL
 };
 
-setup_menu_t gen_video_settings[], gen_audio_settings[], gen_mouse_settings[];
-setup_menu_t gen_controller_settings[], gen_misc_settings[], gen_nyan_settings[];
+setup_menu_t gen_video_settings[], gen_audio_settings[], gen_device_settings[];
+setup_menu_t gen_gamesim_settings[], gen_misc_settings[], gen_nyan_settings[];
 
 setup_menu_t* gen_settings[] =
 {
   gen_video_settings,
   gen_audio_settings,
-  gen_mouse_settings,
-  gen_controller_settings,
+  gen_device_settings,
+  gen_gamesim_settings,
   gen_misc_settings,
   gen_nyan_settings,
   NULL
@@ -3954,7 +3992,6 @@ static const char *render_aspects_list[] = { "auto", "16:9", "16:10", "4:3", "5:
 
 // static const char* render_stretch_list[] = { "Not Adjusted", "Doom Format", "Fit to Width", NULL };
 
-
 setup_menu_t gen_video_settings[] = {
   { "Video mode", S_CHOICE | S_STR, m_conf, G_X, dsda_config_videomode, 0, videomodes },
   { "Screen Resolution", S_CHOICE | S_STR, m_conf, G_X, dsda_config_screen_resolution, 0, screen_resolutions_list },
@@ -3984,127 +4021,80 @@ setup_menu_t gen_audio_settings[] = {
   EMPTY_LINE,
   { "SFX For Movement Toggles", S_YESNO, m_conf, G_X, dsda_config_movement_toggle_sfx },
   { "Play SFX For Quicksave", S_YESNO, m_conf, G_X, dsda_config_quicksave_sfx },
-  { "Play Quit SFX (Slower Quit)", S_YESNO, m_conf, G_X, dsda_config_quit_sounds },
   EMPTY_LINE,
-  FUNCTION("Advanced Sound", S_CENTER, G_X, M_Sub_AdvAudio),
+  FUNC("Advanced Sound", S_CENTER, G_X, M_Sub_AdvAudio),
 
   PREV_PAGE(gen_video_settings),
-  NEXT_PAGE(gen_mouse_settings),
+  NEXT_PAGE(gen_device_settings),
   FINAL_ENTRY
 };
 
-DEPEND_LIST(freelook_autoaim_mouse_list,
-  DEP(dsda_config_use_mouse, true),
+DEPEND_LIST(freelook_autoaim_list,
   DEP(dsda_config_freelook, true)
 );
 
-DEPEND_LIST(freelook_autoaim_pct_mouse_list,
+DEPEND_LIST(freelook_autoaim_pct_list,
   DEP(dsda_config_videomode, OPENGL_MODE),
-  DEP(dsda_config_use_mouse, true),
   DEP(dsda_config_freelook, true),
   DEP(dsda_config_freelook_autoaim, true)
 );
 
-#define MOUSE_ON   0, empty_list, DEPEND(dsda_config_use_mouse, true)
-
-setup_menu_t gen_mouse_settings[] = {
+setup_menu_t gen_device_settings[] = {
   { "Enable Mouse", S_YESNO, m_conf, G2_X, dsda_config_use_mouse },
+  FUNC_DEPEND("Mouse Options", S_CENTER, G_X, M_Sub_Mouse, dsda_config_use_mouse, true),
   EMPTY_LINE,
-  { "Horizontal Sensitivity", S_NUM, m_conf, G2_X, dsda_config_mouse_sensitivity_horiz, MOUSE_ON },
-  { "Vertical Sensitivity", S_NUM, m_conf, G2_X, dsda_config_mouse_sensitivity_vert, MOUSE_ON },
-  { "Free Look Sensitivity", S_NUM, m_conf, G2_X, dsda_config_mouse_sensitivity_mlook, MOUSE_ON },
-  { "Acceleration", S_NUM, m_conf, G2_X, dsda_config_mouse_acceleration, MOUSE_ON },
+  { "Enable Gamepad", S_YESNO, m_conf, G2_X, dsda_config_use_game_controller },
+  FUNC_DEPEND("Gamepad Options", S_CENTER, G_X, M_Sub_Gamepad, dsda_config_use_game_controller, true),
   EMPTY_LINE,
-  { "Enable Free Look", S_YESNO, m_conf, G2_X, dsda_config_freelook, MOUSE_ON },
-  { "Invert Free Look", S_YESNO, m_conf, G2_X, dsda_config_movement_mouseinvert, 0, empty_list, DEPEND_MULTI(freelook_autoaim_mouse_list) },
-  { "Free Look AutoAim", S_YESNO, m_conf, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_autoaim_mouse_list) },
-  { "GL AutoAim from Center", S_PERC, m_conf, G2_X, dsda_config_freelook_autoaim_pct, 0, empty_list, DEPEND_MULTI(freelook_autoaim_pct_mouse_list) },
-  EMPTY_LINE,
-  { "Mouse Strafe Divisor", S_NUM, m_conf, G2_X, dsda_config_movement_mousestrafedivisor, MOUSE_ON },
-  { "Dbl-Click As Use", S_YESNO, m_conf, G2_X, dsda_config_mouse_doubleclick_as_use, MOUSE_ON },
-  { "Vertical Mouse Movement", S_YESNO, m_conf, G2_X, dsda_config_vertmouse, MOUSE_ON },
-  { "Carry Fractional Tics", S_YESNO, m_conf, G2_X, dsda_config_mouse_carrytics, MOUSE_ON },
-  { "Mouse Stutter Correction", S_YESNO, m_conf, G2_X, dsda_config_mouse_stutter_correction, MOUSE_ON },
+  { "Enable Free Look", S_YESNO, m_conf, G2_X, dsda_config_freelook },
+  { "Invert Free Look", S_YESNO, m_conf, G2_X, dsda_config_movement_mouseinvert, 0, empty_list, DEPEND_MULTI(freelook_autoaim_list) },
+  { "Free Look AutoAim", S_YESNO, m_conf, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_autoaim_list) },
+  { "GL AutoAim from Center", S_PERC, m_conf, G2_X, dsda_config_freelook_autoaim_pct, 0, empty_list, DEPEND_MULTI(freelook_autoaim_pct_list) },
 
   PREV_PAGE(gen_audio_settings),
-  NEXT_PAGE(gen_controller_settings),
+  NEXT_PAGE(gen_gamesim_settings),
   FINAL_ENTRY
 };
 
-#undef MOUSE_ON
-
-#define CONTROLLER_ON   0, empty_list, DEPEND(dsda_config_use_game_controller, true)
-
-DEPEND_LIST(freelook_autoaim_controller_list,
-  DEP(dsda_config_use_game_controller, true),
-  DEP(dsda_config_freelook, true)
-);
-
-DEPEND_LIST(freelook_autoaim_pct_controller_list,
-  DEP(dsda_config_videomode, OPENGL_MODE),
-  DEP(dsda_config_use_game_controller, true),
-  DEP(dsda_config_freelook, true),
-  DEP(dsda_config_freelook_autoaim, true)
-);
-
-setup_menu_t gen_controller_settings[] = {
-  { "Enable Gamepad", S_YESNO, m_conf, G2_X, dsda_config_use_game_controller },
-  EMPTY_LINE,
-  { "Left Horizontal Sensitivity", S_NUM, m_conf, G2_X, dsda_config_left_analog_sensitivity_x, CONTROLLER_ON },
-  { "Left Vertical Sensitivity", S_NUM, m_conf, G2_X, dsda_config_left_analog_sensitivity_y, CONTROLLER_ON },
-  { "Right Horizontal Sensitivity", S_NUM, m_conf, G2_X, dsda_config_right_analog_sensitivity_x, CONTROLLER_ON },
-  { "Right Vertical Sensitivity", S_NUM, m_conf, G2_X, dsda_config_right_analog_sensitivity_y, CONTROLLER_ON },
-  { "Acceleration", S_NUM, m_conf, G2_X, dsda_config_analog_look_acceleration, CONTROLLER_ON },
-  EMPTY_LINE,
-  { "Enable Free Look", S_YESNO, m_conf, G2_X, dsda_config_freelook, CONTROLLER_ON },
-  { "Invert Free Look", S_YESNO, m_conf, G2_X, dsda_config_invert_analog_look, 0, empty_list, DEPEND_MULTI(freelook_autoaim_controller_list) },
-  { "Swap Analogs", S_YESNO, m_conf, G2_X, dsda_config_swap_analogs, 0, empty_list, DEPEND_MULTI(freelook_autoaim_controller_list) },
-  { "Free Look AutoAim", S_YESNO, m_conf, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_autoaim_controller_list) },
-  { "GL AutoAim from Center", S_PERC, m_conf, G2_X, dsda_config_freelook_autoaim_pct, 0, empty_list, DEPEND_MULTI(freelook_autoaim_pct_controller_list) },
-  EMPTY_LINE,
-  { "Left Analog Deadzone", S_NUM, m_conf, G2_X, dsda_config_left_analog_deadzone, CONTROLLER_ON },
-  { "Right Analog Deadzone", S_NUM, m_conf, G2_X, dsda_config_right_analog_deadzone, CONTROLLER_ON },
-  { "Left Trigger Deadzone", S_NUM, m_conf, G2_X, dsda_config_left_trigger_deadzone, CONTROLLER_ON },
-  { "Right Trigger Deadzone", S_NUM, m_conf, G2_X, dsda_config_right_trigger_deadzone, CONTROLLER_ON },
-
-  PREV_PAGE(gen_mouse_settings),
-  NEXT_PAGE(gen_misc_settings),
-  FINAL_ENTRY
-};
-
-#undef CONTROLLER_ON
-
-static const char* loading_disk_list[] = { "Off", "disk", "cd-rom", NULL };
-
-setup_menu_t gen_misc_settings[] = {
+setup_menu_t gen_gamesim_settings[] = {
   { "Death Use Action", S_CHOICE, m_conf, G2_X, dsda_config_death_use_action, 0, death_use_strings },
   { "Skip Ethereal Travel", S_YESNO, m_conf, G2_X, dsda_config_hexen_skip_ethereal_travel },
-  { "Enable Cheat Code Entry", S_YESNO, m_conf, G2_X, dsda_config_cheat_codes },
-  { "Use Dehacked Cheats", S_YESNO, m_conf, G2_X, dsda_config_deh_change_cheats },
   EMPTY_LINE,
+  TITLE("Rewind", G2_X),
   { "Enable Rewind", S_YESNO, m_conf, G2_X, dsda_config_auto_key_frame_active },
   { "Rewind Interval (s)", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_interval, 0, empty_list, DEPEND(dsda_config_auto_key_frame_active, true) },
   { "Rewind Depth", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_depth, 0, empty_list, DEPEND(dsda_config_auto_key_frame_active, true) },
   { "Rewind Timeout (ms)", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_timeout, 0, empty_list, DEPEND(dsda_config_auto_key_frame_active, true) },
+
+  PREV_PAGE(gen_device_settings),
+  NEXT_PAGE(gen_misc_settings),
+  FINAL_ENTRY
+};
+
+static const char* loading_disk_list[] = { "Off", "disk", "cd-rom", NULL };
+static const char* endoom_list[] = { "Off", "On", "Smart", NULL };
+
+setup_menu_t gen_misc_settings[] = {
+  { "Enable Cheat Code Entry", S_YESNO, m_conf, G2_X, dsda_config_cheat_codes },
+  { "Use Dehacked Cheats", S_YESNO, m_conf, G2_X, dsda_config_deh_change_cheats },
   EMPTY_LINE,
   { "Autosave On Level Start", S_YESNO, m_conf, G2_X, dsda_config_auto_save },
   { "Organize My Save Files", S_YESNO, m_conf, G2_X, dsda_config_organized_saves },
   { "Data Access Icon", S_CHOICE, m_conf, G2_X, nyan_config_loading_disk, 0, loading_disk_list },
+  EMPTY_LINE,
   { "Skip Quit Prompt", S_YESNO, m_conf, G2_X, dsda_config_skip_quit_prompt },
+  { "Play Quit Sound", S_YESNO, m_conf, G2_X, dsda_config_quit_sounds },
+  { "Show Endoom", S_CHOICE, m_conf, G2_X, nyan_config_show_endoom, 0, endoom_list },
 
-  PREV_PAGE(gen_controller_settings),
+  PREV_PAGE(gen_gamesim_settings),
   NEXT_PAGE(gen_nyan_settings),
   FINAL_ENTRY
 };
-
-static const char* endoom_list[] = { "Off", "On", "Smart", NULL };
 
 setup_menu_t gen_nyan_settings[] = {
   { "Play Demos While In Menus", S_YESNO, m_conf, G2_X, nyan_config_menu_play_demo },
   { "Overlay for All Menus", S_YESNO, m_conf, G2_X, nyan_config_full_menu_fade },
   { "Overlay Gradual Fade", S_YESNO, m_conf, G2_X, nyan_config_gradual_menu_fade },
-  EMPTY_LINE,
-  { "Endoom Screen", S_CHOICE, m_conf, G2_X, nyan_config_show_endoom, 0, endoom_list },
   EMPTY_LINE,
   { "Skip IWAD Story For PWADs", S_YESNO, m_conf, G2_X, nyan_config_skip_default_text },
   { "Skip IWAD Map Names For PWADs", S_YESNO, m_conf, G2_X, nyan_config_ignore_default_map_names },
@@ -4164,6 +4154,108 @@ static void M_Sub_DrawAdvAudio(void)
   M_DrawTitle(2, "GENERAL", cr_title);
   M_DrawInstructions();
   M_DrawTabs(audio_pages, sizeof(audio_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Mouse Options
+
+static const char *mouse_pages[] =
+{
+  "Mouse Options",
+  NULL
+};
+
+setup_menu_t mouse_adv_settings[];
+
+setup_menu_t* mouse_settings[] =
+{
+  mouse_adv_settings,
+  NULL
+};
+
+setup_menu_t mouse_adv_settings[] = {
+  { "Horizontal Sensitivity", S_NUM, m_conf, G2_X, dsda_config_mouse_sensitivity_horiz },
+  { "Vertical Sensitivity", S_NUM, m_conf, G2_X, dsda_config_mouse_sensitivity_vert },
+  { "Free Look Sensitivity", S_NUM, m_conf, G2_X, dsda_config_mouse_sensitivity_mlook },
+  { "Acceleration", S_NUM, m_conf, G2_X, dsda_config_mouse_acceleration },
+  EMPTY_LINE,
+  { "Mouse Strafe Divisor", S_NUM, m_conf, G2_X, dsda_config_movement_mousestrafedivisor },
+  { "Dbl-Click As Use", S_YESNO, m_conf, G2_X, dsda_config_mouse_doubleclick_as_use },
+  { "Vertical Mouse Movement", S_YESNO, m_conf, G2_X, dsda_config_vertmouse },
+  { "Carry Fractional Tics", S_YESNO, m_conf, G2_X, dsda_config_mouse_carrytics },
+  { "Mouse Stutter Correction", S_YESNO, m_conf, G2_X, dsda_config_mouse_stutter_correction },
+
+  FINAL_ENTRY
+};
+
+static void M_Sub_Mouse(void)
+{
+  M_EnterSubSetup(&SubMouseDef, &sub_mouse_active, mouse_settings[0]);
+}
+
+static void M_Sub_DrawMouse(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "GENERAL", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(mouse_pages, sizeof(mouse_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Gamepad Options
+
+static const char *gamepad_pages[] =
+{
+  "Gamepad Options",
+  NULL
+};
+
+setup_menu_t gamepad_adv_settings[];
+
+setup_menu_t* gamepad_settings[] =
+{
+  gamepad_adv_settings,
+  NULL
+};
+
+setup_menu_t gamepad_adv_settings[] = {
+  { "Swap Analogs", S_YESNO, m_conf, G2_X, dsda_config_swap_analogs },
+  EMPTY_LINE,
+  { "Left Horizontal Sensitivity", S_NUM, m_conf, G2_X, dsda_config_left_analog_sensitivity_x },
+  { "Left Vertical Sensitivity", S_NUM, m_conf, G2_X, dsda_config_left_analog_sensitivity_y },
+  { "Right Horizontal Sensitivity", S_NUM, m_conf, G2_X, dsda_config_right_analog_sensitivity_x },
+  { "Right Vertical Sensitivity", S_NUM, m_conf, G2_X, dsda_config_right_analog_sensitivity_y },
+  { "Acceleration", S_NUM, m_conf, G2_X, dsda_config_analog_look_acceleration },
+  EMPTY_LINE,
+  { "Left Analog Deadzone", S_NUM, m_conf, G2_X, dsda_config_left_analog_deadzone },
+  { "Right Analog Deadzone", S_NUM, m_conf, G2_X, dsda_config_right_analog_deadzone },
+  { "Left Trigger Deadzone", S_NUM, m_conf, G2_X, dsda_config_left_trigger_deadzone },
+  { "Right Trigger Deadzone", S_NUM, m_conf, G2_X, dsda_config_right_trigger_deadzone },
+
+  FINAL_ENTRY
+};
+
+static void M_Sub_Gamepad(void)
+{
+  M_EnterSubSetup(&SubGamepadDef, &sub_gamepad_active, gamepad_settings[0]);
+}
+
+static void M_Sub_DrawGamepad(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "GENERAL", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(gamepad_pages, sizeof(gamepad_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -4277,10 +4369,6 @@ static const char* fuzz_scale_list[] = { "Vanilla", "3/4", "1/2", NULL };
 static const char* colored_blood_list[] = { "OFF", "ON", "FORCED", NULL };
 static const char* translucent_list[] = { "Off", "Default", "w/ Vanilla", NULL };
 
-DEPEND_LIST(colored_blood_depend_list,
-  EXC(nyan_config_colored_blood, false),
-);
-
 setup_menu_t display_nyan_settings[] = {
   { "Colored Borderbox", S_YESNO, m_conf, G_X, dsda_config_colored_borderbox },
   { "Software Fuzz Mode", S_CHOICE, m_conf, G_X, dsda_config_fuzzmode, 0, fuzz_mode_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
@@ -4289,12 +4377,12 @@ setup_menu_t display_nyan_settings[] = {
   { "Flashing Item Bonuses", S_YESNO, m_conf, G_X, nyan_config_item_bonus_flash },
   EMPTY_LINE,
   { "Colored Blood", S_CHOICE, m_conf, G_X, nyan_config_colored_blood, 0, colored_blood_list },
-  FUNC_DEPEND_MULTI("Customize", S_CENTER, G_X, M_Sub_ColoredBlood, colored_blood_depend_list),
+  FUNC_EXCLUDE("Customize", S_CENTER, G_X, M_Sub_ColoredBlood, nyan_config_colored_blood, false),
   EMPTY_LINE,
   TITLE("Translucency", G_X),
   { "Translucent Sprites", S_CHOICE, m_conf, G_X, dsda_config_translucent_sprites, 0, translucent_list },
   { "Translucent Ghosts", S_YESNO, m_conf, G_X, dsda_config_translucent_ghosts },
-  FUNCTION("Advanced", S_CENTER, G_X, M_Sub_Trans),
+  FUNC("Advanced", S_CENTER, G_X, M_Sub_Trans),
 
   PREV_PAGE(display_options_settings),
   NEXT_PAGE(display_statbar_settings),
@@ -4329,7 +4417,7 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   { "Smooth Health/Armor %", S_YESNO, m_conf, G_X, dsda_config_hud_animated_count },
   { "Single Key Display", S_YESNO, m_conf, G_X, dsda_config_sts_traditional_keys },
   { "Blink Missing Keys", S_YESNO, m_conf, G_X, dsda_config_sts_blink_keys },
-  FUNCTION("Coloring", S_CENTER, G_X, M_Sub_StatbarColor),
+  FUNC("Coloring", S_CENTER, G_X, M_Sub_StatbarColor),
   EMPTY_LINE,
   { "Berserk Indicator", S_CHOICE, m_conf, G_X, nyan_config_hud_berserk, 0, berserk_icon_list },
   { "Armor Indicator", S_CHOICE, m_conf, G_X, nyan_config_hud_armoricon, 0, armor_icon_list },
@@ -4352,9 +4440,9 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   { "Announce Map On Entry", S_CHOICE, m_conf, G_X, dsda_config_announce_map, 0, announce_map_list },
   { "Detailed Quicksave Msg", S_YESNO, m_conf, G_X, dsda_config_detailed_quicksave },
   EMPTY_LINE,
-  FUNCTION("Ex-Hud", S_CENTER, G_X, M_Sub_ExHud),
-  FUNCTION("Status Widget", S_CENTER, G_X, M_Sub_StatusWidget),
-  FUNCTION("Crosshair", S_CENTER, G_X, M_Sub_Crosshair),
+  FUNC("Ex-Hud", S_CENTER, G_X, M_Sub_ExHud),
+  FUNC("Status Widget", S_CENTER, G_X, M_Sub_StatusWidget),
+  FUNC("Crosshair", S_CENTER, G_X, M_Sub_Crosshair),
 
   PREV_PAGE(display_statbar_settings),
   FINAL_ENTRY
@@ -4729,22 +4817,16 @@ setup_menu_t comp_options_settings[] = {
 
 #define CP_X 250
 
-#define LR_ON   0, empty_list, DEPEND(dsda_config_limit_removing,false)
-
-DEPEND_LIST(overflow_list,
-  DEP(dsda_config_limit_removing, false),
-);
-
 setup_menu_t comp_emulation_settings[] = {
   { "Limit-Removing", S_YESNO, m_conf, CP_X, dsda_config_limit_removing },
-  FUNC_DEPEND_MULTI("Overflows", S_CENTER, CP_X, M_Sub_Overflows, overflow_list),
+  FUNC_DEPEND("Overflows", S_CENTER, CP_X, M_Sub_Overflows, dsda_config_limit_removing, false),
   EMPTY_LINE,
   { "MAPPING ERROR FIXES", S_SKIP | S_TITLE, m_conf, CP_X},
   { "LINEDEFS W/O TAGS APPLY LOCALLY", S_YESNO, m_conf, CP_X, dsda_config_comperr_zerotag },
   { "USE PASSES THRU ALL SPECIAL LINES", S_YESNO, m_conf, CP_X, dsda_config_comperr_passuse },
   { "WALK UNDER SOLID HANGING BODIES", S_YESNO, m_conf, CP_X, dsda_config_comperr_hangsolid },
   { "FIX CLIPPING IN LARGE LEVELS", S_YESNO, m_conf, CP_X, dsda_config_comperr_blockmap },
-  { "Pickup Multiple Areamaps", S_YESNO, m_conf, CP_X, dsda_config_multiple_area_maps },
+  { "Allow Multiple Map Pickups", S_YESNO, m_conf, CP_X, dsda_config_multiple_area_maps },
 
   PREV_PAGE(comp_options_settings),
   FINAL_ENTRY
@@ -4786,18 +4868,18 @@ setup_menu_t* overflows_settings[] =
 };
 
 setup_menu_t overflows_gen_settings[] = {
-  { "WARN ON SPECHITS OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_spechit_warn, LR_ON },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_spechit_emulate, LR_ON },
-  { "WARN ON REJECT OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_reject_warn, LR_ON },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_reject_emulate, LR_ON },
-  { "WARN ON INTERCEPTS OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_intercept_warn, LR_ON },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_intercept_emulate, LR_ON },
-  { "WARN ON PLAYERINGAME OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_playeringame_warn, LR_ON },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_playeringame_emulate, LR_ON },
-  { "WARN ON DONUT OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_donut_warn, LR_ON },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_donut_emulate, LR_ON },
-  { "WARN ON MISSEDBACKSIDE OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_missedbackside_warn, LR_ON },
-  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_missedbackside_emulate, LR_ON },
+  { "WARN ON SPECHITS OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_spechit_warn },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_spechit_emulate },
+  { "WARN ON REJECT OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_reject_warn },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_reject_emulate },
+  { "WARN ON INTERCEPTS OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_intercept_warn },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_intercept_emulate },
+  { "WARN ON PLAYERINGAME OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_playeringame_warn },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_playeringame_emulate },
+  { "WARN ON DONUT OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_donut_warn },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_donut_emulate },
+  { "WARN ON MISSEDBACKSIDE OVERFLOW", S_YESNO, m_conf, CP_X, dsda_config_overrun_missedbackside_warn },
+  { "TRY TO EMULATE IT", S_YESNO, m_conf, CP_X, dsda_config_overrun_missedbackside_emulate },
 
   FINAL_ENTRY
 };
@@ -4915,9 +4997,9 @@ setup_menu_t skill_options_builder[] = {
   EMPTY_LINE,
   { "Pistol Start", S_YESNO, m_conf, SK_X, dsda_config_pistol_start },
   EMPTY_LINE,
-  FUNCTION("Start New Game", S_LEFTJUST, SK_X2, CSNewGame),
-  FUNCTION("Restart Map -- Pistol Start", S_LEFTJUST, SK_X2, CSPistolStart),
-  FUNCTION("Restart Map -- Current Loadout", S_LEFTJUST, SK_X2, CSCurrentLoadout),
+  FUNC("Start New Game", S_LEFTJUST, SK_X2, CSNewGame),
+  FUNC("Restart Map -- Pistol Start", S_LEFTJUST, SK_X2, CSPistolStart),
+  FUNC("Restart Map -- Current Loadout", S_LEFTJUST, SK_X2, CSCurrentLoadout),
 
   NEXT_PAGE(skill_options_start),
   FINAL_ENTRY
@@ -6110,6 +6192,8 @@ void M_LeaveSetupMenu(void)
 
   // submenus
   sub_advanced_audio_active = false;
+  sub_mouse_active = false;
+  sub_gamepad_active = false;
   sub_colored_blood_active = false;
   sub_trans_active = false;
   sub_statbar_color_active = false;
