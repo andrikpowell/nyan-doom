@@ -1952,9 +1952,6 @@ static void D_DoomMainSetup(void)
     I_SafeExit(0);
   }
 
-  started_demo = dsda_Flag(dsda_arg_record) || dsda_Flag(dsda_arg_recordfromto) ||
-  dsda_Flag(dsda_arg_playdemo) || dsda_Flag(dsda_arg_timedemo) || dsda_Flag(dsda_arg_fastdemo);
-
   // CPhipps - autoloading of wads
   autoload = !dsda_Flag(dsda_arg_noautoload);
 
@@ -2043,6 +2040,10 @@ static void D_DoomMainSetup(void)
   e6y_InitCommandLine();
 
   D_AddFile(port_wad_file, source_auto_load);
+
+  // Check arguments for demoplayback / demorecording
+  started_demo = dsda_Flag(dsda_arg_record) || dsda_Flag(dsda_arg_recordfromto) ||
+  dsda_Flag(dsda_arg_playdemo) || dsda_Flag(dsda_arg_timedemo) || dsda_Flag(dsda_arg_fastdemo);
 
   HandlePlayback(); // must come before autoload: may detect iwad in footer
 
