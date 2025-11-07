@@ -431,7 +431,7 @@ typedef enum {
   dsda_config_swap_analogs,
   dsda_config_invert_analog_look,
   nyan_config_show_endoom,
-  nyan_config_type_endoom,
+  nyan_config_export_endoom,
   dsda_config_ansi_endoom,
   dsda_config_quit_sounds,
   dsda_config_announce_map,

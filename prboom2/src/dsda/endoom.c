@@ -322,13 +322,13 @@ typedef enum {
 } output_format_t;
 
 typedef enum {
-  endoom_full,
-  endoom_ansi,
-} endoom_type_t;
+  endoom_window,
+  endoom_terminal,
+} endoom_export_t;
 
 static byte* endoom;
 static output_format_t output_format;
-static endoom_type_t endoom_type;
+static endoom_export_t endoom_export;
 
 #ifdef _WIN32
 static HANDLE hConsole;
@@ -397,14 +397,14 @@ void dsda_CacheEndoom(void) {
 }
 
 void dsda_DumpEndoom(void) {
-  endoom_type = dsda_IntConfig(nyan_config_type_endoom);
+  endoom_export = dsda_IntConfig(nyan_config_export_endoom);
 
   if(endoom)
   {
-    if (endoom_type==1)
-      dsda_WindowEndoom();
-    else
+    if (endoom_export)
       dsda_TerminalEndoom();
+    else
+      dsda_WindowEndoom();
   }
 }
 

@@ -2009,7 +2009,7 @@ static dboolean M_ItemNyan(const setup_menu_t* s)
       dsda_config_auto_key_frame_active, nyan_config_loading_disk, dsda_config_hexen_skip_ethereal_travel,
 
       nyan_config_menu_play_demo, nyan_config_full_menu_fade, nyan_config_gradual_menu_fade,
-      nyan_config_show_endoom, nyan_config_type_endoom, nyan_config_skip_default_text,
+      nyan_config_show_endoom, nyan_config_skip_default_text,
       nyan_config_ignore_default_map_names, nyan_config_play_random_music,
       nyan_config_enable_animate_lumps, nyan_config_enable_widescreen_lumps,
       dsda_config_gl_blend_animations,
@@ -4106,7 +4106,6 @@ setup_menu_t gen_nyan_settings[] = {
   { "Overlay Gradual Fade", S_YESNO, m_conf, G2_X, nyan_config_gradual_menu_fade },
   EMPTY_LINE,
   { "Endoom Screen", S_CHOICE, m_conf, G2_X, nyan_config_show_endoom, 0, endoom_list },
-  { "Endoom Type", S_CHOICE, m_conf, G2_X, nyan_config_type_endoom, 0, endoom_type_list, EXCLUDE(nyan_config_show_endoom, 0) },
   EMPTY_LINE,
   { "Skip IWAD Story For PWADs", S_YESNO, m_conf, G2_X, nyan_config_skip_default_text },
   { "Skip IWAD Map Names For PWADs", S_YESNO, m_conf, G2_X, nyan_config_ignore_default_map_names },

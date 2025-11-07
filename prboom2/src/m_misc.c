@@ -91,7 +91,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_screenshot_dir),
   MIGRATED_SETTING(dsda_config_startup_delay_ms),
   MIGRATED_SETTING(nyan_config_show_endoom),
-  MIGRATED_SETTING(nyan_config_type_endoom),
+  MIGRATED_SETTING(nyan_config_export_endoom),
   MIGRATED_SETTING(dsda_config_ansi_endoom),
   MIGRATED_SETTING(dsda_config_quit_sounds),
   MIGRATED_SETTING(dsda_config_announce_map),
