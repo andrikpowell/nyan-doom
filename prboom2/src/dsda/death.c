@@ -17,6 +17,7 @@
 
 #include "doomstat.h"
 #include "d_player.h"
+#include "m_cheat.h"
 #include "v_video.h"
 
 #include "dsda/configuration.h"
@@ -48,6 +49,10 @@ int dsda_SkipDeathUseAction(void)
   if (demorecording)
     if (players[consoleplayer].playerstate == PST_DEAD && dsda_IntConfig(dsda_config_death_use_action) == death_use_nothing)
       return true;
+
+  // Avoid other keys triggering the DeathUseAction when typing cheats (ex: "e" in "quicken")
+  if (allow_incompatibility && cheat_in_progress)
+    return true;
 
   return false;
 }
