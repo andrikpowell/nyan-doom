@@ -370,8 +370,6 @@ void dsda_CacheEndoom(void) {
 
   show_endoom = dsda_IntConfig(nyan_config_show_endoom);
 
-  pwad_only = (show_endoom==2 && !W_PWADLumpNumExists(lump) && W_PWADMapsExist());
-
   if (V_IsOpenGLMode())
     is_opengl = true;
 
@@ -391,6 +389,8 @@ void dsda_CacheEndoom(void) {
     if (lump == LUMP_NOT_FOUND)
       lump = W_CheckNumForName("ENDOOM");
   }
+
+  pwad_only = (show_endoom==2 && !W_PWADLumpNumExists(lump) && W_PWADMapsExist());
 
   if (lump == LUMP_NOT_FOUND || W_LumpLength(lump) != 4000 || pwad_only)
     return;
