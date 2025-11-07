@@ -1533,6 +1533,8 @@ void cht_UpdateCheats(void)
   cht_InitCheats();
 }
 
+int cheat_in_progress = false;
+
 //
 // CHEAT SEQUENCE PACKAGE
 //
@@ -1550,6 +1552,7 @@ static int M_FindCheats(int key)
   cht_InitCheats();
 
   char_key = (char)key;
+  cheat_in_progress = false;
 
   for (cht = cheat; WHICH_CHEAT(cht); cht++)
   {
@@ -1569,6 +1572,10 @@ static int M_FindCheats(int key)
           cht->chars_read = 0;
 
         cht->param_chars_read = 0;
+
+        // mark cheat as "in progress" after 3 characters
+        if (cht->chars_read >= 3 && cht->chars_read < cht->sequence_len)
+          cheat_in_progress = true;
       }
       else if (cht->param_chars_read < -cht->arg)
       {
@@ -1586,6 +1593,9 @@ static int M_FindCheats(int key)
       if (cht->chars_read >= cht->sequence_len &&
           cht->param_chars_read >= -cht->arg)
       {
+          // mark cheat progress "complete"
+          cheat_in_progress = false;
+
         if (cht->param_chars_read)
         {
           static char argbuf[CHEAT_ARGS_MAX + 1];

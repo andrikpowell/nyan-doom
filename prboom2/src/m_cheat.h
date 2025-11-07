@@ -44,6 +44,7 @@
 /* killough 4/16/98: Cheat table structure */
 
 extern dboolean M_CheatAllowed(int when);
+extern int cheat_in_progress;
 
 typedef enum {
   cht_always = 0,
