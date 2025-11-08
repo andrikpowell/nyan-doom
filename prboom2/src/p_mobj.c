@@ -2208,7 +2208,6 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
   p->viewheight    = g_viewheight;
 
   p->momx = p->momy = 0;   // killough 10/98: initialize bobbing to 0.
-  p->lookdir = 0;          // reset view to center (heretic / hexen)
 
   // setup gun psprite
 
