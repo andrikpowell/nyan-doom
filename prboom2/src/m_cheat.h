@@ -36,8 +36,8 @@
 
 #include "d_event.h"
 
-#define CHEAT(cheat, deh_cheat, deh_cheat_desc, when, func, arg, repeatable) \
-  { cheat, deh_cheat, deh_cheat_desc, when, func, arg, repeatable, 0, 0, 0, 0, 0, "" }
+#define CHEAT(cheat, deh_cheat, deh_cheat_desc, when, game, func, arg, repeatable) \
+  { cheat, deh_cheat, deh_cheat_desc, when, game, func, arg, repeatable, 0, 0, 0, 0, 0, "" }
 
 #define CHEAT_ARGS_MAX 8  /* Maximum number of args at end of cheats */
 
@@ -51,14 +51,21 @@ typedef enum {
   not_demo          = (1<<0),
   not_menu          = (1<<1),
   not_classic_demo  = (1<<2), // allowed in dsda demo format
-  not_doom_classic_demo = (1<<3),
 } cheat_when_t;
+
+typedef enum {
+  cht_doom        = (1<<0),
+  cht_heretic     = (1<<1),
+  cht_hexen       = (1<<2),
+  cht_any         = (1<<3),
+} cheat_game_t;
 
 typedef struct cheatseq_s {
   const char *	cheat;
   const char *  deh_cheat;
   const char *const deh_cheat_desc;
   const cheat_when_t when;
+  const cheat_game_t game;
   void (*const func)();
   const int arg;
   const int repeatable;

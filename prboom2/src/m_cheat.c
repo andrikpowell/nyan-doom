@@ -85,11 +85,11 @@ static void cheat_mus(char buf[3]);
 static void cheat_musrr();
 static void cheat_camera();
 static void cheat_choppers();
-static void cheat_god_which();
+static void cheat_god_raven();
 static void cheat_god();
 static void cheat_fa();
 static void cheat_k();
-static void cheat_kfa_which();
+static void cheat_kfa_raven();
 static void cheat_kfa();
 static void cheat_noclip();
 static void cheat_pw(int pw);
@@ -177,140 +177,144 @@ static void cheat_strip();
 //-----------------------------------------------------------------------------
 
 cheatseq_t cheat[] = {
-  CHEAT("idmus",      NULL,   "Change music",     cht_always, cheat_mus, -2, false),
-  CHEAT("idchoppers", NULL,   "Chainsaw",         not_demo, cheat_choppers, 0, false),
-  CHEAT("iddqd",      NULL,   "God mode",         not_doom_classic_demo,  cheat_god_which, 0, false),
-  CHEAT("idkfa",      NULL,   "Ammo & Keys",      not_demo, cheat_kfa_which, 0, false),
-  CHEAT("idfa",       NULL,   "Ammo",             not_demo, cheat_fa, 0, false),
-  CHEAT("idspispopd", NULL,   "No Clipping 1",    not_classic_demo,  cheat_noclip, 0, false),
-  CHEAT("idclip",     NULL,   "No Clipping 2",    not_classic_demo,  cheat_noclip, 0, false),
-  CHEAT("idbehold",   NULL,   "BEHOLD menu",      cht_always, cheat_behold, 0, false),
-  CHEAT("idbeholdh",  NULL,   "Invincibility",    not_demo, cheat_health, 0, false),
-  CHEAT("idbeholdm",  NULL,   "Invincibility",    not_demo, cheat_megaarmour, 0, false),
-  CHEAT("idbeholdv",  NULL,   "Invincibility",    not_demo, cheat_pw, pw_invulnerability, false),
-  CHEAT("idbeholds",  NULL,   "Berserk",          not_demo, cheat_pw, pw_strength, false),
-  CHEAT("idbeholdi",  NULL,   "Invisibility",     not_demo, cheat_pw, pw_invisibility, false),
-  CHEAT("idbeholdr",  NULL,   "Radiation Suit",   not_demo, cheat_pw, pw_ironfeet, false),
-  CHEAT("idbeholda",  NULL,   "Auto-map",         cht_always, cheat_pw, pw_allmap, false),
-  CHEAT("idbeholdl",  NULL,   "Lite-Amp Goggles", cht_always, cheat_pw, pw_infrared, false),
-  CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cheat_clevx, -2, false),
-  CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cheat_clev, 0, false),
-  CHEAT("idmypos",    NULL,   NULL,               cht_always, cheat_mypos, 0, false),
-  CHEAT("idrate",     NULL,   "Frame rate",       cht_always, cheat_rate, 0, false),
+  CHEAT("idmus",      NULL,   "Change music",     cht_always, cht_any, cheat_mus, -2, false),
+  CHEAT("idchoppers", NULL,   "Chainsaw",         not_demo, cht_doom, cheat_choppers, 0, false),
+  CHEAT("iddqd",      NULL,   "God mode",         not_classic_demo, cht_doom, cheat_god, 0, false),
+  CHEAT("idkfa",      NULL,   "Ammo & Keys",      not_demo, cht_doom, cheat_kfa, 0, false),
+  CHEAT("idfa",       NULL,   "Ammo",             not_demo, cht_doom, cheat_fa, 0, false),
+  CHEAT("idspispopd", NULL,   "No Clipping 1",    not_classic_demo, cht_any, cheat_noclip, 0, false),
+  CHEAT("idclip",     NULL,   "No Clipping 2",    not_classic_demo, cht_any, cheat_noclip, 0, false),
+  CHEAT("idbehold",   NULL,   "BEHOLD menu",      cht_always, cht_doom, cheat_behold, 0, false),
+  CHEAT("idbeholdh",  NULL,   "Invincibility",    not_demo, cht_doom, cheat_health, 0, false),
+  CHEAT("idbeholdm",  NULL,   "Invincibility",    not_demo, cht_doom, cheat_megaarmour, 0, false),
+  CHEAT("idbeholdv",  NULL,   "Invincibility",    not_demo, cht_doom, cheat_pw, pw_invulnerability, false),
+  CHEAT("idbeholds",  NULL,   "Berserk",          not_demo, cht_doom, cheat_pw, pw_strength, false),
+  CHEAT("idbeholdi",  NULL,   "Invisibility",     not_demo, cht_doom, cheat_pw, pw_invisibility, false),
+  CHEAT("idbeholdr",  NULL,   "Radiation Suit",   not_demo, cht_doom, cheat_pw, pw_ironfeet, false),
+  CHEAT("idbeholda",  NULL,   "Auto-map",         cht_always, cht_doom, cheat_pw, pw_allmap, false),
+  CHEAT("idbeholdl",  NULL,   "Lite-Amp Goggles", cht_always, cht_doom, cheat_pw, pw_infrared, false),
+  CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cht_any, cheat_clevx, -2, false),
+  CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cht_any, cheat_clev, 0, false),
+  CHEAT("idmypos",    NULL,   NULL,               cht_always, cht_any, cheat_mypos, 0, false),
+  CHEAT("idrate",     NULL,   "Frame rate",       cht_always, cht_any, cheat_rate, 0, false),
 
   // phares
-  CHEAT("comp",       NULL,   NULL,               not_demo, cheat_compx, -2, false),
-  CHEAT("comp",       NULL,   NULL,               not_demo, cheat_comp, 0, false),
-  CHEAT("skill",      NULL,   NULL,               not_demo, cheat_skillx, -1, false),
-  CHEAT("skill",      NULL,   NULL,               not_demo, cheat_skill, 0, false),
-  CHEAT("tntem",      NULL,   NULL,               not_demo, cheat_massacre, 0, false),  // jff 2/01/98 kill all monsters
-  CHEAT("killem",     NULL,   NULL,               not_demo, cheat_massacre, 0, false),  // jff 2/01/98 kill all monsters
+  CHEAT("comp",       NULL,   NULL,               not_demo, cht_doom, cheat_compx, -2, false),
+  CHEAT("comp",       NULL,   NULL,               not_demo, cht_doom, cheat_comp, 0, false),
+  CHEAT("skill",      NULL,   NULL,               not_demo, cht_any, cheat_skillx, -1, false),
+  CHEAT("skill",      NULL,   NULL,               not_demo, cht_any, cheat_skill, 0, false),
+  CHEAT("tntem",      NULL,   NULL,               not_demo, cht_any, cheat_massacre, 0, false),  // jff 2/01/98 kill all monsters
+  CHEAT("killem",     NULL,   NULL,               not_demo, cht_any, cheat_massacre, 0, false),  // jff 2/01/98 kill all monsters
 
   // killough 2/07/98: moved from am_map.c
-  CHEAT("iddt",       NULL,   "Map cheat",        cht_always, cheat_ddt, 0, true),
-  CHEAT("iddst",      NULL,   NULL,               cht_always, cheat_reveal_secret, 0, true),
-  CHEAT("iddkt",      NULL,   NULL,               cht_always, cheat_reveal_kill, 0, true),
-  CHEAT("iddit",      NULL,   NULL,               cht_always, cheat_reveal_item, 0, true),
-  CHEAT("iddet",      NULL,   NULL,               cht_always, cheat_reveal_exit, 0, true),
+  CHEAT("iddt",       NULL,   "Map cheat",        cht_always, cht_any, cheat_ddt, 0, true),
+  CHEAT("iddst",      NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_secret, 0, true),
+  CHEAT("iddkt",      NULL,   NULL,               cht_always, cht_any, cheat_reveal_kill, 0, true),
+  CHEAT("iddit",      NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_item, 0, true),
+  CHEAT("iddet",      NULL,   NULL,               cht_always, cht_any, cheat_reveal_exit, 0, true),
 
   // find weapon cheats
-  CHEAT("iddwt",      NULL,   NULL,               cht_always, cheat_reveal_weapon, 0, false),
-  CHEAT("iddwt2",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_pistol+1, true),
-  CHEAT("iddwt3",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_shotgun+1, true),
-  CHEAT("iddwt4",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_chaingun+1, true),
-  CHEAT("iddwt5",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_missile+1, true),
-  CHEAT("iddwt6",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_plasma+1, true),
-  CHEAT("iddwt7",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_bfg+1, true),
-  CHEAT("iddwt8",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_chainsaw+1, true),
-  CHEAT("iddwt9",     NULL,   NULL,               cht_always, cheat_reveal_weaponx, wp_supershotgun+1, true),
+  CHEAT("iddwt",      NULL,   NULL,               cht_always, cht_any, cheat_reveal_weapon, 0, false),
+  CHEAT("iddwt2",     NULL,   NULL,               cht_always, cht_hexen, cheat_reveal_weaponx, wp_pistol+1, true),
+  CHEAT("iddwt3",     NULL,   NULL,               cht_always, cht_any, cheat_reveal_weaponx, wp_shotgun+1, true),
+  CHEAT("iddwt4",     NULL,   NULL,               cht_always, cht_any, cheat_reveal_weaponx, wp_chaingun+1, true),
+  CHEAT("iddwt5",     NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_weaponx, wp_missile+1, true),
+  CHEAT("iddwt6",     NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_weaponx, wp_plasma+1, true),
+  CHEAT("iddwt7",     NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_weaponx, wp_bfg+1, true),
+  CHEAT("iddwt8",     NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_weaponx, wp_chainsaw+1, true),
+  CHEAT("iddwt9",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_weaponx, wp_supershotgun+1, true),
 
   // key cheats
-  CHEAT("iddfrc",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_RKEY, true),
-  CHEAT("iddfyc",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_YKEY, true),
-  CHEAT("iddfbc",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_BKEY, true),
-  CHEAT("iddfrs",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_RSKU, true),
-  CHEAT("iddfys",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_YSKU, true),
-  CHEAT("iddfbs",     NULL,   NULL,               cht_always, cheat_reveal_doom_key, SPR_BSKU, true),
-  CHEAT("iddfg",      NULL,   NULL,               cht_always, cheat_reveal_heretic_key, HERETIC_SPR_AKYY, true), // heretic
-  CHEAT("iddfy",      NULL,   NULL,               cht_always, cheat_reveal_heretic_key, HERETIC_SPR_CKYY, true), // heretic
-  CHEAT("iddfb",      NULL,   NULL,               cht_always, cheat_reveal_heretic_key, HERETIC_SPR_BKYY, true), // heretic
-  CHEAT("iddf",       NULL,   NULL,               cht_always, cheat_reveal_key, 0, false),
-  CHEAT("iddfr",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
-  CHEAT("iddfy",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
-  CHEAT("iddfb",      NULL,   NULL,               cht_always, cheat_reveal_keyx, 0, false),
+  CHEAT("iddfrc",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_RKEY, true),
+  CHEAT("iddfyc",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_YKEY, true),
+  CHEAT("iddfbc",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_BKEY, true),
+  CHEAT("iddfrs",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_RSKU, true),
+  CHEAT("iddfys",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_YSKU, true),
+  CHEAT("iddfbs",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_BSKU, true),
+  CHEAT("iddfg",      NULL,   NULL,               cht_always, cht_heretic, cheat_reveal_heretic_key, HERETIC_SPR_AKYY, true), // heretic
+  CHEAT("iddfy",      NULL,   NULL,               cht_always, cht_heretic, cheat_reveal_heretic_key, HERETIC_SPR_CKYY, true), // heretic
+  CHEAT("iddfb",      NULL,   NULL,               cht_always, cht_heretic, cheat_reveal_heretic_key, HERETIC_SPR_BKYY, true), // heretic
+  CHEAT("iddf",       NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_key, 0, false),
+  CHEAT("iddfr",      NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, 0, false),
+  CHEAT("iddfy",      NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, 0, false),
+  CHEAT("iddfb",      NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, 0, false),
 
   // killough 2/16/98: generalized key cheats
-  CHEAT("keyrc",      NULL,   NULL,               not_demo, cheat_key_doom, it_redcard, false),
-  CHEAT("keyyc",      NULL,   NULL,               not_demo, cheat_key_doom, it_yellowcard, false),
-  CHEAT("keybc",      NULL,   NULL,               not_demo, cheat_key_doom, it_bluecard, false),
-  CHEAT("keyrs",      NULL,   NULL,               not_demo, cheat_key_doom, it_redskull, false),
-  CHEAT("keyys",      NULL,   NULL,               not_demo, cheat_key_doom, it_yellowskull, false),
-  CHEAT("keybs",      NULL,   NULL,               not_demo, cheat_key_doom, it_blueskull, false),
-  CHEAT("keyg",       NULL,   NULL,               not_demo, cheat_key_heretic, key_green, false),  // heretic
-  CHEAT("keyy",       NULL,   NULL,               not_demo, cheat_key_heretic, key_yellow, false), // heretic
-  CHEAT("keyb",       NULL,   NULL,               not_demo, cheat_key_heretic, key_blue, false),   // heretic
-  CHEAT("key",        NULL,   NULL,               not_demo, cheat_key, 0, false),
-  CHEAT("keyr",       NULL,   NULL,               not_demo, cheat_keyx, 0, false),
-  CHEAT("keyy",       NULL,   NULL,               not_demo, cheat_keyx, 0, false),
-  CHEAT("keyb",       NULL,   NULL,               not_demo, cheat_keyx, 0, false),
+  CHEAT("keyrc",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_redcard, false),
+  CHEAT("keyyc",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_yellowcard, false),
+  CHEAT("keybc",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_bluecard, false),
+  CHEAT("keyrs",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_redskull, false),
+  CHEAT("keyys",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_yellowskull, false),
+  CHEAT("keybs",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_blueskull, false),
+  CHEAT("keyg",       NULL,   NULL,               not_demo, cht_heretic, cheat_key_heretic, key_green, false),  // heretic
+  CHEAT("keyy",       NULL,   NULL,               not_demo, cht_heretic, cheat_key_heretic, key_yellow, false), // heretic
+  CHEAT("keyb",       NULL,   NULL,               not_demo, cht_heretic, cheat_key_heretic, key_blue, false),   // heretic
+  CHEAT("key",        NULL,   NULL,               not_demo, cht_doom | cht_heretic, cheat_key, 0, false),
+  CHEAT("keyr",       NULL,   NULL,               not_demo, cht_doom, cheat_keyx, 0, false),
+  CHEAT("keyy",       NULL,   NULL,               not_demo, cht_doom, cheat_keyx, 0, false),
+  CHEAT("keyb",       NULL,   NULL,               not_demo, cht_doom, cheat_keyx, 0, false),
 
   // killough 2/16/98: generalized weapon cheats
-  CHEAT("weap",       NULL,   NULL,               not_demo, cheat_weapx, -1, false),
-  CHEAT("weap",       NULL,   NULL,               not_demo, cheat_weap, 0, false),
-  CHEAT("ammo",       NULL,   NULL,               not_demo, cheat_ammox, -1, false),
-  CHEAT("ammo",       NULL,   NULL,               not_demo, cheat_ammo, 0, false),
+  CHEAT("weap",       NULL,   NULL,               not_demo, cht_any, cheat_weapx, -1, false),
+  CHEAT("weap",       NULL,   NULL,               not_demo, cht_any, cheat_weap, 0, false),
+  CHEAT("ammo",       NULL,   NULL,               not_demo, cht_any, cheat_ammox, -1, false),
+  CHEAT("ammo",       NULL,   NULL,               not_demo, cht_any, cheat_ammo, 0, false),
   // removed "TNTAMO" due to "AMMO" being short
 
   // Obscure TNT cheats
-  CHEAT("tntka",      NULL,   NULL,               not_demo, cheat_k, 0, false),         // Ty 04/11/98 - Added TNTKA
-  CHEAT("hom",        NULL,   NULL,               cht_always, cheat_hom, 0, false),     // killough 2/07/98: HOM autodetector
-  CHEAT("smart",      NULL,   NULL,               not_demo, cheat_smart, 0, false),     // killough 2/21/98: smart monster toggle
-  CHEAT("pitch",      NULL,   NULL,               cht_always, cheat_pitch, 0, false),   // killough 2/21/98: pitched sound toggle
-  CHEAT("fast",       NULL,   NULL,               not_demo, cheat_fast, 0, false),      // killough 3/6/98: -fast toggle
-  CHEAT("nuke",       NULL,   NULL,               not_demo, cheat_nuke, 0, false),      // killough 12/98: disable nukage damage
-  CHEAT("ice",        NULL,   NULL,               not_demo, cheat_friction, 0, false),  // phares 3/10/98: toggle variable friction effects
-  CHEAT("push",       NULL,   NULL,               not_demo, cheat_pushers, 0, false),   // phares 3/10/98: toggle pushers
+  CHEAT("tntka",      NULL,   NULL,               not_demo,   cht_any, cheat_k, 0, false),         // Ty 04/11/98 - Added TNTKA
+  CHEAT("hom",        NULL,   NULL,               cht_always, cht_any, cheat_hom, 0, false),     // killough 2/07/98: HOM autodetector
+  CHEAT("smart",      NULL,   NULL,               not_demo,   cht_any, cheat_smart, 0, false),     // killough 2/21/98: smart monster toggle
+  CHEAT("pitch",      NULL,   NULL,               cht_always, cht_any, cheat_pitch, 0, false),   // killough 2/21/98: pitched sound toggle
+  CHEAT("fast",       NULL,   NULL,               not_demo,   cht_any, cheat_fast, 0, false),      // killough 3/6/98: -fast toggle
+  CHEAT("nuke",       NULL,   NULL,               not_demo,   cht_any, cheat_nuke, 0, false),      // killough 12/98: disable nukage damage
+  CHEAT("ice",        NULL,   NULL,               not_demo,   cht_any, cheat_friction, 0, false),  // phares 3/10/98: toggle variable friction effects
+  CHEAT("push",       NULL,   NULL,               not_demo,   cht_any, cheat_pushers, 0, false),   // phares 3/10/98: toggle pushers
 
   // dsda cheats
-  CHEAT("notarget",   NULL,   NULL,               not_demo, cheat_notarget, 0, false),  // [RH] Monsters don't target
-  CHEAT("fly",        NULL,   NULL,               not_demo, cheat_fly, 0, false),       // fly mode is active
+  CHEAT("notarget",   NULL,   NULL,               not_demo, cht_any, cheat_notarget, 0, false),  // [RH] Monsters don't target
+  CHEAT("fly",        NULL,   NULL,               not_demo, cht_any, cheat_fly, 0, false),       // fly mode is active
 
   // heretic
-  CHEAT("quicken", NULL, NULL, not_classic_demo, cheat_god, 0, false),
-  CHEAT("ponce", NULL, NULL, not_demo, cheat_reset_health, 0, false),
-  CHEAT("kitty", NULL, NULL, not_classic_demo, cheat_noclip, 0, false),
-  CHEAT("massacre", NULL, NULL, not_demo, cheat_massacre, 0, false),
-  CHEAT("rambo", NULL, NULL, not_demo, cheat_fa, 0, false),
-  CHEAT("skel", NULL, NULL, not_demo, cheat_k, 0, false),
-  CHEAT("gimme", NULL, NULL, not_demo, cheat_artifact, -2, false),
-  CHEAT("shazam", NULL, NULL, not_demo, cheat_tome, 0, false),
-  CHEAT("engage", NULL, NULL, not_demo | not_menu, cheat_clevx, -2, false),
-  CHEAT("engage", NULL, NULL, not_demo | not_menu, cheat_clev, 0, false),
-  CHEAT("ravmap", NULL, NULL, cht_always, cheat_ddt, 0, true),
-  CHEAT("cockadoodledoo", NULL, NULL, not_demo, cheat_chicken, 0, false),
+  CHEAT("quicken", NULL, NULL, not_classic_demo, cht_heretic, cheat_god, 0, false),
+  CHEAT("ponce", NULL, NULL, not_demo, cht_heretic, cheat_reset_health, 0, false),
+  CHEAT("kitty", NULL, NULL, not_classic_demo, cht_heretic, cheat_noclip, 0, false),
+  CHEAT("massacre", NULL, NULL, not_demo, cht_heretic, cheat_massacre, 0, false),
+  CHEAT("rambo", NULL, NULL, not_demo, cht_heretic, cheat_fa, 0, false),
+  CHEAT("skel", NULL, NULL, not_demo, cht_heretic, cheat_k, 0, false),
+  CHEAT("gimme", NULL, NULL, not_demo, cht_heretic, cheat_artifact, -2, false),
+  CHEAT("shazam", NULL, NULL, not_demo, cht_heretic, cheat_tome, 0, false),
+  CHEAT("engage", NULL, NULL, not_demo | not_menu, cht_heretic, cheat_clevx, -2, false),
+  CHEAT("engage", NULL, NULL, not_demo | not_menu, cht_heretic, cheat_clev, 0, false),
+  CHEAT("ravmap", NULL, NULL, cht_always, cht_heretic, cheat_ddt, 0, true),
+  CHEAT("cockadoodledoo", NULL, NULL, not_demo, cht_heretic, cheat_chicken, 0, false),
+
+  // raven joke cheats
+  CHEAT("iddqd", NULL, NULL, not_demo, cht_heretic | cht_hexen, cheat_god_raven, 0, false),
+  CHEAT("idkfa", NULL, NULL, not_demo, cht_heretic | cht_hexen, cheat_kfa_raven, 0, false),
 
   // hexen
-  CHEAT("satan", NULL, NULL, not_classic_demo, cheat_god, 0, false),
-  CHEAT("clubmed", NULL, NULL, not_demo, cheat_reset_health, 0, false),
-  CHEAT("butcher", NULL, NULL, not_demo, cheat_massacre, 0, false),
-  CHEAT("nra", NULL, NULL, not_demo, cheat_fa, 0, false),
-  CHEAT("indiana", NULL, NULL, not_demo, cheat_inventory, 0, false),
-  CHEAT("locksmith", NULL, NULL, not_demo, cheat_k, 0, false),
-  CHEAT("sherlock", NULL, NULL, not_demo, cheat_puzzle, 0, false),
-  CHEAT("casper", NULL, NULL, not_classic_demo, cheat_noclip, 0, false),
-  CHEAT("shadowcaster", NULL, NULL, not_demo, cheat_class, -1, false),
-  CHEAT("visit", NULL, NULL, not_demo | not_menu, cheat_clevx, -2, false),
-  CHEAT("visit", NULL, NULL, not_demo | not_menu, cheat_clev, 0, false),
-  CHEAT("init", NULL, NULL, not_demo, cheat_init, 0, false),
-  CHEAT("puke", NULL,  NULL, not_demo, cheat_script, -2, false),
-  CHEAT("mapsco", NULL, NULL, cht_always, cheat_ddt, 0, true),
-  CHEAT("deliverance", NULL, NULL, not_demo, cheat_chicken, 0, false),
+  CHEAT("satan", NULL, NULL, not_classic_demo, cht_hexen, cheat_god, 0, false),
+  CHEAT("clubmed", NULL, NULL, not_demo, cht_hexen, cheat_reset_health, 0, false),
+  CHEAT("butcher", NULL, NULL, not_demo, cht_hexen, cheat_massacre, 0, false),
+  CHEAT("nra", NULL, NULL, not_demo, cht_hexen, cheat_fa, 0, false),
+  CHEAT("indiana", NULL, NULL, not_demo, cht_hexen, cheat_inventory, 0, false),
+  CHEAT("locksmith", NULL, NULL, not_demo, cht_hexen, cheat_k, 0, false),
+  CHEAT("sherlock", NULL, NULL, not_demo, cht_hexen, cheat_puzzle, 0, false),
+  CHEAT("casper", NULL, NULL, not_classic_demo, cht_hexen, cheat_noclip, 0, false),
+  CHEAT("shadowcaster", NULL, NULL, not_demo, cht_hexen, cheat_class, -1, false),
+  CHEAT("visit", NULL, NULL, not_demo | not_menu, cht_hexen, cheat_clevx, -2, false),
+  CHEAT("visit", NULL, NULL, not_demo | not_menu, cht_hexen, cheat_clev, 0, false),
+  CHEAT("init", NULL, NULL, not_demo, cht_hexen, cheat_init, 0, false),
+  CHEAT("puke", NULL,  NULL, not_demo, cht_hexen, cheat_script, -2, false),
+  CHEAT("mapsco", NULL, NULL, cht_always, cht_hexen, cheat_ddt, 0, true),
+  CHEAT("deliverance", NULL, NULL, not_demo, cht_hexen, cheat_chicken, 0, false),
 
   // nyan
-  CHEAT("idnut", NULL, NULL, cht_always, cheat_nut, 0, false),
-  CHEAT("camera", NULL, NULL, not_demo, cheat_camera, 0, false),
-  CHEAT("strip", NULL, NULL, not_demo, cheat_strip, 0, false),
-  CHEAT("killme", NULL, NULL, not_demo, cheat_suicide, 0, false),
+  CHEAT("idnut", NULL, NULL, cht_always, cht_doom, cheat_nut, 0, false),
+  CHEAT("camera", NULL, NULL, not_demo, cht_any, cheat_camera, 0, false),
+  CHEAT("strip", NULL, NULL, not_demo, cht_any, cheat_strip, 0, false),
+  CHEAT("killme", NULL, NULL, not_demo, cht_any, cheat_suicide, 0, false),
 
   // end-of-list marker
   {NULL}
@@ -404,29 +408,16 @@ void M_CheatGod(void)
     dsda_AddMessage(s_STSTR_DQDOFF);
 }
 
-static int raven_iddqd;
-
-static void cheat_god_which(void)
+static void cheat_god_raven(void)
 {
-  if (raven)
-  {
-    raven_iddqd = true;
-    cheat_suicide();
-    return;
-  }
-
-  cheat_god();
+  P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
+  dsda_AddMessage(HERETIC_TXT_CHEATIDDQD);
 }
 
 static void cheat_suicide()
 {
-  int message;
-
-  message = raven_iddqd;
-  raven_iddqd = false; // reset value
-
   P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
-  dsda_AddMessage(message ? HERETIC_TXT_CHEATIDDQD : "Fuck my life");
+  dsda_AddMessage("Fuck my life");
 }
 
 static void cheat_god()
@@ -528,28 +519,9 @@ static void cheat_k()
       }
 }
 
-static int raven_idkfa;
-
-static void cheat_kfa_which()
-{
-  if (raven && M_CheatAllowed(not_demo))
-  {
-    // take away weapons... skip keys
-    raven_idkfa = true;
-    cheat_strip();
-    return;
-  }
-
-  cheat_kfa();
-}
-
-static void cheat_strip()
+static void cheat_dostrip(int idkfa_raven)
 {
   int i, startweapon, endweapon;
-  int message;
-
-  message = raven_idkfa;
-  raven_idkfa = false; // reset value
 
   if (hexen)
   {
@@ -574,8 +546,20 @@ static void cheat_strip()
 
   // Force weapon switch
   plyr->pendingweapon = wp_staff;
-  dsda_AddMessage(message ? HERETIC_TXT_CHEATIDKFA : "Stripped down to the bone");
+  dsda_AddMessage(idkfa_raven ? HERETIC_TXT_CHEATIDKFA : "Stripped down to the bone");
   return;
+}
+
+static void cheat_kfa_raven()
+{
+  // take away weapons... skip keys
+  cheat_dostrip(raven);
+}
+
+static void cheat_strip()
+{
+  // take away weapons... skip keys
+  cheat_dostrip(false);
 }
 
 static void cheat_kfa()
@@ -1499,18 +1483,20 @@ static dboolean M_ClassicDemo(void)
   return (demorecording || demoplayback) && !dsda_AllowCasualExCmdFeatures();
 }
 
-static dboolean M_ClassicDoomDemo(void)
-{
-  return !raven ? M_ClassicDemo() : (demorecording || demoplayback);
-}
-
 dboolean M_CheatAllowed(int when)
 {
   return !dsda_StrictMode() &&
          !(when & not_demo         && (demorecording || demoplayback)) &&
          !(when & not_classic_demo && M_ClassicDemo()) &&
-         !(when & not_doom_classic_demo && M_ClassicDoomDemo()) &&
          !(when & not_menu         && menuactive);
+}
+
+dboolean M_CheatGame(int game)
+{
+  return (game & cht_any) ||
+         (game & cht_doom    && !raven) ||
+         (game & cht_heretic && heretic) ||
+         (game & cht_hexen   && hexen);
 }
 
 static int update_cheats = true;
@@ -1559,7 +1545,7 @@ static int M_FindCheats(int key)
 
   for (cht = cheat; WHICH_CHEAT(cht); cht++)
   {
-    if (M_CheatAllowed(cht->when))
+    if (M_CheatAllowed(cht->when) && M_CheatGame(cht->game))
     {
       if (cht->chars_read < cht->sequence_len)
       {
