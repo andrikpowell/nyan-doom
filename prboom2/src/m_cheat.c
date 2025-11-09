@@ -148,6 +148,7 @@ static void cheat_classx(char buf[2]);
 static void cheat_class();
 static void cheat_init();
 static void cheat_script(char buf[3]);
+static void cheat_hexen_quicken();
 
 // nyan
 static void cheat_nut();
@@ -293,6 +294,8 @@ cheatseq_t cheat[] = {
   // raven joke cheats
   CHEAT("iddqd", NULL, NULL, not_demo, cht_heretic | cht_hexen, cheat_god_raven, 0, false),
   CHEAT("idkfa", NULL, NULL, not_demo, cht_heretic | cht_hexen, cheat_kfa_raven, 0, false),
+  CHEAT("conan", NULL, NULL, not_demo, cht_hexen, cheat_kfa_raven, 0, false),
+  CHEAT("quicken", NULL, NULL, not_demo, cht_hexen, cheat_hexen_quicken, 0, false),
 
   // hexen
   CHEAT("satan", NULL, NULL, not_classic_demo, cht_hexen, cheat_god, 0, false),
@@ -408,6 +411,29 @@ void M_CheatGod(void)
   }
   else
     dsda_AddMessage(s_STSTR_DQDOFF);
+}
+
+int quicken_seq = 0;
+
+static void cheat_hexen_quicken(void)
+{
+  quicken_seq++;
+  switch (quicken_seq)
+  {
+    case 1:
+      P_SetMessage(plyr, "TRYING TO CHEAT?  THAT'S ONE....", true);
+      break;
+    case 2:
+      P_SetMessage(plyr, "THAT'S TWO....", true);
+      break;
+    case 3:
+      P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
+      P_SetMessage(plyr, "THAT'S THREE!  TIME TO DIE.", true);
+      quicken_seq = 0;
+      break;
+    default:
+      break;
+  }
 }
 
 static void cheat_god_raven(void)
