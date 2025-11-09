@@ -50,6 +50,8 @@ void dsda_AddOriginalEpisodes(void) {
     dsda_AddEpisode("map01", "FIGHTER", NULL, 'f', true);
     dsda_AddEpisode("map01", "CLERIC", NULL, 'c', true);
     dsda_AddEpisode("map01", "MAGE", NULL, 'm', true);
+    if (allow_incompatibility)
+      dsda_AddEpisode("map01", "RANDOM", NULL, 'r', true);
   }
   else if (gamemode != commercial && !chex_exe) {
     dsda_AddEpisode("e1m1", NULL, "M_EPI1", 'k', true);

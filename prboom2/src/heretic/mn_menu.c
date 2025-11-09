@@ -20,6 +20,7 @@
 #include "w_wad.h"
 #include "v_video.h"
 #include "m_menu.h"
+#include "m_random.h"
 #include "g_game.h"
 #include "dsda/settings.h"
 #include "heretic/dstrings.h"
@@ -359,6 +360,9 @@ void MN_UpdateClass(int choice)
 {
   PlayerClass[consoleplayer] = choice + 1;
 
+  if (PlayerClass[consoleplayer] > PCLASS_MAGE)
+    PlayerClass[consoleplayer] = PCLASS_RANDOM; 
+
   switch (PlayerClass[consoleplayer])
   {
     case PCLASS_FIGHTER:
@@ -384,6 +388,15 @@ void MN_UpdateClass(int choice)
       SkillDef.menuitems[2].alttext = hexen_skill_mage[2];
       SkillDef.menuitems[3].alttext = hexen_skill_mage[3];
       SkillDef.menuitems[4].alttext = hexen_skill_mage[4];
+      break;
+    // Use Heretic Skill Names
+    case PCLASS_RANDOM:
+      SkillDef.x = 38;
+      SkillDef.menuitems[0].alttext = "THOU NEEDETH A WET-NURSE";
+      SkillDef.menuitems[1].alttext = "YELLOWBELLIES-R-US";
+      SkillDef.menuitems[2].alttext = "BRINGEST THEM ONETH";
+      SkillDef.menuitems[3].alttext = "THOU ART A SMITE-MEISTER";
+      SkillDef.menuitems[4].alttext = "BLACK PLAGUE POSSESSES THEE";
       break;
     default:
       break;
@@ -561,6 +574,7 @@ static void Hexen_MN_DrawMainMenu(void)
 void MN_DrawEpisode(void)
 {
   pclass_t class;
+  static int last_cycle = 0;
   static const char *boxLumpName[3] = {
     "m_fbox",
     "m_cbox",
@@ -576,14 +590,51 @@ void MN_DrawEpisode(void)
 
   MN_DrTextB("CHOOSE CLASS:", 34, 24);
   class = (pclass_t) itemOn;
+
+  // Random class select
+  if (class > 2)
+  {
+    int random_cycle = (MenuTime >> 3);
+    last_cycle = (random_cycle) % 3;
+    class = (pclass_t)last_cycle;
+  }
+
   V_DrawNamePatch(174, 8, boxLumpName[class], CR_DEFAULT, VPT_STRETCH);
   V_DrawNumPatch(174 + 24, 8 + 12, W_GetNumForName(walkLumpName[class]) + ((MenuTime >> 3) & 3),
                  CR_DEFAULT, VPT_STRETCH);
 }
 
+static int last_random_class = -1;
+
+void MN_PickRandomClass(void)
+{
+    int new_random_class = -1;
+    int attempt;
+
+    attempt = Nyan_RealRandom() % 100;
+
+    if (attempt < 70)
+    {
+      do
+      {
+        new_random_class = 1 + Nyan_RealRandom() % 3;
+      } while (new_random_class == last_random_class);
+    }
+    else
+    {
+      new_random_class = 1 + Nyan_RealRandom() % 3;
+    }
+
+    PlayerClass[consoleplayer] = new_random_class;
+    last_random_class = new_random_class;
+}
+
 void MN_DrawSkillMenu(void)
 {
     if (heretic) return;
+
+    if (PlayerClass[consoleplayer] == PCLASS_RANDOM)
+      MN_PickRandomClass();
 
     MN_DrTextB("CHOOSE SKILL LEVEL:", 74, 16);
 }
