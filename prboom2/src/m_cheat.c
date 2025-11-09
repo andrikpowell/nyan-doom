@@ -1366,7 +1366,7 @@ static void cheat_weapx(char buf[3])
 static void cheat_ammo()
 {
   int ammo_max = hexen ? NUMMANA : NUMAMMO;
-  char* backpack = !hexen ? ", Backpack" : "";
+  const char* backpack = !hexen ? ", Backpack" : "";
   doom_printf("Ammo 1-%i%s", ammo_max, backpack);
 }
 
