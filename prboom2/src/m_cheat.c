@@ -1330,12 +1330,26 @@ static void cheat_weapx(char buf[3])
 // killough 2/16/98: generalized ammo cheats
 static void cheat_ammo()
 {
-  dsda_AddMessage("Ammo 1-4, Backpack");
+  int ammo_max = hexen ? NUMMANA : NUMAMMO;
+  char* backpack = !hexen ? ", Backpack" : "";
+  doom_printf("Ammo 1-%i%s", ammo_max, backpack);
+}
+
+static void cheat_hexen_ammox(char buf[1])
+{
+  int a = *buf - '1';
+  if (a>=0 && a<NUMMANA)  // Ty 03/27/98 - *not* externalized
+      dsda_AddMessage((plyr->ammo[a] = !plyr->ammo[a]) ?
+                       plyr->ammo[a] = MAX_MANA, "Mana Added" : "Mana Removed");
 }
 
 static void cheat_ammox(char buf[1])
 {
   int a = *buf - '1';
+
+  if (hexen)
+    return cheat_hexen_ammox(buf);
+
   if (*buf == 'b')  // Ty 03/27/98 - strings *not* externalized
     if ((plyr->backpack = !plyr->backpack))
     {
@@ -1353,7 +1367,8 @@ static void cheat_ammox(char buf[1])
   else
     if (a>=0 && a<NUMAMMO)  // Ty 03/27/98 - *not* externalized
       { // killough 5/5/98: switch plasma and rockets for now -- KLUDGE
-        a = a==am_cell ? am_misl : a==am_misl ? am_cell : a;  // HACK
+        if (!heretic)
+          a = a==am_cell ? am_misl : a==am_misl ? am_cell : a;  // HACK
         dsda_AddMessage((plyr->ammo[a] = !plyr->ammo[a]) ?
                         plyr->ammo[a] = plyr->maxammo[a], "Ammo Added" : "Ammo Removed");
       }
