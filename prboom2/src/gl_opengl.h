@@ -144,10 +144,10 @@ void gld_EnableMultisample(int enable);
 
 typedef enum
 {
-  TMF_MASKBIT = 1,
-  TMF_OPAQUEBIT = 2,
-  TMF_INVERTBIT = 4,
-  TMF_MASKBLACKBIT = 7,
+  TMF_MASKBIT      = (1<<0),
+  TMF_OPAQUEBIT    = (1<<1),
+  TMF_INVERTBIT    = (1<<2),
+  TMF_MASKBLACKBIT = (1<<3),
 
   TM_MODULATE = 0,
   TM_MASK = TMF_MASKBIT,

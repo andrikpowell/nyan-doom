@@ -158,15 +158,16 @@ enum patch_translation_e {
   VPT_STRETCH            = 16, // Stretch to compensate for high-res
   VPT_EX_TEXT            = 32,
 
-  VPT_NONE    = 128, // Normal
-  VPT_FLIP    = 256, // Flip image horizontally
-  VPT_COLOR   = 512, // Translate image via a translation table
-  VPT_NOOFFSET = 1024,
-  VPT_STRETCH_REAL       = 2048, // [XA] VPT_STRETCH in gld_fillRect means "tile", rather than "stretch"... these flags probably need a rename.
-  VPT_TRANSMAP = 4096,
-  VPT_ALT_TRANSMAP = 8192,
-  VPT_SHADOW = 16384,
-  VPT_EX_TRANS = 32768, // exhud translucency
+  // bit shift at 128
+  VPT_NONE          = (1<<7), // Normal
+  VPT_FLIP          = (1<<8), // Flip image horizontally
+  VPT_COLOR         = (1<<9), // Translate image via a translation table
+  VPT_NOOFFSET      = (1<<10),
+  VPT_STRETCH_REAL  = (1<<11), // [XA] VPT_STRETCH in gld_fillRect means "tile", rather than "stretch"... these flags probably need a rename.
+  VPT_TRANSMAP      = (1<<12),
+  VPT_ALT_TRANSMAP  = (1<<13),
+  VPT_SHADOW        = (1<<14),
+  VPT_EX_TRANS      = (1<<15), // exhud translucency
 };
 
 extern int global_patch_top_offset;

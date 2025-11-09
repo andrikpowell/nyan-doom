@@ -47,11 +47,11 @@ extern dboolean M_CheatAllowed(int when);
 extern int cheat_in_progress;
 
 typedef enum {
-  cht_always = 0,
-  not_demo = 1,
-  not_menu = 2,
-  not_classic_demo = 4, // allowed in dsda demo format
-  not_doom_classic_demo = 5,
+  cht_always        = 0,
+  not_demo          = (1<<0),
+  not_menu          = (1<<1),
+  not_classic_demo  = (1<<2), // allowed in dsda demo format
+  not_doom_classic_demo = (1<<3),
 } cheat_when_t;
 
 typedef struct cheatseq_s {
