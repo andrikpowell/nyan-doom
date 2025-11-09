@@ -64,6 +64,7 @@
 #include "m_file.h"
 #include "m_misc.h"
 #include "m_menu.h"
+#include "m_random.h"
 #include "i_main.h"
 #include "i_system.h"
 #include "i_sound.h"
@@ -1960,6 +1961,7 @@ static void D_DoomMainSetup(void)
   IdentifyVersion(); // Get IWAD
 
   dsda_InitGlobal();
+  Nyan_InitRandom();
 
   // e6y: DEH files preloaded in wrong order
   // http://sourceforge.net/tracker/index.php?func=detail&aid=1418158&group_id=148658&atid=772943

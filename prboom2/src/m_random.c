@@ -37,6 +37,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
+#include <time.h>
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -212,4 +213,30 @@ int P_SubRandom (void)
 void P_UseHexenRNG(void)
 {
   rndtable = hexen_rndtable;
+}
+
+// Nyan Random (From International Doom)
+
+// Initialized once at Nyan_InitRandom() and used only by Nyan_RealRandom().
+static uint32_t nyan_rand_seed = 1;
+
+void Nyan_InitRandom (void)
+{
+  // Use current time as a seed for own random generator.
+  nyan_rand_seed = (uint32_t)time(NULL);
+}
+
+// -----------------------------------------------------------------------------
+// Nyan_RealRandom
+//  [PN] Lightweight local random number generator.
+//  A private, self-contained linear congruential generator.
+//  Mirrors the algorithm historically used in many C runtimes,
+//  but keeps the state locally and avoids thread-local storage
+//  or other runtime overhead. Faster than the standard rand() in tight loops.
+//  Returns [0...32767]. May return [0...255] as well by using >> 23 shift.
+// -----------------------------------------------------------------------------
+
+int Nyan_RealRandom (void)
+{
+    return (nyan_rand_seed = nyan_rand_seed * 214013u + 2531011u) >> 17;
 }
