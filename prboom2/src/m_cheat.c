@@ -113,8 +113,8 @@ static void cheat_reveal_weapon();
 static void cheat_reveal_exit();
 static void cheat_reveal_key();
 static void cheat_reveal_keyx();
-static void cheat_reveal_doom_key();
-static void cheat_reveal_heretic_key();
+static void cheat_reveal_doom_key(int key);
+static void cheat_reveal_heretic_key(int key);
 static void cheat_hom();
 static void cheat_fast();
 static void cheat_nuke();
@@ -144,7 +144,8 @@ static void cheat_artifact(char buf[3]);
 // hexen
 static void cheat_inventory();
 static void cheat_puzzle();
-static void cheat_class(char buf[2]);
+static void cheat_classx(char buf[2]);
+static void cheat_class();
 static void cheat_init();
 static void cheat_script(char buf[3]);
 
@@ -302,7 +303,8 @@ cheatseq_t cheat[] = {
   CHEAT("locksmith", NULL, NULL, not_demo, cht_hexen, cheat_k, 0, false),
   CHEAT("sherlock", NULL, NULL, not_demo, cht_hexen, cheat_puzzle, 0, false),
   CHEAT("casper", NULL, NULL, not_classic_demo, cht_hexen, cheat_noclip, 0, false),
-  CHEAT("shadowcaster", NULL, NULL, not_demo, cht_hexen, cheat_class, -1, false),
+  CHEAT("shadowcaster", NULL, NULL, not_demo, cht_hexen, cheat_classx, -1, false),
+  CHEAT("shadowcaster", NULL, NULL, not_demo, cht_hexen, cheat_class, 0, false),
   CHEAT("visit", NULL, NULL, not_demo | not_menu, cht_hexen, cheat_clevx, -2, false),
   CHEAT("visit", NULL, NULL, not_demo | not_menu, cht_hexen, cheat_clev, 0, false),
   CHEAT("init", NULL, NULL, not_demo, cht_hexen, cheat_init, 0, false),
@@ -1301,7 +1303,7 @@ static void cheat_reveal_heretic_key(int key)
 
 static void cheat_weap()
 {
-  dsda_AddMessage(gamemode == commercial ? "Weapon number 1-9" : "Weapon number 1-8");
+  dsda_AddMessage(gamemode == commercial || heretic ? "Weapon number 1-9" : "Weapon number 1-8");
 }
 
 static void cheat_weapx(char buf[3])
@@ -1880,7 +1882,12 @@ static void cheat_puzzle(void)
   P_SetMessage(plyr, "ALL PUZZLE ITEMS", true);
 }
 
-static void cheat_class(char buf[2])
+static void cheat_class()
+{
+  P_SetMessage(plyr, "ENTER NEW PLAYER CLASS (0 - 2)", true);
+}
+
+static void cheat_classx(char buf[2])
 {
   int i;
   int new_class;
