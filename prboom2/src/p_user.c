@@ -1617,6 +1617,7 @@ void Raven_P_MovePlayer(player_t * player)
     }
 
     if (cmd->forwardmove && player->mo->flags2 & MF2_FLY)
+    {
       if (player->chickenTics) // Chicken speed
       {
         P_FreeAim_VerticalThrust(player,cmd->forwardmove*2500);
@@ -1625,6 +1626,7 @@ void Raven_P_MovePlayer(player_t * player)
       {
         P_FreeAim_VerticalThrust(player,cmd->forwardmove*2048);
       }
+    }
 }
 
 void P_ChickenPlayerThink(player_t * player)
