@@ -315,6 +315,13 @@ cheatseq_t cheat[] = {
   CHEAT("mapsco", NULL, NULL, cht_always, cht_hexen, cheat_ddt, 0, true),
   CHEAT("deliverance", NULL, NULL, not_demo, cht_hexen, cheat_chicken, 0, false),
 
+  // H+H aliases
+  CHEAT("healthyself", NULL, NULL, not_demo, cht_heretic | cht_hexen, cheat_reset_health, 0, false),
+  CHEAT("gunsgunsguns", NULL, NULL, not_demo, cht_heretic | cht_hexen, cheat_fa, 0, false),
+  CHEAT("ghost", NULL, NULL, not_classic_demo, cht_hexen, cheat_noclip, 0, false),
+  CHEAT("squeal", NULL, NULL, not_demo, cht_hexen, cheat_chicken, 0, false),
+  CHEAT("whipit", NULL, NULL, not_demo, cht_hexen, cheat_inventory, 0, false),
+
   // nyan
   CHEAT("idnut", NULL, NULL, cht_always, cht_doom, cheat_nut, 0, false),
   CHEAT("camera", NULL, NULL, not_demo, cht_any, cheat_camera, 0, false),
