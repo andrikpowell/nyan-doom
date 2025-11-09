@@ -379,6 +379,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_freelook_autoaim_pct", dsda_config_freelook_autoaim_pct,
     CONF_PERCENT(33), NULL, STRICT_INT(0)
   },
+  [dsda_config_freelook_enhanced_flying] = {
+    "dsda_freelook_enhanced_flying", dsda_config_freelook_enhanced_flying,
+    CONF_BOOL(1), NULL, STRICT_INT(0)
+  },
   [dsda_config_autorun] = {
     "autorun", dsda_config_autorun,
     CONF_BOOL(1)

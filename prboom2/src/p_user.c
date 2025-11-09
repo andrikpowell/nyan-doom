@@ -347,6 +347,23 @@ void P_HandleExCmdLook(player_t* player)
   }
 }
 
+void P_FreeAim_VerticalThrust(player_t* player, fixed_t move)
+{
+  fixed_t slope;
+
+  if (!dsda_FreeAimFlying())
+    return;
+
+  slope = finetangent[(ANG90 - player->mo->pitch) >> ANGLETOFINESHIFT];
+
+  player->flyheight += (FixedMul(move, slope) >> (FRACBITS - 3));
+
+  // Clamp flyheight to max fly speed
+  // (fixes insane flyheight changes when looking directly up or down)
+  if (player->flyheight > 10)   player->flyheight = 10;
+  if (player->flyheight < -10)  player->flyheight = -10;
+}
+
 void P_MovePlayer (player_t* player)
 {
   ticcmd_t *cmd;
@@ -408,6 +425,11 @@ void P_MovePlayer (player_t* player)
           P_Bob(player,mo->angle-ANG90,cmd->sidemove*bobfactor);
           P_Thrust(player,mo->angle-ANG90,cmd->sidemove*movefactor);
         }
+
+        if (cmd->forwardmove && mo->flags & MF_FLY)
+        {
+          P_FreeAim_VerticalThrust(player,cmd->forwardmove*movefactor);
+        }
       }
       else if (map_info.air_control)
       {
@@ -425,6 +447,11 @@ void P_MovePlayer (player_t* player)
         {
           P_Bob(player, mo->angle - ANG90, cmd->sidemove * movefactor);
           P_Thrust(player, player->mo->angle - ANG90, cmd->sidemove * movefactor);
+        }
+
+        if (cmd->forwardmove && mo->flags & MF_FLY)
+        {
+          P_FreeAim_VerticalThrust(player,cmd->forwardmove*movefactor);
         }
       }
       if (mo->state == states+S_PLAY)
@@ -1588,6 +1615,12 @@ void Raven_P_MovePlayer(player_t * player)
             player->flyheight /= 2;
         }
     }
+
+    if (cmd->forwardmove && player->mo->flags2 & MF2_FLY)
+      if (player->chickenTics) // Chicken speed
+        P_FreeAim_VerticalThrust(player,cmd->forwardmove*2500);
+      else // Normal speed
+        P_FreeAim_VerticalThrust(player,cmd->forwardmove*2048);
 }
 
 void P_ChickenPlayerThink(player_t * player)

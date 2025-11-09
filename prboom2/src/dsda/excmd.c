@@ -69,6 +69,10 @@ dboolean dsda_FreeAim(void) {
          || map_info.flags & MI_ALLOW_FREE_LOOK;
 }
 
+dboolean dsda_FreeAimFlying(void) {
+  return (allow_incompatibility && dsda_IntConfig(dsda_config_freelook_enhanced_flying) && dsda_FreeAim());
+}
+
 dboolean dsda_MouselookAutoAim(void) {
   return (allow_incompatibility && dsda_IntConfig(dsda_config_freelook_autoaim) && dsda_FreeAim());
 }

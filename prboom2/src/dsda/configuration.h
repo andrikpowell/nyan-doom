@@ -57,6 +57,7 @@ typedef enum {
   dsda_config_freelook,
   dsda_config_freelook_autoaim,
   dsda_config_freelook_autoaim_pct,
+  dsda_config_freelook_enhanced_flying,
   dsda_config_autorun,
   dsda_config_show_messages,
   dsda_config_stats_format,

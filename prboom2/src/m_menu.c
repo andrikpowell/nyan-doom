@@ -2031,8 +2031,9 @@ static dboolean M_ItemNyan(const setup_menu_t* s)
   {
     int nyan_features[] =
     { dsda_config_extra_level_brightness, dsda_config_quicksave_sfx, dsda_config_quit_sounds,
-      dsda_config_freelook_autoaim, dsda_config_freelook_autoaim_pct, dsda_config_deh_change_cheats,
-      dsda_config_auto_key_frame_active, nyan_config_loading_disk, dsda_config_hexen_skip_ethereal_travel,
+      dsda_config_freelook_autoaim, dsda_config_freelook_autoaim_pct, dsda_config_freelook_enhanced_flying,
+      dsda_config_deh_change_cheats, dsda_config_auto_key_frame_active, nyan_config_loading_disk,
+      dsda_config_hexen_skip_ethereal_travel,
 
       nyan_config_menu_play_demo, nyan_config_full_menu_fade, nyan_config_gradual_menu_fade,
       nyan_config_show_endoom, nyan_config_skip_default_text,
@@ -4029,11 +4030,11 @@ setup_menu_t gen_audio_settings[] = {
   FINAL_ENTRY
 };
 
-DEPEND_LIST(freelook_autoaim_list,
+DEPEND_LIST(freelook_list,
   DEP(dsda_config_freelook, true)
 );
 
-DEPEND_LIST(freelook_autoaim_pct_list,
+DEPEND_LIST(freelook_autoaim_list,
   DEP(dsda_config_videomode, OPENGL_MODE),
   DEP(dsda_config_freelook, true),
   DEP(dsda_config_freelook_autoaim, true)
@@ -4046,10 +4047,11 @@ setup_menu_t gen_device_settings[] = {
   { "Enable Gamepad", S_YESNO, m_conf, G2_X, dsda_config_use_game_controller },
   FUNC_DEPEND("Gamepad Options", S_CENTER, G_X, M_Sub_Gamepad, dsda_config_use_game_controller, true),
   EMPTY_LINE,
-  { "Enable Free Look", S_YESNO, m_conf, G2_X, dsda_config_freelook },
-  { "Invert Free Look", S_YESNO, m_conf, G2_X, dsda_config_movement_mouseinvert, 0, empty_list, DEPEND_MULTI(freelook_autoaim_list) },
-  { "Free Look AutoAim", S_YESNO, m_conf, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_autoaim_list) },
-  { "GL AutoAim from Center", S_PERC, m_conf, G2_X, dsda_config_freelook_autoaim_pct, 0, empty_list, DEPEND_MULTI(freelook_autoaim_pct_list) },
+  { "Enable Freelook", S_YESNO, m_conf, G2_X, dsda_config_freelook },
+  { "Invert Freelook", S_YESNO, m_conf, G2_X, dsda_config_movement_mouseinvert, 0, empty_list, DEPEND_MULTI(freelook_list) },
+  { "Freelook AutoAim", S_YESNO, m_conf, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_list) },
+  { "GL AutoAim from Center", S_PERC, m_conf, G2_X, dsda_config_freelook_autoaim_pct, 0, empty_list, DEPEND_MULTI(freelook_autoaim_list) },
+  { "Freelook Enhanced Flying", S_YESNO, m_conf, G2_X, dsda_config_freelook_enhanced_flying, 0, empty_list, DEPEND_MULTI(freelook_list) },
 
   PREV_PAGE(gen_audio_settings),
   NEXT_PAGE(gen_gamesim_settings),
