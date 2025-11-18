@@ -179,7 +179,7 @@ void dsda_UnArchiveGameModifiers(void)
 
   dsda_UpdateIntConfig(dsda_config_limit_removing,saved_limitremoving,true);
   // If "Always Pistol Start" is enabled, skip resetting "Pistol Start"
-  if (!dsda_IntConfig(dsda_config_always_pistol_start) && dsda_IntConfig(dsda_config_pistol_start))
+  if (!dsda_IntConfig(dsda_config_always_pistol_start))
     dsda_UpdateIntConfig(dsda_config_pistol_start,saved_pistolstart,true);
   dsda_UpdateIntConfig(dsda_config_respawn_monsters,saved_respawnparm,true);
   dsda_UpdateIntConfig(dsda_config_fast_monsters,saved_fastparm,true);
