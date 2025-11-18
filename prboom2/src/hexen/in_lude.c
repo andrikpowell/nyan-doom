@@ -72,6 +72,7 @@ static signed int totalFrags[MAX_MAXPLAYERS];
 
 static int HubCount;
 static char *HubText;
+static int ethereal_travel = false;
 
 void Hexen_IN_Start(wbstartstruct_t* wbstartstruct)
 {
@@ -103,14 +104,14 @@ static void WaitStop(void)
     }
     else
     {
-        // Show "Ethereal Travel" graphic
-        V_DrawMenuNamePatch(100, 68, "TELEICON", CR_DEFAULT, VPT_STRETCH);
+        ethereal_travel = true;
     }
 }
 
 static void Stop(void)
 {
     intermission = false;
+    ethereal_travel = false;
 }
 
 static const char *ClusMsgLumpNames[] = {
@@ -285,6 +286,15 @@ static void CheckForSkip(void)
     }
 }
 
+void Hexen_IN_DrawTeleportIcon(void)
+{
+    // Show "Ethereal Travel" graphic
+    if (ethereal_travel)
+    {
+        V_DrawMenuNamePatch(100, 68, "TELEICON", CR_DEFAULT, VPT_STRETCH);
+    }
+}
+
 void Hexen_IN_Drawer(void)
 {
     if (!intermission)
@@ -293,6 +303,7 @@ void Hexen_IN_Drawer(void)
     }
     if (interstate)
     {
+        Hexen_IN_DrawTeleportIcon();
         return;
     }
 
