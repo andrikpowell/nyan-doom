@@ -906,12 +906,12 @@ void dsda_UpdateIntArg(dsda_arg_identifier_t id, const char* param) {
 }
 
 void dsda_UpdateComplevelArg(dsda_arg_identifier_t id, const char* param) {
-  arg_value[id].count = 1;
-  arg_value[id].found = true;
-
   size_t len = strlen(param);
   char cleaned[16];
   const char* p = param;
+
+  arg_value[id].count = 1;
+  arg_value[id].found = true;
 
   if (len > 0 && param[len - 1] == 'r') {
     if (!strcmp(param, "0r") || !strcmp(param, "1r") ||
