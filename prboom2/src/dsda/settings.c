@@ -146,6 +146,7 @@ static int dsda_WadCompatibilityLevel(void) {
 int dsda_CompatibilityLevel(void) {
   int level;
   dsda_arg_t* complevel_arg;
+  dsda_arg_t* lr_arg;
 
   if (raven) return doom_12_compatibility;
 
@@ -154,6 +155,15 @@ int dsda_CompatibilityLevel(void) {
   if (map_format.zdoom) return mbf21_compatibility;
 
   complevel_arg = dsda_Arg(dsda_arg_complevel);
+
+  // Set Limit-Removing from arg
+  lr_arg = dsda_Arg(dsda_arg_limitremoving);
+  if ((lr_arg->count || limitremoving_arg) &&
+      (complevel_arg->value.v_int < boom_compatibility_compatibility))
+  {
+    dsda_UpdateIntConfig(dsda_config_limit_removing, 1, true);
+    limitremoving = true;
+  }
 
   if (complevel_arg->count)
     return complevel_arg->value.v_int;

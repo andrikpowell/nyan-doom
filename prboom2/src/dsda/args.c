@@ -718,10 +718,16 @@ static void dsda_ParseIntArg(arg_config_t* config, int* value, const char* param
 }
 
 static void dsda_ParseLimitRemovingArg(arg_config_t* config, const char** value, const char* param) {
-  if ((!strcmp(param, "0r")) || (!strcmp(param, "1r")) ||                             // Early Vanilla Complevels
-      (!strcmp(param, "2r")) || (!strcmp(param, "3r")) || (!strcmp(param, "4r")) ||   // Vanilla Complevels
-      (!strcmp(param, "5r")) || (!strcmp(param, "6r")))                               // DOSDoom / TASDOOM
-    limitremoving_arg = true;
+  size_t len = strlen(param);
+
+  if (len > 0 && param[len - 1] == 'r') {
+    if ((!strcmp(param, "0r")) || (!strcmp(param, "1r")) ||                             // Early Vanilla Complevels
+        (!strcmp(param, "2r")) || (!strcmp(param, "3r")) || (!strcmp(param, "4r")) ||   // Vanilla Complevels
+        (!strcmp(param, "5r")) || (!strcmp(param, "6r")))                               // DOSDoom / TASDOOM
+      limitremoving_arg = true;
+    else
+      I_Error("Invalid complevel '%s': only complevels 0-6 may use 'r' (limit-removing).", param);
+  }
 }
 
 static void dsda_ParseStringArg(arg_config_t* config, const char** value, const char* param) {
@@ -897,6 +903,33 @@ void dsda_UpdateIntArg(dsda_arg_identifier_t id, const char* param) {
   arg_value[id].count = 1;
   arg_value[id].found = true;
   dsda_ParseIntArg(&arg_config[id], &arg_value[id].value.v_int, param);
+}
+
+void dsda_UpdateComplevelArg(dsda_arg_identifier_t id, const char* param) {
+  arg_value[id].count = 1;
+  arg_value[id].found = true;
+
+  size_t len = strlen(param);
+  char cleaned[16];
+  const char* p = param;
+
+  if (len > 0 && param[len - 1] == 'r') {
+    if (!strcmp(param, "0r") || !strcmp(param, "1r") ||
+        !strcmp(param, "2r") || !strcmp(param, "3r") ||
+        !strcmp(param, "4r") || !strcmp(param, "5r") ||
+        !strcmp(param, "6r")) {
+      limitremoving_arg = true;
+
+      memcpy(cleaned, param, len - 1);
+      cleaned[len - 1] = '\0';
+      p = cleaned;
+    }
+    else {
+      I_Error("Complevel '%s' is invalid: Only complevels 0-6 may use 'r' (Limit-Removing)", param);
+    }
+  }
+
+  dsda_ParseIntArg(&arg_config[id], &arg_value[id].value.v_int, p);
 }
 
 void dsda_UpdateStringArg(dsda_arg_identifier_t id, const char* param) {

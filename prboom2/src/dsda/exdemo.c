@@ -149,7 +149,20 @@ static void DemoEx_GetParams(const wadinfo_t* header) {
     if (!dsda_Arg(dsda_arg_complevel)->found) {
       p = M_CheckParmEx("-complevel", params, paramscount);
       if (p >= 0 && p < (int) paramscount - 1)
-        dsda_UpdateIntArg(dsda_arg_complevel, params[p + 1]);
+        dsda_UpdateComplevelArg(dsda_arg_complevel, params[p + 1]);
+    }
+
+    // set limit removing status
+    if (compatibility_level < boom_compatibility_compatibility)
+    {
+      if (limitremoving_arg)
+          dsda_UpdateFlag(dsda_arg_limitremoving, true);
+
+      if (!dsda_Flag(dsda_arg_limitremoving)) {
+          p = M_CheckParmEx("-lr", params, paramscount);
+          if (p >= 0)
+              dsda_UpdateFlag(dsda_arg_limitremoving, true);
+      }
     }
 
     //for recording or playback using "single-player coop" mode
@@ -311,9 +324,14 @@ static void DemoEx_AddParams(wadtbl_t* wadtbl) {
   }
 
   // add complevel for formats which do not have it in header
-  // add limit-removing status
   if (demo_compatibility) {
-    snprintf(buf, sizeof(buf), "-complevel %d%s ", compatibility_level, limitremoving_arg ? "r" : "");
+    snprintf(buf, sizeof(buf), "-complevel %d ", compatibility_level);
+    dsda_StringCat(&files, buf);
+  }
+
+  // add limit-removing status
+  if (limitremoving) {
+    snprintf(buf, sizeof(buf), "-lr ");
     dsda_StringCat(&files, buf);
   }
 
