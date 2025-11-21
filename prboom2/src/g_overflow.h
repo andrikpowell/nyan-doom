@@ -64,8 +64,8 @@ extern int overflows_enabled;
 extern overrun_param_t overflows[];
 extern const char *overflow_cfgname[OVERFLOW_MAX];
 
-#define EMULATE(overflow) (overflows_enabled && (overflows[overflow].footer ? overflows[overflow].footer_emulate : overflows[overflow].emulate))
-#define PROCESS(overflow) (overflows_enabled && (overflows[overflow].warn || EMULATE(overflow)))
+#define EMULATE(overflow) (!limitremoving && overflows_enabled && (overflows[overflow].footer ? overflows[overflow].footer_emulate : overflows[overflow].emulate))
+#define PROCESS(overflow) (!limitremoving && overflows_enabled && (overflows[overflow].warn || EMULATE(overflow)))
 
 // e6y
 //

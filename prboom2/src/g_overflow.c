@@ -171,7 +171,7 @@ void InterceptsOverrun(int num_intercepts, intercept_t *intercept)
 {
   void P_MustRebuildBlockmap(void);
 
-  if (!hexen && num_intercepts > MAXINTERCEPTS_ORIGINAL && demo_compatibility && PROCESS(OVERFLOW_INTERCEPT) && !limitremoving)
+  if (!hexen && num_intercepts > MAXINTERCEPTS_ORIGINAL && demo_compatibility && PROCESS(OVERFLOW_INTERCEPT))
   {
     ShowOverflowWarning(OVERFLOW_INTERCEPT, false, "");
 
@@ -373,7 +373,7 @@ void RejectOverrun(unsigned int length, const byte **rejectmatrix, int totalline
 
     memset(newreject + length, pad, required - length);
 
-    if (!hexen && demo_compatibility && PROCESS(OVERFLOW_REJECT) && !limitremoving)
+    if (!hexen && demo_compatibility && PROCESS(OVERFLOW_REJECT))
     {
       ShowOverflowWarning(OVERFLOW_REJECT, (required - length > 16) || (length%4 != 0), "");
 
@@ -492,7 +492,7 @@ static int GetMemoryValue(unsigned int offset, void *value, int size)
 #define DONUT_FLOORPIC_DEFAULT 0x16
 int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic)
 {
-  if (demo_compatibility && PROCESS(OVERFLOW_DONUT) && !limitremoving)
+  if (demo_compatibility && PROCESS(OVERFLOW_DONUT))
   {
     ShowOverflowWarning(OVERFLOW_DONUT, 0, "");
 
@@ -545,7 +545,7 @@ sector_t* GetSectorAtNullAddress(void)
   static int null_sector_is_initialized = false;
   static sector_t null_sector;
 
-  if (demo_compatibility && EMULATE(OVERFLOW_MISSEDBACKSIDE) && !limitremoving)
+  if (demo_compatibility && EMULATE(OVERFLOW_MISSEDBACKSIDE))
   {
     if (!null_sector_is_initialized)
     {
