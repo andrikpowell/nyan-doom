@@ -897,6 +897,9 @@ void dsda_ParseCommandLineArgs(int argc, char** argv) {
 
   if (dsda_Flag(dsda_arg_nm))
     dsda_UpdateIntArg(dsda_arg_skill, "5");
+
+  if (dsda_Flag(dsda_arg_limitremoving))
+    limitremoving_arg = true;
 }
 
 void dsda_UpdateIntArg(dsda_arg_identifier_t id, const char* param) {
