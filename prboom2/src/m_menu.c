@@ -2178,19 +2178,35 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
     }
   }
 
-  // Disable Overflows
-  if (hexen || (dsda_IntConfig(dsda_config_default_complevel) > tasdoom_compatibility))
+  // Raven - Disable Overflows
+  if (raven)
   {
-    int options[] = {
-      dsda_config_overrun_spechit_warn,          dsda_config_overrun_spechit_emulate,
-      dsda_config_overrun_reject_warn,           dsda_config_overrun_reject_emulate,
-      dsda_config_overrun_intercept_warn,        dsda_config_overrun_intercept_emulate,
-      dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
-      dsda_config_overrun_playeringame_warn,     dsda_config_overrun_playeringame_emulate,
-      dsda_config_overrun_missedbackside_warn,   dsda_config_overrun_missedbackside_emulate,
-    };
+    const int *options = NULL;
+    size_t opt_size;
 
-    for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
+    if (heretic)
+    {
+      static const int heretic_opts[] = {
+        dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
+      };
+      options   = heretic_opts;
+      opt_size  = sizeof(heretic_opts) / sizeof(heretic_opts[0]);
+    }
+    else // Hexen
+    {
+      static const int hexen_opts[] = {
+        dsda_config_overrun_spechit_warn,          dsda_config_overrun_spechit_emulate,
+        dsda_config_overrun_reject_warn,           dsda_config_overrun_reject_emulate,
+        dsda_config_overrun_intercept_warn,        dsda_config_overrun_intercept_emulate,
+        dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
+        dsda_config_overrun_playeringame_warn,     dsda_config_overrun_playeringame_emulate,
+        dsda_config_overrun_missedbackside_warn,   dsda_config_overrun_missedbackside_emulate,
+      };
+      options   = hexen_opts;
+      opt_size  = sizeof(hexen_opts) / sizeof(hexen_opts[0]);
+    }
+
+    for (int i = 0; (size_t)i < opt_size; i++)
       if(s->config_id == options[i])
         return true;
   }
@@ -2239,27 +2255,10 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
       }
   }
 
-  // Heretic Disable Options
-  if (heretic)
-  {
-    int options[] = {
-      dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
-    };
-
-    for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
-      if(s->config_id == options[i])
-        return true;
-  }
 
   // Hexen Disable Options
   if (hexen)
   {
-    //if (s->config_id == dsda_config_hide_horns)
-    //{
-    //  dsda_UpdateIntConfig(dsda_config_hide_horns, false, false);
-    //  return true;
-    //}
-
     if (s->config_id == dsda_config_sts_blink_keys)
     {
       dsda_UpdateIntConfig(dsda_config_sts_blink_keys, false, false);
