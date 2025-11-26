@@ -284,7 +284,7 @@ int main(int argc, char **argv)
   // e6y: Check for conflicts.
   // Conflicting command-line parameters could cause the engine to be confused
   // in some cases. Added checks to prevent this.
-  // Example: dsda-doom.exe -record mydemo -playdemo demoname
+  // Example: nyan-doom.exe -record mydemo -playdemo demoname
   ParamsMatchingCheck();
 
   // e6y: was moved from D_DoomMainSetup

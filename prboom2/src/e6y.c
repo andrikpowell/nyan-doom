@@ -153,7 +153,7 @@ const char* WINError(void)
 /* ParamsMatchingCheck
  * Conflicting command-line parameters could cause the engine to be confused
  * in some cases. Added checks to prevent this.
- * Example: dsda-doom.exe -record mydemo -playdemo demoname
+ * Example: nyan-doom.exe -record mydemo -playdemo demoname
  */
 void ParamsMatchingCheck()
 {

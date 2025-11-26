@@ -1928,7 +1928,7 @@ static void IdentifyVersion (void)
   else
   {
     I_Error("IdentifyVersion: IWAD not found\n\n"
-            "Make sure your IWADs are in a folder that dsda-doom searches on\n"
+            "Make sure your IWADs are in a folder that Nyan Doom searches on\n"
             "For example: %s", I_ConfigDir());
   }
 }

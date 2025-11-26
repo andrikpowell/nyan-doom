@@ -1837,7 +1837,7 @@ static automap_style_t AM_wallStyle(int i)
     case ams_default:
       break;
 
-    // These styles have no corresponding colors in dsda-doom
+    // These styles have no corresponding colors in nyan-doom
     case ams_extra_floor:
     case ams_portal:
     case ams_special:

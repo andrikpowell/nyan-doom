@@ -1846,7 +1846,7 @@ void P_TranslateZDoomLineFlags(unsigned int *flags, line_activation_t *spac)
 
   result = *flags & 0x1ff;
 
-  // from zdoom-in-hexen to dsda-doom
+  // from zdoom-in-hexen to nyan-doom
 
   *spac = spac_lookup[GET_SPAC_INDEX(*flags)];
 
@@ -1884,7 +1884,7 @@ void P_TranslateHexenLineFlags(unsigned int *flags, line_activation_t *spac)
 
   result = *flags & 0x1ff;
 
-  // from hexen to dsda-doom
+  // from hexen to nyan-doom
 
   *spac = spac_lookup[GET_SPAC_INDEX(*flags)];
 
