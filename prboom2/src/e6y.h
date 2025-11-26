@@ -232,7 +232,7 @@ int HU_DrawDemoProgress(int force);
 int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t BufferLength);
 #endif
 
-void I_vWarning(const char *message, va_list argList);
+void I_vWarning(const char *message, dboolean showMessageBox, va_list argList);
 
 #define PRB_MB_OK                       0x00000000
 #define PRB_MB_OKCANCEL                 0x00000001

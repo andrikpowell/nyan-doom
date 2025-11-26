@@ -415,13 +415,13 @@ int StepwiseSum(int value, int direction, int minval, int maxval, int defval)
   return newvalue;
 }
 
-void I_vWarning(const char *message, va_list argList)
+void I_vWarning(const char *message, dboolean showMessageBox, va_list argList)
 {
   char msg[1024];
   vsnprintf(msg,sizeof(msg),message,argList);
   lprintf(LO_ERROR, "%s\n", msg);
 #ifdef _WIN32
-  I_MessageBox(msg, PRB_MB_OK);
+  if (showMessageBox) I_MessageBox(msg, PRB_MB_OK);
 #endif
 }
 
