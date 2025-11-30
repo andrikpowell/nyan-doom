@@ -61,6 +61,7 @@
 #include "dsda/mobjinfo.h"
 #include "dsda/music.h"
 #include "dsda/sfx.h"
+#include "dsda/settings.h"
 #include "dsda/sprite.h"
 #include "dsda/state.h"
 #include "dsda/utility.h"
