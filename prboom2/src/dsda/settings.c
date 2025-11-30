@@ -306,6 +306,12 @@ dboolean dsda_MapTitle(void) {
   return dsda_IntConfig(dsda_config_map_title);
 }
 
+int dsda_PainPaletteRange(void) {
+  if (dsda_StrictMode()) return 8;
+
+  return dsda_IntConfig(dsda_config_palette_ondamage_range);
+}
+
 dboolean dsda_PainPalette(void) {
   return dsda_IntConfig(dsda_config_palette_ondamage);
 }

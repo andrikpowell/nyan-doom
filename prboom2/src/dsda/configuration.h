@@ -390,6 +390,7 @@ typedef enum {
   dsda_config_screenblocks,
   dsda_config_sdl_video_window_pos,
   dsda_config_sdl_video_display_index,
+  dsda_config_palette_ondamage_range,
   dsda_config_palette_ondamage,
   dsda_config_palette_onbonus,
   dsda_config_palette_onpowers,

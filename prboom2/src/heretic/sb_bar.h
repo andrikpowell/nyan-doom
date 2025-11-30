@@ -27,7 +27,7 @@
 #define STARTICEPAL     21
 #define STARTHOLYPAL    22
 #define STARTSCOURGEPAL 25
-#define NUMREDPALS       8
+#define NUMREDPALS       dsda_PainPaletteRange() // 8
 #define NUMBONUSPALS     4
 #define NUMPOISONPALS    8
 
