@@ -1795,19 +1795,19 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_translucent_sprites] = {
     "boom_translucent_sprites", dsda_config_translucent_sprites,
-    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), deh_changeCompTranslucency
+    dsda_config_int, 0, 2, { 1 }, NULL, NOT_STRICT, deh_changeCompTranslucency
   },
   [dsda_config_translucent_missiles] = {
     "boom_translucent_missiles", dsda_config_translucent_missiles,
-    CONF_BOOL(1), NULL, STRICT_INT(1), deh_changeCompTranslucency
+    CONF_BOOL(1), NULL, NOT_STRICT, deh_changeCompTranslucency
   },
   [dsda_config_translucent_powerups] = {
     "boom_translucent_powerups", dsda_config_translucent_powerups,
-    CONF_BOOL(1), NULL, STRICT_INT(1), deh_changeCompTranslucency
+    CONF_BOOL(1), NULL, NOT_STRICT, deh_changeCompTranslucency
   },
   [dsda_config_translucent_effects] = {
     "boom_translucent_effects", dsda_config_translucent_effects,
-    CONF_BOOL(1), NULL, STRICT_INT(1), deh_changeCompTranslucency
+    CONF_BOOL(1), NULL, NOT_STRICT, deh_changeCompTranslucency
   },
   [dsda_config_translucent_ghosts] = {
     "translucent_ghosts", dsda_config_translucent_ghosts,
