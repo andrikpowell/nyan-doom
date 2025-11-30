@@ -64,6 +64,8 @@ static auto_kf_t* last_auto_kf;
 dsda_key_frame_t* playback_key_frames;
 int playback_kf_size = 0;
 static int restore_key_frame_index = -1;
+static int dsda_rewind_index = 0;
+static dboolean is_auto_key_frame = false;
 
 static int dsda_auto_key_frame_active;
 static int dsda_auto_key_frame_interval;
@@ -94,7 +96,10 @@ static dboolean autoKFExists(auto_kf_t* auto_kf) {
 
 void dsda_ForgetAutoKeyFrames(void) {
   if (last_auto_kf)
+  {
     last_auto_kf->auto_index = 0;
+    dsda_rewind_index = 0;
+  }
 }
 
 static void dsda_ResetParentKF(dsda_key_frame_t* kf) {
@@ -113,7 +118,11 @@ static void dsda_AttachAutoKF(dsda_key_frame_t* kf) {
 
 static void dsda_ResolveParentKF(dsda_key_frame_t* kf) {
   if (autoKFExists(kf->parent.auto_kf) && kf->parent.auto_kf->kf.buffer == kf->parent.buffer)
+  {
     last_auto_kf = kf->parent.auto_kf;
+    if (dsda_rewind_index > 0)
+      dsda_rewind_index--;
+  }
   else {
     dsda_ResetParentKF(kf);
     dsda_ForgetAutoKeyFrames();
@@ -181,6 +190,7 @@ void dsda_InitAutoKeyFrames(void) {
   dsda_auto_key_frame_timeout = dsda_IntConfig(dsda_config_auto_key_frame_timeout);
 
   auto_kf_size = autoKeyFrameDepth();
+  dsda_rewind_index = 0; // Reset rewind index
 
   if (!auto_kf_size) {
     last_auto_kf = NULL;
@@ -259,6 +269,10 @@ void dsda_StoreKeyFrame(dsda_key_frame_t* key_frame, byte complete, byte export)
 
   dsda_AttachAutoKF(key_frame);
 
+  // Store index of key frame based on depth
+  if (!complete && dsda_rewind_index < dsda_auto_key_frame_depth)
+    dsda_rewind_index++;
+
   if (complete) {
     if (demorecording && export)
       dsda_ExportKeyFrame(key_frame->buffer, key_frame->buffer_length);
@@ -267,8 +281,16 @@ void dsda_StoreKeyFrame(dsda_key_frame_t* key_frame, byte complete, byte export)
   }
 }
 
+void dsda_RestoreAutoKeyFrame(dsda_key_frame_t* key_frame, dboolean skip_wipe)
+{
+  is_auto_key_frame = true;
+  dsda_RestoreKeyFrame(key_frame, skip_wipe);
+  is_auto_key_frame = false;
+}
+
 // Stripped down version of G_DoLoadGame
 void dsda_RestoreKeyFrame(dsda_key_frame_t* key_frame, dboolean skip_wipe) {
+  int detailed_key_frame_message;
   void G_AfterLoad(void);
 
   byte complete;
@@ -299,6 +321,7 @@ void dsda_RestoreKeyFrame(dsda_key_frame_t* key_frame, dboolean skip_wipe) {
   dsda_RestoreCommandHistory();
 
   restore_key_frame_index = (totalleveltimes + leveltime) / (35 * autoKeyFrameInterval());
+  detailed_key_frame_message = dsda_IntConfig(dsda_config_auto_key_frame_detailed_message) && is_auto_key_frame && dsda_rewind_index > 0;
 
   G_AfterLoad();
 
@@ -309,7 +332,10 @@ void dsda_RestoreKeyFrame(dsda_key_frame_t* key_frame, dboolean skip_wipe) {
 
   dsda_ResolveParentKF(key_frame);
 
-  doom_printf("Restored key frame");
+  if (detailed_key_frame_message)
+    doom_printf("Restored key frame %d", dsda_rewind_index);
+  else
+    doom_printf("Restored key frame");
 }
 
 void dsda_StoreTempKeyFrame(void) {
@@ -365,7 +391,7 @@ void dsda_RewindAutoKeyFrame(void) {
   dsda_RewindKF(&load_kf);
 
   if (load_kf)
-    dsda_RestoreKeyFrame(&load_kf->kf, true);
+    dsda_RestoreAutoKeyFrame(&load_kf->kf, true);
   else if (!dsda_auto_key_frame_active)
     doom_printf("Rewind Disabled");
   else

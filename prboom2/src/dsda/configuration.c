@@ -1282,6 +1282,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_auto_key_frame_timeout", dsda_config_auto_key_frame_timeout,
     dsda_config_int, 0, 25, { 10 }, NULL, STRICT_INT(0), dsda_InitAutoKeyFrames
   },
+  [dsda_config_auto_key_frame_detailed_message] = {
+    "dsda_auto_key_frame_detailed_message", dsda_config_auto_key_frame_detailed_message,
+    CONF_BOOL(0), NULL, STRICT_INT(0)
+  },
   [dsda_config_auto_save] = {
     "dsda_config_auto_save", dsda_config_auto_save,
     CONF_BOOL(0), NULL, STRICT_INT(0)
