@@ -956,7 +956,7 @@ dboolean cheat_get_hexen_piece(int num)
   return ((num == weapon_piece_1) || (num == weapon_piece_2) || (num == weapon_piece_3));
 }
 
-static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num, int flags, int rflags, const char* notfound_msg)
+static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int sprite_num, int weapon_num, int flags, int rflags, const char* notfound_msg)
 {
   extern int init_thinkers_count;
   thinker_t *th, *start_th;
@@ -986,10 +986,10 @@ static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num, i
 
       mobj = (mobj_t *) th;
 
-      found_num = (mobj->sprite == num);
+      found_num = (mobj->sprite == sprite_num);
 
       // Hexen 4th Weapon Logic
-      if (hexen && num == 666) // dummy value
+      if (hexen && sprite_num == 666) // dummy value
       {
         found_num = cheat_get_hexen_piece(mobj->sprite);
         notfound_msg = "Weapon part not found";
@@ -1006,8 +1006,31 @@ static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int num, i
     }
   } while (th != start_th);
 
-  if (!found)
-    dsda_AddMessage(notfound_msg);
+  if (found)
+  {
+    if (weapon_num != -1)
+    {
+      char found_msg[64];
+
+      if (hexen && sprite_num == 666)
+        snprintf(found_msg, sizeof found_msg, "Weapon part found");
+      else
+        snprintf(found_msg, sizeof found_msg, "Weapon %d Found", weapon_num);
+
+      dsda_AddMessage(found_msg);
+    }
+  }
+  else
+  {
+    if (weapon_num != -1)
+    {
+      char weapon_notfound_msg[64];
+      snprintf(weapon_notfound_msg, sizeof weapon_notfound_msg, "Weapon %d Not Found", weapon_num);
+      dsda_AddMessage(weapon_notfound_msg);
+    }
+    else
+      dsda_AddMessage(notfound_msg);
+  }
 }
 
 int cheat_get_weapon(int num)
@@ -1122,7 +1145,7 @@ void cheat_reveal_weaponx(int weapon)
 
       dsda_TrackFeature(uf_iddt);
 
-      cheat_cycle_mobj_spr(&last_mobj, &last_count, sprite_num, MF_SPECIAL, MF_DROPPED, "Weapon Not Found");
+      cheat_cycle_mobj_spr(&last_mobj, &last_count, sprite_num, weapon, MF_SPECIAL, MF_DROPPED, "Weapon Not Found");
     }
   }
 }
@@ -1312,7 +1335,7 @@ void cheat_reveal_keyxx(int key)
 
     dsda_TrackFeature(uf_iddt);
 
-    cheat_cycle_mobj_spr(&last_mobj, &last_count, key, MF_SPECIAL, false, "Key Finder: key not found");
+    cheat_cycle_mobj_spr(&last_mobj, &last_count, key, -1, MF_SPECIAL, false, "Key Finder: key not found");
   }
 }
 
