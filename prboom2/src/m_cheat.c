@@ -993,7 +993,7 @@ static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int sprite
       if (hexen && sprite_num == 666) // dummy value
       {
         found_num = cheat_get_hexen_piece(mobj->sprite);
-        notfound_msg = "Weapon part not found";
+        notfound_msg = "Weapon 4 parts not found";
       }
 
       if (found_num && (flags ? mobj->flags & flags : true) && (rflags ? !(mobj->flags & rflags) : true))
@@ -1014,7 +1014,7 @@ static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int sprite
       char found_msg[64];
 
       if (hexen && sprite_num == 666)
-        snprintf(found_msg, sizeof found_msg, "Weapon part found");
+        snprintf(found_msg, sizeof found_msg, "Weapon 4 part found");
       else
         snprintf(found_msg, sizeof found_msg, "Weapon %d Found", weapon_num);
 
@@ -1023,7 +1023,7 @@ static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int sprite
   }
   else
   {
-    if (weapon_num != -1)
+    if (weapon_num != -1 && !(hexen && weapon_num == 4))
     {
       char weapon_notfound_msg[64];
       snprintf(weapon_notfound_msg, sizeof weapon_notfound_msg, "Weapon %d Not Found", weapon_num);
