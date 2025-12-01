@@ -321,7 +321,7 @@ void dsda_RestoreKeyFrame(dsda_key_frame_t* key_frame, dboolean skip_wipe) {
   dsda_RestoreCommandHistory();
 
   restore_key_frame_index = (totalleveltimes + leveltime) / (35 * autoKeyFrameInterval());
-  detailed_key_frame_message = dsda_IntConfig(dsda_config_auto_key_frame_detailed_message) && is_auto_key_frame && dsda_rewind_index > 0;
+  detailed_key_frame_message = is_auto_key_frame && dsda_rewind_index > 0;
 
   G_AfterLoad();
 

@@ -372,7 +372,6 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_auto_key_frame_interval),
   MIGRATED_SETTING(dsda_config_auto_key_frame_depth),
   MIGRATED_SETTING(dsda_config_auto_key_frame_timeout),
-  MIGRATED_SETTING(dsda_config_auto_key_frame_detailed_message),
   MIGRATED_SETTING(dsda_config_auto_save),
   MIGRATED_SETTING(dsda_config_exhud),
   MIGRATED_SETTING(dsda_config_ex_text_scale_x),

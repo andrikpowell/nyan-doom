@@ -2032,7 +2032,7 @@ static dboolean M_ItemNyan(const setup_menu_t* s)
     int nyan_features[] =
     { dsda_config_extra_level_brightness, dsda_config_quicksave_sfx, dsda_config_quit_sounds,
       dsda_config_freelook_autoaim, dsda_config_freelook_autoaim_pct, dsda_config_freelook_enhanced_flying,
-      dsda_config_deh_change_cheats, dsda_config_auto_key_frame_active, dsda_config_auto_key_frame_detailed_message,
+      dsda_config_deh_change_cheats, dsda_config_auto_key_frame_active,
       nyan_config_loading_disk, dsda_config_hexen_skip_ethereal_travel,
 
       nyan_config_menu_play_demo, nyan_config_full_menu_fade, nyan_config_gradual_menu_fade,
@@ -4066,7 +4066,6 @@ setup_menu_t gen_gamesim_settings[] = {
   { "Rewind Interval (s)", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_interval, 0, empty_list, DEPEND(dsda_config_auto_key_frame_active, true) },
   { "Rewind Depth", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_depth, 0, empty_list, DEPEND(dsda_config_auto_key_frame_active, true) },
   { "Rewind Timeout (ms)", S_NUM, m_conf, G2_X, dsda_config_auto_key_frame_timeout, 0, empty_list, DEPEND(dsda_config_auto_key_frame_active, true) },
-  { "Detailed Rewind Message", S_YESNO, m_conf, G2_X, dsda_config_auto_key_frame_detailed_message, 0, empty_list, DEPEND(dsda_config_auto_key_frame_active, true) },
 
   PREV_PAGE(gen_device_settings),
   NEXT_PAGE(gen_misc_settings),
