@@ -148,7 +148,7 @@ static void cheat_classx(char buf[2]);
 static void cheat_class();
 static void cheat_init();
 static void cheat_script(char buf[3]);
-static void cheat_hexen_quicken();
+static void cheat_hexen_suicide();
 
 // nyan
 static void cheat_nut();
@@ -295,7 +295,8 @@ cheatseq_t cheat[] = {
   CHEAT("iddqd", NULL, NULL, not_demo, cht_heretic | cht_hexen, cheat_god_raven, 0, false),
   CHEAT("idkfa", NULL, NULL, not_demo, cht_heretic | cht_hexen, cheat_kfa_raven, 0, false),
   CHEAT("conan", NULL, NULL, not_demo, cht_hexen, cheat_kfa_raven, 0, false),
-  CHEAT("quicken", NULL, NULL, not_demo, cht_hexen, cheat_hexen_quicken, 0, false),
+  CHEAT("martek", NULL, NULL, not_demo, cht_hexen, cheat_hexen_suicide, 0, false),
+  CHEAT("quicken", NULL, NULL, not_demo, cht_hexen, cheat_hexen_suicide, 0, false), // from Hexen beta
 
   // hexen
   CHEAT("satan", NULL, NULL, not_classic_demo, cht_hexen, cheat_god, 0, false),
@@ -420,12 +421,12 @@ void M_CheatGod(void)
     dsda_AddMessage(s_STSTR_DQDOFF);
 }
 
-int quicken_seq = 0;
+int hexen_suicide_seq = 0;
 
-static void cheat_hexen_quicken(void)
+static void cheat_hexen_suicide(void)
 {
-  quicken_seq++;
-  switch (quicken_seq)
+  hexen_suicide_seq++;
+  switch (hexen_suicide_seq)
   {
     case 1:
       P_SetMessage(plyr, "TRYING TO CHEAT?  THAT'S ONE....", true);
@@ -436,7 +437,7 @@ static void cheat_hexen_quicken(void)
     case 3:
       P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
       P_SetMessage(plyr, "THAT'S THREE!  TIME TO DIE.", true);
-      quicken_seq = 0;
+      hexen_suicide_seq = 0;
       break;
     default:
       break;
