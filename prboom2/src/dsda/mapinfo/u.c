@@ -393,7 +393,7 @@ int dsda_UCheckInterText(void)
     }
 
     // Only skip text if map before story screen is replaced by PWAD
-    if (!W_PWADLumpNumExists(MapLump))
+    if (!W_PWADLumpNumExists2(MapLump))
       return false;
 
     // UMAPINFO has new text

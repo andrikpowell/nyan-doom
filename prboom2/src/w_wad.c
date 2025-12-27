@@ -613,6 +613,16 @@ int W_PWADLumpNumExists(int lump)
   return W_LumpNumExists(lump) && (lumpinfo[lump].source == source_pwad);
 }
 
+int W_AUTOLumpNumExists(int lump)
+{
+  return W_LumpNumExists(lump) && (lumpinfo[lump].source == source_auto_load);
+}
+
+int W_PWADLumpNumExists2(int lump)
+{
+  return (W_AUTOLumpNumExists(lump) || W_PWADLumpNumExists(lump));
+}
+
 int W_LumpNameExists(const char *name)
 {
   return W_CheckNumForName(name) != LUMP_NOT_FOUND;
@@ -628,6 +638,16 @@ int W_PWADLumpNameExists(const char *name)
   return W_PWADLumpNumExists(W_CheckNumForName(name));
 }
 
+int W_AUTOLumpNameExists(const char *name)
+{
+  return W_AUTOLumpNumExists(W_CheckNumForName(name));
+}
+
+int W_PWADLumpNameExists2(const char *name)
+{
+  return (W_AUTOLumpNumExists(W_CheckNumForName(name)) || W_PWADLumpNumExists(W_CheckNumForName(name)));
+}
+
 int W_FlatNameExists(const char *name)
 {
   return W_CheckNumForName2(name, ns_flats) != LUMP_NOT_FOUND;
@@ -640,7 +660,7 @@ int W_PWADFlatNameExists(const char *name)
 
 int W_PWADMapsExist(void)
 {
-  return W_PWADLumpNameExists("THINGS") || W_PWADLumpNameExists("TEXTMAP");
+  return W_PWADLumpNameExists2("THINGS") || W_PWADLumpNameExists2("TEXTMAP");
 }
 
 void W_Shutdown(void)

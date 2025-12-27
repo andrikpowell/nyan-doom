@@ -38,7 +38,7 @@ void drawBerserkIcon(player_t* player, int* x, int* y, const char* (*hasBerserk)
     int color = hasBerserk(player) ? unityedition ? CR_GREEN : CR_RED : CR_DEFAULT;
     int flags = local->component.vpt;
 
-    if (W_PWADLumpNameExists("STFPPSTR") || chex)
+    if (W_PWADLumpNameExists2("STFPPSTR") || chex)
         color = CR_DEFAULT;
 
     if (color != CR_DEFAULT)

@@ -277,7 +277,7 @@ void STlib_updateColorIcon
 {
   int flags = VPT_ALIGN_BOTTOM;
 
-  if (chex || W_PWADLumpNumExists(mi->p[*mi->inum].lumpnum))
+  if (chex || W_PWADLumpNumExists2(mi->p[*mi->inum].lumpnum))
     cm = CR_DEFAULT;
 
   if (cm != CR_DEFAULT)

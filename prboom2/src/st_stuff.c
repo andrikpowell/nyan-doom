@@ -835,7 +835,7 @@ static void ST_updateWidgets(void)
 
   for (i=0;i<3;i++)
   {
-    int pwad_lumps = W_PWADLumpNameExists("STFARMS1") || W_PWADLumpNameExists("STFARMS2");
+    int pwad_lumps = W_PWADLumpNameExists2("STFARMS1") || W_PWADLumpNameExists2("STFARMS2");
   
     if (armor_icon==1 || pwad_lumps)
       armorpatch[i] = armorstyle1[i];

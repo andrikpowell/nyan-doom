@@ -583,7 +583,7 @@ int dsda_LegacyCheckInterText(void)
     }
 
     // Only skip text if map before story screen is replaced by PWAD
-    if (!W_PWADLumpNumExists(MapLump))
+    if (!W_PWADLumpNumExists2(MapLump))
       return false;
 
     return SkipText;
@@ -632,7 +632,7 @@ int dsda_LegacyGenericMapname(dsda_string_t* str, int epsd, int map) {
   if (map > 0 && epsd > 0) {
     char* mapname = VANILLA_MAP_LUMP_NAME(epsd, map);
 
-    if (W_PWADLumpNameExists(mapname)) {
+    if (W_PWADLumpNameExists2(mapname)) {
       int classic_mapname = 0;
 
       switch (gamemode) {

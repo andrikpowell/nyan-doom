@@ -53,7 +53,7 @@ int getBerserkColor(player_t* player) {
 void drawPowerupStatusIcon(player_t* player, int* x, int* y, int powerup, const char* lumpname, int color, int blinking) {
     int flags = local->component.vpt;
 
-    if (W_PWADLumpNameExists(lumpname))
+    if (W_PWADLumpNameExists2(lumpname))
         color = CR_DEFAULT;
 
     if (color != CR_DEFAULT)

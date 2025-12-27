@@ -548,7 +548,7 @@ const char* WI_LegacyMapname(int epsd, int map)
     {
       WI_levelNameLump(epsd, map, lname);
     
-      if (!W_PWADLumpNameExists(lname))
+      if (!W_PWADLumpNameExists2(lname))
         levelname = classic_mapname.string;
     }
   }

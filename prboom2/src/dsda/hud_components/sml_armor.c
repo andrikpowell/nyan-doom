@@ -52,7 +52,7 @@ static void dsda_DrawComponent(void) {
 
             y = chex ? y+2 : y;
 
-            if (W_PWADLumpNumExists(lump))
+            if (W_PWADLumpNumExists2(lump))
                 color = CR_DEFAULT;
 
             if (color != CR_DEFAULT)
