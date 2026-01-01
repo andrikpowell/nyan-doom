@@ -51,6 +51,5 @@ void V_DrawBackgroundAnimate(const char* lump);
 #define V_DrawMenuNamePatchAnimateFS(x,y,lump,color,flags) V_DrawMenuNumPatchFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
 
 const int N_CheckAnimate(const char* lump); // called in m_menu.c for M_SKULL1/2
-const char* PrefixCombine(const char *lump_prefix, const char *lump_main);
 
 #endif

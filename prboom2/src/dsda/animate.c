@@ -16,6 +16,7 @@
 //
 
 #include <string.h>
+#include <ctype.h>
 
 #include "library.h"
 #include "lprintf.h"
@@ -42,6 +43,9 @@ void AnimateTicker(void)
 {
   AnimateTime++;
 }
+
+static void N_CombinePrefixedLump(char out[9], const char *prefix, const char *name);
+static int  N_CheckNumForPrefixedName(const char *prefix, const char *base);
 
 /*static int N_ParseAnimateLump(char** lines, int line_i) {
   int count;
@@ -148,16 +152,23 @@ void N_ReloadAnimateLumps(void)
     }
 }
 
+static size_t N_AnimCount(void)
+{
+    return (n_anims && n_lastanim) ? (size_t)(n_lastanim - n_anims) : 0;
+}
+
 const int N_CheckWide(const char* lump)
 {
-    int i;
+    size_t i;
+    size_t used = N_AnimCount();
     int lumpnum = W_CheckNumForName(lump);
 
     if (lumpnum == LUMP_NOT_FOUND)
         return false;
 
-    for (i = 0; (size_t)i < n_maxanims; i++)
-        if (n_anims[i].lump == lumpnum && n_anims[i].widescrn != LUMP_NOT_FOUND)
+    for (i = 0; i < used; i++)
+        if (n_anims[i].lump == lumpnum &&
+            n_anims[i].widescrn != LUMP_NOT_FOUND)
             return true;
 
     return false;
@@ -174,13 +185,14 @@ static int N_CheckAnimateCycle(int SLump, int ELump)
 
 const int N_CheckAnimate(const char* lump)
 {
-    int i;
+    size_t i;
+    size_t used = N_AnimCount();
     int lumpnum = W_CheckNumForName(lump);
 
     if (lumpnum == LUMP_NOT_FOUND)
         return false;
 
-    for (i = 0; (size_t)i < n_maxanims; i++)
+    for (i = 0; i < used; i++)
     {
         if (n_anims[i].lump == lumpnum)
         {
@@ -192,42 +204,41 @@ const int N_CheckAnimate(const char* lump)
     return false;
 }
 
-static int N_SetupWidePatch(const char* lump)
-{
-    return W_CheckNumForName(PrefixCombine("W_", lump));
-}
-
-static int N_SetupAnimatePatch(const char* prefix, const char* lump)
-{
-    return W_CheckNumForName(PrefixCombine(prefix, lump));
-}
-
 static void N_ExtendAnimateLimit(void)
 {
-    if (n_lastanim >= n_anims + n_maxanims)
-    {
-        size_t n_newmax = n_maxanims ? n_maxanims*2 : MAXANIMS;
-        n_anims = Z_Realloc(n_anims, n_newmax*sizeof(*n_anims));
-        n_lastanim = n_anims + n_maxanims;
-        n_maxanims = n_newmax;
+    if (!n_anims) {
+        n_maxanims = MAXANIMS;
+        n_anims = Z_Malloc(n_maxanims * sizeof(*n_anims));
+        n_lastanim = n_anims; // 0 used
+        return;
+    }
+
+    if (n_lastanim >= n_anims + n_maxanims) {
+        size_t used = (size_t)(n_lastanim - n_anims);
+        size_t newmax = n_maxanims * 2;
+
+        n_anims = Z_Realloc(n_anims, newmax * sizeof(*n_anims));
+        n_maxanims = newmax;
+        n_lastanim = n_anims + used;
     }
 }
 
 void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elump, int speed)
 {
-    int i;
+    size_t i;
+    size_t used = N_AnimCount();
     int lumpnum = W_CheckNumForName(lump);
 
     if (lumpnum == LUMP_NOT_FOUND)
         return;
 
     // Check if lump already exists, and update info instead
-    for (i = 0; (size_t)i < n_maxanims; i++)
+    for (i = 0; i < used; i++)
     {
         if (n_anims[i].lump == lumpnum)
         {
             n_anims[i].lump = lumpnum;
-            n_anims[i].widescrn = W_CheckNumForName(PrefixCombine("W_", lump));
+            n_anims[i].widescrn = N_CheckNumForPrefixedName("W_", lump);
             n_anims[i].ani_start = W_CheckNumForName(slump);
             n_anims[i].ani_end = W_CheckNumForName(elump);
             n_anims[i].ani_speed = speed;
@@ -238,7 +249,7 @@ void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elum
 
     N_ExtendAnimateLimit();
     n_lastanim->lump = lumpnum;
-    n_lastanim->widescrn = W_CheckNumForName(PrefixCombine("W_", lump));
+    n_lastanim->widescrn = N_CheckNumForPrefixedName("W_", lump);
     n_lastanim->ani_start = W_CheckNumForName(slump);
     n_lastanim->ani_end = W_CheckNumForName(elump);
     n_lastanim->ani_speed = speed;
@@ -246,20 +257,19 @@ void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elum
     n_lastanim++;
 }
 
-static void N_AddPatchAnimateNum(const char* lump)
+static dboolean N_AddPatchAnimateNum(const char* lump)
 {
-    char slump[9] = "";
-    char elump[9] = "";
-    const char* slump_str;
-    const char* elump_str;
+    char slump[9], elump[9];
 
-    slump_str = PrefixCombine("S_", lump);
-    strcpy(slump, slump_str);
+    N_CombinePrefixedLump(slump, "S_", lump);
+    N_CombinePrefixedLump(elump, "E_", lump);
 
-    elump_str = PrefixCombine("E_", lump);
-    strcpy(elump, elump_str);
+    if (W_CheckNumForName(slump) == LUMP_NOT_FOUND ||
+        W_CheckNumForName(elump) == LUMP_NOT_FOUND)
+        return false;
 
     N_AddPatchAnimateLump(lump, slump, elump, 8);
+    return true;
 }
 
 static int N_PlayAnimatePatch(int aninum)
@@ -274,35 +284,52 @@ static int N_PlayAnimatePatch(int aninum)
 
 static int N_GetPatchAnimateIndex(const char* lump)
 {
-    int lumpnum = W_GetNumForName(lump);
-    int index = LUMP_NOT_FOUND;
+    size_t i;
+    size_t used;
+    int lumpnum;
+    int index;
 
-    do {
-        for (int i = 0; (size_t)i < n_maxanims; i++)
-            if (n_anims[i].lump == lumpnum)
-                index = i;
+    lumpnum = W_CheckNumForName(lump);
+    index = LUMP_NOT_FOUND;
 
-        if (index == LUMP_NOT_FOUND)
-            N_AddPatchAnimateNum(lump);
+    if (lumpnum == LUMP_NOT_FOUND)
+        return LUMP_NOT_FOUND;
 
-    } while (index == LUMP_NOT_FOUND);
+    for (;;) // retry after adding animations
+    {
+        used = N_AnimCount();
+        index = LUMP_NOT_FOUND;
+
+        for (i = 0; i < used; i++)
+            if (n_anims[i].lump == lumpnum) { index = (int)i; break; }
+
+        if (index != LUMP_NOT_FOUND) break;
+        if (!N_AddPatchAnimateNum(lump)) break;
+    }
 
     return index;
 }
 
 int N_GetPatchAnimateNum(const char* lump, dboolean animation)
 {
-    if (animateLumps || widescreenLumps)
-    {
-        int index = N_GetPatchAnimateIndex(lump);
-        int animate  = animateLumps && n_anims[index].validcycle;
-        int widescrn = widescreenLumps && n_anims[index].widescrn != LUMP_NOT_FOUND;
+    int index;
+    int animate;
+    int widescrn;
 
-        if (animate)
-            return animation ? N_PlayAnimatePatch(index) : n_anims[index].ani_start;
-        else if (widescrn)
-            return n_anims[index].widescrn;
-    }
+    if (!(animateLumps || widescreenLumps))
+        return W_GetNumForName(lump);
+
+    index = N_GetPatchAnimateIndex(lump);
+    if (index == LUMP_NOT_FOUND)
+        return W_GetNumForName(lump);
+
+    animate  = animateLumps && n_anims[index].validcycle;
+    widescrn = widescreenLumps && n_anims[index].widescrn != LUMP_NOT_FOUND;
+
+    if (animate)
+        return animation ? N_PlayAnimatePatch(index) : n_anims[index].ani_start;
+    else if (widescrn)
+        return n_anims[index].widescrn;
 
     return W_GetNumForName(lump);
 }
@@ -326,15 +353,36 @@ void V_DrawBackgroundAnimate(const char* lump)
     V_DrawBackgroundNum(lumpNum);
 }
 
-const char* PrefixCombine(const char *lump_prefix, const char *lump_main)
+static void N_CombinePrefixedLump(char out[9], const char *prefix, const char *name)
 {
-    static char result[9];
+    size_t i = 0, j = 0;
 
-    if (lump_prefix == NULL)
-        lump_prefix = "W_";
+    if (!prefix) prefix = "W_";
 
-    memcpy(result, lump_prefix, 2);
-    memcpy(&result[2], lump_main, 6);
-    result[8] = 0;
-    return result;
+    while (prefix[i] && i < 8) {
+        out[i] = prefix[i];
+        i++;
+    }
+
+    while (name[j] && i < 8) {
+        out[i] = name[j];
+        i++; j++;
+    }
+
+    out[i] = '\0';
+    {
+        char *p = out;
+        while (*p)
+        {
+            *p = toupper((unsigned char)*p);
+            p++;
+        }
+    }
+}
+
+static int N_CheckNumForPrefixedName(const char *prefix, const char *base)
+{
+    char name[9];
+    N_CombinePrefixedLump(name, prefix, base);
+    return W_CheckNumForName(name);
 }
