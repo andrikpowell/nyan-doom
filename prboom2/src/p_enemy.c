@@ -784,7 +784,7 @@ static void P_NewChaseDir(mobj_t *actor)
 // killough 9/9/98: whether a target is visible to a monster
 //
 
-static dboolean P_IsVisible(mobj_t *actor, mobj_t *mo, dboolean allaround)
+dboolean P_IsVisible(mobj_t *actor, mobj_t *mo, dboolean allaround)
 {
   if (!allaround)
     {
