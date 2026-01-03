@@ -165,4 +165,8 @@ void A_NoBlocking(mobj_t * actor);
 
 dboolean P_RaiseThing(mobj_t *corpse, mobj_t *raiser);
 
+// nyan
+
+dboolean P_IsVisible(mobj_t *actor, mobj_t *mo, dboolean allaround); // Basilisk cheat
+
 #endif // __P_ENEMY__

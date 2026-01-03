@@ -1252,6 +1252,38 @@ fixed_t FloatBobOffsets[64] = {
 };
 
 //
+// A_KillOnSight
+// Actor dies when target is in sight
+//
+
+static dboolean IsKillableEnemy(mobj_t *mo)
+{
+  if (!mo) return false;
+  if (mo->health <= 0) return false;
+  if (mo->player) return false;
+
+  if (!(mo->flags & MF_SHOOTABLE)) return false;
+  if ((mo->flags & MF_CORPSE) && mo->health <= 0) return false;
+
+  // Exclude barrels / decorations
+  if (!mo->info || !mo->info->seestate) return false;
+  if (!mo->info->meleestate && !mo->info->missilestate) return false;
+
+  return true;
+}
+
+static dboolean P_KillOnSight(mobj_t *mo)
+{
+  if (!IsKillableEnemy(mo)) return false;
+
+  if (!mo->target || !mo->target->player) return false;
+  if (!P_CheckSight(mo, mo->target)) return false;
+
+  P_DamageMobj(mo, mo->target, mo->target, mo->health + 1);
+  return (mo->health <= 0);
+}
+
+//
 // P_MobjThinker
 //
 
@@ -1262,6 +1294,12 @@ void P_MobjThinker (mobj_t* mobj)
   // killough 11/98:
   // removed old code which looked at target references
   // (we use pointer reference counting now)
+
+  // Basilisk (instant-kill) cheat
+  // If monster sees the player, it dies
+  if (players[consoleplayer].cheats & CF_BASILISK)
+    if(P_KillOnSight(mobj))
+      return;
 
   if (mobj->type == MT_MUSICSOURCE)
   {
