@@ -266,7 +266,7 @@ set(COMMON_SRC
     textscreen/txt_utf8.h
     textscreen/fonts/convert-font
     textscreen/fonts/normal.h
-    textscreen/fonts/hauge-8x18-v1-5.png
+    textscreen/fonts/hauge-8x18-v1-6.png
     textscreen/fonts/README
     dstrings.c
     dstrings.h
