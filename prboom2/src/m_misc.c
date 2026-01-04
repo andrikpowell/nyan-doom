@@ -167,6 +167,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_background_fps_limit),
   MIGRATED_SETTING(dsda_config_sdl_video_window_pos),
   MIGRATED_SETTING(dsda_config_sdl_video_display_index),
+  MIGRATED_SETTING(dsda_config_palette_ondamage_range),
   MIGRATED_SETTING(dsda_config_palette_ondamage),
   MIGRATED_SETTING(dsda_config_palette_onbonus),
   MIGRATED_SETTING(dsda_config_palette_onpowers),
