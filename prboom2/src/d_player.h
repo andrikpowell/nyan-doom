@@ -74,6 +74,7 @@ typedef enum
 #define CF_FLY           0x10 // flying player
 #define CF_NUT           0x20 // IDNUT
 #define CF_CAMERA        0x40 // Camera
+#define CF_BASILISK      0x80 // Basilisk cheat
 
 // heretic
 typedef struct
