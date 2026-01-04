@@ -1734,6 +1734,7 @@ static cheat_input_t cheat_input[] = {
   { dsda_input_freeze, not_demo, cheat_freeze, 0 },
   { dsda_input_idmusrr, not_demo, cheat_musrr, 0 },
   { dsda_input_camera, not_demo, cheat_camera, 0 },
+  { dsda_input_basilisk, not_demo, cheat_killonsight, 0 },
   { 0 }
 };
 
