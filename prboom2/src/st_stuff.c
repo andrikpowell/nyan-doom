@@ -734,7 +734,7 @@ void ST_SetKeyBlink(player_t* player, int blue, int yellow, int red)
 
   //if (raven) return;
 
-  player->keyblinktics = !heretic ? KEYBLINKTICS : 4*KEYBLINKTICS;
+  player->keyblinktics = KEYBLINKTICS;
 
   for (i = 0; i < 3; i++)
   {
@@ -759,7 +759,7 @@ int ST_BlinkKey(player_t* player, int index)
   if (!keyblink)
     return KEYBLINK_NONE;
 
-  if (player->keyblinktics & (!heretic ? KEYBLINKMASK : 4*KEYBLINKMASK))
+  if (player->keyblinktics & KEYBLINKMASK)
   {
     if (keyblink == KEYBLINK_EITHER || (keyblink == KEYBLINK_BOTH && sts_traditional_keys))
     {
@@ -878,61 +878,70 @@ static void ST_updateWidgets(void)
 
 void ST_updateBlinkingKeys(player_t* plyr)
 {
-  int i;
-
   if (hexen) return;
 
   // [crispy] blinking key or skull in the status bar
   if (plyr->keyblinktics)
   {
-    if (sts_blink_keys && !dsda_StrictMode() && ((R_StatusBarVisible() && !inventory) || dsda_CheckExHudKeys()))
+    int i;
+    static int last_gametic = -1;
+    int do_blink = sts_blink_keys && !dsda_StrictMode() && ((R_StatusBarVisible() && !inventory) || dsda_CheckExHudKeys());
+
+    // Tie blinking to gametic (fixes Heretic key blinking)
+    if (gametic != last_gametic)
     {
-      if (!(plyr->keyblinktics & (!heretic ? (2*KEYBLINKMASK - 1) : (8*KEYBLINKMASK - 1))))
-        S_StartVoidSound(g_sfx_itemup);
+      last_gametic = gametic;
 
-      plyr->keyblinktics--;
-
-      for (i = 0; i < 3; i++)
+      if (do_blink)
       {
-        switch (ST_BlinkKey(plyr, i))
-        {
-          case KEYBLINK_NONE:
-            continue;
+        if (!(plyr->keyblinktics & (2*KEYBLINKMASK - 1)))
+          S_StartVoidSound(g_sfx_itemup);
 
-          case KEYBLINK_CARD:
-            if (heretic)
-            {
-              if (R_StatusBarVisible())
-              {
-                if (i == 0)
-                    V_DrawNamePatch(153, 180, "bkeyicon", CR_DEFAULT, VPT_STRETCH);
-                else if (i == 1)
-                    V_DrawNamePatch(153, 164, "ykeyicon", CR_DEFAULT, VPT_STRETCH);
-                else if (i == 2)
-                    V_DrawNamePatch(153, 172, "gkeyicon", CR_DEFAULT, VPT_STRETCH);
-              }
-            }
-            else
-              keyboxes[i] = i;
-            break;
-
-          case KEYBLINK_SKULL:
-            keyboxes[i] = i + 3;
-            break;
-
-          case KEYBLINK_BOTH:
-            keyboxes[i] = i + 6;
-            break;
-
-          default:
-            keyboxes[i] = -1;
-            break;
-        }
+        plyr->keyblinktics--;
       }
+      else
+        plyr->keyblinktics = 0;
     }
-    else
+
+    if (!do_blink) return;
+
+    // Always render key blinks (fixes Heretic key blinking)
+    for (i = 0; i < 3; i++)
     {
-      plyr->keyblinktics = 0;
+      switch (ST_BlinkKey(plyr, i))
+      {
+        case KEYBLINK_NONE:
+          continue;
+
+        case KEYBLINK_CARD:
+          if (heretic)
+          {
+            if (R_StatusBarVisible())
+            {
+              if (i == 0)
+                  V_DrawNamePatch(153, 180, "bkeyicon", CR_DEFAULT, VPT_STRETCH);
+              else if (i == 1)
+                  V_DrawNamePatch(153, 164, "ykeyicon", CR_DEFAULT, VPT_STRETCH);
+              else if (i == 2)
+                  V_DrawNamePatch(153, 172, "gkeyicon", CR_DEFAULT, VPT_STRETCH);
+            }
+          }
+          else
+            keyboxes[i] = i;
+          break;
+
+        case KEYBLINK_SKULL:
+          keyboxes[i] = i + 3;
+          break;
+
+        case KEYBLINK_BOTH:
+          keyboxes[i] = i + 6;
+          break;
+
+        default:
+          keyboxes[i] = -1;
+          break;
+      }
     }
   }
 }
