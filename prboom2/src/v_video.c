@@ -1502,23 +1502,73 @@ void V_FreeScreens(void) {
     V_FreeScreen(&screens[i]);
 }
 
-static void V_PlotPixel8(int scrn, int x, int y, byte color) {
-  int thickness = AM_GetLineWeight();
-  int half = thickness / 2;
-  int dy, dx;
-  int py, px;
+//
+// V_PlotPixel
+//
 
-  for (dy = -half; dy <= half; dy++)
+static void V_PlotPixel8_1px(int scrn, int x, int y, byte color) {
+  screens[scrn].data[x+screens[scrn].pitch*y] = color;
+}
+
+static void V_PlotCircle8(int scrn, int cx, int cy, int thickness, byte color)
+{
+  fixed_t radius, radius_sq;
+  int row_radius;
+  int dy;
+
+  radius = thickness * FRACUNIT / 2;
+  radius_sq = (fixed_t)(((int64_t)radius * radius) >> FRACBITS);
+  row_radius = (radius + FRACUNIT - 1) >> FRACBITS;
+
+  for (dy = -row_radius; dy <= row_radius; ++dy)
   {
-    for (dx = -half; dx <= half; dx++)
-    {
-      px = x + dx;
-      py = y + dy;
+    int y;
+    fixed_t ydist, ydist_sq;
+    fixed_t inside;
+    fixed_t halfwidth;
+    int x0, x1;
 
-      if (px >= 0 && py >= 0 && px < screens[scrn].width && py < screens[scrn].height)
-        screens[scrn].data[px + screens[scrn].pitch * py] = color;
-    }
+    y = cy + dy;
+
+    // screen clamp (col)
+    if (y < 0 || y >= screens[scrn].height)
+      continue;
+
+    // Distance from center to this row at pixel center
+    ydist = (dy << FRACBITS) + FRACUNIT/2;
+    ydist_sq = (fixed_t)(((int64_t)ydist * ydist) >> FRACBITS);
+
+    if (ydist_sq > radius_sq)
+      continue;
+
+    inside = radius_sq - ydist_sq;
+    if (inside < 0) continue;
+    halfwidth = (fixed_t)(sqrt((double)inside * (double)FRACUNIT) + 0.5);
+
+    x0 = cx + ((-halfwidth + FRACUNIT/2) >> FRACBITS);
+    x1 = cx + (( halfwidth - FRACUNIT/2) >> FRACBITS);
+
+    // Quick screen bounds check
+    if (x1 < 0 || x0 >= screens[scrn].width)
+      continue;
+
+    // screen clamp (row)
+    if (x0 < 0) x0 = 0;
+    if (x1 >= screens[scrn].width) x1 = screens[scrn].width - 1;
+
+    byte *row = screens[scrn].data + screens[scrn].pitch * y;
+    memset(row + x0, color, (size_t)(x1 - x0 + 1));
   }
+}
+
+static void V_PlotPixel8(int scrn, int x, int y, byte color)
+{
+  int thickness = AM_GetLineWeight();
+
+  if (thickness > 1)
+    V_PlotCircle8(scrn, x, y, thickness, color);
+  else
+    V_PlotPixel8_1px(scrn, x, y, color);
 }
 
 #define PUTDOT(xx,yy,cc) V_PlotPixel(0,xx,yy,(byte)cc)
@@ -1532,7 +1582,7 @@ static void V_PlotPixel8(int scrn, int x, int y, byte color) {
 // Passed the frame coordinates of line, and the color to be drawn
 // Returns nothing
 //
-static void WRAP_V_DrawLine(fline_t* fl, int color)
+static void WRAP_V_DrawLine_1px(fline_t* fl, int color)
 {
   register int x;
   register int y;
@@ -1607,6 +1657,146 @@ static void WRAP_V_DrawLine(fline_t* fl, int color)
   }
 }
 
+static void V_DrawVerticalSpan8(int scrn, int x, int y0, int y1, byte color)
+{
+  byte *p;
+  int pitch, y;
+
+  // screen clamp
+  if (x < 0 || x >= screens[scrn].width) return;
+  if (y0 < 0) y0 = 0;
+  if (y1 >= screens[scrn].height) y1 = screens[scrn].height - 1;
+  if (y0 > y1) return;
+
+  p = screens[scrn].data + x + screens[scrn].pitch * y0;
+  pitch = screens[scrn].pitch;
+
+  for (y = y0; y <= y1; ++y)
+  {
+    *p = color;
+    p += pitch;
+  }
+}
+
+static void V_DrawHorizontalSpan8(int scrn, int y, int x0, int x1, byte color)
+{
+  byte *row;
+
+  // screen clamp
+  if (y < 0 || y >= screens[scrn].height) return;
+  if (x0 < 0) x0 = 0;
+  if (x1 >= screens[scrn].width) x1 = screens[scrn].width - 1;
+  if (x0 > x1) return;
+
+  row = screens[scrn].data + screens[scrn].pitch * y;
+  memset(row + x0, color, (size_t)(x1 - x0 + 1));
+}
+
+static void WRAP_V_DrawLine_Thick(fline_t *fl, int color, int thickness)
+{
+  int x0, x1, y0, y1;
+  int dx, dy;
+  int sx, sy;
+  int xlen, ylen;
+  int half;
+  byte col;
+
+  // Calculate line lengths
+  xlen = fl->b.x - fl->a.x;
+  if (xlen < 0) xlen = -xlen;
+  ylen = fl->b.y - fl->a.y;
+  if (ylen < 0) ylen = -ylen;
+
+  // Draw circle if line is too short, then exit
+  if (xlen <= 2 && ylen <= 2)
+  {
+    // middle of circle coordinates
+    int mx = (fl->a.x + fl->b.x) / 2;
+    int my = (fl->a.y + fl->b.y) / 2;
+
+    PUTDOT(mx, my, color);
+    return;
+  }
+
+  // Line points
+  x0 = fl->a.x;
+  y0 = fl->a.y;
+  x1 = fl->b.x;
+  y1 = fl->b.y;
+
+  // Set up line info
+  dx = x1 - x0;
+  sx = (dx < 0) ? -1 : 1;
+  dx = (dx < 0) ? -dx : dx;
+  dy = y1 - y0;
+  sy = (dy < 0) ? -1 : 1;
+  dy = (dy < 0) ? -dy : dy;
+
+  // line properties
+  half = thickness / 2;
+  col = (byte)color;
+
+  // Draw spans instead of lines
+  if (dx >= dy)
+  {
+    int erroracc = dx / 2;
+    int erroradj = dy;
+
+    for (;;)
+    {
+      V_DrawVerticalSpan8(0, x0, y0 - half, y0 + (thickness - half - 1), col);
+
+      if (x0 == x1) break;
+
+      erroracc -= erroradj;
+      if (erroracc < 0)
+      {
+        y0 += sy;
+        erroracc += dx;
+      }
+      x0 += sx;
+    }
+  }
+  else
+  {
+    int erroracc = dy / 2;
+    int erroradj = dx;
+
+    for (;;)
+    {
+      V_DrawHorizontalSpan8(0, y0, x0 - half, x0 + (thickness - half - 1), col);
+
+      if (y0 == y1) break;
+
+      erroracc -= erroradj;
+      if (erroracc < 0)
+      {
+        x0 += sx;
+        erroracc += dy;
+      }
+      y0 += sy;
+    }
+  }
+
+  // Draw points on the ends (optimisation: skip on small lines)
+  if (xlen + ylen >= 3)
+  {
+    PUTDOT(fl->a.x, fl->a.y, color);
+    PUTDOT(fl->b.x, fl->b.y, color);
+  }
+}
+
+// Change rendering path based on thickness
+void WRAP_V_DrawLine(fline_t *fl, int color)
+{
+  int thickness = AM_GetLineWeight();
+
+  if (thickness > 1)
+    WRAP_V_DrawLine_Thick(fl, color, thickness);
+  else
+    WRAP_V_DrawLine_1px(fl, color);
+}
+
 extern SDL_Surface *screen;
 #define RGB2COLOR(r, g, b)\
   ((r >> screen->format->Rloss) << screen->format->Rshift) |\
@@ -1628,32 +1818,27 @@ extern SDL_Surface *screen;
 //
 // haleyjd 06/13/09: Pixel plotter for Wu line drawing.
 //
+static void V_PlotPixelWu8_1px(int scrn, int x, int y, byte color, int weight)
+{
+  unsigned int bg_color = screens[scrn].data[x+screens[scrn].pitch*y];
+  unsigned int *fg2rgb = Col2RGB8[weight];
+  unsigned int *bg2rgb = Col2RGB8[64 - weight];
+  unsigned int fg = fg2rgb[color];
+  unsigned int bg = bg2rgb[bg_color];
+
+  fg = (fg + bg) | 0x1f07c1f;
+  V_PlotPixel(scrn, x, y, RGB32k[0][0][fg & (fg >> 15)]);
+}
+
+// Change rendering path based on thickness
 static void V_PlotPixelWu8(int scrn, int x, int y, byte color, int weight)
 {
   int thickness = AM_GetLineWeight();
-  int half = thickness / 2;
-  int dx, dy;
-  int px, py;
 
-  for (dy = -half; dy <= half; dy++) {
-    for (dx = -half; dx <= half; dx++)
-    {
-      px = x + dx;
-      py = y + dy;
-
-      if (px >= 0 && py >= 0 && px < screens[scrn].width && py < screens[scrn].height)
-      {
-        unsigned int bg_color = screens[scrn].data[px + screens[scrn].pitch * py];
-        unsigned int *fg2rgb = Col2RGB8[weight];
-        unsigned int *bg2rgb = Col2RGB8[64 - weight];
-        unsigned int fg = fg2rgb[color];
-        unsigned int bg = bg2rgb[bg_color];
-
-        fg = (fg + bg) | 0x1f07c1f;
-        V_PlotPixel8(scrn, px, py, RGB32k[0][0][fg & (fg >> 15)]);
-      }
-    }
-  }
+  if (thickness > 1)
+    V_PlotCircle8(scrn, x, y, thickness, color);
+  else
+    V_PlotPixelWu8_1px(scrn, x, y, color, weight);
 }
 
 //
@@ -1663,7 +1848,7 @@ static void V_PlotPixelWu8(int scrn, int x, int y, byte color, int weight)
 // brightness correction by SoM. I call this the Wu-McGranahan line drawing
 // algorithm.
 //
-void WRAP_V_DrawLineWu(fline_t *fl, int color)
+void WRAP_V_DrawLineWu_1px(fline_t *fl, int color)
 {
   unsigned short erroracc, erroradj, erroracctmp;
   int dx, dy, xdir = 1;
@@ -1757,6 +1942,16 @@ void WRAP_V_DrawLineWu(fline_t *fl, int color)
   PUTDOT(fl->b.x, fl->b.y, color);
 }
 
+// Change rendering path based on thickness
+void WRAP_V_DrawLineWu(fline_t *fl, int color)
+{
+  int thickness = AM_GetLineWeight();
+
+  if (thickness > 1)
+    WRAP_V_DrawLine_Thick(fl, color, thickness);
+  else
+    WRAP_V_DrawLineWu_1px(fl, color);
+}
 
 const unsigned char* V_GetPlaypal(void)
 {
