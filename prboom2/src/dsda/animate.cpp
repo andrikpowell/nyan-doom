@@ -709,7 +709,8 @@ void N_InitAnimateLumps(void) {
         N_AddPatchAnimateLump("M_SKULL1", "S_SKULL", "E_SKULL", 8);
         N_AddPatchAnimateLump("M_DOOM", "S_DOOM", "E_DOOM", 8);
 
-        N_LoadAnimateLump();
+        // Disable loading lumps for now
+        //N_LoadAnimateLump();
     }
 }
 
