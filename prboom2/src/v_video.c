@@ -1501,26 +1501,6 @@ void V_FreeScreens(void) {
   for (i=0; i<NUM_SCREENS; i++)
     V_FreeScreen(&screens[i]);
 }
-//
-// V_SetClipRect
-// Whether to cut off drawing outside the automap/minimap
-// This isn't that useful since it doesn't clamp OpenGL
-//
-
-static dboolean v_clip_enabled;
-static int v_clip_x0, v_clip_y0, v_clip_x1, v_clip_y1;
-
-void V_SetClipRect(int x0, int y0, int x1, int y1)
-{
-  v_clip_enabled = true;
-  v_clip_x0 = x0; v_clip_y0 = y0;
-  v_clip_x1 = x1; v_clip_y1 = y1;
-}
-
-void V_ClearClipRect(void)
-{
-  v_clip_enabled = false;
-}
 
 //
 // V_PlotPixel
@@ -1554,12 +1534,6 @@ static void V_PlotCircle8(int scrn, int cx, int cy, int thickness, byte color)
     if (y < 0 || y >= screens[scrn].height)
       continue;
 
-    // automap/minimap clamp (col)
-    if (v_clip_enabled)
-    {
-      if (y < v_clip_y0 || y > v_clip_y1)
-        continue;
-    }
 
     // Distance from center to this row at pixel center
     ydist = (dy << FRACBITS) + FRACUNIT/2;
@@ -1582,14 +1556,6 @@ static void V_PlotCircle8(int scrn, int cx, int cy, int thickness, byte color)
     // screen clamp (row)
     if (x0 < 0) x0 = 0;
     if (x1 >= screens[scrn].width) x1 = screens[scrn].width - 1;
-
-    // automap/minimap clamp (row)
-    if (v_clip_enabled)
-    {
-      if (x0 < v_clip_x0) x0 = v_clip_x0;
-      if (x1 > v_clip_x1) x1 = v_clip_x1;
-      if (x0 > x1) continue;
-    }
 
     byte *row = screens[scrn].data + screens[scrn].pitch * y;
     memset(row + x0, color, (size_t)(x1 - x0 + 1));
@@ -1699,16 +1665,6 @@ static void V_DrawVerticalSpan8(int scrn, int x, int y0, int y1, byte color)
 
   // screen clamp
   if (x < 0 || x >= screens[scrn].width) return;
-
-  // automap/minimap clamp
-  if (v_clip_enabled)
-  {
-    if (x < v_clip_x0 || x > v_clip_x1) return;
-    if (y0 < v_clip_y0) y0 = v_clip_y0;
-    if (y1 > v_clip_y1) y1 = v_clip_y1;
-  }
-
-  // screen clamp
   if (y0 < 0) y0 = 0;
   if (y1 >= screens[scrn].height) y1 = screens[scrn].height - 1;
   if (y0 > y1) return;
@@ -1729,16 +1685,6 @@ static void V_DrawHorizontalSpan8(int scrn, int y, int x0, int x1, byte color)
 
   // screen clamp
   if (y < 0 || y >= screens[scrn].height) return;
-
-  // automap/minimap clamp
-  if (v_clip_enabled)
-  {
-    if (y < v_clip_y0 || y > v_clip_y1) return;
-    if (x0 < v_clip_x0) x0 = v_clip_x0;
-    if (x1 > v_clip_x1) x1 = v_clip_x1;
-  }
-
-  // screen clamp
   if (x0 < 0) x0 = 0;
   if (x1 >= screens[scrn].width) x1 = screens[scrn].width - 1;
   if (x0 > x1) return;
