@@ -12,7 +12,7 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	NYAN Animate
+//	NYAN ANIMINFO
 //
 
 #include <stdlib.h>
@@ -21,7 +21,7 @@
 #include <assert.h>
 
 #include "scanner.h"
-#include "animate.h"
+#include "animinfo.h"
 
 extern "C"
 {

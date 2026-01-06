@@ -12,11 +12,11 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	NYAN Animate
+//	NYAN ANIMINFO
 //
 
-#ifndef __NYAN_ANIMATE__
-#define __NYAN_ANIMATE__
+#ifndef __NYAN_ANIMINFO__
+#define __NYAN_ANIMINFO__
 
 #ifdef __cplusplus
 extern "C"

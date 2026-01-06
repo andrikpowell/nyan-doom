@@ -112,7 +112,7 @@
 #include "dsda/wad_stats.h"
 #include "dsda/zipfile.h"
 #include "dsda/gl/render_scale.h"
-#include "dsda/animate.h"
+#include "dsda/animinfo.h"
 #include "dsda/library.h"
 
 #include "heretic/mn_menu.h"

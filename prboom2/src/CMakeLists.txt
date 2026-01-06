@@ -17,8 +17,8 @@ set(COMMON_SRC
     dsda/ambient.h
     dsda/analysis.c
     dsda/analysis.h
-    dsda/animate.cpp
-    dsda/animate.h
+    dsda/animinfo.cpp
+    dsda/animinfo.h
     dsda/library.h
     dsda/args.c
     dsda/args.h

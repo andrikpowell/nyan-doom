@@ -56,7 +56,7 @@
 #include "st_stuff.h"
 #include "e6y.h"
 
-#include "dsda/animate.h"
+#include "dsda/animinfo.h"
 #include "dsda/configuration.h"
 #include "dsda/cr_table.h"
 #include "dsda/global.h"
