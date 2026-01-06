@@ -3370,6 +3370,16 @@ static void AM_DrawBackground (void)
   V_FillRect(f_x, f_y, f_w, f_h, (byte)mapcolor_p->back); //jff 1/5/98 background default color
 }
 
+static int am_clip_x0, am_clip_y0, am_clip_x1, am_clip_y1;
+
+static inline void AM_SetClipRect(void)
+{
+  am_clip_x0 = f_x;
+  am_clip_y0 = f_y;
+  am_clip_x1 = f_x + f_w - 1;
+  am_clip_y1 = f_y + f_h - 1;
+}
+
 //
 // AM_Drawer()
 //
@@ -3387,6 +3397,8 @@ void AM_Drawer (dboolean minimap)
     return;
 
   V_BeginAutomapDraw();
+
+  V_SetClipRect(f_x, f_y, f_x + f_w - 1, f_y + f_h - 1);
 
   if (automap_follow || minimap)
     AM_doFollowPlayer();
@@ -3442,6 +3454,7 @@ void AM_Drawer (dboolean minimap)
   }
 
   AM_drawMarks();
+  V_ClearClipRect();
 
   V_EndAutomapDraw();
 }

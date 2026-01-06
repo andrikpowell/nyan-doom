@@ -388,6 +388,10 @@ typedef struct
   fpoint_t a, b;
 } fline_t;
 
+// V_SetClipRect
+void V_SetClipRect(int x0, int y0, int x1, int y1);
+void V_ClearClipRect(void);
+
 // V_DrawLine
 typedef void (*V_DrawLine_f)(fline_t* fl, int color);
 extern V_DrawLine_f V_DrawLine;
