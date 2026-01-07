@@ -1619,9 +1619,9 @@ static dboolean AM_clipMline
 
 
 //
-// AM_MlineWeight()
+// AM_GetLineWeight()
 //
-// Add weight to automap lines by duplicating them slightly offset.
+// Get weight for automap lines.
 //
 
 int AM_GetLineWeight(void) {
@@ -1635,54 +1635,12 @@ int AM_GetLineWeight(void) {
     if (thickness > 4) thickness = 4;
   }
 
+  // Minimap should be just 1px
+  if (!automap_active)
+    thickness = 1;
+
   // else return the linesize
   return thickness;
-}
-
-static int AM_LineClamp(int val, int min, int max) {
-  if (val < min) return min;
-  if (val > max) return max;
-  return val;
-}
-
-#define V_DrawLineFunc(line_data, color) (!raven && map_use_multisampling ? V_DrawLineWu(line_data, color) : V_DrawLine(line_data, color))
-
-static void AM_MlineWeight(mline_t* ml, int color)
-{
-  static fline_t fl;
-  int i, dx, dy, vertical;
-  int line_thickness = AM_GetLineWeight();
-
-  if (line_thickness <= 1 || !AM_clipMline(ml, &fl))
-    return;
-
-  dx = fl.b.x - fl.a.x;
-  dy = fl.b.y - fl.a.y;
-  vertical = (abs(dy) > abs(dx));
-
-  for (i = 0; i < line_thickness; i++)
-  {
-    fline_t fl2 = fl;
-    int offset = i - line_thickness / 2;
-
-    if (vertical)
-    {
-      fl2.a.x += offset;
-      fl2.b.x += offset;
-    }
-    else
-    {
-      fl2.a.y += offset;
-      fl2.b.y += offset;
-    }
-
-    fl2.a.x = AM_LineClamp(fl2.a.x, f_x, f_x + f_w - 1);
-    fl2.a.y = AM_LineClamp(fl2.a.y, f_y, f_y + f_h - 1);
-    fl2.b.x = AM_LineClamp(fl2.b.x, f_x, f_x + f_w - 1);
-    fl2.b.y = AM_LineClamp(fl2.b.y, f_y, f_y + f_h - 1);
-
-    V_DrawLineFunc(&fl2, color);
-  }
 }
 
 //
@@ -1715,8 +1673,6 @@ static void AM_drawMline
     else
       V_DrawLine(&fl, color);
   }
-
-  AM_MlineWeight(ml, color);
 }
 
 //
@@ -3267,9 +3223,9 @@ static void AM_drawMarks(void)
 //
 // AM_drawCrosshair()
 //
-// Draw the single point crosshair representing map center
+// Draw the single square crosshair representing map center
 //
-// Passed the color to draw the pixel with
+// Passed the color to draw the square with
 // Returns nothing
 //
 // CPhipps - made static inline, and use the general pixel plotter function
@@ -3278,18 +3234,39 @@ static void AM_drawCrosshair(int color)
 {
   fline_t line;
 
-  line.a.x = f_x+(f_w/2)-1;
-  line.a.y = f_y+(f_h/2);
-  line.b.x = f_x+(f_w/2)+1;
-  line.b.y = f_y+(f_h/2);
+  int thickness = AM_GetLineWeight();
+
+  // Instead of two lines, draw a square instead.
+  // With thick lines, the square will appear to be a circle.
+  int x0 = f_x+(f_w/2);
+  int x1 = f_x+(f_w/2)+thickness;
+  int y0 = f_y+(f_h/2);
+  int y1 = f_y+(f_h/2)+thickness;
+
+  // top
+  line.a.x = x0; line.a.y = y0;
+  line.b.x = x1; line.b.y = y0;
   AM_SetFPointFloatValue(&line.a);
   AM_SetFPointFloatValue(&line.b);
   V_DrawLine(&line, color);
 
-  line.a.x = f_x+(f_w/2);
-  line.a.y = f_y+(f_h/2)-1;
-  line.b.x = f_x+(f_w/2);
-  line.b.y = f_y+(f_h/2)+1;
+  // bottom
+  line.a.x = x0; line.a.y = y1;
+  line.b.x = x1; line.b.y = y1;
+  AM_SetFPointFloatValue(&line.a);
+  AM_SetFPointFloatValue(&line.b);
+  V_DrawLine(&line, color);
+
+  // left
+  line.a.x = x0; line.a.y = y0;
+  line.b.x = x0; line.b.y = y1;
+  AM_SetFPointFloatValue(&line.a);
+  AM_SetFPointFloatValue(&line.b);
+  V_DrawLine(&line, color);
+
+  // right
+  line.a.x = x1; line.a.y = y0;
+  line.b.x = x1; line.b.y = y1;
   AM_SetFPointFloatValue(&line.a);
   AM_SetFPointFloatValue(&line.b);
   V_DrawLine(&line, color);
