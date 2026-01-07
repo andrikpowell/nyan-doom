@@ -56,7 +56,7 @@
 #include "dsda/settings.h"
 #include "dsda/stretch.h"
 #include "dsda/text_color.h"
-#include "dsda/animate.h"
+#include "dsda/animinfo.h"
 #include "dsda/library.h"
 #include "dsda/exhud.h"
 

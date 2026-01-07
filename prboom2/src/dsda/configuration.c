@@ -43,7 +43,7 @@
 #include "dsda/skill_info.h"
 #include "dsda/stretch.h"
 #include "dsda/utility.h"
-#include "dsda/animate.h"
+#include "dsda/animinfo.h"
 
 #include "configuration.h"
 

@@ -51,7 +51,7 @@
 #include "dsda/mapinfo.h"
 #include "dsda/mapinfo/legacy.h"
 #include "dsda/configuration.h"
-#include "dsda/animate.h"
+#include "dsda/animinfo.h"
 #include "dsda/library.h"
 #include "dsda/settings.h"
 

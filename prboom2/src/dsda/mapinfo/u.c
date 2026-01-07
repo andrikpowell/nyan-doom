@@ -35,7 +35,7 @@
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
 #include "dsda/preferences.h"
-#include "dsda/animate.h"
+#include "dsda/animinfo.h"
 
 #include "u.h"
 

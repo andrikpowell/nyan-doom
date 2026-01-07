@@ -102,6 +102,7 @@ extern int g_border_offset;
 extern int g_mf_translucent;
 extern int g_mf_shadow;
 
+extern const char* g_menu_flat;
 extern const char* g_skyflatname;
 
 extern dboolean heretic;

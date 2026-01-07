@@ -1,5 +1,5 @@
 //
-// Copyright(C) 2024 by Andrik Powell
+// Copyright(C) 2024-2026 by Andrik Powell
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -12,36 +12,67 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	DSDA Animate
+//	NYAN ANIMINFO
 //
 
-#ifndef __DSDA_ANIMATE__
-#define __DSDA_ANIMATE__
+#ifndef __NYAN_ANIMINFO__
+#define __NYAN_ANIMINFO__
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 extern int AnimateTime;
 extern int animateLumps;
 extern int widescreenLumps;
 
+// Animation data sets
+
+typedef enum {
+    ANIM_NONE,
+    ANIM_RANGE,
+    ANIM_SEQUENCE,
+} anim_type_t;
+
+typedef enum
+{
+    ANIM_TICS_FIXED,
+    ANIM_TICS_RANDOM,
+} anim_frame_mode_t;
+
+typedef struct {
+    int pic_lumpnum;
+    anim_frame_mode_t mode;
+    int tics_min;
+    int tics_max;
+} anim_frame_t;
+
 typedef struct
 {
-    int lump;
-    int widescrn;
-    int ani_start;
-    int ani_end;
-    int ani_speed;
+    int lump;         // original lump
+    int widepic;      // widescreen lump
+    anim_type_t type; // animation
+
+    // animation - range
+    int startpic;
+    int endpic;
+    int tics;
     int validcycle;
+
+    // animation - sequence
+    anim_frame_t *frames;
+    int num_frames;
+    int seq_index;
+    int seq_remaining;
 } animate_t;
 
+// Setup / Control Animations
 void AnimateTicker(void);
-
 void N_InitAnimateLumps(void);
 void N_ReloadAnimateLumps(void);
 
-int N_GetPatchAnimateNum(const char* lump, dboolean animation);
-void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elump, int speed);
-
-void V_DrawBackgroundAnimate(const char* lump);
-
+// Main Draw Functions
 #define V_DrawNamePatchAnimate(x,y,lump,color,flags) V_DrawNumPatch(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
 #define V_DrawNamePatchAnimateFS(x,y,lump,color,flags) V_DrawNumPatchFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
 #define V_DrawNamePatchAnimatePrecise(x,y,lump,color,flags) V_DrawNumPatchPrecise(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
@@ -50,7 +81,17 @@ void V_DrawBackgroundAnimate(const char* lump);
 #define V_DrawMenuNamePatchAnimate(x,y,lump,color,flags) V_DrawMenuNumPatch(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
 #define V_DrawMenuNamePatchAnimateFS(x,y,lump,color,flags) V_DrawMenuNumPatchFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
 
-const int N_CheckAnimate(const char* lump); // called in m_menu.c for M_SKULL1/2
-const char* PrefixCombine(const char *lump_prefix, const char *lump_main);
+// Dynamic Credits
+void V_DrawBackgroundAnimate(const char* lump);
+
+// m_menu.c for M_SKULL1/2
+const int N_CheckAnimate(const char* lump);
+
+// Bunny screens and stbar color background
+int N_GetPatchAnimateNum(const char* lump, int animation);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

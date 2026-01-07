@@ -101,7 +101,7 @@
 #include "dsda/text_color.h"
 #include "dsda/utility.h"
 #include "dsda/wad_stats.h"
-#include "dsda/animate.h"
+#include "dsda/animinfo.h"
 #include "dsda/library.h"
 
 #include "heretic/mn_menu.h"

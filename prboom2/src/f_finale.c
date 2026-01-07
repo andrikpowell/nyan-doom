@@ -50,7 +50,7 @@
 #include "dsda/map_format.h"
 #include "dsda/preferences.h"
 #include "dsda/configuration.h"
-#include "dsda/animate.h"
+#include "dsda/animinfo.h"
 #include "dsda/library.h"
 
 #include "f_finale.h" // CPhipps - hmm...
