@@ -1527,13 +1527,13 @@ static void V_PlotCircle8(int scrn, int cx, int cy, int thickness, byte color)
     fixed_t inside;
     fixed_t halfwidth;
     int x0, x1;
+    byte *row;
 
     y = cy + dy;
 
     // screen clamp (col)
     if (y < 0 || y >= screens[scrn].height)
       continue;
-
 
     // Distance from center to this row at pixel center
     ydist = (dy << FRACBITS) + FRACUNIT/2;
@@ -1557,7 +1557,7 @@ static void V_PlotCircle8(int scrn, int cx, int cy, int thickness, byte color)
     if (x0 < 0) x0 = 0;
     if (x1 >= screens[scrn].width) x1 = screens[scrn].width - 1;
 
-    byte *row = screens[scrn].data + screens[scrn].pitch * y;
+    row = screens[scrn].data + screens[scrn].pitch * y;
     memset(row + x0, color, (size_t)(x1 - x0 + 1));
   }
 }
