@@ -1252,7 +1252,7 @@ fixed_t FloatBobOffsets[64] = {
 };
 
 //
-// A_KillOnSight
+// P_KillOnSight
 // Actor dies when target is in sight
 //
 
@@ -1260,12 +1260,8 @@ static dboolean IsKillableEnemy(mobj_t *mo)
 {
   if (!mo) return false;
   if (!mo->info) return false; // this shouldn't happen, but shrug
-
-  // skip if health is <= 0
-  if (mo->health <= 0) return false;
-
-  // skip if thing is a player
-  if (mo->player) return false;
+  if (mo->health <= 0) return false; // skip if health is <= 0
+  if (mo->player) return false; // skip if thing is a player
 
   // thing must be shootable (this is iffy)
   if (!(mo->flags & MF_SHOOTABLE)) return false;
@@ -1274,7 +1270,6 @@ static dboolean IsKillableEnemy(mobj_t *mo)
   if ((mo->flags & MF_CORPSE) && mo->health <= 0) return false;
 
   // Exclude barrels / decorations
-  // (first check if see state, then check for melee/missile state)
   if (!mo->info->seestate) return false;
   if (!mo->info->meleestate && !mo->info->missilestate) return false;
 
@@ -1289,7 +1284,7 @@ static dboolean P_KillOnSight(mobj_t *mo)
   if (!mo->target || !mo->target->player) return false;
   if (!P_CheckSight(mo, mo->target)) return false;
 
-  P_DamageMobj(mo, NULL, NULL, 10000);
+  P_DamageMobj(mo, NULL, NULL, mo->health);
   return (mo->health <= 0);
 }
 
