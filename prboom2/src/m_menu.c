@@ -2039,7 +2039,7 @@ static dboolean M_ItemNyan(const setup_menu_t* s)
       nyan_config_show_endoom, nyan_config_skip_default_text,
       nyan_config_ignore_default_map_names, nyan_config_play_random_music,
       nyan_config_enable_animate_lumps, nyan_config_enable_widescreen_lumps,
-      dsda_config_gl_blend_animations, dsda_config_palette_ondamage_range,
+      dsda_config_gl_blend_animations, dsda_config_gl_shadows, dsda_config_palette_ondamage_range,
 
       dsda_config_colored_borderbox, dsda_config_fuzzmode, dsda_config_fuzzscale,
       dsda_config_enhanced_liteamp, nyan_config_item_bonus_flash,
@@ -4355,6 +4355,7 @@ setup_menu_t display_options_settings[] = {
   { "GL Light Fade", S_CHOICE, m_conf, G_X, dsda_config_gl_fade_mode, 0, gl_fade_mode_list, DEPEND(dsda_config_videomode, OPENGL_MODE) },
   { "GL Health Bars", S_YESNO, m_conf, G_X, dsda_config_gl_health_bar, DEPEND_GL },
   { "GL Blend Animations", S_YESNO, m_conf, G_X, dsda_config_gl_blend_animations, DEPEND_GL },
+  { "GL Simple Shadows", S_YESNO, m_conf, G_X, dsda_config_gl_shadows, DEPEND_GL },
   EMPTY_LINE,
   { "Pain Palette Range", S_CHOICE, m_conf, G_X, dsda_config_palette_ondamage_range, 0, pain_palette_range_list, DEPEND(dsda_config_palette_ondamage, true) },
   EMPTY_LINE,
