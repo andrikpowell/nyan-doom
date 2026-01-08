@@ -199,6 +199,9 @@ void dsda_TrackConfigFeatures(void) {
   if (dsda_IntConfig(dsda_config_gl_health_bar))
     dsda_TrackFeature(uf_healthbar);
 
+  if (dsda_IntConfig(dsda_config_gl_shadows))
+    dsda_TrackFeature(uf_shadows);
+
   if (dsda_IntConfig(dsda_config_sts_blink_keys))
     dsda_TrackFeature(uf_blink_keys);
 
@@ -968,6 +971,18 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_gl_blend_animations] = {
   "gl_blend_animations", dsda_config_gl_blend_animations,
   CONF_BOOL(0), &gl_blend_animations
+  },
+  [dsda_config_gl_shadows] = {
+    "gl_shadows", dsda_config_gl_shadows,
+    CONF_BOOL(0), NULL, STRICT_INT(0)
+  },
+  [dsda_config_gl_shadows_maxdist] = {
+    "gl_shadows_maxdist", dsda_config_gl_shadows_maxdist,
+    dsda_config_int, 0, 32767, { 1000 }, NULL, NOT_STRICT, gld_ResetShadowParameters
+  },
+  [dsda_config_gl_shadows_factor] = {
+    "gl_shadows_factor", dsda_config_gl_shadows_factor,
+    CONF_BYTE(128), NULL, NOT_STRICT, gld_ResetShadowParameters
   },
   [dsda_config_gl_skymode] = {
     "gl_skymode", dsda_config_gl_skymode,
