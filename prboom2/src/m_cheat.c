@@ -133,6 +133,7 @@ static void cheat_megaarmour();
 static void cheat_health();
 static void cheat_notarget();
 static void cheat_freeze();
+static void cheat_killonsight();
 static void cheat_fly();
 
 // heretic
@@ -328,6 +329,7 @@ cheatseq_t cheat[] = {
   CHEAT("camera", NULL, NULL, not_demo, cht_any, cheat_camera, 0, false),
   CHEAT("strip", NULL, NULL, not_demo, cht_any, cheat_strip, 0, false),
   CHEAT("killme", NULL, NULL, not_demo, cht_any, cheat_suicide, 0, false),
+  CHEAT("basilisk", NULL, NULL, not_demo, cht_any, cheat_killonsight, 0, false),
 
   // end-of-list marker
   {NULL}
@@ -465,6 +467,19 @@ static void cheat_god()
   }
 
   M_CheatGod();
+}
+
+void cheat_killonsight(void)
+{
+  if (!allow_incompatibility) return;
+
+  plyr->cheats ^= CF_BASILISK;
+  if (plyr->cheats & CF_BASILISK)
+  {
+    dsda_AddMessage("Strike fear into your enemies!");
+  }
+  else
+    dsda_AddMessage("Enemies no longer fear you.");
 }
 
 void cheat_nut(void)
@@ -1719,6 +1734,7 @@ static cheat_input_t cheat_input[] = {
   { dsda_input_freeze, not_demo, cheat_freeze, 0 },
   { dsda_input_idmusrr, not_demo, cheat_musrr, 0 },
   { dsda_input_camera, not_demo, cheat_camera, 0 },
+  { dsda_input_basilisk, not_demo, cheat_killonsight, 0 },
   { 0 }
 };
 
