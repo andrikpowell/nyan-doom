@@ -19,6 +19,7 @@
 #include "lprintf.h"
 #include "w_wad.h"
 #include "z_zone.h"
+#include "heretic/dstrings.h"
 
 #include "dsda/mapinfo.h"
 #include "dsda/mapinfo/doom/parser.h"
@@ -37,19 +38,19 @@ static void dsda_DetermineEpisodeMap(dsda_episode_t* episode) {
 
 void dsda_AddOriginalEpisodes(void) {
   if (heretic) {
-    dsda_AddEpisode("e1m1", "CITY OF THE DAMNED", NULL, 'c', true);
-    dsda_AddEpisode("e2m1", "HELL'S MAW", NULL, 'h', true);
-    dsda_AddEpisode("e3m1", "THE DOME OF D'SPARIL", NULL, 't', true);
+    dsda_AddEpisode("e1m1", HERETIC_EPISODE_1, NULL, 'c', true);
+    dsda_AddEpisode("e2m1", HERETIC_EPISODE_2, NULL, 'h', true);
+    dsda_AddEpisode("e3m1", HERETIC_EPISODE_3, NULL, 't', true);
 
     if (gamemode == retail) {
-      dsda_AddEpisode("e4m1", "THE OSSUARY", NULL, 't', true);
-      dsda_AddEpisode("e5m1", "THE STAGNANT DEMESNE", NULL, 't', true);
+      dsda_AddEpisode("e4m1", HERETIC_EPISODE_4, NULL, 't', true);
+      dsda_AddEpisode("e5m1", HERETIC_EPISODE_5, NULL, 't', true);
     }
   }
   else if (hexen) {
-    dsda_AddEpisode("map01", "FIGHTER", NULL, 'f', true);
-    dsda_AddEpisode("map01", "CLERIC", NULL, 'c', true);
-    dsda_AddEpisode("map01", "MAGE", NULL, 'm', true);
+    dsda_AddEpisode("map01", HEXEN_CLASS_FIGHTER, NULL, 'f', true);
+    dsda_AddEpisode("map01", HEXEN_CLASS_CLERIC, NULL, 'c', true);
+    dsda_AddEpisode("map01", HEXEN_CLASS_MAGE, NULL, 'm', true);
     if (allow_incompatibility)
       dsda_AddEpisode("map01", "RANDOM", NULL, 'r', true);
   }

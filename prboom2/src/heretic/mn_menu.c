@@ -233,11 +233,11 @@ enum
 
 menuitem_t RavenMainMenu[]=
 {
-  {1,"M_NGAME", M_NewGame, 'n', "NEW GAME"},
-  {1,"M_OPTION",M_Options, 'o', "OPTIONS"},
-  {1,"M_GFILES", MN_GameFiles,'g', "GAME FILES"},
-  {1,"M_INFO",MN_Info,'i', "INFO"},
-  {1,"M_QUITG", M_QuitDOOM,'q', "QUIT GAME"}
+  {1,"M_NGAME", M_NewGame, 'n', HERETIC_MN_NEW_GAME},
+  {1,"M_OPTION",M_Options, 'o', HERETIC_MN_OPTIONS},
+  {1,"M_GFILES", MN_GameFiles,'g', HERETIC_MN_GAME_FILES},
+  {1,"M_INFO",MN_Info,'i', HERETIC_MN_INFO},
+  {1,"M_QUITG", M_QuitDOOM,'q', HERETIC_MN_QUIT_GAME}
 };
 
 
@@ -256,8 +256,8 @@ enum
 
 menuitem_t SaveLoadMenu[]=
 {
-  {1,"M_LOADG", M_LoadGame,'l', "LOAD GAME"},
-  {1,"M_SAVEG", M_SaveGame,'s', "SAVE GAME"},
+  {1,"M_LOADG", M_LoadGame,'l', HERETIC_MN_LOAD_GAME},
+  {1,"M_SAVEG", M_SaveGame,'s', HERETIC_MN_SAVE_GAME},
 };
 
 menu_t SaveLoadDef =
@@ -336,8 +336,8 @@ void MN_Init(void)
     SkillDef.y = 44;
   }
 
-  SoundMenu[0].alttext = "SFX VOLUME";
-  SoundMenu[2].alttext = "MUSIC VOLUME";
+  SoundMenu[0].alttext = HERETIC_MN_SFX_VOL;
+  SoundMenu[2].alttext = HERETIC_MN_MUSIC_VOL;
 
   // Use exclusive Heretic
   // and Hexen MainMenu.
@@ -356,6 +356,33 @@ void MN_Init(void)
   }
 }
 
+const char * hexen_skills[4][5] = {
+  { // 0 blank
+    NULL, NULL, NULL, NULL, NULL
+  },
+  { // 1 Fighter
+    HEXEN_FCLASS_SKILL_1,
+    HEXEN_FCLASS_SKILL_2,
+    HEXEN_FCLASS_SKILL_3,
+    HEXEN_FCLASS_SKILL_4,
+    HEXEN_FCLASS_SKILL_5,
+  },
+  { // 2 Cleric
+    HEXEN_CCLASS_SKILL_1,
+    HEXEN_CCLASS_SKILL_2,
+    HEXEN_CCLASS_SKILL_3,
+    HEXEN_CCLASS_SKILL_4,
+    HEXEN_CCLASS_SKILL_5,
+  },
+  { // 3 Mage
+    HEXEN_MCLASS_SKILL_1,
+    HEXEN_MCLASS_SKILL_2,
+    HEXEN_MCLASS_SKILL_3,
+    HEXEN_MCLASS_SKILL_4,
+    HEXEN_MCLASS_SKILL_5,
+  },
+};
+
 void MN_UpdateClass(int choice)
 {
   PlayerClass[consoleplayer] = choice + 1;
@@ -367,36 +394,36 @@ void MN_UpdateClass(int choice)
   {
     case PCLASS_FIGHTER:
       SkillDef.x = 120;
-      SkillDef.menuitems[0].alttext = hexen_skill_fighter[0];
-      SkillDef.menuitems[1].alttext = hexen_skill_fighter[1];
-      SkillDef.menuitems[2].alttext = hexen_skill_fighter[2];
-      SkillDef.menuitems[3].alttext = hexen_skill_fighter[3];
-      SkillDef.menuitems[4].alttext = hexen_skill_fighter[4];
+      SkillDef.menuitems[0].alttext = hexen_skills[PCLASS_FIGHTER][0];
+      SkillDef.menuitems[1].alttext = hexen_skills[PCLASS_FIGHTER][1];
+      SkillDef.menuitems[2].alttext = hexen_skills[PCLASS_FIGHTER][2];
+      SkillDef.menuitems[3].alttext = hexen_skills[PCLASS_FIGHTER][3];
+      SkillDef.menuitems[4].alttext = hexen_skills[PCLASS_FIGHTER][4];
       break;
     case PCLASS_CLERIC:
       SkillDef.x = 116;
-      SkillDef.menuitems[0].alttext = hexen_skill_cleric[0];
-      SkillDef.menuitems[1].alttext = hexen_skill_cleric[1];
-      SkillDef.menuitems[2].alttext = hexen_skill_cleric[2];
-      SkillDef.menuitems[3].alttext = hexen_skill_cleric[3];
-      SkillDef.menuitems[4].alttext = hexen_skill_cleric[4];
+      SkillDef.menuitems[0].alttext = hexen_skills[PCLASS_CLERIC][0];
+      SkillDef.menuitems[1].alttext = hexen_skills[PCLASS_CLERIC][1];
+      SkillDef.menuitems[2].alttext = hexen_skills[PCLASS_CLERIC][2];
+      SkillDef.menuitems[3].alttext = hexen_skills[PCLASS_CLERIC][3];
+      SkillDef.menuitems[4].alttext = hexen_skills[PCLASS_CLERIC][4];
       break;
     case PCLASS_MAGE:
       SkillDef.x = 112;
-      SkillDef.menuitems[0].alttext = hexen_skill_mage[0];
-      SkillDef.menuitems[1].alttext = hexen_skill_mage[1];
-      SkillDef.menuitems[2].alttext = hexen_skill_mage[2];
-      SkillDef.menuitems[3].alttext = hexen_skill_mage[3];
-      SkillDef.menuitems[4].alttext = hexen_skill_mage[4];
+      SkillDef.menuitems[0].alttext = hexen_skills[PCLASS_MAGE][0];
+      SkillDef.menuitems[1].alttext = hexen_skills[PCLASS_MAGE][1];
+      SkillDef.menuitems[2].alttext = hexen_skills[PCLASS_MAGE][2];
+      SkillDef.menuitems[3].alttext = hexen_skills[PCLASS_MAGE][3];
+      SkillDef.menuitems[4].alttext = hexen_skills[PCLASS_MAGE][4];
       break;
     // Use Heretic Skill Names
     case PCLASS_RANDOM:
       SkillDef.x = 38;
-      SkillDef.menuitems[0].alttext = "THOU NEEDETH A WET-NURSE";
-      SkillDef.menuitems[1].alttext = "YELLOWBELLIES-R-US";
-      SkillDef.menuitems[2].alttext = "BRINGEST THEM ONETH";
-      SkillDef.menuitems[3].alttext = "THOU ART A SMITE-MEISTER";
-      SkillDef.menuitems[4].alttext = "BLACK PLAGUE POSSESSES THEE";
+      SkillDef.menuitems[0].alttext = HERETIC_SKILL_1;
+      SkillDef.menuitems[1].alttext = HERETIC_SKILL_2;
+      SkillDef.menuitems[2].alttext = HERETIC_SKILL_3;
+      SkillDef.menuitems[3].alttext = HERETIC_SKILL_4;
+      SkillDef.menuitems[4].alttext = HERETIC_SKILL_5;
       break;
     default:
       break;
@@ -677,7 +704,7 @@ void MN_DrawLoad(void)
 {
   const char *title;
 
-  title = "LOAD GAME";
+  title = HERETIC_MN_LOAD_GAME;
 
   MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 10);
   MN_DrawFileSlots(LoadDef.x, LoadDef.y);
@@ -693,7 +720,7 @@ void MN_DrawSave(void)
 {
   const char *title;
 
-  title = "SAVE GAME";
+  title = HERETIC_MN_SAVE_GAME;
 
   MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 10);
   MN_DrawFileSlots(SaveDef.x, SaveDef.y);
