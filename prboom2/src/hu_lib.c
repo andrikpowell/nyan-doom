@@ -749,7 +749,6 @@ dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean c
   const int usable = HUlib_UsableWidth();
   int max_px = usable - (centered ? 0 : l->x);
   const char *wptr;
-  int word_px;
 
   // leading newline padding should not count toward max_lines
   // count leading '\n' padding lines so they don't consume max_lines
@@ -841,19 +840,9 @@ dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean c
 
     // measure next word width
     wptr = s;
-    word_px = 0;
-
     while (*wptr && *wptr != ' ' && *wptr != '\n')
     {
-      unsigned char c;
       if (*wptr == '\x1b' && wptr[1]) { wptr += 2; continue; }
-
-      c = toupper(*wptr);
-      if (c >= l->sc && c <= 127)
-        word_px += font[c - l->sc].width + l->kerning;
-      else
-        word_px += l->space_width;
-
       wptr++;
     }
 
