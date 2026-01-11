@@ -2482,7 +2482,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
     return;
   }
 
-  if (flags & (S_NUM | S_PERC | S_CRITEM) &&
+  if (flags & (S_NUM | S_PERC) &&
       !(flags & S_THERMO)) // skip thermo
   {
     // killough 10/98: We must draw differently for items being gathered.
