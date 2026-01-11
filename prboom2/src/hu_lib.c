@@ -150,6 +150,7 @@ void HUlib_initTextLine(hu_textline_t* t, int x, int y,
   t->flags = flags;
   t->line_height = f->line_height;
   t->space_width = f->space_width;
+  t->kerning = f->kerning;
   HUlib_clearTextLine(t);
 }
 
@@ -192,7 +193,7 @@ static int HUlib_CharWidth(const hu_textline_t *l, const patchnum_t *font, unsig
   if (c == ' ') return l->space_width;
   if (c == '\t') return HU_MAXLINELENGTH;
   c = toupper(c);
-  if (c >= l->sc && c <= 127) return font[c - l->sc].width;
+  if (c >= l->sc && c <= 127) return font[c - l->sc].width + l->kerning;
   return l->space_width;
 }
 
@@ -353,9 +354,9 @@ static int HUlib_SingleLineMaxRightEdgePx(const hu_textline_t *l, const patchnum
     if (c >= l->sc && c <= 127)
     {
       const patchnum_t *p = &font[c - l->sc];
-      int right_edge = x + p->width - p->leftoffset;
+      int right_edge = x + p->width + l->kerning - p->leftoffset;
       if (right_edge > max_right) max_right = right_edge;
-      x += p->width;
+      x += p->width + l->kerning;
       continue;
     }
 
@@ -452,7 +453,7 @@ void HUlib_drawTextLine
     }
     else  if (c != ' ' && c >= l->sc && c <= 127)
     {
-      w = font[c - l->sc].width;
+      w = font[c - l->sc].width + l->kerning;
       if (x+w-font[c - l->sc].leftoffset > right)
         break;
       // killough 1/18/98 -- support multiple lines:
@@ -473,7 +474,7 @@ void HUlib_drawTextLine
   l->cm = oc; //jff 2/17/98 restore original color
 
   // draw the cursor if requested
-  if (drawcursor && x + font['_' - l->sc].width <= right)
+  if (drawcursor && x + font['_' - l->sc].width + l->kerning <= right)
   {
     // killough 1/18/98 -- support multiple lines
     // CPhipps - patch drawing updated
@@ -538,7 +539,7 @@ static int HUlib_LineWidthRaw(const hu_textline_t* l, const char* s)
 
       // Glyph covers [x - leftoffset, x + width - leftoffset)
       int gx0 = x - p->leftoffset;
-      int gx1 = x + p->width - p->leftoffset;
+      int gx1 = x + p->width + l->kerning - p->leftoffset;
 
       if (!any)
       {
@@ -552,7 +553,7 @@ static int HUlib_LineWidthRaw(const hu_textline_t* l, const char* s)
         if (gx1 > maxx) maxx = gx1;
       }
 
-      x += p->width;
+      x += p->width + l->kerning;
     }
     else
     {
@@ -672,7 +673,7 @@ static int HUlib_wrap_textWidthFromLineStart(const hu_textline_t *l)
 
     c = toupper(c);
     if (c != ' ' && c >= l->sc && c <= 127)
-      w += font[c - l->sc].width;
+      w += font[c - l->sc].width + l->kerning;
     else
       w += l->space_width;
   }
@@ -710,9 +711,9 @@ static int HUlib_wrap_wordMaxRightEdgePx(const hu_textline_t *l, const patchnum_
     if (c >= l->sc && c <= 127)
     {
       const patchnum_t *p = &font[c - l->sc];
-      int right_edge = x + p->width - p->leftoffset;
+      int right_edge = x + p->width + l->kerning - p->leftoffset;
       if (right_edge > max_right) max_right = right_edge;
-      x += p->width;
+      x += p->width + l->kerning;
     }
     else
     {
@@ -844,7 +845,7 @@ dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean c
 
       unsigned char c = toupper(*wptr);
       if (c >= l->sc && c <= 127)
-        word_px += font[c - l->sc].width;
+        word_px += font[c - l->sc].width + l->kerning;
       else
         word_px += l->space_width;
 
