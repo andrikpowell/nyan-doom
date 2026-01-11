@@ -258,6 +258,8 @@ static int HUlib_TrimLastVisible(hu_textline_t *l, const patchnum_t *font)
 
 static void HUlib_AppendEllipsis(hu_textline_t *l, const patchnum_t *font, int max_px, dboolean force)
 {
+  int cur, dotw, dots;
+  int cap;
   // Only strip trailing '\n' if we're truly on an empty last line
   while (l->len > 0 && l->l[l->len - 1] == '\n')
   {
@@ -270,15 +272,15 @@ static void HUlib_AppendEllipsis(hu_textline_t *l, const patchnum_t *font, int m
     l->l[l->len] = '\0';
   }
 
-  int cur = HUlib_LastLineWidthPx(l, font);
-  int dotw = HUlib_CharWidth(l, font, '.');
-  int dots = 3 * dotw;
+  cur = HUlib_LastLineWidthPx(l, font);
+  dotw = HUlib_CharWidth(l, font, '.');
+  dots = 3 * dotw;
 
   if (!force && cur <= max_px)
     return;
 
   // Ensure room for "..."
-  const int cap = (int)sizeof(l->l);
+  cap = (int)sizeof(l->l);
   while (l->len + 3 >= cap && l->len > 0)
   {
     if (HUlib_TrimLastVisible(l, font) == 0 && l->len > 0 && l->l[l->len - 1] == '\n')
@@ -744,21 +746,23 @@ static int HUlib_CountLines(const hu_textline_t *l)
 dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean centered, int max_lines)
 {
   const patchnum_t *font = l->f;
-  const int raw = HUlib_ScreenWidth();   // before padding
   const int usable = HUlib_UsableWidth();
   int max_px = usable - (centered ? 0 : l->x);
-
-  if (max_lines <= 0) max_lines = 1;
+  const char *wptr;
+  int word_px;
 
   // leading newline padding should not count toward max_lines
   // count leading '\n' padding lines so they don't consume max_lines
   int pad_lines = 0;
   dboolean started_content = false;
 
+  if (max_lines <= 0) max_lines = 1;
+
   while (*s)
   {
     int lines_now = HUlib_CountLines(l);
     int content_lines = lines_now - pad_lines;
+  
     if (content_lines < 1) content_lines = 1;
 
     // Enforce limit ONLY on content lines (not padding)
@@ -836,14 +840,15 @@ dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean c
     }
 
     // measure next word width
-    const char *wptr = s;
-    int word_px = 0;
+    wptr = s;
+    word_px = 0;
 
     while (*wptr && *wptr != ' ' && *wptr != '\n')
     {
+      unsigned char c;
       if (*wptr == '\x1b' && wptr[1]) { wptr += 2; continue; }
 
-      unsigned char c = toupper(*wptr);
+      c = toupper(*wptr);
       if (c >= l->sc && c <= 127)
         word_px += font[c - l->sc].width + l->kerning;
       else

@@ -31,7 +31,6 @@ static void dsda_RefreshHudTextAnnounceWrapped(dsda_text_t *component, int cente
   char *msg = component->msg;
   char *split;
   char saved;
-  dboolean title_trunc;
 
   HUlib_clearTextLine(&component->text);
 
@@ -49,7 +48,7 @@ static void dsda_RefreshHudTextAnnounceWrapped(dsda_text_t *component, int cente
   *split = '\0';
 
   // Title - 2 lines only
-  title_trunc = HUlib_WrapStringToTextLines(&component->text, msg, centered, 2);
+  HUlib_WrapStringToTextLines(&component->text, msg, centered, 2);
 
   *split = saved;
 
