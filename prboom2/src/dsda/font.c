@@ -99,19 +99,22 @@ void dsda_InitFont(void) {
   hud_font.font = hu_font;
   hud_font.height = hu_font['0' - HU_FONTSTART].height;
   hud_font.line_height = hud_font.height + 1;
-  hud_font.space_width = 4;
+  hud_font.space_width = raven ? 5 : 4;
   hud_font.start = HU_FONTSTART;
+  hud_font.kerning = raven ? -1 : 0;
 
   exhud_font.font = hu_font2;
   exhud_font.height = hu_font2['0' - HU_FONTSTART].height;
   exhud_font.line_height = exhud_font.height + 1;
   exhud_font.space_width = 5;
   exhud_font.start = HU_FONTSTART;
+  exhud_font.kerning = 0;
 
   // Hexen - yellow message
   yellow_hud_font.font = hu_font_yellow;
   yellow_hud_font.height = hu_font_yellow['0' - HU_FONTSTART].height;
   yellow_hud_font.line_height = yellow_hud_font.height + 1;
-  yellow_hud_font.space_width = 5;
+  yellow_hud_font.space_width = raven ? 5 : 4;
   yellow_hud_font.start = HU_FONTSTART;
+  yellow_hud_font.kerning = raven ? -1 : 0;
 }

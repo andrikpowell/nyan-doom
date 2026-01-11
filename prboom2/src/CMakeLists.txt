@@ -330,6 +330,8 @@ set(COMMON_SRC
     hexen/sv_save.h
     hu_lib.c
     hu_lib.h
+    hu_obituary.c
+    hu_obituary.h
     hu_stuff.c
     hu_stuff.h
     info.c

@@ -100,6 +100,7 @@ texture_t **textures; // proff - 04/05/2000 removed static for OpenGL
 fixed_t   *textureheight; //needed for texture pegging (and TFE fix - killough)
 int       *flattranslation;             // for global animation
 int       *texturetranslation;
+int       *flatterrain;
 
 //
 // R_GetTextureColumn
@@ -356,9 +357,13 @@ static void R_InitFlats(void)
   // clean up malloc-ing to use sizeof
 
   flattranslation = Z_Malloc((numflats+1)*sizeof(*flattranslation));
+  flatterrain = Z_Malloc((numflats+1)*sizeof(*flatterrain));
 
   for (i=0 ; i<numflats ; i++)
+  {
     flattranslation[i] = i;
+    flatterrain[i] = 0;
+  }
 }
 
 //

@@ -55,6 +55,9 @@ extern int firstflat, numflats;
 extern int *flattranslation;
 extern int *texturetranslation;
 
+// Obituaries
+extern int *flatterrain;
+
 // Sprite....
 extern int firstspritelump;
 extern int lastspritelump;

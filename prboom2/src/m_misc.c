@@ -95,6 +95,8 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_ansi_endoom),
   MIGRATED_SETTING(dsda_config_quit_sounds),
   MIGRATED_SETTING(dsda_config_announce_map),
+  MIGRATED_SETTING(dsda_config_obituaries),
+  MIGRATED_SETTING(dsda_config_obituaries_color),
 
   SETTING_HEADING("Game settings"),
   MIGRATED_SETTING(dsda_config_default_complevel),
@@ -394,6 +396,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_show_level_splits),
   MIGRATED_SETTING(dsda_config_skip_quit_prompt),
   MIGRATED_SETTING(dsda_config_show_split_data),
+  MIGRATED_SETTING(dsda_config_demo_author),
   MIGRATED_SETTING(dsda_config_player_name),
   MIGRATED_SETTING(dsda_config_quickstart_cache_tics),
   MIGRATED_SETTING(dsda_config_death_use_action),

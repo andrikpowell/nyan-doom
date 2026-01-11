@@ -846,7 +846,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 static mobj_t *ActiveMinotaur(player_t * master);
 
 // killough 11/98: make static
-static void P_KillMobj(mobj_t *source, mobj_t *target)
+static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method_t mod)
 {
   mobjtype_t item;
   mobj_t     *mo;
@@ -999,6 +999,10 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
 
     target->player->playerstate = PST_DEAD;
     P_DropWeapon (target->player);
+
+    // print obituary
+    if (dsda_IntConfig(dsda_config_obituaries))
+      dsda_Obituary(target, inflictor, source, mod);
 
     // heretic
     if (target->flags2 & MF2_FIREDAMAGE)
@@ -1232,7 +1236,7 @@ static dboolean P_InfightingImmune(mobj_t *target, mobj_t *source)
 
 static dboolean P_MorphMonster(mobj_t * actor);
 
-void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
+void P_DamageMobjBy(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage, method_t mod)
 {
   player_t *player;
   dboolean justhit = false;          /* killough 11/98 */
@@ -1699,7 +1703,7 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
       }
     }
 
-    P_KillMobj (source, target);
+    P_KillMobj(source, inflictor, target, mod);
     return;
   }
 
@@ -2678,7 +2682,7 @@ void P_FallingDamage(player_t * player)
 
     if (mom >= 63 * FRACUNIT)
     {                           // automatic death
-        P_DamageMobj(player->mo, NULL, NULL, 10000);
+        P_DamageMobjBy(player->mo, NULL, NULL, 10000, MOD_Falling);
         return;
     }
     damage = ((FixedMul(dist, dist) / 10) >> FRACBITS) - 24;
@@ -2688,7 +2692,7 @@ void P_FallingDamage(player_t * player)
         damage = player->mo->health - 1;
     }
     S_StartMobjSound(player->mo, hexen_sfx_player_land);
-    P_DamageMobj(player->mo, NULL, NULL, damage);
+    P_DamageMobjBy(player->mo, NULL, NULL, damage, MOD_Falling);
 }
 
 void P_PoisonDamage(player_t * player, mobj_t * source, int damage,
@@ -2747,7 +2751,7 @@ void P_PoisonDamage(player_t * player, mobj_t * source, int damage,
                 target->flags2 |= MF2_ICEDAMAGE;
             }
         }
-        P_KillMobj(source, target);
+        P_KillMobj(source, inflictor, target, MOD_None);
         return;
     }
     if (!(leveltime & 63) && playPainSound)

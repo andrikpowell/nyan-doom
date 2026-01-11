@@ -2050,7 +2050,9 @@ static dboolean M_ItemNyan(const setup_menu_t* s)
       dsda_config_hud_animated_count, dsda_config_sts_blink_keys,
       nyan_config_hud_berserk, nyan_config_hud_armoricon,
 
-      dsda_config_hudadd_secretarea, dsda_config_announce_map, dsda_config_detailed_quicksave,
+      dsda_config_hudadd_secretarea, dsda_config_announce_map,
+      dsda_config_obituaries, dsda_config_obituaries_color,
+      dsda_config_detailed_quicksave,
 
       dsda_config_menu_tran_filter, dsda_config_menu_tran_filter_pct,
       dsda_config_shadow_tran_filter, dsda_config_shadow_tran_filter_pct,
@@ -2480,7 +2482,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
     return;
   }
 
-  if (flags & (S_NUM | S_PERC | S_CRITEM) &&
+  if (flags & (S_NUM | S_PERC) &&
       !(flags & S_THERMO)) // skip thermo
   {
     // killough 10/98: We must draw differently for items being gathered.
@@ -4444,6 +4446,10 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   { "Announce Map On Entry", S_CHOICE, m_conf, G_X, dsda_config_announce_map, 0, announce_map_list },
   { "Detailed Quicksave Msg", S_YESNO, m_conf, G_X, dsda_config_detailed_quicksave },
   EMPTY_LINE,
+  { "Show Obituaries", S_YESNO, m_conf, G_X, dsda_config_obituaries },
+  { "Obituaries Color", S_CHOICE | S_CRITEM, m_conf, G_X, dsda_config_obituaries_color, 0, color_list, DEPEND(dsda_config_obituaries, true) },
+  { "Player Name", S_NAME, m_conf, G_X, dsda_config_player_name, 0, color_list, DEPEND(dsda_config_obituaries, true) },
+  EMPTY_LINE,
   FUNC("Ex-Hud", S_CENTER, G_X, M_Sub_ExHud),
   FUNC("Status Widget", S_CENTER, G_X, M_Sub_StatusWidget),
   FUNC("Crosshair", S_CENTER, G_X, M_Sub_Crosshair),
@@ -5072,7 +5078,7 @@ setup_menu_t demos_options_settings[] =  // Demos Settings screen
   { "Show Split Data", S_YESNO, m_conf, DM_X, dsda_config_show_split_data },
   { "Precise Intermission Time", S_YESNO,  m_conf, DM_X, dsda_config_show_level_splits },
   { "Quickstart Cache Tics", S_NUM, m_conf, DM_X, dsda_config_quickstart_cache_tics },
-  { "Text File Author", S_NAME, m_conf, DM_X, dsda_config_player_name },
+  { "Text File Author", S_NAME, m_conf, DM_X, dsda_config_demo_author },
   EMPTY_LINE,
   { "Playback Progress Bar", S_YESNO, m_conf, DM_X, dsda_config_hudadd_demoprogressbar },
   { "Playback Mouse Controls", S_YESNO, m_conf, DM_X, dsda_config_playback_mouse_controls },

@@ -381,6 +381,7 @@ void HU_Start(void)
 {
   HU_InitThresholds();
   HU_InitPlayer();
+  dsda_InitObituaries();
   HU_InitMessages();
   HU_FetchTitle();
   HU_FetchAuthor();
