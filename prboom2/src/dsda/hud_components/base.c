@@ -161,3 +161,13 @@ void dsda_RefreshHudText(dsda_text_t* component) {
   s = component->msg;
   while (*s) HUlib_addCharToTextLine(&component->text, *(s++));
 }
+
+void dsda_RefreshHudTextWrapped(dsda_text_t* component, int centered, int max_lines)
+{
+  const char* s;
+
+  HUlib_clearTextLine(&component->text);
+
+  s = component->msg;
+  HUlib_WrapStringToTextLines(&component->text, s, centered, max_lines);
+}

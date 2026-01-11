@@ -98,7 +98,10 @@ void HUlib_drawOffsetTextLine(hu_textline_t* l, dboolean yellow, dboolean shadow
 
 //e6y
 void HUlib_setTextXCenter(hu_textline_t* t);
+dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean centered, int max_lines);
 
 char HUlib_Color(int cm);
+char *HU_ColorFromConfig(int config);
+char *HU_ColorFromValue(int value);
 
 #endif

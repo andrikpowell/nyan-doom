@@ -409,28 +409,6 @@ static void dsda_ExpandObituary(dsda_string_t *out, const char *tmp, mobj_t *tar
   }
 }
 
-static char* HU_ColorFromConfig(int config)
-{
-  static char buf[3];
-
-  int cm = dsda_IntConfig(config);
-
-  buf[0] = '\x1b';
-  buf[1] = HUlib_Color(cm);
-  buf[2] = '\0';
-  return buf;
-}
-
-static char* HU_ColorFromValue(int value)
-{
-  static char buf[3];
-
-  buf[0] = '\x1b';
-  buf[1] = HUlib_Color(value);
-  buf[2] = '\0';
-  return buf;
-}
-
 void dsda_Obituary(mobj_t *target, struct mobj_s *inflictor, struct mobj_s *source, method_t mod)
 {
   int i;

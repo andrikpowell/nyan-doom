@@ -76,5 +76,6 @@ void dsda_DrawBasicShadowedText(dsda_text_t* component);
 void dsda_DrawYellowText(dsda_text_t* component, dboolean yellow);
 void dsda_DrawYellowShadowedText(dsda_text_t* component, dboolean yellow);
 void dsda_RefreshHudText(dsda_text_t* component);
+void dsda_RefreshHudTextWrapped(dsda_text_t* component, int centered, int max_lines);
 
 #endif

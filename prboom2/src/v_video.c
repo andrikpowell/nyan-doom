@@ -1012,9 +1012,7 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     shadow_x = x + shadowtype;
     shadow_y = y + shadowtype;
 
-    if (shadow_x < 0) shadow_x = 0;
-    if (shadow_x + patch->width > SCREENWIDTH)
-        shadow_x = SCREENWIDTH - patch->width;
+    // DO NOT clamp shadow_x: V_DrawPatch/V_DrawPatchStretch clip horizontally already.
 
     if (shadow_y < 0) shadow_y = 0;
     if (shadow_y + patch->height > SCREENHEIGHT)

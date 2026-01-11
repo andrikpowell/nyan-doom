@@ -61,7 +61,7 @@ void dsda_UpdateMessageHC(void* data) {
   local = data;
 
   dsda_UpdateComponentText(local->component.msg, sizeof(local->component.msg));
-  dsda_RefreshHudText(&local->component);
+  dsda_RefreshHudTextWrapped(&local->component, local->center, 3);
 
   if (local->center)
     HUlib_setTextXCenter(&local->component.text);
