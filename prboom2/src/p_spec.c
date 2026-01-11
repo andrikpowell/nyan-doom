@@ -5456,7 +5456,7 @@ char LockedBuffer[80];
 
 static dboolean CheckedLockedDoor(mobj_t * mo, byte lock)
 {
-    extern char *TextKeyMessages[11];
+    extern char *TextLockedDoorMessages[11];
 
     if (!mo->player)
     {
@@ -5469,7 +5469,7 @@ static dboolean CheckedLockedDoor(mobj_t * mo, byte lock)
     if (!mo->player->cards[lock - 1])
     {
         snprintf(LockedBuffer, sizeof(LockedBuffer),
-                 "YOU NEED THE %s\n", TextKeyMessages[lock - 1]);
+                 "%s\n", TextLockedDoorMessages[lock - 1]);
         P_SetMessage(mo->player, LockedBuffer, true);
         S_StartMobjSound(mo, hexen_sfx_door_locked);
         return false;

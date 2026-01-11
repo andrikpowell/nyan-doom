@@ -431,14 +431,14 @@ static void cheat_hexen_suicide(void)
   switch (hexen_suicide_seq)
   {
     case 1:
-      P_SetMessage(plyr, "TRYING TO CHEAT?  THAT'S ONE....", true);
+      P_SetMessage(plyr, HEXEN_TXT_CHEATQUICKEN1, true);
       break;
     case 2:
-      P_SetMessage(plyr, "THAT'S TWO....", true);
+      P_SetMessage(plyr, HEXEN_TXT_CHEATQUICKEN2, true);
       break;
     case 3:
       P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
-      P_SetMessage(plyr, "THAT'S THREE!  TIME TO DIE.", true);
+      P_SetMessage(plyr, HEXEN_TXT_CHEATQUICKEN3, true);
       hexen_suicide_seq = 0;
       break;
     default:
@@ -760,12 +760,10 @@ static const char* dsda_skill_str(void)
 {
   if (hexen)
   {
-    if (PlayerClass[consoleplayer] == PCLASS_FIGHTER)
-        return hexen_skill_fighter[gameskill];
-    else if (PlayerClass[consoleplayer] == PCLASS_CLERIC)
-        return hexen_skill_cleric[gameskill];
-    else if (PlayerClass[consoleplayer] == PCLASS_MAGE)
-        return hexen_skill_mage[gameskill];
+    // Hexen Skill Strings
+    extern const char * hexen_skills[4][5];
+
+    return hexen_skills[PlayerClass[consoleplayer]][gameskill];
   }
 
   return skill_infos[gameskill].name;
@@ -1804,7 +1802,7 @@ static void cheat_reset_health(void)
   {
     plyr->health = plyr->mo->health = MAXHEALTH;
   }
-  dsda_AddMessage("FULL HEALTH");
+  dsda_AddMessage(HERETIC_TXT_CHEATHEALTH);
 }
 
 static void cheat_artifact(char buf[3])
@@ -1831,24 +1829,24 @@ static void cheat_artifact(char buf[3])
         P_GiveArtifact(plyr, i, NULL);
       }
     }
-    dsda_AddMessage("YOU GOT IT");
+    dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS3);
   }
   else if (type > arti_none && type < NUMARTIFACTS && count > 0 && count < 10)
   {
     if (gamemode == shareware && (type == arti_superhealth || type == arti_teleport))
     {
-      dsda_AddMessage("BAD INPUT");
+      dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTSFAIL);
       return;
     }
     for (i = 0; i < count; i++)
     {
       P_GiveArtifact(plyr, type, NULL);
     }
-    dsda_AddMessage("YOU GOT IT");
+    dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS3);
   }
   else
   {
-    dsda_AddMessage("BAD INPUT");
+    dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTSFAIL);
   }
 }
 
@@ -1859,12 +1857,12 @@ static void cheat_tome(void)
   if (plyr->powers[pw_weaponlevel2])
   {
     plyr->powers[pw_weaponlevel2] = 0;
-    dsda_AddMessage("POWER OFF");
+    dsda_AddMessage(HERETIC_TXT_CHEATPOWEROFF);
   }
   else
   {
     P_UseArtifact(plyr, arti_tomeofpower);
-    dsda_AddMessage("POWER ON");
+    dsda_AddMessage(HERETIC_TXT_CHEATPOWERON);
   }
 }
 
@@ -1879,12 +1877,12 @@ static void cheat_chicken(void)
     {
       if (P_UndoPlayerChicken(plyr))
       {
-          dsda_AddMessage("CHICKEN OFF");
+          dsda_AddMessage(HERETIC_TXT_CHEATCHICKENOFF);
       }
     }
     else if (P_ChickenMorphPlayer(plyr))
     {
-      dsda_AddMessage("CHICKEN ON");
+      dsda_AddMessage(HERETIC_TXT_CHEATCHICKENON);
     }
   }
   else
@@ -1897,7 +1895,7 @@ static void cheat_chicken(void)
     {
       P_MorphPlayer(plyr);
     }
-    dsda_AddMessage("SQUEAL!!");
+    dsda_AddMessage(HEXEN_TXT_CHEATPIG);
   }
   P_MapEnd();
 }
@@ -1910,7 +1908,7 @@ static void cheat_init(void)
 {
   if (dsda_ResolveINIT())
   {
-    P_SetMessage(plyr, "LEVEL WARP", true);
+    P_SetMessage(plyr, HERETIC_TXT_CHEATWARP, true);
   }
 }
 
@@ -1939,7 +1937,7 @@ static void cheat_inventory(void)
       P_GiveArtifact(plyr, i, NULL);
     }
   }
-  P_SetMessage(plyr, "ALL ARTIFACTS", true);
+  P_SetMessage(plyr, HEXEN_TXT_CHEATARTIFACTS, true);
 }
 
 static void cheat_puzzle(void)
@@ -1952,12 +1950,12 @@ static void cheat_puzzle(void)
   {
     P_GiveArtifact(plyr, i, NULL);
   }
-  P_SetMessage(plyr, "ALL PUZZLE ITEMS", true);
+  P_SetMessage(plyr, HEXEN_TXT_CHEATPUZZLES, true);
 }
 
 static void cheat_class()
 {
-  P_SetMessage(plyr, "ENTER NEW PLAYER CLASS (0 - 2)", true);
+  P_SetMessage(plyr, HEXEN_TXT_CHEATCLASS1, true);
 }
 
 static void cheat_classx(char buf[2])
@@ -1975,7 +1973,7 @@ static void cheat_classx(char buf[2])
   new_class = 1 + (buf[0] - '0');
   if (new_class > PCLASS_MAGE || new_class < PCLASS_FIGHTER)
   {
-    P_SetMessage(plyr, "INVALID PLAYER CLASS", true);
+    P_SetMessage(plyr, HEXEN_TXT_CHEATCLASSFAIL, true);
     return;
   }
   plyr->pclass = new_class;
@@ -1986,7 +1984,7 @@ static void cheat_classx(char buf[2])
   PlayerClass[consoleplayer] = new_class;
   P_PostMorphWeapon(plyr, wp_first);
   SB_SetClassData();
-  P_SetMessage(plyr, "CLASS CHANGED", true);
+  P_SetMessage(plyr, HEXEN_TXT_CHEATCLASS2, true);
 }
 
 static void cheat_script(char buf[3])
