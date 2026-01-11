@@ -1395,7 +1395,7 @@ void M_QuitDOOM(int choice)
   if (language != english)
     snprintf(endstring, sizeof(endstring), "%s\n\n%s",s_DOSY, *endmsg[0] );
   else         // killough 1/18/98: fix endgame message calculation:
-    snprintf(endstring, sizeof(endstring), "%s\n\n%s", *endmsg[gametic%(NUM_QUITMESSAGES-1)+1], s_DOSY);
+    snprintf(endstring, sizeof(endstring), "%s\n\n%s", !raven ? *endmsg[gametic%(NUM_QUITMESSAGES-1)+1] : HERETIC_QUITMSG, s_DOSY);
 
   if (dsda_SkipQuitPrompt())
     M_QuitResponse(true);
