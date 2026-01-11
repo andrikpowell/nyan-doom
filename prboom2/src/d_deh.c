@@ -518,6 +518,52 @@ const char *s_stdisk       = "STDISK";
  * cph - updated for prboom */
 const char *savegamename = PROJECT_TARNAME"-savegame";
 
+// obituaries
+const char *s_OB_CRUSH = OB_CRUSH;
+const char *s_OB_FALLING = OB_FALLING;
+const char *s_OB_SLIME = OB_SLIME;
+const char *s_OB_LAVA = OB_LAVA;
+const char *s_OB_KILLEDSELF = OB_KILLEDSELF;
+const char *s_OB_VOODOO = OB_VOODOO;
+const char *s_OB_MONTELEFRAG = OB_MONTELEFRAG;
+const char *s_OB_DEFAULT = OB_DEFAULT;
+const char *s_OB_MPDEFAULT = OB_MPDEFAULT;
+
+const char *s_OB_UNDEADHIT = OB_UNDEADHIT;
+const char *s_OB_IMPHIT = OB_IMPHIT;
+const char *s_OB_CACOHIT = OB_CACOHIT;
+const char *s_OB_DEMONHIT = OB_DEMONHIT;
+const char *s_OB_SPECTREHIT = OB_SPECTREHIT;
+const char *s_OB_BARONHIT = OB_BARONHIT;
+const char *s_OB_KNIGHTHIT = OB_KNIGHTHIT;
+
+const char *s_OB_ZOMBIE = OB_ZOMBIE;
+const char *s_OB_SHOTGUY = OB_SHOTGUY;
+const char *s_OB_VILE = OB_VILE;
+const char *s_OB_UNDEAD = OB_UNDEAD;
+const char *s_OB_FATSO = OB_FATSO;
+const char *s_OB_CHAINGUY = OB_CHAINGUY;
+const char *s_OB_SKULL = OB_SKULL;
+const char *s_OB_IMP = OB_IMP;
+const char *s_OB_CACO = OB_CACO;
+const char *s_OB_BARON = OB_BARON;
+const char *s_OB_KNIGHT = OB_KNIGHT;
+const char *s_OB_SPIDER = OB_SPIDER;
+const char *s_OB_BABY = OB_BABY;
+const char *s_OB_CYBORG = OB_CYBORG;
+const char *s_OB_WOLFSS = OB_WOLFSS;
+
+const char *s_OB_MPFIST = OB_MPFIST;
+const char *s_OB_MPCHAINSAW = OB_MPCHAINSAW;
+const char *s_OB_MPPISTOL = OB_MPPISTOL;
+const char *s_OB_MPSHOTGUN = OB_MPSHOTGUN;
+const char *s_OB_MPSSHOTGUN = OB_MPSSHOTGUN;
+const char *s_OB_MPCHAINGUN = OB_MPCHAINGUN;
+const char *s_OB_MPROCKET = OB_MPROCKET;
+const char *s_OB_MPPLASMARIFLE = OB_MPPLASMARIFLE;
+const char *s_OB_MPBFG_BOOM = OB_MPBFG_BOOM;
+const char *s_OB_MPTELEFRAG = OB_MPTELEFRAG;
+
 // end d_deh.h variable declarations
 // ====================================================================
 
@@ -833,6 +879,46 @@ static deh_strs deh_strlookup[] = {
   {&s_stcdrom,"STCDROM"},
   {&s_stdisk,"STDISK"},
   {&savegamename,"SAVEGAMENAME"},  // Ty 05/03/98
+  {&s_OB_CRUSH, "OB_CRUSH"},   // obituaries
+  {&s_OB_SLIME, "OB_SLIME"},
+  {&s_OB_LAVA, "OB_LAVA"},
+  {&s_OB_KILLEDSELF, "OB_KILLEDSELF"},
+  {&s_OB_VOODOO, "OB_VOODOO"},
+  {&s_OB_MONTELEFRAG, "OB_MONTELEFRAG"},
+  {&s_OB_DEFAULT, "OB_DEFAULT"},
+  {&s_OB_MPDEFAULT, "OB_MPDEFAULT"},
+  {&s_OB_UNDEADHIT, "OB_UNDEADHIT"},
+  {&s_OB_IMPHIT, "OB_IMPHIT"},
+  {&s_OB_CACOHIT, "OB_CACOHIT"},
+  {&s_OB_DEMONHIT, "OB_DEMONHIT"},
+  {&s_OB_SPECTREHIT, "OB_SPECTREHIT"},
+  {&s_OB_BARONHIT, "OB_BARONHIT"},
+  {&s_OB_KNIGHTHIT, "OB_KNIGHTHIT"},
+  {&s_OB_ZOMBIE, "OB_ZOMBIE"},
+  {&s_OB_SHOTGUY, "OB_SHOTGUY"},
+  {&s_OB_VILE, "OB_VILE"},
+  {&s_OB_UNDEAD, "OB_UNDEAD"},
+  {&s_OB_FATSO, "OB_FATSO"},
+  {&s_OB_CHAINGUY, "OB_CHAINGUY"},
+  {&s_OB_SKULL, "OB_SKULL"},
+  {&s_OB_IMP, "OB_IMP"},
+  {&s_OB_CACO, "OB_CACO"},
+  {&s_OB_BARON, "OB_BARON"},
+  {&s_OB_KNIGHT, "OB_KNIGHT"},
+  {&s_OB_SPIDER, "OB_SPIDER"},
+  {&s_OB_BABY, "OB_BABY"},
+  {&s_OB_CYBORG, "OB_CYBORG"},
+  {&s_OB_WOLFSS, "OB_WOLFSS"},
+  {&s_OB_MPFIST, "OB_MPFIST"},
+  {&s_OB_MPCHAINSAW, "OB_MPCHAINSAW"},
+  {&s_OB_MPPISTOL, "OB_MPPISTOL"},
+  {&s_OB_MPSHOTGUN, "OB_MPSHOTGUN"},
+  {&s_OB_MPSSHOTGUN, "OB_MPSSHOTGUN"},
+  {&s_OB_MPCHAINGUN, "OB_MPCHAINGUN"},
+  {&s_OB_MPROCKET, "OB_MPROCKET"},
+  {&s_OB_MPPLASMARIFLE, "OB_MPPLASMARIFLE"},
+  {&s_OB_MPBFG_BOOM, "OB_MPBFG_BOOM"},
+  {&s_OB_MPTELEFRAG, "OB_MPTELEFRAG"},
 };
 
 static int deh_numstrlookup = sizeof(deh_strlookup) / sizeof(deh_strlookup[0]);
@@ -1137,6 +1223,54 @@ static dboolean includenotext = false;
 // * things are base zero but dehacked considers them to start at #1. ***
 // CPhipps - static const
 
+enum
+{
+    DEH_MOBJINFO_DOOMEDNUM,
+    DEH_MOBJINFO_SPAWNSTATE,
+    DEH_MOBJINFO_SPAWNHEALTH,
+    DEH_MOBJINFO_SEESTATE,
+    DEH_MOBJINFO_SEESOUND,
+    DEH_MOBJINFO_REACTIONTIME,
+    DEH_MOBJINFO_ATTACKSOUND,
+    DEH_MOBJINFO_PAINSTATE,
+    DEH_MOBJINFO_PAINCHANCE,
+    DEH_MOBJINFO_PAINSOUND,
+    DEH_MOBJINFO_MELEESTATE,
+    DEH_MOBJINFO_MISSILESTATE,
+    DEH_MOBJINFO_DEATHSTATE,
+    DEH_MOBJINFO_XDEATHSTATE,
+    DEH_MOBJINFO_DEATHSOUND,
+    DEH_MOBJINFO_SPEED,
+    DEH_MOBJINFO_RADIUS,
+    DEH_MOBJINFO_HEIGHT,
+    DEH_MOBJINFO_MASS,
+    DEH_MOBJINFO_DAMAGE,
+    DEH_MOBJINFO_ACTIVESOUND,
+    DEH_MOBJINFO_FLAGS,
+    DEH_MOBJINFO_FLAGS2,
+    DEH_MOBJINFO_RAISESTATE,
+    DEH_MOBJINFO_DROPPEDITEM, // DEHEXTRA
+
+    // MBF21
+    DEH_MOBJINFO_INFIGHTING_GROUP,
+    DEH_MOBJINFO_PROJECTILE_GROUP,
+    DEH_MOBJINFO_SPLASH_GROUP,
+    DEH_MOBJINFO_MBF21_FLAGS,
+    DEH_MOBJINFO_RIPSOUND,
+    DEH_MOBJINFO_ALTSPEED,
+    DEH_MOBJINFO_MELEERANGE,
+
+    // MISC
+    DEH_MOBJINFO_BLOODCOLOR,
+
+    // MBF2y
+    DEH_MOBJINFO_OBITUARY,
+    DEH_MOBJINFO_MELEE_OBITUARY,
+    DEH_MOBJINFO_SELF_OBITUARY,
+
+    DEH_MOBJINFOMAX
+};
+
 static const char *deh_mobjinfo_fields[] =
 {
   "ID #",                // .doomednum
@@ -1176,6 +1310,11 @@ static const char *deh_mobjinfo_fields[] =
 
   // misc
   "Blood color",         // .bloodcolor
+
+  // MBF2y
+  "Obituary",            // .obituary
+  "Melee obituary",      // .obituary_melee
+  "Self obituary",       // .obituary_self
 
   NULL
 };
@@ -2243,54 +2382,54 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint64_t value) {
   if (mobjInfoIndex >= num_mobj_types || mobjInfoIndex < 0) return;
   mi = &mobjinfo[mobjInfoIndex];
   switch (keyIndex) {
-    case 0: mi->doomednum = (int)value; return;
-    case 1: mi->spawnstate = (int)value; return;
-    case 2: mi->spawnhealth = (int)value; return;
-    case 3: mi->seestate = (int)value; return;
-    case 4: mi->seesound = (int)value; return;
-    case 5: mi->reactiontime = (int)value; return;
-    case 6: mi->attacksound = (int)value; return;
-    case 7: mi->painstate = (int)value; return;
-    case 8: mi->painchance = (int)value; return;
-    case 9: mi->painsound = (int)value; return;
-    case 10: mi->meleestate = (int)value; return;
-    case 11: mi->missilestate = (int)value; return;
-    case 12: mi->deathstate = (int)value; return;
-    case 13: mi->xdeathstate = (int)value; return;
-    case 14: mi->deathsound = (int)value; return;
-    case 15: mi->speed = (int)value; return;
-    case 16: mi->radius = (int)value; return;
-    case 17: mi->height = (int)value; return;
-    case 18: mi->mass = (int)value; return;
-    case 19: mi->damage = (int)value; return;
-    case 20: mi->activesound = (int)value; return;
-    case 21: mi->flags = value; return;
+    case DEH_MOBJINFO_DOOMEDNUM:    mi->doomednum = (int)value; return;
+    case DEH_MOBJINFO_SPAWNSTATE:   mi->spawnstate = (int)value; return;
+    case DEH_MOBJINFO_SPAWNHEALTH:  mi->spawnhealth = (int)value; return;
+    case DEH_MOBJINFO_SEESTATE:     mi->seestate = (int)value; return;
+    case DEH_MOBJINFO_SEESOUND:     mi->seesound = (int)value; return;
+    case DEH_MOBJINFO_REACTIONTIME: mi->reactiontime = (int)value; return;
+    case DEH_MOBJINFO_ATTACKSOUND:  mi->attacksound = (int)value; return;
+    case DEH_MOBJINFO_PAINSTATE:    mi->painstate = (int)value; return;
+    case DEH_MOBJINFO_PAINCHANCE:   mi->painchance = (int)value; return;
+    case DEH_MOBJINFO_PAINSOUND:    mi->painsound = (int)value; return;
+    case DEH_MOBJINFO_MELEESTATE:   mi->meleestate = (int)value; return;
+    case DEH_MOBJINFO_MISSILESTATE: mi->missilestate = (int)value; return;
+    case DEH_MOBJINFO_DEATHSTATE:   mi->deathstate = (int)value; return;
+    case DEH_MOBJINFO_XDEATHSTATE:  mi->xdeathstate = (int)value; return;
+    case DEH_MOBJINFO_DEATHSOUND:   mi->deathsound = (int)value; return;
+    case DEH_MOBJINFO_SPEED:        mi->speed = (int)value; return;
+    case DEH_MOBJINFO_RADIUS:       mi->radius = (int)value; return;
+    case DEH_MOBJINFO_HEIGHT:       mi->height = (int)value; return;
+    case DEH_MOBJINFO_MASS:         mi->mass = (int)value; return;
+    case DEH_MOBJINFO_DAMAGE:       mi->damage = (int)value; return;
+    case DEH_MOBJINFO_ACTIVESOUND:  mi->activesound = (int)value; return;
+    case DEH_MOBJINFO_FLAGS:        mi->flags = value; return;
     // e6y
     // Correction of wrong processing of "Respawn frame" entry.
     // There is no more synch on http://www.doomworld.com/sda/dwdemo/w303-115.zip
     // (with correction in PIT_CheckThing)
-    case 22:
+    case DEH_MOBJINFO_FLAGS2:
       if (prboom_comp[PC_FORCE_INCORRECT_PROCESSING_OF_RESPAWN_FRAME_ENTRY].state)
       {
         mi->raisestate = (int)value;
         return;
       }
       break;
-    case 23:
+    case DEH_MOBJINFO_RAISESTATE:
       if (!prboom_comp[PC_FORCE_INCORRECT_PROCESSING_OF_RESPAWN_FRAME_ENTRY].state)
       {
         mi->raisestate = (int)value;
         return;
       }
       break;
-    case 24: // make it base zero (deh is 1-based)
+    case DEH_MOBJINFO_DROPPEDITEM: // make it base zero (deh is 1-based)
       mi->droppeditem = dsda_TranslateDehMobjIndex((int)value) - 1;
       return;
 
     // mbf21
     // custom groups count from the end of the vanilla list
     // -> no concern for clashes
-    case 25:
+    case DEH_MOBJINFO_INFIGHTING_GROUP:
       mi->infighting_group = (int)(value);
       if (mi->infighting_group < 0)
       {
@@ -2299,14 +2438,14 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint64_t value) {
       }
       mi->infighting_group = mi->infighting_group + IG_END;
       return;
-    case 26:
+    case DEH_MOBJINFO_PROJECTILE_GROUP:
       mi->projectile_group = (int)(value);
       if (mi->projectile_group < 0)
         mi->projectile_group = PG_GROUPLESS;
       else
         mi->projectile_group = mi->projectile_group + PG_END;
       return;
-    case 27:
+    case DEH_MOBJINFO_SPLASH_GROUP:
       mi->splash_group = (int)(value);
       if (mi->splash_group < 0)
       {
@@ -2315,12 +2454,12 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint64_t value) {
       }
       mi->splash_group = mi->splash_group + SG_END;
       return;
-    case 29: mi->ripsound = (int)value; return;
-    case 30: mi->altspeed = (int)value; return;
-    case 31: mi->meleerange = (int)value; return;
+    case DEH_MOBJINFO_RIPSOUND: mi->ripsound = (int)value; return;
+    case DEH_MOBJINFO_ALTSPEED: mi->altspeed = (int)value; return;
+    case DEH_MOBJINFO_MELEERANGE: mi->meleerange = (int)value; return;
 
     // misc
-    case 32: mi->bloodcolor = V_BloodColor((int)value); return;
+    case DEH_MOBJINFO_BLOODCOLOR: mi->bloodcolor = V_BloodColor((int)value); return;
 
     default: return;
   }
@@ -2436,6 +2575,60 @@ static void deh_procThing(DEHFILE *fpin, char *line)
                 (unsigned long)value & 0xffffffff);
         deh_mobjinfo.info->flags = value; // e6y
         *deh_mobjinfo.edited_bits = true; //e6y: changed by DEH
+      }
+
+      switch (ix)
+      {
+        case DEH_MOBJINFO_OBITUARY:
+        {
+          char *stripped_string = ptr_lstrip(strval);
+          size_t len = strlen(stripped_string);
+
+          if (len < 1)
+          {
+            deh_log("Obituary is empty\n");
+            break;
+          }
+
+          deh_log("Setting obituary for thing %d\n", indexnum);
+          deh_mobjinfo.info->obituary = Z_Strdup(stripped_string);
+          break;
+        }
+
+        case DEH_MOBJINFO_MELEE_OBITUARY:
+        {
+          char *stripped_string = ptr_lstrip(strval);
+          size_t len = strlen(stripped_string);
+
+          if (len < 1)
+          {
+            deh_log("Melee obituary is empty\n");
+            break;
+          }
+
+          deh_log("Setting melee obituary for thing %d\n", indexnum);
+          deh_mobjinfo.info->obituary_melee = Z_Strdup(stripped_string);
+          break;
+        }
+
+        case DEH_MOBJINFO_SELF_OBITUARY:
+        {
+          char *stripped_string = ptr_lstrip(strval);
+          size_t len = strlen(stripped_string);
+
+          if (len < 1)
+          {
+            deh_log("Self obituary is empty\n");
+            break;
+          }
+
+          deh_log("Setting self obituary for thing %d\n", indexnum);
+          deh_mobjinfo.info->obituary_self = Z_Strdup(stripped_string);
+          break;
+        }
+
+        default:
+          break;
       }
 
       deh_log("Assigned 0x%08lx%08lx to %s(%d) at index %d\n",
@@ -3112,6 +3305,42 @@ static void deh_procMisc(DEHFILE *fpin, char *line) // done
   }
 }
 
+static dboolean deh_StringEndsWith(const char *s, const char *suffix)
+{
+  size_t sl, su;
+  if (!s || !suffix) return false;
+  sl = strlen(s);
+  su = strlen(suffix);
+  if (sl < su) return false;
+  return !strcasecmp(s + sl - su, suffix);
+}
+
+// Obituaries
+static dboolean deh_procObituarySub(char *key, char *newstring)
+{
+  dboolean found = false;
+  int actor = -1;
+
+  // parse actor id
+  if (sscanf(key, "Obituary_Deh_Actor_%d", &actor) == 1)
+  {
+    if (actor >= 0 && actor < num_mobj_types)
+    {
+      // decide which slot
+      if (deh_StringEndsWith(key, "_Melee"))
+        mobjinfo[actor].obituary_melee = Z_Strdup(newstring);
+      else
+        mobjinfo[actor].obituary = Z_Strdup(newstring);
+
+      // guess we ignoring "_Self"?
+
+      found = true;
+    }
+  }
+
+  return found;
+}
+
 // ====================================================================
 // deh_procText
 // Purpose: Handle DEH Text block
@@ -3299,6 +3528,10 @@ static void deh_procStrings(DEHFILE *fpin, char *line)
     {
       // go process the current string
       found = deh_procStringSub(key, NULL, holdstring);  // supply keyand not search string
+
+      // Obituaries
+      if (!found)
+        deh_procObituarySub(key, holdstring);
 
       if (!found)
         deh_log("Invalid string key '%s', substitution skipped.\n", key);

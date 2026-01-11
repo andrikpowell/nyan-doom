@@ -251,3 +251,106 @@
 					"that it is not within you to\n"\
 					"surrender without a fight. eyes\n"\
 					"wide, you go to meet your fate."
+
+//
+// Heretic Obituaries
+//
+
+#define OB_DSPARIL1HIT		"%o was chewed up by D'Sparil's serpent."
+#define OB_DSPARIL2HIT		"%o was smacked down by D'Sparil."
+#define OB_HERETICIMPHIT	"%o was hacked by a gargoyle."
+#define OB_IRONLICHHIT		"%o got up-close and personal with an ironlich."
+#define OB_BONEKNIGHTHIT	"%o was slain by an undead warrior."
+#define OB_MINOTAURHIT		"%o was pulped by a Maulotaur."
+#define OB_WIZARDHIT		"%o was palpated by a wizard."
+
+#define OB_CHICKEN			"%o was pecked to death."
+#define OB_BEAST			"%o was charred by a weredragon."
+#define OB_CLINK			"%o was slashed by a sabreclaw."
+#define OB_DSPARIL1			"%o was scalded by D'Sparil's serpent."
+#define OB_DSPARIL2			"%o was no match for D'Sparil."
+#define OB_HERETICIMP		"%o was scarred by a gargoyle."
+#define OB_IRONLICH			"%o was devastated by an ironlich."
+#define OB_BONEKNIGHT		"%o was axed by an undead warrior."
+#define OB_MINOTAUR			"%o was blasted into cinders by a Maulotaur."
+#define OB_MUMMY			"%o was smashed by a golem."
+#define OB_MUMMYLEADER		"%o was shrieked to death by a nitrogolem."
+#define OB_SNAKE			"%o was rattled by an ophidian."
+#define OB_WIZARD			"%o was cursed by a wizard."
+
+// Normal Weapons
+#define OB_MPSTAFF			"%o got staffed by %k."
+#define OB_MPGAUNTLETS		"%o got a shock from %k's gauntlets."
+#define OB_MPGOLDWAND		"%o waved goodbye to %k's elven wand."
+#define OB_MPCROSSBOW		"%o was pegged by %k's ethereal crossbow."
+#define OB_MPBLASTER		"%o was blasted a new one by %k's dragon claw."
+#define OB_MPSKULLROD		"%o got sent down under by %k's hellstaff."
+#define OB_MPPHOENIXROD		"%o was scorched to cinders by %k's phoenix rod."
+#define OB_MPMACE			"%o was bounced by %k's firemace."
+
+// Tome Powered Weapons
+#define OB_MPPSTAFF			"%o got clapped by %k's charged staff."
+#define OB_MPPGAUNTLETS		"%o was bled dry by %k's gauntlets."
+#define OB_MPPGOLDWAND		"%o was assaulted by %k's elven wand."
+#define OB_MPSHOTGUN		"%o chewed on %k's boomstick."
+#define OB_MPPCROSSBOW		"%o was shafted by %k's ethereal crossbow."
+#define OB_MPPBLASTER		"%o was ripped apart by %k's dragon claw."
+#define OB_MPPSKULLROD		"%k poured the hellstaff on %o."
+#define OB_MPPPHOENIXROD	"%o was burned down by %k's phoenix staff."
+#define OB_MPPMACE			"%o was squished by %k's giant mace sphere."
+
+
+
+// -------------------------------------------------
+//
+// HEXEN STRINGS
+//
+// -------------------------------------------------
+
+//
+// Hexen Obituaries
+//
+
+#define OB_DEMON1HIT			"%o was maimed by a Serpent."
+#define OB_DEMON2HIT			"%o was maimed by a Serpent."
+#define OB_SLAUGHTAURHIT		"%o was cut up by a Slaughtaur."
+#define OB_SERPENTHIT			"%o was mauled by a Stalker."
+#define OB_WRAITHHIT			"%o had %p life stolen by a Reiver."
+
+#define OB_FIREDEMON			"%o tasted an Afrit's fire."
+#define OB_DEMON1				"%o was scalded by a Serpent."
+#define OB_DEMON2				"%o was poisoned by a Serpent."
+#define OB_ETTIN				"%o was mashed by an Ettin."
+#define OB_CENTAUR				"%o was cut up by a Centaur."
+#define OB_SLAUGHTAUR			"%o was struck down by a Slaughtaur's fireball."
+#define OB_BISHOP				"%o succumbed to a Bishop's dark power."
+#define OB_ICEGUY				"%o was frozen solid by a Wendigo."
+#define OB_SERPENT				"%o was melted by a Stalker."
+#define OB_WRAITH				"%o was charred by a Reiver."
+#define OB_DRAGON				"%o was incinerated by the Death Wyvern."
+#define OB_HERESIARCH			"%o had %p bones rolled by the Heresiarch."
+#define OB_FBOSS				"%o was slain by Zedek."
+#define OB_MBOSS				"%o couldn't absorb Menelkir's Mana."
+#define OB_CBOSS				"%o was baptized by Traductus."
+#define OB_KORAX				"%o was swept from the board by Korax."
+
+// Fighter Weapons
+#define OB_MPFWEAPFIST			"%o was beaten to a pulp by %k's bare fists."
+#define OB_MPFWEAPAXE			"%o got the axe from %k."
+#define OB_MPFWEAPHAMMERM		"%o had %p head caved in by %k's hammer."
+#define OB_MPFWEAPHAMMERR		"%o's soul was forged anew by %k's hammer."
+#define OB_MPFWEAPQUIETUS		"%o was silenced by %k's mighty Quietus."
+
+// Cleric Weapons
+#define OB_MPCWEAPMACE			"%o got a mace to the face from %k."
+#define OB_MPCWEAPSTAFFM		"%o was bitten by %k's serpent staff."
+#define OB_MPCWEAPSTAFFR		"%o choked on %k's serpent staff."
+#define OB_MPCWEAPFLAME			"%o was lit up by %k's flames."
+#define OB_MPCWEAPWRAITHVERGE	"%o was cleansed by %k's Wraithverge."
+
+// Mage Weapons
+#define OB_MPMWEAPWAND			"%o took one too many sapphire beams from %k."
+#define OB_MPMWEAPFROST			"%o was turned into a frosty fellow by %k."
+#define OB_MPMWEAPLIGHTNING		"%o received a shocking revelation from %k."
+#define OB_MPMWEAPBLOODSCOURGE	"%o was wiped off the face of the universe by %k's Bloodscourge."
+

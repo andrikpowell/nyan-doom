@@ -23,6 +23,7 @@
 #include "hu_stuff.h"
 #include "g_overflow.h"
 #include "gl_struct.h"
+#include "hu_obituary.h"
 #include "lprintf.h"
 #include "r_main.h"
 #include "r_segs.h"
@@ -1332,6 +1333,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_player_name] = {
     "dsda_player_name", dsda_config_player_name,
+    CONF_STRING("Player"), NULL, NOT_STRICT, dsda_InitObituaries
+  },
+  [dsda_config_demo_author] = {
+    "dsda_demo_author", dsda_config_demo_author,
     CONF_STRING("Anonymous")
   },
   [dsda_config_quickstart_cache_tics] = {
@@ -1904,6 +1909,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_announce_map] = {
     "announce_map", dsda_config_announce_map,
     dsda_config_int, 0, 2, { 0 }
+  },
+  [dsda_config_obituaries] = {
+    "dsda_obituaries", dsda_config_obituaries,
+    CONF_BOOL(1), NULL, NOT_STRICT, dsda_InitObituaries
+  },
+  [dsda_config_obituaries_color] = {
+    "dsda_obituaries_color", dsda_config_obituaries_color,
+    CONF_CR(3), NULL, NOT_STRICT, dsda_InitObituaries
   },
   [dsda_config_extra_level_brightness] = {
     "extra_level_brightness", dsda_config_extra_level_brightness,

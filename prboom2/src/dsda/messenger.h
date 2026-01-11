@@ -20,6 +20,8 @@
 
 void dsda_AddPlayerAlert(const char* str, player_t* player);
 void dsda_AddAlert(const char* str);
+void dsda_AddObituary(const char* str);
+void dsda_AddPlayerObituary(const char* str, player_t* player);
 void dsda_AddPlayerYellowMessage(const char* str, player_t* player, dboolean ultmsg);
 void dsda_AddYellowMessage(const char* str, dboolean ultmsg);
 void dsda_AddPlayerMessage(const char* str, player_t* player);

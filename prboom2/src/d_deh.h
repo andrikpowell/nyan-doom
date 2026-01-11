@@ -1070,6 +1070,49 @@ extern const char* s_stdisk;
 // from g_game.c, prefix for savegame name like "boomsav"
 extern const char* savegamename;
 
+// obituaries
+extern const char *s_OB_CRUSH;
+extern const char *s_OB_FALLING;
+extern const char *s_OB_SLIME;
+extern const char *s_OB_LAVA;
+extern const char *s_OB_KILLEDSELF;
+extern const char *s_OB_VOODOO;
+extern const char *s_OB_MONTELEFRAG;
+extern const char *s_OB_DEFAULT;
+extern const char *s_OB_MPDEFAULT;
+extern const char *s_OB_UNDEADHIT;
+extern const char *s_OB_IMPHIT;
+extern const char *s_OB_CACOHIT;
+extern const char *s_OB_DEMONHIT;
+extern const char *s_OB_SPECTREHIT;
+extern const char *s_OB_BARONHIT;
+extern const char *s_OB_KNIGHTHIT;
+extern const char *s_OB_ZOMBIE;
+extern const char *s_OB_SHOTGUY;
+extern const char *s_OB_VILE;
+extern const char *s_OB_UNDEAD;
+extern const char *s_OB_FATSO;
+extern const char *s_OB_CHAINGUY;
+extern const char *s_OB_SKULL;
+extern const char *s_OB_IMP;
+extern const char *s_OB_CACO;
+extern const char *s_OB_BARON;
+extern const char *s_OB_KNIGHT;
+extern const char *s_OB_SPIDER;
+extern const char *s_OB_BABY;
+extern const char *s_OB_CYBORG;
+extern const char *s_OB_WOLFSS;
+extern const char *s_OB_MPFIST;
+extern const char *s_OB_MPCHAINSAW;
+extern const char *s_OB_MPPISTOL;
+extern const char *s_OB_MPSHOTGUN;
+extern const char *s_OB_MPSSHOTGUN;
+extern const char *s_OB_MPCHAINGUN;
+extern const char *s_OB_MPROCKET;
+extern const char *s_OB_MPPLASMARIFLE;
+extern const char *s_OB_MPBFG_BOOM;
+extern const char *s_OB_MPTELEFRAG;
+
 uint64_t deh_stringToMBF21MobjFlags(char *strval);
 uint64_t deh_stringToMobjFlags(char *strval);
 

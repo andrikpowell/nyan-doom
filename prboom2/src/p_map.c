@@ -166,7 +166,7 @@ dboolean PIT_StompThing (mobj_t* thing)
       !(tmthing->flags2 & MF2_TELESTOMP))
     return false;
 
-  P_DamageMobj (thing, tmthing, tmthing, 10000); // Stomp!
+  P_DamageMobjBy (thing, tmthing, tmthing, 10000, MOD_Telefrag); // Stomp!
 
   return true;
 }
@@ -3051,7 +3051,7 @@ dboolean PIT_ChangeSector (mobj_t* thing)
   if (crushchange > 0 && !(leveltime & 3)) {
     int t;
 
-    P_DamageMobj(thing, NULL, NULL, crushchange);
+    P_DamageMobjBy(thing, NULL, NULL, crushchange, MOD_Crush);
     dsda_WatchCrush(thing, crushchange);
 
     if (

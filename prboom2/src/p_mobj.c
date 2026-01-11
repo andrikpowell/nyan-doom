@@ -3850,7 +3850,7 @@ static int Hexen_P_HitFloor(mobj_t * thing)
             S_StartMobjSound(mo, hexen_sfx_lava_sizzle);
             if (thing->player && leveltime & 31)
             {
-                P_DamageMobj(thing, &LavaInflictor, NULL, 5);
+                P_DamageMobjBy(thing, &LavaInflictor, NULL, 5, MOD_Lava);
             }
             return (FLOOR_LAVA);
         case FLOOR_SLUDGE:
