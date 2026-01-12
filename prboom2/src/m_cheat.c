@@ -141,7 +141,9 @@ static void cheat_fly();
 static void cheat_reset_health();
 static void cheat_tome();
 static void cheat_chicken();
-static void cheat_artifact(char *buf);
+static void cheat_artifact();
+static void cheat_artifactx(char *buf);
+static void cheat_artifactxx(char *buf);
 
 // hexen
 static void cheat_inventory();
@@ -289,7 +291,9 @@ cheatseq_t cheat[] = {
   CHEAT("massacre", NULL, NULL, not_demo, cht_heretic, cheat_massacre, 0, false),
   CHEAT("rambo", NULL, NULL, not_demo, cht_heretic, cheat_fa, 0, false),
   CHEAT("skel", NULL, NULL, not_demo, cht_heretic, cheat_k, 0, false),
-  CHEAT("gimme", NULL, NULL, not_demo, cht_heretic, cheat_artifact, -2, false),
+  CHEAT("gimme", NULL, NULL, not_demo, cht_heretic, cheat_artifactxx, -2, false),
+  CHEAT("gimme", NULL, NULL, not_demo, cht_heretic, cheat_artifactx, -1, false),
+  CHEAT("gimme", NULL, NULL, not_demo, cht_heretic, cheat_artifact, 0, false),
   CHEAT("shazam", NULL, NULL, not_demo, cht_heretic, cheat_tome, 0, false),
   CHEAT("engage", NULL, NULL, not_demo | not_menu, cht_heretic, cheat_clevx, -2, false),
   CHEAT("engage", NULL, NULL, not_demo | not_menu, cht_heretic, cheat_clev, 0, false),
@@ -1821,7 +1825,21 @@ static void cheat_reset_health(void)
   dsda_AddMessage(HERETIC_TXT_CHEATHEALTH);
 }
 
-static void cheat_artifact(char *buf)
+static void cheat_artifact()
+{
+  if (!heretic) return;
+
+  dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS1);
+}
+
+static void cheat_artifactx(char *buf) // eat keypress for second prompt
+{
+  if (!heretic) return;
+
+  dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS2);
+}
+
+static void cheat_artifactxx(char *buf)
 {
   int i;
   int j;
