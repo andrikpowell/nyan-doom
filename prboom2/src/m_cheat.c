@@ -2175,6 +2175,7 @@ typedef struct cheat_input_s {
 
 static cheat_input_t cheat_input[] = {
   { dsda_input_iddqd, not_classic_demo, cheat_god, 0 },
+  { dsda_input_buddha, not_classic_demo, cheat_buddha, 0 },
   { dsda_input_idkfa, not_demo, cheat_kfa, 0 },
   { dsda_input_idfa, not_demo, cheat_fa, 0 },
   { dsda_input_idclip, not_classic_demo, cheat_noclip, 0 },
