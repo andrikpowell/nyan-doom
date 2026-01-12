@@ -263,6 +263,7 @@ cheatseq_t cheat[] = {
 
   // other
   CHEAT("buddha",     NULL,   "Buddha mode",      not_demo, cht_any, cheat_buddha, 0, false),    // buddha mode
+  CHEAT("freeze",     NULL,   NULL,               not_demo, cht_any, cheat_freeze, 0, false),    // freeze
 
   // heretic
   CHEAT("quicken", NULL, NULL, not_classic_demo, cht_heretic, cheat_god, 0, false),
