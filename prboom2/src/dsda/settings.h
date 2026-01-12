@@ -57,7 +57,6 @@ dboolean dsda_MapCoordinates(void);
 dboolean dsda_MapTotals(void);
 dboolean dsda_MapTime(void);
 dboolean dsda_MapTitle(void);
-int dsda_PainPaletteRange(void);
 dboolean dsda_PainPalette(void);
 dboolean dsda_BonusPalette(void);
 dboolean dsda_PowerPalette(void);

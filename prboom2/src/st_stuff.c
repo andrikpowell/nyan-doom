@@ -81,7 +81,7 @@ static dboolean stbar_exists;
 // For damage/bonus red-/gold-shifts
 #define STARTREDPALS            1
 #define STARTBONUSPALS          9
-#define NUMREDPALS              dsda_PainPaletteRange() // 8
+#define NUMREDPALS              8
 #define NUMBONUSPALS            4
 // Radiation suit, green shift.
 #define RADIATIONPAL            13
