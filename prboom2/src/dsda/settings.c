@@ -310,7 +310,7 @@ dboolean dsda_PainPalette(void) {
   return dsda_IntConfig(dsda_config_palette_ondamage);
 }
 
-dboolean dsda_BonusPalette(void) {
+dboolean dsda_PickupPalette(void) {
   return dsda_IntConfig(dsda_config_palette_onbonus);
 }
 
@@ -330,7 +330,7 @@ dboolean dsda_PainPaletteReduced(void) {
   return dsda_IntConfig(dsda_config_palette_ondamage) > 1;
 }
 
-dboolean dsda_BonusPaletteReduced(void) {
+dboolean dsda_PickupPaletteReduced(void) {
   if (!allow_incompatibility || dsda_StrictMode()) return false;
 
   return dsda_IntConfig(dsda_config_palette_onbonus) > 1;;

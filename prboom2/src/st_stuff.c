@@ -1034,12 +1034,12 @@ static void ST_doPaletteStuff(void)
       }
     }
   else
-    if (dsda_BonusPalette() && plyr->bonuscount)
+    if (dsda_PickupPalette() && plyr->bonuscount)
       {
         palette = (plyr->bonuscount+7)>>3;
         if (palette >= NUMBONUSPALS)
           palette = NUMBONUSPALS-1;
-        if (dsda_BonusPaletteReduced())
+        if (dsda_PickupPaletteReduced())
           palette /= 2;
         palette += STARTBONUSPALS;
       }

@@ -4362,7 +4362,7 @@ setup_menu_t display_options_settings[] = {
   { "GL Blend Animations", S_YESNO, m_conf, G_X, dsda_config_gl_blend_animations, DEPEND_GL },
   EMPTY_LINE,
   { "Palette On Pain", S_CHOICE, m_conf, G_X, dsda_config_palette_ondamage, 0, palette_reduced_list },
-  { "Palette On Bonus", S_CHOICE, m_conf, G_X, dsda_config_palette_onbonus, 0, palette_reduced_list },
+  { "Palette On Pickup", S_CHOICE, m_conf, G_X, dsda_config_palette_onbonus, 0, palette_reduced_list },
   { "Palette On Powers", S_CHOICE, m_conf, G_X, dsda_config_palette_onpowers, 0, palette_list },
   { "Palette On Effects", S_CHOICE, m_conf, G_X, dsda_config_palette_oneffects, 0, palette_reduced_list },
   EMPTY_LINE,

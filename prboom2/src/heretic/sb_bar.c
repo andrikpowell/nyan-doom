@@ -604,14 +604,14 @@ void SB_PaletteFlash(dboolean forceChange)
         }
         palette += STARTREDPALS;
     }
-    else if (dsda_BonusPalette() && CPlayer->bonuscount)
+    else if (dsda_PickupPalette() && CPlayer->bonuscount)
     {
         palette = (CPlayer->bonuscount + 7) >> 3;
         if (palette >= NUMBONUSPALS)
         {
             palette = NUMBONUSPALS - 1;
         }
-        if (dsda_BonusPaletteReduced())
+        if (dsda_PickupPaletteReduced())
         {
             palette /= 2;
         }
