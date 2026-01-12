@@ -113,6 +113,8 @@ static void cheat_reveal_item();
 static void cheat_reveal_weapon();
 static void cheat_reveal_weaponx(char *buf);
 static void cheat_reveal_exit();
+static void cheat_reveal_lock();
+static void cheat_reveal_lockx(char *buf);
 static void cheat_reveal_key();
 static void cheat_reveal_keyx(char *buf);
 static void cheat_reveal_keyxx(char *buf);
@@ -228,6 +230,10 @@ cheatseq_t cheat[] = {
   CHEAT("iddf",       NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, -1, false), // doom
   CHEAT("iddf",       NULL,   NULL,               cht_always, cht_heretic, cheat_reveal_key_heretic, -1, true), // heretic
   CHEAT("iddf",       NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_key, 0, false),
+
+  // key door cheats
+  CHEAT("iddl",       NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_lockx, -1, true),
+  CHEAT("iddl",       NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_lock, 0, false),
 
   // killough 2/16/98: generalized key cheats
   CHEAT("key",      NULL,   NULL,               not_demo, cht_doom, cheat_keyxx, -2, false),
@@ -1355,6 +1361,319 @@ static void cheat_keyxx(char *buf)
 
   if (key != -1)
     dsda_AddMessage((plyr->cards[key] = !plyr->cards[key]) ? "Key Added" : "Key Removed");
+}
+
+//
+// Lock Finder
+//
+
+typedef enum {
+
+  // Doom
+  lock_none = 0,
+  lock_any,
+  lock_red_card,
+  lock_blue_card,
+  lock_yellow_card,
+  lock_red_skull,
+  lock_blue_skull,
+  lock_yellow_skull,
+  lock_red_either,
+  lock_blue_either,
+  lock_yellow_either,
+  lock_all_keys,
+  lock_three_keys,   // "all 3 colors, card/skull"
+  lock_six_keys,     // "all 6 specific"
+
+  // heretic
+  heretic_lock_none = 0,
+  heretic_lock_green,
+  heretic_lock_blue,
+  heretic_lock_yellow,
+} lock_type_t;
+
+static const char *LockTypeName(lock_type_t type)
+{
+  if (heretic)
+  {
+    switch (type)
+    {
+      case heretic_lock_green:    return "green key lock";
+      case heretic_lock_blue:     return "blue key lock";
+      case heretic_lock_yellow:   return "yellow key lock";
+      default:                    return "lock";
+    }
+  }
+  else // Doom
+  {
+    switch (type)
+    {
+      case lock_red_either:    return "red lock";
+      case lock_red_card:      return "red card lock";
+      case lock_red_skull:     return "red skull lock";
+
+      case lock_blue_either:   return "blue lock";
+      case lock_blue_card:     return "blue card lock";
+      case lock_blue_skull:    return "blue skull lock";
+
+      case lock_yellow_either: return "yellow lock";
+      case lock_yellow_card:   return "yellow card lock";
+      case lock_yellow_skull:  return "yellow skull lock";
+
+      case lock_any:           return "any key lock";
+      case lock_three_keys:    return "three-key lock";
+      case lock_six_keys:      return "six-key lock";
+      case lock_all_keys:      return "all-key lock";
+      default:                 return "lock";
+    }
+  }
+}
+
+static void cheat_reveal_lock_find(lock_type_t lock)
+{
+  static int last_line = -1;
+  lock_type_t found;
+
+  if (!automap_input) return;
+
+  dsda_TrackFeature(uf_iddt);
+
+  int i = last_line + 1;
+  if (i >= numlines) i = 0;
+  const int start_i = i;
+
+  do
+  {
+    const line_t *line = &lines[i];
+
+    if (LineMatchesLock(line, lock, &found))
+    {
+      dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
+      AM_SetMapCenter(line->v1->x, line->v1->y);
+
+      doom_printf("Lock Finder: found %s", LockTypeName(found));
+      last_line = i;
+      return;
+    }
+
+    i++;
+    if (i >= numlines) i = 0;
+  } while (i != start_i);
+
+  doom_printf("Lock Finder: none found");
+}
+
+static dboolean LineMatchesLock(const line_t *line, lock_type_t lock, lock_type_t *found)
+{
+  const int special = line->special;
+
+  if (found) *found = lock_none;
+
+  if (hexen) return false;
+
+  if (heretic)
+  {
+    // green lock
+    if (special == 28 || special == 33)
+    {
+      if (lock == heretic_lock_green)
+      {
+        if (found) *found = heretic_lock_green;
+        return true;
+      }
+      return false;
+    }
+
+    // blue lock
+    if (special == 26 || special == 32)
+    {
+      if (lock == heretic_lock_blue)
+      {
+        if (found) *found = heretic_lock_blue;
+        return true;
+      }
+      return false;
+    }
+
+    // yellow lock
+    if (special == 27 || special == 34)
+    {
+      if (lock == heretic_lock_yellow)
+      {
+        if (found) *found = heretic_lock_yellow;
+        return true;
+      }
+      return false;
+    }
+  }
+  else // Doom
+  {
+    // Vanilla locked doors (always "either")
+
+    // red lock
+    if (special == 28 || special == 33 || special == 134 || special == 135)
+    {
+      if (lock == lock_red_card || lock == lock_red_skull || lock == lock_red_either)
+      {
+        if (found) *found = lock_red_either;
+        return true;
+      }
+      return false;
+    }
+
+    // blue lock
+    if (special == 26 || special == 32 || special == 99 || special == 133)
+    {
+      if (lock == lock_blue_card || lock == lock_blue_skull || lock == lock_blue_either)
+      {
+        if (found) *found = lock_blue_either;
+        return true;
+      }
+      return false;
+    }
+
+    // yellow lock
+    if (special == 27 || special == 34 || special == 136 || special == 137)
+    {
+      if (lock == lock_yellow_card || lock == lock_yellow_skull || lock == lock_yellow_either)
+      {
+        if (found) *found = lock_yellow_either;
+        return true;
+      }
+      return false;
+    }
+
+    // Boom generalized locked doors
+    if ((unsigned)special >= GenLockedBase && (unsigned)special < GenDoorBase)
+    {
+      const int skulliscard = (special & LockedNKeys) >> LockedNKeysShift;
+
+      // for "any" and "three/six" key locks
+      dboolean isColorLock = false;
+      int color_start = lock_red_card;
+      int color_end   = lock_yellow_either;
+
+      for (int i = color_start; i <= color_end; i++)
+        if (lock == i) isColorLock = true;
+
+      switch ((special & LockedKey) >> LockedKeyShift)
+      {
+        case AnyKey:
+          if (lock == lock_any || isColorLock)
+          {
+            if (found) *found = lock_any;
+            return true;
+          }
+          return false;
+
+        case AllKeys:
+          if (lock == lock_all_keys || isColorLock)
+          {
+            if (found) *found = skulliscard ? lock_three_keys : lock_six_keys;
+            return true;
+          }
+          return false;
+
+        case RCard:
+          if (lock == lock_red_card || lock == lock_red_either ||
+              (lock == lock_red_skull && skulliscard))
+          {
+            if (found) *found = skulliscard ? lock_red_either : lock_red_card;
+            return true;
+          }
+          return false;
+
+        case RSkull:
+          if (lock == lock_red_skull || lock == lock_red_either ||
+              (lock == lock_red_card && skulliscard))
+          {
+            if (found) *found = skulliscard ? lock_red_either : lock_red_skull;
+            return true;
+          }
+          return false;
+
+        case BCard:
+          if (lock == lock_blue_card || lock == lock_blue_either ||
+              (lock == lock_blue_skull && skulliscard))
+          {
+            if (found) *found = skulliscard ? lock_blue_either : lock_blue_card;
+            return true;
+          }
+          return false;
+
+        case BSkull:
+          if (lock == lock_blue_skull || lock == lock_blue_either ||
+              (lock == lock_blue_card && skulliscard))
+          {
+            if (found) *found = skulliscard ? lock_blue_either : lock_blue_skull;
+            return true;
+          }
+          return false;
+
+        case YCard:
+          if (lock == lock_yellow_card || lock == lock_yellow_either ||
+              (lock == lock_yellow_skull && skulliscard))
+          {
+            if (found) *found = skulliscard ? lock_yellow_either : lock_yellow_card;
+            return true;
+          }
+          return false;
+
+        case YSkull:
+          if (lock == lock_yellow_skull || lock == lock_yellow_either ||
+              (lock == lock_yellow_card && skulliscard))
+          {
+            if (found) *found = skulliscard ? lock_yellow_either : lock_yellow_skull;
+            return true;
+          }
+          return false;
+      }
+    }
+  }
+
+  return false;
+}
+
+static void cheat_reveal_lock(void)
+{
+  if (hexen) return;
+
+  if (automap_input)
+  {
+    doom_printf("Lock Finder: %s, Yellow, Blue", !heretic ? "Red" : "Green");
+  }
+}
+
+static void cheat_reveal_lockx(char *buf)
+{
+  int lock = lock_none;
+
+  if (hexen) return;
+
+  if (automap_input)
+  {
+    if (heretic)
+    {
+      switch (buf[0])
+      {
+        case 'g': lock = heretic_lock_green;   break;
+        case 'b': lock = heretic_lock_blue;    break;
+        case 'y': lock = heretic_lock_yellow;  break;
+      }
+    }
+    else
+    {
+      switch (buf[0])
+      {
+        case 'r': lock = lock_red_either;     break;
+        case 'b': lock = lock_blue_either;    break;
+        case 'y': lock = lock_yellow_either;  break;
+      }
+    }
+
+    if (lock != lock_none)
+      cheat_reveal_lock_find(lock);
+  }
 }
 
 // Key Finder - based off Nugget
