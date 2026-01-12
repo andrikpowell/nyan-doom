@@ -3736,9 +3736,12 @@ void P_InitSlideLine(void)
 {
     // use relevant parts from first bestslideline in demo1 (hexen.wad)
     static vertex_t initvertex1 = {-77594624, 37748736};
-    static line_t initslideline = { 0, &initvertex1, NULL, 0, 6291456, 0.0f, 0, 0, 0, { 0, 0 },
-                                    { 0, 0, 0, 0 }, 0, NULL, NULL, 0, 0, NULL, 0, 0, { 0 }, 0,
-                                    { 0, 0, 0, 0, 0 }, 0, 0, 0, 0, 0, NULL, 0.0f };
+    static line_t initslideline;
+
+    initslideline.v1 = &initvertex1;
+    initslideline.v2 = NULL;
+    initslideline.dx = 0;
+    initslideline.dy = 6291456;
         
     if (bestslideline == NULL)
     {
