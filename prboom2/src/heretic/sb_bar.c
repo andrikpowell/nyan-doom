@@ -585,18 +585,26 @@ void SB_PaletteFlash(dboolean forceChange)
         {
             palette = NUMPOISONPALS - 1;
         }
+        if (menuactive || dsda_Paused())
+        {
+            palette /= 2;
+        }
         palette += STARTPOISONPALS;
     }
-    else if (CPlayer->damagecount)
+    else if (dsda_PainPalette() && CPlayer->damagecount)
     {
         palette = (CPlayer->damagecount + 7) >> 3;
         if (palette >= NUMREDPALS)
         {
             palette = NUMREDPALS - 1;
         }
+        if (menuactive || dsda_Paused())
+        {
+            palette /= 2;
+        }
         palette += STARTREDPALS;
     }
-    else if (CPlayer->bonuscount)
+    else if (dsda_BonusPalette() && CPlayer->bonuscount)
     {
         palette = (CPlayer->bonuscount + 7) >> 3;
         if (palette >= NUMBONUSPALS)
