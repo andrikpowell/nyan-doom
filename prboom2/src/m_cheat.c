@@ -1792,7 +1792,9 @@ dboolean M_CheatEntered(const char* element, const char* value)
 
   for (cheat_i = cheat; WHICH_CHEAT(cheat_i); cheat_i++)
   {
-    if (!strcmp(WHICH_CHEAT(cheat_i), element) && M_CheatAllowed(cheat_i->when & ~not_menu))
+    if (!strcmp(WHICH_CHEAT(cheat_i), element) &&
+        M_CheatAllowed(cheat_i->when & ~not_menu) &&
+        M_CheatGame(cheat_i->game))
     {
       if (cheat_i->arg >= 0)
         cheat_i->func(cheat_i->arg);
