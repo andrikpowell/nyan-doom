@@ -111,6 +111,7 @@ static void cheat_reveal_secret();
 static void cheat_reveal_kill();
 static void cheat_reveal_item();
 static void cheat_reveal_weapon();
+static void cheat_reveal_weaponx(char *buf);
 static void cheat_reveal_exit();
 static void cheat_reveal_key();
 static void cheat_reveal_keyx();
@@ -220,15 +221,8 @@ cheatseq_t cheat[] = {
   CHEAT("iddet",      NULL,   NULL,               cht_always, cht_any, cheat_reveal_exit, 0, true),
 
   // find weapon cheats
+  CHEAT("iddwt",      NULL,   NULL,               cht_always, cht_any, cheat_reveal_weaponx, -1, true),
   CHEAT("iddwt",      NULL,   NULL,               cht_always, cht_any, cheat_reveal_weapon, 0, false),
-  CHEAT("iddwt2",     NULL,   NULL,               cht_always, cht_hexen, cheat_reveal_weaponx, wp_pistol+1, true),
-  CHEAT("iddwt3",     NULL,   NULL,               cht_always, cht_any, cheat_reveal_weaponx, wp_shotgun+1, true),
-  CHEAT("iddwt4",     NULL,   NULL,               cht_always, cht_any, cheat_reveal_weaponx, wp_chaingun+1, true),
-  CHEAT("iddwt5",     NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_weaponx, wp_missile+1, true),
-  CHEAT("iddwt6",     NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_weaponx, wp_plasma+1, true),
-  CHEAT("iddwt7",     NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_weaponx, wp_bfg+1, true),
-  CHEAT("iddwt8",     NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_weaponx, wp_chainsaw+1, true),
-  CHEAT("iddwt9",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_weaponx, wp_supershotgun+1, true),
 
   // key cheats
   CHEAT("iddfrc",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_RKEY, true),
@@ -1166,20 +1160,40 @@ static void cheat_reveal_weapon()
 }
 
 // Reveal weapon cheat
-void cheat_reveal_weaponx(int weapon)
+static void cheat_reveal_weaponx(char *buf)
 {
+  int weapon = buf[0] - '0';
+
+  if (!isdigit(buf[0]))
+    return;
+
   if (automap_input)
   {
-    int sprite_num = cheat_get_weapon(weapon);
+    int weapon_low  = hexen ? wp_second+1 :
+                      heretic ? wp_crossbow+1 :
+                      wp_shotgun+1;
 
-    if (sprite_num != false)
+    int weapon_high = hexen ? wp_fourth+1 :
+                      heretic ? wp_gauntlets+1 :
+                      gamemode == commercial ? wp_supershotgun+1 :
+                      wp_chainsaw+1; // Doom 1 has no SSG
+
+    // If weapon outside range, exit
+    if (weapon < weapon_low || weapon > weapon_high)
+      return dsda_AddMessage("Invalid weapon number");
+
     {
-      static int last_count;
-      static mobj_t *last_mobj;
+      int sprite_num = cheat_get_weapon(weapon);
 
-      dsda_TrackFeature(uf_iddt);
+      if (sprite_num != false)
+      {
+        static int last_count;
+        static mobj_t *last_mobj;
 
-      cheat_cycle_mobj_spr(&last_mobj, &last_count, sprite_num, weapon, MF_SPECIAL, MF_DROPPED, "Weapon Not Found");
+        dsda_TrackFeature(uf_iddt);
+
+        cheat_cycle_mobj_spr(&last_mobj, &last_count, sprite_num, weapon, MF_SPECIAL, MF_DROPPED, "Weapon Not Found");
+      }
     }
   }
 }

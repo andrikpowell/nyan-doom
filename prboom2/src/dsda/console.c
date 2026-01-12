@@ -1063,15 +1063,6 @@ static dboolean console_IDDT(const char* command, const char* args) {
 
   return true;
 }
-
-static dboolean console_IDDWT(const char* command, const char* args) {
-  int num;
-  sscanf(args, "%i", &num);
-  cheat_reveal_weaponx(num);
-
-  return true;
-}
-
 static int console_GetKey(const char* color, const char* type, int spr)
 {
   int key = -1;
@@ -2544,7 +2535,7 @@ static console_command_entry_t console_commands[] = {
   { "iddkt", console_BasicCheat, CF_DEMO },
   { "iddit", console_BasicCheat, CF_DEMO },
   { "iddet", console_BasicCheat, CF_DEMO },
-  { "iddwt", console_IDDWT, CF_DEMO },
+  { "iddwt", console_BasicCheat, CF_DEMO },
   { "iddf", console_IDDF, CF_DEMO },
 
   { "idclev", console_BasicCheat, CF_DEMO },
