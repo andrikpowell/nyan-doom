@@ -2434,6 +2434,7 @@ static console_command_entry_t console_commands[] = {
   // cheats
   { "idchoppers", console_BasicCheat, CF_DEMO },
   { "iddqd", console_BasicCheat, CF_DEMO },
+  { "buddha", console_BasicCheat, CF_DEMO },
   { "idkfa", console_BasicCheat, CF_DEMO },
   { "idfa", console_BasicCheat, CF_DEMO },
   { "idspispopd", console_BasicCheat, CF_DEMO },
@@ -2448,6 +2449,7 @@ static console_command_entry_t console_commands[] = {
   { "iddet", console_BasicCheat, CF_DEMO },
   { "iddwt", console_BasicCheat, CF_DEMO },
   { "iddf", console_BasicCheat, CF_DEMO },
+  { "iddl", console_BasicCheat, CF_DEMO },
 
   { "idclev", console_BasicCheat, CF_DEMO },
   { "idmus", console_BasicCheat, CF_DEMO },
