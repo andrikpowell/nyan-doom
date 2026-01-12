@@ -1690,11 +1690,11 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_palette_ondamage] = {
     "palette_ondamage", dsda_config_palette_ondamage,
-    CONF_BOOL(1), NULL, STRICT_INT(1), M_ChangeApplyPalette
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), M_ChangeApplyPalette
   },
   [dsda_config_palette_onbonus] = {
     "palette_onbonus", dsda_config_palette_onbonus,
-    CONF_BOOL(1), NULL, STRICT_INT(1), M_ChangeApplyPalette
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), M_ChangeApplyPalette
   },
   [dsda_config_palette_onpowers] = {
     "palette_onpowers", dsda_config_palette_onpowers,
@@ -1702,7 +1702,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_palette_oneffects] = {
     "palette_oneffects", dsda_config_palette_oneffects,
-    CONF_BOOL(1), NULL, STRICT_INT(1), M_ChangeApplyPalette
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), M_ChangeApplyPalette
   },
   [dsda_config_enhanced_liteamp] = {
     "enhanced_liteamp", dsda_config_enhanced_liteamp,

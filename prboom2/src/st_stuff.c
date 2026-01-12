@@ -1027,7 +1027,7 @@ static void ST_doPaletteStuff(void)
 
         /* cph 2006/08/06 - if in the menu, reduce the red tint - navigating to
          * load a game can be tricky if the screen is all red */
-        if (menuactive || dsda_Paused())
+        if (menuactive || dsda_Paused() || dsda_PainPaletteReduced())
           palette /= 2;
 
         palette += STARTREDPALS;
@@ -1039,6 +1039,8 @@ static void ST_doPaletteStuff(void)
         palette = (plyr->bonuscount+7)>>3;
         if (palette >= NUMBONUSPALS)
           palette = NUMBONUSPALS-1;
+        if (dsda_BonusPaletteReduced())
+          palette /= 2;
         palette += STARTBONUSPALS;
       }
     else

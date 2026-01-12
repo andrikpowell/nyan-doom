@@ -4348,6 +4348,8 @@ static const char* fake_contrast_list[] =
 
 static const char *gl_fade_mode_list[] = { "Normal", "Smooth", NULL };
 static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
+static const char* palette_list[] = { "Off", "Default", NULL };
+static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Wipe Screen Effect", S_YESNO,  m_conf, G_X, dsda_config_render_wipescreen },
@@ -4359,10 +4361,10 @@ setup_menu_t display_options_settings[] = {
   { "GL Health Bars", S_YESNO, m_conf, G_X, dsda_config_gl_health_bar, DEPEND_GL },
   { "GL Blend Animations", S_YESNO, m_conf, G_X, dsda_config_gl_blend_animations, DEPEND_GL },
   EMPTY_LINE,
-  { "Change Palette On Pain", S_YESNO, m_conf, G_X, dsda_config_palette_ondamage },
-  { "Change Palette On Bonus", S_YESNO, m_conf, G_X, dsda_config_palette_onbonus },
-  { "Change Palette On Powers", S_YESNO, m_conf, G_X, dsda_config_palette_onpowers },
-  { "Change Palette On Effects", S_YESNO, m_conf, G_X, dsda_config_palette_oneffects },
+  { "Palette On Pain", S_CHOICE, m_conf, G_X, dsda_config_palette_ondamage, 0, palette_reduced_list },
+  { "Palette On Bonus", S_CHOICE, m_conf, G_X, dsda_config_palette_onbonus, 0, palette_reduced_list },
+  { "Palette On Powers", S_CHOICE, m_conf, G_X, dsda_config_palette_onpowers, 0, palette_list },
+  { "Palette On Effects", S_CHOICE, m_conf, G_X, dsda_config_palette_oneffects, 0, palette_reduced_list },
   EMPTY_LINE,
   { "Menu Background", S_CHOICE, m_conf, G_X, dsda_config_menu_background, 0, menu_background_list },
 

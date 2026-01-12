@@ -324,6 +324,24 @@ dboolean dsda_EffectPalette(void) {
   return dsda_IntConfig(dsda_config_palette_oneffects);
 }
 
+dboolean dsda_PainPaletteReduced(void) {
+  if (!allow_incompatibility || dsda_StrictMode()) return false;
+
+  return dsda_IntConfig(dsda_config_palette_ondamage) > 1;
+}
+
+dboolean dsda_BonusPaletteReduced(void) {
+  if (!allow_incompatibility || dsda_StrictMode()) return false;
+
+  return dsda_IntConfig(dsda_config_palette_onbonus) > 1;;
+}
+
+dboolean dsda_EffectPaletteReduced(void) {
+  if (!allow_incompatibility || dsda_StrictMode()) return false;
+
+  return dsda_IntConfig(dsda_config_palette_oneffects) > 1;
+}
+
 dboolean dsda_ShowHealthBars(void) {
   return dsda_IntConfig(dsda_config_gl_health_bar);
 }

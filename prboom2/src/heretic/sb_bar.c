@@ -585,7 +585,7 @@ void SB_PaletteFlash(dboolean forceChange)
         {
             palette = NUMPOISONPALS - 1;
         }
-        if (menuactive || dsda_Paused())
+        if (menuactive || dsda_Paused() || dsda_EffectPaletteReduced())
         {
             palette /= 2;
         }
@@ -598,7 +598,7 @@ void SB_PaletteFlash(dboolean forceChange)
         {
             palette = NUMREDPALS - 1;
         }
-        if (menuactive || dsda_Paused())
+        if (menuactive || dsda_Paused() || dsda_PainPaletteReduced())
         {
             palette /= 2;
         }
@@ -610,6 +610,10 @@ void SB_PaletteFlash(dboolean forceChange)
         if (palette >= NUMBONUSPALS)
         {
             palette = NUMBONUSPALS - 1;
+        }
+        if (dsda_BonusPaletteReduced())
+        {
+            palette /= 2;
         }
         palette += STARTBONUSPALS;
     }
