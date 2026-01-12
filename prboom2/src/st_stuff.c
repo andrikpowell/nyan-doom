@@ -59,6 +59,7 @@
 #include "dsda/animinfo.h"
 #include "dsda/library.h"
 #include "dsda/exhud.h"
+#include "dsda/pause.h"
 
 #include "heretic/sb_bar.h"
 
@@ -998,17 +999,17 @@ int st_palette = 0;
 static void ST_doPaletteStuff(void)
 {
   int         palette;
-  int cnt = dsda_PainPalette() ? plyr->damagecount : 0;
+  int damagecount = dsda_PainPalette() ? plyr->damagecount : 0;
 
   if (dsda_PowerPalette() && plyr->powers[pw_strength])
     {
       // slowly fade the berzerk out
-      int bzc = 12 - (plyr->powers[pw_strength]>>6);
-      if (bzc > cnt)
-        cnt = bzc;
+      int berzerkcount = 12 - (plyr->powers[pw_strength]>>6);
+      if (berzerkcount > damagecount)
+        damagecount = berzerkcount;
     }
 
-  if (cnt)
+  if (damagecount)
     {
       // In Chex Quest, the player never sees red.  Instead, the
       // radiation suit palette is used to tint the screen green,
@@ -1020,13 +1021,14 @@ static void ST_doPaletteStuff(void)
       }
       else
       {
-        palette = (cnt+7)>>3;
+        palette = (damagecount + 7) >> 3;
         if (palette >= NUMREDPALS)
-          palette = NUMREDPALS-1;
+          palette = NUMREDPALS - 1;
 
         /* cph 2006/08/06 - if in the menu, reduce the red tint - navigating to
          * load a game can be tricky if the screen is all red */
-        if (menuactive) palette >>=1;
+        if (menuactive || dsda_Paused())
+          palette /= 2;
 
         palette += STARTREDPALS;
       }
