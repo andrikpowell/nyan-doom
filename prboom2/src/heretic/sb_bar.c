@@ -577,7 +577,7 @@ void SB_PaletteFlash(dboolean forceChange)
 
     CPlayer = &players[consoleplayer];
 
-    if (CPlayer->poisoncount)
+    if (dsda_EffectPalette() && CPlayer->poisoncount)
     {
         palette = 0;
         palette = (CPlayer->poisoncount + 7) >> 3;
@@ -613,7 +613,7 @@ void SB_PaletteFlash(dboolean forceChange)
         }
         palette += STARTBONUSPALS;
     }
-    else if (CPlayer->mo->flags2 & MF2_ICEDAMAGE)
+    else if (dsda_EffectPalette() && CPlayer->mo->flags2 & MF2_ICEDAMAGE)
     {                       // Frozen player
         palette = STARTICEPAL;
     }

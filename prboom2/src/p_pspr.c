@@ -52,6 +52,7 @@
 #include "dsda.h"
 #include "dsda/aim.h"
 #include "dsda/excmd.h"
+#include "dsda/settings.h"
 
 #define LOWERSPEED   (FRACUNIT*6)
 #define RAISESPEED   (FRACUNIT*6)
@@ -3072,7 +3073,7 @@ void A_MStaffAttack(player_t * player, pspdef_t * psp)
     {
         player->damagecount = 0;
         player->bonuscount = 0;
-        V_SetPalette(STARTSCOURGEPAL);
+        if (dsda_EffectPalette()) V_SetPalette(STARTSCOURGEPAL);
     }
 }
 
@@ -3087,7 +3088,7 @@ void A_MStaffPalette(player_t * player, pspdef_t * psp)
         {                       // reset back to original playpal
             pal = 0;
         }
-        V_SetPalette(pal);
+        if (dsda_EffectPalette()) V_SetPalette(pal);
     }
 }
 
@@ -3601,7 +3602,7 @@ void A_CHolyAttack(player_t * player, pspdef_t * psp)
     {
         player->damagecount = 0;
         player->bonuscount = 0;
-        V_SetPalette(STARTHOLYPAL);
+        if (dsda_EffectPalette()) V_SetPalette(STARTHOLYPAL);
     }
     S_StartMobjSound(player->mo, hexen_sfx_choly_fire);
 }
@@ -3617,7 +3618,7 @@ void A_CHolyPalette(player_t * player, pspdef_t * psp)
         {                       // reset back to original playpal
             pal = 0;
         }
-        V_SetPalette(pal);
+        if (dsda_EffectPalette()) V_SetPalette(pal);
     }
 }
 

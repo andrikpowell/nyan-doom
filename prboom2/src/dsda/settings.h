@@ -60,6 +60,7 @@ dboolean dsda_MapTitle(void);
 dboolean dsda_PainPalette(void);
 dboolean dsda_BonusPalette(void);
 dboolean dsda_PowerPalette(void);
+dboolean dsda_EffectPalette(void);
 dboolean dsda_RenderWipeScreen(void);
 dboolean dsda_WipeAtFullSpeed(void);
 dboolean dsda_ShowAutomapKeys(void);

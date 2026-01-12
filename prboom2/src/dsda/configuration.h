@@ -394,6 +394,7 @@ typedef enum {
   dsda_config_palette_ondamage,
   dsda_config_palette_onbonus,
   dsda_config_palette_onpowers,
+  dsda_config_palette_oneffects,
   dsda_config_enhanced_liteamp,
   dsda_config_colored_borderbox,
   dsda_config_render_wipescreen,

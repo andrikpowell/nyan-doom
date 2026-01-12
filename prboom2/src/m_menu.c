@@ -2039,7 +2039,7 @@ static dboolean M_ItemNyan(const setup_menu_t* s)
       nyan_config_show_endoom, nyan_config_skip_default_text,
       nyan_config_ignore_default_map_names, nyan_config_play_random_music,
       nyan_config_enable_animate_lumps, nyan_config_enable_widescreen_lumps,
-      dsda_config_gl_blend_animations,
+      dsda_config_gl_blend_animations, dsda_config_palette_oneffects,
 
       dsda_config_colored_borderbox, dsda_config_fuzzmode, dsda_config_fuzzscale,
       dsda_config_enhanced_liteamp, nyan_config_item_bonus_flash,
@@ -4362,6 +4362,7 @@ setup_menu_t display_options_settings[] = {
   { "Change Palette On Pain", S_YESNO, m_conf, G_X, dsda_config_palette_ondamage },
   { "Change Palette On Bonus", S_YESNO, m_conf, G_X, dsda_config_palette_onbonus },
   { "Change Palette On Powers", S_YESNO, m_conf, G_X, dsda_config_palette_onpowers },
+  { "Change Palette On Effects", S_YESNO, m_conf, G_X, dsda_config_palette_oneffects },
   EMPTY_LINE,
   { "Menu Background", S_CHOICE, m_conf, G_X, dsda_config_menu_background, 0, menu_background_list },
 

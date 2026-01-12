@@ -1700,6 +1700,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "palette_onpowers", dsda_config_palette_onpowers,
     CONF_BOOL(1), NULL, STRICT_INT(1), M_ChangeApplyPalette
   },
+  [dsda_config_palette_oneffects] = {
+    "palette_oneffects", dsda_config_palette_oneffects,
+    CONF_BOOL(1), NULL, STRICT_INT(1), M_ChangeApplyPalette
+  },
   [dsda_config_enhanced_liteamp] = {
     "enhanced_liteamp", dsda_config_enhanced_liteamp,
     CONF_BOOL(0), NULL, STRICT_INT(0)

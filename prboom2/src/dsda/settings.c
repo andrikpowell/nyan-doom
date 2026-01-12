@@ -318,6 +318,12 @@ dboolean dsda_PowerPalette(void) {
   return dsda_IntConfig(dsda_config_palette_onpowers);
 }
 
+dboolean dsda_EffectPalette(void) {
+  if (!allow_incompatibility || dsda_StrictMode()) return true;
+
+  return dsda_IntConfig(dsda_config_palette_oneffects);
+}
+
 dboolean dsda_ShowHealthBars(void) {
   return dsda_IntConfig(dsda_config_gl_health_bar);
 }
