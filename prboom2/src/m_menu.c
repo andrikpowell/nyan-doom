@@ -2039,7 +2039,7 @@ static dboolean M_ItemNyan(const setup_menu_t* s)
       nyan_config_show_endoom, nyan_config_skip_default_text,
       nyan_config_ignore_default_map_names, nyan_config_play_random_music,
       nyan_config_enable_animate_lumps, nyan_config_enable_widescreen_lumps,
-      dsda_config_gl_blend_animations, dsda_config_palette_ondamage_range,
+      dsda_config_gl_blend_animations, dsda_config_palette_oneffects,
 
       dsda_config_colored_borderbox, dsda_config_fuzzmode, dsda_config_fuzzscale,
       dsda_config_enhanced_liteamp, nyan_config_item_bonus_flash,
@@ -4348,7 +4348,8 @@ static const char* fake_contrast_list[] =
 
 static const char *gl_fade_mode_list[] = { "Normal", "Smooth", NULL };
 static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
-static const char* pain_palette_range_list[] = { "1 (lowest)", "1 (lowest)", "2", "3", "4 (half)", "5", "6", "7", "8 (full)", NULL };
+static const char* palette_list[] = { "Off", "Default", NULL };
+static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Wipe Screen Effect", S_YESNO,  m_conf, G_X, dsda_config_render_wipescreen },
@@ -4360,11 +4361,10 @@ setup_menu_t display_options_settings[] = {
   { "GL Health Bars", S_YESNO, m_conf, G_X, dsda_config_gl_health_bar, DEPEND_GL },
   { "GL Blend Animations", S_YESNO, m_conf, G_X, dsda_config_gl_blend_animations, DEPEND_GL },
   EMPTY_LINE,
-  { "Pain Palette Range", S_CHOICE, m_conf, G_X, dsda_config_palette_ondamage_range, 0, pain_palette_range_list, DEPEND(dsda_config_palette_ondamage, true) },
-  EMPTY_LINE,
-  { "Change Palette On Pain", S_YESNO, m_conf, G_X, dsda_config_palette_ondamage },
-  { "Change Palette On Bonus", S_YESNO, m_conf, G_X, dsda_config_palette_onbonus },
-  { "Change Palette On Powers", S_YESNO, m_conf, G_X, dsda_config_palette_onpowers },
+  { "Palette On Pain", S_CHOICE, m_conf, G_X, dsda_config_palette_ondamage, 0, palette_reduced_list },
+  { "Palette On Pickup", S_CHOICE, m_conf, G_X, dsda_config_palette_onbonus, 0, palette_reduced_list },
+  { "Palette On Powers", S_CHOICE, m_conf, G_X, dsda_config_palette_onpowers, 0, palette_list },
+  { "Palette On Effects", S_CHOICE, m_conf, G_X, dsda_config_palette_oneffects, 0, palette_reduced_list },
   EMPTY_LINE,
   { "Menu Background", S_CHOICE, m_conf, G_X, dsda_config_menu_background, 0, menu_background_list },
 

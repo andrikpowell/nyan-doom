@@ -1688,21 +1688,21 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "sdl_video_display_index", dsda_config_sdl_video_display_index,
     dsda_config_int, 0, 10, { 0 }, NULL, NOT_STRICT
   },
-  [dsda_config_palette_ondamage_range] = {
-    "dsda_palette_ondamage_range", dsda_config_palette_ondamage_range,
-    dsda_config_int, 1, 8, { 8 }, NULL, STRICT_INT(8)
-  },
   [dsda_config_palette_ondamage] = {
     "palette_ondamage", dsda_config_palette_ondamage,
-    CONF_BOOL(1), NULL, STRICT_INT(1), M_ChangeApplyPalette
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), M_ChangeApplyPalette
   },
   [dsda_config_palette_onbonus] = {
     "palette_onbonus", dsda_config_palette_onbonus,
-    CONF_BOOL(1), NULL, STRICT_INT(1), M_ChangeApplyPalette
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), M_ChangeApplyPalette
   },
   [dsda_config_palette_onpowers] = {
     "palette_onpowers", dsda_config_palette_onpowers,
     CONF_BOOL(1), NULL, STRICT_INT(1), M_ChangeApplyPalette
+  },
+  [dsda_config_palette_oneffects] = {
+    "palette_oneffects", dsda_config_palette_oneffects,
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), M_ChangeApplyPalette
   },
   [dsda_config_enhanced_liteamp] = {
     "enhanced_liteamp", dsda_config_enhanced_liteamp,

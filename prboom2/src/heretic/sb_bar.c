@@ -577,7 +577,7 @@ void SB_PaletteFlash(dboolean forceChange)
 
     CPlayer = &players[consoleplayer];
 
-    if (CPlayer->poisoncount)
+    if (dsda_EffectPalette() && CPlayer->poisoncount)
     {
         palette = 0;
         palette = (CPlayer->poisoncount + 7) >> 3;
@@ -585,27 +585,39 @@ void SB_PaletteFlash(dboolean forceChange)
         {
             palette = NUMPOISONPALS - 1;
         }
+        if (menuactive || dsda_Paused() || dsda_EffectPaletteReduced())
+        {
+            palette /= 2;
+        }
         palette += STARTPOISONPALS;
     }
-    else if (CPlayer->damagecount)
+    else if (dsda_PainPalette() && CPlayer->damagecount)
     {
         palette = (CPlayer->damagecount + 7) >> 3;
         if (palette >= NUMREDPALS)
         {
             palette = NUMREDPALS - 1;
         }
+        if (menuactive || dsda_Paused() || dsda_PainPaletteReduced())
+        {
+            palette /= 2;
+        }
         palette += STARTREDPALS;
     }
-    else if (CPlayer->bonuscount)
+    else if (dsda_PickupPalette() && CPlayer->bonuscount)
     {
         palette = (CPlayer->bonuscount + 7) >> 3;
         if (palette >= NUMBONUSPALS)
         {
             palette = NUMBONUSPALS - 1;
         }
+        if (dsda_PickupPaletteReduced())
+        {
+            palette /= 2;
+        }
         palette += STARTBONUSPALS;
     }
-    else if (CPlayer->mo->flags2 & MF2_ICEDAMAGE)
+    else if (dsda_EffectPalette() && CPlayer->mo->flags2 & MF2_ICEDAMAGE)
     {                       // Frozen player
         palette = STARTICEPAL;
     }

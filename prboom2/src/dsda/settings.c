@@ -306,22 +306,40 @@ dboolean dsda_MapTitle(void) {
   return dsda_IntConfig(dsda_config_map_title);
 }
 
-int dsda_PainPaletteRange(void) {
-  if (dsda_StrictMode()) return 8;
-
-  return dsda_IntConfig(dsda_config_palette_ondamage_range);
-}
-
 dboolean dsda_PainPalette(void) {
   return dsda_IntConfig(dsda_config_palette_ondamage);
 }
 
-dboolean dsda_BonusPalette(void) {
+dboolean dsda_PickupPalette(void) {
   return dsda_IntConfig(dsda_config_palette_onbonus);
 }
 
 dboolean dsda_PowerPalette(void) {
   return dsda_IntConfig(dsda_config_palette_onpowers);
+}
+
+dboolean dsda_EffectPalette(void) {
+  if (!allow_incompatibility || dsda_StrictMode()) return true;
+
+  return dsda_IntConfig(dsda_config_palette_oneffects);
+}
+
+dboolean dsda_PainPaletteReduced(void) {
+  if (!allow_incompatibility || dsda_StrictMode()) return false;
+
+  return dsda_IntConfig(dsda_config_palette_ondamage) > 1;
+}
+
+dboolean dsda_PickupPaletteReduced(void) {
+  if (!allow_incompatibility || dsda_StrictMode()) return false;
+
+  return dsda_IntConfig(dsda_config_palette_onbonus) > 1;;
+}
+
+dboolean dsda_EffectPaletteReduced(void) {
+  if (!allow_incompatibility || dsda_StrictMode()) return false;
+
+  return dsda_IntConfig(dsda_config_palette_oneffects) > 1;
 }
 
 dboolean dsda_ShowHealthBars(void) {
