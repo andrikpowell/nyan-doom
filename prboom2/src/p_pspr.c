@@ -3073,17 +3073,35 @@ void A_MStaffAttack(player_t * player, pspdef_t * psp)
     {
         player->damagecount = 0;
         player->bonuscount = 0;
-        if (dsda_EffectPalette()) V_SetPalette(STARTSCOURGEPAL);
+        if (dsda_EffectPalette())
+        {
+            int pal = STARTSCOURGEPAL;
+            if (dsda_EffectPaletteReduced())
+            {
+                pal = STARTSCOURGEPAL + 1; // Reduced: only use 2 of the 3 palettes
+            }
+            V_SetPalette(pal);
+        }
     }
 }
 
 void A_MStaffPalette(player_t * player, pspdef_t * psp)
 {
     int pal;
+    int step;
 
     if (player == &players[consoleplayer])
     {
-        pal = STARTSCOURGEPAL + psp->state - (&states[HEXEN_S_MSTAFFATK_2]);
+        step = psp->state - (&states[HEXEN_S_MSTAFFATK_2]);
+        pal = STARTSCOURGEPAL + step;
+        if (dsda_EffectPaletteReduced())
+        {
+            // Exact sequence
+            if (step == 0)      pal = STARTSCOURGEPAL + 1;
+            else if (step == 1) pal = STARTSCOURGEPAL + 1;
+            else if (step == 2) pal = STARTSCOURGEPAL + 2;
+            else                pal = STARTSCOURGEPAL + 3; // reset
+        }
         if (pal == STARTSCOURGEPAL + 3)
         {                       // reset back to original playpal
             pal = 0;
@@ -3602,7 +3620,15 @@ void A_CHolyAttack(player_t * player, pspdef_t * psp)
     {
         player->damagecount = 0;
         player->bonuscount = 0;
-        if (dsda_EffectPalette()) V_SetPalette(STARTHOLYPAL);
+        if (dsda_EffectPalette())
+        {
+            int pal = STARTHOLYPAL;
+            if (dsda_EffectPaletteReduced())
+            {
+                pal = STARTHOLYPAL + 1; // Reduced: only use 2 of the 3 palettes
+            }
+            V_SetPalette(pal);
+        }
     }
     S_StartMobjSound(player->mo, hexen_sfx_choly_fire);
 }
@@ -3610,10 +3636,20 @@ void A_CHolyAttack(player_t * player, pspdef_t * psp)
 void A_CHolyPalette(player_t * player, pspdef_t * psp)
 {
     int pal;
+    int step;
 
     if (player == &players[consoleplayer])
     {
-        pal = STARTHOLYPAL + psp->state - (&states[HEXEN_S_CHOLYATK_6]);
+        step = psp->state - (&states[HEXEN_S_CHOLYATK_6]);
+        pal = STARTHOLYPAL + step;
+        if (dsda_EffectPaletteReduced())
+        {
+            // Exact sequence
+            if (step == 0)      pal = STARTHOLYPAL + 1;
+            else if (step == 1) pal = STARTHOLYPAL + 1;
+            else if (step == 2) pal = STARTHOLYPAL + 2;
+            else                pal = STARTHOLYPAL + 3; // reset
+        }
         if (pal == STARTHOLYPAL + 3)
         {                       // reset back to original playpal
             pal = 0;
