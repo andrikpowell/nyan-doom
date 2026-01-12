@@ -133,6 +133,7 @@ typedef enum {
   dsda_input_help,
   dsda_input_cycle_profile,
   dsda_input_iddqd,
+  dsda_input_buddha,
   dsda_input_idkfa,
   dsda_input_idfa,
   dsda_input_idclip,
