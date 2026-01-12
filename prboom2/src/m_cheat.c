@@ -81,7 +81,7 @@
 //
 //-----------------------------------------------------------------------------
 
-static void cheat_mus(char buf[3]);
+static void cheat_mus(char *buf);
 static void cheat_musrr();
 static void cheat_camera();
 static void cheat_choppers();
@@ -96,13 +96,13 @@ static void cheat_noclip();
 static void cheat_pw(int pw);
 static void cheat_behold();
 static void cheat_clev();
-static void cheat_clevx(char buf[3]);
+static void cheat_clevx(char *buf);
 static void cheat_mypos();
 static void cheat_rate();
 static void cheat_comp();
-static void cheat_compx(char buf[3]);
+static void cheat_compx(char *buf);
 static void cheat_skill();
-static void cheat_skillx(char buf[1]);
+static void cheat_skillx(char *buf);
 static void cheat_friction();
 static void cheat_pushers();
 static void cheat_massacre();
@@ -125,9 +125,9 @@ static void cheat_keyxx(int key);
 static void cheat_key_doom(int key);
 static void cheat_key_heretic(int key);
 static void cheat_weap();
-static void cheat_weapx(char buf[3]);
+static void cheat_weapx(char *buf);
 static void cheat_ammo();
-static void cheat_ammox(char buf[1]);
+static void cheat_ammox(char *buf);
 static void cheat_smart();
 static void cheat_pitch();
 static void cheat_megaarmour();
@@ -141,15 +141,15 @@ static void cheat_fly();
 static void cheat_reset_health();
 static void cheat_tome();
 static void cheat_chicken();
-static void cheat_artifact(char buf[3]);
+static void cheat_artifact(char *buf);
 
 // hexen
 static void cheat_inventory();
 static void cheat_puzzle();
-static void cheat_classx(char buf[2]);
+static void cheat_classx(char *buf);
 static void cheat_class();
 static void cheat_init();
-static void cheat_script(char buf[3]);
+static void cheat_script(char *buf);
 static void cheat_hexen_suicide();
 
 // nyan
@@ -341,7 +341,7 @@ cheatseq_t cheat[] = {
 
 //-----------------------------------------------------------------------------
 
-static void cheat_mus(char buf[3])
+static void cheat_mus(char *buf)
 {
   int epsd, map;
 
@@ -697,7 +697,7 @@ static void cheat_clev()
 }
 
 // 'clev' change-level cheat
-static void cheat_clevx(char buf[3])
+static void cheat_clevx(char *buf)
 {
   int epsd, map;
 
@@ -745,7 +745,7 @@ static void cheat_comp()
 }
 
 // compatibility cheat
-static void cheat_compx(char buf[3])
+static void cheat_compx(char *buf)
 {
   if (raven)
     return doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen");
@@ -795,7 +795,7 @@ static void cheat_skill()
 }
 
 // Skill cheat
-static void cheat_skillx(char buf[1])
+static void cheat_skillx(char *buf)
 {
   int skill = buf[0] - '0';
 
@@ -1392,7 +1392,7 @@ static void cheat_weap()
   dsda_AddMessage(gamemode == commercial || heretic ? "Weapon number 1-9" : "Weapon number 1-8");
 }
 
-static void cheat_weapx(char buf[3])
+static void cheat_weapx(char *buf)
 {
   int w = *buf - '1';
 
@@ -1423,7 +1423,7 @@ static void cheat_ammo()
   doom_printf("Ammo 1-%i%s", ammo_max, backpack);
 }
 
-static void cheat_hexen_ammox(char buf[1])
+static void cheat_hexen_ammox(char *buf)
 {
   int a = *buf - '1';
   if (a>=0 && a<NUMMANA)  // Ty 03/27/98 - *not* externalized
@@ -1431,7 +1431,7 @@ static void cheat_hexen_ammox(char buf[1])
                        plyr->ammo[a] = MAX_MANA, "Mana Added" : "Mana Removed");
 }
 
-static void cheat_ammox(char buf[1])
+static void cheat_ammox(char *buf)
 {
   int a = *buf - '1';
 
@@ -1821,7 +1821,7 @@ static void cheat_reset_health(void)
   dsda_AddMessage(HERETIC_TXT_CHEATHEALTH);
 }
 
-static void cheat_artifact(char buf[3])
+static void cheat_artifact(char *buf)
 {
   int i;
   int j;
@@ -1974,7 +1974,7 @@ static void cheat_class()
   P_SetMessage(plyr, HEXEN_TXT_CHEATCLASS1, true);
 }
 
-static void cheat_classx(char buf[2])
+static void cheat_classx(char *buf)
 {
   int i;
   int new_class;
@@ -2003,7 +2003,7 @@ static void cheat_classx(char buf[2])
   P_SetMessage(plyr, HEXEN_TXT_CHEATCLASS2, true);
 }
 
-static void cheat_script(char buf[3])
+static void cheat_script(char *buf)
 {
   int script;
   byte script_args[3];
