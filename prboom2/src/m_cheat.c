@@ -1429,41 +1429,7 @@ static const char *cheat_GetLockString(lock_type_t type)
   }
 }
 
-static void cheat_reveal_lock_find(lock_type_t lock)
-{
-  static int last_line = -1;
-  lock_type_t found;
-
-  if (!automap_input) return;
-
-  dsda_TrackFeature(uf_iddt);
-
-  int i = last_line + 1;
-  if (i >= numlines) i = 0;
-  const int start_i = i;
-
-  do
-  {
-    const line_t *line = &lines[i];
-
-    if (LineMatchesLock(line, lock, &found))
-    {
-      dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
-      AM_SetMapCenter(line->v1->x, line->v1->y);
-
-      doom_printf("Lock Finder: found %s", cheat_GetLockString(found));
-      last_line = i;
-      return;
-    }
-
-    i++;
-    if (i >= numlines) i = 0;
-  } while (i != start_i);
-
-  doom_printf("Lock Finder: none found");
-}
-
-static dboolean LineMatchesLock(const line_t *line, lock_type_t lock, lock_type_t *found)
+static dboolean cheat_LineMatchesLock(const line_t *line, lock_type_t lock, lock_type_t *found)
 {
   const int special = line->special;
 
@@ -1632,6 +1598,42 @@ static dboolean LineMatchesLock(const line_t *line, lock_type_t lock, lock_type_
   }
 
   return false;
+}
+
+static void cheat_reveal_lock_find(lock_type_t lock)
+{
+  static int last_line = -1;
+  lock_type_t found;
+  int i;
+  int start_i;
+
+  if (!automap_input) return;
+
+  dsda_TrackFeature(uf_iddt);
+
+  i = last_line + 1;
+  if (i >= numlines) i = 0;
+  start_i = i;
+
+  do
+  {
+    const line_t *line = &lines[i];
+
+    if (cheat_LineMatchesLock(line, lock, &found))
+    {
+      dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
+      AM_SetMapCenter(line->v1->x, line->v1->y);
+
+      doom_printf("Lock Finder: found %s", cheat_GetLockString(found));
+      last_line = i;
+      return;
+    }
+
+    i++;
+    if (i >= numlines) i = 0;
+  } while (i != start_i);
+
+  doom_printf("Lock Finder: none found");
 }
 
 static void cheat_reveal_lock(void)

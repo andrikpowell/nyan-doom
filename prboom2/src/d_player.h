@@ -67,15 +67,15 @@ typedef enum
 
 } playerstate_t;
 
-#define CF_NOCLIP        1<<0 // no clipping
-#define CF_GODMODE       1<<1 // immune to damage
-#define CF_INFINITE_AMMO 1<<2 // infinite ammo
-#define CF_NOTARGET      1<<3 // monsters don't target
-#define CF_FLY           1<<4 // flying player
-#define CF_NUT           1<<5 // IDNUT
-#define CF_CAMERA        1<<6 // Camera
-#define CF_BASILISK      1<<7 // Basilisk cheat
-#define CF_BUDDHA        1<<8 // Buddha
+#define CF_NOCLIP        0x001 // no clipping
+#define CF_GODMODE       0x002 // immune to damage
+#define CF_INFINITE_AMMO 0x004 // infinite ammo
+#define CF_NOTARGET      0x008 // monsters don't target
+#define CF_FLY           0x010 // flying player
+#define CF_NUT           0x020 // IDNUT
+#define CF_CAMERA        0x040 // Camera
+#define CF_BASILISK      0x080 // Basilisk cheat
+#define CF_BUDDHA        0x100 // Buddha
 
 // heretic
 typedef struct
