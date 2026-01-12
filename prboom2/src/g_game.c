@@ -2486,6 +2486,12 @@ void G_AfterLoad(void)
     players[consoleplayer].readyArtifact = players[consoleplayer].inventory[inv_ptr].type;
   }
 
+  if (hexen)
+  {
+    // Set Bestslideline after loading
+    P_InitSlideLine();
+  }
+
   // [Alaux] Update smooth count values;
   // the same procedure is done in G_LoadLevel, but we have to repeat it here
   if (!raven)
