@@ -121,10 +121,8 @@ static void cheat_hom();
 static void cheat_fast();
 static void cheat_nuke();
 static void cheat_key();
-static void cheat_keyx();
-static void cheat_keyxx(int key);
-static void cheat_key_doom(int key);
-static void cheat_key_heretic(int key);
+static void cheat_keyx(char *buf);
+static void cheat_keyxx(char *buf);
 static void cheat_weap();
 static void cheat_weapx(char *buf);
 static void cheat_ammo();
@@ -240,19 +238,9 @@ cheatseq_t cheat[] = {
   CHEAT("iddfb",      NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, 0, false),
 
   // killough 2/16/98: generalized key cheats
-  CHEAT("keyrc",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_redcard, false),
-  CHEAT("keyyc",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_yellowcard, false),
-  CHEAT("keybc",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_bluecard, false),
-  CHEAT("keyrs",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_redskull, false),
-  CHEAT("keyys",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_yellowskull, false),
-  CHEAT("keybs",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_blueskull, false),
-  CHEAT("keyg",       NULL,   NULL,               not_demo, cht_heretic, cheat_key_heretic, key_green, false),  // heretic
-  CHEAT("keyy",       NULL,   NULL,               not_demo, cht_heretic, cheat_key_heretic, key_yellow, false), // heretic
-  CHEAT("keyb",       NULL,   NULL,               not_demo, cht_heretic, cheat_key_heretic, key_blue, false),   // heretic
-  CHEAT("key",        NULL,   NULL,               not_demo, cht_doom | cht_heretic, cheat_key, 0, false),
-  CHEAT("keyr",       NULL,   NULL,               not_demo, cht_doom, cheat_keyx, 0, false),
-  CHEAT("keyy",       NULL,   NULL,               not_demo, cht_doom, cheat_keyx, 0, false),
-  CHEAT("keyb",       NULL,   NULL,               not_demo, cht_doom, cheat_keyx, 0, false),
+  CHEAT("key",      NULL,   NULL,               not_demo, cht_doom, cheat_keyxx, -2, false),
+  CHEAT("key",      NULL,   NULL,               not_demo, cht_doom | cht_heretic, cheat_keyx, -1, false),
+  CHEAT("key",      NULL,   NULL,               not_demo, cht_doom | cht_heretic, cheat_key, 0, false),
 
   // killough 2/16/98: generalized weapon cheats
   CHEAT("weap",       NULL,   NULL,               not_demo, cht_any, cheat_weapx, -1, false),
@@ -1329,30 +1317,48 @@ static void cheat_key()
   doom_printf("Add key: %s, Yellow, Blue", !heretic ? "Red" : "Green");
 }
 
-static void cheat_keyx()
+static void cheat_keyx(char *buf)
 {
+  int key = -1;
+
+  if (hexen)
+    return;
+
+  if (!heretic)
+    return dsda_AddMessage("Add key: Card, Skull");
+
+  switch (buf[0])
+  {
+    case 'g': key = key_green; break;
+    case 'b': key = key_blue; break;
+    case 'y': key = key_yellow; break;
+  }
+
+  if (key != -1)
+    dsda_AddMessage((plyr->cards[key] = !plyr->cards[key]) ? "Key Added" : "Key Removed");
+}
+
+static void cheat_keyxx(char *buf)
+{
+  int key = -1;
+
   if (raven) return;
 
-  dsda_AddMessage("Add key: Card, Skull");
-}
+  switch (buf[0])
+  {
+    case 'r': key = (buf[1] == 'c') ? it_redcard   :
+                    (buf[1] == 's') ? it_redskull  : -1;
+                    break;
+    case 'b': key = (buf[1] == 'c') ? it_bluecard  :
+                    (buf[1] == 's') ? it_blueskull : -1;
+                    break;
+    case 'y': key = (buf[1] == 'c') ? it_yellowcard   :
+                    (buf[1] == 's') ? it_yellowskull  : -1;
+                    break;
+  }
 
-static void cheat_key_doom(int key)
-{
-  if (raven) return;
-
-  cheat_keyxx(key);
-}
-
-static void cheat_key_heretic(int key)
-{
-  if (!heretic) return;
-
-  cheat_keyxx(key);
-}
-
-static void cheat_keyxx(int key)
-{
-  dsda_AddMessage((plyr->cards[key] = !plyr->cards[key]) ? "Key Added" : "Key Removed");
+  if (key != -1)
+    dsda_AddMessage((plyr->cards[key] = !plyr->cards[key]) ? "Key Added" : "Key Removed");
 }
 
 // Key Finder [Nugget]

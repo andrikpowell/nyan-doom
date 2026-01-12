@@ -1121,37 +1121,6 @@ static dboolean console_IDDF(const char* command, const char* args) {
   return false;
 }
 
-static dboolean console_KEY(const char* command, const char* args) {
-  int arg_count;
-  char color[CONSOLE_ENTRY_SIZE];
-  char type[CONSOLE_ENTRY_SIZE];
-  int key = -1;
-
-  arg_count = sscanf(args, "%s %s", color, type);
-
-  if (hexen) return false;
-  if (heretic && arg_count > 1) return false;
-
-  key = console_GetKey(color, type, false);
-
-  if (key != -1)
-  {
-    if (target_player.cards[key])
-    {
-      target_player.cards[key] = false;
-      target_player.ravenkeys &= ~(1 << key);
-    }
-    else
-    {
-      target_player.cards[key] = true;
-      target_player.ravenkeys |= 1 << key;
-    }
-
-    return true;
-  }
-
-  return false;
-}
 
 static dboolean console_CheatFullClip(const char* command, const char* args) {
   target_player.cheats ^= CF_INFINITE_AMMO;
@@ -2561,7 +2530,7 @@ static console_command_entry_t console_commands[] = {
   { "ice", console_BasicCheat, CF_DEMO },
   { "nuke", console_BasicCheat, CF_DEMO },
   { "push", console_BasicCheat, CF_DEMO },
-  { "key", console_KEY, CF_DEMO },
+  { "key", console_BasicCheat, CF_DEMO },
 
   { "notarget", console_BasicCheat, CF_DEMO },
   { "fly", console_BasicCheat, CF_DEMO },
