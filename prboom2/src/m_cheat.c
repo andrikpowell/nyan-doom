@@ -113,13 +113,10 @@ static void cheat_reveal_item();
 static void cheat_reveal_weapon();
 static void cheat_reveal_weaponx(char *buf);
 static void cheat_reveal_exit();
-static void cheat_reveal_lock();
-static void cheat_reveal_lockx(char *buf);
 static void cheat_reveal_key();
 static void cheat_reveal_keyx(char *buf);
 static void cheat_reveal_keyxx(char *buf);
 static void cheat_reveal_key_heretic(char *buf);
-static void cheat_reveal_key_find(int key);
 static void cheat_hom();
 static void cheat_fast();
 static void cheat_nuke();
@@ -136,7 +133,6 @@ static void cheat_megaarmour();
 static void cheat_health();
 static void cheat_notarget();
 static void cheat_freeze();
-static void cheat_killonsight();
 static void cheat_fly();
 
 // heretic
@@ -160,6 +156,9 @@ static void cheat_hexen_suicide();
 static void cheat_nut();
 static void cheat_suicide();
 static void cheat_strip();
+static void cheat_killonsight();
+static void cheat_reveal_lock();
+static void cheat_reveal_lockx(char *buf);
 
 //-----------------------------------------------------------------------------
 //
@@ -491,7 +490,7 @@ void cheat_nut(void)
   plyr->cheats ^= CF_NUT;
   if (plyr->cheats & CF_NUT)
   {
-    dsda_AddMessage("Feeling Nutty?");
+    dsda_AddMessage("It's Nuttin' Time!");
   }
   else
     dsda_AddMessage("Go live your nut-less life.");
@@ -1189,7 +1188,7 @@ static void cheat_reveal_weaponx(char *buf)
   }
 }
 
-// Exit finder [Nugget]
+// Exit finder [Based on Nugget cheat]
 static void cheat_reveal_exit(void)
 {
   if (automap_input)
@@ -1393,7 +1392,7 @@ typedef enum {
   heretic_lock_yellow,
 } lock_type_t;
 
-static const char *LockTypeName(lock_type_t type)
+static const char *cheat_GetLockString(lock_type_t type)
 {
   if (heretic)
   {
@@ -1452,7 +1451,7 @@ static void cheat_reveal_lock_find(lock_type_t lock)
       dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
       AM_SetMapCenter(line->v1->x, line->v1->y);
 
-      doom_printf("Lock Finder: found %s", LockTypeName(found));
+      doom_printf("Lock Finder: found %s", cheat_GetLockString(found));
       last_line = i;
       return;
     }
@@ -1677,7 +1676,7 @@ static void cheat_reveal_lockx(char *buf)
   }
 }
 
-// Key Finder - based off Nugget
+// Key Finder [Based on Nugget cheat]
 static void cheat_reveal_key(void)
 {
   if (hexen) return;
@@ -1692,6 +1691,52 @@ static void cheat_reveal_keyx(char *buf)
 
   if (automap_input)
     dsda_AddMessage("Key Finder: Card, Skull");
+}
+
+static const char *cheat_getKeyString(int keynum)
+{
+  if (heretic)
+  {
+    switch (keynum)
+    {
+      case HERETIC_SPR_AKYY:      return "green key";
+      case HERETIC_SPR_BKYY:      return "blue key";
+      case HERETIC_SPR_CKYY:      return "yellow key";
+      default:                    return "key";
+    }
+  }
+  else // Doom
+  {
+    switch (keynum)
+    {
+      case SPR_RKEY:  return "red card";
+      case SPR_RSKU:  return "red skull";
+
+      case SPR_BKEY:  return "blue card";
+      case SPR_BSKU:  return "blue skull";
+
+      case SPR_YKEY:  return "yellow card";
+      case SPR_YSKU:  return "yellow skull";
+
+      default:        return "key";
+    }
+  }
+}
+
+void cheat_reveal_key_find(int key)
+{
+  if (hexen) return;
+
+  if (automap_input)
+  {
+    static int last_count;
+    static mobj_t *last_mobj;
+
+    dsda_TrackFeature(uf_iddt);
+
+    if (cheat_cycle_mobj_spr(&last_mobj, &last_count, key, -1, MF_SPECIAL, false, "Key Finder: key not found"))
+      doom_printf("Key Finder: %s found", cheat_getKeyString(key));
+  }
 }
 
 static void cheat_reveal_key_heretic(char *buf)
@@ -1737,52 +1782,6 @@ static void cheat_reveal_keyxx(char *buf)
 
     if (key != -1)
       cheat_reveal_key_find(key);
-  }
-}
-
-static const char *KeyName(int keynum)
-{
-  if (heretic)
-  {
-    switch (keynum)
-    {
-      case HERETIC_SPR_AKYY:      return "green key";
-      case HERETIC_SPR_BKYY:      return "blue key";
-      case HERETIC_SPR_CKYY:      return "yellow key";
-      default:                    return "key";
-    }
-  }
-  else // Doom
-  {
-    switch (keynum)
-    {
-      case SPR_RKEY:  return "red card";
-      case SPR_RSKU:  return "red skull";
-
-      case SPR_BKEY:  return "blue card";
-      case SPR_BSKU:  return "blue skull";
-
-      case SPR_YKEY:  return "yellow card";
-      case SPR_YSKU:  return "yellow skull";
-
-      default:        return "key";
-    }
-  }
-}
-
-void cheat_reveal_key_find(int key)
-{
-  if (hexen) return;
-
-  if (automap_input)
-  {
-    static int last_count;
-    static mobj_t *last_mobj;
-
-    dsda_TrackFeature(uf_iddt);
-
-    if (cheat_cycle_mobj_spr(&last_mobj, &last_count, key, -1, MF_SPECIAL, false, "Key Finder: key not found"))
-      doom_printf("Key Finder: %s found", KeyName(key));
   }
 }
 
@@ -2026,12 +2025,11 @@ void cht_UpdateCheats(void)
   cht_InitCheats();
 }
 
-int cheat_in_progress = false;
-
 //
 // CHEAT SEQUENCE PACKAGE
 //
 
+int cheat_in_progress = false;
 static cheatseq_t *repeat_param_cht = NULL;
 static int repeat_param_need = 0;
 static char repeat_param_buf[CHEAT_ARGS_MAX];
@@ -2057,14 +2055,9 @@ static int M_FindCheats(int key)
   // Any other key cancels repeat mode and is NOT consumed.
   if (repeat_param_cht)
   {
-    if (!isprint((unsigned char)char_key))
-    {
-      repeat_param_cht = NULL;
-    }
-    else if (char_key == repeat_param_last)
+    if (char_key == repeat_param_last)
     {
       // Re-run cheat using the same stored parameter buffer.
-      // NOTE: We assume parameter_buf still contains the last param(s) for this cheat.
       static char argbuf[CHEAT_ARGS_MAX + 1];
       memcpy(argbuf, repeat_param_buf, repeat_param_need);
       argbuf[repeat_param_need] = '\0';
@@ -2108,25 +2101,15 @@ static int M_FindCheats(int key)
       }
       else if (cht->param_chars_read < -cht->arg)
       {
-        // Only treat printable characters as param input, otherwise cancel param mode.
-        if (!isprint((unsigned char)char_key))
-        {
-          // cancel this cheat's in-progress state so it doesn't eat keys forever
-          cht->chars_read = 0;
-          cht->param_chars_read = 0;
-        }
-        else
-        {
-          // we have passed the end of the cheat sequence and are
-          // entering parameters now
+        // we have passed the end of the cheat sequence and are
+        // entering parameters now
 
-          cht->parameter_buf[cht->param_chars_read] = char_key;
+        cht->parameter_buf[cht->param_chars_read] = char_key;
 
-          ++cht->param_chars_read;
+        ++cht->param_chars_read;
 
-          // affirmative response
-          rc = 1;
-        }
+        // affirmative response
+        rc = 1;
       }
 
       if (cht->chars_read >= cht->sequence_len &&
