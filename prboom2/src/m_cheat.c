@@ -114,9 +114,10 @@ static void cheat_reveal_weapon();
 static void cheat_reveal_weaponx(char *buf);
 static void cheat_reveal_exit();
 static void cheat_reveal_key();
-static void cheat_reveal_keyx();
-static void cheat_reveal_doom_key(int key);
-static void cheat_reveal_heretic_key(int key);
+static void cheat_reveal_keyx(char *buf);
+static void cheat_reveal_keyxx(char *buf);
+static void cheat_reveal_key_heretic(char *buf);
+static void cheat_reveal_key_find(int key);
 static void cheat_hom();
 static void cheat_fast();
 static void cheat_nuke();
@@ -223,19 +224,10 @@ cheatseq_t cheat[] = {
   CHEAT("iddwt",      NULL,   NULL,               cht_always, cht_any, cheat_reveal_weapon, 0, false),
 
   // key cheats
-  CHEAT("iddfrc",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_RKEY, true),
-  CHEAT("iddfyc",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_YKEY, true),
-  CHEAT("iddfbc",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_BKEY, true),
-  CHEAT("iddfrs",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_RSKU, true),
-  CHEAT("iddfys",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_YSKU, true),
-  CHEAT("iddfbs",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_BSKU, true),
-  CHEAT("iddfg",      NULL,   NULL,               cht_always, cht_heretic, cheat_reveal_heretic_key, HERETIC_SPR_AKYY, true), // heretic
-  CHEAT("iddfy",      NULL,   NULL,               cht_always, cht_heretic, cheat_reveal_heretic_key, HERETIC_SPR_CKYY, true), // heretic
-  CHEAT("iddfb",      NULL,   NULL,               cht_always, cht_heretic, cheat_reveal_heretic_key, HERETIC_SPR_BKYY, true), // heretic
+  CHEAT("iddf",       NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyxx, -2, true), // doom
+  CHEAT("iddf",       NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, -1, false), // doom
+  CHEAT("iddf",       NULL,   NULL,               cht_always, cht_heretic, cheat_reveal_key_heretic, -1, true), // heretic
   CHEAT("iddf",       NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_key, 0, false),
-  CHEAT("iddfr",      NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, 0, false),
-  CHEAT("iddfy",      NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, 0, false),
-  CHEAT("iddfb",      NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, 0, false),
 
   // killough 2/16/98: generalized key cheats
   CHEAT("key",      NULL,   NULL,               not_demo, cht_doom, cheat_keyxx, -2, false),
@@ -972,7 +964,7 @@ dboolean cheat_get_hexen_piece(int num)
   return ((num == weapon_piece_1) || (num == weapon_piece_2) || (num == weapon_piece_3));
 }
 
-static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int sprite_num, int weapon_num, int flags, int rflags, const char* notfound_msg)
+static dboolean cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int sprite_num, int weapon_num, int flags, int rflags, const char* notfound_msg)
 {
   extern int init_thinkers_count;
   thinker_t *th, *start_th;
@@ -1035,6 +1027,8 @@ static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int sprite
 
       dsda_AddMessage(found_msg);
     }
+    else
+      return true;
   }
   else
   {
@@ -1047,6 +1041,8 @@ static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int sprite
     else
       dsda_AddMessage(notfound_msg);
   }
+
+  return false;
 }
 
 int cheat_get_weapon(int num)
@@ -1361,7 +1357,7 @@ static void cheat_keyxx(char *buf)
     dsda_AddMessage((plyr->cards[key] = !plyr->cards[key]) ? "Key Added" : "Key Removed");
 }
 
-// Key Finder [Nugget]
+// Key Finder - based off Nugget
 static void cheat_reveal_key(void)
 {
   if (hexen) return;
@@ -1370,7 +1366,7 @@ static void cheat_reveal_key(void)
     doom_printf("Key Finder: %s, Yellow, Blue", !heretic ? "Red" : "Green");
 }
 
-static void cheat_reveal_keyx(void)
+static void cheat_reveal_keyx(char *buf)
 {
   if (raven) return;
 
@@ -1378,7 +1374,83 @@ static void cheat_reveal_keyx(void)
     dsda_AddMessage("Key Finder: Card, Skull");
 }
 
-void cheat_reveal_keyxx(int key)
+static void cheat_reveal_key_heretic(char *buf)
+{
+  int key = -1;
+
+  if (!heretic) return;
+
+  if (automap_input)
+  {
+    switch (buf[0])
+    {
+      case 'g': key = HERETIC_SPR_AKYY; break;
+      case 'b': key = HERETIC_SPR_BKYY; break;
+      case 'y': key = HERETIC_SPR_CKYY; break;
+    }
+
+    if (key != -1)
+      cheat_reveal_key_find(key);
+  }
+}
+
+static void cheat_reveal_keyxx(char *buf)
+{
+  int key = -1;
+
+  if (raven) return;
+
+  if (automap_input)
+  {
+    switch (buf[0])
+    {
+      case 'r': key = (buf[1] == 'c') ? SPR_RKEY   :
+                      (buf[1] == 's') ? SPR_RSKU  : -1;
+                      break;
+      case 'b': key = (buf[1] == 'c') ? SPR_BKEY  :
+                      (buf[1] == 's') ? SPR_BSKU : -1;
+                      break;
+      case 'y': key = (buf[1] == 'c') ? SPR_YKEY   :
+                      (buf[1] == 's') ? SPR_YSKU  : -1;
+                      break;
+    }
+
+    if (key != -1)
+      cheat_reveal_key_find(key);
+  }
+}
+
+static const char *KeyName(int keynum)
+{
+  if (heretic)
+  {
+    switch (keynum)
+    {
+      case HERETIC_SPR_AKYY:      return "green key";
+      case HERETIC_SPR_BKYY:      return "blue key";
+      case HERETIC_SPR_CKYY:      return "yellow key";
+      default:                    return "key";
+    }
+  }
+  else // Doom
+  {
+    switch (keynum)
+    {
+      case SPR_RKEY:  return "red card";
+      case SPR_RSKU:  return "red skull";
+
+      case SPR_BKEY:  return "blue card";
+      case SPR_BSKU:  return "blue skull";
+
+      case SPR_YKEY:  return "yellow card";
+      case SPR_YSKU:  return "yellow skull";
+
+      default:        return "key";
+    }
+  }
+}
+
+void cheat_reveal_key_find(int key)
 {
   if (hexen) return;
 
@@ -1389,24 +1461,9 @@ void cheat_reveal_keyxx(int key)
 
     dsda_TrackFeature(uf_iddt);
 
-    cheat_cycle_mobj_spr(&last_mobj, &last_count, key, -1, MF_SPECIAL, false, "Key Finder: key not found");
+    if (cheat_cycle_mobj_spr(&last_mobj, &last_count, key, -1, MF_SPECIAL, false, "Key Finder: key not found"))
+      doom_printf("Key Finder: %s found", KeyName(key));
   }
-}
-
-static void cheat_reveal_doom_key(int key)
-{
-  if (raven) return;
-
-  if (automap_input)
-    cheat_reveal_keyxx(key);
-}
-
-static void cheat_reveal_heretic_key(int key)
-{
-  if (!heretic) return;
-
-  if (automap_input)
-    cheat_reveal_keyxx(key);
 }
 
 // killough 2/16/98: generalized weapon cheats

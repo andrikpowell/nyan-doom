@@ -1063,64 +1063,6 @@ static dboolean console_IDDT(const char* command, const char* args) {
 
   return true;
 }
-static int console_GetKey(const char* color, const char* type, int spr)
-{
-  int key = -1;
-
-  if (heretic)
-  {
-    if (!strcmp(color,"y"))
-      key = spr ? HERETIC_SPR_CKYY : key_yellow;
-    else if (!strcmp(color,"b"))
-      key = spr ? HERETIC_SPR_BKYY : key_blue;
-    else if (!strcmp(color,"g"))
-      key = spr ? HERETIC_SPR_AKYY : key_green;
-  }
-  else
-  {
-    if (!strcmp(color, "r"))
-    {
-      if (!strcmp(type, "c")) key = spr ? SPR_RKEY : it_redcard;
-      else if (!strcmp(type, "s")) key = spr ? SPR_RSKU : it_redskull;
-    }
-    if (!strcmp(color, "y"))
-    {
-      if (!strcmp(type, "c")) key = spr ? SPR_YKEY : it_yellowcard;
-      else if (!strcmp(type, "s")) key = spr ? SPR_YSKU : it_yellowskull;
-    }
-    if (!strcmp(color, "b"))
-    {
-      if (!strcmp(type, "c")) key = spr ? SPR_BKEY : it_bluecard;
-      else if (!strcmp(type, "s")) key = spr ? SPR_BSKU : it_blueskull;
-    }
-  }
-
-  return key;
-}
-
-static dboolean console_IDDF(const char* command, const char* args) {
-  int arg_count;
-  char color[CONSOLE_ENTRY_SIZE];
-  char type[CONSOLE_ENTRY_SIZE];
-  int key = -1;
-
-  arg_count = sscanf(args, "%s %s", color, type);
-
-  if (hexen) return false;
-  if (heretic && arg_count > 1) return false;
-
-  key = console_GetKey(color, type, true);
-
-  if (key != -1)
-  {
-    cheat_reveal_keyxx(key);
-
-    return true;
-  }
-
-  return false;
-}
-
 
 static dboolean console_CheatFullClip(const char* command, const char* args) {
   target_player.cheats ^= CF_INFINITE_AMMO;
@@ -2505,7 +2447,7 @@ static console_command_entry_t console_commands[] = {
   { "iddit", console_BasicCheat, CF_DEMO },
   { "iddet", console_BasicCheat, CF_DEMO },
   { "iddwt", console_BasicCheat, CF_DEMO },
-  { "iddf", console_IDDF, CF_DEMO },
+  { "iddf", console_BasicCheat, CF_DEMO },
 
   { "idclev", console_BasicCheat, CF_DEMO },
   { "idmus", console_BasicCheat, CF_DEMO },
