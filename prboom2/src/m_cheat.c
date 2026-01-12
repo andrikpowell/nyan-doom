@@ -1635,6 +1635,11 @@ int cheat_in_progress = false;
 // CHEAT SEQUENCE PACKAGE
 //
 
+static cheatseq_t *repeat_param_cht = NULL;
+static int repeat_param_need = 0;
+static char repeat_param_buf[CHEAT_ARGS_MAX];
+static char repeat_param_last = 0;
+
 //
 // Called in st_stuff module, which handles the input.
 // Returns a 1 if the cheat was successful, 0 if failed.
@@ -1644,11 +1649,37 @@ static int M_FindCheats(int key)
   int rc = 0;
   cheatseq_t* cht;
   char char_key;
+  dboolean armed_repeat_this_key = false;
 
   cht_InitCheats();
 
   char_key = (char)key;
   cheat_in_progress = false;
+
+  // repeatable param-cheat: repeat by pressing the last param character again.
+  // Any other key cancels repeat mode and is NOT consumed.
+  if (repeat_param_cht)
+  {
+    if (!isprint((unsigned char)char_key))
+    {
+      repeat_param_cht = NULL;
+    }
+    else if (char_key == repeat_param_last)
+    {
+      // Re-run cheat using the same stored parameter buffer.
+      // NOTE: We assume parameter_buf still contains the last param(s) for this cheat.
+      static char argbuf[CHEAT_ARGS_MAX + 1];
+      memcpy(argbuf, repeat_param_buf, repeat_param_need);
+      argbuf[repeat_param_need] = '\0';
+      repeat_param_cht->func(argbuf);
+
+      return 1; // consumed
+    }
+    else
+    {
+      repeat_param_cht = NULL; // exit repeat mode, do not consume this key
+    }
+  }
 
   for (cht = cheat; WHICH_CHEAT(cht); cht++)
   {
@@ -1667,6 +1698,11 @@ static int M_FindCheats(int key)
         else
           cht->chars_read = 0;
 
+        // If the user is starting to type any cheat, stop param-repeat mode.
+        // BUT: don't cancel it on the same keypress we just armed it.
+        if (repeat_param_cht && !armed_repeat_this_key && cht->chars_read > 0)
+          repeat_param_cht = NULL;
+
         cht->param_chars_read = 0;
 
         // mark cheat as "in progress" after 3 characters
@@ -1675,15 +1711,25 @@ static int M_FindCheats(int key)
       }
       else if (cht->param_chars_read < -cht->arg)
       {
-        // we have passed the end of the cheat sequence and are
-        // entering parameters now
+        // Only treat printable characters as param input, otherwise cancel param mode.
+        if (!isprint((unsigned char)char_key))
+        {
+          // cancel this cheat's in-progress state so it doesn't eat keys forever
+          cht->chars_read = 0;
+          cht->param_chars_read = 0;
+        }
+        else
+        {
+          // we have passed the end of the cheat sequence and are
+          // entering parameters now
 
-        cht->parameter_buf[cht->param_chars_read] = char_key;
+          cht->parameter_buf[cht->param_chars_read] = char_key;
 
-        ++cht->param_chars_read;
+          ++cht->param_chars_read;
 
-        // affirmative response
-        rc = 1;
+          // affirmative response
+          rc = 1;
+        }
       }
 
       if (cht->chars_read >= cht->sequence_len &&
@@ -1698,8 +1744,26 @@ static int M_FindCheats(int key)
 
           // process the arg buffer
           memcpy(argbuf, cht->parameter_buf, -cht->arg);
-
+          argbuf[-cht->arg] = '\0';
           cht->func(argbuf);
+
+          // repeatable param-cheat: arm repeat on last param character
+          if (cht->repeatable && cht->arg < 0)
+          {
+            repeat_param_cht = cht;
+            repeat_param_need = -cht->arg;
+            memcpy(repeat_param_buf, cht->parameter_buf, repeat_param_need);
+            repeat_param_last = repeat_param_buf[repeat_param_need - 1];
+
+            armed_repeat_this_key = true;
+
+            // Avoid getting stuck in param mode
+            cht->chars_read = 0;
+            cht->param_chars_read = 0;
+
+            rc = 1;
+            continue;
+          }
         }
         else
         {
