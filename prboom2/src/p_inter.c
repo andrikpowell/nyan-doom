@@ -1626,6 +1626,11 @@ void P_DamageMobjBy(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage
     }
 
     player->health -= damage;       // mirror mobj health here for Dave
+    // BUDDHA cheat
+    if (player->cheats & CF_BUDDHA &&
+        player->health < 1)
+      player->health = 1;
+    else
     if (player->health < 0)
       player->health = 0;
 
@@ -1645,6 +1650,14 @@ void P_DamageMobjBy(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage
 
   // do the damage
   target->health -= damage;
+
+  // BUDDHA cheat
+  if (player && player->cheats & CF_BUDDHA &&
+      target->health < 1)
+  {
+    target->health = 1;
+  }
+  else
   if (target->health <= 0)
   {
     if (heretic) {
@@ -2683,6 +2696,11 @@ void P_PoisonDamage(player_t * player, mobj_t * source, int damage,
         P_AutoUseHealth(player, damage - player->health + 1);
     }
     player->health -= damage;   // mirror mobj health here for Dave
+    // BUDDHA cheat
+    if (player->cheats & CF_BUDDHA &&
+        player->health < 1)
+      player->health = 1;
+    else
     if (player->health < 0)
     {
         player->health = 0;
@@ -2693,6 +2711,14 @@ void P_PoisonDamage(player_t * player, mobj_t * source, int damage,
     // do the damage
     //
     target->health -= damage;
+
+    // BUDDHA cheat
+    if (player && player->cheats & CF_BUDDHA &&
+        target->health < 1)
+    {
+      target->health = 1;
+    }
+    else
     if (target->health <= 0)
     {                           // Death
         target->special1.i = damage;

@@ -87,6 +87,7 @@ static void cheat_camera();
 static void cheat_choppers();
 static void cheat_god_raven();
 static void cheat_god();
+static void cheat_buddha();
 static void cheat_fa();
 static void cheat_k();
 static void cheat_kfa_raven();
@@ -278,6 +279,9 @@ cheatseq_t cheat[] = {
   CHEAT("notarget",   NULL,   NULL,               not_demo, cht_any, cheat_notarget, 0, false),  // [RH] Monsters don't target
   CHEAT("fly",        NULL,   NULL,               not_demo, cht_any, cheat_fly, 0, false),       // fly mode is active
 
+  // other
+  CHEAT("buddha",     NULL,   "Buddha mode",      not_demo, cht_any, cheat_buddha, 0, false),    // buddha mode
+
   // heretic
   CHEAT("quicken", NULL, NULL, not_classic_demo, cht_heretic, cheat_god, 0, false),
   CHEAT("ponce", NULL, NULL, not_demo, cht_heretic, cheat_reset_health, 0, false),
@@ -379,6 +383,18 @@ static void cheat_choppers()
   plyr->weaponowned[wp_chainsaw] = true;
   plyr->powers[pw_invulnerability] = true;
   dsda_AddMessage(s_STSTR_CHOPPERS);
+}
+
+static void cheat_buddha(void)
+{
+  if (!allow_incompatibility)
+    return;
+
+  plyr->cheats ^= CF_BUDDHA;
+  if (plyr->cheats & CF_BUDDHA)
+    dsda_AddMessage("Buddha Mode ON");
+  else
+    dsda_AddMessage("Buddha Mode OFF");
 }
 
 void M_CheatGod(void)
