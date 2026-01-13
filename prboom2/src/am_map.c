@@ -3234,6 +3234,7 @@ static void AM_drawMarks(void)
     {
       int k, w;
       mpoint_t p;
+      fixed_t mx, my;
 
       p.x = markpoints[i].x;// - m_x + prev_m_x;
       p.y = markpoints[i].y;// - m_y + prev_m_y;
@@ -3244,8 +3245,8 @@ static void AM_drawMarks(void)
         AM_SetMPointFloatValue(&p);
 
       // Save coordinates for vector
-      fixed_t mx = p.x;
-      fixed_t my = p.y;
+      mx = p.x;
+      my = p.y;
 
       p.x = CXMTOF(p.x) - markpoints[i].w * SCREENWIDTH / 320 / 2;
       p.y = CYMTOF(p.y) - markpoints[i].h * SCREENHEIGHT / 200 / 2;
