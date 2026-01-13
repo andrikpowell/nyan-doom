@@ -3264,44 +3264,48 @@ static void AM_drawMarks(void)
 
 static void AM_drawCrosshair(int color)
 {
-  fline_t line;
+  // [crispy] do not draw the useless dot on the player arrow
+  if (!automap_follow)
+  {
+    fline_t line;
 
-  int thickness = AM_GetLineWeight();
+    int thickness = AM_GetLineWeight();
 
-  // Instead of two lines, draw a square instead.
-  // With thick lines, the square will appear to be a circle.
-  int x0 = f_x+(f_w/2);
-  int x1 = f_x+(f_w/2)+thickness;
-  int y0 = f_y+(f_h/2);
-  int y1 = f_y+(f_h/2)+thickness;
+    // Instead of two lines, draw a square instead.
+    // With thick lines, the square will appear to be a circle.
+    int x0 = f_x+(f_w/2);
+    int x1 = f_x+(f_w/2)+thickness;
+    int y0 = f_y+(f_h/2);
+    int y1 = f_y+(f_h/2)+thickness;
 
-  // top
-  line.a.x = x0; line.a.y = y0;
-  line.b.x = x1; line.b.y = y0;
-  AM_SetFPointFloatValue(&line.a);
-  AM_SetFPointFloatValue(&line.b);
-  V_DrawLine(&line, color);
+    // top
+    line.a.x = x0; line.a.y = y0;
+    line.b.x = x1; line.b.y = y0;
+    AM_SetFPointFloatValue(&line.a);
+    AM_SetFPointFloatValue(&line.b);
+    V_DrawLine(&line, color);
 
-  // bottom
-  line.a.x = x0; line.a.y = y1;
-  line.b.x = x1; line.b.y = y1;
-  AM_SetFPointFloatValue(&line.a);
-  AM_SetFPointFloatValue(&line.b);
-  V_DrawLine(&line, color);
+    // bottom
+    line.a.x = x0; line.a.y = y1;
+    line.b.x = x1; line.b.y = y1;
+    AM_SetFPointFloatValue(&line.a);
+    AM_SetFPointFloatValue(&line.b);
+    V_DrawLine(&line, color);
 
-  // left
-  line.a.x = x0; line.a.y = y0;
-  line.b.x = x0; line.b.y = y1;
-  AM_SetFPointFloatValue(&line.a);
-  AM_SetFPointFloatValue(&line.b);
-  V_DrawLine(&line, color);
+    // left
+    line.a.x = x0; line.a.y = y0;
+    line.b.x = x0; line.b.y = y1;
+    AM_SetFPointFloatValue(&line.a);
+    AM_SetFPointFloatValue(&line.b);
+    V_DrawLine(&line, color);
 
-  // right
-  line.a.x = x1; line.a.y = y0;
-  line.b.x = x1; line.b.y = y1;
-  AM_SetFPointFloatValue(&line.a);
-  AM_SetFPointFloatValue(&line.b);
-  V_DrawLine(&line, color);
+    // right
+    line.a.x = x1; line.a.y = y0;
+    line.b.x = x1; line.b.y = y1;
+    AM_SetFPointFloatValue(&line.a);
+    AM_SetFPointFloatValue(&line.b);
+    V_DrawLine(&line, color);
+  }
 }
 
 void M_ChangeMapTextured(void)
