@@ -1564,6 +1564,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "map_player_arrow", dsda_config_map_player_arrow,
     dsda_config_int, 0, 3, { 1 }, NULL, STRICT_INT(0), AM_SetPlayerArrow
   },
+  [dsda_config_map_marker_style] = {
+    "map_marker_style", dsda_config_map_marker_style,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
   [dsda_config_automap_overlay] = {
     "automap_overlay", dsda_config_automap_overlay,
     dsda_config_int, 0, 2, { 0 }, &automap_overlay

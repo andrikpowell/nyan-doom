@@ -318,6 +318,64 @@ mline_t thingbox_guy[] =
 #undef R
 #define NUMTHINGBOXGUYLINES (sizeof(thingbox_guy)/sizeof(mline_t))
 
+// Digit Segments
+#define R (FRACUNIT)
+#define SEG_T  { { -R/2,  R }, {  R/2,  R } } // top
+#define SEG_B  { { -R/2, -R }, {  R/2, -R } } // bottom
+#define SEG_M  { { -R/2,  0 }, {  R/2,  0 } } // middle
+#define SEG_TL { { -R/2,  R }, { -R/2,  0 } } // top-left
+#define SEG_BL { { -R/2,  0 }, { -R/2, -R } } // bottom-left
+#define SEG_TR { {  R/2,  R }, {  R/2,  0 } } // top-right
+#define SEG_BR { {  R/2,  0 }, {  R/2, -R } } // bottom-right
+
+#define SEG_1_Top    { { -R/8,  R/2 }, {  R/4,  R } } // 1 - top  "/"
+#define SEG_1_Middle { {  R/4,  R   }, {  R/4, -R } } // 1 - stem "|"
+#define SEG_7_Slant  { {  R/2,  R   }, { -R/8, -R } } // 7 - diagonal "/"
+
+// 7-seg Digits 0-9
+mline_t am_digit_0[] = { SEG_T, SEG_B, SEG_TL, SEG_BL, SEG_TR, SEG_BR };
+mline_t am_digit_1[] = { SEG_1_Middle, SEG_1_Top };
+mline_t am_digit_2[] = { SEG_T, SEG_M, SEG_B, SEG_TR, SEG_BL };
+mline_t am_digit_3[] = { SEG_T, SEG_M, SEG_B, SEG_TR, SEG_BR };
+mline_t am_digit_4[] = { SEG_M, SEG_TL, SEG_TR, SEG_BR };
+mline_t am_digit_5[] = { SEG_T, SEG_M, SEG_B, SEG_TL, SEG_BR };
+mline_t am_digit_6[] = { SEG_T, SEG_M, SEG_B, SEG_TL, SEG_BL, SEG_BR };
+mline_t am_digit_7[] = { SEG_T, SEG_7_Slant };
+mline_t am_digit_8[] = { SEG_T, SEG_M, SEG_B, SEG_TL, SEG_BL, SEG_TR, SEG_BR };
+mline_t am_digit_9[] = { SEG_T, SEG_M, SEG_B, SEG_TL, SEG_TR, SEG_BR };
+
+mline_t *am_digits[] =
+{
+  am_digit_0, am_digit_1, am_digit_2, am_digit_3, am_digit_4,
+  am_digit_5, am_digit_6, am_digit_7, am_digit_8, am_digit_9
+};
+
+const int am_digit_lines[] =
+{
+  sizeof(am_digit_0)/sizeof(mline_t),
+  sizeof(am_digit_1)/sizeof(mline_t),
+  sizeof(am_digit_2)/sizeof(mline_t),
+  sizeof(am_digit_3)/sizeof(mline_t),
+  sizeof(am_digit_4)/sizeof(mline_t),
+  sizeof(am_digit_5)/sizeof(mline_t),
+  sizeof(am_digit_6)/sizeof(mline_t),
+  sizeof(am_digit_7)/sizeof(mline_t),
+  sizeof(am_digit_8)/sizeof(mline_t),
+  sizeof(am_digit_9)/sizeof(mline_t),
+};
+
+#undef SEG_T
+#undef SEG_B
+#undef SEG_M
+#undef SEG_TL
+#undef SEG_BL
+#undef SEG_TR
+#undef SEG_BR
+#undef SEG_1_Top
+#undef SEG_1_Middle
+#undef SEG_7_Slant
+#undef R
+
 int automap_active;
 int automap_overlay;
 int automap_rotate;
@@ -3175,6 +3233,10 @@ static void AM_drawMarks(void)
       else
         AM_SetMPointFloatValue(&p);
 
+      // Save coordinates for vector
+      fixed_t mx = p.x;
+      fixed_t my = p.y;
+
       p.x = CXMTOF(p.x) - markpoints[i].w * SCREENWIDTH / 320 / 2;
       p.y = CYMTOF(p.y) - markpoints[i].h * SCREENHEIGHT / 200 / 2;
       if (am_frame.precise)
@@ -3187,64 +3249,97 @@ static void AM_drawMarks(void)
           p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y :
           p.y < f_y + f_h && p.y >= f_y)
       {
-        w = 0;
-        for (k = 0; k < (int)strlen(markpoints[i].label); k++)
+        // Vector Markers
+        if (dsda_IntConfig(dsda_config_map_marker_style))
         {
-          namebuf[namelen] = markpoints[i].label[k];
+          fixed_t digit_size    = FRACUNIT * 2 * SCREENWIDTH / 320;
+          fixed_t digit_scale   = FixedDiv(digit_size, scale_mtof);
+          fixed_t digit_spacing = FixedMul(digit_scale, FRACUNIT*2);
 
-          if (p.x < f_x + f_w &&
-              p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
+          // Center digit on marker
+          fixed_t bx = mx;
+          fixed_t by = my;
+
+          int len = (int)strlen(markpoints[i].label);
+          if (len > 1)
+            bx -= (digit_spacing * (len - 1)) / 2;
+
+          for (k = 0; k < len; k++)
           {
-            float fx, fy;
-            int x, y, flags;
-
-            switch (render_stretch_hud)
+            int d = markpoints[i].label[k] - '0';
+            if ((unsigned)d <= 9)
             {
-              default:
-              case patch_stretch_not_adjusted:
-                fx = (float)p.fx / patches_scalex;
-                fy = (float)p.fy * 200.0f / SCREENHEIGHT;
-
-                x = p.x / patches_scalex;
-                y = p.y * 200 / SCREENHEIGHT;
-
-                flags = VPT_ALIGN_LEFT | VPT_STRETCH;
-                break;
-              case patch_stretch_doom_format:
-                fx = (float)p.fx * 320.0f / WIDE_SCREENWIDTH;
-                fy = (float)p.fy * 200.0f / WIDE_SCREENHEIGHT;
-
-                x = p.x * 320 / WIDE_SCREENWIDTH;
-                y = p.y * 200 / WIDE_SCREENHEIGHT;
-
-                flags = VPT_ALIGN_LEFT | VPT_STRETCH;
-                break;
-              case patch_stretch_fit_to_width:
-                fx = (float)p.fx * 320.0f / SCREENWIDTH;
-                fy = (float)p.fy * 200.0f / SCREENHEIGHT;
-
-                x = p.x * 320 / SCREENWIDTH;
-                y = p.y * 200 / SCREENHEIGHT;
-
-                flags = VPT_ALIGN_WIDE | VPT_STRETCH;
-                break;
+              AM_drawLineCharacter(am_digits[d], am_digit_lines[d],
+                                  digit_scale, 0, 0, mapcolor_p->trail_1,
+                                  bx, by);
             }
-
-            if (am_frame.precise)
-            {
-              V_DrawNamePatchPrecise(fx, fy, namebuf, CR_DEFAULT, flags);
-            }
-            else
-            {
-              V_DrawNamePatch(x, y, namebuf, CR_DEFAULT, flags);
-            }
+            bx += digit_spacing;
           }
 
-          w += markpoints[i].widths[k] + 1;
-          p.x += w * SCREENWIDTH / 320;
-          if (am_frame.precise)
+          continue;
+        }
+        // Patch Markers
+        else
+        {
+          w = 0;
+          for (k = 0; k < (int)strlen(markpoints[i].label); k++)
           {
-            p.fx += (float)w * SCREENWIDTH / 320.0f;
+            namebuf[namelen] = markpoints[i].label[k];
+
+            if (p.x < f_x + f_w &&
+                p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
+            {
+              float fx, fy;
+              int x, y, flags;
+
+              switch (render_stretch_hud)
+              {
+                default:
+                case patch_stretch_not_adjusted:
+                  fx = (float)p.fx / patches_scalex;
+                  fy = (float)p.fy * 200.0f / SCREENHEIGHT;
+
+                  x = p.x / patches_scalex;
+                  y = p.y * 200 / SCREENHEIGHT;
+
+                  flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+                  break;
+                case patch_stretch_doom_format:
+                  fx = (float)p.fx * 320.0f / WIDE_SCREENWIDTH;
+                  fy = (float)p.fy * 200.0f / WIDE_SCREENHEIGHT;
+
+                  x = p.x * 320 / WIDE_SCREENWIDTH;
+                  y = p.y * 200 / WIDE_SCREENHEIGHT;
+
+                  flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+                  break;
+                case patch_stretch_fit_to_width:
+                  fx = (float)p.fx * 320.0f / SCREENWIDTH;
+                  fy = (float)p.fy * 200.0f / SCREENHEIGHT;
+
+                  x = p.x * 320 / SCREENWIDTH;
+                  y = p.y * 200 / SCREENHEIGHT;
+
+                  flags = VPT_ALIGN_WIDE | VPT_STRETCH;
+                  break;
+              }
+
+              if (am_frame.precise)
+              {
+                V_DrawNamePatchPrecise(fx, fy, namebuf, CR_DEFAULT, flags);
+              }
+              else
+              {
+                V_DrawNamePatch(x, y, namebuf, CR_DEFAULT, flags);
+              }
+            }
+
+            w += markpoints[i].widths[k] + 1;
+            p.x += w * SCREENWIDTH / 320;
+            if (am_frame.precise)
+            {
+              p.fx += (float)w * SCREENWIDTH / 320.0f;
+            }
           }
         }
       }
