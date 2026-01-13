@@ -2052,7 +2052,9 @@ static dboolean M_ItemNyan(const setup_menu_t* s)
       nyan_config_show_endoom, nyan_config_skip_default_text,
       nyan_config_ignore_default_map_names, nyan_config_play_random_music,
       nyan_config_enable_animate_lumps, nyan_config_enable_widescreen_lumps,
-      dsda_config_gl_blend_animations, dsda_config_palette_oneffects,
+      dsda_config_gl_blend_animations, dsda_config_palette_ondamage,
+      dsda_config_palette_onbonus, dsda_config_palette_onpowers,
+      dsda_config_palette_oneffects,
 
       dsda_config_colored_borderbox, dsda_config_fuzzmode, dsda_config_fuzzscale,
       dsda_config_enhanced_liteamp, nyan_config_item_bonus_flash,
@@ -2065,7 +2067,7 @@ static dboolean M_ItemNyan(const setup_menu_t* s)
 
       dsda_config_hudadd_secretarea, dsda_config_announce_map,
       dsda_config_obituaries, dsda_config_obituaries_color,
-      dsda_config_detailed_quicksave,
+      dsda_config_player_name, dsda_config_detailed_quicksave,
 
       dsda_config_menu_tran_filter, dsda_config_menu_tran_filter_pct,
       dsda_config_shadow_tran_filter, dsda_config_shadow_tran_filter_pct,
@@ -2085,8 +2087,10 @@ static dboolean M_ItemNyan(const setup_menu_t* s)
       dsda_config_comperr_zerotag, dsda_config_multiple_area_maps,
 
       dsda_config_map_title_author_cycle, dsda_config_map_show_keys,
-      dsda_config_automap_linesize, dsda_config_automap_background,
-      dsda_config_automap_background_shade, dsda_config_automap_parallax,
+      dsda_config_automap_linesize, dsda_config_map_marker_style,
+      dsda_config_map_player_arrow, dsda_config_map_things_hitbox,
+      dsda_config_automap_background, dsda_config_automap_background_shade,
+      dsda_config_automap_parallax,
     };
 
     const char* titles[] =
