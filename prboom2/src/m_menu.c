@@ -200,6 +200,7 @@ static dboolean sub_exhud_active = false;
 static dboolean sub_status_widget_active = false;
 static dboolean sub_crosshair_active = false;
 static dboolean sub_overflows_active = false;
+static dboolean sub_automap_things_active = false;
 
 // Stuff for sub setup menus
 static menu_t *prev_menu;
@@ -378,6 +379,7 @@ static void M_Sub_ExHud(void);
 static void M_Sub_StatusWidget(void);
 static void M_Sub_Crosshair(void);
 static void M_Sub_Overflows(void);
+static void M_Sub_AutoMapThings(void);
 
 static void M_Sub_DrawAdvAudio(void);
 static void M_Sub_DrawMouse(void);
@@ -389,6 +391,7 @@ static void M_Sub_DrawExHud(void);
 static void M_Sub_DrawStatusWidget(void);
 static void M_Sub_DrawCrosshair(void);
 static void M_Sub_DrawOverflows(void);
+static void M_Sub_DrawAutoMapThings(void);
 
 menu_t SkillDef;                                              // phares 5/04/98
 
@@ -1978,6 +1981,16 @@ static menu_t AutoMapDef =
   &OptionsDef,
   Generic_Setup,
   M_DrawAutoMap,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubAutoMapThingsDef =                                           // killough 10/98
+{
+  generic_setup_end,
+  &GeneralDef,
+  Generic_Setup,
+  M_Sub_DrawAutoMapThings,
   34,5,      // skull drawn here
   0
 };
@@ -3683,13 +3696,6 @@ setup_menu_t* auto_settings[] =
   NULL
 };
 
-static const char *map_things_appearance_list[] =
-{
-  "classic",
-  "scaled",
-  NULL
-};
-
 setup_menu_t auto_options_settings[] =
 {
   { "Locked doors blink", S_YESNO, m_conf, AU_X, dsda_config_map_blinking_locks },
@@ -3715,6 +3721,13 @@ setup_menu_t auto_options_settings[] =
 
 #define T_X 180
 
+static const char *map_things_appearance_list[] =
+{
+  "classic",
+  "scaled",
+  NULL
+};
+
 static const char *map_player_arrow_list[] = { "Default", "Modern", "Doom", "Raven", NULL };
 static const char *map_marker_style_list[] = { "Classic", "Line", NULL };
 static const char *automap_background_list[] = { "Off", "Default", "On", NULL };
@@ -3723,10 +3736,8 @@ static const char *automap_linesize_list[] = { "Auto", "1x", "2x", "3x", "4x", N
 setup_menu_t auto_appearance_settings[] =
 {
   { "Lines Width", S_CHOICE, m_conf, AA_X, dsda_config_automap_linesize, 0, automap_linesize_list },
-  { "Thing appearance", S_CHOICE, m_conf, AA_X, dsda_config_map_things_appearance, 0, map_things_appearance_list },
-  { "Player Arrow Style", S_CHOICE, m_conf, AA_X, dsda_config_map_player_arrow, 0, map_player_arrow_list },
-  { "Show Thing Hitboxes", S_YESNO, m_conf, AA_X, dsda_config_map_things_hitbox },
-  { "Marker Style", S_CHOICE, m_conf, AA_X, dsda_config_map_marker_style, 0, map_marker_style_list },
+  { "Automap Markers", S_CHOICE, m_conf, AA_X, dsda_config_map_marker_style, 0, map_marker_style_list },
+  FUNC("Thing Appearance", S_CENTER, AA_X, M_Sub_AutoMapThings),
   EMPTY_LINE,
   { "Automap background", S_CHOICE, m_conf, AA_X, dsda_config_automap_background, 0, automap_background_list },
   { "Background shade", S_PERC, m_conf, AA_X, dsda_config_automap_background_shade, 0, empty_list, EXCLUDE(dsda_config_automap_background, false) },
@@ -3737,7 +3748,6 @@ setup_menu_t auto_appearance_settings[] =
   { "Textured automap", S_PERC, m_conf, AA_X, dsda_config_map_textured_trans, DEPEND_GL },
   { "Textured automap on overlay", S_PERC, m_conf, AA_X, dsda_config_map_textured_overlay_trans, DEPEND_GL },
   { "Lines on overlay", S_PERC, m_conf, AA_X, dsda_config_map_lines_overlay_trans, DEPEND_GL },
-  { "Nice Icons", S_YESNO, m_conf, AA_X, dsda_config_map_things_nice, DEPEND_GL },
   EMPTY_LINE,
   TITLE("Trail", AA_X),
   { "Player Trail", S_YESNO, m_conf, AA_X, dsda_config_map_trail },
@@ -3870,6 +3880,50 @@ setup_menu_t auto_hexen_colors_settings[] =  // 2st AutoMap Settings screen
 static void M_Automap(int choice)
 {
   M_EnterSetup(&AutoMapDef, &set_auto_active, auto_settings[0]);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Automap Thing Appearance
+
+static const char *automap_thing_pages[] =
+{
+  "Thing Appearance",
+  NULL
+};
+
+setup_menu_t automap_thing_adv_settings[];
+
+setup_menu_t* automap_thing_settings[] =
+{
+  automap_thing_adv_settings,
+  NULL
+};
+
+setup_menu_t automap_thing_adv_settings[] = {
+  { "Things appearance", S_CHOICE, m_conf, AA_X, dsda_config_map_things_appearance, 0, map_things_appearance_list },
+  { "Player Arrow Style", S_CHOICE, m_conf, AA_X, dsda_config_map_player_arrow, 0, map_player_arrow_list },
+  { "Show Thing Hitboxes", S_YESNO, m_conf, AA_X, dsda_config_map_things_hitbox },
+  { "GL Nice Icons", S_YESNO, m_conf, AA_X, dsda_config_map_things_nice, DEPEND_GL },
+
+  FINAL_ENTRY
+};
+
+static void M_Sub_AutoMapThings(void)
+{
+  M_EnterSubSetup(&SubAutoMapThingsDef, &sub_automap_things_active, automap_thing_settings[0]);
+}
+
+static void M_Sub_DrawAutoMapThings(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "AUTOMAP", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(automap_thing_pages, sizeof(automap_thing_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
 // Data used by the color palette that is displayed for the player to
@@ -6220,6 +6274,7 @@ void M_LeaveSetupMenu(void)
   sub_status_widget_active = false;
   sub_crosshair_active = false;
   sub_overflows_active = false;
+  sub_automap_things_active = false;
 
   // special types
   colorbox_active = false;
