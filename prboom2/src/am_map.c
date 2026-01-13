@@ -3265,6 +3265,7 @@ static void AM_drawMarks(void)
           fixed_t digit_size    = FRACUNIT * 2 * SCREENWIDTH / 320;
           fixed_t digit_scale   = FixedDiv(digit_size, scale_mtof);
           fixed_t digit_spacing = FixedMul(digit_scale, FRACUNIT*2);
+          angle_t digit_angle   = automap_rotate ? (viewangle - ANG90) : 0;
 
           // Center digit on marker
           fixed_t bx = mx;
@@ -3280,7 +3281,7 @@ static void AM_drawMarks(void)
             if ((unsigned)d <= 9)
             {
               AM_drawLineCharacter(am_digits[d], am_digit_lines[d],
-                                  digit_scale, 0, 0, mapcolor_p->trail_1,
+                                  digit_scale, 0, digit_angle, mapcolor_p->trail_1,
                                   bx, by);
             }
             bx += digit_spacing;
