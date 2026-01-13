@@ -130,6 +130,7 @@ void M_ChangeMapMultisamling(void);
 void M_ChangeMapTextured(void);
 void AM_InitParams(void);
 void AM_initPlayerTrail(void);
+void AM_SetPlayerArrow(void);
 void gld_ResetAutomapTransparency(void);
 void M_ChangeVideoMode(void);
 void M_ChangeUncappedFrameRate(void);
@@ -742,6 +743,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mapcolor_frnd", dsda_config_mapcolor_frnd,
     CONF_COLOR(112), &mapcolor.frnd
   },
+  [dsda_config_mapcolor_hitbox] = {
+    "mapcolor_hitbox", dsda_config_mapcolor_hitbox,
+    CONF_COLOR(104), &mapcolor.hitbox
+  },
   [dsda_config_mapcolor_trail_1] = {
     "mapcolor_trail_1", dsda_config_mapcolor_trail_1,
     CONF_COLOR(80), &mapcolor.trail_1
@@ -862,6 +867,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mapcolor_heretic_frnd", dsda_config_mapcolor_heretic_frnd,
     CONF_COLOR(224), &mapcolor_heretic.frnd
   },
+  [dsda_config_mapcolor_heretic_hitbox] = {
+    "mapcolor_heretic_hitbox", dsda_config_mapcolor_heretic_hitbox,
+    CONF_COLOR(40), &mapcolor_heretic.hitbox
+  },
   [dsda_config_mapcolor_heretic_trail_1] = {
     "mapcolor_heretic_trail_1", dsda_config_mapcolor_heretic_trail_1,
     CONF_COLOR(33), &mapcolor_heretic.trail_1
@@ -957,6 +966,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_mapcolor_hexen_frnd] = {
     "mapcolor_hexen_frnd", dsda_config_mapcolor_hexen_frnd,
     CONF_COLOR(216), &mapcolor_hexen.frnd
+  },
+  [dsda_config_mapcolor_hexen_hitbox] = {
+    "mapcolor_hexen_hitbox", dsda_config_mapcolor_hexen_hitbox,
+    CONF_COLOR(40), &mapcolor_hexen.hitbox
   },
   [dsda_config_mapcolor_hexen_trail_1] = {
     "mapcolor_hexen_trail_1", dsda_config_mapcolor_hexen_trail_1,
@@ -1559,6 +1572,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "map_trail_size", dsda_config_map_trail_size,
     dsda_config_int, 0, 350, { 105 }, NULL, STRICT_INT(0), AM_initPlayerTrail
   },
+  [dsda_config_map_player_arrow] = {
+    "map_player_arrow", dsda_config_map_player_arrow,
+    dsda_config_int, 0, 3, { 1 }, NULL, STRICT_INT(0), AM_SetPlayerArrow
+  },
+  [dsda_config_map_marker_style] = {
+    "map_marker_style", dsda_config_map_marker_style,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
   [dsda_config_automap_overlay] = {
     "automap_overlay", dsda_config_automap_overlay,
     dsda_config_int, 0, 2, { 0 }, &automap_overlay
@@ -1631,6 +1652,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "map_things_appearance", dsda_config_map_things_appearance,
     dsda_config_int, 0, map_things_appearance_max - 1, { map_things_appearance_max - 1 },
     NULL, NOT_STRICT, AM_InitParams
+  },
+  [dsda_config_map_things_hitbox] = {
+    "map_things_hitbox", dsda_config_map_things_hitbox,
+    CONF_BOOL(0), NULL, NOT_STRICT, AM_InitParams
   },
   [dsda_config_map_things_nice] = {
     "dsda_map_things_nice", dsda_config_map_things_nice,
