@@ -3687,7 +3687,6 @@ static const char *map_things_appearance_list[] =
 {
   "classic",
   "scaled",
-  "hitboxes",
   NULL
 };
 
@@ -3724,20 +3723,21 @@ static const char *automap_linesize_list[] = { "Auto", "1x", "2x", "3x", "4x", N
 setup_menu_t auto_appearance_settings[] =
 {
   { "Lines Width", S_CHOICE, m_conf, AA_X, dsda_config_automap_linesize, 0, automap_linesize_list },
-  { "Things appearance", S_CHOICE, m_conf, AA_X, dsda_config_map_things_appearance, 0, map_things_appearance_list },
+  { "Thing appearance", S_CHOICE, m_conf, AA_X, dsda_config_map_things_appearance, 0, map_things_appearance_list },
   { "Player Arrow Style", S_CHOICE, m_conf, AA_X, dsda_config_map_player_arrow, 0, map_player_arrow_list },
+  { "Show Thing Hitboxes", S_YESNO, m_conf, AA_X, dsda_config_map_things_hitbox },
   { "Marker Style", S_CHOICE, m_conf, AA_X, dsda_config_map_marker_style, 0, map_marker_style_list },
-  { "GL Nice Icons", S_YESNO, m_conf, AA_X, dsda_config_map_things_nice, DEPEND_GL },
-  { "GL Textured display", S_YESNO, m_conf, AA_X, dsda_config_map_textured, DEPEND_GL },
   EMPTY_LINE,
   { "Automap background", S_CHOICE, m_conf, AA_X, dsda_config_automap_background, 0, automap_background_list },
   { "Background shade", S_PERC, m_conf, AA_X, dsda_config_automap_background_shade, 0, empty_list, EXCLUDE(dsda_config_automap_background, false) },
   { "Parallex Effect", S_YESNO, m_conf, AA_X, dsda_config_automap_parallax, 0, empty_list, EXCLUDE(dsda_config_automap_background, false) },
   EMPTY_LINE,
-  TITLE_DEPEND("GL Translucency", AA_X, dsda_config_videomode, OPENGL_MODE),
+  TITLE_DEPEND("OpenGL Features", AA_X, dsda_config_videomode, OPENGL_MODE),
+  { "Textured automap", S_YESNO, m_conf, AA_X, dsda_config_map_textured, DEPEND_GL },
   { "Textured automap", S_PERC, m_conf, AA_X, dsda_config_map_textured_trans, DEPEND_GL },
   { "Textured automap on overlay", S_PERC, m_conf, AA_X, dsda_config_map_textured_overlay_trans, DEPEND_GL },
   { "Lines on overlay", S_PERC, m_conf, AA_X, dsda_config_map_lines_overlay_trans, DEPEND_GL },
+  { "Nice Icons", S_YESNO, m_conf, AA_X, dsda_config_map_things_nice, DEPEND_GL },
   EMPTY_LINE,
   TITLE("Trail", AA_X),
   { "Player Trail", S_YESNO, m_conf, AA_X, dsda_config_map_trail },
@@ -3780,6 +3780,7 @@ setup_menu_t auto_colors_settings[] =  // 2st AutoMap Settings screen
   {"crosshair"                      ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hair},
   {"single player arrow"            ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_sngl},
   {"your colour in multiplayer"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_me},
+  {"hitboxes"                       ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hitbox},
   EMPTY_LINE,
   {"player trail 1"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_trail_1},
   {"player trail 2"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_trail_2},
@@ -3819,6 +3820,7 @@ setup_menu_t auto_heretic_colors_settings[] =  // 2st AutoMap Settings screen
   {"crosshair"                      ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_hair},
   {"single player arrow"            ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_sngl},
   {"your colour in multiplayer"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_me},
+  {"hitboxes"                       ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_hitbox},
   EMPTY_LINE,
   {"player trail 1"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_trail_1},
   {"player trail 2"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_heretic_trail_2},
@@ -3852,6 +3854,7 @@ setup_menu_t auto_hexen_colors_settings[] =  // 2st AutoMap Settings screen
   {"crosshair"                      ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_hair},
   {"single player arrow"            ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_sngl},
   {"your colour in multiplayer"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_me},
+  {"hitboxes"                       ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_hitbox},
   EMPTY_LINE,
   {"player trail 1"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_trail_1},
   {"player trail 2"     ,S_COLOR ,m_conf,AU_X, dsda_config_mapcolor_hexen_trail_2},

@@ -258,6 +258,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_mapcolor_me),
   MIGRATED_SETTING(dsda_config_mapcolor_enemy),
   MIGRATED_SETTING(dsda_config_mapcolor_frnd),
+  MIGRATED_SETTING(dsda_config_mapcolor_hitbox),
   MIGRATED_SETTING(dsda_config_mapcolor_trail_1),
   MIGRATED_SETTING(dsda_config_mapcolor_trail_2),
 
@@ -290,6 +291,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_me),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_enemy),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_frnd),
+  MIGRATED_SETTING(dsda_config_mapcolor_heretic_hitbox),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_trail_1),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_trail_2),
 
@@ -316,6 +318,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_me),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_enemy),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_frnd),
+  MIGRATED_SETTING(dsda_config_mapcolor_hexen_hitbox),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_trail_1),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_trail_2),
 
@@ -351,6 +354,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_map_textured_overlay_trans),
   MIGRATED_SETTING(dsda_config_map_lines_overlay_trans),
   MIGRATED_SETTING(dsda_config_map_things_appearance),
+  MIGRATED_SETTING(dsda_config_map_things_hitbox),
   MIGRATED_SETTING(dsda_config_map_things_nice),
 
   SETTING_HEADING("Heads-up display settings"),

@@ -227,6 +227,7 @@ static dsda_option_t option_list[] = {
   { "mapcolor_hair", NULL, 0, 255, dsda_config_mapcolor_hair },
   { "mapcolor_sngl", NULL, 0, 255, dsda_config_mapcolor_sngl },
   { "mapcolor_me", NULL, 0, 255, dsda_config_mapcolor_me },
+  { "mapcolor_hitbox", NULL, 0, 255, dsda_config_mapcolor_hitbox },
   { 0 }
 };
 

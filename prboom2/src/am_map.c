@@ -114,6 +114,7 @@ static int map_grid_size;
 static int map_pan_speed;
 static int map_scroll_speed;
 static int map_wheel_zoom;
+static int map_things_hitboxes;
 static int map_opengl_nice_things;
 int map_textured;
 int map_use_multisampling;
@@ -310,10 +311,12 @@ mline_t thintriangle_guy[] =
 #define R (FRACUNIT)
 mline_t thingbox_guy[] =
 {
-{ { (fixed_t)(-R), (fixed_t)(-R) }, { (fixed_t)( R), (fixed_t)(-R) } },
-{ { (fixed_t)( R), (fixed_t)(-R) }, { (fixed_t)( R), (fixed_t)( R) } },
-{ { (fixed_t)( R), (fixed_t)( R) }, { (fixed_t)(-R), (fixed_t)( R) } },
-{ { (fixed_t)(-R), (fixed_t)( R) }, { (fixed_t)(-R), (fixed_t)(-R) } }
+{ { (fixed_t)(-R), (fixed_t)(-R) }, { (fixed_t)( R), (fixed_t)(-R) } }, // Top
+{ { (fixed_t)( R), (fixed_t)(-R) }, { (fixed_t)( R), (fixed_t)( R) } }, // Right
+{ { (fixed_t)( R), (fixed_t)( R) }, { (fixed_t)(-R), (fixed_t)( R) } }, // Bottom
+{ { (fixed_t)(-R), (fixed_t)( R) }, { (fixed_t)(-R), (fixed_t)(-R) } }, // Left
+{ { (fixed_t)(-R), (fixed_t)(-R) }, { (fixed_t)( R), (fixed_t)( R) } }, // "\"
+{ { (fixed_t)(-R), (fixed_t)( R) }, { (fixed_t)( R), (fixed_t)(-R) } }, // "/"
 };
 #undef R
 #define NUMTHINGBOXGUYLINES (sizeof(thingbox_guy)/sizeof(mline_t))
@@ -948,6 +951,7 @@ void AM_InitParams(void)
   map_grid_size = dsda_IntConfig(dsda_config_map_grid_size);
   map_wheel_zoom = dsda_IntConfig(dsda_config_map_wheel_zoom);
   map_things_appearance = dsda_IntConfig(dsda_config_map_things_appearance);
+  map_things_hitboxes = dsda_IntConfig(dsda_config_map_things_hitbox);
   map_opengl_nice_things = dsda_IntConfig(dsda_config_map_things_nice);
 }
 
@@ -2167,6 +2171,7 @@ static void AM_drawLineCharacter
 ( mline_t*  lineguy,
   int   lineguylines,
   fixed_t scale,
+  fixed_t box_scale,
   angle_t angle,
   int   color,
   fixed_t x,
@@ -2174,6 +2179,9 @@ static void AM_drawLineCharacter
 {
   int   i;
   mline_t l;
+
+  if (box_scale)
+    AM_drawLineCharacter(thingbox_guy, NUMTHINGBOXGUYLINES, box_scale, 0, 0x40000000, mapcolor_p->hitbox, x, y);
 
   if (automap_rotate) angle -= viewangle - ANG90; // cph
 
@@ -2254,6 +2262,7 @@ static void AM_drawPlayers(void)
   angle_t angle;
   mpoint_t pt;
   fixed_t scale;
+  fixed_t box_scale = 0;
 
 #if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
@@ -2268,6 +2277,10 @@ static void AM_drawPlayers(void)
   else
     scale = 16<<MAPBITS;
 
+  // Needed for hitboxes
+  if (map_things_hitboxes && dsda_RevealAutomap() == 2)
+    box_scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, plr->mo->radius)>>FRACTOMAPBITS);
+
   if (!netgame)
   {
     pt.x = viewx >> FRACTOMAPBITS;
@@ -2278,9 +2291,9 @@ static void AM_drawPlayers(void)
       AM_SetMPointFloatValue(&pt);
 
     if (dsda_RevealAutomap())
-      AM_drawLineCharacter(cheat_player_arrow, numcheatplyrlines, scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
+      AM_drawLineCharacter(cheat_player_arrow, numcheatplyrlines, scale, box_scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
     else
-      AM_drawLineCharacter(player_arrow, numplyrlines, scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
+      AM_drawLineCharacter(player_arrow, numplyrlines, scale, box_scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
     return;
   }
 
@@ -2299,7 +2312,7 @@ static void AM_drawPlayers(void)
       else
         AM_SetMPointFloatValue(&pt);
 
-      AM_drawLineCharacter (player_arrow, numplyrlines, scale, angle,
+      AM_drawLineCharacter (player_arrow, numplyrlines, scale, box_scale, angle,
           p->powers[pw_invisibility] ? 246 /* *close* to black */
           : mapcolor_p->plyr[i], //jff 1/6/98 use default color
           pt.x, pt.y);
@@ -2911,6 +2924,7 @@ static void AM_drawThings(void)
       mpoint_t p;
       angle_t angle;
       fixed_t scale;
+      fixed_t box_scale = 0;
       int color = -1;
 
       //e6y: stop if all enemies from current sector already has been drawn
@@ -2923,11 +2937,14 @@ static void AM_drawThings(void)
         continue;
       }
 
-      if (map_things_appearance == map_things_appearance_scaled
-        || map_things_appearance == map_things_appearance_box)
+      if (map_things_appearance == map_things_appearance_scaled)
         scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, t->radius)>>FRACTOMAPBITS);// * 16 / 20;
       else
         scale = 16<<MAPBITS;
+
+      // Needed for hitboxes
+      if (map_things_hitboxes)
+        box_scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, t->radius)>>FRACTOMAPBITS);// * 16 / 20;
 
       AM_GetMobjPosition(t, &p, &angle);
 
@@ -2935,13 +2952,6 @@ static void AM_drawThings(void)
         AM_rotatePoint(&p);
       else
         AM_SetMPointFloatValue(&p);
-
-      if (map_things_appearance == map_things_appearance_box)
-      {
-        lineguy = thingbox_guy;
-        lineguylines = NUMTHINGBOXGUYLINES;
-        angle = 0x40000000;
-      }
 
       //jff 1/5/98 case over doomednum of thing being drawn
       if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
@@ -2962,7 +2972,7 @@ static void AM_drawThings(void)
 
             if (color != -1)
             {
-              AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, hexkey_scale, 0, color, p.x, p.y);
+              AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, hexkey_scale, box_scale, 0, color, p.x, p.y);
               t = t->snext;
               continue;
             }
@@ -2981,7 +2991,7 @@ static void AM_drawThings(void)
 
             if (color != -1)
             {
-              AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, t->angle, color, p.x, p.y);
+              AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, box_scale, t->angle, color, p.x, p.y);
               t = t->snext;
               continue;
             }
@@ -3001,7 +3011,7 @@ static void AM_drawThings(void)
 
           if (color != -1)
           {
-            AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, scale, 0, color, p.x, p.y);
+            AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, scale, box_scale, 0, color, p.x, p.y);
             t = t->snext;
             continue;
           }
@@ -3021,7 +3031,7 @@ static void AM_drawThings(void)
 
           if (color != -1)
           {
-            AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, t->angle, color, p.x, p.y);
+            AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, box_scale, t->angle, color, p.x, p.y);
             t = t->snext;
             continue;
           }
@@ -3048,7 +3058,7 @@ static void AM_drawThings(void)
 
         if (color != -1)
         {
-          AM_drawLineCharacter(lineguy, lineguylines, scale, angle, color, p.x, p.y);
+          AM_drawLineCharacter(lineguy, lineguylines, scale, box_scale, angle, color, p.x, p.y);
           t = t->snext;
           continue;
         }
@@ -3071,7 +3081,7 @@ static void AM_drawThings(void)
 
       //jff 1/5/98 end added code for keys
       //jff previously entire code
-      AM_drawLineCharacter(lineguy, lineguylines, scale, angle, color, p.x, p.y);
+      AM_drawLineCharacter(lineguy, lineguylines, scale, box_scale, angle, color, p.x, p.y);
       t = t->snext;
     }
    }
