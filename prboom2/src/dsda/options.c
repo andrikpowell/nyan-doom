@@ -198,7 +198,10 @@ static dsda_option_t option_list[] = {
   { "comp_friendlyspawn", &mbf_options.comp_friendlyspawn, 0, 1 },
   { "comp_voodooscroller", &mbf_options.comp_voodooscroller, 0, 1 },
   { "comp_reservedlineflag", &mbf_options.comp_reservedlineflag, 0, 1 },
+  { 0 }
+};
 
+static dsda_option_t doom_color_list[] = {
   { "mapcolor_back", NULL, 0, 255, dsda_config_mapcolor_back },
   { "mapcolor_grid", NULL, 0, 255, dsda_config_mapcolor_grid },
   { "mapcolor_wall", NULL, 0, 255, dsda_config_mapcolor_wall },
@@ -231,12 +234,75 @@ static dsda_option_t option_list[] = {
   { 0 }
 };
 
+static dsda_option_t heretic_color_list[] = {
+  { "mapcolor_back", NULL, 0, 255, dsda_config_mapcolor_heretic_back },
+  { "mapcolor_grid", NULL, 0, 255, dsda_config_mapcolor_heretic_grid },
+  { "mapcolor_wall", NULL, 0, 255, dsda_config_mapcolor_heretic_wall },
+  { "mapcolor_fchg", NULL, 0, 255, dsda_config_mapcolor_heretic_fchg },
+  { "mapcolor_cchg", NULL, 0, 255, dsda_config_mapcolor_heretic_cchg },
+  { "mapcolor_clsd", NULL, 0, 255, dsda_config_mapcolor_heretic_clsd },
+  { "mapcolor_gkey", NULL, 0, 255, dsda_config_mapcolor_heretic_gkey },
+  { "mapcolor_bkey", NULL, 0, 255, dsda_config_mapcolor_heretic_bkey },
+  { "mapcolor_ykey", NULL, 0, 255, dsda_config_mapcolor_heretic_ykey },
+  { "mapcolor_gdor", NULL, 0, 255, dsda_config_mapcolor_heretic_gdor },
+  { "mapcolor_bdor", NULL, 0, 255, dsda_config_mapcolor_heretic_bdor },
+  { "mapcolor_ydor", NULL, 0, 255, dsda_config_mapcolor_heretic_ydor },
+  { "mapcolor_tele", NULL, 0, 255, dsda_config_mapcolor_heretic_tele },
+  { "mapcolor_secr", NULL, 0, 255, dsda_config_mapcolor_heretic_secr },
+  { "mapcolor_revsecr", NULL, 0, 255, dsda_config_mapcolor_heretic_revsecr },
+  { "mapcolor_tagfinder", NULL, 0, 255, dsda_config_mapcolor_heretic_tagfinder },
+  { "mapcolor_exit", NULL, 0, 255, dsda_config_mapcolor_heretic_exit },
+  { "mapcolor_exitsecr", NULL, 0, 255, dsda_config_mapcolor_heretic_exitsecr },
+  { "mapcolor_unsn", NULL, 0, 255, dsda_config_mapcolor_heretic_unsn },
+  { "mapcolor_flat", NULL, 0, 255, dsda_config_mapcolor_heretic_flat },
+  { "mapcolor_sprt", NULL, 0, 255, dsda_config_mapcolor_heretic_sprt },
+  { "mapcolor_pickup", NULL, 0, 255, dsda_config_mapcolor_heretic_pickup },
+  { "mapcolor_item", NULL, 0, 255, dsda_config_mapcolor_heretic_item },
+  { "mapcolor_enemy", NULL, 0, 255, dsda_config_mapcolor_heretic_enemy },
+  { "mapcolor_frnd", NULL, 0, 255, dsda_config_mapcolor_heretic_frnd },
+  { "mapcolor_hair", NULL, 0, 255, dsda_config_mapcolor_heretic_hair },
+  { "mapcolor_sngl", NULL, 0, 255, dsda_config_mapcolor_heretic_sngl },
+  { "mapcolor_me", NULL, 0, 255, dsda_config_mapcolor_heretic_me },
+  { "mapcolor_hitbox", NULL, 0, 255, dsda_config_mapcolor_heretic_hitbox },
+  { 0 }
+};
+
+static dsda_option_t hexen_color_list[] = {
+  { "mapcolor_back", NULL, 0, 255, dsda_config_mapcolor_hexen_back },
+  { "mapcolor_grid", NULL, 0, 255, dsda_config_mapcolor_hexen_grid },
+  { "mapcolor_wall", NULL, 0, 255, dsda_config_mapcolor_hexen_wall },
+  { "mapcolor_fchg", NULL, 0, 255, dsda_config_mapcolor_hexen_fchg },
+  { "mapcolor_cchg", NULL, 0, 255, dsda_config_mapcolor_hexen_cchg },
+  { "mapcolor_clsd", NULL, 0, 255, dsda_config_mapcolor_hexen_clsd },
+  { "mapcolor_key", NULL, 0, 255, dsda_config_mapcolor_hexen_key },
+  { "mapcolor_puzzle", NULL, 0, 255, dsda_config_mapcolor_hexen_puzzle },
+  { "mapcolor_dor", NULL, 0, 255, dsda_config_mapcolor_hexen_dor },
+  { "mapcolor_tele", NULL, 0, 255, dsda_config_mapcolor_hexen_tele },
+  { "mapcolor_tagfinder", NULL, 0, 255, dsda_config_mapcolor_hexen_tagfinder },
+  { "mapcolor_exit", NULL, 0, 255, dsda_config_mapcolor_hexen_exit },
+  { "mapcolor_unsn", NULL, 0, 255, dsda_config_mapcolor_hexen_unsn },
+  { "mapcolor_flat", NULL, 0, 255, dsda_config_mapcolor_hexen_flat },
+  { "mapcolor_sprt", NULL, 0, 255, dsda_config_mapcolor_hexen_sprt },
+  { "mapcolor_pickup", NULL, 0, 255, dsda_config_mapcolor_hexen_pickup },
+  { "mapcolor_item", NULL, 0, 255, dsda_config_mapcolor_hexen_item },
+  { "mapcolor_enemy", NULL, 0, 255, dsda_config_mapcolor_hexen_enemy },
+  { "mapcolor_frnd", NULL, 0, 255, dsda_config_mapcolor_hexen_frnd },
+  { "mapcolor_hair", NULL, 0, 255, dsda_config_mapcolor_hexen_hair },
+  { "mapcolor_sngl", NULL, 0, 255, dsda_config_mapcolor_hexen_sngl },
+  { "mapcolor_me", NULL, 0, 255, dsda_config_mapcolor_hexen_me },
+  { "mapcolor_hitbox", NULL, 0, 255, dsda_config_mapcolor_hexen_hitbox },
+  { 0 }
+};
+
 typedef struct {
   dboolean found;
   int value;
 } dsda_parsed_option_t;
 
 static dsda_parsed_option_t parsed_option_list[arrlen(option_list)];
+static dsda_parsed_option_t parsed_doom_color_list[arrlen(doom_color_list)];
+static dsda_parsed_option_t parsed_heretic_color_list[arrlen(heretic_color_list)];
+static dsda_parsed_option_t parsed_hexen_color_list[arrlen(hexen_color_list)];
 
 #define OPTIONS_LINE_LENGTH 80
 
@@ -263,6 +329,8 @@ static const char* dsda_ReadOption(char* buf, size_t size, options_lump_t* lump)
 
 void dsda_ParseOptionsLump(void) {
   options_lump_t lump;
+  dsda_option_t* colors;
+  dsda_parsed_option_t* parsed_colors;
   char buf[OPTIONS_LINE_LENGTH];
   char key[OPTIONS_LINE_LENGTH];
   char* scan;
@@ -295,6 +363,32 @@ void dsda_ParseOptionsLump(void) {
         }
         else
           dsda_UpdateIntConfig(option_list[i].config_key, value, false);
+
+        lprintf(LO_INFO, "dsda_LumpOptions: %s = %d\n", key, value);
+
+        break;
+      }
+    }
+    
+    // Grab automap colors
+    colors =
+      !raven ? doom_color_list :
+      heretic ? heretic_color_list :
+      hexen_color_list;
+
+    parsed_colors =
+      !raven ? parsed_doom_color_list :
+      heretic ? parsed_heretic_color_list :
+      parsed_hexen_color_list;
+
+    for (i = 0; colors[i].key; ++i) {
+      if (!strncmp(key, colors[i].key, OPTIONS_LINE_LENGTH)) {
+        if (colors[i].value) {
+          parsed_colors[i].found = true;
+          parsed_colors[i].value = BETWEEN(colors[i].min, colors[i].max, value);
+        }
+        else
+          dsda_UpdateIntConfig(colors[i].config_key, value, false);
 
         lprintf(LO_INFO, "dsda_LumpOptions: %s = %d\n", key, value);
 
