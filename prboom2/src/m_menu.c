@@ -3090,10 +3090,10 @@ static const char *empty_list[] = { NULL };
 #define DEPEND_SW                 0, empty_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE)
 #define DEPEND_GL                 0, empty_list, DEPEND(dsda_config_videomode, OPENGL_MODE)
 
-#define FUNC(action_name, flags, offset_x, action_func) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, .action = action_func }
-#define FUNC_DEPEND(action_name, flags, offset_x, action_func, config, value) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, 0, 0, empty_list, DEPEND(config, value), .action = action_func }
-#define FUNC_EXCLUDE(action_name, flags, offset_x, action_func, config, value) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, 0, 0, empty_list, EXCLUDE(config, value), .action = action_func }
-#define FUNC_DEPEND_MULTI(action_name, flags, offset_x, action_func, listname) { action_name, !flags ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, 0, 0, empty_list, DEPEND_MULTI(listname), .action = action_func }
+#define FUNC(action_name, flags, offset_x, action_func) { action_name, !(flags) ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, .action = action_func }
+#define FUNC_DEPEND(action_name, flags, offset_x, action_func, config, value) { action_name, !(flags) ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, 0, 0, empty_list, DEPEND(config, value), .action = action_func }
+#define FUNC_EXCLUDE(action_name, flags, offset_x, action_func, config, value) { action_name, !(flags) ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, 0, 0, empty_list, EXCLUDE(config, value), .action = action_func }
+#define FUNC_DEPEND_MULTI(action_name, flags, offset_x, action_func, listname) { action_name, !(flags) ? (S_FUNC) : (S_FUNC | flags), m_null, offset_x, 0, 0, empty_list, DEPEND_MULTI(listname), .action = action_func }
 
 #define DEPEND_LIST(name, ...) \
   static const setup_menu_dependent_t name[] = { __VA_ARGS__ }; \
