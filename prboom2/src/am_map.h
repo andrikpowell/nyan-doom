@@ -185,4 +185,16 @@ extern map_trail_mode_t map_trail_mode;
 
 void AM_updatePlayerTrail(fixed_t x, fixed_t y);
 
+typedef enum
+{
+  map_player_arrow_default,
+  map_player_arrow_kex,
+  map_player_arrow_doom,
+  map_player_arrow_raven,
+
+  map_player_arrow_max
+} map_player_arrow_t;
+
+void AM_SetPlayerArrow(void);
+
 #endif

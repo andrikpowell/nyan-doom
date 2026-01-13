@@ -3716,6 +3716,7 @@ setup_menu_t auto_options_settings[] =
 
 #define T_X 180
 
+static const char *map_player_arrow_list[] = { "Default", "Modern", "Doom", "Raven", NULL };
 static const char *automap_background_list[] = { "Off", "Default", "On", NULL };
 static const char *automap_linesize_list[] = { "Auto", "1x", "2x", "3x", "4x", NULL };
 
@@ -3723,6 +3724,7 @@ setup_menu_t auto_appearance_settings[] =
 {
   { "Lines Width", S_CHOICE, m_conf, AA_X, dsda_config_automap_linesize, 0, automap_linesize_list },
   { "Things appearance", S_CHOICE, m_conf, AA_X, dsda_config_map_things_appearance, 0, map_things_appearance_list },
+  { "Player Arrow Style", S_CHOICE, m_conf, AA_X, dsda_config_map_player_arrow, 0, map_player_arrow_list },
   { "GL Nice Icons", S_YESNO, m_conf, AA_X, dsda_config_map_things_nice, DEPEND_GL },
   { "GL textured display", S_YESNO, m_conf, AA_X, dsda_config_map_textured, DEPEND_GL },
   EMPTY_LINE,

@@ -202,6 +202,20 @@ mline_t doom_player_arrow[] =
 #undef R
 #define NUMPLYRLINES (sizeof(doom_player_arrow)/sizeof(mline_t))
 
+#define R ((8*PLAYERRADIUS)/7)
+
+// Kex Player Arrow (4-line variant)
+mline_t kex_player_arrow[] =
+{
+  { { -7*R/8, -49*R/80 }, {  R, 0 } }, // Two long diagonals create the point "V"
+  { { -7*R/8,  49*R/80 }, {  R, 0 } },
+  { { -7*R/8, -49*R/80 }, { -7*R/20, 0 } }, // Two shorter diagonals form the rear notch "v"
+  { { -7*R/8,  49*R/80 }, { -7*R/20, 0 } },
+};
+
+#undef R
+#define KEX_NUMPLYRLINES (sizeof(kex_player_arrow)/sizeof(mline_t))
+
 //
 //  A line drawing of the player pointing right,
 //   starting from the middle. (Raven player is longer)
@@ -742,6 +756,38 @@ void AM_initPlayerTrail(void)
   map_trail_mode = dsda_IntConfig(dsda_config_map_trail) ? trail_collisions : map_trail_mode_off;
 }
 
+void AM_SetPlayerArrow(void)
+{
+  switch (dsda_IntConfig(dsda_config_map_player_arrow))
+  {
+    case map_player_arrow_kex:
+      numplyrlines = KEX_NUMPLYRLINES;
+      player_arrow = kex_player_arrow;
+      numcheatplyrlines = raven ? RAVEN_NUMCHEATPLYRLINES : NUMCHEATPLYRLINES;
+      cheat_player_arrow = raven ? raven_cheat_player_arrow : doom_cheat_player_arrow;
+      break;
+    case map_player_arrow_doom:
+      numplyrlines = NUMPLYRLINES;
+      player_arrow = doom_player_arrow;
+      numcheatplyrlines = NUMCHEATPLYRLINES;
+      cheat_player_arrow = doom_cheat_player_arrow;
+      break;
+    case map_player_arrow_raven:
+      numplyrlines = RAVEN_NUMPLYRLINES;
+      player_arrow = raven_player_arrow;
+      numcheatplyrlines = RAVEN_NUMCHEATPLYRLINES;
+      cheat_player_arrow = raven_cheat_player_arrow;
+      break;
+    case map_player_arrow_default:
+    default:
+      numplyrlines = raven ? RAVEN_NUMPLYRLINES : NUMPLYRLINES;
+      player_arrow = raven ? raven_player_arrow : doom_player_arrow;
+      numcheatplyrlines = raven ? RAVEN_NUMCHEATPLYRLINES : NUMCHEATPLYRLINES;
+      cheat_player_arrow = raven ? raven_cheat_player_arrow : doom_cheat_player_arrow;
+      break;
+  }
+}
+
 //
 // AM_initVariables()
 //
@@ -757,21 +803,7 @@ static void AM_initVariables(void)
   stretch_param_t *params = dsda_StretchParams(VPT_STRETCH);
 
   AM_initPlayerTrail();
-
-  if (raven)
-  {
-    numplyrlines = RAVEN_NUMPLYRLINES;
-    player_arrow = raven_player_arrow;
-    numcheatplyrlines = RAVEN_NUMCHEATPLYRLINES;
-    cheat_player_arrow = raven_cheat_player_arrow;
-  }
-  else
-  {
-    numplyrlines = NUMPLYRLINES;
-    player_arrow = doom_player_arrow;
-    numcheatplyrlines = NUMCHEATPLYRLINES;
-    cheat_player_arrow = doom_cheat_player_arrow;
-  }
+  AM_SetPlayerArrow();
 
   m_paninc.x = m_paninc.y = 0;
   ftom_zoommul = FRACUNIT;
