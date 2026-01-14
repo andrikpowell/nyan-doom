@@ -6066,7 +6066,7 @@ void M_DrawCreditsDynamic(void)     // Dynamic Credits
   // force drawing an animated background
   V_DrawBackgroundAnimate(aniflat);
   M_DrawTitleImage(91, 6, "NYANLOGO", PROJECT_NAME " v" PROJECT_VERSION, cr_logo);
-  M_DrawTitleImage(91, 25, "NYANNAME", "by Andrik 'Arsinikk' Powell", cr_logo);
+  M_DrawTitle(25, "by Andrik 'Arsinikk' Powell", cr_logo);
   M_DrawScreenItems(cred_settings, 48);
 }
 
@@ -8261,12 +8261,8 @@ static void M_DrawTitleImage(int x, int y, const char *patch, const char *text, 
     V_DrawMenuNumPatch(x, y, lumpnum, cm, flags);
   }
   else
-  {
     // patch doesn't exist, draw some text in place of it
-    M_WriteText(160 - (M_StringWidth(text) / 2),
-                y + 8 - (M_StringHeight(text) / 2), // assumes patch height 16
-                text, cm);
-  }
+    M_DrawTitle(y, text, cm);
 }
 
 /////////////////////////////
