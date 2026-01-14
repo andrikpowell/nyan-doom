@@ -6478,6 +6478,16 @@ static dboolean M_StringResponder(int ch, int action, event_t* ev)
           entry_string_index[i] = '\0';
         }
       }
+      else if (action == MENU_CLEAR)
+      {
+        int i;
+        if (entry_string_index[entry_index])
+        {
+          for (i = entry_index; entry_string_index[i]; ++i)
+            entry_string_index[i] = entry_string_index[i + 1];
+          // cursor does NOT move
+        }
+      }
       else if (action == MENU_LEFT) // move cursor left
       {
         if (entry_index > 0)
