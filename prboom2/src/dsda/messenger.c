@@ -87,7 +87,7 @@ static void dsda_QueueMessage(const char* str, message_priority_t priority, dboo
       return;
     else if (current_message->priority > priority)
       dsda_ClearMessages();
-    else if (priority == message_normal) {
+    else if (priority == message_normal || priority == message_yellow) {
       Z_Free(current_message->str);
 
       current_message->str = Z_Strdup(str);
