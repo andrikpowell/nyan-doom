@@ -484,7 +484,7 @@ static void DrawHubText(void)
         {
             break;
         }
-        V_DrawShadowedNumPatch(cx, cy, lump, CR_DEFAULT, VPT_STRETCH);
+        V_DrawMenuNumPatch(cx, cy, lump, CR_DEFAULT, VPT_STRETCH);
         cx += width;
     }
 }

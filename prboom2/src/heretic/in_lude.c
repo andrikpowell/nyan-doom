@@ -175,7 +175,7 @@ static void IN_DrawInterpic(void)
 
 static void IN_DrawBeenThere(int i)
 {
-  V_DrawNamePatch(
+  V_DrawMenuNamePatch(
     YAHspot[gameepisode - 1][i].x, YAHspot[gameepisode - 1][i].y,
     "IN_X", CR_DEFAULT, VPT_STRETCH
   );
@@ -183,7 +183,7 @@ static void IN_DrawBeenThere(int i)
 
 static void IN_DrawGoingThere(int i)
 {
-  V_DrawNamePatch(
+  V_DrawMenuNamePatch(
     YAHspot[gameepisode - 1][i].x, YAHspot[gameepisode - 1][i].y,
     "IN_YAH", CR_DEFAULT, VPT_STRETCH
   );
