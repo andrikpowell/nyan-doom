@@ -2606,18 +2606,29 @@ void dsda_UpdateConsoleText(char* text) {
   length = strlen(text);
 
   for (i = 0; i < length; ++i) {
+    char ch = text[i];
+    int len;
     int shift_i;
 
-    if (text[i] < 32 || text[i] > 126)
+    if (ch < 32 || ch > 126)
       continue;
 
-    if (console_entry_index > CONSOLE_ENTRY_SIZE - 2)
-      console_entry_index = CONSOLE_ENTRY_SIZE - 2;
+    ch = (char)tolower((unsigned char)ch);
+    len = (int)strlen(console_entry->text);
 
-    for (shift_i = strlen(console_entry->text) - 1; shift_i > console_entry_index; --shift_i)
-      console_entry->text[shift_i] = console_entry->text[shift_i - 1];
+    // clamp cursor
+    if (console_entry_index < 0) console_entry_index = 0;
+    if (console_entry_index > len) console_entry_index = len;
 
-    console_entry->text[console_entry_index] = tolower(text[i]);
+    // if full length, don't allow more text
+    if (len >= CONSOLE_ENTRY_SIZE - 1)
+      continue;
+
+    // Insert text instead of replacing it
+    for (shift_i = len; shift_i >= console_entry_index; --shift_i)
+      console_entry->text[shift_i + 1] = console_entry->text[shift_i];
+
+    console_entry->text[console_entry_index] = ch;
     ++console_entry_index;
   }
 
@@ -2661,15 +2672,46 @@ void dsda_InterpretConsoleCommands(const char* str, dboolean noise, dboolean rai
 }
 
 void dsda_UpdateConsole(int action) {
-  if (action == MENU_BACKSPACE && console_entry_index > 0) {
+  if (action == MENU_BACKSPACE)
+  {
     int shift_i;
 
-    for (shift_i = console_entry_index; console_entry->text[shift_i]; ++shift_i)
-      console_entry->text[shift_i - 1] = console_entry->text[shift_i];
-    console_entry->text[shift_i - 1] = '\0';
+    // backspace: delete behind cursor
+    if (console_entry_index > 0)
+    {
+      for (shift_i = console_entry_index; console_entry->text[shift_i]; ++shift_i)
+        console_entry->text[shift_i - 1] = console_entry->text[shift_i];
+      console_entry->text[shift_i - 1] = '\0';
 
-    --console_entry_index;
-    dsda_UpdateConsoleDisplay();
+      --console_entry_index;
+      dsda_UpdateConsoleDisplay();
+    }
+    // Basically copy the delete key
+    else
+    {
+      if (console_entry->text[console_entry_index])
+      {
+        for (shift_i = console_entry_index + 1; console_entry->text[shift_i]; ++shift_i)
+          console_entry->text[shift_i - 1] = console_entry->text[shift_i];
+        console_entry->text[shift_i - 1] = '\0';
+
+        dsda_UpdateConsoleDisplay();
+      }
+    }
+  }
+  // Delete chars in front of cursor (delete key)
+  else if (action == MENU_CLEAR)
+  {
+    int shift_i;
+
+    if (console_entry->text[console_entry_index])
+    {
+      for (shift_i = console_entry_index + 1; console_entry->text[shift_i]; ++shift_i)
+        console_entry->text[shift_i - 1] = console_entry->text[shift_i];
+      console_entry->text[shift_i - 1] = '\0';
+
+      dsda_UpdateConsoleDisplay();
+    }
   }
   else if (action == MENU_ENTER) {
     dsda_InterpretConsoleCommands(console_entry->text, true, false);
