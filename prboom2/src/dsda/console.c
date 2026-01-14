@@ -1064,104 +1064,6 @@ static dboolean console_IDDT(const char* command, const char* args) {
   return true;
 }
 
-static dboolean console_IDDWT(const char* command, const char* args) {
-  int num;
-  sscanf(args, "%i", &num);
-  cheat_reveal_weaponx(num);
-
-  return true;
-}
-
-static int console_GetKey(const char* color, const char* type, int spr)
-{
-  int key = -1;
-
-  if (heretic)
-  {
-    if (!strcmp(color,"y"))
-      key = spr ? HERETIC_SPR_CKYY : key_yellow;
-    else if (!strcmp(color,"b"))
-      key = spr ? HERETIC_SPR_BKYY : key_blue;
-    else if (!strcmp(color,"g"))
-      key = spr ? HERETIC_SPR_AKYY : key_green;
-  }
-  else
-  {
-    if (!strcmp(color, "r"))
-    {
-      if (!strcmp(type, "c")) key = spr ? SPR_RKEY : it_redcard;
-      else if (!strcmp(type, "s")) key = spr ? SPR_RSKU : it_redskull;
-    }
-    if (!strcmp(color, "y"))
-    {
-      if (!strcmp(type, "c")) key = spr ? SPR_YKEY : it_yellowcard;
-      else if (!strcmp(type, "s")) key = spr ? SPR_YSKU : it_yellowskull;
-    }
-    if (!strcmp(color, "b"))
-    {
-      if (!strcmp(type, "c")) key = spr ? SPR_BKEY : it_bluecard;
-      else if (!strcmp(type, "s")) key = spr ? SPR_BSKU : it_blueskull;
-    }
-  }
-
-  return key;
-}
-
-static dboolean console_IDDF(const char* command, const char* args) {
-  int arg_count;
-  char color[CONSOLE_ENTRY_SIZE];
-  char type[CONSOLE_ENTRY_SIZE];
-  int key = -1;
-
-  arg_count = sscanf(args, "%s %s", color, type);
-
-  if (hexen) return false;
-  if (heretic && arg_count > 1) return false;
-
-  key = console_GetKey(color, type, true);
-
-  if (key != -1)
-  {
-    cheat_reveal_keyxx(key);
-
-    return true;
-  }
-
-  return false;
-}
-
-static dboolean console_KEY(const char* command, const char* args) {
-  int arg_count;
-  char color[CONSOLE_ENTRY_SIZE];
-  char type[CONSOLE_ENTRY_SIZE];
-  int key = -1;
-
-  arg_count = sscanf(args, "%s %s", color, type);
-
-  if (hexen) return false;
-  if (heretic && arg_count > 1) return false;
-
-  key = console_GetKey(color, type, false);
-
-  if (key != -1)
-  {
-    if (target_player.cards[key])
-    {
-      target_player.cards[key] = false;
-      target_player.ravenkeys &= ~(1 << key);
-    }
-    else
-    {
-      target_player.cards[key] = true;
-      target_player.ravenkeys |= 1 << key;
-    }
-
-    return true;
-  }
-
-  return false;
-}
-
 static dboolean console_CheatFullClip(const char* command, const char* args) {
   target_player.cheats ^= CF_INFINITE_AMMO;
   return true;
@@ -2532,6 +2434,7 @@ static console_command_entry_t console_commands[] = {
   // cheats
   { "idchoppers", console_BasicCheat, CF_DEMO },
   { "iddqd", console_BasicCheat, CF_DEMO },
+  { "buddha", console_BasicCheat, CF_DEMO },
   { "idkfa", console_BasicCheat, CF_DEMO },
   { "idfa", console_BasicCheat, CF_DEMO },
   { "idspispopd", console_BasicCheat, CF_DEMO },
@@ -2544,8 +2447,9 @@ static console_command_entry_t console_commands[] = {
   { "iddkt", console_BasicCheat, CF_DEMO },
   { "iddit", console_BasicCheat, CF_DEMO },
   { "iddet", console_BasicCheat, CF_DEMO },
-  { "iddwt", console_IDDWT, CF_DEMO },
-  { "iddf", console_IDDF, CF_DEMO },
+  { "iddwt", console_BasicCheat, CF_DEMO },
+  { "iddf", console_BasicCheat, CF_DEMO },
+  { "iddl", console_BasicCheat, CF_DEMO },
 
   { "idclev", console_BasicCheat, CF_DEMO },
   { "idmus", console_BasicCheat, CF_DEMO },
@@ -2570,7 +2474,7 @@ static console_command_entry_t console_commands[] = {
   { "ice", console_BasicCheat, CF_DEMO },
   { "nuke", console_BasicCheat, CF_DEMO },
   { "push", console_BasicCheat, CF_DEMO },
-  { "key", console_KEY, CF_DEMO },
+  { "key", console_BasicCheat, CF_DEMO },
 
   { "notarget", console_BasicCheat, CF_DEMO },
   { "fly", console_BasicCheat, CF_DEMO },
@@ -2609,6 +2513,9 @@ static console_command_entry_t console_commands[] = {
   // nyan
   { "idnut", console_BasicCheat, CF_NEVER },
   { "camera", console_BasicCheat, CF_NEVER },
+  { "strip", console_BasicCheat, CF_NEVER },
+  { "killme", console_BasicCheat, CF_NEVER },
+  { "basilisk", console_BasicCheat, CF_NEVER },
 
   // exit
   { "exit", console_Exit, CF_ALWAYS },
@@ -2699,18 +2606,29 @@ void dsda_UpdateConsoleText(char* text) {
   length = strlen(text);
 
   for (i = 0; i < length; ++i) {
+    char ch = text[i];
+    int len;
     int shift_i;
 
-    if (text[i] < 32 || text[i] > 126)
+    if (ch < 32 || ch > 126)
       continue;
 
-    if (console_entry_index > CONSOLE_ENTRY_SIZE - 2)
-      console_entry_index = CONSOLE_ENTRY_SIZE - 2;
+    ch = (char)tolower((unsigned char)ch);
+    len = (int)strlen(console_entry->text);
 
-    for (shift_i = strlen(console_entry->text) - 1; shift_i > console_entry_index; --shift_i)
-      console_entry->text[shift_i] = console_entry->text[shift_i - 1];
+    // clamp cursor
+    if (console_entry_index < 0) console_entry_index = 0;
+    if (console_entry_index > len) console_entry_index = len;
 
-    console_entry->text[console_entry_index] = tolower(text[i]);
+    // if full length, don't allow more text
+    if (len >= CONSOLE_ENTRY_SIZE - 1)
+      continue;
+
+    // Insert text instead of replacing it
+    for (shift_i = len; shift_i >= console_entry_index; --shift_i)
+      console_entry->text[shift_i + 1] = console_entry->text[shift_i];
+
+    console_entry->text[console_entry_index] = ch;
     ++console_entry_index;
   }
 
@@ -2754,15 +2672,46 @@ void dsda_InterpretConsoleCommands(const char* str, dboolean noise, dboolean rai
 }
 
 void dsda_UpdateConsole(int action) {
-  if (action == MENU_BACKSPACE && console_entry_index > 0) {
+  if (action == MENU_BACKSPACE)
+  {
     int shift_i;
 
-    for (shift_i = console_entry_index; console_entry->text[shift_i]; ++shift_i)
-      console_entry->text[shift_i - 1] = console_entry->text[shift_i];
-    console_entry->text[shift_i - 1] = '\0';
+    // backspace: delete behind cursor
+    if (console_entry_index > 0)
+    {
+      for (shift_i = console_entry_index; console_entry->text[shift_i]; ++shift_i)
+        console_entry->text[shift_i - 1] = console_entry->text[shift_i];
+      console_entry->text[shift_i - 1] = '\0';
 
-    --console_entry_index;
-    dsda_UpdateConsoleDisplay();
+      --console_entry_index;
+      dsda_UpdateConsoleDisplay();
+    }
+    // Basically copy the delete key
+    else
+    {
+      if (console_entry->text[console_entry_index])
+      {
+        for (shift_i = console_entry_index + 1; console_entry->text[shift_i]; ++shift_i)
+          console_entry->text[shift_i - 1] = console_entry->text[shift_i];
+        console_entry->text[shift_i - 1] = '\0';
+
+        dsda_UpdateConsoleDisplay();
+      }
+    }
+  }
+  // Delete chars in front of cursor (delete key)
+  else if (action == MENU_CLEAR)
+  {
+    int shift_i;
+
+    if (console_entry->text[console_entry_index])
+    {
+      for (shift_i = console_entry_index + 1; console_entry->text[shift_i]; ++shift_i)
+        console_entry->text[shift_i - 1] = console_entry->text[shift_i];
+      console_entry->text[shift_i - 1] = '\0';
+
+      dsda_UpdateConsoleDisplay();
+    }
   }
   else if (action == MENU_ENTER) {
     dsda_InterpretConsoleCommands(console_entry->text, true, false);

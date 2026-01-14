@@ -75,6 +75,7 @@ typedef struct
   int trail_1;
   int trail_2;
   int pickup;
+  int hitbox;
 } mapcolor_t;
 
 typedef struct map_point_s
@@ -168,7 +169,6 @@ typedef enum
 {
   map_things_appearance_classic,
   map_things_appearance_scaled,
-  map_things_appearance_box,
 
   map_things_appearance_max
 } map_things_appearance_t;
@@ -184,5 +184,17 @@ typedef enum
 extern map_trail_mode_t map_trail_mode;
 
 void AM_updatePlayerTrail(fixed_t x, fixed_t y);
+
+typedef enum
+{
+  map_player_arrow_default,
+  map_player_arrow_kex,
+  map_player_arrow_doom,
+  map_player_arrow_raven,
+
+  map_player_arrow_max
+} map_player_arrow_t;
+
+void AM_SetPlayerArrow(void);
 
 #endif

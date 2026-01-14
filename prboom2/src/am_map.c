@@ -114,6 +114,7 @@ static int map_grid_size;
 static int map_pan_speed;
 static int map_scroll_speed;
 static int map_wheel_zoom;
+static int map_things_hitboxes;
 static int map_opengl_nice_things;
 int map_textured;
 int map_use_multisampling;
@@ -201,6 +202,20 @@ mline_t doom_player_arrow[] =
 };
 #undef R
 #define NUMPLYRLINES (sizeof(doom_player_arrow)/sizeof(mline_t))
+
+#define R ((8*PLAYERRADIUS)/7)
+
+// Kex Player Arrow (4-line variant)
+mline_t kex_player_arrow[] =
+{
+  { { -7*R/8, -49*R/80 }, {  R, 0 } }, // Two long diagonals create the point "V"
+  { { -7*R/8,  49*R/80 }, {  R, 0 } },
+  { { -7*R/8, -49*R/80 }, { -7*R/20, 0 } }, // Two shorter diagonals form the rear notch "v"
+  { { -7*R/8,  49*R/80 }, { -7*R/20, 0 } },
+};
+
+#undef R
+#define KEX_NUMPLYRLINES (sizeof(kex_player_arrow)/sizeof(mline_t))
 
 //
 //  A line drawing of the player pointing right,
@@ -296,13 +311,73 @@ mline_t thintriangle_guy[] =
 #define R (FRACUNIT)
 mline_t thingbox_guy[] =
 {
-{ { (fixed_t)(-R), (fixed_t)(-R) }, { (fixed_t)( R), (fixed_t)(-R) } },
-{ { (fixed_t)( R), (fixed_t)(-R) }, { (fixed_t)( R), (fixed_t)( R) } },
-{ { (fixed_t)( R), (fixed_t)( R) }, { (fixed_t)(-R), (fixed_t)( R) } },
-{ { (fixed_t)(-R), (fixed_t)( R) }, { (fixed_t)(-R), (fixed_t)(-R) } }
+{ { (fixed_t)(-R), (fixed_t)(-R) }, { (fixed_t)( R), (fixed_t)(-R) } }, // Top
+{ { (fixed_t)( R), (fixed_t)(-R) }, { (fixed_t)( R), (fixed_t)( R) } }, // Right
+{ { (fixed_t)( R), (fixed_t)( R) }, { (fixed_t)(-R), (fixed_t)( R) } }, // Bottom
+{ { (fixed_t)(-R), (fixed_t)( R) }, { (fixed_t)(-R), (fixed_t)(-R) } }, // Left
+{ { (fixed_t)(-R), (fixed_t)(-R) }, { (fixed_t)( R), (fixed_t)( R) } }, // "\"
+{ { (fixed_t)(-R), (fixed_t)( R) }, { (fixed_t)( R), (fixed_t)(-R) } }, // "/"
 };
 #undef R
 #define NUMTHINGBOXGUYLINES (sizeof(thingbox_guy)/sizeof(mline_t))
+
+// Digit Segments
+#define R (FRACUNIT)
+#define SEG_T  { { -R/2,  R }, {  R/2,  R } } // top
+#define SEG_B  { { -R/2, -R }, {  R/2, -R } } // bottom
+#define SEG_M  { { -R/2,  0 }, {  R/2,  0 } } // middle
+#define SEG_TL { { -R/2,  R }, { -R/2,  0 } } // top-left
+#define SEG_BL { { -R/2,  0 }, { -R/2, -R } } // bottom-left
+#define SEG_TR { {  R/2,  R }, {  R/2,  0 } } // top-right
+#define SEG_BR { {  R/2,  0 }, {  R/2, -R } } // bottom-right
+
+#define SEG_1_Top    { { -R/8,  R/2 }, {  R/4,  R } } // 1 - top  "/"
+#define SEG_1_Middle { {  R/4,  R   }, {  R/4, -R } } // 1 - stem "|"
+#define SEG_7_Slant  { {  R/2,  R   }, { -R/8, -R } } // 7 - diagonal "/"
+
+// 7-seg Digits 0-9
+mline_t am_digit_0[] = { SEG_T, SEG_B, SEG_TL, SEG_BL, SEG_TR, SEG_BR };
+mline_t am_digit_1[] = { SEG_1_Middle, SEG_1_Top };
+mline_t am_digit_2[] = { SEG_T, SEG_M, SEG_B, SEG_TR, SEG_BL };
+mline_t am_digit_3[] = { SEG_T, SEG_M, SEG_B, SEG_TR, SEG_BR };
+mline_t am_digit_4[] = { SEG_M, SEG_TL, SEG_TR, SEG_BR };
+mline_t am_digit_5[] = { SEG_T, SEG_M, SEG_B, SEG_TL, SEG_BR };
+mline_t am_digit_6[] = { SEG_T, SEG_M, SEG_B, SEG_TL, SEG_BL, SEG_BR };
+mline_t am_digit_7[] = { SEG_T, SEG_7_Slant };
+mline_t am_digit_8[] = { SEG_T, SEG_M, SEG_B, SEG_TL, SEG_BL, SEG_TR, SEG_BR };
+mline_t am_digit_9[] = { SEG_T, SEG_M, SEG_B, SEG_TL, SEG_TR, SEG_BR };
+
+mline_t *am_digits[] =
+{
+  am_digit_0, am_digit_1, am_digit_2, am_digit_3, am_digit_4,
+  am_digit_5, am_digit_6, am_digit_7, am_digit_8, am_digit_9
+};
+
+const int am_digit_lines[] =
+{
+  sizeof(am_digit_0)/sizeof(mline_t),
+  sizeof(am_digit_1)/sizeof(mline_t),
+  sizeof(am_digit_2)/sizeof(mline_t),
+  sizeof(am_digit_3)/sizeof(mline_t),
+  sizeof(am_digit_4)/sizeof(mline_t),
+  sizeof(am_digit_5)/sizeof(mline_t),
+  sizeof(am_digit_6)/sizeof(mline_t),
+  sizeof(am_digit_7)/sizeof(mline_t),
+  sizeof(am_digit_8)/sizeof(mline_t),
+  sizeof(am_digit_9)/sizeof(mline_t),
+};
+
+#undef SEG_T
+#undef SEG_B
+#undef SEG_M
+#undef SEG_TL
+#undef SEG_BL
+#undef SEG_TR
+#undef SEG_BR
+#undef SEG_1_Top
+#undef SEG_1_Middle
+#undef SEG_7_Slant
+#undef R
 
 int automap_active;
 int automap_overlay;
@@ -742,6 +817,38 @@ void AM_initPlayerTrail(void)
   map_trail_mode = dsda_IntConfig(dsda_config_map_trail) ? trail_collisions : map_trail_mode_off;
 }
 
+void AM_SetPlayerArrow(void)
+{
+  switch (dsda_IntConfig(dsda_config_map_player_arrow))
+  {
+    case map_player_arrow_kex:
+      numplyrlines = KEX_NUMPLYRLINES;
+      player_arrow = kex_player_arrow;
+      numcheatplyrlines = raven ? RAVEN_NUMCHEATPLYRLINES : NUMCHEATPLYRLINES;
+      cheat_player_arrow = raven ? raven_cheat_player_arrow : doom_cheat_player_arrow;
+      break;
+    case map_player_arrow_doom:
+      numplyrlines = NUMPLYRLINES;
+      player_arrow = doom_player_arrow;
+      numcheatplyrlines = NUMCHEATPLYRLINES;
+      cheat_player_arrow = doom_cheat_player_arrow;
+      break;
+    case map_player_arrow_raven:
+      numplyrlines = RAVEN_NUMPLYRLINES;
+      player_arrow = raven_player_arrow;
+      numcheatplyrlines = RAVEN_NUMCHEATPLYRLINES;
+      cheat_player_arrow = raven_cheat_player_arrow;
+      break;
+    case map_player_arrow_default:
+    default:
+      numplyrlines = raven ? RAVEN_NUMPLYRLINES : NUMPLYRLINES;
+      player_arrow = raven ? raven_player_arrow : doom_player_arrow;
+      numcheatplyrlines = raven ? RAVEN_NUMCHEATPLYRLINES : NUMCHEATPLYRLINES;
+      cheat_player_arrow = raven ? raven_cheat_player_arrow : doom_cheat_player_arrow;
+      break;
+  }
+}
+
 //
 // AM_initVariables()
 //
@@ -757,21 +864,7 @@ static void AM_initVariables(void)
   stretch_param_t *params = dsda_StretchParams(VPT_STRETCH);
 
   AM_initPlayerTrail();
-
-  if (raven)
-  {
-    numplyrlines = RAVEN_NUMPLYRLINES;
-    player_arrow = raven_player_arrow;
-    numcheatplyrlines = RAVEN_NUMCHEATPLYRLINES;
-    cheat_player_arrow = raven_cheat_player_arrow;
-  }
-  else
-  {
-    numplyrlines = NUMPLYRLINES;
-    player_arrow = doom_player_arrow;
-    numcheatplyrlines = NUMCHEATPLYRLINES;
-    cheat_player_arrow = doom_cheat_player_arrow;
-  }
+  AM_SetPlayerArrow();
 
   m_paninc.x = m_paninc.y = 0;
   ftom_zoommul = FRACUNIT;
@@ -858,6 +951,7 @@ void AM_InitParams(void)
   map_grid_size = dsda_IntConfig(dsda_config_map_grid_size);
   map_wheel_zoom = dsda_IntConfig(dsda_config_map_wheel_zoom);
   map_things_appearance = dsda_IntConfig(dsda_config_map_things_appearance);
+  map_things_hitboxes = dsda_IntConfig(dsda_config_map_things_hitbox);
   map_opengl_nice_things = dsda_IntConfig(dsda_config_map_things_nice);
 }
 
@@ -2077,6 +2171,7 @@ static void AM_drawLineCharacter
 ( mline_t*  lineguy,
   int   lineguylines,
   fixed_t scale,
+  fixed_t box_scale,
   angle_t angle,
   int   color,
   fixed_t x,
@@ -2084,6 +2179,9 @@ static void AM_drawLineCharacter
 {
   int   i;
   mline_t l;
+
+  if (box_scale)
+    AM_drawLineCharacter(thingbox_guy, NUMTHINGBOXGUYLINES, box_scale, 0, 0x40000000, mapcolor_p->hitbox, x, y);
 
   if (automap_rotate) angle -= viewangle - ANG90; // cph
 
@@ -2164,6 +2262,7 @@ static void AM_drawPlayers(void)
   angle_t angle;
   mpoint_t pt;
   fixed_t scale;
+  fixed_t box_scale = 0;
 
 #if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
@@ -2178,6 +2277,10 @@ static void AM_drawPlayers(void)
   else
     scale = 16<<MAPBITS;
 
+  // Needed for hitboxes
+  if (map_things_hitboxes && dsda_RevealAutomap() == 2)
+    box_scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, plr->mo->radius)>>FRACTOMAPBITS);
+
   if (!netgame)
   {
     pt.x = viewx >> FRACTOMAPBITS;
@@ -2188,9 +2291,9 @@ static void AM_drawPlayers(void)
       AM_SetMPointFloatValue(&pt);
 
     if (dsda_RevealAutomap())
-      AM_drawLineCharacter(cheat_player_arrow, numcheatplyrlines, scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
+      AM_drawLineCharacter(cheat_player_arrow, numcheatplyrlines, scale, box_scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
     else
-      AM_drawLineCharacter(player_arrow, numplyrlines, scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
+      AM_drawLineCharacter(player_arrow, numplyrlines, scale, box_scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
     return;
   }
 
@@ -2209,7 +2312,7 @@ static void AM_drawPlayers(void)
       else
         AM_SetMPointFloatValue(&pt);
 
-      AM_drawLineCharacter (player_arrow, numplyrlines, scale, angle,
+      AM_drawLineCharacter (player_arrow, numplyrlines, scale, box_scale, angle,
           p->powers[pw_invisibility] ? 246 /* *close* to black */
           : mapcolor_p->plyr[i], //jff 1/6/98 use default color
           pt.x, pt.y);
@@ -2821,6 +2924,7 @@ static void AM_drawThings(void)
       mpoint_t p;
       angle_t angle;
       fixed_t scale;
+      fixed_t box_scale = 0;
       int color = -1;
 
       //e6y: stop if all enemies from current sector already has been drawn
@@ -2833,11 +2937,14 @@ static void AM_drawThings(void)
         continue;
       }
 
-      if (map_things_appearance == map_things_appearance_scaled
-        || map_things_appearance == map_things_appearance_box)
+      if (map_things_appearance == map_things_appearance_scaled)
         scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, t->radius)>>FRACTOMAPBITS);// * 16 / 20;
       else
         scale = 16<<MAPBITS;
+
+      // Needed for hitboxes
+      if (map_things_hitboxes)
+        box_scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, t->radius)>>FRACTOMAPBITS);// * 16 / 20;
 
       AM_GetMobjPosition(t, &p, &angle);
 
@@ -2845,13 +2952,6 @@ static void AM_drawThings(void)
         AM_rotatePoint(&p);
       else
         AM_SetMPointFloatValue(&p);
-
-      if (map_things_appearance == map_things_appearance_box)
-      {
-        lineguy = thingbox_guy;
-        lineguylines = NUMTHINGBOXGUYLINES;
-        angle = 0x40000000;
-      }
 
       //jff 1/5/98 case over doomednum of thing being drawn
       if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
@@ -2872,7 +2972,7 @@ static void AM_drawThings(void)
 
             if (color != -1)
             {
-              AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, hexkey_scale, 0, color, p.x, p.y);
+              AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, hexkey_scale, box_scale, 0, color, p.x, p.y);
               t = t->snext;
               continue;
             }
@@ -2891,7 +2991,7 @@ static void AM_drawThings(void)
 
             if (color != -1)
             {
-              AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, t->angle, color, p.x, p.y);
+              AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, box_scale, t->angle, color, p.x, p.y);
               t = t->snext;
               continue;
             }
@@ -2911,7 +3011,7 @@ static void AM_drawThings(void)
 
           if (color != -1)
           {
-            AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, scale, 0, color, p.x, p.y);
+            AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, scale, box_scale, 0, color, p.x, p.y);
             t = t->snext;
             continue;
           }
@@ -2931,7 +3031,7 @@ static void AM_drawThings(void)
 
           if (color != -1)
           {
-            AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, t->angle, color, p.x, p.y);
+            AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, box_scale, t->angle, color, p.x, p.y);
             t = t->snext;
             continue;
           }
@@ -2958,7 +3058,7 @@ static void AM_drawThings(void)
 
         if (color != -1)
         {
-          AM_drawLineCharacter(lineguy, lineguylines, scale, angle, color, p.x, p.y);
+          AM_drawLineCharacter(lineguy, lineguylines, scale, box_scale, angle, color, p.x, p.y);
           t = t->snext;
           continue;
         }
@@ -2981,7 +3081,7 @@ static void AM_drawThings(void)
 
       //jff 1/5/98 end added code for keys
       //jff previously entire code
-      AM_drawLineCharacter(lineguy, lineguylines, scale, angle, color, p.x, p.y);
+      AM_drawLineCharacter(lineguy, lineguylines, scale, box_scale, angle, color, p.x, p.y);
       t = t->snext;
     }
    }
@@ -3134,6 +3234,7 @@ static void AM_drawMarks(void)
     {
       int k, w;
       mpoint_t p;
+      fixed_t mx, my;
 
       p.x = markpoints[i].x;// - m_x + prev_m_x;
       p.y = markpoints[i].y;// - m_y + prev_m_y;
@@ -3142,6 +3243,10 @@ static void AM_drawMarks(void)
         AM_rotatePoint(&p);
       else
         AM_SetMPointFloatValue(&p);
+
+      // Save coordinates for vector
+      mx = p.x;
+      my = p.y;
 
       p.x = CXMTOF(p.x) - markpoints[i].w * SCREENWIDTH / 320 / 2;
       p.y = CYMTOF(p.y) - markpoints[i].h * SCREENHEIGHT / 200 / 2;
@@ -3155,64 +3260,98 @@ static void AM_drawMarks(void)
           p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y :
           p.y < f_y + f_h && p.y >= f_y)
       {
-        w = 0;
-        for (k = 0; k < (int)strlen(markpoints[i].label); k++)
+        // Vector Markers
+        if (dsda_IntConfig(dsda_config_map_marker_style))
         {
-          namebuf[namelen] = markpoints[i].label[k];
+          fixed_t digit_size    = FRACUNIT * 2 * SCREENWIDTH / 320;
+          fixed_t digit_scale   = FixedDiv(digit_size, scale_mtof);
+          fixed_t digit_spacing = FixedMul(digit_scale, FRACUNIT*2);
+          angle_t digit_angle   = automap_rotate ? (viewangle - ANG90) : 0;
 
-          if (p.x < f_x + f_w &&
-              p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
+          // Center digit on marker
+          fixed_t bx = mx;
+          fixed_t by = my;
+
+          int len = (int)strlen(markpoints[i].label);
+          if (len > 1)
+            bx -= (digit_spacing * (len - 1)) / 2;
+
+          for (k = 0; k < len; k++)
           {
-            float fx, fy;
-            int x, y, flags;
-
-            switch (render_stretch_hud)
+            int d = markpoints[i].label[k] - '0';
+            if ((unsigned)d <= 9)
             {
-              default:
-              case patch_stretch_not_adjusted:
-                fx = (float)p.fx / patches_scalex;
-                fy = (float)p.fy * 200.0f / SCREENHEIGHT;
-
-                x = p.x / patches_scalex;
-                y = p.y * 200 / SCREENHEIGHT;
-
-                flags = VPT_ALIGN_LEFT | VPT_STRETCH;
-                break;
-              case patch_stretch_doom_format:
-                fx = (float)p.fx * 320.0f / WIDE_SCREENWIDTH;
-                fy = (float)p.fy * 200.0f / WIDE_SCREENHEIGHT;
-
-                x = p.x * 320 / WIDE_SCREENWIDTH;
-                y = p.y * 200 / WIDE_SCREENHEIGHT;
-
-                flags = VPT_ALIGN_LEFT | VPT_STRETCH;
-                break;
-              case patch_stretch_fit_to_width:
-                fx = (float)p.fx * 320.0f / SCREENWIDTH;
-                fy = (float)p.fy * 200.0f / SCREENHEIGHT;
-
-                x = p.x * 320 / SCREENWIDTH;
-                y = p.y * 200 / SCREENHEIGHT;
-
-                flags = VPT_ALIGN_WIDE | VPT_STRETCH;
-                break;
+              AM_drawLineCharacter(am_digits[d], am_digit_lines[d],
+                                  digit_scale, 0, digit_angle, mapcolor_p->trail_1,
+                                  bx, by);
             }
-
-            if (am_frame.precise)
-            {
-              V_DrawNamePatchPrecise(fx, fy, namebuf, CR_DEFAULT, flags);
-            }
-            else
-            {
-              V_DrawNamePatch(x, y, namebuf, CR_DEFAULT, flags);
-            }
+            bx += digit_spacing;
           }
 
-          w += markpoints[i].widths[k] + 1;
-          p.x += w * SCREENWIDTH / 320;
-          if (am_frame.precise)
+          continue;
+        }
+        // Patch Markers
+        else
+        {
+          w = 0;
+          for (k = 0; k < (int)strlen(markpoints[i].label); k++)
           {
-            p.fx += (float)w * SCREENWIDTH / 320.0f;
+            namebuf[namelen] = markpoints[i].label[k];
+
+            if (p.x < f_x + f_w &&
+                p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
+            {
+              float fx, fy;
+              int x, y, flags;
+
+              switch (render_stretch_hud)
+              {
+                default:
+                case patch_stretch_not_adjusted:
+                  fx = (float)p.fx / patches_scalex;
+                  fy = (float)p.fy * 200.0f / SCREENHEIGHT;
+
+                  x = p.x / patches_scalex;
+                  y = p.y * 200 / SCREENHEIGHT;
+
+                  flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+                  break;
+                case patch_stretch_doom_format:
+                  fx = (float)p.fx * 320.0f / WIDE_SCREENWIDTH;
+                  fy = (float)p.fy * 200.0f / WIDE_SCREENHEIGHT;
+
+                  x = p.x * 320 / WIDE_SCREENWIDTH;
+                  y = p.y * 200 / WIDE_SCREENHEIGHT;
+
+                  flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+                  break;
+                case patch_stretch_fit_to_width:
+                  fx = (float)p.fx * 320.0f / SCREENWIDTH;
+                  fy = (float)p.fy * 200.0f / SCREENHEIGHT;
+
+                  x = p.x * 320 / SCREENWIDTH;
+                  y = p.y * 200 / SCREENHEIGHT;
+
+                  flags = VPT_ALIGN_WIDE | VPT_STRETCH;
+                  break;
+              }
+
+              if (am_frame.precise)
+              {
+                V_DrawNamePatchPrecise(fx, fy, namebuf, CR_DEFAULT, flags);
+              }
+              else
+              {
+                V_DrawNamePatch(x, y, namebuf, CR_DEFAULT, flags);
+              }
+            }
+
+            w += markpoints[i].widths[k] + 1;
+            p.x += w * SCREENWIDTH / 320;
+            if (am_frame.precise)
+            {
+              p.fx += (float)w * SCREENWIDTH / 320.0f;
+            }
           }
         }
       }
@@ -3232,44 +3371,48 @@ static void AM_drawMarks(void)
 
 static void AM_drawCrosshair(int color)
 {
-  fline_t line;
+  // [crispy] do not draw the useless dot on the player arrow
+  if (!automap_follow)
+  {
+    fline_t line;
 
-  int thickness = AM_GetLineWeight();
+    int thickness = AM_GetLineWeight();
 
-  // Instead of two lines, draw a square instead.
-  // With thick lines, the square will appear to be a circle.
-  int x0 = f_x+(f_w/2);
-  int x1 = f_x+(f_w/2)+thickness;
-  int y0 = f_y+(f_h/2);
-  int y1 = f_y+(f_h/2)+thickness;
+    // Instead of two lines, draw a square instead.
+    // With thick lines, the square will appear to be a circle.
+    int x0 = f_x+(f_w/2);
+    int x1 = f_x+(f_w/2)+thickness;
+    int y0 = f_y+(f_h/2);
+    int y1 = f_y+(f_h/2)+thickness;
 
-  // top
-  line.a.x = x0; line.a.y = y0;
-  line.b.x = x1; line.b.y = y0;
-  AM_SetFPointFloatValue(&line.a);
-  AM_SetFPointFloatValue(&line.b);
-  V_DrawLine(&line, color);
+    // top
+    line.a.x = x0; line.a.y = y0;
+    line.b.x = x1; line.b.y = y0;
+    AM_SetFPointFloatValue(&line.a);
+    AM_SetFPointFloatValue(&line.b);
+    V_DrawLine(&line, color);
 
-  // bottom
-  line.a.x = x0; line.a.y = y1;
-  line.b.x = x1; line.b.y = y1;
-  AM_SetFPointFloatValue(&line.a);
-  AM_SetFPointFloatValue(&line.b);
-  V_DrawLine(&line, color);
+    // bottom
+    line.a.x = x0; line.a.y = y1;
+    line.b.x = x1; line.b.y = y1;
+    AM_SetFPointFloatValue(&line.a);
+    AM_SetFPointFloatValue(&line.b);
+    V_DrawLine(&line, color);
 
-  // left
-  line.a.x = x0; line.a.y = y0;
-  line.b.x = x0; line.b.y = y1;
-  AM_SetFPointFloatValue(&line.a);
-  AM_SetFPointFloatValue(&line.b);
-  V_DrawLine(&line, color);
+    // left
+    line.a.x = x0; line.a.y = y0;
+    line.b.x = x0; line.b.y = y1;
+    AM_SetFPointFloatValue(&line.a);
+    AM_SetFPointFloatValue(&line.b);
+    V_DrawLine(&line, color);
 
-  // right
-  line.a.x = x1; line.a.y = y0;
-  line.b.x = x1; line.b.y = y1;
-  AM_SetFPointFloatValue(&line.a);
-  AM_SetFPointFloatValue(&line.b);
-  V_DrawLine(&line, color);
+    // right
+    line.a.x = x1; line.a.y = y0;
+    line.b.x = x1; line.b.y = y1;
+    AM_SetFPointFloatValue(&line.a);
+    AM_SetFPointFloatValue(&line.b);
+    V_DrawLine(&line, color);
+  }
 }
 
 void M_ChangeMapTextured(void)

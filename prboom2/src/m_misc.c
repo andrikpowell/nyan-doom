@@ -95,6 +95,8 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_ansi_endoom),
   MIGRATED_SETTING(dsda_config_quit_sounds),
   MIGRATED_SETTING(dsda_config_announce_map),
+  MIGRATED_SETTING(dsda_config_obituaries),
+  MIGRATED_SETTING(dsda_config_obituaries_color),
 
   SETTING_HEADING("Game settings"),
   MIGRATED_SETTING(dsda_config_default_complevel),
@@ -167,10 +169,10 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_background_fps_limit),
   MIGRATED_SETTING(dsda_config_sdl_video_window_pos),
   MIGRATED_SETTING(dsda_config_sdl_video_display_index),
-  MIGRATED_SETTING(dsda_config_palette_ondamage_range),
   MIGRATED_SETTING(dsda_config_palette_ondamage),
   MIGRATED_SETTING(dsda_config_palette_onbonus),
   MIGRATED_SETTING(dsda_config_palette_onpowers),
+  MIGRATED_SETTING(dsda_config_palette_oneffects),
   MIGRATED_SETTING(dsda_config_enhanced_liteamp),
   MIGRATED_SETTING(dsda_config_colored_borderbox),
   MIGRATED_SETTING(dsda_config_render_wipescreen),
@@ -259,6 +261,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_mapcolor_me),
   MIGRATED_SETTING(dsda_config_mapcolor_enemy),
   MIGRATED_SETTING(dsda_config_mapcolor_frnd),
+  MIGRATED_SETTING(dsda_config_mapcolor_hitbox),
   MIGRATED_SETTING(dsda_config_mapcolor_trail_1),
   MIGRATED_SETTING(dsda_config_mapcolor_trail_2),
 
@@ -291,6 +294,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_me),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_enemy),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_frnd),
+  MIGRATED_SETTING(dsda_config_mapcolor_heretic_hitbox),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_trail_1),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_trail_2),
 
@@ -317,6 +321,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_me),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_enemy),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_frnd),
+  MIGRATED_SETTING(dsda_config_mapcolor_hexen_hitbox),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_trail_1),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_trail_2),
 
@@ -332,6 +337,8 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_map_trail),
   MIGRATED_SETTING(dsda_config_map_trail_collisions),
   MIGRATED_SETTING(dsda_config_map_trail_size),
+  MIGRATED_SETTING(dsda_config_map_player_arrow),
+  MIGRATED_SETTING(dsda_config_map_marker_style),
   MIGRATED_SETTING(dsda_config_automap_overlay),
   MIGRATED_SETTING(dsda_config_automap_background),
   MIGRATED_SETTING(dsda_config_automap_background_shade),
@@ -350,6 +357,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_map_textured_overlay_trans),
   MIGRATED_SETTING(dsda_config_map_lines_overlay_trans),
   MIGRATED_SETTING(dsda_config_map_things_appearance),
+  MIGRATED_SETTING(dsda_config_map_things_hitbox),
   MIGRATED_SETTING(dsda_config_map_things_nice),
 
   SETTING_HEADING("Heads-up display settings"),
@@ -397,6 +405,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_show_level_splits),
   MIGRATED_SETTING(dsda_config_skip_quit_prompt),
   MIGRATED_SETTING(dsda_config_show_split_data),
+  MIGRATED_SETTING(dsda_config_demo_author),
   MIGRATED_SETTING(dsda_config_player_name),
   MIGRATED_SETTING(dsda_config_quickstart_cache_tics),
   MIGRATED_SETTING(dsda_config_death_use_action),
@@ -607,6 +616,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_menu_clear", dsda_input_menu_clear, KEYD_DEL, -1, DSDA_CONTROLLER_BUTTON_BACK),
 
   INPUT_SETTING("input_iddqd", dsda_input_iddqd, 0, -1, -1),
+  INPUT_SETTING("input_buddha", dsda_input_buddha, 0, -1, -1),
   INPUT_SETTING("input_idkfa", dsda_input_idkfa, 0, -1, -1),
   INPUT_SETTING("input_idfa", dsda_input_idfa, 0, -1, -1),
   INPUT_SETTING("input_idclip", dsda_input_idclip, 0, -1, -1),
@@ -626,6 +636,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_chicken", dsda_input_chicken, 0, -1, -1),
   INPUT_SETTING("input_idmusrr", dsda_input_idmusrr, 0, -1, -1),
   INPUT_SETTING("input_camera", dsda_input_camera, 0, -1, -1),
+  INPUT_SETTING("input_basilisk", dsda_input_basilisk, 0, -1, -1),
 
   INPUT_SETTING("input_lookup", dsda_input_lookup, 0, -1, -1),
   INPUT_SETTING("input_lookdown", dsda_input_lookdown, 0, -1, -1),

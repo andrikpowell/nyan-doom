@@ -65,23 +65,23 @@ void Heretic_F_StartFinale(void)
   switch (gameepisode)
   {
     case 1:
-      finaleflat = "FLOOR25";
+      finaleflat = HERETIC_BGFLATE1;
       finaletext = HERETIC_E1TEXT;
       break;
     case 2:
-      finaleflat = "FLATHUH1";
+      finaleflat = HERETIC_BGFLATE2;
       finaletext = HERETIC_E2TEXT;
       break;
     case 3:
-      finaleflat = "FLTWAWA2";
+      finaleflat = HERETIC_BGFLATE3;
       finaletext = HERETIC_E3TEXT;
       break;
     case 4:
-      finaleflat = "FLOOR28";
+      finaleflat = HERETIC_BGFLATE4;
       finaletext = HERETIC_E4TEXT;
       break;
     case 5:
-      finaleflat = "FLOOR08";
+      finaleflat = HERETIC_BGFLATE5;
       finaletext = HERETIC_E5TEXT;
       break;
   }

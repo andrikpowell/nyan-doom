@@ -846,7 +846,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 static mobj_t *ActiveMinotaur(player_t * master);
 
 // killough 11/98: make static
-static void P_KillMobj(mobj_t *source, mobj_t *target)
+static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method_t mod)
 {
   mobjtype_t item;
   mobj_t     *mo;
@@ -999,6 +999,10 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
 
     target->player->playerstate = PST_DEAD;
     P_DropWeapon (target->player);
+
+    // print obituary
+    if (dsda_IntConfig(dsda_config_obituaries))
+      dsda_Obituary(target, inflictor, source, mod);
 
     // heretic
     if (target->flags2 & MF2_FIREDAMAGE)
@@ -1232,7 +1236,7 @@ static dboolean P_InfightingImmune(mobj_t *target, mobj_t *source)
 
 static dboolean P_MorphMonster(mobj_t * actor);
 
-void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
+void P_DamageMobjBy(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage, method_t mod)
 {
   player_t *player;
   dboolean justhit = false;          /* killough 11/98 */
@@ -1622,6 +1626,11 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
     }
 
     player->health -= damage;       // mirror mobj health here for Dave
+    // BUDDHA cheat
+    if (player->cheats & CF_BUDDHA &&
+        player->health < 1)
+      player->health = 1;
+    else
     if (player->health < 0)
       player->health = 0;
 
@@ -1641,6 +1650,14 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 
   // do the damage
   target->health -= damage;
+
+  // BUDDHA cheat
+  if (player && player->cheats & CF_BUDDHA &&
+      target->health < 1)
+  {
+    target->health = 1;
+  }
+  else
   if (target->health <= 0)
   {
     if (heretic) {
@@ -1699,7 +1716,7 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
       }
     }
 
-    P_KillMobj (source, target);
+    P_KillMobj(source, inflictor, target, mod);
     return;
   }
 
@@ -2596,63 +2613,6 @@ void P_AutoUseHealth(player_t * player, int saveHealth)
 
 // hexen
 
-#define TXT_MANA_1    "BLUE MANA"
-#define TXT_MANA_2    "GREEN MANA"
-#define TXT_MANA_BOTH "COMBINED MANA"
-
-#define TXT_KEY_STEEL   "STEEL KEY"
-#define TXT_KEY_CAVE    "CAVE KEY"
-#define TXT_KEY_AXE     "AXE KEY"
-#define TXT_KEY_FIRE    "FIRE KEY"
-#define TXT_KEY_EMERALD "EMERALD KEY"
-#define TXT_KEY_DUNGEON "DUNGEON KEY"
-#define TXT_KEY_SILVER  "SILVER KEY"
-#define TXT_KEY_RUSTED  "RUSTED KEY"
-#define TXT_KEY_HORN    "HORN KEY"
-#define TXT_KEY_SWAMP   "SWAMP KEY"
-#define TXT_KEY_CASTLE  "CASTLE KEY"
-
-#define TXT_ARTIINVULNERABILITY "ICON OF THE DEFENDER"
-#define TXT_ARTIHEALTH          "QUARTZ FLASK"
-#define TXT_ARTISUPERHEALTH     "MYSTIC URN"
-#define TXT_ARTIHEALINGRADIUS   "MYSTIC AMBIT INCANT"
-#define TXT_ARTISUMMON          "DARK SERVANT"
-#define TXT_ARTITORCH           "TORCH"
-#define TXT_ARTIEGG             "PORKALATOR"
-#define TXT_ARTIFLY             "WINGS OF WRATH"
-#define TXT_ARTIBLASTRADIUS     "DISC OF REPULSION"
-#define TXT_ARTIPOISONBAG       "FLECHETTE"
-#define TXT_ARTITELEPORTOTHER   "BANISHMENT DEVICE"
-#define TXT_ARTISPEED           "BOOTS OF SPEED"
-#define TXT_ARTIBOOSTMANA       "KRATER OF MIGHT"
-#define TXT_ARTIBOOSTARMOR      "DRAGONSKIN BRACERS"
-#define TXT_ARTITELEPORT        "CHAOS DEVICE"
-
-#define TXT_ITEMHEALTH        "CRYSTAL VIAL"
-#define TXT_ITEMBAGOFHOLDING "BAG OF HOLDING"
-#define TXT_ITEMSHIELD1      "SILVER SHIELD"
-#define TXT_ITEMSHIELD2      "ENCHANTED SHIELD"
-#define TXT_ITEMSUPERMAP     "MAP SCROLL"
-
-#define TXT_ARMOR1 "MESH ARMOR"
-#define TXT_ARMOR2 "FALCON SHIELD"
-#define TXT_ARMOR3 "PLATINUM HELMET"
-#define TXT_ARMOR4 "AMULET OF WARDING"
-
-#define TXT_WEAPON_F2 "TIMON'S AXE"
-#define TXT_WEAPON_F3 "HAMMER OF RETRIBUTION"
-#define TXT_WEAPON_F4 "QUIETUS ASSEMBLED"
-#define TXT_WEAPON_C2 "SERPENT STAFF"
-#define TXT_WEAPON_C3 "FIRESTORM"
-#define TXT_WEAPON_C4 "WRAITHVERGE ASSEMBLED"
-#define TXT_WEAPON_M2 "FROST SHARDS"
-#define TXT_WEAPON_M3 "ARC OF DEATH"
-#define TXT_WEAPON_M4 "BLOODSCOURGE ASSEMBLED"
-
-#define TXT_QUIETUS_PIECE      "SEGMENT OF QUIETUS"
-#define TXT_WRAITHVERGE_PIECE  "SEGMENT OF WRAITHVERGE"
-#define TXT_BLOODSCOURGE_PIECE "SEGMENT OF BLOODSCOURGE"
-
 const char *TextKeyMessages[] = {
     TXT_KEY_STEEL,
     TXT_KEY_CAVE,
@@ -2667,6 +2627,20 @@ const char *TextKeyMessages[] = {
     TXT_KEY_CASTLE
 };
 
+const char *TextLockedDoorMessages[] = {
+    TXT_NEED_KEY_STEEL,
+    TXT_NEED_KEY_CAVE,
+    TXT_NEED_KEY_AXE,
+    TXT_NEED_KEY_FIRE,
+    TXT_NEED_KEY_EMERALD,
+    TXT_NEED_KEY_DUNGEON,
+    TXT_NEED_KEY_SILVER,
+    TXT_NEED_KEY_RUSTED,
+    TXT_NEED_KEY_HORN,
+    TXT_NEED_KEY_SWAMP,
+    TXT_NEED_KEY_CASTLE
+};
+
 void P_FallingDamage(player_t * player)
 {
     int damage;
@@ -2678,7 +2652,7 @@ void P_FallingDamage(player_t * player)
 
     if (mom >= 63 * FRACUNIT)
     {                           // automatic death
-        P_DamageMobj(player->mo, NULL, NULL, 10000);
+        P_DamageMobjBy(player->mo, NULL, NULL, 10000, MOD_Falling);
         return;
     }
     damage = ((FixedMul(dist, dist) / 10) >> FRACBITS) - 24;
@@ -2688,7 +2662,7 @@ void P_FallingDamage(player_t * player)
         damage = player->mo->health - 1;
     }
     S_StartMobjSound(player->mo, hexen_sfx_player_land);
-    P_DamageMobj(player->mo, NULL, NULL, damage);
+    P_DamageMobjBy(player->mo, NULL, NULL, damage, MOD_Falling);
 }
 
 void P_PoisonDamage(player_t * player, mobj_t * source, int damage,
@@ -2722,6 +2696,11 @@ void P_PoisonDamage(player_t * player, mobj_t * source, int damage,
         P_AutoUseHealth(player, damage - player->health + 1);
     }
     player->health -= damage;   // mirror mobj health here for Dave
+    // BUDDHA cheat
+    if (player->cheats & CF_BUDDHA &&
+        player->health < 1)
+      player->health = 1;
+    else
     if (player->health < 0)
     {
         player->health = 0;
@@ -2732,6 +2711,14 @@ void P_PoisonDamage(player_t * player, mobj_t * source, int damage,
     // do the damage
     //
     target->health -= damage;
+
+    // BUDDHA cheat
+    if (player && player->cheats & CF_BUDDHA &&
+        target->health < 1)
+    {
+      target->health = 1;
+    }
+    else
     if (target->health <= 0)
     {                           // Death
         target->special1.i = damage;
@@ -2747,7 +2734,7 @@ void P_PoisonDamage(player_t * player, mobj_t * source, int damage,
                 target->flags2 |= MF2_ICEDAMAGE;
             }
         }
-        P_KillMobj(source, target);
+        P_KillMobj(source, inflictor, target, MOD_None);
         return;
     }
     if (!(leveltime & 63) && playPainSound)

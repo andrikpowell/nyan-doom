@@ -21,48 +21,83 @@
 
 typedef struct {
   dsda_text_t component;
-  dsda_text_t author;
   dboolean center;
 } local_component_t;
 
 static local_component_t* local;
 
-static void dsda_UpdateAuthorText(char* str, size_t max_size) {
-  char* HU_AuthorMessage(void);
+static void dsda_RefreshHudTextAnnounceWrapped(dsda_text_t *component, int centered)
+{
+  char *msg = component->msg;
+  char *split;
+  char saved;
 
-  char* message;
+  HUlib_clearTextLine(&component->text);
 
-  message = HU_AuthorMessage();
+  if (!msg || !*msg)
+    return;
 
-  if (message)
-    snprintf(
-      str,
-      max_size,
-      "\n%sby %s",
-      dsda_TextColor(dsda_tc_hud_announce_author),
-      message
-    );
-  else
-    str[0] = '\0';
+  split = strchr(msg, '\n');
+  if (!split)
+  {
+    HUlib_WrapStringToTextLines(&component->text, msg, centered, 2);
+    return;
+  }
+
+  saved = *split;
+  *split = '\0';
+
+  // Title - 2 lines only
+  HUlib_WrapStringToTextLines(&component->text, msg, centered, 2);
+
+  *split = saved;
+
+  // Even if the title got ellipsized and returned early.
+  // Only add newline if we aren't already at a fresh line.
+  if (component->text.len > 0 && component->text.l[component->text.len - 1] != '\n')
+    HUlib_addCharToTextLine(&component->text, '\n');
+
+  // Author prints after title - 1 line
+  // Allowance of 3 lines total (with title)
+  HUlib_WrapStringToTextLines(&component->text, split + 1, centered, 3);
 }
 
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
   char* HU_AnnounceMessage(void);
+  char* HU_AuthorMessage(void);
 
-  char* message;
+  const char* title_msg  = HU_AnnounceMessage();
+  const char* author_msg = HU_AuthorMessage();
 
-  message = HU_AnnounceMessage();
+  if (!title_msg || !*title_msg)
+  {
+    if (max_size)
+      str[0] = '\0';
+    return;
+  }
 
-  if (message)
+  if (author_msg && *author_msg)
+  {
+    snprintf(
+      str,
+      max_size,
+      "%s%s\n%sby %s",
+      dsda_TextColor(dsda_tc_hud_announce_message),
+      title_msg,
+      dsda_TextColor(dsda_tc_hud_announce_author),
+      author_msg
+    );
+  }
+  else
+  {
     snprintf(
       str,
       max_size,
       "%s%s",
       dsda_TextColor(dsda_tc_hud_announce_message),
-      message
+      title_msg
     );
-  else
-    str[0] = '\0';
+  }
 }
 
 void dsda_InitAnnounceMessageHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
@@ -72,28 +107,20 @@ void dsda_InitAnnounceMessageHC(int x_offset, int y_offset, int vpt, int* args, 
   local->center = arg_count > 0 ? !!args[0] : true;
 
   dsda_InitBlockyHC(&local->component, x_offset, y_offset, vpt);
-  dsda_InitBlockyHC(&local->author, x_offset, y_offset + 1, vpt);
 }
 
 void dsda_UpdateAnnounceMessageHC(void* data) {
   local = data;
 
   dsda_UpdateComponentText(local->component.msg, sizeof(local->component.msg));
-  dsda_RefreshHudText(&local->component);
-
-  dsda_UpdateAuthorText(local->author.msg, sizeof(local->author.msg));
-  dsda_RefreshHudText(&local->author);
+  dsda_RefreshHudTextAnnounceWrapped(&local->component, local->center);
 
   if (local->center)
-  {
     HUlib_setTextXCenter(&local->component.text);
-    HUlib_setTextXCenter(&local->author.text);
-  }
 }
 
 void dsda_DrawAnnounceMessageHC(void* data) {
   local = data;
 
   dsda_DrawBasicShadowedText(&local->component);
-  dsda_DrawBasicShadowedText(&local->author);
 }

@@ -569,7 +569,7 @@ dboolean P_StartLockedACS(line_t * line, byte * args, mobj_t * mo, int side)
     int lock;
     byte newArgs[5];
 
-    extern char *TextKeyMessages[11];
+    extern char *TextLockedDoorMessages[11];
     extern char LockedBuffer[80];
 
     lock = args[4];
@@ -582,7 +582,7 @@ dboolean P_StartLockedACS(line_t * line, byte * args, mobj_t * mo, int side)
         if (!mo->player->cards[lock - 1])
         {
             snprintf(LockedBuffer, sizeof(LockedBuffer),
-                     "YOU NEED THE %s\n", TextKeyMessages[lock - 1]);
+                     "%s\n", TextLockedDoorMessages[lock - 1]);
             P_SetMessage(mo->player, LockedBuffer, true);
             S_StartMobjSound(mo, hexen_sfx_door_locked);
             return false;

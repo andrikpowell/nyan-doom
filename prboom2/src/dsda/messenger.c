@@ -114,6 +114,16 @@ void dsda_AddAlert(const char* str) {
   dsda_QueueMessage(str, message_alert, true);
 }
 
+void dsda_AddPlayerObituary(const char* str, player_t* player) {
+  if (dsda_ShowMessages() && player == &players[displayplayer])
+    dsda_QueueMessage(str, message_normal, true);
+}
+
+void dsda_AddObituary(const char* str) {
+  if (dsda_ShowMessages())
+  dsda_QueueMessage(str, message_normal, true);
+}
+
 void dsda_AddPlayerYellowMessage(const char* str, player_t* player, dboolean ultmsg) {
   dboolean show_message = ultmsg ? true : dsda_ShowMessages();
 

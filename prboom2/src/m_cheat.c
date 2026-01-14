@@ -81,12 +81,13 @@
 //
 //-----------------------------------------------------------------------------
 
-static void cheat_mus(char buf[3]);
+static void cheat_mus(char *buf);
 static void cheat_musrr();
 static void cheat_camera();
 static void cheat_choppers();
 static void cheat_god_raven();
 static void cheat_god();
+static void cheat_buddha();
 static void cheat_fa();
 static void cheat_k();
 static void cheat_kfa_raven();
@@ -95,13 +96,13 @@ static void cheat_noclip();
 static void cheat_pw(int pw);
 static void cheat_behold();
 static void cheat_clev();
-static void cheat_clevx(char buf[3]);
+static void cheat_clevx(char *buf);
 static void cheat_mypos();
 static void cheat_rate();
 static void cheat_comp();
-static void cheat_compx(char buf[3]);
+static void cheat_compx(char *buf);
 static void cheat_skill();
-static void cheat_skillx(char buf[1]);
+static void cheat_skillx(char *buf);
 static void cheat_friction();
 static void cheat_pushers();
 static void cheat_massacre();
@@ -110,23 +111,22 @@ static void cheat_reveal_secret();
 static void cheat_reveal_kill();
 static void cheat_reveal_item();
 static void cheat_reveal_weapon();
+static void cheat_reveal_weaponx(char *buf);
 static void cheat_reveal_exit();
 static void cheat_reveal_key();
-static void cheat_reveal_keyx();
-static void cheat_reveal_doom_key(int key);
-static void cheat_reveal_heretic_key(int key);
+static void cheat_reveal_keyx(char *buf);
+static void cheat_reveal_keyxx(char *buf);
+static void cheat_reveal_key_heretic(char *buf);
 static void cheat_hom();
 static void cheat_fast();
 static void cheat_nuke();
 static void cheat_key();
-static void cheat_keyx();
-static void cheat_keyxx(int key);
-static void cheat_key_doom(int key);
-static void cheat_key_heretic(int key);
+static void cheat_keyx(char *buf);
+static void cheat_keyxx(char *buf);
 static void cheat_weap();
-static void cheat_weapx(char buf[3]);
+static void cheat_weapx(char *buf);
 static void cheat_ammo();
-static void cheat_ammox(char buf[1]);
+static void cheat_ammox(char *buf);
 static void cheat_smart();
 static void cheat_pitch();
 static void cheat_megaarmour();
@@ -139,21 +139,26 @@ static void cheat_fly();
 static void cheat_reset_health();
 static void cheat_tome();
 static void cheat_chicken();
-static void cheat_artifact(char buf[3]);
+static void cheat_artifact();
+static void cheat_artifactx(char *buf);
+static void cheat_artifactxx(char *buf);
 
 // hexen
 static void cheat_inventory();
 static void cheat_puzzle();
-static void cheat_classx(char buf[2]);
+static void cheat_classx(char *buf);
 static void cheat_class();
 static void cheat_init();
-static void cheat_script(char buf[3]);
+static void cheat_script(char *buf);
 static void cheat_hexen_suicide();
 
 // nyan
 static void cheat_nut();
 static void cheat_suicide();
 static void cheat_strip();
+static void cheat_killonsight();
+static void cheat_reveal_lock();
+static void cheat_reveal_lockx(char *buf);
 
 //-----------------------------------------------------------------------------
 //
@@ -216,45 +221,23 @@ cheatseq_t cheat[] = {
   CHEAT("iddet",      NULL,   NULL,               cht_always, cht_any, cheat_reveal_exit, 0, true),
 
   // find weapon cheats
+  CHEAT("iddwt",      NULL,   NULL,               cht_always, cht_any, cheat_reveal_weaponx, -1, true),
   CHEAT("iddwt",      NULL,   NULL,               cht_always, cht_any, cheat_reveal_weapon, 0, false),
-  CHEAT("iddwt2",     NULL,   NULL,               cht_always, cht_hexen, cheat_reveal_weaponx, wp_pistol+1, true),
-  CHEAT("iddwt3",     NULL,   NULL,               cht_always, cht_any, cheat_reveal_weaponx, wp_shotgun+1, true),
-  CHEAT("iddwt4",     NULL,   NULL,               cht_always, cht_any, cheat_reveal_weaponx, wp_chaingun+1, true),
-  CHEAT("iddwt5",     NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_weaponx, wp_missile+1, true),
-  CHEAT("iddwt6",     NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_weaponx, wp_plasma+1, true),
-  CHEAT("iddwt7",     NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_weaponx, wp_bfg+1, true),
-  CHEAT("iddwt8",     NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_weaponx, wp_chainsaw+1, true),
-  CHEAT("iddwt9",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_weaponx, wp_supershotgun+1, true),
 
   // key cheats
-  CHEAT("iddfrc",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_RKEY, true),
-  CHEAT("iddfyc",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_YKEY, true),
-  CHEAT("iddfbc",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_BKEY, true),
-  CHEAT("iddfrs",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_RSKU, true),
-  CHEAT("iddfys",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_YSKU, true),
-  CHEAT("iddfbs",     NULL,   NULL,               cht_always, cht_doom, cheat_reveal_doom_key, SPR_BSKU, true),
-  CHEAT("iddfg",      NULL,   NULL,               cht_always, cht_heretic, cheat_reveal_heretic_key, HERETIC_SPR_AKYY, true), // heretic
-  CHEAT("iddfy",      NULL,   NULL,               cht_always, cht_heretic, cheat_reveal_heretic_key, HERETIC_SPR_CKYY, true), // heretic
-  CHEAT("iddfb",      NULL,   NULL,               cht_always, cht_heretic, cheat_reveal_heretic_key, HERETIC_SPR_BKYY, true), // heretic
+  CHEAT("iddf",       NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyxx, -2, true), // doom
+  CHEAT("iddf",       NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, -1, false), // doom
+  CHEAT("iddf",       NULL,   NULL,               cht_always, cht_heretic, cheat_reveal_key_heretic, -1, true), // heretic
   CHEAT("iddf",       NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_key, 0, false),
-  CHEAT("iddfr",      NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, 0, false),
-  CHEAT("iddfy",      NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, 0, false),
-  CHEAT("iddfb",      NULL,   NULL,               cht_always, cht_doom, cheat_reveal_keyx, 0, false),
+
+  // key door cheats
+  CHEAT("iddl",       NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_lockx, -1, true),
+  CHEAT("iddl",       NULL,   NULL,               cht_always, cht_doom | cht_heretic, cheat_reveal_lock, 0, false),
 
   // killough 2/16/98: generalized key cheats
-  CHEAT("keyrc",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_redcard, false),
-  CHEAT("keyyc",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_yellowcard, false),
-  CHEAT("keybc",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_bluecard, false),
-  CHEAT("keyrs",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_redskull, false),
-  CHEAT("keyys",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_yellowskull, false),
-  CHEAT("keybs",      NULL,   NULL,               not_demo, cht_doom, cheat_key_doom, it_blueskull, false),
-  CHEAT("keyg",       NULL,   NULL,               not_demo, cht_heretic, cheat_key_heretic, key_green, false),  // heretic
-  CHEAT("keyy",       NULL,   NULL,               not_demo, cht_heretic, cheat_key_heretic, key_yellow, false), // heretic
-  CHEAT("keyb",       NULL,   NULL,               not_demo, cht_heretic, cheat_key_heretic, key_blue, false),   // heretic
-  CHEAT("key",        NULL,   NULL,               not_demo, cht_doom | cht_heretic, cheat_key, 0, false),
-  CHEAT("keyr",       NULL,   NULL,               not_demo, cht_doom, cheat_keyx, 0, false),
-  CHEAT("keyy",       NULL,   NULL,               not_demo, cht_doom, cheat_keyx, 0, false),
-  CHEAT("keyb",       NULL,   NULL,               not_demo, cht_doom, cheat_keyx, 0, false),
+  CHEAT("key",      NULL,   NULL,               not_demo, cht_doom, cheat_keyxx, -2, false),
+  CHEAT("key",      NULL,   NULL,               not_demo, cht_doom | cht_heretic, cheat_keyx, -1, false),
+  CHEAT("key",      NULL,   NULL,               not_demo, cht_doom | cht_heretic, cheat_key, 0, false),
 
   // killough 2/16/98: generalized weapon cheats
   CHEAT("weap",       NULL,   NULL,               not_demo, cht_any, cheat_weapx, -1, false),
@@ -277,6 +260,10 @@ cheatseq_t cheat[] = {
   CHEAT("notarget",   NULL,   NULL,               not_demo, cht_any, cheat_notarget, 0, false),  // [RH] Monsters don't target
   CHEAT("fly",        NULL,   NULL,               not_demo, cht_any, cheat_fly, 0, false),       // fly mode is active
 
+  // other
+  CHEAT("buddha",     NULL,   "Buddha mode",      not_demo, cht_any, cheat_buddha, 0, false),    // buddha mode
+  CHEAT("freeze",     NULL,   NULL,               not_demo, cht_any, cheat_freeze, 0, false),    // freeze
+
   // heretic
   CHEAT("quicken", NULL, NULL, not_classic_demo, cht_heretic, cheat_god, 0, false),
   CHEAT("ponce", NULL, NULL, not_demo, cht_heretic, cheat_reset_health, 0, false),
@@ -284,7 +271,9 @@ cheatseq_t cheat[] = {
   CHEAT("massacre", NULL, NULL, not_demo, cht_heretic, cheat_massacre, 0, false),
   CHEAT("rambo", NULL, NULL, not_demo, cht_heretic, cheat_fa, 0, false),
   CHEAT("skel", NULL, NULL, not_demo, cht_heretic, cheat_k, 0, false),
-  CHEAT("gimme", NULL, NULL, not_demo, cht_heretic, cheat_artifact, -2, false),
+  CHEAT("gimme", NULL, NULL, not_demo, cht_heretic, cheat_artifactxx, -2, false),
+  CHEAT("gimme", NULL, NULL, not_demo, cht_heretic, cheat_artifactx, -1, false),
+  CHEAT("gimme", NULL, NULL, not_demo, cht_heretic, cheat_artifact, 0, false),
   CHEAT("shazam", NULL, NULL, not_demo, cht_heretic, cheat_tome, 0, false),
   CHEAT("engage", NULL, NULL, not_demo | not_menu, cht_heretic, cheat_clevx, -2, false),
   CHEAT("engage", NULL, NULL, not_demo | not_menu, cht_heretic, cheat_clev, 0, false),
@@ -328,6 +317,7 @@ cheatseq_t cheat[] = {
   CHEAT("camera", NULL, NULL, not_demo, cht_any, cheat_camera, 0, false),
   CHEAT("strip", NULL, NULL, not_demo, cht_any, cheat_strip, 0, false),
   CHEAT("killme", NULL, NULL, not_demo, cht_any, cheat_suicide, 0, false),
+  CHEAT("basilisk", NULL, NULL, not_demo, cht_any, cheat_killonsight, 0, false),
 
   // end-of-list marker
   {NULL}
@@ -335,7 +325,7 @@ cheatseq_t cheat[] = {
 
 //-----------------------------------------------------------------------------
 
-static void cheat_mus(char buf[3])
+static void cheat_mus(char *buf)
 {
   int epsd, map;
 
@@ -377,6 +367,18 @@ static void cheat_choppers()
   plyr->weaponowned[wp_chainsaw] = true;
   plyr->powers[pw_invulnerability] = true;
   dsda_AddMessage(s_STSTR_CHOPPERS);
+}
+
+static void cheat_buddha(void)
+{
+  if (!allow_incompatibility)
+    return;
+
+  plyr->cheats ^= CF_BUDDHA;
+  if (plyr->cheats & CF_BUDDHA)
+    dsda_AddMessage("Buddha Mode ON");
+  else
+    dsda_AddMessage("Buddha Mode OFF");
 }
 
 void M_CheatGod(void)
@@ -429,14 +431,14 @@ static void cheat_hexen_suicide(void)
   switch (hexen_suicide_seq)
   {
     case 1:
-      P_SetMessage(plyr, "TRYING TO CHEAT?  THAT'S ONE....", true);
+      P_SetMessage(plyr, HEXEN_TXT_CHEATQUICKEN1, true);
       break;
     case 2:
-      P_SetMessage(plyr, "THAT'S TWO....", true);
+      P_SetMessage(plyr, HEXEN_TXT_CHEATQUICKEN2, true);
       break;
     case 3:
       P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
-      P_SetMessage(plyr, "THAT'S THREE!  TIME TO DIE.", true);
+      P_SetMessage(plyr, HEXEN_TXT_CHEATQUICKEN3, true);
       hexen_suicide_seq = 0;
       break;
     default:
@@ -467,6 +469,19 @@ static void cheat_god()
   M_CheatGod();
 }
 
+void cheat_killonsight(void)
+{
+  if (!allow_incompatibility) return;
+
+  plyr->cheats ^= CF_BASILISK;
+  if (plyr->cheats & CF_BASILISK)
+  {
+    dsda_AddMessage("Strike fear into your enemies!");
+  }
+  else
+    dsda_AddMessage("Enemies no longer fear you.");
+}
+
 void cheat_nut(void)
 {
 
@@ -475,7 +490,7 @@ void cheat_nut(void)
   plyr->cheats ^= CF_NUT;
   if (plyr->cheats & CF_NUT)
   {
-    dsda_AddMessage("Feeling Nutty?");
+    dsda_AddMessage("It's Nuttin' Time!");
   }
   else
     dsda_AddMessage("Go live your nut-less life.");
@@ -666,7 +681,7 @@ static void cheat_clev()
 }
 
 // 'clev' change-level cheat
-static void cheat_clevx(char buf[3])
+static void cheat_clevx(char *buf)
 {
   int epsd, map;
 
@@ -714,7 +729,7 @@ static void cheat_comp()
 }
 
 // compatibility cheat
-static void cheat_compx(char buf[3])
+static void cheat_compx(char *buf)
 {
   if (raven)
     return doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen");
@@ -745,12 +760,10 @@ static const char* dsda_skill_str(void)
 {
   if (hexen)
   {
-    if (PlayerClass[consoleplayer] == PCLASS_FIGHTER)
-        return hexen_skill_fighter[gameskill];
-    else if (PlayerClass[consoleplayer] == PCLASS_CLERIC)
-        return hexen_skill_cleric[gameskill];
-    else if (PlayerClass[consoleplayer] == PCLASS_MAGE)
-        return hexen_skill_mage[gameskill];
+    // Hexen Skill Strings
+    extern const char * hexen_skills[4][5];
+
+    return hexen_skills[PlayerClass[consoleplayer]][gameskill];
   }
 
   return skill_infos[gameskill].name;
@@ -766,7 +779,7 @@ static void cheat_skill()
 }
 
 // Skill cheat
-static void cheat_skillx(char buf[1])
+static void cheat_skillx(char *buf)
 {
   int skill = buf[0] - '0';
 
@@ -957,7 +970,7 @@ dboolean cheat_get_hexen_piece(int num)
   return ((num == weapon_piece_1) || (num == weapon_piece_2) || (num == weapon_piece_3));
 }
 
-static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int sprite_num, int weapon_num, int flags, int rflags, const char* notfound_msg)
+static dboolean cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int sprite_num, int weapon_num, int flags, int rflags, const char* notfound_msg)
 {
   extern int init_thinkers_count;
   thinker_t *th, *start_th;
@@ -1020,6 +1033,8 @@ static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int sprite
 
       dsda_AddMessage(found_msg);
     }
+    else
+      return true;
   }
   else
   {
@@ -1032,6 +1047,8 @@ static void cheat_cycle_mobj_spr(mobj_t **last_mobj, int *last_count, int sprite
     else
       dsda_AddMessage(notfound_msg);
   }
+
+  return false;
 }
 
 int cheat_get_weapon(int num)
@@ -1133,25 +1150,45 @@ static void cheat_reveal_weapon()
 }
 
 // Reveal weapon cheat
-void cheat_reveal_weaponx(int weapon)
+static void cheat_reveal_weaponx(char *buf)
 {
+  int weapon = buf[0] - '0';
+
+  if (!isdigit(buf[0]))
+    return;
+
   if (automap_input)
   {
-    int sprite_num = cheat_get_weapon(weapon);
+    int weapon_low  = hexen ? wp_second+1 :
+                      heretic ? wp_crossbow+1 :
+                      wp_shotgun+1;
 
-    if (sprite_num != false)
+    int weapon_high = hexen ? wp_fourth+1 :
+                      heretic ? wp_gauntlets+1 :
+                      gamemode == commercial ? wp_supershotgun+1 :
+                      wp_chainsaw+1; // Doom 1 has no SSG
+
+    // If weapon outside range, exit
+    if (weapon < weapon_low || weapon > weapon_high)
+      return dsda_AddMessage("Invalid weapon number");
+
     {
-      static int last_count;
-      static mobj_t *last_mobj;
+      int sprite_num = cheat_get_weapon(weapon);
 
-      dsda_TrackFeature(uf_iddt);
+      if (sprite_num != false)
+      {
+        static int last_count;
+        static mobj_t *last_mobj;
 
-      cheat_cycle_mobj_spr(&last_mobj, &last_count, sprite_num, weapon, MF_SPECIAL, MF_DROPPED, "Weapon Not Found");
+        dsda_TrackFeature(uf_iddt);
+
+        cheat_cycle_mobj_spr(&last_mobj, &last_count, sprite_num, weapon, MF_SPECIAL, MF_DROPPED, "Weapon Not Found");
+      }
     }
   }
 }
 
-// Exit finder [Nugget]
+// Exit finder [Based on Nugget cheat]
 static void cheat_reveal_exit(void)
 {
   if (automap_input)
@@ -1282,33 +1319,366 @@ static void cheat_key()
   doom_printf("Add key: %s, Yellow, Blue", !heretic ? "Red" : "Green");
 }
 
-static void cheat_keyx()
+static void cheat_keyx(char *buf)
 {
+  int key = -1;
+
+  if (hexen)
+    return;
+
+  if (!heretic)
+    return dsda_AddMessage("Add key: Card, Skull");
+
+  switch (buf[0])
+  {
+    case 'g': key = key_green; break;
+    case 'b': key = key_blue; break;
+    case 'y': key = key_yellow; break;
+  }
+
+  if (key != -1)
+    dsda_AddMessage((plyr->cards[key] = !plyr->cards[key]) ? "Key Added" : "Key Removed");
+}
+
+static void cheat_keyxx(char *buf)
+{
+  int key = -1;
+
   if (raven) return;
 
-  dsda_AddMessage("Add key: Card, Skull");
+  switch (buf[0])
+  {
+    case 'r': key = (buf[1] == 'c') ? it_redcard   :
+                    (buf[1] == 's') ? it_redskull  : -1;
+                    break;
+    case 'b': key = (buf[1] == 'c') ? it_bluecard  :
+                    (buf[1] == 's') ? it_blueskull : -1;
+                    break;
+    case 'y': key = (buf[1] == 'c') ? it_yellowcard   :
+                    (buf[1] == 's') ? it_yellowskull  : -1;
+                    break;
+  }
+
+  if (key != -1)
+    dsda_AddMessage((plyr->cards[key] = !plyr->cards[key]) ? "Key Added" : "Key Removed");
 }
 
-static void cheat_key_doom(int key)
+//
+// Lock Finder
+//
+
+typedef enum {
+
+  // Doom
+  lock_none = 0,
+  lock_any,
+  lock_red_card,
+  lock_blue_card,
+  lock_yellow_card,
+  lock_red_skull,
+  lock_blue_skull,
+  lock_yellow_skull,
+  lock_red_either,
+  lock_blue_either,
+  lock_yellow_either,
+  lock_all_keys,
+  lock_three_keys,   // "all 3 colors, card/skull"
+  lock_six_keys,     // "all 6 specific"
+
+  // heretic
+  heretic_lock_none = 0,
+  heretic_lock_green,
+  heretic_lock_blue,
+  heretic_lock_yellow,
+} lock_type_t;
+
+static const char *cheat_GetLockString(lock_type_t type)
 {
-  if (raven) return;
+  if (heretic)
+  {
+    switch (type)
+    {
+      case heretic_lock_green:    return "green key lock";
+      case heretic_lock_blue:     return "blue key lock";
+      case heretic_lock_yellow:   return "yellow key lock";
+      default:                    return "lock";
+    }
+  }
+  else // Doom
+  {
+    switch (type)
+    {
+      case lock_red_either:    return "red lock";
+      case lock_red_card:      return "red card lock";
+      case lock_red_skull:     return "red skull lock";
 
-  cheat_keyxx(key);
+      case lock_blue_either:   return "blue lock";
+      case lock_blue_card:     return "blue card lock";
+      case lock_blue_skull:    return "blue skull lock";
+
+      case lock_yellow_either: return "yellow lock";
+      case lock_yellow_card:   return "yellow card lock";
+      case lock_yellow_skull:  return "yellow skull lock";
+
+      case lock_any:           return "any key lock";
+      case lock_three_keys:    return "three-key lock";
+      case lock_six_keys:      return "six-key lock";
+      case lock_all_keys:      return "all-key lock";
+      default:                 return "lock";
+    }
+  }
 }
 
-static void cheat_key_heretic(int key)
+static dboolean cheat_LineMatchesLock(const line_t *line, lock_type_t lock, lock_type_t *found)
 {
-  if (!heretic) return;
+  const int special = line->special;
 
-  cheat_keyxx(key);
+  if (found) *found = lock_none;
+
+  if (hexen) return false;
+
+  if (heretic)
+  {
+    // green lock
+    if (special == 28 || special == 33)
+    {
+      if (lock == heretic_lock_green)
+      {
+        if (found) *found = heretic_lock_green;
+        return true;
+      }
+      return false;
+    }
+
+    // blue lock
+    if (special == 26 || special == 32)
+    {
+      if (lock == heretic_lock_blue)
+      {
+        if (found) *found = heretic_lock_blue;
+        return true;
+      }
+      return false;
+    }
+
+    // yellow lock
+    if (special == 27 || special == 34)
+    {
+      if (lock == heretic_lock_yellow)
+      {
+        if (found) *found = heretic_lock_yellow;
+        return true;
+      }
+      return false;
+    }
+  }
+  else // Doom
+  {
+    // Vanilla locked doors (always "either")
+
+    // red lock
+    if (special == 28 || special == 33 || special == 134 || special == 135)
+    {
+      if (lock == lock_red_card || lock == lock_red_skull || lock == lock_red_either)
+      {
+        if (found) *found = lock_red_either;
+        return true;
+      }
+      return false;
+    }
+
+    // blue lock
+    if (special == 26 || special == 32 || special == 99 || special == 133)
+    {
+      if (lock == lock_blue_card || lock == lock_blue_skull || lock == lock_blue_either)
+      {
+        if (found) *found = lock_blue_either;
+        return true;
+      }
+      return false;
+    }
+
+    // yellow lock
+    if (special == 27 || special == 34 || special == 136 || special == 137)
+    {
+      if (lock == lock_yellow_card || lock == lock_yellow_skull || lock == lock_yellow_either)
+      {
+        if (found) *found = lock_yellow_either;
+        return true;
+      }
+      return false;
+    }
+
+    // Boom generalized locked doors
+    if ((unsigned)special >= GenLockedBase && (unsigned)special < GenDoorBase)
+    {
+      const int skulliscard = (special & LockedNKeys) >> LockedNKeysShift;
+
+      // for "any" and "three/six" key locks
+      dboolean isColorLock = false;
+      int color_start = lock_red_card;
+      int color_end   = lock_yellow_either;
+
+      for (int i = color_start; i <= color_end; i++)
+        if (lock == i) isColorLock = true;
+
+      switch ((special & LockedKey) >> LockedKeyShift)
+      {
+        case AnyKey:
+          if (lock == lock_any || isColorLock)
+          {
+            if (found) *found = lock_any;
+            return true;
+          }
+          return false;
+
+        case AllKeys:
+          if (lock == lock_all_keys || isColorLock)
+          {
+            if (found) *found = skulliscard ? lock_three_keys : lock_six_keys;
+            return true;
+          }
+          return false;
+
+        case RCard:
+          if (lock == lock_red_card || lock == lock_red_either ||
+              (lock == lock_red_skull && skulliscard))
+          {
+            if (found) *found = skulliscard ? lock_red_either : lock_red_card;
+            return true;
+          }
+          return false;
+
+        case RSkull:
+          if (lock == lock_red_skull || lock == lock_red_either ||
+              (lock == lock_red_card && skulliscard))
+          {
+            if (found) *found = skulliscard ? lock_red_either : lock_red_skull;
+            return true;
+          }
+          return false;
+
+        case BCard:
+          if (lock == lock_blue_card || lock == lock_blue_either ||
+              (lock == lock_blue_skull && skulliscard))
+          {
+            if (found) *found = skulliscard ? lock_blue_either : lock_blue_card;
+            return true;
+          }
+          return false;
+
+        case BSkull:
+          if (lock == lock_blue_skull || lock == lock_blue_either ||
+              (lock == lock_blue_card && skulliscard))
+          {
+            if (found) *found = skulliscard ? lock_blue_either : lock_blue_skull;
+            return true;
+          }
+          return false;
+
+        case YCard:
+          if (lock == lock_yellow_card || lock == lock_yellow_either ||
+              (lock == lock_yellow_skull && skulliscard))
+          {
+            if (found) *found = skulliscard ? lock_yellow_either : lock_yellow_card;
+            return true;
+          }
+          return false;
+
+        case YSkull:
+          if (lock == lock_yellow_skull || lock == lock_yellow_either ||
+              (lock == lock_yellow_card && skulliscard))
+          {
+            if (found) *found = skulliscard ? lock_yellow_either : lock_yellow_skull;
+            return true;
+          }
+          return false;
+      }
+    }
+  }
+
+  return false;
 }
 
-static void cheat_keyxx(int key)
+static void cheat_reveal_lock_find(lock_type_t lock)
 {
-  dsda_AddMessage((plyr->cards[key] = !plyr->cards[key]) ? "Key Added" : "Key Removed");
+  static int last_line = -1;
+  lock_type_t found;
+  int i;
+  int start_i;
+
+  if (!automap_input) return;
+
+  dsda_TrackFeature(uf_iddt);
+
+  i = last_line + 1;
+  if (i >= numlines) i = 0;
+  start_i = i;
+
+  do
+  {
+    const line_t *line = &lines[i];
+
+    if (cheat_LineMatchesLock(line, lock, &found))
+    {
+      dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
+      AM_SetMapCenter(line->v1->x, line->v1->y);
+
+      doom_printf("Lock Finder: found %s", cheat_GetLockString(found));
+      last_line = i;
+      return;
+    }
+
+    i++;
+    if (i >= numlines) i = 0;
+  } while (i != start_i);
+
+  doom_printf("Lock Finder: none found");
 }
 
-// Key Finder [Nugget]
+static void cheat_reveal_lock(void)
+{
+  if (hexen) return;
+
+  if (automap_input)
+  {
+    doom_printf("Lock Finder: %s, Yellow, Blue", !heretic ? "Red" : "Green");
+  }
+}
+
+static void cheat_reveal_lockx(char *buf)
+{
+  int lock = lock_none;
+
+  if (hexen) return;
+
+  if (automap_input)
+  {
+    if (heretic)
+    {
+      switch (buf[0])
+      {
+        case 'g': lock = heretic_lock_green;   break;
+        case 'b': lock = heretic_lock_blue;    break;
+        case 'y': lock = heretic_lock_yellow;  break;
+      }
+    }
+    else
+    {
+      switch (buf[0])
+      {
+        case 'r': lock = lock_red_either;     break;
+        case 'b': lock = lock_blue_either;    break;
+        case 'y': lock = lock_yellow_either;  break;
+      }
+    }
+
+    if (lock != lock_none)
+      cheat_reveal_lock_find(lock);
+  }
+}
+
+// Key Finder [Based on Nugget cheat]
 static void cheat_reveal_key(void)
 {
   if (hexen) return;
@@ -1317,7 +1687,7 @@ static void cheat_reveal_key(void)
     doom_printf("Key Finder: %s, Yellow, Blue", !heretic ? "Red" : "Green");
 }
 
-static void cheat_reveal_keyx(void)
+static void cheat_reveal_keyx(char *buf)
 {
   if (raven) return;
 
@@ -1325,7 +1695,37 @@ static void cheat_reveal_keyx(void)
     dsda_AddMessage("Key Finder: Card, Skull");
 }
 
-void cheat_reveal_keyxx(int key)
+static const char *cheat_getKeyString(int keynum)
+{
+  if (heretic)
+  {
+    switch (keynum)
+    {
+      case HERETIC_SPR_AKYY:      return "green key";
+      case HERETIC_SPR_BKYY:      return "blue key";
+      case HERETIC_SPR_CKYY:      return "yellow key";
+      default:                    return "key";
+    }
+  }
+  else // Doom
+  {
+    switch (keynum)
+    {
+      case SPR_RKEY:  return "red card";
+      case SPR_RSKU:  return "red skull";
+
+      case SPR_BKEY:  return "blue card";
+      case SPR_BSKU:  return "blue skull";
+
+      case SPR_YKEY:  return "yellow card";
+      case SPR_YSKU:  return "yellow skull";
+
+      default:        return "key";
+    }
+  }
+}
+
+void cheat_reveal_key_find(int key)
 {
   if (hexen) return;
 
@@ -1336,24 +1736,55 @@ void cheat_reveal_keyxx(int key)
 
     dsda_TrackFeature(uf_iddt);
 
-    cheat_cycle_mobj_spr(&last_mobj, &last_count, key, -1, MF_SPECIAL, false, "Key Finder: key not found");
+    if (cheat_cycle_mobj_spr(&last_mobj, &last_count, key, -1, MF_SPECIAL, false, "Key Finder: key not found"))
+      doom_printf("Key Finder: %s found", cheat_getKeyString(key));
   }
 }
 
-static void cheat_reveal_doom_key(int key)
+static void cheat_reveal_key_heretic(char *buf)
 {
-  if (raven) return;
+  int key = -1;
 
-  if (automap_input)
-    cheat_reveal_keyxx(key);
-}
-
-static void cheat_reveal_heretic_key(int key)
-{
   if (!heretic) return;
 
   if (automap_input)
-    cheat_reveal_keyxx(key);
+  {
+    switch (buf[0])
+    {
+      case 'g': key = HERETIC_SPR_AKYY; break;
+      case 'b': key = HERETIC_SPR_BKYY; break;
+      case 'y': key = HERETIC_SPR_CKYY; break;
+    }
+
+    if (key != -1)
+      cheat_reveal_key_find(key);
+  }
+}
+
+static void cheat_reveal_keyxx(char *buf)
+{
+  int key = -1;
+
+  if (raven) return;
+
+  if (automap_input)
+  {
+    switch (buf[0])
+    {
+      case 'r': key = (buf[1] == 'c') ? SPR_RKEY   :
+                      (buf[1] == 's') ? SPR_RSKU  : -1;
+                      break;
+      case 'b': key = (buf[1] == 'c') ? SPR_BKEY  :
+                      (buf[1] == 's') ? SPR_BSKU : -1;
+                      break;
+      case 'y': key = (buf[1] == 'c') ? SPR_YKEY   :
+                      (buf[1] == 's') ? SPR_YSKU  : -1;
+                      break;
+    }
+
+    if (key != -1)
+      cheat_reveal_key_find(key);
+  }
 }
 
 // killough 2/16/98: generalized weapon cheats
@@ -1363,7 +1794,7 @@ static void cheat_weap()
   dsda_AddMessage(gamemode == commercial || heretic ? "Weapon number 1-9" : "Weapon number 1-8");
 }
 
-static void cheat_weapx(char buf[3])
+static void cheat_weapx(char *buf)
 {
   int w = *buf - '1';
 
@@ -1394,7 +1825,7 @@ static void cheat_ammo()
   doom_printf("Ammo 1-%i%s", ammo_max, backpack);
 }
 
-static void cheat_hexen_ammox(char buf[1])
+static void cheat_hexen_ammox(char *buf)
 {
   int a = *buf - '1';
   if (a>=0 && a<NUMMANA)  // Ty 03/27/98 - *not* externalized
@@ -1402,7 +1833,7 @@ static void cheat_hexen_ammox(char buf[1])
                        plyr->ammo[a] = MAX_MANA, "Mana Added" : "Mana Removed");
 }
 
-static void cheat_ammox(char buf[1])
+static void cheat_ammox(char *buf)
 {
   int a = *buf - '1';
 
@@ -1596,11 +2027,15 @@ void cht_UpdateCheats(void)
   cht_InitCheats();
 }
 
-int cheat_in_progress = false;
-
 //
 // CHEAT SEQUENCE PACKAGE
 //
+
+int cheat_in_progress = false;
+static cheatseq_t *repeat_param_cht = NULL;
+static int repeat_param_need = 0;
+static char repeat_param_buf[CHEAT_ARGS_MAX];
+static char repeat_param_last = 0;
 
 //
 // Called in st_stuff module, which handles the input.
@@ -1611,11 +2046,32 @@ static int M_FindCheats(int key)
   int rc = 0;
   cheatseq_t* cht;
   char char_key;
+  dboolean armed_repeat_this_key = false;
 
   cht_InitCheats();
 
   char_key = (char)key;
   cheat_in_progress = false;
+
+  // repeatable param-cheat: repeat by pressing the last param character again.
+  // Any other key cancels repeat mode and is NOT consumed.
+  if (repeat_param_cht)
+  {
+    if (char_key == repeat_param_last)
+    {
+      // Re-run cheat using the same stored parameter buffer.
+      static char argbuf[CHEAT_ARGS_MAX + 1];
+      memcpy(argbuf, repeat_param_buf, repeat_param_need);
+      argbuf[repeat_param_need] = '\0';
+      repeat_param_cht->func(argbuf);
+
+      return 1; // consumed
+    }
+    else
+    {
+      repeat_param_cht = NULL; // exit repeat mode, do not consume this key
+    }
+  }
 
   for (cht = cheat; WHICH_CHEAT(cht); cht++)
   {
@@ -1633,6 +2089,11 @@ static int M_FindCheats(int key)
           cht->chars_read = 1;
         else
           cht->chars_read = 0;
+
+        // If the user is starting to type any cheat, stop param-repeat mode.
+        // BUT: don't cancel it on the same keypress we just armed it.
+        if (repeat_param_cht && !armed_repeat_this_key && cht->chars_read > 0)
+          repeat_param_cht = NULL;
 
         cht->param_chars_read = 0;
 
@@ -1665,8 +2126,26 @@ static int M_FindCheats(int key)
 
           // process the arg buffer
           memcpy(argbuf, cht->parameter_buf, -cht->arg);
-
+          argbuf[-cht->arg] = '\0';
           cht->func(argbuf);
+
+          // repeatable param-cheat: arm repeat on last param character
+          if (cht->repeatable && cht->arg < 0)
+          {
+            repeat_param_cht = cht;
+            repeat_param_need = -cht->arg;
+            memcpy(repeat_param_buf, cht->parameter_buf, repeat_param_need);
+            repeat_param_last = repeat_param_buf[repeat_param_need - 1];
+
+            armed_repeat_this_key = true;
+
+            // Avoid getting stuck in param mode
+            cht->chars_read = 0;
+            cht->param_chars_read = 0;
+
+            rc = 1;
+            continue;
+          }
         }
         else
         {
@@ -1698,6 +2177,7 @@ typedef struct cheat_input_s {
 
 static cheat_input_t cheat_input[] = {
   { dsda_input_iddqd, not_classic_demo, cheat_god, 0 },
+  { dsda_input_buddha, not_classic_demo, cheat_buddha, 0 },
   { dsda_input_idkfa, not_demo, cheat_kfa, 0 },
   { dsda_input_idfa, not_demo, cheat_fa, 0 },
   { dsda_input_idclip, not_classic_demo, cheat_noclip, 0 },
@@ -1719,6 +2199,7 @@ static cheat_input_t cheat_input[] = {
   { dsda_input_freeze, not_demo, cheat_freeze, 0 },
   { dsda_input_idmusrr, not_demo, cheat_musrr, 0 },
   { dsda_input_camera, not_demo, cheat_camera, 0 },
+  { dsda_input_basilisk, not_demo, cheat_killonsight, 0 },
   { 0 }
 };
 
@@ -1758,7 +2239,9 @@ dboolean M_CheatEntered(const char* element, const char* value)
 
   for (cheat_i = cheat; WHICH_CHEAT(cheat_i); cheat_i++)
   {
-    if (!strcmp(WHICH_CHEAT(cheat_i), element) && M_CheatAllowed(cheat_i->when & ~not_menu))
+    if (!strcmp(WHICH_CHEAT(cheat_i), element) &&
+        M_CheatAllowed(cheat_i->when & ~not_menu) &&
+        M_CheatGame(cheat_i->game))
     {
       if (cheat_i->arg >= 0)
         cheat_i->func(cheat_i->arg);
@@ -1788,10 +2271,24 @@ static void cheat_reset_health(void)
   {
     plyr->health = plyr->mo->health = MAXHEALTH;
   }
-  dsda_AddMessage("FULL HEALTH");
+  dsda_AddMessage(HERETIC_TXT_CHEATHEALTH);
 }
 
-static void cheat_artifact(char buf[3])
+static void cheat_artifact()
+{
+  if (!heretic) return;
+
+  dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS1);
+}
+
+static void cheat_artifactx(char *buf) // eat keypress for second prompt
+{
+  if (!heretic) return;
+
+  dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS2);
+}
+
+static void cheat_artifactxx(char *buf)
 {
   int i;
   int j;
@@ -1815,24 +2312,24 @@ static void cheat_artifact(char buf[3])
         P_GiveArtifact(plyr, i, NULL);
       }
     }
-    dsda_AddMessage("YOU GOT IT");
+    dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS3);
   }
   else if (type > arti_none && type < NUMARTIFACTS && count > 0 && count < 10)
   {
     if (gamemode == shareware && (type == arti_superhealth || type == arti_teleport))
     {
-      dsda_AddMessage("BAD INPUT");
+      dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTSFAIL);
       return;
     }
     for (i = 0; i < count; i++)
     {
       P_GiveArtifact(plyr, type, NULL);
     }
-    dsda_AddMessage("YOU GOT IT");
+    dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS3);
   }
   else
   {
-    dsda_AddMessage("BAD INPUT");
+    dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTSFAIL);
   }
 }
 
@@ -1843,12 +2340,12 @@ static void cheat_tome(void)
   if (plyr->powers[pw_weaponlevel2])
   {
     plyr->powers[pw_weaponlevel2] = 0;
-    dsda_AddMessage("POWER OFF");
+    dsda_AddMessage(HERETIC_TXT_CHEATPOWEROFF);
   }
   else
   {
     P_UseArtifact(plyr, arti_tomeofpower);
-    dsda_AddMessage("POWER ON");
+    dsda_AddMessage(HERETIC_TXT_CHEATPOWERON);
   }
 }
 
@@ -1863,12 +2360,12 @@ static void cheat_chicken(void)
     {
       if (P_UndoPlayerChicken(plyr))
       {
-          dsda_AddMessage("CHICKEN OFF");
+          dsda_AddMessage(HERETIC_TXT_CHEATCHICKENOFF);
       }
     }
     else if (P_ChickenMorphPlayer(plyr))
     {
-      dsda_AddMessage("CHICKEN ON");
+      dsda_AddMessage(HERETIC_TXT_CHEATCHICKENON);
     }
   }
   else
@@ -1881,7 +2378,7 @@ static void cheat_chicken(void)
     {
       P_MorphPlayer(plyr);
     }
-    dsda_AddMessage("SQUEAL!!");
+    dsda_AddMessage(HEXEN_TXT_CHEATPIG);
   }
   P_MapEnd();
 }
@@ -1894,7 +2391,7 @@ static void cheat_init(void)
 {
   if (dsda_ResolveINIT())
   {
-    P_SetMessage(plyr, "LEVEL WARP", true);
+    P_SetMessage(plyr, HERETIC_TXT_CHEATWARP, true);
   }
 }
 
@@ -1923,7 +2420,7 @@ static void cheat_inventory(void)
       P_GiveArtifact(plyr, i, NULL);
     }
   }
-  P_SetMessage(plyr, "ALL ARTIFACTS", true);
+  P_SetMessage(plyr, HEXEN_TXT_CHEATARTIFACTS, true);
 }
 
 static void cheat_puzzle(void)
@@ -1936,15 +2433,15 @@ static void cheat_puzzle(void)
   {
     P_GiveArtifact(plyr, i, NULL);
   }
-  P_SetMessage(plyr, "ALL PUZZLE ITEMS", true);
+  P_SetMessage(plyr, HEXEN_TXT_CHEATPUZZLES, true);
 }
 
 static void cheat_class()
 {
-  P_SetMessage(plyr, "ENTER NEW PLAYER CLASS (0 - 2)", true);
+  P_SetMessage(plyr, HEXEN_TXT_CHEATCLASS1, true);
 }
 
-static void cheat_classx(char buf[2])
+static void cheat_classx(char *buf)
 {
   int i;
   int new_class;
@@ -1959,7 +2456,7 @@ static void cheat_classx(char buf[2])
   new_class = 1 + (buf[0] - '0');
   if (new_class > PCLASS_MAGE || new_class < PCLASS_FIGHTER)
   {
-    P_SetMessage(plyr, "INVALID PLAYER CLASS", true);
+    P_SetMessage(plyr, HEXEN_TXT_CHEATCLASSFAIL, true);
     return;
   }
   plyr->pclass = new_class;
@@ -1970,10 +2467,10 @@ static void cheat_classx(char buf[2])
   PlayerClass[consoleplayer] = new_class;
   P_PostMorphWeapon(plyr, wp_first);
   SB_SetClassData();
-  P_SetMessage(plyr, "CLASS CHANGED", true);
+  P_SetMessage(plyr, HEXEN_TXT_CHEATCLASS2, true);
 }
 
-static void cheat_script(char buf[3])
+static void cheat_script(char *buf)
 {
   int script;
   byte script_args[3];

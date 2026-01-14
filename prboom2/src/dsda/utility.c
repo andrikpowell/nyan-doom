@@ -88,6 +88,12 @@ void dsda_StringPrintF(dsda_string_t* dest, const char* format, ...) {
   va_end(v);
 }
 
+void dsda_AppendChar(dsda_string_t *dest, char ch) {
+  char tmp[2] = { ch, '\0' };
+  
+  dsda_StringCat(dest, tmp);
+}
+
 void dsda_UppercaseString(char* str) {
   for (; *str; str++) *str = toupper(*str);
 }

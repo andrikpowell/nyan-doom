@@ -18,6 +18,7 @@
 #include "doomstat.h"
 #include "lprintf.h"
 #include "w_wad.h"
+#include "heretic/dstrings.h"
 
 #include "dsda/args.h"
 #include "dsda/configuration.h"
@@ -87,28 +88,28 @@ const skill_info_t heretic_skill_infos[5] = {
     .ammo_factor = FRACUNIT * 3 / 2,
     .damage_factor = FRACUNIT / 2,
     .spawn_filter = 1,
-    .name = "THOU NEEDETH A WET-NURSE",
+    .name = HERETIC_SKILL_1,
     .flags = SI_AUTO_USE_HEALTH | SI_EASY_KEY
   },
   {
     .spawn_filter = 2,
-    .name = "YELLOWBELLIES-R-US",
+    .name = HERETIC_SKILL_2,
     .flags = 0
   },
   {
     .spawn_filter = 3,
-    .name = "BRINGEST THEM ONETH",
+    .name = HERETIC_SKILL_3,
     .flags = 0
   },
   {
     .spawn_filter = 4,
-    .name = "THOU ART A SMITE-MEISTER",
+    .name = HERETIC_SKILL_4,
     .flags = 0
   },
   {
     .ammo_factor = FRACUNIT * 3 / 2,
     .spawn_filter = 5,
-    .name = "BLACK PLAGUE POSSESSES THEE",
+    .name = HERETIC_SKILL_5,
     .flags = SI_FAST_MONSTERS | SI_INSTANT_REACTION
   },
 };

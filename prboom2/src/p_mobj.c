@@ -1252,6 +1252,43 @@ fixed_t FloatBobOffsets[64] = {
 };
 
 //
+// P_KillOnSight
+// Actor dies when target is in sight
+//
+
+static dboolean IsKillableEnemy(mobj_t *mo)
+{
+  if (!mo) return false;
+  if (!mo->info) return false; // this shouldn't happen, but shrug
+  if (mo->health <= 0) return false; // skip if health is <= 0
+  if (mo->player) return false; // skip if thing is a player
+
+  // thing must be shootable (this is iffy)
+  if (!(mo->flags & MF_SHOOTABLE)) return false;
+
+  // thing must not be corpse
+  if ((mo->flags & MF_CORPSE) && mo->health <= 0) return false;
+
+  // Exclude barrels / decorations
+  if (!mo->info->seestate) return false;
+  if (!mo->info->meleestate && !mo->info->missilestate) return false;
+
+  return true;
+}
+
+static dboolean P_KillOnSight(mobj_t *mo)
+{
+  if (!IsKillableEnemy(mo)) return false;
+
+  // target must be a player
+  if (!mo->target || !mo->target->player) return false;
+  if (!P_CheckSight(mo, mo->target)) return false;
+
+  P_DamageMobj(mo, NULL, NULL, mo->health);
+  return (mo->health <= 0);
+}
+
+//
 // P_MobjThinker
 //
 
@@ -1262,6 +1299,12 @@ void P_MobjThinker (mobj_t* mobj)
   // killough 11/98:
   // removed old code which looked at target references
   // (we use pointer reference counting now)
+
+  // Basilisk (instant-kill) cheat
+  // If monster sees the player, it dies
+  if (players[consoleplayer].cheats & CF_BASILISK)
+    if(P_KillOnSight(mobj))
+      return;
 
   if (mobj->type == MT_MUSICSOURCE)
   {
@@ -3850,7 +3893,7 @@ static int Hexen_P_HitFloor(mobj_t * thing)
             S_StartMobjSound(mo, hexen_sfx_lava_sizzle);
             if (thing->player && leveltime & 31)
             {
-                P_DamageMobj(thing, &LavaInflictor, NULL, 5);
+                P_DamageMobjBy(thing, &LavaInflictor, NULL, 5, MOD_Lava);
             }
             return (FLOOR_LAVA);
         case FLOOR_SLUDGE:

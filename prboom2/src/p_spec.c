@@ -164,6 +164,38 @@ void MarkAnimatedTextures(void)
   }
 }
 
+static void P_ApplyDamageMethods(int i, const animdef_t *animdefs)
+{
+  if (raven) return;
+
+  if (lastanim->picnum >= lastanim->basepic)
+  {
+    char *startname;
+    floortype_t floor;
+    int j;
+
+    startname = Z_Strdup(animdefs[i].startname);
+    dsda_UppercaseString(startname);
+
+    // Determind flat damage type for Doom (Obituaries)
+    if (strstr(startname, "WATER") || strstr(startname, "BLOOD"))
+      floor = FLOOR_WATER;
+    else if (strstr(startname, "NUKAGE") || strstr(startname, "SLIME"))
+      floor = FLOOR_SLUDGE;
+    else if (strstr(startname, "LAVA"))
+      floor = FLOOR_LAVA;
+    else
+      floor = FLOOR_SOLID;
+
+    Z_Free(startname);
+
+    for (j = lastanim->basepic; j <= lastanim->picnum; j++)
+    {
+      flatterrain[j] = floor;
+    }
+  }
+}
+
 //
 // P_InitPicAnims
 //
@@ -243,6 +275,9 @@ void P_InitPicAnims (void)
 
       lastanim->picnum = R_FlatNumForName (animdefs[i].endname);
       lastanim->basepic = R_FlatNumForName (animdefs[i].startname);
+
+      // Apply damage to flats for obituaries
+      P_ApplyDamageMethods(i, animdefs);
     }
 
     lastanim->istexture = animdefs[i].istexture;
@@ -2743,66 +2778,79 @@ void P_ShootHexenSpecialLine(mobj_t *thing, line_t *line)
 
 int disable_nuke;  // killough 12/98: nukage disabling cheat
 
-static void P_ApplySectorDamage(player_t *player, int damage, int leak)
+static void P_ApplySectorDamage(player_t *player, int damage, int leak, method_t mod)
 {
   if (!disable_nuke)
     if (!player->powers[pw_ironfeet] || (leak && P_Random(pr_slimehurt) < leak))
       if (!(leveltime & 0x1f))
-        P_DamageMobj(player->mo, NULL, NULL, damage);
+        P_DamageMobjBy(player->mo, NULL, NULL, damage, mod);
 }
 
-static void P_ApplySectorDamageEndLevel(player_t *player)
+static void P_ApplySectorDamageEndLevel(player_t *player, method_t mod)
 {
   if (comp[comp_god])
     player->cheats &= ~CF_GODMODE;
 
   if (!(leveltime & 0x1f))
-    P_DamageMobj(player->mo, NULL, NULL, 20);
+    P_DamageMobjBy(player->mo, NULL, NULL, 20, mod);
 
   if (player->health <= 10)
     G_ExitLevel(0);
 }
 
-static void P_ApplyGeneralizedSectorDamage(player_t *player, int bits)
+static void P_ApplyGeneralizedSectorDamage(player_t *player, int bits, method_t mod)
 {
   switch (bits & 3)
   {
     case 0:
       break;
     case 1:
-      P_ApplySectorDamage(player, 5, 0);
+      P_ApplySectorDamage(player, 5, 0, mod);
       break;
     case 2:
-      P_ApplySectorDamage(player, 10, 0);
+      P_ApplySectorDamage(player, 10, 0, mod);
       break;
     case 3:
-      P_ApplySectorDamage(player, 20, 5);
+      P_ApplySectorDamage(player, 20, 5, mod);
       break;
+  }
+}
+
+// Get Flat Terrain Type
+static method_t P_FloorTypeToMethod(sector_t *sector)
+{
+  switch (flatterrain[sector->floorpic])
+  {
+      case FLOOR_LAVA:      return MOD_Lava;
+      case FLOOR_SLUDGE:    return MOD_Slime;
+      default:              return MOD_None;
   }
 }
 
 void P_PlayerInCompatibleSector(player_t *player, sector_t *sector)
 {
+  method_t mod = P_FloorTypeToMethod(sector);
+
   //jff add if to handle old vs generalized types
   if (sector->special < 32) // regular sector specials
   {
     switch (sector->special)
     {
       case 5:
-        P_ApplySectorDamage(player, 10, 0);
+        P_ApplySectorDamage(player, 10, 0, mod);
         break;
       case 7:
-        P_ApplySectorDamage(player, 5, 0);
+        P_ApplySectorDamage(player, 5, 0, mod);
         break;
       case 16:
       case 4:
-        P_ApplySectorDamage(player, 20, 5);
+        P_ApplySectorDamage(player, 20, 5, mod);
         break;
       case 9:
         P_CollectSecretVanilla(sector, player);
         break;
       case 11:
-        P_ApplySectorDamageEndLevel(player);
+        P_ApplySectorDamageEndLevel(player, mod);
         break;
       default:
         break;
@@ -2839,7 +2887,7 @@ void P_PlayerInCompatibleSector(player_t *player, sector_t *sector)
     }
     else if (!disable_nuke)
     {
-      P_ApplyGeneralizedSectorDamage(player, (sector->special & DAMAGE_MASK) >> DAMAGE_SHIFT);
+      P_ApplyGeneralizedSectorDamage(player, (sector->special & DAMAGE_MASK) >> DAMAGE_SHIFT, mod);
     }
   }
 
@@ -5231,20 +5279,20 @@ void P_PlayerInHereticSector(player_t * player, sector_t * sector)
         case 7:                // Damage_Sludge
             if (!(leveltime & 31))
             {
-                P_DamageMobj(player->mo, NULL, NULL, 4);
+                P_DamageMobjBy(player->mo, NULL, NULL, 4, MOD_Slime);
             }
             break;
         case 5:                // Damage_LavaWimpy
             if (!(leveltime & 15))
             {
-                P_DamageMobj(player->mo, &LavaInflictor, NULL, 5);
+                P_DamageMobjBy(player->mo, &LavaInflictor, NULL, 5, MOD_Lava);
                 P_HitFloor(player->mo);
             }
             break;
         case 16:               // Damage_LavaHefty
             if (!(leveltime & 15))
             {
-                P_DamageMobj(player->mo, &LavaInflictor, NULL, 8);
+                P_DamageMobjBy(player->mo, &LavaInflictor, NULL, 8, MOD_Lava);
                 P_HitFloor(player->mo);
             }
             break;
@@ -5252,7 +5300,7 @@ void P_PlayerInHereticSector(player_t * player, sector_t * sector)
             P_Thrust(player, 0, 2048 * 28);
             if (!(leveltime & 15))
             {
-                P_DamageMobj(player->mo, &LavaInflictor, NULL, 5);
+                P_DamageMobjBy(player->mo, &LavaInflictor, NULL, 5, MOD_Lava);
                 P_HitFloor(player->mo);
             }
             break;
@@ -5408,7 +5456,7 @@ char LockedBuffer[80];
 
 static dboolean CheckedLockedDoor(mobj_t * mo, byte lock)
 {
-    extern char *TextKeyMessages[11];
+    extern char *TextLockedDoorMessages[11];
 
     if (!mo->player)
     {
@@ -5421,7 +5469,7 @@ static dboolean CheckedLockedDoor(mobj_t * mo, byte lock)
     if (!mo->player->cards[lock - 1])
     {
         snprintf(LockedBuffer, sizeof(LockedBuffer),
-                 "YOU NEED THE %s\n", TextKeyMessages[lock - 1]);
+                 "%s\n", TextLockedDoorMessages[lock - 1]);
         P_SetMessage(mo->player, LockedBuffer, true);
         S_StartMobjSound(mo, hexen_sfx_door_locked);
         return false;

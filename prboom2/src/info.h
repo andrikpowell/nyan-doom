@@ -6586,6 +6586,9 @@ typedef struct
   // misc
   int bloodcolor;
   int visibility;
+
+  // obituaries
+  const char *obituary, *obituary_melee, *obituary_self;
 } mobjinfo_t;
 
 #define NO_ALTSPEED -1

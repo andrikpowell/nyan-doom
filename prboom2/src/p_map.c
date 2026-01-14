@@ -166,7 +166,7 @@ dboolean PIT_StompThing (mobj_t* thing)
       !(tmthing->flags2 & MF2_TELESTOMP))
     return false;
 
-  P_DamageMobj (thing, tmthing, tmthing, 10000); // Stomp!
+  P_DamageMobjBy (thing, tmthing, tmthing, 10000, MOD_Telefrag); // Stomp!
 
   return true;
 }
@@ -3051,7 +3051,7 @@ dboolean PIT_ChangeSector (mobj_t* thing)
   if (crushchange > 0 && !(leveltime & 3)) {
     int t;
 
-    P_DamageMobj(thing, NULL, NULL, crushchange);
+    P_DamageMobjBy(thing, NULL, NULL, crushchange, MOD_Crush);
     dsda_WatchCrush(thing, crushchange);
 
     if (
@@ -3732,6 +3732,23 @@ void P_AppendSpecHit(line_t * ld)
 
 // hexen
 
+void P_InitSlideLine(void)
+{
+    // use relevant parts from first bestslideline in demo1 (hexen.wad)
+    static vertex_t initvertex1 = {-77594624, 37748736};
+    static line_t initslideline;
+
+    initslideline.v1 = &initvertex1;
+    initslideline.v2 = NULL;
+    initslideline.dx = 0;
+    initslideline.dy = 6291456;
+        
+    if (bestslideline == NULL)
+    {
+        bestslideline = &initslideline;
+    }
+}
+
 dboolean PTR_BounceTraverse(intercept_t * in)
 {
     line_t *li;
@@ -3800,6 +3817,22 @@ void P_BounceWall(mobj_t * mo)
     bestslidefrac = FRACUNIT + 1;
     P_PathTraverse(leadx, leady, leadx + mo->momx, leady + mo->momy,
                    PT_ADDLINES, PTR_BounceTraverse);
+
+    // Set Bestslideline to avoid crash
+    if (allow_incompatibility)
+    {
+      P_InitSlideLine();
+    }
+
+    // P_BounceWall call on a tall sector after fresh game start
+    // without the player sliding along any walls before.
+    // For more details check:
+    // https://github.com/chocolate-doom/chocolate-doom/issues/1732
+    // https://github.com/chocolate-doom/chocolate-doom/issues/1160
+    if (bestslideline == NULL)
+    {
+        I_Error("P_BounceWall: No bestslideline was set. Try bumping walls.");
+    }
 
     side = P_PointOnLineSide(mo->x, mo->y, bestslideline);
     lineangle = R_PointToAngle2(0, 0, bestslideline->dx, bestslideline->dy);

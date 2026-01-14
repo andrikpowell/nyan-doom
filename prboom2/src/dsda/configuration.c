@@ -23,6 +23,7 @@
 #include "hu_stuff.h"
 #include "g_overflow.h"
 #include "gl_struct.h"
+#include "hu_obituary.h"
 #include "lprintf.h"
 #include "r_main.h"
 #include "r_segs.h"
@@ -129,6 +130,7 @@ void M_ChangeMapMultisamling(void);
 void M_ChangeMapTextured(void);
 void AM_InitParams(void);
 void AM_initPlayerTrail(void);
+void AM_SetPlayerArrow(void);
 void gld_ResetAutomapTransparency(void);
 void M_ChangeVideoMode(void);
 void M_ChangeUncappedFrameRate(void);
@@ -744,6 +746,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mapcolor_frnd", dsda_config_mapcolor_frnd,
     CONF_COLOR(112), &mapcolor.frnd
   },
+  [dsda_config_mapcolor_hitbox] = {
+    "mapcolor_hitbox", dsda_config_mapcolor_hitbox,
+    CONF_COLOR(104), &mapcolor.hitbox
+  },
   [dsda_config_mapcolor_trail_1] = {
     "mapcolor_trail_1", dsda_config_mapcolor_trail_1,
     CONF_COLOR(80), &mapcolor.trail_1
@@ -864,6 +870,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mapcolor_heretic_frnd", dsda_config_mapcolor_heretic_frnd,
     CONF_COLOR(224), &mapcolor_heretic.frnd
   },
+  [dsda_config_mapcolor_heretic_hitbox] = {
+    "mapcolor_heretic_hitbox", dsda_config_mapcolor_heretic_hitbox,
+    CONF_COLOR(40), &mapcolor_heretic.hitbox
+  },
   [dsda_config_mapcolor_heretic_trail_1] = {
     "mapcolor_heretic_trail_1", dsda_config_mapcolor_heretic_trail_1,
     CONF_COLOR(33), &mapcolor_heretic.trail_1
@@ -959,6 +969,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_mapcolor_hexen_frnd] = {
     "mapcolor_hexen_frnd", dsda_config_mapcolor_hexen_frnd,
     CONF_COLOR(216), &mapcolor_hexen.frnd
+  },
+  [dsda_config_mapcolor_hexen_hitbox] = {
+    "mapcolor_hexen_hitbox", dsda_config_mapcolor_hexen_hitbox,
+    CONF_COLOR(40), &mapcolor_hexen.hitbox
   },
   [dsda_config_mapcolor_hexen_trail_1] = {
     "mapcolor_hexen_trail_1", dsda_config_mapcolor_hexen_trail_1,
@@ -1347,6 +1361,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_player_name] = {
     "dsda_player_name", dsda_config_player_name,
+    CONF_STRING("Player"), NULL, NOT_STRICT, dsda_InitObituaries
+  },
+  [dsda_config_demo_author] = {
+    "dsda_demo_author", dsda_config_demo_author,
     CONF_STRING("Anonymous")
   },
   [dsda_config_quickstart_cache_tics] = {
@@ -1569,6 +1587,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "map_trail_size", dsda_config_map_trail_size,
     dsda_config_int, 0, 350, { 105 }, NULL, STRICT_INT(0), AM_initPlayerTrail
   },
+  [dsda_config_map_player_arrow] = {
+    "map_player_arrow", dsda_config_map_player_arrow,
+    dsda_config_int, 0, 3, { 1 }, NULL, STRICT_INT(0), AM_SetPlayerArrow
+  },
+  [dsda_config_map_marker_style] = {
+    "map_marker_style", dsda_config_map_marker_style,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
   [dsda_config_automap_overlay] = {
     "automap_overlay", dsda_config_automap_overlay,
     dsda_config_int, 0, 2, { 0 }, &automap_overlay
@@ -1642,6 +1668,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     dsda_config_int, 0, map_things_appearance_max - 1, { map_things_appearance_max - 1 },
     NULL, NOT_STRICT, AM_InitParams
   },
+  [dsda_config_map_things_hitbox] = {
+    "map_things_hitbox", dsda_config_map_things_hitbox,
+    CONF_BOOL(0), NULL, NOT_STRICT, AM_InitParams
+  },
   [dsda_config_map_things_nice] = {
     "dsda_map_things_nice", dsda_config_map_things_nice,
     dsda_config_int, 0, 1, { 1 }, NULL, NOT_STRICT, AM_InitParams
@@ -1698,21 +1728,21 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "sdl_video_display_index", dsda_config_sdl_video_display_index,
     dsda_config_int, 0, 10, { 0 }, NULL, NOT_STRICT
   },
-  [dsda_config_palette_ondamage_range] = {
-    "dsda_palette_ondamage_range", dsda_config_palette_ondamage_range,
-    dsda_config_int, 1, 8, { 8 }, NULL, STRICT_INT(8)
-  },
   [dsda_config_palette_ondamage] = {
     "palette_ondamage", dsda_config_palette_ondamage,
-    CONF_BOOL(1), NULL, STRICT_INT(1), M_ChangeApplyPalette
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), M_ChangeApplyPalette
   },
   [dsda_config_palette_onbonus] = {
     "palette_onbonus", dsda_config_palette_onbonus,
-    CONF_BOOL(1), NULL, STRICT_INT(1), M_ChangeApplyPalette
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), M_ChangeApplyPalette
   },
   [dsda_config_palette_onpowers] = {
     "palette_onpowers", dsda_config_palette_onpowers,
     CONF_BOOL(1), NULL, STRICT_INT(1), M_ChangeApplyPalette
+  },
+  [dsda_config_palette_oneffects] = {
+    "palette_oneffects", dsda_config_palette_oneffects,
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), M_ChangeApplyPalette
   },
   [dsda_config_enhanced_liteamp] = {
     "enhanced_liteamp", dsda_config_enhanced_liteamp,
@@ -1850,7 +1880,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [nyan_config_loading_disk] = {
     "nyan_loading_disk", nyan_config_loading_disk,
-    dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT
+    dsda_config_int, 1, 2, { 1 }, NULL, NOT_STRICT
   },
   [dsda_config_show_alive_monsters] = { // never persisted
     "show_alive_monsters", dsda_config_show_alive_monsters,
@@ -1919,6 +1949,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_announce_map] = {
     "announce_map", dsda_config_announce_map,
     dsda_config_int, 0, 2, { 0 }
+  },
+  [dsda_config_obituaries] = {
+    "dsda_obituaries", dsda_config_obituaries,
+    CONF_BOOL(1), NULL, NOT_STRICT, dsda_InitObituaries
+  },
+  [dsda_config_obituaries_color] = {
+    "dsda_obituaries_color", dsda_config_obituaries_color,
+    CONF_CR(3), NULL, NOT_STRICT, dsda_InitObituaries
   },
   [dsda_config_extra_level_brightness] = {
     "extra_level_brightness", dsda_config_extra_level_brightness,

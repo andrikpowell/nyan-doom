@@ -181,7 +181,7 @@ void dsda_ExportTextFile(void) {
   fprintf(file, "Time:      %s\n", name);
   Z_Free(name);
 
-  dsda_player_name = dsda_StringConfig(dsda_config_player_name);
+  dsda_player_name = dsda_StringConfig(dsda_config_demo_author);
 
   fprintf(file, "\n");
   fprintf(file, "Author:    %s\n", dsda_player_name);
