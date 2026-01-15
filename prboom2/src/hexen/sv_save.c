@@ -47,6 +47,17 @@
 #define MOBJ_XX_PLAYER -2
 #define MAX_MAPS 99
 
+typedef struct
+{
+  dboolean visited; // whether to reset stats
+  int killcount[MAX_MAXPLAYERS];
+  int maxkilldiscount[MAX_MAXPLAYERS];
+  int itemcount[MAX_MAXPLAYERS];
+  int secretcount[MAX_MAXPLAYERS];
+} hub_mapstats_t;
+
+static hub_mapstats_t hub_mapstats[MAX_MAPS];
+
 typedef enum
 {
     ASEG_GAME_HEADER = 101,
@@ -59,6 +70,7 @@ typedef enum
     ASEG_PLAYERS,
     ASEG_SOUNDS,
     ASEG_MISC,
+    ASEG_STATS,
     ASEG_END
 } gameArchiveSegment_t;
 
@@ -1878,6 +1890,18 @@ static void UnarchivePolyobjs(void)
     }
 }
 
+static void ArchiveStats(void)
+{
+    SV_WriteLong(ASEG_STATS);
+    SV_Write(&hub_mapstats[gamemap], sizeof(hub_mapstats[gamemap]));
+}
+
+static void UnarchiveStats(void)
+{
+    AssertSegment(ASEG_STATS);
+    SV_Read(&hub_mapstats[gamemap], sizeof(hub_mapstats[gamemap]));
+}
+
 void SV_SaveMap(void)
 {
     // Initialize the output buffer
@@ -1899,6 +1923,9 @@ void SV_SaveMap(void)
     ArchiveScripts();
     ArchiveSounds();
     ArchiveMisc();
+    
+    // DSDA Extra: save stats per map
+    ArchiveStats();
 
     // Place a termination marker
     SV_WriteLong(ASEG_END);
@@ -1928,10 +1955,65 @@ void SV_LoadMap(void)
     UnarchiveSounds();
     UnarchiveMisc();
 
+    // DSDA Extra: load stats per map
+    UnarchiveStats();
+
     AssertSegment(ASEG_END);
 
     // Free mobj list and save buffer
     Z_Free(MobjList);
+}
+
+static void SV_SaveCurrentMapStats(void)
+{
+  if (gamemap < MAX_MAPS)
+  {
+    hub_mapstats_t *hub_stats = &hub_mapstats[gamemap];
+    hub_stats->visited = true;
+
+    for (int i = 0; i < g_maxplayers; ++i)
+    {
+        if (!playeringame[i]) continue;
+        hub_stats->killcount[i] = players[i].killcount;
+        hub_stats->maxkilldiscount[i] = players[i].maxkilldiscount;
+        hub_stats->itemcount[i] = players[i].itemcount;
+        hub_stats->secretcount[i] = players[i].secretcount;
+        lprintf(LO_INFO, "Map %i - saved stats: %i kills, %i killdiscount, %i items, %i secrets\n", gamemap, hub_stats->killcount[i], hub_stats->maxkilldiscount[i], hub_stats->itemcount[i], hub_stats->secretcount[i]);
+    }
+  }
+}
+
+static void SV_LoadCurrentMapStats(void)
+{
+  if (gamemap < MAX_MAPS)
+  {
+    hub_mapstats_t *hub_stats = &hub_mapstats[gamemap];
+
+    for (int i = 0; i < g_maxplayers; ++i)
+    {
+        if (!playeringame[i]) continue;
+        
+        lprintf(LO_INFO, "Map %i - loaded stats: %i kills, %i killdiscount, %i items, %i secrets\n", gamemap, hub_stats->killcount[i], hub_stats->maxkilldiscount[i], hub_stats->itemcount[i], hub_stats->secretcount[i]);
+
+        if (hub_stats->visited)
+        {
+            players[i].killcount = hub_stats->killcount[i];
+            players[i].maxkilldiscount = hub_stats->maxkilldiscount[i];
+            players[i].itemcount = hub_stats->itemcount[i];
+            players[i].secretcount = hub_stats->secretcount[i];
+        }
+        else
+        {
+            // First visit: reset
+            players[i].killcount = 0;
+            players[i].maxkilldiscount = 0;
+            players[i].itemcount = 0;
+            players[i].secretcount = 0;
+        }
+    }
+
+    hub_stats->visited = true;
+  }
 }
 
 void SV_MapTeleport(int map, int position)
@@ -1953,6 +2035,9 @@ void SV_MapTeleport(int map, int position)
 
     memset(oldKeys, 0, sizeof(oldKeys));
     memset(oldWeaponowned, 0, sizeof(oldWeaponowned));
+    
+    // Save map stats (ex: kills)
+    SV_SaveCurrentMapStats();
 
     if (!deathmatch)
     {
@@ -1963,6 +2048,7 @@ void SV_MapTeleport(int map, int position)
         else
         {                       // Entering new cluster - clear map archive
             SV_Init();
+            memset(hub_mapstats, 0, sizeof(hub_mapstats)); // reset stats
         }
     }
 
@@ -2077,6 +2163,9 @@ void SV_MapTeleport(int map, int position)
         }
     }
     randomclass = rClass;
+    
+    // Load map stats (ex: kills)
+    SV_LoadCurrentMapStats();
 
     // Redirect anything targeting a player mobj
     if (TargetPlayerAddrs)
