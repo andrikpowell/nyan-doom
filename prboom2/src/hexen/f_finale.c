@@ -113,6 +113,21 @@ void Hexen_F_Ticker(void)
     }
 }
 
+static void DrawChessOverlay(void)
+{
+    // Coop / Random Class shows all 3 classes, else show current class
+    if (netgame || (PlayerClass[consoleplayer] == PCLASS_RANDOM))
+    {
+        V_DrawNamePatch(20, 0, "chessall", CR_DEFAULT, VPT_STRETCH);
+    }
+    else if (PlayerClass[consoleplayer] > 1)
+    {
+        V_DrawNumPatch(60, 0,
+                        W_GetNumForName("chessc") + PlayerClass[consoleplayer] - 2,
+                        CR_DEFAULT, VPT_STRETCH);
+    }
+}
+
 static void TextWrite(void)
 {
     int count;
@@ -125,16 +140,7 @@ static void TextWrite(void)
     V_DrawRawScreen(FinaleLumpName);
     if (FinaleStage == 5)
     {                           // Chess pic, draw the correct character graphic
-        if (netgame)
-        {
-            V_DrawNamePatch(20, 0, "chessall", CR_DEFAULT, VPT_STRETCH);
-        }
-        else if (PlayerClass[consoleplayer] > 1)
-        {
-            V_DrawNumPatch(60, 0,
-                           W_GetNumForName("chessc") + PlayerClass[consoleplayer] - 2,
-                           CR_DEFAULT, VPT_STRETCH);
-        }
+        DrawChessOverlay();
     }
     // Draw the actual text
     if (FinaleStage == 5)
@@ -242,16 +248,7 @@ static void DrawPic(void)
     V_DrawRawScreen(FinaleLumpName);
     if (FinaleStage == 4 || FinaleStage == 5)
     {                           // Chess pic, draw the correct character graphic
-        if (netgame)
-        {
-            V_DrawNamePatch(20, 0, "chessall", CR_DEFAULT, VPT_STRETCH);
-        }
-        else if (PlayerClass[consoleplayer] > 1)
-        {
-            V_DrawNumPatch(60, 0,
-                           W_GetNumForName("chessc") + PlayerClass[consoleplayer] - 2,
-                           CR_DEFAULT, VPT_STRETCH);
-        }
+        DrawChessOverlay();
     }
 }
 
