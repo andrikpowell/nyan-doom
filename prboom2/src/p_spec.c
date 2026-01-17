@@ -374,6 +374,16 @@ void P_InitPicAnims (void)
   MarkAnimatedTextures();//e6y
 }
 
+static dboolean P_IsSmartSwirlFlatHexen(int flat_index)
+{
+  const char *flat_name = lumpinfo[firstflat + flat_index].name;
+
+  return
+    !strncasecmp(flat_name, "X_001", 5) ||
+    !strncasecmp(flat_name, "X_005", 5) ||
+    !strncasecmp(flat_name, "X_009", 5);
+}
+
 dboolean P_IsSmartSwirlFlat(int flat_index)
 {
   if (flat_index < 0 || flat_index >= numflats)
@@ -383,7 +393,12 @@ dboolean P_IsSmartSwirlFlat(int flat_index)
     return true;
 
   if (dsda_IntConfig(dsda_config_swirling_flats) > 0)
-    return flatsmartswirl[flat_index] == true;
+  {
+    if (hexen)
+      return P_IsSmartSwirlFlatHexen(flat_index);
+    else
+      return flatsmartswirl[flat_index] == true;
+  }
 
   return false;
 }

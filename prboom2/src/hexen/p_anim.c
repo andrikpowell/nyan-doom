@@ -133,8 +133,14 @@ void P_AnimateHexenSurfaces(void)
             }
             if (ad->type == ANIM_FLAT)
             {
-                flattranslation[ad->index] =
-                    FrameDefs[ad->currentFrameDef].index;
+                // [crispy] add support for SMMU swirling flats
+                if (/*ad->tics > 65535 || ad->startFrameDef == ad->endFrameDef || */
+                    // random tics conflict with this, so I'm commenting this out for now
+                    P_IsSmartSwirlFlat(ad->index))
+                    flattranslation[ad->index] = -1;
+                else
+                    flattranslation[ad->index] =
+                        FrameDefs[ad->currentFrameDef].index;
             }
             else
             {                   // Texture
