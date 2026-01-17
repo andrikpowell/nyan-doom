@@ -280,20 +280,19 @@ static void FUNC_V_FillRaw(int lump, int scrn, int x, int y, int lumpwidth, int 
     const byte *data;
     int pitch = screens[scrn].pitch;
     byte *dest = screens[scrn].data + y0 * pitch + x0;
-    const byte *row;
-    
     dboolean swirling_flat = flags & VPT_SWIRL;
-
-    // Swirl?
-    if (swirling_flat)
-      data = R_DistortedFlat(lump, true);
-    else
-      data = W_LumpByNum(lump);
+    const byte *row;
 
     // Ratio Correction
     stretch_param_t* stretch = dsda_StretchParams(flags);
     float ratio_x = stretch->video->width / 320.f;
     float ratio_y = stretch->video->height / 200.f;
+    
+    // Swirl?
+    if (swirling_flat)
+      data = R_DistortedFlat(lump, true);
+    else
+      data = W_LumpByNum(lump);
 
     for (sy = 0; sy < h; ++sy)
     {
