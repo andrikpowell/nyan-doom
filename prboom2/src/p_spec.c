@@ -196,6 +196,26 @@ static void P_ApplyDamageMethods(int i, const animdef_t *animdefs)
   }
 }
 
+int P_FlatIndexFromLump(int lumpnum)
+{
+  // already an index, return it back
+  if (lumpnum >= 0 && lumpnum < numflats)
+    return lumpnum;
+
+  // convert lumpnum -> index
+  if (lumpnum >= firstflat && lumpnum < firstflat + numflats)
+    return lumpnum - firstflat;
+
+  I_Error("P_FlatIndexFromLump: %d not a flat lump/index", lumpnum);
+
+  return false; // prob will never reach this, but eh
+}
+
+dboolean P_IsSwirlingFlat(int flat_index)
+{
+  return flattranslation[flat_index] == -1;
+}
+
 //
 // P_InitPicAnims
 //
@@ -282,9 +302,9 @@ void P_InitPicAnims (void)
 
     lastanim->istexture = animdefs[i].istexture;
     lastanim->numpics = lastanim->picnum - lastanim->basepic + 1;
-    lastanim->speed = LittleLong(animdefs[i].speed);
+    lastanim->speed = LittleLong(animdefs[i].speed); // killough 5/5/98: add LONG()
 
-    // [crispy] skip reading SMMU swirling flats
+    // [crispy] add support for SMMU swirling flats
     if (lastanim->speed < 65536 && lastanim->numpics != 1)
     {
       if (lastanim->numpics < 2)
@@ -3132,6 +3152,7 @@ static dboolean  levelTimer;
 static int      levelTimeCount;
 dboolean         levelFragLimit;      // Ty 03/18/98 Added -frags support
 int             levelFragLimitCount; // Ty 03/18/98 Added -frags support
+int             r_swirl;
 
 void P_UpdateSpecials (void)
 {
@@ -3185,7 +3206,12 @@ void P_UpdateSpecials (void)
         if (anim->istexture)
           texturetranslation[anim->basepic + i] = pic;
         else
+        {
           flattranslation[anim->basepic + i] = pic;
+          // [crispy] add support for SMMU swirling flats
+          if (anim->speed > 65535 || anim->numpics == 1 || dsda_IntConfig(dsda_config_swirling_flats))
+            flattranslation[anim->basepic + i] = -1;
+        }
       }
     }
   }

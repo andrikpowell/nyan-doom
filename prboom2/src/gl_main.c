@@ -282,6 +282,9 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   float alpha;
   float coord_scale;
   GLTexture *gltexture;
+  
+  dboolean swirling_flat;
+  int gl_flat_index;
 
   alpha = (float)((automap_overlay > 0) ? map_textured_overlay_trans : map_textured_trans) / 100.0f;
   if (alpha == 0)
@@ -376,8 +379,11 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
     {
       continue;
     }
+    
+    swirling_flat = P_IsSwirlingFlat(sub->sector->floorpic);
+    gl_flat_index = swirling_flat ? P_FlatIndexFromLump(sub->sector->floorpic) : flattranslation[sub->sector->floorpic];
 
-    gltexture = gld_RegisterFlat(flattranslation[sub->sector->floorpic], true, V_IsUILightmodeIndexed());
+    gltexture = gld_RegisterFlat(gl_flat_index, true, V_IsUILightmodeIndexed());
     if (gltexture)
     {
       sector_t tempsec;
@@ -389,7 +395,10 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
       // For lighting and texture determination
       sector_t *sec = R_FakeFlat(sub->sector, &tempsec, &floorlight, NULL, false);
 
-      gld_BindFlat(gltexture, 0);
+      if (swirling_flat)
+        gld_BindSwirlFlat(gltexture, false, 0);
+      else
+        gld_BindFlat(gltexture, 0);
 
       light = gld_Calc2DLightLevel(floorlight);
       gld_StaticLightAlpha(light, alpha);
@@ -687,13 +696,19 @@ void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, in
   GLTexture *gltexture;
   float fU1, fU2, fV1, fV2;
   float uOffset, vOffset;
+  dboolean swirling_flat = flags & VPT_SWIRL;
 
   //e6y: Boom colormap should not be applied for background
   int saved_boom_cm = boom_cm;
   boom_cm = 0;
 
   gltexture = gld_RegisterRaw(lump, src_width, src_height, false, V_IsUILightmodeIndexed());
-  gld_BindRaw(gltexture, 0);
+
+  // Swirl?
+  if (swirling_flat)
+    gld_BindSwirlFlat(gltexture, true, 0);
+  else
+    gld_BindRaw(gltexture, 0);
 
   //e6y
   boom_cm = saved_boom_cm;
@@ -1740,7 +1755,7 @@ void gld_AddWall(seg_t *seg)
           if (wall.ybottom >= zCamera)
           {
             wall.flag=GLDWF_TOPFLUD;
-            temptex=gld_RegisterFlat(flattranslation[seg->backsector->ceilingpic], true, true);
+            temptex=gld_RegisterFlat(P_FlatIndexFromLump(seg->backsector->ceilingpic), true, true);
             if (temptex)
             {
               wall.gltexture=temptex;
@@ -1947,7 +1962,7 @@ bottomtexture:
         if (wall.ytop <= zCamera)
         {
           wall.flag = GLDWF_BOTFLUD;
-          temptex=gld_RegisterFlat(flattranslation[seg->backsector->floorpic], true, true);
+          temptex=gld_RegisterFlat(P_FlatIndexFromLump(seg->backsector->floorpic), true, true);
           if (temptex)
           {
             wall.gltexture=temptex;
@@ -2007,7 +2022,11 @@ static void gld_DrawFlat(GLFlat *flat)
 
   has_offset = (flat->flags & GLFLAT_HAVE_TRANSFORM);
 
-  gld_BindFlat(flat->gltexture, flags);
+  if (flat->flags & GLFLAT_SWIRL)
+    gld_BindSwirlFlat(flat->gltexture, false, flags);
+  else
+    gld_BindFlat(flat->gltexture, flags);
+
   gld_StaticLightAlpha(flat->light, flat->alpha);
 
   glMatrixMode(GL_MODELVIEW);
@@ -2056,6 +2075,10 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   int ceilinglightlevel;    // killough 4/11/98
   GLFlat flat;
 
+  // Swirling flats
+  dboolean swirling_flat;
+  int gl_flat_index;
+  
   if (sectornum<0)
     return;
   flat.sectornum=sectornum;
@@ -2069,12 +2092,15 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   // Enhanced Light Amp - Allow dark areas to be seen
   if(NYAN_LITEAMP && (plane->lightlevel <= 64))
     plane->lightlevel = 64;
+    
+  swirling_flat = P_IsSwirlingFlat(plane->picnum);
+  gl_flat_index = swirling_flat ? P_FlatIndexFromLump(plane->picnum) : flattranslation[plane->picnum];
 
   if (!ceiling) // if it is a floor ...
   {
     // get the texture. flattranslation is maintained by doom and
     // contains the number of the current animation frame
-    flat.gltexture=gld_RegisterFlat(flattranslation[plane->picnum], true, true);
+    flat.gltexture=gld_RegisterFlat(gl_flat_index, true, true);
     if (!flat.gltexture)
       return;
 
@@ -2178,7 +2204,7 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   {
     // get the texture. flattranslation is maintained by doom and
     // contains the number of the current animation frame
-    flat.gltexture=gld_RegisterFlat(flattranslation[plane->picnum], true, true);
+    flat.gltexture=gld_RegisterFlat(gl_flat_index, true, true);
     if (!flat.gltexture)
       return;
 
@@ -2223,7 +2249,11 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     flat.yscale = 1.f;
   }
 
-  if (gl_blend_animations)
+  if (swirling_flat)
+  {
+    flat.flags |= GLFLAT_SWIRL;
+  }
+  else if (gl_blend_animations)
   {
       anim_t* anim = anim_flats[flat.gltexture->index - firstflat].anim;
       if (anim)

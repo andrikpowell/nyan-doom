@@ -48,6 +48,7 @@
 #include "r_main.h"
 #include "r_draw.h"
 #include "r_patch.h"
+#include "r_swirl.h"
 #include "m_bbox.h"
 #include "w_wad.h"   /* needed for color translation lump lookup */
 #include "v_video.h"
@@ -276,10 +277,18 @@ static void FUNC_V_FillRaw(int lump, int scrn, int x, int y, int lumpwidth, int 
   // Actual Drawing Stuff
   {
     int sx, sy, src_x_offset, src_y_offset;
-    const byte *data = W_LumpByNum(lump);
+    const byte *data;
     int pitch = screens[scrn].pitch;
     byte *dest = screens[scrn].data + y0 * pitch + x0;
     const byte *row;
+    
+    dboolean swirling_flat = flags & VPT_SWIRL;
+
+    // Swirl?
+    if (swirling_flat)
+      data = R_DistortedFlat(lump, true);
+    else
+      data = W_LumpByNum(lump);
 
     // Ratio Correction
     stretch_param_t* stretch = dsda_StretchParams(flags);

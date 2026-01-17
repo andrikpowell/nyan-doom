@@ -61,6 +61,7 @@
 #include "r_main.h"
 #include "r_draw.h"
 #include "r_sky.h"
+#include "r_swirl.h"
 #include "r_plane.h"
 #include "r_data.h"
 #include "p_maputl.h"
@@ -72,6 +73,7 @@
 #include "p_spec.h"
 #include "e6y.h"
 
+#include "dsda/animinfo.h"
 #include "dsda/mapinfo.h"
 
 int imageformats[5] = {0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA};
@@ -214,6 +216,7 @@ static GLTexture *gld_AddNewGLTexItem(int num, int count, GLTexture ***items)
   {
     (*items)[num]=Z_Calloc(1, sizeof(GLTexture));
     (*items)[num]->textype=GLDT_UNREGISTERED;
+    (*items)[num]->last_swirltic = -1;
 
     {
       GLTexture *texture = (*items)[num];
@@ -1137,6 +1140,29 @@ GLTexture *gld_RegisterRaw(int lump, int width, int height, dboolean mipmap, dbo
   return gltexture;
 }
 
+// Update GL surfaces per tic (aka Swirling flats)
+static void gld_UploadRawToExistingTexture(GLTexture *gltexture, GLuint texid, const byte *raw)
+{
+  static unsigned char *buffer = NULL;
+  static int buffer_size = 0;
+  int tex_format = (gltexture->flags & GLTEXTURE_INDEXED) ? GL_RG : GL_RGBA;
+
+  if (!buffer || gltexture->buffer_size > buffer_size) {
+    buffer_size = gltexture->buffer_size;
+    buffer = Z_Realloc(buffer, buffer_size);
+  }
+
+  memset(buffer, 0, gltexture->buffer_size);
+  gld_AddRawToTexture(gltexture, buffer, raw);
+
+  glBindTexture(GL_TEXTURE_2D, texid);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+                  gltexture->buffer_width, gltexture->buffer_height,
+                  tex_format, GL_UNSIGNED_BYTE, buffer);
+}
+
 void gld_BindRaw(GLTexture *gltexture, unsigned int flags)
 {
   const unsigned char *raw;
@@ -1150,6 +1176,15 @@ void gld_BindRaw(GLTexture *gltexture, unsigned int flags)
   }
 
   gld_GetTextureTexID(gltexture, CR_DEFAULT);
+  
+  // If this texture currently contains swirled pixels, restore normal flat
+  if (gltexture->swirl_active && *gltexture->texid_p != 0)
+  {
+    glBindTexture(GL_TEXTURE_2D, *gltexture->texid_p);
+    gld_UploadRawToExistingTexture(gltexture, *gltexture->texid_p, W_LumpByNum(gltexture->index));
+    gltexture->swirl_active = false;
+    gltexture->last_swirltic = -1; // why not
+  }
 
   if (last_glTexID == gltexture->texid_p)
   {
@@ -1176,6 +1211,75 @@ void gld_BindRaw(GLTexture *gltexture, unsigned int flags)
   glBindTexture(GL_TEXTURE_2D, *gltexture->texid_p);
 
   gld_BuildTexture(gltexture, buffer, false, gltexture->buffer_width, gltexture->buffer_height);
+
+  gld_SetTexClamp(gltexture, flags);
+  glsl_SetTextureDims(0, gltexture->realtexwidth, gltexture->realtexheight);
+}
+
+// Add swirling flat
+void gld_BindRawSwirl(GLTexture *gltexture, dboolean menus, unsigned int flags)
+{
+  const unsigned char *raw;
+  unsigned char *buffer;
+  int time;
+
+  if (!gltexture || gltexture->textype != GLDT_FLAT)
+  {
+    glBindTexture(GL_TEXTURE_2D, 0);
+    last_glTexID = NULL;
+    return;
+  }
+  
+  time = !menus ? leveltime : AnimateTime;
+
+  gld_GetTextureTexID(gltexture, CR_DEFAULT);
+
+  // Found texture, return
+  if (last_glTexID == gltexture->texid_p && gltexture->last_swirltic == time)
+  {
+    gld_SetTexClamp(gltexture, flags);
+    return;
+  }
+
+  // Texture exists?
+  if (*gltexture->texid_p != 0)
+  {
+    if (last_glTexID != gltexture->texid_p)
+    {
+      glBindTexture(GL_TEXTURE_2D, *gltexture->texid_p);
+      last_glTexID = gltexture->texid_p;
+    }
+
+    // Update flat with swirled pixels (once per tic)
+    if (gltexture->last_swirltic != time)
+    {
+      raw = R_DistortedFlat(gltexture->index, menus);
+      gld_UploadRawToExistingTexture(gltexture, *gltexture->texid_p, raw);
+      gltexture->swirl_active = true;
+      gltexture->last_swirltic = time;
+    }
+
+    gld_SetTexClamp(gltexture, flags);
+    glsl_SetTextureDims(0, gltexture->realtexwidth, gltexture->realtexheight);
+    return;
+  }
+
+  // Texture doesn’t exist yet
+  raw = R_DistortedFlat(gltexture->index, menus);
+
+  buffer = (unsigned char*)Z_Malloc(gltexture->buffer_size);
+  memset(buffer, 0, gltexture->buffer_size);
+  gld_AddRawToTexture(gltexture, buffer, raw);
+
+  glGenTextures(1, gltexture->texid_p);
+  glBindTexture(GL_TEXTURE_2D, *gltexture->texid_p);
+  last_glTexID = gltexture->texid_p;
+
+  gld_BuildTexture(gltexture, buffer, false,
+                   gltexture->buffer_width, gltexture->buffer_height);
+
+  gltexture->last_swirltic = time;
+  gltexture->swirl_active = true;
 
   gld_SetTexClamp(gltexture, flags);
   glsl_SetTextureDims(0, gltexture->realtexwidth, gltexture->realtexheight);

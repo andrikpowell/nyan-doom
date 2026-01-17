@@ -110,6 +110,8 @@ typedef struct
   GLTexType textype;
   unsigned int flags;
   float scalexfac, scaleyfac; //e6y: right/bottom UV coordinates for patch drawing
+  dboolean swirl_active;      // texture currently contains swirled pixels
+  int last_swirltic;          // init to -1
 } GLTexture;
 
 typedef struct
@@ -147,6 +149,7 @@ typedef enum
 {
   GLFLAT_CEILING      = 0x00000001,
   GLFLAT_HAVE_TRANSFORM  = 0x00000002,
+  GLFLAT_SWIRL    = 0x00000004,
 } GLFlat_flag_t;
 
 typedef struct
@@ -363,10 +366,13 @@ GLTexture *gld_RegisterPatch(int lump, int cm, dboolean is_sprite, dboolean inde
 void gld_BindPatch(GLTexture *gltexture, int cm);
 GLTexture *gld_RegisterRaw(int lump, int width, int height, dboolean mipmap, dboolean indexed);
 void gld_BindRaw(GLTexture *gltexture, unsigned int flags);
+void gld_BindRawSwirl(GLTexture *gltexture, dboolean menus, unsigned int flags);
 #define gld_RegisterFlat(lump, mipmap, indexed) \
   gld_RegisterRaw((firstflat+lump), 64, 64, (mipmap), (indexed))
 #define gld_BindFlat(gltexture, flags) \
   gld_BindRaw((gltexture), (flags))
+#define gld_BindSwirlFlat(gltexture, menus, flags) \
+  gld_BindRawSwirl((gltexture), (menus), (flags))
 GLTexture *gld_RegisterSkyTexture(int texture_num, dboolean force);
 void gld_BindSkyTexture(GLTexture *gltexture, int skylayer);
 GLTexture *gld_RegisterColormapTexture(int palette_index, int gamma_level, dboolean fullbright);

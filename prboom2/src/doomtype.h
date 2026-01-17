@@ -168,6 +168,7 @@ enum patch_translation_e {
   VPT_ALT_TRANSMAP  = (1<<13),
   VPT_SHADOW        = (1<<14),
   VPT_EX_TRANS      = (1<<15), // exhud translucency
+  VPT_SWIRL         = (1<<16), // swirling flat
 };
 
 extern int global_patch_top_offset;

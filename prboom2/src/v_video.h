@@ -354,6 +354,11 @@ extern V_FillPatch_f V_FillPatch;
   V_FillNameFlat((flatname), 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH)
 #define V_DrawBackgroundNum(lump) \
   V_FillNumFlat((lump), 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH)
+  
+#define V_DrawBackgroundSwirlName(flatname) \
+  V_FillNameFlat((flatname), 0, 0, SCREENWIDTH, SCREENHEIGHT, (enum patch_translation_e)(VPT_STRETCH | VPT_SWIRL))
+#define V_DrawBackgroundSwirlNum(lump) \
+  V_FillNumFlat((lump), 0, 0, SCREENWIDTH, SCREENHEIGHT, (enum patch_translation_e)(VPT_STRETCH | VPT_SWIRL))
 
 typedef void (*V_DrawShaded_f)(int x, int y, int width, int height, int shade);
 extern V_DrawShaded_f V_DrawShaded;

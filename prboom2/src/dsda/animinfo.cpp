@@ -587,10 +587,21 @@ void V_DrawBackgroundAnimate(const char* lump)
 
     if ((SLump != LUMP_NOT_FOUND))
     {
-        anim_t* anim = anim_flats[SLump - firstflat].anim;
+        int flat_index = P_FlatIndexFromLump(SLump);
+        int swirl_flat = P_IsSwirlingFlat(flat_index);
+
+        // do swirl instead
+        if (swirl_flat)
+        {
+            V_DrawBackgroundSwirlNum(flat_index);
+            return;
+        }
+
+        // Normal Animate Logic
+        anim_t* anim = anim_flats[flat_index].anim;
         if (anim)
         {
-            int frame = (AnimateTime / anim->speed) % (anim->picnum - anim->basepic + 1);
+            int frame = (AnimateTime / anim->speed) % anim->numpics;
             lumpNum = anim->basepic + frame;
         }
     }

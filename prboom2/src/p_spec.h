@@ -1241,6 +1241,9 @@ int EV_DoGenLockedDoor
 void P_InitPicAnims
 ( void );
 
+int P_FlatIndexFromLump(int lumpnum);
+dboolean P_IsSwirlingFlat(int flat_index);
+
 void P_InitSwitchList
 ( void );
 

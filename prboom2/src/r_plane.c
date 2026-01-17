@@ -57,6 +57,7 @@
 #include "r_things.h"
 #include "r_sky.h"
 #include "r_plane.h"
+#include "r_swirl.h"
 #include "r_main.h"
 #include "v_video.h"
 #include "lprintf.h"
@@ -594,8 +595,13 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       int stop, light;
       draw_span_vars_t dsvars;
+      dboolean swirling = P_IsSwirlingFlat(pl->picnum);
 
-      dsvars.source = W_LumpByNum(firstflat + flattranslation[pl->picnum]);
+      if (swirling)
+        dsvars.source = R_DistortedFlat(firstflat + pl->picnum, false);
+      else
+        dsvars.source = W_LumpByNum(firstflat + flattranslation[pl->picnum]);
+
       dsvars.xoffs = pl->xoffs;
       dsvars.yoffs = pl->yoffs;
       dsvars.xscale = pl->xscale;
