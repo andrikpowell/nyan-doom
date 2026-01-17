@@ -660,11 +660,16 @@ static void D_PageDrawer(void)
 {
   if (raven)
   {
-    V_DrawRawScreen(pagename);
-    if (demosequence == 1)
+    if (pagename)
     {
-      V_DrawNamePatch(4, 160, "ADVISOR", CR_DEFAULT, VPT_STRETCH);
+      V_DrawRawScreen(pagename);
+      if (demosequence == 1)
+      {
+        V_DrawNamePatch(4, 160, "ADVISOR", CR_DEFAULT, VPT_STRETCH);
+      }
     }
+    else if (!(dsda_SkipIwadDemos() && W_PWADLumpNameExists(credit)))
+      M_DrawCreditsDynamic();
     return;
   }
 

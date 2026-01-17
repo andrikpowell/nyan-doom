@@ -6064,11 +6064,12 @@ void M_DrawCredits(void)     // killough 10/98: credit screen
 void M_DrawCreditsDynamic(void)     // Dynamic Credits
 {
   inhelpscreens = true;
+  const char* title = "by Andrik 'Arsinikk' Powell";
 
   // force drawing an animated background
   V_DrawBackgroundAnimate(aniflat, true);
   M_DrawTitleImage(91, 6, "NYANLOGO", PROJECT_NAME " v" PROJECT_VERSION, cr_logo);
-  M_DrawTitle(25, "by Andrik 'Arsinikk' Powell", cr_logo);
+  M_WriteText(160 - M_StringWidth(title)/2, 27, title, cr_logo);
   M_DrawScreenItems(cred_settings, 48);
 }
 

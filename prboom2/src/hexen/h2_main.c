@@ -34,6 +34,11 @@ static void Hexen_D_DrawCredits(const char *_x)
   D_SetPage("CREDIT", 200, 0);
 }
 
+static void Hexen_D_DynamicCredits(const char *x)
+{
+  D_SetPage(NULL, 200, 0);
+}
+
 const demostate_t hexen_demostates[][4] =
 {
   {
@@ -58,10 +63,10 @@ const demostate_t hexen_demostates[][4] =
   },
 
   {
-    { Hexen_D_DrawCredits, NULL },
-    { Hexen_D_DrawCredits, NULL },
-    { Hexen_D_DrawCredits, NULL },
-    { Hexen_D_DrawCredits, NULL },
+    { Hexen_D_DynamicCredits, NULL },
+    { Hexen_D_DynamicCredits, NULL },
+    { Hexen_D_DynamicCredits, NULL },
+    { Hexen_D_DynamicCredits, NULL },
   },
 
   {
