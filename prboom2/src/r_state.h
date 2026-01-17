@@ -54,6 +54,7 @@ extern int firstflat, numflats;
 // for global animation
 extern int *flattranslation;
 extern int *texturetranslation;
+extern int *flatsmartswirl;
 
 // Obituaries
 extern int *flatterrain;

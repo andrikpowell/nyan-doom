@@ -196,6 +196,55 @@ static void P_ApplyDamageMethods(int i, const animdef_t *animdefs)
   }
 }
 
+static void P_ApplySmartSwirl(int i, const animdef_t *animdefs)
+{
+  if (hexen)
+    return;
+
+  if (lastanim->picnum >= lastanim->basepic)
+  {
+    char *startname ;
+    dboolean markSmartSwirl = false;
+    int j;
+
+    startname = Z_Strdup(animdefs[i].startname);
+    dsda_UppercaseString(startname);
+    
+    if (!raven) // Doom
+    {
+      markSmartSwirl =
+        strstr(startname, "WATER") ||
+        strstr(startname, "BLOOD") ||
+        strstr(startname, "NUKAGE") ||
+        strstr(startname, "LAVA")  ||
+        !strncasecmp(startname, "SLIME01", 7) || // Slime animation 1
+        !strncasecmp(startname, "SLIME02", 7) || // SLIME01-04
+        !strncasecmp(startname, "SLIME03", 7) ||
+        !strncasecmp(startname, "SLIME04", 7) ||
+        !strncasecmp(startname, "SLIME05", 7) || // Slime animation 2
+        !strncasecmp(startname, "SLIME06", 7) || // SLIME05-08
+        !strncasecmp(startname, "SLIME07", 7) ||
+        !strncasecmp(startname, "SLIME08", 7);
+    }
+    else // Heretic
+    {
+      markSmartSwirl =
+        strstr(startname, "FLTWAWA") ||
+        strstr(startname, "FLTFLWW") ||
+        strstr(startname, "FLATHUH") ||
+        strstr(startname, "FLTSLUD");
+    }
+
+    if (markSmartSwirl)
+    {
+    for (j = lastanim->basepic; j <= lastanim->picnum; j++)
+        flatsmartswirl[j] = true;
+    }
+
+    Z_Free(startname);
+  }
+}
+
 int P_FlatIndexFromLump(int lumpnum)
 {
   // already an index, return it back
@@ -298,6 +347,7 @@ void P_InitPicAnims (void)
 
       // Apply damage to flats for obituaries
       P_ApplyDamageMethods(i, animdefs);
+      P_ApplySmartSwirl(i, animdefs);
     }
 
     lastanim->istexture = animdefs[i].istexture;
@@ -322,6 +372,20 @@ void P_InitPicAnims (void)
   }
 
   MarkAnimatedTextures();//e6y
+}
+
+dboolean P_IsSmartSwirlFlat(int flat_index)
+{
+  if (flat_index < 0 || flat_index >= numflats)
+    return false;
+
+  if (dsda_IntConfig(dsda_config_swirling_flats) == 2)
+    return true;
+
+  if (dsda_IntConfig(dsda_config_swirling_flats) > 0)
+    return flatsmartswirl[flat_index] == true;
+
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////
@@ -3209,7 +3273,7 @@ void P_UpdateSpecials (void)
         {
           flattranslation[anim->basepic + i] = pic;
           // [crispy] add support for SMMU swirling flats
-          if (anim->speed > 65535 || anim->numpics == 1 || dsda_IntConfig(dsda_config_swirling_flats))
+          if (anim->speed > 65535 || anim->numpics == 1 || P_IsSmartSwirlFlat(anim->basepic + i))
             flattranslation[anim->basepic + i] = -1;
         }
       }

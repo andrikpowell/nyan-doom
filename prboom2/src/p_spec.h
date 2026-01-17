@@ -1243,6 +1243,7 @@ void P_InitPicAnims
 
 int P_FlatIndexFromLump(int lumpnum);
 dboolean P_IsSwirlingFlat(int flat_index);
+dboolean P_IsSmartSwirlFlat(int flat_index);
 
 void P_InitSwitchList
 ( void );

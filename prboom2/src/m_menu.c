@@ -4354,13 +4354,14 @@ static const char *gl_fade_mode_list[] = { "Normal", "Smooth", NULL };
 static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
 static const char* palette_list[] = { "Off", "Default", NULL };
 static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
+static const char* swirling_flat_list[] = { "Off", "Smart", "All", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Wipe Screen Effect", S_YESNO,  m_conf, G_X, dsda_config_render_wipescreen },
   { "Linear Sky Scrolling", S_YESNO, m_conf, G_X, dsda_config_render_linearsky, DEPEND_SW },
   { "Quake Intensity", S_NUM, m_conf, G_X, dsda_config_quake_intensity },
   { "Fake Contrast", S_CHOICE, m_conf, G_X, dsda_config_fake_contrast_mode, 0, fake_contrast_list },
-  { "Swirling Flats", S_YESNO, m_conf, G_X, dsda_config_swirling_flats },
+  { "Swirling Flats", S_CHOICE, m_conf, G_X, dsda_config_swirling_flats, 0, swirling_flat_list },
   EMPTY_LINE,
   { "GL Light Fade", S_CHOICE, m_conf, G_X, dsda_config_gl_fade_mode, 0, gl_fade_mode_list, DEPEND(dsda_config_videomode, OPENGL_MODE) },
   { "GL Health Bars", S_YESNO, m_conf, G_X, dsda_config_gl_health_bar, DEPEND_GL },
