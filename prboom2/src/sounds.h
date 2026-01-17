@@ -387,6 +387,9 @@ typedef enum {
 
   //e6y
   sfx_secret,
+  
+  // Nyan sfx
+  sfx_idnut,
   // Everything from here to 500 is reserved
 
   /* Free sound effect slots for DEHEXTRA. Offset agreed upon with Eternity devs. -SH */
@@ -590,9 +593,6 @@ typedef enum {
   sfx_fre197,
   sfx_fre198,
   sfx_fre199,
-
-  // Nyan sfx
-  sfx_idnut,
 
   DOOM_NUMSFX,
 
