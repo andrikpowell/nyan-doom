@@ -580,7 +580,7 @@ const int N_CheckWide(const char* lump)
 //
 //
 
-void V_DrawBackgroundAnimate(const char* lump)
+void V_DrawBackgroundAnimate(const char* lump, int forced_swirl)
 {
     int lumpNum = R_FlatNumForName(g_menu_flat);
     int SLump = W_CheckNumForName2(lump, ns_flats);
@@ -591,7 +591,7 @@ void V_DrawBackgroundAnimate(const char* lump)
         int swirl_flat = P_IsSwirlingFlat(flat_index);
 
         // do swirl instead
-        if (swirl_flat)
+        if (swirl_flat || forced_swirl)
         {
             V_DrawBackgroundSwirlNum(flat_index);
             return;
