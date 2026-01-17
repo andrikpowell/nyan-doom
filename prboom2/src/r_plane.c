@@ -627,84 +627,101 @@ static void R_DoDrawPlane(visplane_t *pl)
         dsvars.cosine = viewcos;
       }
 
-      if (map_format.hexen)
+      // For swirling flats to work, we don't want to pointer shift dsvars.source
+      // (which Heretic / Hexen do in Vanilla)
+      // Instead we use .xoffs and .yoffs
+      if (map_format.hexen || heretic)
       {
         int scrollOffset = leveltime >> 1 & 63;
+        int xscroll = 0;
+        int yscroll = 0;
+        dboolean added_offset = false;
 
-        switch (pl->special)
-        {                       // Handle scrolling flats
-          case 201:
-          case 202:
-          case 203:          // Scroll_North_xxx
-            dsvars.source = dsvars.source + ((scrollOffset
-                                       << (pl->special - 201) & 63) << 6);
-            break;
-          case 204:
-          case 205:
-          case 206:          // Scroll_East_xxx
-            dsvars.source = dsvars.source + ((63 - scrollOffset)
-                                      << (pl->special - 204) & 63);
-            break;
-          case 207:
-          case 208:
-          case 209:          // Scroll_South_xxx
-            dsvars.source = dsvars.source + (((63 - scrollOffset)
-                                       << (pl->special - 207) & 63) << 6);
-            break;
-          case 210:
-          case 211:
-          case 212:          // Scroll_West_xxx
-            dsvars.source = dsvars.source + (scrollOffset
-                                      << (pl->special - 210) & 63);
-            break;
-          case 213:
-          case 214:
-          case 215:          // Scroll_NorthWest_xxx
-            dsvars.source = dsvars.source + (scrollOffset
-                                      << (pl->special - 213) & 63) +
-                ((scrollOffset << (pl->special - 213) & 63) << 6);
-            break;
-          case 216:
-          case 217:
-          case 218:          // Scroll_NorthEast_xxx
-            dsvars.source = dsvars.source + ((63 - scrollOffset)
-                                      << (pl->special - 216) & 63) +
-                ((scrollOffset << (pl->special - 216) & 63) << 6);
-            break;
-          case 219:
-          case 220:
-          case 221:          // Scroll_SouthEast_xxx
-            dsvars.source = dsvars.source + ((63 - scrollOffset)
-                                      << (pl->special - 219) & 63) +
-                (((63 - scrollOffset) << (pl->special - 219) & 63) << 6);
-            break;
-          case 222:
-          case 223:
-          case 224:          // Scroll_SouthWest_xxx
-            dsvars.source = dsvars.source + (scrollOffset
-                                      << (pl->special - 222) & 63) +
-                (((63 - scrollOffset) << (pl->special - 222) & 63) << 6);
-            break;
-          default:
-            break;
-        }
-      }
-      else if (heretic)
-      {
-        switch (pl->special)
+        if (map_format.hexen)
         {
-          case 20:
-          case 21:
-          case 22:
-          case 23:
-          case 24:           // Scroll_East
-            dsvars.source = dsvars.source +
-              ((63 - ((leveltime >> 1) & 63)) << (pl->special - 20) & 63);
-            break;
-          case 4:            // Scroll_EastLavaDamage
-            dsvars.source = dsvars.source +
-              (((63 - ((leveltime >> 1) & 63)) << 3) & 63);
-            break;
+          switch (pl->special)
+          {                       // Handle scrolling flats
+            case 201:
+            case 202:
+            case 203:          // Scroll_North_xxx
+              yscroll = ( scrollOffset << (pl->special - 201) ) & 63;
+              added_offset = true;
+              break;
+            case 204:
+            case 205:
+            case 206:          // Scroll_East_xxx
+              xscroll = ( (63 - scrollOffset) << (pl->special - 204) ) & 63;
+              added_offset = true;
+              break;
+            case 207:
+            case 208:
+            case 209:          // Scroll_South_xxx
+              yscroll = ( (63 - scrollOffset) << (pl->special - 207) ) & 63;
+              added_offset = true;
+              break;
+            case 210:
+            case 211:
+            case 212:          // Scroll_West_xxx
+              xscroll = ( scrollOffset << (pl->special - 210) ) & 63;
+              added_offset = true;
+              break;
+            case 213:
+            case 214:
+            case 215:          // Scroll_NorthWest_xxx
+              xscroll = ( scrollOffset << (pl->special - 213) ) & 63;
+              yscroll = ( scrollOffset << (pl->special - 213) ) & 63;
+              added_offset = true;
+              break;
+            case 216:
+            case 217:
+            case 218:          // Scroll_NorthEast_xxx
+              xscroll = ( (63 - scrollOffset) << (pl->special - 216) ) & 63;
+              yscroll = ( scrollOffset << (pl->special - 216) ) & 63;
+              added_offset = true;
+              break;
+            case 219:
+            case 220:
+            case 221:          // Scroll_SouthEast_xxx
+              xscroll = ( (63 - scrollOffset) << (pl->special - 219) ) & 63;
+              yscroll = ( (63 - scrollOffset) << (pl->special - 219) ) & 63;
+              added_offset = true;
+              break;
+            case 222:
+            case 223:
+            case 224:          // Scroll_SouthWest_xxx
+              xscroll = ( scrollOffset << (pl->special - 222) ) & 63;
+              yscroll = ( (63 - scrollOffset) << (pl->special - 222) ) & 63;
+              added_offset = true;
+              break;
+            default:
+              break;
+          }
+        }
+        else if (heretic)
+        {
+          switch (pl->special)
+          {
+            case 20:
+            case 21:
+            case 22:
+            case 23:
+            case 24:           // Scroll_East
+              xscroll = ((63 - scrollOffset) << (pl->special - 20)) & 63;
+              added_offset = true;
+              break;
+            case 4:            // Scroll_EastLavaDamage
+              xscroll = ((63 - scrollOffset) << 3) & 63;
+              added_offset = true;
+              break;
+            default:
+              break;
+          }
+        }
+
+        if (added_offset)
+        {
+          dsvars.xoffs += (xscroll << FRACBITS);
+          dsvars.yoffs += (yscroll << FRACBITS);
         }
       }
 
