@@ -1602,7 +1602,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_automap_linesize] = {
     "automap_linesize", dsda_config_automap_linesize,
-    dsda_config_int, 0, 4, { 0 }, NULL, NOT_STRICT
+    dsda_config_int, 0, 6, { 0 }, NULL, NOT_STRICT
   },
   [dsda_config_automap_rotate] = {
     "automap_rotate", dsda_config_automap_rotate,

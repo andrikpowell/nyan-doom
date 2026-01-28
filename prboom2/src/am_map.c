@@ -1726,7 +1726,7 @@ int AM_GetLineWeight(void) {
   {
     thickness = round(SCREENHEIGHT / 640);
     if (thickness < 1) thickness = 1;
-    if (thickness > 4) thickness = 4;
+    if (thickness > 6) thickness = 6;
   }
 
   // Minimap should be just 1px

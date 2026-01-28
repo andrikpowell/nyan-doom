@@ -3674,7 +3674,7 @@ static const char *map_things_appearance_list[] =
 static const char *map_player_arrow_list[] = { "Default", "Modern", "Doom", "Raven", NULL };
 static const char *map_marker_style_list[] = { "Classic", "Line", NULL };
 static const char *automap_background_list[] = { "Off", "Default", "On", NULL };
-static const char *automap_linesize_list[] = { "Auto", "1x", "2x", "3x", "4x", NULL };
+static const char *automap_linesize_list[] = { "Auto", "1x", "2x", "3x", "4x", "5x", "6x", NULL };
 
 setup_menu_t auto_appearance_settings[] =
 {
