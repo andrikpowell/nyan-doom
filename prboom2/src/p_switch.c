@@ -106,10 +106,14 @@ void P_InitSwitchList(void)
   int episode = (gamemode == registered || gamemode==retail) ?
                  2 : gamemode == commercial ? 3 : 1;
 
-  // MAP_FORMAT_TODO: switch list?
   if (heretic)
   {
-    alphSwitchList = heretic_alphSwitchList;
+    lump = W_CheckNumForName("SWITCHES");
+
+    if (lump != LUMP_NOT_FOUND && lumpinfo[lump].source != source_auto_load)
+      alphSwitchList = (const switchlist_t *)W_LumpByNum(lump);
+    else
+      alphSwitchList = heretic_alphSwitchList;
   }
   else if (hexen)
   {
