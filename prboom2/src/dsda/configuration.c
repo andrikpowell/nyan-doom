@@ -37,6 +37,8 @@
 #include "g_game.h"
 #include "m_menu.h"
 
+#include "deh/nyan.h"
+
 #include "dsda/args.h"
 #include "dsda/exhud.h"
 #include "dsda/features.h"

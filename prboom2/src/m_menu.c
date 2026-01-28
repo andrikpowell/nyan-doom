@@ -62,7 +62,7 @@
 #include "s_sound.h"
 #include "sounds.h"
 #include "m_menu.h"
-#include "d_deh.h"
+#include "deh/strings.h"
 #include "m_file.h"
 #include "m_misc.h"
 #include "lprintf.h"

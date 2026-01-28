@@ -19,7 +19,7 @@
 
 #include "doomtype.h"
 #include "doomstat.h"
-#include "d_deh.h"
+#include "deh/strings.h"
 #include "m_misc.h"
 #include "p_mobj.h"
 #include "p_inter.h"

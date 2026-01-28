@@ -45,7 +45,7 @@
 #include "dstrings.h"
 #include "r_main.h"
 #include "p_map.h"
-#include "d_deh.h"  // Ty 03/27/98 - externalized strings
+#include "deh/strings.h"  // Ty 03/27/98 - externalized strings
 /* cph 2006/07/23 - needs direct access to thinkercap */
 #include "p_tick.h"
 #include "w_wad.h"

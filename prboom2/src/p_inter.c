@@ -40,7 +40,7 @@
 #include "g_game.h"
 #include "smooth.h"
 #include "sounds.h"
-#include "d_deh.h"  // Ty 03/22/98 - externalized strings
+#include "deh/strings.h"  // Ty 03/22/98 - externalized strings
 #include "p_tick.h"
 #include "lprintf.h"
 

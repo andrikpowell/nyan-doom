@@ -44,7 +44,7 @@
 #include "i_sound.h"
 #include "i_system.h"
 #include "d_main.h"
-#include "d_deh.h"
+#include "deh/strings.h"
 #include "r_main.h"
 #include "m_random.h"
 #include "w_wad.h"

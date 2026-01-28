@@ -77,7 +77,7 @@
 #include "sounds.h"
 #include "r_data.h"
 #include "r_sky.h"
-#include "d_deh.h"              // Ty 3/27/98 deh declarations
+#include "deh/strings.h"              // Ty 3/27/98 deh declarations
 #include "p_inter.h"
 #include "g_game.h"
 #include "lprintf.h"

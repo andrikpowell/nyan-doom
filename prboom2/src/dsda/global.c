@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include "info.h"
+#include "deh/strings.h"
 #include "d_items.h"
 #include "p_inter.h"
 #include "p_spec.h"

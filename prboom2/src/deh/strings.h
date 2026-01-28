@@ -1,53 +1,29 @@
-/* Emacs style mode select   -*- C -*-
- *-----------------------------------------------------------------------------
- *
- *
- *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
- *  based on BOOM, a modified and improved DOOM engine
- *  Copyright (C) 1999 by
- *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2006 by
- *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  Copyright 2005, 2006 by
- *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
- *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- *  02111-1307, USA.
- *
- * DESCRIPTION:
- *  Dehacked file support
- *  New for the TeamTNT "Boom" engine
- *
- *  Author: Ty Halderman, TeamTNT
- *
- *  Description: This file translates the #defined string constants
- *  to named variables to externalize them for deh/bex changes.
- *  Should be able to compile with D_FRENCH (for example) and still
- *  work (untested).
- *
- */
+//
+// Copyright(C) 1999-2004 by Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+// Copyright(C) 2005-2006 by Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
+// Copyright(C) 2026 by Andrik Powell
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// DESCRIPTION:
+//	DEH Strings
+//
 
-#ifndef __D_DEH__
-#define __D_DEH__
+#ifndef __DEH_STRINGS__
+#define __DEH_STRINGS__
 
-#include "doomtype.h"
-
-void dsda_CopyDefaultCheats(void);
-void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum);
-void PostProcessDeh(void);
-
+//      Description: This file translates the #defined string constants
+//      to named variables to externalize them for deh/bex changes.
+//      Should be able to compile with D_FRENCH (for example) and still
+//      work (untested).
 //
 //      Ty 03/22/98 - note that we are keeping the english versions and
 //      comments in this file
@@ -615,6 +591,9 @@ extern const char* s_STSTR_CHOPPERS; // = STSTR_CHOPPERS;
 //#define STSTR_CLEV            "Changing Level..."
 extern const char* s_STSTR_CLEV; // = STSTR_CLEV;
 
+extern const char* s_STSTR_COMPON;
+extern const char* s_STSTR_COMPOFF;
+
 //
 //      F_Finale.C
 //
@@ -1112,17 +1091,5 @@ extern const char *s_OB_MPROCKET;
 extern const char *s_OB_MPPLASMARIFLE;
 extern const char *s_OB_MPBFG_BOOM;
 extern const char *s_OB_MPTELEFRAG;
-
-uint64_t deh_stringToMBF21MobjFlags(char *strval);
-uint64_t deh_stringToMobjFlags(char *strval);
-
-// Nyan Doom Dehacked Tweaks
-void deh_InitNyanTweaks(void);
-
-void deh_changeBonusFlash(void);
-void deh_changeColoredBlood(void);
-
-void deh_changeCompTranslucency(void);
-void deh_applyCompatibility(void);
 
 #endif
