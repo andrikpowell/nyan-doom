@@ -2125,38 +2125,42 @@ static void D_DoomMainSetup(void)
           || lumpinfo[p].source == source_auto_load)
         ProcessDehFile(NULL, D_dehout(), p); // cph - add dehacked-in-a-wad support
 
-    if (bfgedition)
+    if (!raven)
     {
-      int lump = W_CheckNumForName2("BFGBEX", ns_prboom);
-      if (lump != LUMP_NOT_FOUND)
+      if (bfgedition)
       {
-        ProcessDehFile(NULL, D_dehout(), lump);
+        int lump = W_CheckNumForName2("BFGBEX", ns_prboom);
+        if (lump != LUMP_NOT_FOUND)
+        {
+          ProcessDehFile(NULL, D_dehout(), lump);
+        }
+      }
+      if (gamemission == pack_nerve)
+      {
+        int lump = W_CheckNumForName2("NERVEBEX", ns_prboom);
+        if (lump != LUMP_NOT_FOUND)
+        {
+          ProcessDehFile(NULL, D_dehout(), lump);
+        }
+      }
+      if (gamemission == tc_chex)
+      {
+        int lump = W_CheckNumForName2("CHEXDEH", ns_prboom);
+        if (lump != LUMP_NOT_FOUND)
+        {
+          ProcessDehFile(NULL, D_dehout(), lump);
+        }
       }
     }
-    if (gamemission == pack_nerve)
-    {
-      int lump = W_CheckNumForName2("NERVEBEX", ns_prboom);
-      if (lump != LUMP_NOT_FOUND)
-      {
-        ProcessDehFile(NULL, D_dehout(), lump);
-      }
-    }
-    if (gamemission == tc_chex)
-    {
-      int lump = W_CheckNumForName2("CHEXDEH", ns_prboom);
-      if (lump != LUMP_NOT_FOUND)
-      {
-        ProcessDehFile(NULL, D_dehout(), lump);
-      }
-    }
+  }
 
-    if (doom_v11)
-    {
-      lprintf(LO_INFO, "NOTICE: Doom v1.0/1.1 support is purely for historical purposes, thus demo support is disabled.\n");
-  
-      if (started_demo)
-        I_Error("Doom v1.0/1.1 IWAD is not supported for demo recording or playback.");
-    }
+  // Doom v1.1 - No demo support
+  if (!raven && doom_v11)
+  {
+    lprintf(LO_INFO, "NOTICE: Doom v1.0/1.1 support is purely for historical purposes, thus demo support is disabled.\n");
+
+    if (started_demo)
+      I_Error("Doom v1.0/1.1 IWAD is not supported for demo recording or playback.");
   }
 
   // process deh files from autoload directory before deh in wads from -file parameter
