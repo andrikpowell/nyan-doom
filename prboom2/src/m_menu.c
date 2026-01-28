@@ -196,6 +196,7 @@ static dboolean sub_gamepad_active = false;
 static dboolean sub_colored_blood_active = false;
 static dboolean sub_trans_active = false;
 static dboolean sub_statbar_color_active = false;
+static dboolean sub_obituary_active = false;
 static dboolean sub_exhud_active = false;
 static dboolean sub_status_widget_active = false;
 static dboolean sub_crosshair_active = false;
@@ -375,6 +376,7 @@ static void M_Sub_Gamepad(void);
 static void M_Sub_ColoredBlood(void);
 static void M_Sub_Trans(void);
 static void M_Sub_StatbarColor(void);
+static void M_Sub_Obituary(void);
 static void M_Sub_ExHud(void);
 static void M_Sub_StatusWidget(void);
 static void M_Sub_Crosshair(void);
@@ -387,6 +389,7 @@ static void M_Sub_DrawGamepad(void);
 static void M_Sub_DrawColoredBlood(void);
 static void M_Sub_DrawTrans(void);
 static void M_Sub_DrawStatbarColor(void);
+static void M_Sub_DrawObituary(void);
 static void M_Sub_DrawExHud(void);
 static void M_Sub_DrawStatusWidget(void);
 static void M_Sub_DrawCrosshair(void);
@@ -1891,6 +1894,16 @@ static menu_t SubStatbarColorDef =                                           // 
   &DisplayDef,
   Generic_Setup,
   M_Sub_DrawStatbarColor,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubObituaryDef =                                           // killough 10/98
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawObituary,
   34,5,      // skull drawn here
   0
 };
@@ -4453,10 +4466,7 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   { "Report Revealed Secrets", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
   { "Announce Map On Entry", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_announce_map, 0, announce_map_list },
   { "Detailed Quicksave Msg", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_detailed_quicksave },
-  EMPTY_LINE,
-  { "Show Obituaries", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_obituaries },
-  { "Obituaries Color", S_CHOICE | S_CRITEM | S_NYAN, m_conf, G_X, dsda_config_obituaries_color, 0, color_list, DEPEND(dsda_config_obituaries, true) },
-  { "Player Name", S_NAME | S_NYAN, m_conf, G_X, dsda_config_player_name, 0, color_list, DEPEND(dsda_config_obituaries, true) },
+  FUNC("Obituaries", S_CENTER | S_NYAN, G_X, M_Sub_Obituary),
   EMPTY_LINE,
   FUNC("Ex-Hud", S_CENTER | S_NYAN, G_X, M_Sub_ExHud),
   FUNC("Status Widget", S_CENTER | S_NYAN, G_X, M_Sub_StatusWidget),
@@ -4624,6 +4634,48 @@ static void M_Sub_DrawTrans(void)
   M_DrawTitle(2, "Display", cr_title);
   M_DrawInstructions();
   M_DrawTabs(trans_pages, sizeof(trans_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Obituaries
+
+static const char *obituary_pages[] =
+{
+  "Obituaries",
+  NULL
+};
+
+setup_menu_t obituary_gen_settings[];
+
+setup_menu_t* obituary_settings[] =
+{
+  obituary_gen_settings,
+  NULL
+};
+
+setup_menu_t obituary_gen_settings[] = {
+  { "Show Obituaries", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_obituaries },
+  { "Player Name", S_NAME | S_NYAN, m_conf, G_X, dsda_config_player_name, 0, color_list, DEPEND(dsda_config_obituaries, true) },
+  { "Obituaries Color", S_CHOICE | S_CRITEM | S_NYAN, m_conf, G_X, dsda_config_obituaries_color, 0, color_list, DEPEND(dsda_config_obituaries, true) },
+  FINAL_ENTRY
+};
+
+static void M_Sub_Obituary(void)
+{
+  M_EnterSubSetup(&SubObituaryDef, &sub_obituary_active, obituary_settings[0]);
+}
+
+static void M_Sub_DrawObituary(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "Display", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(obituary_pages, sizeof(obituary_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -6219,6 +6271,7 @@ void M_LeaveSetupMenu(void)
   sub_colored_blood_active = false;
   sub_trans_active = false;
   sub_statbar_color_active = false;
+  sub_obituary_active = false;
   sub_exhud_active = false;
   sub_status_widget_active = false;
   sub_crosshair_active = false;
