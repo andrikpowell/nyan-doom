@@ -31,7 +31,7 @@ static const char *hhe_ammo[] = // CPhipps - static const*
 
 // ====================================================================
 // hhe_procAmmo
-// Purpose: Handle DEH Ammo block
+// Purpose: Handle HHE Ammo block
 // Args:    fpin  -- input file stream
 //          line  -- current line in file to process
 // Returns: void
@@ -70,7 +70,6 @@ static void hhe_procAmmo(DEHFILE *fpin, char *line)
       // Heretic doesn't have a "per clip" ammo array, instead
       // it is per weapon.  However, the weapon number lines
       // up with the ammo number if we add one.
-
       GetWeaponAmmo[indexnum + 1] = (int)value;
     }
     else

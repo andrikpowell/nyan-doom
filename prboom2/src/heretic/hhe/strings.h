@@ -19,7 +19,7 @@
 #define __HHE_STRINGS__
 
 //      Description: This file translates the #defined string constants
-//      to named variables to externalize them for deh/bex changes.
+//      to named variables to externalize them for hhe/rex changes.
 //      Should be able to compile with D_FRENCH (for example) and still
 //      work (untested).
 //

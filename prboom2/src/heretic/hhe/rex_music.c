@@ -24,7 +24,7 @@ static void hhe_procRexMusic(DEHFILE *fpin, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint64_t value;    // All deh values are ints or longs
+  uint64_t value;    // All hhe values are ints or longs
   char *strval;  // holds the string value of the line
   char candidate[9];
   int  match;
@@ -49,10 +49,10 @@ static void hhe_procRexMusic(DEHFILE *fpin, char *line)
       continue;
     }
     // do it
-    memset(candidate, 0, 9);
+    memset(candidate, 0, 9); // Heretic music is 8 char
     strncpy(candidate, ptr_lstrip(strval), 8);
     len = strlen(candidate);
-    if (len < 1 || len > 8)
+    if (len < 1 || len > 8) // Heretic music is 8 char
     {
       deh_log("Bad length for music name '%s'\n", candidate);
       continue;

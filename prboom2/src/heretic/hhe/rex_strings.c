@@ -31,6 +31,10 @@
 // strdups to set these new values that we read from the file, orphaning
 // the original value set above.
 
+/* CPhipps - const
+ *         - removed redundant "Can't XXX in a netgame" strings
+ */
+
 //     Offsets                 String (Pointer)      REX String lookup
 //       v1.0   v1.2   v1.3
 
@@ -355,7 +359,7 @@ static void hhe_procStrings(DEHFILE *fpin, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint64_t value;    // All deh values are ints or longs
+  uint64_t value;    // All hhe values are ints or longs
   char *strval;      // holds the string value of the line
   static size_t maxstrlen = 128; // maximum string length, bumped 128 at
   // a time as needed
@@ -441,7 +445,7 @@ static void HHE_String_SuggestOtherVersions(unsigned int offset)
 
 // ====================================================================
 // hhe_procStringSub
-// Purpose: Common string parsing and handling routine for DEH and REX
+// Purpose: Common string parsing and handling routine for HHE and REX
 // Args:    key       -- place to put the mnemonic for the string if found
 //          lookfor   -- original value string to look for
 //          newstring -- string to put in its place if found
@@ -449,33 +453,35 @@ static void HHE_String_SuggestOtherVersions(unsigned int offset)
 //
 dboolean hhe_procStringSub(char *key, char *lookfor, int offset, char *newstring)
 {
+  dboolean offset_mode = (offset > 0); // We ignore offset 0 as it's "not present"
   dboolean found; // loop exit flag
   int i;  // looper
 
   found = false;
 
-  // Never match offset 0 -> skip offset parsing.
-  if (offset == 0)
-    offset = -1;
-
   for (i = 0; i < hhe_numstrlookup; i++)
   {
     // Cache original the first time we touch this entry
     if (hhe_strlookup[i].orig == NULL)
+    {
       hhe_strlookup[i].orig = *hhe_strlookup[i].ppstr;
+    }
 
-    // Choose match mode:
-    if (offset >= 0)
+    // Match mode:
+    // 1) Offset mode (HHE Text)
+    // 2) Old-style mode (lookfor != NULL)
+    // 3) REX mnemonic mode (key != NULL)
+    if (offset_mode)
       found = (hhe_strlookup[i].offsets[deh_hhe_version] == offset);
-    else if (lookfor)
-      found = !stricmp(hhe_strlookup[i].orig, lookfor);
     else
-      found = (key && hhe_strlookup[i].lookup && !stricmp(hhe_strlookup[i].lookup, key));
+      found = lookfor ?
+        !stricmp(hhe_strlookup[i].orig, lookfor) :
+        (key ? !stricmp(hhe_strlookup[i].lookup, key) : false); // guard just in case :/
 
     if (found)
     {
       char *t;
-      *hhe_strlookup[i].ppstr = t = Z_Strdup(newstring ? newstring : ""); // orphan originalstring
+      *hhe_strlookup[i].ppstr = t = Z_Strdup(newstring); // orphan originalstring
       found = true;
       // Handle embedded \n's in the incoming string, convert to 0x0a's
       {
@@ -490,21 +496,28 @@ dboolean hhe_procStringSub(char *key, char *lookfor, int offset, char *newstring
         *t = '\0';  // cap off the target string
       }
 
-      // Logging:
-      if (offset >= 0)
-        deh_log("Assigned offset %d => '%s'\n", offset, newstring ? newstring : "");
-      else if (key)
-        deh_log("Assigned key %s => '%s'\n", key, newstring ? newstring : "");
-      else if (lookfor)
-      {
-        deh_log("Assigned '%.12s%s' to'%.12s%s' at key %s\n",
-                lookfor, (strlen(lookfor) > 12) ? "..." : "",
-                newstring ? newstring : "", (newstring && strlen(newstring) > 12) ? "..." :"",
-                hhe_strlookup[i].lookup);
+      // Offset mode
+      if (offset_mode)
+        deh_log("Assigned offset %d => '%s'\n", offset, newstring);
 
-        // must have passed an old style string so showREX
-        deh_log("*REX FORMAT:\n%s = %s\n*END REX\n",
-                hhe_strlookup[i].lookup, dehReformatStr((char *)(newstring ? newstring : "")));
+      // REX mode
+      else
+      {
+        if (key)
+        {
+          deh_log("Assigned key %s => '%s'\n", key, newstring);
+        }
+        else
+        {
+          deh_log("Assigned '%.12s%s' to'%.12s%s' at key %s\n",
+                  lookfor, (strlen(lookfor) > 12) ? "..." : "",
+                  newstring, (strlen(newstring) > 12) ? "..." :"",
+                  hhe_strlookup[i].lookup);
+
+          // must have passed an old style string so showREX
+          deh_log("*REX FORMAT:\n%s = %s\n*END REX\n",
+                  hhe_strlookup[i].lookup, dehReformatStr(newstring));
+        }
       }
 
       break;
@@ -512,13 +525,18 @@ dboolean hhe_procStringSub(char *key, char *lookfor, int offset, char *newstring
   }
   if (!found)
   {
-    if (offset >= 0) // in offset mode?
+    // Offset mode
+    if (offset_mode)
     {
       HHE_String_SuggestOtherVersions(offset);
       deh_log("Could not find offset %d (hhever=%d)\n", offset, deh_hhe_version);
     }
-    else // REX mode
+
+    // REX mode
+    else
+    {
       deh_log("Could not find '%.12s'\n", key ? key : lookfor);
+    }
   }
 
   return found;

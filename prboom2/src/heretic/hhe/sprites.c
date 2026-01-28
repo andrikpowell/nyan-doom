@@ -17,10 +17,12 @@
 
 #include "doomdef.h"
 #include "deh/func.h"
-#include "heretic/HHE/sprites.h"
+#include "heretic/hhe/sprites.h"
 
 //
+//
 // While we skip the sprite block, we do use info from this in text block
+//
 //
 
 const hhe_sprite_str_t hhe_sprites[] = {

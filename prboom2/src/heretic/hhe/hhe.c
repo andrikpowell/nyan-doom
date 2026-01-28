@@ -33,8 +33,6 @@
 // CPhipps - modify to use logical output routine
 #include "lprintf.h"
 
-// Initialize Heretic(HHE)-specific hehacked bits.
-
 // Error block
 static void hhe_procError(DEHFILE *fpin, char *line)
 {
@@ -46,7 +44,7 @@ static void hhe_procError(DEHFILE *fpin, char *line)
 
 const deh_block hhe_block_error = { "", hhe_procError };
 
-// Grab info from all deh blocks
+// Grab info from all hhe blocks
 extern const deh_block hhe_block_thing;
 extern const deh_block hhe_block_frame;
 extern const deh_block hhe_block_sounds;
@@ -71,17 +69,17 @@ static const deh_block *hhe_blocks[] = { // CPhipps - static const
   /* 6 */  // Sprites are handled in text definition
   /* 7 */  // HHE does not have "cheats" block
   /* 8 */  // HHE does not have "misc" block
-  /* 9 */  &hhe_block_text,  // --  end of standard "deh" entries,
+  /* 9 */  &hhe_block_text,  // --  end of standard "hhe" entries,
 
-  //     begin BOOM Extensions (BEX)
+  //     begin RAVEN Extensions (REX)
 
   /* 10 */ &hhe_block_rex_strings,  // [STRINGS] new string changes
   /* 11 */ // Heretic does not have PARS
-  /* 12 */ &hhe_block_rex_pointers, // [CODEPTR] bex codepointers by mnemonic
+  /* 12 */ &hhe_block_rex_pointers, // [CODEPTR] rex codepointers by mnemonic
   /* 13 */ // Heretic does not have helper dogs
-  /* 14 */ &hhe_block_rex_sprites,  // [SPRITES] bex style sprites
-  /* 15 */ &hhe_block_rex_sounds,   // [SOUNDS] bex style sounds
-  /* 16 */ &hhe_block_rex_music,    // [MUSIC] bex style music
+  /* 14 */ &hhe_block_rex_sprites,  // [SPRITES] rex style sprites
+  /* 15 */ &hhe_block_rex_sounds,   // [SOUNDS] rex style sounds
+  /* 16 */ &hhe_block_rex_music,    // [MUSIC] rex style music
   /* 17 */ &hhe_block_error         // dummy to handle anything else
 };
 
@@ -89,13 +87,13 @@ static const deh_block *hhe_blocks[] = { // CPhipps - static const
 
 // ====================================================================
 // ProcessHheFile
-// Purpose: Read and process a DEH or REX file
-// Args:    filename    -- name of the DEH/REX file
-//          outfilename -- output file (DEHOUT.TXT), appended to here
+// Purpose: Read and process a HHE or REX file
+// Args:    filename    -- name of the HHE/REX file
+//          outfilename -- output file (HHEOUT.TXT), appended to here
 // Returns: void
 //
 // killough 10/98:
-// substantially modified to allow input from wad lumps instead of .deh files.
+// substantially modified to allow input from wad lumps instead of .hhe files.
 
 static int processed_hehacked;
 
@@ -135,7 +133,7 @@ void ProcessHheFile(const char *filename, const char *outfilename, int lumpnum)
     infile.lump = NULL;
     file_or_lump = "file";
   }
-  else  // DEH file comes from lump indicated by third argument
+  else  // HHE file comes from lump indicated by third argument
   {
     infile.size = W_LumpLength(lumpnum);
     infile.inp = infile.lump = W_LumpByNum(lumpnum);
@@ -159,23 +157,25 @@ void ProcessHheFile(const char *filename, const char *outfilename, int lumpnum)
   // auto-detect only if not set
   if (!hhe_version_set)
   {
+    int detected;
     lprintf(LO_INFO, "Checking HHE version from first patch\n");
-    int detected = HHE_DetectVersionFromOffsets(filein, filename);
+
+    detected = HHE_DetectVersionFromOffsets(filein, filename);
+
     if (detected >= 0)
     {
       deh_hhe_version = detected;
       HHE_PrintValidVersion("Auto-detected from offsets");
-      hhe_version_set = true; // optional: lock once auto decides
+      hhe_version_set = true; // lock once auto decides
     }
     else
     {
-      // Print default version
       lprintf(LO_INFO, "No HHE version detected. Defaulting to HHE version %s\n", hhe_versions[deh_hhe_version]);
     }
 
     hhe_version_set = true;
 
-    // IMPORTANT: rewind stream so the real parser starts from the beginning
+    // IMPORTANT - rewind stream so the real parser starts from the beginning
     dehfseek(filein, 0);
   }
 
@@ -185,7 +185,7 @@ void ProcessHheFile(const char *filename, const char *outfilename, int lumpnum)
   //
   // If we are using a v1.0 patch, we must change the table to cut
   // these out again.
-  if (deh_hhe_version == deh_hhe_1_2)
+  if (deh_hhe_version == deh_hhe_1_0)
     HHE_ApplyVersion10Patch();
 
   // loop until end of file
@@ -225,7 +225,7 @@ void ProcessHheFile(const char *filename, const char *outfilename, int lumpnum)
         continue;
       }
 
-      // check for no-text directive, used when including a DEH
+      // check for no-text directive, used when including a HHE
       // file but using the REX format to handle strings
 
       if (!strnicmp(nextfile = ptr_lstrip(inbuffer + 7), "NOTEXT", 6))
@@ -275,30 +275,8 @@ void ProcessHheFile(const char *filename, const char *outfilename, int lumpnum)
   }
 }
 
-static hhe_rexptr null_rexptr = { { 0, 0, 0 }, NULL, "(NULL)" };
-
 void PostProcessHhe(void)
 {
-  int i, j;
-  const hhe_rexptr *rexptr_match;
-
-  if (processed_hehacked)
-  {
-    extern byte* defined_codeptr_args;
-
-    for (i = 0; i < num_states; i++)
-    {
-      rexptr_match = &null_rexptr;
-
-      for (j = 0; hhe_rexptrs[j].cptr != NULL; ++j)
-        if (states[i].action == hhe_rexptrs[j].cptr)
-        {
-          rexptr_match = &hhe_rexptrs[j];
-          break;
-        }
-    }
-  }
-
   dsda_FreeDehStates();
   dsda_FreeDehSprites();
   dsda_FreeDehSFX();

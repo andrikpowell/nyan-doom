@@ -22,9 +22,9 @@
 #include "deh/func.h"
 #include "deh/strings.h"
 
-// #include "d_deh.h" -- we don't do that here but we declare the
+// #include "heretic/dstrings.h" -- we don't do that here but we declare the
 // variables.  This externalizes everything that there is a string
-// set for in the language files.  See d_deh.h for detailed comments,
+// set for in the language files.  See heretic/dstrings.h for detailed comments,
 // original English values etc.  These are set to the macro values,
 // which are set by D_ENGLSH.H or D_FRENCH.H(etc).  REX files are a
 // better way of changing these strings globally by language.
@@ -330,5 +330,5 @@ const char *s_TXT_ARTIPUZZCWEAPON     = TXT_ARTIPUZZCWEAPON;
 const char *s_TXT_ARTIPUZZMWEAPON     = TXT_ARTIPUZZMWEAPON;
 const char *s_TXT_ARTIPUZZGEAR        = TXT_ARTIPUZZGEAR;
 
-// end d_deh.h variable declarations
+// end heretic/dstrings.h variable declarations
 // ====================================================================

@@ -21,23 +21,22 @@
 
 static char *hhe_RenameSound(int indexnum, sfxinfo_t *hhe_sfx, char *strval)
 {
-  char candidate[9];
-  memset(candidate, 0, sizeof(candidate));
-  strncpy(candidate, ptr_lstrip(strval), 8);
+  char new_sound_name[9];
+  memset(new_sound_name, 0, sizeof(new_sound_name));
+  strncpy(new_sound_name, ptr_lstrip(strval), 8);
 
   // validate 1..8
-  if (!candidate[0])
+  if (!new_sound_name[0])
     return NULL;
 
-  for (int i = 0; candidate[i]; ++i)
-    candidate[i] = toupper((unsigned char)candidate[i]);
+  for (int i = 0; new_sound_name[i]; ++i)
+    new_sound_name[i] = toupper((unsigned char)new_sound_name[i]);
 
-  // optional: validate 1..8 and maybe uppercase
-  if (candidate[0])
+  if (new_sound_name[0])
   {
     deh_log("Renaming sfx[%d] from %s to %s\n",
-            indexnum, hhe_sfx && hhe_sfx->name ? hhe_sfx->name : "(null)", candidate);
-    return deh_sfx_name(candidate);
+            indexnum, hhe_sfx && hhe_sfx->name ? hhe_sfx->name : "(null)", new_sound_name);
+    return deh_sfx_name(new_sound_name);
   }
 
   return NULL;
@@ -45,7 +44,7 @@ static char *hhe_RenameSound(int indexnum, sfxinfo_t *hhe_sfx, char *strval)
 
 // ====================================================================
 // hhe_procSounds
-// Purpose: Handle DEH Sounds block
+// Purpose: Handle HHE Sounds block
 // Args:    fpin  -- input file stream
 //          line  -- current line in file to process
 // Returns: void
@@ -54,7 +53,7 @@ static void hhe_procSounds(DEHFILE *fpin, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint64_t value;      // All deh values are ints or longs
+  uint64_t value;      // All hhe values are ints or longs
   int indexnum;
   sfxinfo_t *hhe_sfx;
 
@@ -63,36 +62,43 @@ static void hhe_procSounds(DEHFILE *fpin, char *line)
   // killough 8/98: allow rex numbers in input:
   sscanf(inbuffer, "%s %i", key, &indexnum);
   deh_log("Processing Sounds at index %d: %s\n", indexnum, key);
-
   if (indexnum < 0)
-  {
     deh_log("Sound number must be positive (%d)\n", indexnum);
-    return;
-  }
 
   hhe_sfx = dsda_GetDehSFX(indexnum);
 
   while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
   {
     char *strval = NULL;
+    int GetData;
     if (!dehfgets(inbuffer, sizeof(inbuffer), fpin)) break;
     lfstrip(inbuffer);
     if (!*inbuffer) break;         // killough 11/98
 
+    GetData = deh_GetData(inbuffer, key, &value, &strval);
 
-    if (!deh_GetData(inbuffer, key, &value, &strval)) // returns TRUE if ok
+    if (!GetData) // returns TRUE if ok
     {
       deh_log("Bad data pair in '%s'\n", inbuffer);
       continue;
     }
 
-    if (!deh_strcasecmp(key, "Name")) // well we have to do this here cuz heretic doesn't store sound names in strings :)
+    // well we have to do this here cuz heretic doesn't store sound names in strings :)
+    if (!deh_strcasecmp(key, "Name"))
     {
-      char *newname = hhe_RenameSound(indexnum, hhe_sfx, strval);
-      if (newname)
-        hhe_sfx->name = newname;
-      else
-        deh_log("Bad/empty sound name for sfx[%d]\n", indexnum);
+      if (GetData == 2) // string value
+      {
+        char *newname = hhe_RenameSound(indexnum, hhe_sfx, strval);
+        if (newname)
+          hhe_sfx->name = newname;
+        else
+          deh_log("Bad/empty sound name for sfx[%d]\n", indexnum);
+      }
+      else // number value - invalid
+      {
+        deh_log("Bad sound Name (expected string) for sfx[%d]: '%s'\n",
+                indexnum, strval ? strval : "(null)");
+      }
     }
     else if (!deh_strcasecmp(key, "Special"))
       ; // ignored

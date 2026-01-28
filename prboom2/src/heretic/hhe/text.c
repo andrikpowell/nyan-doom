@@ -435,16 +435,17 @@ dboolean HHE_RenameSprite(int spritenum, const char *newname, const char *contex
   return true;
 }
 
-// TEXT - Dehacked block name = "Text"
-// Usage: Text fromlen tolen
-// Dehacked allows a bit of adjustment to the length (why?)
+// TEXT - Hehacked block name = "Text"
+// Usage: Text offset length
+// Unlike Dehacked, Hehacked uses the specific offset (WHY??)
+// Hehacked allows a bit of adjustment to the length
 
-// flag to skip included deh-style text, used with INCLUDE NOTEXT directive
+// flag to skip included hhe-style text, used with INCLUDE NOTEXT directive
 dboolean hhe_includenotext = false;
 
 // ====================================================================
 // hhe_procText
-// Purpose: Handle DEH Text block
+// Purpose: Handle HHE Text block
 // Notes:   We look things up in the current information and if found
 //          we replace it.  At the same time we write the new and
 //          improved REX syntax to the log file for future use.
@@ -459,37 +460,36 @@ static void hhe_procText(DEHFILE *fpin, char *line)
   int offset, repl_len;  // Heretic - Yay, to parse Hehacked, we have to deal with stupid offsets... :/
   dboolean found = false;  // to allow early exit once found
 
-  // Ty 04/11/98 - Included file may have NOTEXT skip flag set
-  if (hhe_includenotext) // flag to skip included deh-style text
+  // In HHE, these are (orig_offset, replacement_length).
+  if (sscanf(line, "%s %d %d", key, &offset, &repl_len) != 3)
   {
-    char inbuffer[DEH_BUFFERMAX];
+    deh_log("Bad HHE Text header: '%s'\n", line);
+    return;
+  }
+  
+  // Ty 04/11/98 - Included file may have NOTEXT skip flag set
+  if (hhe_includenotext) // flag to skip included hhe-style text
+  {
+    int c, totlen = 0;
+
     deh_log("Skipped text block because of notext directive\n");
-    strncpy(inbuffer, line, sizeof(inbuffer) - 1);
-    inbuffer[sizeof(inbuffer) - 1] = '\0';
-    while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
-      dehfgets(inbuffer, sizeof(inbuffer), fpin);  // skip block
+
+    // HHE Text blocks are length-based.
+    // Even when skipping text, we must consume repl_len characters
+    // to keep the file stream in sync.
+    while (totlen < repl_len && (c = dehfgetc(fpin)) != EOF)
+      if (c != '\r')
+        ++totlen;
+
     // Ty 05/17/98 - don't care if this fails
     return; // ************** Early return
   }
 
-  // In HHE, these are (orig_offset, replacement_length).
-  if (sscanf(line, "%31s %d %d", key, &offset, &repl_len) != 3)
-  {
-    deh_log("Bad Text header: '%s'\n", line);
-    return;
-  }
-
-  deh_log("Processing Text (offset=%d, repl_len=%d, hhever=%d)\n", offset, repl_len, deh_hhe_version);
-
-  if (repl_len < 0 || repl_len > 1<<20)  // sanity
-  {
-    deh_log("Bad Text repl_len=%d\n", repl_len);
-    return;
-  }
+  deh_log("Processing HHE Text (key=%s, offset=%d, repl_len=%d, hhever=%d)\n", key, offset, repl_len, deh_hhe_version);
 
   repl = Z_Malloc((size_t)repl_len + 1);
 
-  // read repl_len bytes (skipping CR) into repl
+  // HHE uses length-based text blocks, not line-based.
   {
     int c, totlen = 0;
 
@@ -504,7 +504,7 @@ static void hhe_procText(DEHFILE *fpin, char *line)
   // 1) Sprite renames (by offset table)
   //    Only attempt if this block is exactly 4 chars long.
   // ------------------------------------------------------------
-  if (!found && repl_len == 4 && offset != 0)
+  if (repl_len == 4 && offset != 0)
   {
     const hhe_sprite_str_t *sprite_rename = HHE_FindSpriteStringByOffset(offset);
 
@@ -513,14 +513,9 @@ static void hhe_procText(DEHFILE *fpin, char *line)
       int i = dsda_GetDehSpriteIndex(sprite_rename->default_string);
 
       if (HHE_RenameSprite(i, repl, sprite_rename->default_string, offset))
-      {
         found = true;
-      }
       else // bad sprite name
-      {
-        deh_log("Bad sprite name in Text block (offset %d): '%.*s'\n",
-                offset, repl_len, repl);
-      }
+        deh_log("Bad sprite name in HHE Text block (offset %d): '%.*s'\n", offset, repl_len, repl);
     }
   }
 

@@ -283,21 +283,21 @@ int HHE_DetectVersionFromOffsets(DEHFILE *fpin, const char *label)
       char *strval;
       int ok;
 
-      // deh_GetData wants a mutable buffer; line is mutable here.
       ok = deh_GetData(line, key, &value, &strval);
       if (ok == 1 && !deh_strcasecmp(key, "Action pointer"))
         HHE_VotePointerOffset((int)value, votes);
     }
   }
 
-  // pick winner + confidence gate
+  // Determine from "votes"
   {
     int best_votes = -1;
-    int best = -1;      // will be highest index among those with best_votes
+    int best = -1;
     int second_votes = -1;
     int v;
 
-    // Find best_votes; if tie, prefer higher version index (newest)
+    // Find best_votes
+    // If tie, prefer higher version
     for (v = 0; v < deh_hhe_num_versions; ++v)
     {
       if (votes[v] > best_votes)
@@ -311,7 +311,8 @@ int HHE_DetectVersionFromOffsets(DEHFILE *fpin, const char *label)
       }
     }
 
-    // Find second_votes (highest votes among versions not equal to 'best')
+    // Find second_votes
+    // Highest votes among versions not equal to 'best'
     for (v = 0; v < deh_hhe_num_versions; ++v)
     {
       if (v == best) continue;
@@ -319,9 +320,9 @@ int HHE_DetectVersionFromOffsets(DEHFILE *fpin, const char *label)
         second_votes = votes[v];
     }
 
-    // If we have at least some evidence, accept.
-    // - If tie occurred, 'best' is already the newest among the tied max.
-    // - If no tie, keep the old "win by +2" confidence gate.
+    // If we have some matches!
+    // - If one wins, use that version
+    // - If tie, use newest version among the tie.
     if (best_votes >= 2)
     {
       dboolean tie_for_best = false;
@@ -344,7 +345,7 @@ int HHE_DetectVersionFromOffsets(DEHFILE *fpin, const char *label)
       }
     }
 
-    // Not enough confidence
+    // Inconclusive
     lprintf(LO_INFO,
       "HHE auto-detect inconclusive (votes: 1.0 = %d, 1.2 = %d, 1.3 = %d)\n",
       votes[0], votes[1], votes[2]

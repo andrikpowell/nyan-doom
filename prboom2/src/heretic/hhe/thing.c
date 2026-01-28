@@ -207,10 +207,10 @@ uint64_t hhe_stringToMobjFlags2(char *strval)
 }
 
 //---------------------------------------------------------------------------
-// To be on the safe, compatible side, we manually convert DEH bitflags
+// To be on the safe, compatible side, we manually convert HHE bitflags
 // to prboom types - POPE
 //---------------------------------------------------------------------------
-static uint64_t getConvertedDEHBits(uint64_t bits) {
+static uint64_t getConvertedHHEBits(uint64_t bits) {
   static const uint64_t bitMap[28] = {
     /* cf linuxdoom-1.10 p_mobj.h */
     MF_SPECIAL, // 0 Can be picked up - When touched the thing can be picked up.
@@ -256,7 +256,7 @@ static uint64_t getConvertedDEHBits(uint64_t bits) {
   return convertedBits;
 }
 
-static uint64_t getConvertedDEHBits2(uint64_t bits) {
+static uint64_t getConvertedHHEBits2(uint64_t bits) {
   static const uint64_t bitMap[21] = {
   MF2_LOGRAV, // 0 Subject to Inertia - logical gravity
   MF2_WINDTHRUST, // 1 Blown by Wind - gets pushed around by the wind
@@ -361,7 +361,7 @@ int dsda_TranslateHereticMobjIndex(int index)
 
 // ====================================================================
 // hhe_procThing
-// Purpose: Handle DEH Thing block
+// Purpose: Handle HHE Thing block
 // Args:    fpin  -- input file stream
 //          line  -- current line in file to process
 // Returns: void
@@ -374,7 +374,7 @@ static void hhe_procThing(DEHFILE *fpin, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint64_t value;      // All deh values are ints or longs
+  uint64_t value;      // All hhe values are ints or longs
   int indexnum;
   int internal_index;
   int ix;
@@ -395,6 +395,7 @@ static void hhe_procThing(DEHFILE *fpin, char *line)
   // HHE Thing numbers are 1-based like DEH.
 
   internal_index = dsda_TranslateHereticMobjIndex(indexnum) - 1;
+
   hhe_mobjinfo = dsda_GetDehMobjInfo(internal_index);
 
   // now process the stuff
@@ -406,7 +407,6 @@ static void hhe_procThing(DEHFILE *fpin, char *line)
   while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
   {
     // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
-    // No more desync on HACX demos.
     int bGetData;
 
     if (!dehfgets(inbuffer, sizeof(inbuffer), fpin)) break;
@@ -416,7 +416,6 @@ static void hhe_procThing(DEHFILE *fpin, char *line)
     if (!*inbuffer) break;  // bail out with blank line between sections
 
     // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
-    // No more desync on HACX demos.
     bGetData = deh_GetData(inbuffer, key, &value, &strval);
     if (!bGetData)
     {
@@ -424,7 +423,7 @@ static void hhe_procThing(DEHFILE *fpin, char *line)
       continue;
     }
 
-    // I'm reordering this here, cuz in d_deh this is confusing as hell
+    // I'm reordering this here, cuz in deh/thing.c this is confusing as hell
     for (ix = 0; hhe_mobjinfo_fields[ix]; ix++) {
       if (deh_strcasecmp(key, hhe_mobjinfo_fields[ix])) continue; // Unknown key? skip parsing
 
@@ -436,7 +435,7 @@ static void hhe_procThing(DEHFILE *fpin, char *line)
         if (bGetData == 1)
         {
           // Numeric form: Bits 1 = <mask>
-          value = getConvertedDEHBits(value);
+          value = getConvertedHHEBits(value);
         }
         else
         {
@@ -461,11 +460,11 @@ static void hhe_procThing(DEHFILE *fpin, char *line)
         if (bGetData == 1)
         {
           // Numeric form: Bits 2 = <mask>
-          value = getConvertedDEHBits2(value);
+          value = getConvertedHHEBits2(value);
         }
         else
         {
-          // Mnemonic form: Bits 2 = SPECIAL + COUNTITEM ...
+          // Mnemonic form: Bits 2 = FLAG + FLAG ...
           value = hhe_stringToMobjFlags2(strval);
 
           // Don't worry about conversion -- simply print values

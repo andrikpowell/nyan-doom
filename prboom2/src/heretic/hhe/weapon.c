@@ -21,10 +21,6 @@
 
 #include "heretic/hhe/frame.h"
 
-// WEAPONS - Hehacked block name = "Weapon"
-// Usage: Weapon nn (name)
-// Basically a list of frames and what kind of ammo (see above)it uses.
-
 static const char *hhe_heretic_weapon[] = // CPhipps - static const*
 {
   "Ammo type",      // .ammo
@@ -37,9 +33,13 @@ static const char *hhe_heretic_weapon[] = // CPhipps - static const*
   // (optional) "Ammo per shot" etc if you support it in your format
 };
 
+// WEAPONS - Hehacked block name = "Weapon"
+// Usage: Weapon nn (name)
+// Basically a list of frames and what kind of ammo (see above)it uses.
+
 // ====================================================================
 // hhe_procWeapon
-// Purpose: Handle DEH Weapon block
+// Purpose: Handle HHE Weapon block
 // Args:    fpin  -- input file stream
 //          line  -- current line in file to process
 // Returns: void
@@ -52,6 +52,7 @@ static void hhe_procWeapon(DEHFILE *fpin, char *line)
   int indexnum;
   char *strval;
   int bGetData;
+
   weaponinfo_t *weapon = NULL;
 
   strncpy(inbuffer, line, DEH_BUFFERMAX - 1);
@@ -63,7 +64,7 @@ static void hhe_procWeapon(DEHFILE *fpin, char *line)
   // Heretic weapons are doubled (tome of power)
   if (indexnum < 0 || indexnum >= NUMWEAPONS * 2)
   {
-    deh_log("Bad weapon number %d (valid 0..%d)\n", indexnum, NUMWEAPONS * 2 - 1);
+    deh_log("Bad weapon number %d (valid range 0-%d)\n", indexnum, NUMWEAPONS * 2 - 1);
   }
   // Decide weapon level (tome of power)
   else if (indexnum < NUMWEAPONS)
@@ -82,7 +83,8 @@ static void hhe_procWeapon(DEHFILE *fpin, char *line)
       deh_log("Bad data pair in '%s'\n", inbuffer);
       continue;
     }
-    // Heretic version compatibility: any "frame" field maps through HHE rules.
+
+    // Heretic - gotta conver the frame number :/
     if (deh_strcasestr(key, "frame"))
       value = HHE_MapHereticFrameNumber((int)value);
 

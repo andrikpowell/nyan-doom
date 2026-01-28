@@ -164,7 +164,7 @@ int hhe_numrexptr = sizeof(hhe_rexptrs) / sizeof(hhe_rexptrs[0]);
 
 // ====================================================================
 // hhe_procRexCodePointers
-// Purpose: Handle [CODEPTR] block, BOOM Extension
+// Purpose: Handle [CODEPTR] block, RAVEN Extension
 // Args:    fpin  -- input file stream
 //          line  -- current line in file to process
 // Returns: void
@@ -205,9 +205,9 @@ static void hhe_procRexCodePointers(DEHFILE *fpin, char *line)
       continue; // killough 10/98: fix SegViol
     }
 
-    // Heretic only!
-    // Map HHE frame number (1.0/1.2 style) -> internal 1.3 table index
+    // Heretic only - get correct frame per version
     mapped = HHE_MapHereticFrameNumber(indexnum);
+
     if (mapped < 0 || mapped >= num_states)
     {
       deh_log("Invalid mapped frame number: %d -> %d\n", indexnum, mapped);

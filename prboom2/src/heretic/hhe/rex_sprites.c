@@ -33,7 +33,7 @@ static void hhe_procRexSprites(DEHFILE *fpin, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint64_t value;    // All deh values are ints or longs
+  uint64_t value;    // All hhe values are ints or longs
   char *strval;  // holds the string value of the line
   const char *src;
   int  match;

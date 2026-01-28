@@ -23,14 +23,14 @@
 
 #include "dsda/state.h"
 
-// STATE - Dehacked block name = "Frame" and "Pointer"
+// STATE - Hehacked block name = "Frame" and "Pointer"
 // Usage: Frame nn
 // Usage: Pointer nn (Frame nn)
 // These are indexed separately, for lookup to the actual
-// function pointers.  Here we'll take whatever Dehacked gives
+// function pointers.  Here we'll take whatever Hehacked gives
 // us and go from there.  The (Frame nn) after the pointer is the
 // real place to put this value.  The "Pointer" value is an xref
-// that Dehacked uses and is useless to us.
+// that Hehacked uses and is useless to us.
 // * states are base zero and have a dummy #0 (TROO)
 
 static const char *hhe_state_fields[] = // CPhipps - static const*
@@ -119,7 +119,7 @@ static actionf_t hhe_GetOffsetPointer(int offset)
 
 // ====================================================================
 // hhe_procFrame
-// Purpose: Handle DEH Frame block
+// Purpose: Handle HHE Frame block
 // Args:    fpin  -- input file stream
 //          line  -- current line in file to process
 // Returns: void
@@ -128,7 +128,7 @@ static void hhe_procFrame(DEHFILE *fpin, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint64_t value;      // All deh values are ints or longs
+  uint64_t value;      // All hhe values are ints or longs
   int og_indexnum;
   int indexnum;
   char *strval;
@@ -178,7 +178,7 @@ static void hhe_procFrame(DEHFILE *fpin, char *line)
     }
     else if (!deh_strcasecmp(key, hhe_state_fields[3]))  // Next frame
     {
-      int next = HHE_MapHereticFrameNumber((int)value);
+      int next = HHE_MapHereticFrameNumber((int)value); // get correct offset for version
       if (next >= 0)
       {
         deh_log(" - nextstate = %ld (mapped %d)\n", (long)value, next);
@@ -192,7 +192,7 @@ static void hhe_procFrame(DEHFILE *fpin, char *line)
     else if (!deh_strcasecmp(key, hhe_state_fields[4]))  // Action pointer (unlike Doom, we do this here for Heretic)
     {
       int offset = (int)value;
-      actionf_t translated_value = hhe_GetOffsetPointer(offset);
+      actionf_t translated_value = hhe_GetOffsetPointer(offset); // get correct offset for version
 
       deh_log(" - action pointer = %d -> %s\n", offset, translated_value ? "mapped" : "NULL/unknown");
       hhe_state.state->action = translated_value;

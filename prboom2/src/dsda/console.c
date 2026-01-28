@@ -41,6 +41,7 @@
 #include "v_video.h"
 
 #include "heretic/hhe/strings.h"
+#include "heretic/hhe/thing.h"
 
 #include "dsda.h"
 #include "dsda/build.h"
