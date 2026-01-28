@@ -385,6 +385,11 @@ static arg_config_t arg_config[dsda_arg_count] = {
     "sets the data directory",
     arg_string,
   },
+  [dsda_arg_hhever] = {
+    "-hhever", NULL, NULL, NULL,
+    "sets the hehacked version",
+    arg_string,
+  },
   [dsda_arg_save] = {
     "-save", NULL, NULL,
     "sets the save directory",

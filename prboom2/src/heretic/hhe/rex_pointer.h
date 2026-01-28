@@ -1,6 +1,4 @@
 //
-// Copyright(C) 1999-2004 by Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
-// Copyright(C) 2005-2006 by Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
 // Copyright(C) 2026 by Andrik Powell
 //
 // This program is free software; you can redistribute it and/or
@@ -14,13 +12,24 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	DEH Parser
+//	HHE [CODEPTR] Parser
 //
 
-#ifndef __DEH__
-#define __DEH__
+#ifndef __HHE_REX_PTR__
+#define __HHE_REX_PTR__
 
-extern void ProcessDehacked(const char *filename, const char *outfilename, int lumpnum);
-extern void PostProcessDehacked(void);
+#include "deh/func.h"
+#include "heretic/hhe/version.h"
+#include "info.h"
+
+typedef struct {
+  int offsets[deh_hhe_num_versions];
+  actionf_t cptr;  // actual pointer to the subroutine
+  const char *lookup;  // mnemonic lookup string to be specified in REX
+  // CPhipps - const*
+} hhe_rexptr;
+
+extern const hhe_rexptr hhe_rexptrs[];
+extern int hhe_numrexptr;
 
 #endif

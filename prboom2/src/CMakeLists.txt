@@ -323,6 +323,30 @@ set(COMMON_SRC
     g_game.h
     g_overflow.c
     g_overflow.h
+    heretic/hhe/ammo.c
+    heretic/hhe/frame.c
+    heretic/hhe/frame.h
+    heretic/hhe/hhe.c
+    heretic/hhe/hhe.h
+    heretic/hhe/rex_music.c
+    heretic/hhe/rex_pointer.c
+    heretic/hhe/rex_pointer.h
+    heretic/hhe/rex_sound.c
+    heretic/hhe/rex_sprites.c
+    heretic/hhe/rex_strings.c
+    heretic/hhe/rex_strings.h
+    heretic/hhe/sound.c
+    heretic/hhe/sprites.c
+    heretic/hhe/sprites.h
+    heretic/hhe/strings.c
+    heretic/hhe/strings.h
+    heretic/hhe/text.c
+    heretic/hhe/text.h
+    heretic/hhe/thing.c
+    heretic/hhe/thing.h
+    heretic/hhe/version.c
+    heretic/hhe/version.h
+    heretic/hhe/weapon.c
     heretic/d_main.c
     heretic/def.h
     heretic/dstrings.h

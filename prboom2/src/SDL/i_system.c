@@ -666,6 +666,10 @@ char* I_RequireDeh(const char* wfname)
 {
   char* result;
 
+  result = I_FindFile(wfname, ".hhe");
+  if (result)
+    return result;
+
   result = I_FindFile(wfname, ".bex");
   if (result)
     return result;
@@ -676,6 +680,10 @@ char* I_RequireDeh(const char* wfname)
 char* I_FindDeh(const char* wfname)
 {
   char* result;
+
+  result = I_FindFile(wfname, ".hhe");
+  if (result)
+    return result;
 
   result = I_FindFile(wfname, ".bex");
   if (result)

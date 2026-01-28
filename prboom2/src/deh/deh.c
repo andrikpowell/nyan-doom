@@ -42,6 +42,8 @@
 // CPhipps - modify to use logical output routine
 #include "lprintf.h"
 
+#include "heretic/hhe/hhe.h"
+
 // Error block
 static void deh_procError(DEHFILE *fpin, char *line)
 {
@@ -338,4 +340,16 @@ void PostProcessDeh(void)
   dsda_FreeDehSFX();
   dsda_FreeDehMusic();
   dsda_FreeDehMobjInfo();
+}
+
+void ProcessDehacked(const char *filename, const char *outfilename, int lumpnum)
+{
+  if (heretic)  ProcessHheFile(filename, outfilename, lumpnum);
+  else          ProcessDehFile(filename, outfilename, lumpnum);
+}
+
+void PostProcessDehacked(void)
+{
+  if (heretic)  PostProcessHhe();
+  else          PostProcessDeh();
 }

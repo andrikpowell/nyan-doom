@@ -1,6 +1,4 @@
 //
-// Copyright(C) 1999-2004 by Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
-// Copyright(C) 2005-2006 by Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
 // Copyright(C) 2026 by Andrik Powell
 //
 // This program is free software; you can redistribute it and/or
@@ -14,13 +12,12 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	DEH Parser
+//	HHE Frames
 //
 
-#ifndef __DEH__
-#define __DEH__
+#ifndef __HHE_FRAME__
+#define __HHE_FRAME__
 
-extern void ProcessDehacked(const char *filename, const char *outfilename, int lumpnum);
-extern void PostProcessDehacked(void);
+extern int HHE_MapHereticFrameNumber(int frame);
 
 #endif
