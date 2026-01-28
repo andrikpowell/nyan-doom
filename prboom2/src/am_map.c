@@ -1341,14 +1341,14 @@ dboolean AM_Responder
   else if (dsda_InputActivated(dsda_input_map_follow))
   {
     dsda_ToggleConfig(dsda_config_automap_follow, true);
-    dsda_AddMessage(automap_follow ? s_AMSTR_FOLLOWON : s_AMSTR_FOLLOWOFF);
+    dsda_AddMessage(automap_follow ? g_am_followon : g_am_followoff);
 
     return true;
   }
   else if (dsda_InputActivated(dsda_input_map_grid))
   {
     dsda_ToggleConfig(dsda_config_automap_grid, true);
-    dsda_AddMessage(automap_grid ? s_AMSTR_GRIDON : s_AMSTR_GRIDOFF);
+    dsda_AddMessage(automap_grid ? g_am_gridon : g_am_gridoff);
 
     return true;
   }

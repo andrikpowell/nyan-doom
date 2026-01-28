@@ -1633,9 +1633,9 @@ void M_EndGame(int choice)
 void M_ChangeMessages(void)
 {
   if (!dsda_ShowMessages())
-    dsda_AddUnblockableMessage(s_MSGOFF);
+    dsda_AddUnblockableMessage(g_msgoff);
   else
-    dsda_AddMessage(s_MSGON);
+    dsda_AddMessage(g_msgon);
 }
 
 /////////////////////////////

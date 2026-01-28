@@ -105,6 +105,13 @@ extern int g_mf_shadow;
 extern const char* g_menu_flat;
 extern const char* g_skyflatname;
 
+extern const char* g_am_followon;
+extern const char* g_am_followoff;
+extern const char* g_am_gridon;
+extern const char* g_am_gridoff;
+extern const char* g_msgoff;
+extern const char* g_msgon;
+
 extern dboolean heretic;
 extern dboolean uvplus;
 extern dboolean customskill;
