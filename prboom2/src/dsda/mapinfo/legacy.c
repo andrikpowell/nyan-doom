@@ -16,7 +16,7 @@
 //
 
 #include "doomstat.h"
-#include "d_deh.h"
+#include "deh/strings.h"
 #include "g_game.h"
 #include "m_misc.h"
 #include "p_setup.h"

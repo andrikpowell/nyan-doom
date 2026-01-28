@@ -3,6 +3,39 @@
 set(COMMON_SRC
     am_map.c
     am_map.h
+    deh/ammo.c
+    deh/bex_helper.c
+    deh/bex_music.c
+    deh/bex_pars.c
+    deh/bex_pointer.c
+    deh/bex_pointer.h
+    deh/bex_sound.c
+    deh/bex_sprites.c
+    deh/bex_strings.c
+    deh/cheat.c
+    deh/cheat.h
+    deh/compatibility.c
+    deh/compatibility.h
+    deh/frame.c
+    deh/frame.h
+    deh/func.c
+    deh/func.h
+    deh/deh.c
+    deh/deh.h
+    deh/misc.c
+    deh/misc.h
+    deh/nyan.c
+    deh/nyan.h
+    deh/pointer.c
+    deh/sound.c
+    deh/sprites.c
+    deh/strings.c
+    deh/strings.h
+    deh/text.c
+    deh/text.h
+    deh/thing.c
+    deh/thing.h
+    deh/weapon.c
     doomdata.h
     doomdef.c
     doomdef.h
@@ -270,8 +303,6 @@ set(COMMON_SRC
     textscreen/fonts/README
     dstrings.c
     dstrings.h
-    d_deh.c
-    d_deh.h
     d_englsh.h
     d_event.h
     d_items.c

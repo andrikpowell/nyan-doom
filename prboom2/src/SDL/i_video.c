@@ -68,7 +68,7 @@
 #include "f_wipe.h"
 #include "d_main.h"
 #include "d_event.h"
-#include "d_deh.h"
+#include "deh/compatibility.h"
 #include "i_video.h"
 #include "i_capture.h"
 #include "z_zone.h"

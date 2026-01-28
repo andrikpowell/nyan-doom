@@ -38,7 +38,7 @@
 #include "sounds.h"
 #include "r_main.h"
 #include "dstrings.h"
-#include "d_deh.h"  // Ty 03/27/98 - externalized
+#include "deh/strings.h"  // Ty 03/27/98 - externalized
 #include "st_stuff.h"
 #include "lprintf.h"
 #include "e6y.h"//e6y

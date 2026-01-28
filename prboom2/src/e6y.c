@@ -83,7 +83,7 @@
 #include "gl_struct.h"
 #include "gl_intern.h"
 #include "g_game.h"
-#include "d_deh.h"
+#include "deh/compatibility.h"
 #include "e6y.h"
 #include "m_file.h"
 #include "v_video.h"

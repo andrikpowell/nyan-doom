@@ -15,7 +15,8 @@
 //	DSDA Console
 //
 
-#include "d_deh.h"
+#include "deh/strings.h"
+#include "deh/thing.h"
 #include "doomstat.h"
 #include "g_game.h"
 #include "hu_lib.h"

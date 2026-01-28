@@ -57,7 +57,7 @@
 #include "sounds.h"
 #include "i_sound.h"
 #include "m_bbox.h"                                         // phares 3/20/98
-#include "d_deh.h"
+#include "deh/strings.h"
 #include "st_stuff.h"
 #include "r_plane.h"
 #include "hu_stuff.h"
