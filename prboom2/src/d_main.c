@@ -668,7 +668,9 @@ static void D_PageDrawer(void)
         V_DrawNamePatch(4, 160, "ADVISOR", CR_DEFAULT, VPT_STRETCH);
       }
     }
-    else if (!(dsda_SkipIwadDemos() && W_PWADLumpNameExists(credit)))
+    else if ((dsda_SkipIwadDemos() && W_PWADLumpNameExists(credit)))
+      V_DrawRawScreen(credit);
+    else
       M_DrawCreditsDynamic();
     return;
   }
