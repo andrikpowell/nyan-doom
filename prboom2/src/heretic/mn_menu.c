@@ -233,11 +233,11 @@ enum
 
 menuitem_t RavenMainMenu[]=
 {
-  {1,"M_NGAME", M_NewGame, 'n', HERETIC_MN_NEW_GAME},
-  {1,"M_OPTION",M_Options, 'o', HERETIC_MN_OPTIONS},
-  {1,"M_GFILES", MN_GameFiles,'g', HERETIC_MN_GAME_FILES},
-  {1,"M_INFO",MN_Info,'i', HERETIC_MN_INFO},
-  {1,"M_QUITG", M_QuitDOOM,'q', HERETIC_MN_QUIT_GAME}
+  {1,"M_NGAME", M_NewGame, 'n', HERETIC_MNU_NEW_GAME},
+  {1,"M_OPTION",M_Options, 'o', HERETIC_MNU_OPTIONS},
+  {1,"M_GFILES", MN_GameFiles,'g', HERETIC_MNU_GAME_FILES},
+  {1,"M_INFO",MN_Info,'i', HERETIC_MNU_INFO},
+  {1,"M_QUITG", M_QuitDOOM,'q', HERETIC_MNU_QUIT_GAME}
 };
 
 
@@ -256,8 +256,8 @@ enum
 
 menuitem_t SaveLoadMenu[]=
 {
-  {1,"M_LOADG", M_LoadGame,'l', HERETIC_MN_LOAD_GAME},
-  {1,"M_SAVEG", M_SaveGame,'s', HERETIC_MN_SAVE_GAME},
+  {1,"M_LOADG", M_LoadGame,'l', HERETIC_MNU_LOAD_GAME},
+  {1,"M_SAVEG", M_SaveGame,'s', HERETIC_MNU_SAVE_GAME},
 };
 
 menu_t SaveLoadDef =
@@ -336,8 +336,8 @@ void MN_Init(void)
     SkillDef.y = 44;
   }
 
-  SoundMenu[0].alttext = HERETIC_MN_SFX_VOL;
-  SoundMenu[2].alttext = HERETIC_MN_MUSIC_VOL;
+  SoundMenu[0].alttext = HERETIC_MNU_SFX_VOL;
+  SoundMenu[2].alttext = HERETIC_MNU_MUSIC_VOL;
 
   // Use exclusive Heretic
   // and Hexen MainMenu.
@@ -663,7 +663,7 @@ void MN_DrawSkillMenu(void)
     if (PlayerClass[consoleplayer] == PCLASS_RANDOM)
       MN_PickRandomClass();
 
-    MN_DrTextB("CHOOSE SKILL LEVEL:", 74, 16);
+    MN_DrTextB(HERETIC_MNU_CHOOSESKILL, 74, 16);
 }
 
 void MN_DrawOptions(void)
@@ -704,7 +704,7 @@ void MN_DrawLoad(void)
 {
   const char *title;
 
-  title = HERETIC_MN_LOAD_GAME;
+  title = HERETIC_MNU_LOAD_GAME;
 
   MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 10);
   MN_DrawFileSlots(LoadDef.x, LoadDef.y);
@@ -720,7 +720,7 @@ void MN_DrawSave(void)
 {
   const char *title;
 
-  title = HERETIC_MN_SAVE_GAME;
+  title = HERETIC_MNU_SAVE_GAME;
 
   MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 10);
   MN_DrawFileSlots(SaveDef.x, SaveDef.y);
