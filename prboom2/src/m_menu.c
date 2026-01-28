@@ -106,7 +106,7 @@
 
 #include "heretic/mn_menu.h"
 #include "heretic/sb_bar.h"
-#include "heretic/dstrings.h"
+#include "heretic/hhe/strings.h"
 
 /****************************
  *
@@ -721,7 +721,7 @@ void M_Episode(int choice)
 {
   // Shareware now shows the episode select, but 
   // displays message when selecting other episodes.
-  const char* shareware_msg = heretic ? HERETIC_SWSTRING : s_SWSTRING;
+  const char* shareware_msg = heretic ? s_HERETIC_SWSTRING : s_SWSTRING;
 
   if (gamemode == shareware && choice && episodes[choice].vanilla) {
     M_StartMessage(shareware_msg, NULL, false); // Ty 03/27/98 - externalized
@@ -1401,7 +1401,7 @@ void M_QuitDOOM(int choice)
   if (language != english)
     snprintf(endstring, sizeof(endstring), "%s\n\n%s",s_DOSY, *endmsg[0] );
   else         // killough 1/18/98: fix endgame message calculation:
-    snprintf(endstring, sizeof(endstring), "%s\n\n%s", !raven ? *endmsg[gametic%(NUM_QUITMESSAGES-1)+1] : HERETIC_RAVENQUITMSG, s_DOSY);
+    snprintf(endstring, sizeof(endstring), "%s\n\n%s", !raven ? *endmsg[gametic%(NUM_QUITMESSAGES-1)+1] : s_HERETIC_RAVENQUITMSG, s_DOSY);
 
   if (dsda_SkipQuitPrompt())
     M_QuitResponse(true);

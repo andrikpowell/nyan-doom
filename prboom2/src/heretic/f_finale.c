@@ -25,9 +25,8 @@
 #include "dsda/palette.h"
 
 #include "heretic/def.h"
-#include "heretic/dstrings.h"
-
 #include "heretic/f_finale.h"
+#include "heretic/hhe/strings.h"
 
 static int finalestage;                // 0 = text, 1 = art screen
 static int finalecount;
@@ -65,24 +64,24 @@ void Heretic_F_StartFinale(void)
   switch (gameepisode)
   {
     case 1:
-      finaleflat = HERETIC_BGFLATE1;
-      finaletext = HERETIC_E1TEXT;
+      finaleflat = s_HERETIC_BGFLATE1;
+      finaletext = s_HERETIC_E1TEXT;
       break;
     case 2:
-      finaleflat = HERETIC_BGFLATE2;
-      finaletext = HERETIC_E2TEXT;
+      finaleflat = s_HERETIC_BGFLATE2;
+      finaletext = s_HERETIC_E2TEXT;
       break;
     case 3:
-      finaleflat = HERETIC_BGFLATE3;
-      finaletext = HERETIC_E3TEXT;
+      finaleflat = s_HERETIC_BGFLATE3;
+      finaletext = s_HERETIC_E3TEXT;
       break;
     case 4:
-      finaleflat = HERETIC_BGFLATE4;
-      finaletext = HERETIC_E4TEXT;
+      finaleflat = s_HERETIC_BGFLATE4;
+      finaletext = s_HERETIC_E4TEXT;
       break;
     case 5:
-      finaleflat = HERETIC_BGFLATE5;
-      finaletext = HERETIC_E5TEXT;
+      finaleflat = s_HERETIC_BGFLATE5;
+      finaletext = s_HERETIC_E5TEXT;
       break;
   }
 
