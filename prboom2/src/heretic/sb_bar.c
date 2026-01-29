@@ -56,8 +56,6 @@ static void Hexen_DrawMainBar(void);
 // Public Data
 
 dboolean inventory;
-int curpos;
-int inv_ptr;
 int ArtifactFlash;
 
 // Private Data
@@ -717,7 +715,7 @@ void DrawMainBar(void)
         oldarti = -1;           // so that the correct artifact fills in after the flash
     }
     else if (oldarti != CPlayer->readyArtifact
-             || oldartiCount != CPlayer->inventory[inv_ptr].count)
+             || oldartiCount != CPlayer->inventory[CPlayer->inv_ptr].count)
     {
         V_DrawNumPatch(180,  161, LumpBLACKSQ, CR_DEFAULT, VPT_STRETCH);
         if (CPlayer->readyArtifact > 0)
@@ -726,10 +724,10 @@ void DrawMainBar(void)
               179, 160, lumparti[CPlayer->readyArtifact], CR_DEFAULT, VPT_STRETCH
             );
 
-            DrSmallNumber(CPlayer->inventory[inv_ptr].count, 201, 182);
+            DrSmallNumber(CPlayer->inventory[CPlayer->inv_ptr].count, 201, 182);
         }
         oldarti = CPlayer->readyArtifact;
-        oldartiCount = CPlayer->inventory[inv_ptr].count;
+        oldartiCount = CPlayer->inventory[CPlayer->inv_ptr].count;
     }
 
     // Frags
@@ -821,7 +819,7 @@ void DrawInventoryBar(void)
     int x;
     int lump;
 
-    x = inv_ptr - curpos;
+    x = CPlayer->inv_ptr - CPlayer->curpos;
     V_DrawNumPatch(sb_inv_bar_x, sb_inv_bar_y, LumpINVBAR, CR_DEFAULT, VPT_STRETCH);
     for (i = 0; i < 7; i++)
     {
@@ -836,7 +834,7 @@ void DrawInventoryBar(void)
                           sb_inv_arti_count_x + i * 31, sb_inv_arti_count_y);
         }
     }
-    V_DrawNumPatch(50 + curpos * 31,  sb_inv_select_y, LumpSELECTBOX, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNumPatch(50 + CPlayer->curpos * 31,  sb_inv_select_y, LumpSELECTBOX, CR_DEFAULT, VPT_STRETCH);
     if (x != 0)
     {
         lump = !(leveltime & 4) ? LumpINVLFGEM1 : LumpINVLFGEM2;
@@ -874,7 +872,7 @@ void DrawInventoryBarTranslucent(int x, int y, int vpt)
         fullscreen_inventory = true;
         inventory_open = true;
 
-        j = inv_ptr - curpos;
+        j = CPlayer->inv_ptr - CPlayer->curpos;
         for (i = 0; i < 7; i++)
         {
             V_DrawNamePatch(artibox_x + i * 31, artibox_y, "ARTIBOX", CR_DEFAULT, vpt | flags);  
@@ -884,7 +882,7 @@ void DrawInventoryBarTranslucent(int x, int y, int vpt)
                 DrSmallNumber(CPlayer->inventory[j + i].count, sml_num_x + i * 31, sml_num_y);
             }
         }
-        V_DrawNumPatch(select_x + curpos * 31,  select_y, LumpSELECTBOX, CR_DEFAULT, vpt);
+        V_DrawNumPatch(select_x + CPlayer->curpos * 31,  select_y, LumpSELECTBOX, CR_DEFAULT, vpt);
         if (j != 0)
         {
             lump = !(leveltime & 4) ? LumpINVLFGEM1 : LumpINVLFGEM2;
@@ -913,7 +911,7 @@ void DrawArtifact(int x, int y, int vpt)
 
   if (!inventory_open)
   {
-    inv = &players[displayplayer].inventory[inv_ptr];
+    inv = &players[displayplayer].inventory[CPlayer->inv_ptr];
 
     if (inv->type > 0)
     {
@@ -1328,20 +1326,20 @@ static void Hexen_DrawMainBar(void)
         oldarti = -1;           // so that the correct artifact fills in after the flash
     }
     else if (oldarti != CPlayer->readyArtifact
-             || oldartiCount != CPlayer->inventory[inv_ptr].count)
+             || oldartiCount != CPlayer->inventory[CPlayer->inv_ptr].count)
     {
         V_DrawNumPatch(144, 160, LumpARTICLEAR, CR_DEFAULT, VPT_STRETCH);
         if (CPlayer->readyArtifact > 0)
         {
             V_DrawNumPatch(143, 163,
                            lumparti[CPlayer->readyArtifact], CR_DEFAULT, VPT_STRETCH);
-            if (CPlayer->inventory[inv_ptr].count > 1)
+            if (CPlayer->inventory[CPlayer->inv_ptr].count > 1)
             {
-                DrSmallNumber(CPlayer->inventory[inv_ptr].count, 162, 184);
+                DrSmallNumber(CPlayer->inventory[CPlayer->inv_ptr].count, 162, 184);
             }
         }
         oldarti = CPlayer->readyArtifact;
-        oldartiCount = CPlayer->inventory[inv_ptr].count;
+        oldartiCount = CPlayer->inventory[CPlayer->inv_ptr].count;
     }
 
     // Frags

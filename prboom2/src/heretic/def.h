@@ -19,8 +19,6 @@
 
 #include "doomtype.h"
 
-extern int inv_ptr;
-extern int curpos;
 extern int ArtifactFlash;
 extern dboolean inventory;
 

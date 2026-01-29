@@ -28,8 +28,6 @@
 
 #include "death.h"
 
-extern int inv_ptr;
-extern int curpos;
 extern int newtorch;
 extern int newtorchdelta;
 
@@ -81,8 +79,8 @@ void dsda_DeathUse(player_t* player) {
         if (player == &players[consoleplayer])
         {
           V_SetPalette(0);
-          inv_ptr = 0;
-          curpos = 0;
+          player->inv_ptr = 0;
+          player->curpos = 0;
           newtorch = 0;
           newtorchdelta = 0;
         }

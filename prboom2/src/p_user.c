@@ -1269,28 +1269,28 @@ void P_PlayerNextArtifact(player_t * player)
 {
     if (player == &players[consoleplayer])
     {
-        inv_ptr--;
-        if (inv_ptr < 6)
+        player->inv_ptr--;
+        if (player->inv_ptr < 6)
         {
-            curpos--;
-            if (curpos < 0)
+            player->curpos--;
+            if (player->curpos < 0)
             {
-                curpos = 0;
+                player->curpos = 0;
             }
         }
-        if (inv_ptr < 0)
+        if (player->inv_ptr < 0)
         {
-            inv_ptr = player->inventorySlotNum - 1;
-            if (inv_ptr < 6)
+            player->inv_ptr = player->inventorySlotNum - 1;
+            if (player->inv_ptr < 6)
             {
-                curpos = inv_ptr;
+                player->curpos = player->inv_ptr;
             }
             else
             {
-                curpos = 6;
+                player->curpos = 6;
             }
         }
-        player->readyArtifact = player->inventory[inv_ptr].type;
+        player->readyArtifact = player->inventory[player->inv_ptr].type;
     }
 }
 
@@ -1309,24 +1309,24 @@ void P_PlayerRemoveArtifact(player_t * player, int slot)
         player->inventorySlotNum--;
         if (player == &players[consoleplayer])
         {                       // Set position markers and get next readyArtifact
-            inv_ptr--;
-            if (inv_ptr < 6)
+            player->inv_ptr--;
+            if (player->inv_ptr < 6)
             {
-                curpos--;
-                if (curpos < 0)
+                player->curpos--;
+                if (player->curpos < 0)
                 {
-                    curpos = 0;
+                    player->curpos = 0;
                 }
             }
-            if (inv_ptr >= player->inventorySlotNum)
+            if (player->inv_ptr >= player->inventorySlotNum)
             {
-                inv_ptr = player->inventorySlotNum - 1;
+                player->inv_ptr = player->inventorySlotNum - 1;
             }
-            if (inv_ptr < 0)
+            if (player->inv_ptr < 0)
             {
-                inv_ptr = 0;
+                player->inv_ptr = 0;
             }
-            player->readyArtifact = player->inventory[inv_ptr].type;
+            player->readyArtifact = player->inventory[player->inv_ptr].type;
         }
     }
 }

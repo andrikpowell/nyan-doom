@@ -595,6 +595,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     int lspeed;
     int look, arti;
     int flyheight;
+    static player_t *plr;
+    plr = &players[consoleplayer];
 
     look = arti = flyheight = 0;
 
@@ -650,20 +652,20 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     {
       if (inventory)
       {
-        players[consoleplayer].readyArtifact = players[consoleplayer].inventory[inv_ptr].type;
+        plr->readyArtifact = plr->inventory[plr->inv_ptr].type;
         inventory = false;
         cmd->arti = 0;
       }
       else
       {
-        cmd->arti |= players[consoleplayer].inventory[inv_ptr].type & AFLAG_MASK;
+        cmd->arti |= plr->inventory[plr->inv_ptr].type & AFLAG_MASK;
       }
     }
 
     // Skip artifact key
     if (dsda_InputTickActivated(dsda_input_skip_artifact))
     {
-      if (players[consoleplayer].inventory[inv_ptr].type != arti_none)
+      if (plr->inventory[plr->inv_ptr].type != arti_none)
       {
         if (hexen)
           P_PlayerNextArtifact(&players[consoleplayer]);
@@ -1701,7 +1703,7 @@ void G_Ticker (void)
     if (inventory && !(--inventoryTics))
     {
         players[consoleplayer].readyArtifact =
-            players[consoleplayer].inventory[inv_ptr].type;
+            players[consoleplayer].inventory[players[consoleplayer].inv_ptr].type;
         inventory = false;
     }
 
@@ -1953,8 +1955,8 @@ void G_PlayerReborn (int player)
   localQuakeHappening[player] = false;
   if (p == &players[consoleplayer])
   {
-    inv_ptr = 0;            // reset the inventory pointer
-    curpos = 0;
+    p->inv_ptr = 0;            // reset the inventory pointer
+    p->curpos = 0;
   }
 
   levels_completed = 0;
@@ -2483,7 +2485,7 @@ void G_AfterLoad(void)
 
   if (raven)
   {
-    players[consoleplayer].readyArtifact = players[consoleplayer].inventory[inv_ptr].type;
+    players[consoleplayer].readyArtifact = players[consoleplayer].inventory[players[consoleplayer].inv_ptr].type;
   }
 
   if (hexen)
@@ -4365,12 +4367,12 @@ static dboolean InventoryMoveLeft(void)
 
     if (R_FullView() && !dsda_CheckBigArtifactBar())
     {
-        inv_ptr--;
-        if (inv_ptr < 0)
+        plr->inv_ptr--;
+        if (plr->inv_ptr < 0)
         {
-            inv_ptr = 0;
+            plr->inv_ptr = 0;
         }
-        plr->readyArtifact = plr->inventory[inv_ptr].type;
+        plr->readyArtifact = plr->inventory[plr->inv_ptr].type;
         return true;
     }
 
@@ -4380,17 +4382,17 @@ static dboolean InventoryMoveLeft(void)
         inventory = true;
         return false;
     }
-    inv_ptr--;
-    if (inv_ptr < 0)
+    plr->inv_ptr--;
+    if (plr->inv_ptr < 0)
     {
-        inv_ptr = 0;
+        plr->inv_ptr = 0;
     }
     else
     {
-        curpos--;
-        if (curpos < 0)
+        plr->curpos--;
+        if (plr->curpos < 0)
         {
-            curpos = 0;
+            plr->curpos = 0;
         }
     }
     return true;
@@ -4404,14 +4406,14 @@ static dboolean InventoryMoveRight(void)
 
     if (R_FullView() && !dsda_CheckBigArtifactBar())
     {
-        inv_ptr++;
-        if (inv_ptr >= plr->inventorySlotNum)
+        plr->inv_ptr++;
+        if (plr->inv_ptr >= plr->inventorySlotNum)
         {
-            inv_ptr--;
-            if (inv_ptr < 0)
-                inv_ptr = 0;
+            plr->inv_ptr--;
+            if (plr->inv_ptr < 0)
+                plr->inv_ptr = 0;
         }
-        plr->readyArtifact = plr->inventory[inv_ptr].type;
+        plr->readyArtifact = plr->inventory[plr->inv_ptr].type;
         return true;
     }
 
@@ -4421,19 +4423,19 @@ static dboolean InventoryMoveRight(void)
         inventory = true;
         return false;
     }
-    inv_ptr++;
-    if (inv_ptr >= plr->inventorySlotNum)
+    plr->inv_ptr++;
+    if (plr->inv_ptr >= plr->inventorySlotNum)
     {
-        inv_ptr--;
-        if (inv_ptr < 0)
-            inv_ptr = 0;
+        plr->inv_ptr--;
+        if (plr->inv_ptr < 0)
+            plr->inv_ptr = 0;
     }
     else
     {
-        curpos++;
-        if (curpos > 6)
+        plr->curpos++;
+        if (plr->curpos > 6)
         {
-            curpos = 6;
+            plr->curpos = 6;
         }
     }
     return true;

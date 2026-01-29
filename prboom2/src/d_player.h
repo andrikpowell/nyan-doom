@@ -263,6 +263,8 @@ typedef struct player_s
   artitype_t readyArtifact;
   int artifactCount;
   int inventorySlotNum;
+  int inv_ptr;                // Selected inventory item
+  int curpos;                 // Current inventoryposition
   int flamecount;             // for flame thrower duration
   int chickenTics;            // player is a chicken if > 0
   int chickenPeck;            // chicken peck countdown

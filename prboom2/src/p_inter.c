@@ -2283,13 +2283,13 @@ dboolean P_GiveArtifact(player_t * player, artitype_t arti, mobj_t * mo)
     {
         player->readyArtifact = arti;
     }
-    else if (player == &players[consoleplayer] && slidePointer && i <= inv_ptr)
+    else if (player == &players[consoleplayer] && slidePointer && i <= player->inv_ptr)
     {
-        inv_ptr++;
-        curpos++;
-        if (curpos > 6)
+        player->inv_ptr++;
+        player->curpos++;
+        if (player->curpos > 6)
         {
-            curpos = 6;
+            player->curpos = 6;
         }
     }
     player->artifactCount++;

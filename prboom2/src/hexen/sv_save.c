@@ -94,9 +94,6 @@ static mobj_t **MobjList;
 static mobj_t ***TargetPlayerAddrs;
 static int TargetPlayerCount;
 
-extern int inv_ptr;
-extern int curpos;
-
 typedef struct
 {
   size_t size;
@@ -1975,8 +1972,11 @@ void SV_MapTeleport(int map, int position)
     }
 
     // Save some globals that get trashed during the load
-    inventoryPtr = inv_ptr;
-    currentInvPos = curpos;
+    for (i = 0; i < g_maxplayers; i++)
+    {
+        inventoryPtr = players[i].inv_ptr;
+        currentInvPos = players[i].curpos;
+    }
 
     // Only SV_LoadMap() uses TargetPlayerAddrs, so it's NULLed here
     // for the following check (player mobj redirection)
@@ -2098,8 +2098,11 @@ void SV_MapTeleport(int map, int position)
     }
 
     // Restore trashed globals
-    inv_ptr = inventoryPtr;
-    curpos = currentInvPos;
+    for (i = 0; i < g_maxplayers; i++)
+    {
+        players[i].inv_ptr = inventoryPtr;
+        players[i].curpos = currentInvPos;
+    }
 
     // Launch waiting scripts
     if (!deathmatch)
