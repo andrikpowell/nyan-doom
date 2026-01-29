@@ -185,7 +185,7 @@ void ProcessHheFile(const char *filename, const char *outfilename, int lumpnum)
   //
   // If we are using a v1.0 patch, we must change the table to cut
   // these out again.
-  if (deh_hhe_version == deh_hhe_1_0)
+  if (deh_hhe_version < deh_hhe_1_2)
     HHE_ApplyVersion10Patch();
 
   // loop until end of file

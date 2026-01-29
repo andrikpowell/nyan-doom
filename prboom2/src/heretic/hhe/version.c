@@ -144,7 +144,7 @@ void HHE_ApplyVersion10Patch(void)
     // If we are using a v1.0 patch, we must change the table to cut
     // these out again.
 
-    if (deh_hhe_version == deh_hhe_1_0)
+    if (deh_hhe_version < deh_hhe_1_2)
     {
         states[HERETIC_S_PLAY_FDTH18].nextstate = HERETIC_S_NULL;
     }
