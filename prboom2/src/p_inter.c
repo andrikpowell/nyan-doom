@@ -2397,11 +2397,11 @@ void P_MinotaurSlam(mobj_t * source, mobj_t * target)
     target->momy += FixedMul(thrust, finesine[angle]);
     if (hexen)
     {
-        P_DamageMobj(target, NULL, source, HITDICE(4));
+        P_DamageMobjBy(target, NULL, source, HITDICE(4), MOD_Melee);
     }
     else
     {
-        P_DamageMobj(target, NULL, NULL, HITDICE(6));
+        P_DamageMobjBy(target, NULL, NULL, HITDICE(6), MOD_Melee); // Damn this sucks for obituaries
     }
     if (target->player)
     {
