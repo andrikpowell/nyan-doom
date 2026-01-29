@@ -18,6 +18,7 @@
 #include "doomstat.h"
 #include "doomdef.h"
 #include "heretic/dstrings.h"  // to get the initial values
+#include "hexen/dstrings.h"
 
 #include "deh/func.h"
 #include "deh/strings.h"
