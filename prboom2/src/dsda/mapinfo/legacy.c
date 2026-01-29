@@ -30,6 +30,8 @@
 #include "dsda/mapinfo.h"
 #include "dsda/preferences.h"
 
+#include "heretic/dstrings.h"
+
 #include "legacy.h"
 
 int dsda_LegacyNameToMap(int* found, const char* name, int* episode, int* map) {
@@ -700,7 +702,7 @@ int dsda_LegacyMapTitle(dsda_string_t* str, int epsd, int map, int override) {
 
     if (map > 0 && epsd > 0) {
       if (heretic) {
-        if (epsd < 6 && map < 10)
+        if (epsd < 7 && map < 10) // for custom heretic wads, allow Episode 6 hhe strings
           dsda_StringCat(str, *LevelNames[(epsd - 1) * 9 + map - 1]);
       }
       else {
