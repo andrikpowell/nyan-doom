@@ -110,7 +110,7 @@ void P_InitSwitchList(void)
   {
     lump = W_CheckNumForName("SWITCHES");
 
-    if (lump != LUMP_NOT_FOUND && lumpinfo[lump].source != source_auto_load)
+    if (lump != LUMP_NOT_FOUND && lumpinfo[lump].source != source_port_wad)
       alphSwitchList = (const switchlist_t *)W_LumpByNum(lump);
     else
       alphSwitchList = heretic_alphSwitchList;
