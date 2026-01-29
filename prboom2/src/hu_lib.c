@@ -609,9 +609,10 @@ static int HUlib_LineWidthRaw(const hu_textline_t* l, const char* s)
 
 int HUlib_CountRenderedLines(const hu_textline_t *t)
 {
+  int lines = 1;
+
   if (!t || t->len <= 0) return 0;
 
-  int lines = 1;
   for (int i = 0; i < t->len; ++i)
     if (t->l[i] == '\n')
       ++lines;

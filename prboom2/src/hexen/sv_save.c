@@ -1939,8 +1939,8 @@ void SV_MapTeleport(int map, int position)
     player_t playerBackup[MAX_MAXPLAYERS];
     mobj_t *targetPlayerMobj;
     mobj_t *mobj;
-    int inventoryPtr;
-    int currentInvPos;
+    int inventoryPtr = 0;
+    int currentInvPos = 0;
     dboolean rClass;
     dboolean playerWasReborn;
     dboolean oldWeaponowned[HEXEN_NUMWEAPONS];
