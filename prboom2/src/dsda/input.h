@@ -151,6 +151,7 @@ typedef enum {
   dsda_input_idmusrr,
   dsda_input_cycle_palette,
   dsda_input_command_display,
+  dsda_input_target_health,
   dsda_input_strict_mode,
   dsda_input_ponce,
   dsda_input_shazam,

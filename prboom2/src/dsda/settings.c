@@ -270,6 +270,10 @@ dboolean dsda_CommandDisplay(void) {
   return dsda_IntConfig(dsda_config_command_display) || dsda_BuildMode();
 }
 
+dboolean dsda_TargetHealth() {
+  return dsda_IntConfig(dsda_config_target_health) && !demorecording;
+}
+
 dboolean dsda_CoordinateDisplay(void) {
   return dsda_IntConfig(dsda_config_coordinate_display);
 }

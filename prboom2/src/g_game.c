@@ -145,6 +145,9 @@ struct
     { -1, { -1, -1 } }                 // Terminator
 };
 
+// Exhud Target Health Widget
+dboolean hu_target_health_reset;
+
 // e6y
 // It is signature for new savegame format with continuous numbering.
 // Now it is not necessary to add a new level of compatibility in case
@@ -1261,6 +1264,9 @@ static void G_DoLoadLevel (void)
     }
     memset(players[i].frags, 0, sizeof(players[i].frags));
   }
+
+  // Reset Exhud Target Health Widget
+  hu_target_health_reset = true;
 
   // automatic pistol start when advancing from one level to the next
   if (pistolstart && !skill_loadout)

@@ -244,6 +244,7 @@ void dsda_UpdateStrictMode(void) {
   M_ChangeMapTextured();
   dsda_RefreshExHudCoordinateDisplay();
   dsda_RefreshExHudCommandDisplay();
+  dsda_RefreshExHudTargetHealth();
   dsda_RefreshExHudMinimap();
   dsda_TrackConfigFeatures();
 }
@@ -398,6 +399,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_stats_format] = {
     "dsda_stats_format", dsda_config_stats_format,
     dsda_config_int, 0, 5, { 0 }, NULL, NOT_STRICT
+  },
+  [dsda_config_target_health] = {
+    "dsda_target_health", dsda_config_target_health,
+    CONF_BOOL(0), NULL, STRICT_INT(0), dsda_RefreshExHudTargetHealth
   },
   [dsda_config_command_display] = {
     "dsda_command_display", dsda_config_command_display,

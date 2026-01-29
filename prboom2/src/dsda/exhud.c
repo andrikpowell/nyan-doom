@@ -87,6 +87,7 @@ typedef enum {
   exhud_message,
   exhud_announce_message,
   exhud_secret_message,
+  exhud_target_health,
   exhud_map_coordinates,
   exhud_map_time,
   exhud_map_title,
@@ -349,6 +350,14 @@ exhud_component_t components_template[exhud_component_count] = {
     dsda_UpdateSecretMessageHC,
     dsda_DrawSecretMessageHC,
     "secret_message",
+  },
+  [exhud_target_health] = {
+    dsda_InitTargetHealthHC,
+    dsda_UpdateTargetHealthHC,
+    dsda_DrawTargetHealthHC,
+    "target_health",
+    .strict = true,
+    .off_by_default = true,
   },
   [exhud_map_coordinates] = {
     dsda_InitMapCoordinatesHC,
@@ -670,6 +679,7 @@ static void dsda_RefreshHUD(void) {
   dsda_RefreshExHudFPS();
   dsda_RefreshExHudMinimap();
   dsda_RefreshExHudLevelSplits();
+  dsda_RefreshExHudTargetHealth();
   dsda_RefreshExHudCoordinateDisplay();
   dsda_RefreshExHudCommandDisplay();
   dsda_RefreshMapCoordinates();
@@ -847,6 +857,10 @@ void dsda_RefreshExHudCoordinateDisplay(void) {
     dsda_TurnComponentOff(exhud_coordinate_display);
     dsda_TurnComponentOff(exhud_line_display);
   }
+}
+
+void dsda_RefreshExHudTargetHealth(void) {
+  dsda_BasicRefresh(dsda_TargetHealth, exhud_target_health);
 }
 
 void dsda_RefreshExHudCommandDisplay(void) {

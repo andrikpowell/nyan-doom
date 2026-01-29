@@ -47,6 +47,7 @@ dboolean dsda_DetailedQuicksave(void);
 dboolean dsda_TrackSplits(void);
 dboolean dsda_ShowSplitData(void);
 dboolean dsda_CommandDisplay(void);
+dboolean dsda_TargetHealth(void);
 dboolean dsda_CoordinateDisplay(void);
 dboolean dsda_ShowFPS(void);
 dboolean dsda_ShowMinimap(void);

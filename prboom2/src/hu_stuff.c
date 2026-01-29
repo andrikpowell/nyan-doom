@@ -235,6 +235,22 @@ void SetCrosshairTarget(void)
   }
 }
 
+mobj_t *HU_SafeIntercept(void)
+{
+  angle_t an = plr->mo->angle;
+
+  // intercepts overflow guard
+  overflows_enabled = false;
+  P_AimLineAttack(plr->mo, an, 16*64*FRACUNIT, 0);
+  if (!linetarget)
+    P_AimLineAttack(plr->mo, an += 1<<26, 16*64*FRACUNIT, 0);
+  if (!linetarget)
+    P_AimLineAttack(plr->mo, an -= 2<<26, 16*64*FRACUNIT, 0);
+  overflows_enabled = true;
+
+  return linetarget;
+}
+
 mobj_t *HU_Target(void)
 {
   angle_t an = plr->mo->angle;

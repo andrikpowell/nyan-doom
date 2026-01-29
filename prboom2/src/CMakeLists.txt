@@ -186,6 +186,8 @@ set(COMMON_SRC
     dsda/hud_components/artifact_desc.h
     dsda/hud_components/secret_message.c
     dsda/hud_components/secret_message.h
+    dsda/hud_components/target_health.c
+    dsda/hud_components/target_health.h
     dsda/hud_components/sector_tracker.c
     dsda/hud_components/sector_tracker.h
     dsda/hud_components/speed_text.c

@@ -80,6 +80,9 @@ void G_ChangedPlayerColour(int pn, int cl); // CPhipps - On-the-fly player colou
 void G_MakeSpecialEvent(buttoncode_t bc, ...); /* cph - new event stuff */
 int G_ValidateMapName(const char *mapname, int *pEpi, int *pMap);
 
+// Exhud Target Health Widget
+extern dboolean hu_target_health_reset;
+
 //e6y
 void G_ContinueDemo(const char *playback_name);
 void G_SetSpeed(dboolean force);

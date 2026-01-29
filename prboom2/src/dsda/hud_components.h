@@ -51,6 +51,7 @@
 #include "hud_components/announce_message.h"
 #include "hud_components/artifact_desc.h"
 #include "hud_components/secret_message.h"
+#include "hud_components/target_health.h"
 #include "hud_components/speed_text.h"
 #include "hud_components/stat_totals.h"
 #include "hud_components/tracker.h"

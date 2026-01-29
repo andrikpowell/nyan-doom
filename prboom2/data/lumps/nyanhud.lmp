@@ -13,8 +13,9 @@ level_splits 2 2 top
 fps 298 0 top_right
 minimap 264 8 top_right 48 48 1024
 message 0 0 top_left
-announce_message 0 14 none
+announce_message 0 18 none
 secret_message 0 76 none
+target_health 0 10 top 1
 add_offset 1 top_left
 
 heretic ex
@@ -31,8 +32,9 @@ level_splits 2 2 top
 fps 298 0 top_right
 minimap 264 8 top_right 48 48 1024
 message 0 1 top 1
-announce_message 0 14 none
+announce_message 0 18 none
 secret_message 0 66 none
+target_health 0 10 top 1
 add_offset 1 top_left
 artifact_desc 0 12 bottom 1
 
@@ -50,8 +52,9 @@ level_splits 2 2 top
 fps 298 0 top_right
 minimap 264 8 top_right 48 48 1024
 message 0 1 top 1
-announce_message 0 14 none
+announce_message 0 18 none
 secret_message 0 66 none
+target_health 0 10 top 1
 add_offset 1 top_left
 artifact_desc 0 12 bottom 1
 
@@ -68,8 +71,9 @@ level_splits 2 2 top
 fps 298 0 top_right
 minimap 264 8 top_right 48 48 1024
 message 0 0 top_left
-announce_message 0 14 none
+announce_message 0 18 none
 secret_message 0 76 none
+target_health 0 10 top 1
 add_offset 1 top_left
 
 heretic off
@@ -84,8 +88,9 @@ level_splits 2 2 top
 fps 298 0 top_right
 minimap 264 8 top_right 48 48 1024
 message 0 1 top 1
-announce_message 0 14 none
+announce_message 0 18 none
 secret_message 0 66 none
+target_health 0 10 top 1
 add_offset 1 top_left
 
 hexen off
@@ -100,8 +105,9 @@ level_splits 2 2 top
 fps 298 0 top_right
 minimap 264 8 top_right 48 48 1024
 message 0 1 top 1
-announce_message 0 14 none
+announce_message 0 18 none
 secret_message 0 66 none
+target_health 0 10 top 1
 add_offset 1 top_left
 
 doom full
@@ -125,8 +131,9 @@ level_splits 2 2 top
 fps 298 0 top_right
 minimap 264 8 top_right 48 48 1024
 message 0 0 top_left
-announce_message 0 14 none
+announce_message 0 18 none
 secret_message 0 76 none
+target_health 0 10 top 1
 add_offset 1 top_left
 
 heretic full
@@ -151,8 +158,9 @@ level_splits 2 2 top
 fps 298 0 top_right
 minimap 264 8 top_right 48 48 1024
 message 0 1 top 1
-announce_message 0 14 none
+announce_message 0 18 none
 secret_message 0 66 none
+target_health 0 10 top 1
 add_offset 1 top_left
 artifact_desc 0 36 bottom 1
 
@@ -178,8 +186,9 @@ level_splits 2 2 top
 fps 298 0 top_right
 minimap 264 8 top_right 48 48 1024
 message 0 1 top 1
-announce_message 0 14 none
+announce_message 0 18 none
 secret_message 0 66 none
+target_health 0 10 top 1
 add_offset 1 top_left
 artifact_desc 0 36 bottom 1
 
@@ -189,7 +198,7 @@ map_time 2 40 top_left
 map_coordinates 255 8 top_right
 map_title 2 8 bottom_left
 message 0 0 top_left
-announce_message 0 14 none
+announce_message 0 18 none
 secret_message 0 76 none
 
 heretic map
@@ -198,7 +207,7 @@ map_time 2 40 top_left
 map_coordinates 255 8 top_right
 map_title 20 16 bottom_left
 message 0 1 top 1
-announce_message 0 14 none
+announce_message 0 18 none
 secret_message 0 66 none
 artifact_desc 0 12 bottom 1
 
@@ -208,6 +217,6 @@ map_time 2 40 top_left
 map_coordinates 255 8 top_right
 map_title 24 20 bottom_left
 message 0 1 top 1
-announce_message 0 14 none
+announce_message 0 18 none
 secret_message 0 66 none
 artifact_desc 0 12 bottom 1
