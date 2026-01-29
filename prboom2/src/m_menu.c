@@ -1157,6 +1157,11 @@ void M_AutoSave(void)
   doom_printf("autosave");
 }
 
+int M_GetCurrentPage(void)
+{
+  return current_page;
+}
+
 //
 //  M_SaveGame & Cie.
 //
@@ -1173,8 +1178,8 @@ static void M_DrawSave(void)
   V_DrawMenuNamePatch(72, LOADGRAPHIC_Y, "M_SAVEG", CR_DEFAULT, VPT_STRETCH);
   for (i = 0 ; i < load_end ; i++)
     {
-    M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
-    M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], current_page == 0 ? CR_DARKEN : CR_DEFAULT);
+    M_DrawSaveLoadBorder(SaveDef.x,SaveDef.y+LINEHEIGHT*i);
+    M_WriteText(SaveDef.x,SaveDef.y+LINEHEIGHT*i,savegamestrings[i], current_page == 0 ? CR_DARKEN : CR_DEFAULT);
     }
 
   M_DrawTabs(saves_pages, 5, 145);
@@ -1182,7 +1187,7 @@ static void M_DrawSave(void)
   if (saveStringEnter)
     {
     i = M_StringWidth(savegamestrings[saveSlot]);
-    M_WriteText(LoadDef.x + i,LoadDef.y+LINEHEIGHT*saveSlot,"_", CR_DEFAULT);
+    M_WriteText(SaveDef.x + i,SaveDef.y+LINEHEIGHT*saveSlot,"_", CR_DEFAULT);
     }
 
   if (delete_verify)
@@ -7416,7 +7421,12 @@ static dboolean M_MainNavigationResponder(int ch, int action, event_t* ev)
       else
       {
         currentMenu->menuitems[itemOn].routine(itemOn);
-        S_StartVoidSound(g_sfx_pistol);
+
+        // For the quicksave disabled slots, play oof sound
+        if (currentMenu == &SaveDef && current_page == 0)
+          S_StartVoidSound(g_sfx_oof);
+        else
+          S_StartVoidSound(g_sfx_pistol);
       }
     }
     //jff 3/24/98 remember last skill selected
@@ -7518,7 +7528,7 @@ static dboolean M_SaveResponder(int ch, int action, event_t* ev)
         delete_verify = false;
         break;
       case confirmation_no:
-        S_StartVoidSound(g_sfx_itemup);
+        S_StartVoidSound(g_sfx_oof);
         delete_verify = false;
         break;
       case confirmation_null:

@@ -30,7 +30,7 @@
 
 #define ITEM_HEIGHT 20
 #define SELECTOR_XOFFSET (-28)
-#define SELECTOR_YOFFSET (-4)
+#define SELECTOR_YOFFSET (-1)
 #define SFX_VOL_INDEX 1
 #define MUS_VOL_INDEX 3
 
@@ -500,7 +500,7 @@ void MN_Drawer(void)
     int text_sml = text && (currentMenu->menuitems[i].flags == MENUF_OPTLUMP);
 
     if (text_sml) {  // use small font for custom skill
-      y += 4;        // add some padding (looks bad otherwise)
+      y += 6;        // add some padding (looks bad otherwise)
       MN_DrTextA(text, x, y);
     }
     else if (text)
@@ -696,7 +696,7 @@ void MN_DrawSound(void)
 
 extern char savegamestrings[10][SAVESTRINGSIZE];
 
-static void MN_DrawFileSlots(int x, int y)
+static void MN_DrawFileSlots(int x, int y, int cm)
 {
   int i;
   extern const char *saves_pages[];
@@ -704,7 +704,7 @@ static void MN_DrawFileSlots(int x, int y)
   for (i = 0; i < g_menu_save_page_size; i++)
   {
     V_DrawMenuNamePatch(x, y, "M_FSLOT", CR_DEFAULT, VPT_STRETCH);
-    MN_DrTextA(savegamestrings[i], x + 5, y + 5);
+    MN_DrTextAColor(savegamestrings[i], x + 5, y + 5, cm);
     y += ITEM_HEIGHT;
   }
 
@@ -718,7 +718,7 @@ void MN_DrawLoad(void)
   title = s_HERETIC_MNU_LOAD_GAME;
 
   MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 10);
-  MN_DrawFileSlots(LoadDef.x, LoadDef.y);
+  MN_DrawFileSlots(LoadDef.x, LoadDef.y, CR_DEFAULT);
 
   if (delete_verify)
     M_DrawDelVerify();
@@ -734,7 +734,7 @@ void MN_DrawSave(void)
   title = s_HERETIC_MNU_SAVE_GAME;
 
   MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 10);
-  MN_DrawFileSlots(SaveDef.x, SaveDef.y);
+  MN_DrawFileSlots(SaveDef.x, SaveDef.y, M_GetCurrentPage() == 0 ? CR_DARKEN : CR_DEFAULT);
 
   if (saveStringEnter)
   {
@@ -772,6 +772,32 @@ void MN_DrTextA(const char *text, int x, int y)
     {
       lump = MN_SafeFontALump(c - 33);
       V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
+      x += R_NumPatchWidth(lump) - 1;
+    }
+  }
+}
+
+void MN_DrTextAColor(const char *text, int x, int y, int cm)
+{
+  char c;
+  int lump;
+  int flags;
+
+  flags = VPT_STRETCH;
+  if (cm != CR_DEFAULT)
+    flags |= VPT_COLOR;
+
+  while ((c = *text++) != 0)
+  {
+    c = toupper(c);
+    if (c < 33)
+    {
+      x += 5;
+    }
+    else
+    {
+      lump = MN_SafeFontALump(c - 33);
+      V_DrawNumPatch(x, y, lump, cm, flags);
       x += R_NumPatchWidth(lump) - 1;
     }
   }
