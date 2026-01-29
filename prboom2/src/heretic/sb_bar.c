@@ -31,7 +31,6 @@
 #include "dsda/stretch.h"
 
 #include "heretic/def.h"
-#include "heretic/dstrings.h"
 
 #include "sb_bar.h"
 

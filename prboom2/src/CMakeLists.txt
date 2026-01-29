@@ -364,6 +364,7 @@ set(COMMON_SRC
     heretic/sounds.c
     hexen/a_action.c
     hexen/a_action.h
+    hexen/dstrings.h
     hexen/info.c
     hexen/f_finale.c
     hexen/f_finale.h

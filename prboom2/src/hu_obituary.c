@@ -25,7 +25,7 @@
 
 #include "deh/strings.h"
 #include "heretic/hhe/strings.h"
-#include "heretic/dstrings.h"
+#include "hexen/dstrings.h"
 
 #include "dsda/utility.h"
 #include "dsda/messenger.h"

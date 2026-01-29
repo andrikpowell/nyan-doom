@@ -56,7 +56,7 @@
 #include "heretic/def.h"
 #include "heretic/sb_bar.h"
 #include "heretic/hhe/strings.h"
-#include "heretic/dstrings.h"
+#include "hexen/dstrings.h"
 
 #include "dsda.h"
 #include "dsda/args.h"
@@ -2256,8 +2256,6 @@ dboolean M_CheatEntered(const char* element, const char* value)
 }
 
 // heretic
-
-#include "p_user.h"
 
 static void cheat_reset_health(void)
 {

@@ -59,6 +59,7 @@
 
 // heretic needs
 #include "heretic/def.h"
+#include "hexen/dstrings.h"
 #include "s_sound.h"
 #include "sounds.h"
 #include "p_inter.h"

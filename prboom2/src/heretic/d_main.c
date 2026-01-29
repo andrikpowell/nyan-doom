@@ -20,8 +20,6 @@
 #include "g_game.h"
 #include "d_main.h"
 
-#include "heretic/dstrings.h"
-
 static void Heretic_D_DrawTitle(const char *_x)
 {
   D_SetPage("TITLE", 210, heretic_mus_titl);

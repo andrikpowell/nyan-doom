@@ -63,9 +63,9 @@
 #include "heretic/def.h"
 #include "heretic/sb_bar.h"
 #include "heretic/hhe/strings.h"
-#include "heretic/dstrings.h"
 
 #include "hexen/p_acs.h"
+#include "hexen/dstrings.h"
 
 // Ty 03/07/98 - add deh externals
 // Maximums and such were hardcoded values.  Need to externalize those for

@@ -23,8 +23,8 @@
 #include "dsda/mapinfo.h"
 #include "dsda/mapinfo/doom/parser.h"
 
-#include "heretic/dstrings.h"
 #include "heretic/hhe/strings.h"
+#include "hexen/dstrings.h"
 
 #include "episode.h"
 

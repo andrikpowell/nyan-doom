@@ -24,9 +24,9 @@
 #include "g_game.h"
 #include "dsda/settings.h"
 
-#include "heretic/dstrings.h"
 #include "heretic/mn_menu.h"
 #include "heretic/hhe/strings.h"
+#include "hexen/dstrings.h"
 
 #define ITEM_HEIGHT 20
 #define SELECTOR_XOFFSET (-28)
