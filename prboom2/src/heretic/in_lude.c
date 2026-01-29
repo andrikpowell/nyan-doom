@@ -122,7 +122,7 @@ typedef struct
     int y;
 } yahpt_t;
 
-static yahpt_t YAHspot[3][9] = {
+static yahpt_t YAHspot[5][9] = {
     {
      {172, 78},
      {86, 90},
@@ -155,6 +155,28 @@ static yahpt_t YAHspot[3][9] = {
      {219, 66},
      {247, 57},
      {107, 80}
+     },
+    { // KEX Heretic Episode 4
+     {279, 150},
+     {235, 161},
+     {183, 154},
+     {123, 150},
+     {143, 115},
+     {180, 73},
+     {126, 52},
+     {78, 52},
+     {103, 123}
+     },
+    { // KEX Heretic Episode 5
+     {45, 62},
+     {117, 74},
+     {144, 129},
+     {203, 132},
+     {224, 79},
+     {279, 94},
+     {285, 148},
+     {317, 129},
+     {178, 94}
      }
 };
 
@@ -171,17 +193,59 @@ static const char *NameForMap(int map)
     return name + 7;
 }
 
+static dboolean IN_AllowKexMaps(int episode)
+{
+  char name[9];
+
+  // KEX only adds map screens for these episodes
+  if (episode != 4 && episode != 5)
+    return false;
+
+  snprintf(name, sizeof(name), "MAPE%d", episode);
+
+  return (W_CheckNumForName(name) != LUMP_NOT_FOUND);
+}
+
+static dboolean IN_RetailIntermission(void)
+{
+  // Demos must use retail behavior
+  if (!allow_incompatibility && gameepisode > 3)
+    return true;
+
+  // Retail behavior starts at episode 4 and continues onward,
+  // except E4/E5 if KEX-style map gfx are present.
+  if (gameepisode < 4)
+    return false;
+
+  if (IN_AllowKexMaps(gameepisode))
+    return false;
+
+  return true;
+}
+
+void IN_DrawKexE5Secret(void)
+{
+    if (W_CheckNumForName("MAPE5_M9") == LUMP_NOT_FOUND) return;
+
+    // Draw secret location on map
+    if (nextmap == 9 || players[consoleplayer].didsecret)
+        V_DrawNamePatchFS(0, 0, "MAPE5_M9", CR_DEFAULT, VPT_STRETCH);
+}
+
 static void IN_DrawInterpic(void)
 {
   char name[9];
 
-  if (gameepisode < 1 || gameepisode > 3) return;
+  if (IN_RetailIntermission()) return;
 
   snprintf(name, sizeof(name), "MAPE%d", gameepisode);
 
   // e6y: wide-res
   V_ClearBorder(name);
   V_DrawNamePatchFS(0, 0, name, CR_DEFAULT, VPT_STRETCH);
+
+  if (gameepisode == 5)
+    IN_DrawKexE5Secret();
 }
 
 static void IN_DrawBeenThere(int i)
@@ -197,6 +261,17 @@ static void IN_DrawGoingThere(int i)
   V_DrawMenuNamePatch(
     YAHspot[gameepisode - 1][i].x, YAHspot[gameepisode - 1][i].y,
     "IN_YAH", CR_DEFAULT, VPT_STRETCH
+  );
+}
+
+static void IN_DrawGoingThere2(int i)
+{
+  if (W_CheckNumForName("IN_YAH2") == LUMP_NOT_FOUND)
+    return IN_DrawGoingThere(i);
+
+  V_DrawMenuNamePatch(
+      YAHspot[gameepisode - 1][i].x, YAHspot[gameepisode - 1][i].y,
+      "IN_YAH2", CR_DEFAULT, VPT_STRETCH
   );
 }
 
@@ -407,7 +482,7 @@ void IN_Ticker(void)
             return;
         }
 
-        if (gameepisode > 3 && interstate >= 1)
+        if (gameepisode > 3 && interstate >= 1 && IN_RetailIntermission())
         {                       // Extended Wad levels:  skip directly to the next level
             interstate = 3;
         }
@@ -415,7 +490,7 @@ void IN_Ticker(void)
         {
             case 0:
                 oldintertime = intertime + 300;
-                if (gameepisode > 3)
+                if (gameepisode > 3 && IN_RetailIntermission())
                 {
                     oldintertime = intertime + 1200;
                 }
@@ -448,7 +523,7 @@ void IN_Ticker(void)
             G_WorldDone();
             return;
         }
-        else if (interstate < 2 && gameepisode < 4)
+        else if (interstate < 2 && !IN_RetailIntermission())
         {
             interstate = 2;
             skipintermission = false;
@@ -549,21 +624,21 @@ void IN_Drawer(void)
             }
             break;
         case 1:                // leaving old level
-            if (gameepisode < 4)
+            if (!IN_RetailIntermission())
             {
                 IN_DrawInterpic();
                 IN_DrawOldLevel();
             }
             break;
         case 2:                // going to the next level
-            if (gameepisode < 4)
+            if (!IN_RetailIntermission())
             {
                 IN_DrawInterpic();
                 IN_DrawYAH();
             }
             break;
         case 3:                // waiting before going to the next level
-            if (gameepisode < 4)
+            if (!IN_RetailIntermission())
             {
                 IN_DrawInterpic();
             }
@@ -663,6 +738,10 @@ void IN_DrawYAH(void)
     }
     if (!(intertime & 16) || interstate == 3)
     {                           // draw the destination 'X'
+        // kex uses different arrow for E5M7
+        if (gameepisode == 5 && nextmap == 7)
+            return IN_DrawGoingThere2(nextmap - 1);
+
         IN_DrawGoingThere(nextmap - 1);
     }
 }
@@ -682,7 +761,7 @@ void IN_DrawSingleStats(void)
 
     // [crispy] offset the stats for Ep.4 and up, to make room for level time
     int yoffset = 0;
-    if (gamemode == retail && gameepisode > 3)
+    if (gamemode == retail && IN_RetailIntermission())
     {
         yoffset = 20;
     }
@@ -746,7 +825,7 @@ void IN_DrawSingleStats(void)
     }
 
     // [crispy] ignore "now entering" if it's the final intermission
-    if (gamemode != retail || gameepisode <= 3 || finalintermission)
+    if (gamemode != retail || !IN_RetailIntermission() || finalintermission)
     {
         IN_DrTextB(s_HERETIC_IN_TIME, 85, 150);
         IN_DrawTime(155, 150, hours, minutes, seconds);
