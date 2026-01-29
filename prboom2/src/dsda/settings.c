@@ -350,6 +350,10 @@ dboolean dsda_ShowHealthBars(void) {
   return dsda_IntConfig(dsda_config_gl_health_bar);
 }
 
+dboolean dsda_SimpleShadows(void) {
+  return dsda_IntConfig(dsda_config_gl_shadows);
+}
+
 dboolean dsda_WipeAtFullSpeed(void) {
   return dsda_IntConfig(dsda_config_wipe_at_full_speed);
 }

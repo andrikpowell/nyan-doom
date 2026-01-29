@@ -54,6 +54,7 @@ dboolean dsda_ShowMinimap(void);
 dboolean dsda_ShowLevelSplits(void);
 dboolean dsda_ShowDemoAttempts(void);
 dboolean dsda_ShowHealthBars(void);
+dboolean dsda_SimpleShadows(void);
 dboolean dsda_MapCoordinates(void);
 dboolean dsda_MapTotals(void);
 dboolean dsda_MapTime(void);
