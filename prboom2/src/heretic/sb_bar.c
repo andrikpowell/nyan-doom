@@ -849,8 +849,8 @@ void DrawInventoryBar(void)
     }
 }
 
-int fullscreen_inventory = false;
-int inventory_open = false;
+// This is to hide DrawArtifact() when DrawInventoryBarTranslucent() is active
+int full_exhud_inventory = false;
 
 void DrawInventoryBarTranslucent(int x, int y, int vpt)
 {
@@ -871,8 +871,7 @@ void DrawInventoryBarTranslucent(int x, int y, int vpt)
         int gem_xr      = heretic ? x+231   : x+230;
         int gem_y       = heretic ? y-1     : y;
 
-        fullscreen_inventory = true;
-        inventory_open = true;
+        full_exhud_inventory = true;
 
         j = CPlayer->inv_ptr - CPlayer->curpos;
         for (i = 0; i < 7; i++)
@@ -898,7 +897,7 @@ void DrawInventoryBarTranslucent(int x, int y, int vpt)
     }
     else
     {
-        inventory_open = false;
+        full_exhud_inventory = false;
     }
 }
 
@@ -911,7 +910,7 @@ void DrawArtifact(int x, int y, int vpt)
   const int delta_y = heretic ? 22 : 21;
   enum patch_translation_e flags = hexen ? VPT_ALT_TRANSMAP : VPT_TRANSMAP;
 
-  if (!inventory_open)
+  if (!full_exhud_inventory)
   {
     inv = &players[displayplayer].inventory[CPlayer->inv_ptr];
 
