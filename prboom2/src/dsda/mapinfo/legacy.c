@@ -339,10 +339,13 @@ int dsda_LegacyResolveINIT(int* init) {
   return true;
 }
 
-const char* dsda_HereticReplaceMusicName(int music_index) {
+const char* dsda_ReplaceMusicName(int music_index, const char* format) {
   if (S_music[music_index].name_rpl != NULL)
   {
-    if (W_LumpNameExists(S_music[music_index].name_rpl))
+    char replace_name[9];
+    snprintf(replace_name, sizeof(replace_name), format, S_music[music_index].name_rpl);
+
+    if (W_LumpNameExists(replace_name))
       return S_music[music_index].name_rpl;
   }
 
@@ -357,10 +360,9 @@ int dsda_LegacyMusicIndexToLumpNum(int* lump, int music_index) {
   format = raven ? "%s" : "d_%s";
   music_name = S_music[music_index].name;
   
-  // Heretic reuses music lumps
-  // This allows lumps like "MUS_E4M1" to be used
-  if (heretic)
-    music_name = dsda_HereticReplaceMusicName(music_index, format);
+  // Ultimate Doom and Heretic reuses music lumps
+  // This allows lumps like "MUS_E4M1" / "D_E4M1" to be used
+  music_name = dsda_ReplaceMusicName(music_index, format);
 
   snprintf(name, sizeof(name), format, music_name);
 
@@ -386,27 +388,14 @@ int dsda_LegacyMapMusic(int* music_index, int* music_lump, int episode, int map)
     if (gamemode == commercial)
       *music_index = mus_runnin + WRAP(map - 1, DOOM_MUSINFO - mus_runnin);
     else {
-      static const int spmus[] = {
-        mus_e3m4,
-        mus_e3m2,
-        mus_e3m3,
-        mus_e1m5,
-        mus_e2m7,
-        mus_e2m4,
-        mus_e2m6,
-        mus_e2m5,
-        mus_e1m9
-      };
-
       if (heretic)
         *music_index = heretic_mus_e1m1 +
                        WRAP((episode - 1) * 9 + map - 1,
                             HERETIC_NUMMUSIC - heretic_mus_e1m1);
-      else if (episode < 4)
-        *music_index = mus_e1m1 +
-                       WRAP((episode - 1) * 9 + map - 1, mus_runnin - mus_e1m1);
       else
-        *music_index = spmus[WRAP(map - 1, 9)];
+        *music_index = mus_e1m1 +
+                       WRAP((episode - 1) * 9 + map - 1,
+                            mus_runnin - mus_e1m1);
     }
   }
 

@@ -74,7 +74,16 @@ musicinfo_t doom_S_music[] = {
   { "e3m7", NULL, 0 },
   { "e3m8", NULL, 0 },
   { "e3m9", NULL, 0 },
-  { "inter", NULL, 0 },
+  { "e3m4", "e4m1", 0 }, // Episode 4
+  { "e3m2", "e4m2", 0 },
+  { "e3m3", "e4m3", 0 },
+  { "e1m5", "e4m4", 0 },
+  { "e2m7", "e4m5", 0 },
+  { "e2m4", "e4m6", 0 },
+  { "e2m6", "e4m7", 0 },
+  { "e2m5", "e4m8", 0 },
+  { "e1m9", "e4m9", 0 },
+  { "inter", NULL, 0 }, // Doom 2
   { "intro", NULL, 0 },
   { "bunny", NULL, 0 },
   { "victor", NULL, 0 },
