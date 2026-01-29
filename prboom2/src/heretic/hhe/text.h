@@ -1,6 +1,4 @@
 //
-// Copyright(C) 1999-2004 by Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
-// Copyright(C) 2005-2006 by Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
 // Copyright(C) 2026 by Andrik Powell
 //
 // This program is free software; you can redistribute it and/or
@@ -14,13 +12,27 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	DEH Parser
+//	HHE Text
 //
 
-#ifndef __DEH__
-#define __DEH__
+#ifndef __HHE_TEXT__
+#define __HHE_TEXT__
 
-extern void ProcessDehacked(const char *filename, const char *outfilename, int lumpnum);
-extern void PostProcessDehacked(void);
+#include "info.h"
+#include "heretic/hhe/version.h"
+
+extern dboolean hhe_includenotext;
+extern dboolean hhe_procStringSub(char *key, char *lookfor, int offset, char *newstring);
+extern dboolean HHE_RenameSprite(int spritenum, const char *newname, const char *context, int offset);
+
+typedef struct
+{
+    unsigned int offsets[deh_hhe_num_versions];
+    const char *string;
+} hhe_string_t;
+
+extern const hhe_string_t crispystrings[];
+extern int hhe_numcrispystrings;
+extern const int *unsupported_strings[];
 
 #endif

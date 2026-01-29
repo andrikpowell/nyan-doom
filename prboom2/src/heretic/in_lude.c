@@ -36,9 +36,9 @@
 #include "dsda/exhud.h"
 
 #include "heretic/def.h"
-#include "heretic/dstrings.h"
 #include "heretic/mn_menu.h"
 #include "heretic/sb_bar.h"
+#include "heretic/hhe/strings.h"
 
 #include "in_lude.h"
 
@@ -103,9 +103,18 @@ static signed int totalFrags[MAX_MAXPLAYERS];
 static fixed_t dSlideX[MAX_MAXPLAYERS];
 static fixed_t dSlideY[MAX_MAXPLAYERS];
 
-static const char *KillersText[] = { "K", "I", "L", "L", "E", "R", "S" };
+static const char **KillersText[] =
+{
+    &s_HERETIC_IN_KILLERS1, // "K"
+    &s_HERETIC_IN_KILLERS2, // "I"
+    &s_HERETIC_IN_KILLERS3, // "L"
+    &s_HERETIC_IN_KILLERS3, // "L"
+    &s_HERETIC_IN_KILLERS4, // "E"
+    &s_HERETIC_IN_KILLERS5, // "R"
+    &s_HERETIC_IN_KILLERS6  // "S"
+};
 
-extern const char *LevelNames[];
+extern const char **LevelNames[];
 
 typedef struct
 {
@@ -151,7 +160,7 @@ static yahpt_t YAHspot[3][9] = {
 
 static const char *NameForMap(int map)
 {
-    const char *name = LevelNames[(gameepisode - 1) * 9 + map - 1];
+    const char *name = *LevelNames[(gameepisode - 1) * 9 + map - 1];
 
     if (strlen(name) < 7)
     {
@@ -573,7 +582,7 @@ void IN_DrawStatBack(void)
 {
     // e6y: wide-res
     V_ClearBorder(NULL);
-    V_DrawBackgroundName(HERETIC_IN_BGFLAT);
+    V_DrawBackgroundName(s_HERETIC_IN_BGFLAT);
 }
 
 //========================================================================
@@ -590,8 +599,8 @@ void IN_DrawOldLevel(void)
 
     x = 160 - MN_TextBWidth(level_name) / 2;
     IN_DrTextB(level_name, x, 3);
-    x = 160 - MN_TextAWidth(HERETIC_IN_FINISHED) / 2;
-    MN_DrTextA(HERETIC_IN_FINISHED, x, 25);
+    x = 160 - MN_TextAWidth(s_HERETIC_IN_FINISHED) / 2;
+    MN_DrTextA(s_HERETIC_IN_FINISHED, x, 25);
 
     if (prevmap == 9)
     {
@@ -633,8 +642,8 @@ void IN_DrawYAH(void)
     int i;
     int x;
 
-    x = 160 - MN_TextAWidth(HERETIC_IN_ENTERING) / 2;
-    MN_DrTextA(HERETIC_IN_ENTERING, x, 10);
+    x = 160 - MN_TextAWidth(s_HERETIC_IN_ENTERING) / 2;
+    MN_DrTextA(s_HERETIC_IN_ENTERING, x, 10);
     x = 160 - MN_TextBWidth(level_name) / 2;
     IN_DrTextB(level_name, x, 20);
 
@@ -676,14 +685,14 @@ void IN_DrawSingleStats(void)
         yoffset = 20;
     }
 
-    IN_DrTextB(HERETIC_IN_KILLS, 50, 65 - yoffset);
-    IN_DrTextB(HERETIC_IN_ITEMS, 50, 90 - yoffset);
-    IN_DrTextB(HERETIC_IN_SECRET, 50, 115 - yoffset);
+    IN_DrTextB(s_HERETIC_IN_KILLS, 50, 65 - yoffset);
+    IN_DrTextB(s_HERETIC_IN_ITEMS, 50, 90 - yoffset);
+    IN_DrTextB(s_HERETIC_IN_SECRETS, 50, 115 - yoffset);
 
     x = 160 - MN_TextBWidth(prev_level_name) / 2;
     IN_DrTextB(prev_level_name, x, 3);
-    x = 160 - MN_TextAWidth(HERETIC_IN_FINISHED) / 2;
-    MN_DrTextA(HERETIC_IN_FINISHED, x, 25);
+    x = 160 - MN_TextAWidth(s_HERETIC_IN_FINISHED) / 2;
+    MN_DrTextA(s_HERETIC_IN_FINISHED, x, 25);
 
     dsda_DrawExIntermission();
 
@@ -737,25 +746,25 @@ void IN_DrawSingleStats(void)
     // [crispy] ignore "now entering" if it's the final intermission
     if (gamemode != retail || gameepisode <= 3 || finalintermission)
     {
-        IN_DrTextB(HERETIC_IN_TIME, 85, 150);
+        IN_DrTextB(s_HERETIC_IN_TIME, 85, 150);
         IN_DrawTime(155, 150, hours, minutes, seconds);
 
         // [crispy] Show total time on intermission
-        IN_DrTextB(HERETIC_IN_TIME, 85, 170);
+        IN_DrTextB(s_HERETIC_IN_TOTAL, 85, 170);
         IN_DrawTime(155, 170, totalHours, totalMinutes, totalSeconds);
     }
     else
     {
         // [crispy] show the level time for Ep.4 and up
-        IN_DrTextB(HERETIC_IN_TIME, 85, 120);
+        IN_DrTextB(s_HERETIC_IN_TIME, 85, 120);
         IN_DrawTime(155, 120, hours, minutes, seconds);
 
         // [crispy] Show total time on intermission
-        IN_DrTextB(HERETIC_IN_TOTAL, 85, 140);
+        IN_DrTextB(s_HERETIC_IN_TOTAL, 85, 140);
         IN_DrawTime(155, 140, totalHours, totalMinutes, totalSeconds);
 
-        x = 160 - MN_TextAWidth(HERETIC_IN_ENTERING) / 2;
-        MN_DrTextA(HERETIC_IN_ENTERING, x, 160);
+        x = 160 - MN_TextAWidth(s_HERETIC_IN_ENTERING) / 2;
+        MN_DrTextA(s_HERETIC_IN_ENTERING, x, 160);
         x = 160 - MN_TextBWidth(next_level_name) / 2;
         IN_DrTextB(next_level_name, x, 170);
         skipintermission = false;
@@ -777,13 +786,13 @@ void IN_DrawCoopStats(void)
 
     static int sounds;
 
-    IN_DrTextB(HERETIC_IN_KILLS, 95, 35);
-    IN_DrTextB(HERETIC_IN_BONUS, 155, 35);
-    IN_DrTextB(HERETIC_IN_SECRET, 232, 35);
+    IN_DrTextB(s_HERETIC_IN_KILLS, 95, 35);
+    IN_DrTextB(s_HERETIC_COOP_BONUS, 155, 35);
+    IN_DrTextB(s_HERETIC_COOP_SECRET, 232, 35);
     x = 160 - MN_TextBWidth(level_name) / 2;
     IN_DrTextB(level_name, x, 3);
-    x = 160 - MN_TextAWidth(HERETIC_IN_FINISHED) / 2;
-    MN_DrTextA(HERETIC_IN_FINISHED, x, 25);
+    x = 160 - MN_TextAWidth(s_HERETIC_IN_FINISHED) / 2;
+    MN_DrTextA(s_HERETIC_IN_FINISHED, x, 25);
 
     ypos = 50;
     for (i = 0; i < g_maxplayers; i++)
@@ -832,11 +841,11 @@ void IN_DrawDMStats(void)
     xpos = 90;
     ypos = 55;
 
-    IN_DrTextB(HERETIC_IN_TOTAL, 265, 30);
-    MN_DrTextA(HERETIC_IN_VICTIMS, 140, 8);
+    IN_DrTextB(s_HERETIC_IN_TOTAL, 265, 30);
+    MN_DrTextA(s_HERETIC_IN_VICTIMS, 140, 8);
     for (i = 0; i < 7; i++)
     {
-        MN_DrTextA(KillersText[i], 10, 80 + 9 * i);
+        MN_DrTextA(*KillersText[i], 10, 80 + 9 * i);
     }
     if (intertime < 20)
     {

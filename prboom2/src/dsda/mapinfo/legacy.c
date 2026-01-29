@@ -683,7 +683,7 @@ int dsda_LegacyMapTitle(dsda_string_t* str, int epsd, int map, int override) {
   extern char** mapnames2[];
   extern char** mapnamesp[];
   extern char** mapnamest[];
-  extern const char* LevelNames[];
+  extern char * const *LevelNames[];
 
   dsda_InitString(str, NULL);
 
@@ -695,7 +695,7 @@ int dsda_LegacyMapTitle(dsda_string_t* str, int epsd, int map, int override) {
     if (map > 0 && epsd > 0) {
       if (heretic) {
         if (epsd < 6 && map < 10)
-          dsda_StringCat(str, LevelNames[(epsd - 1) * 9 + map - 1]);
+          dsda_StringCat(str, *LevelNames[(epsd - 1) * 9 + map - 1]);
       }
       else {
         switch (gamemode) {

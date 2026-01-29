@@ -18,7 +18,6 @@
 #include "doomstat.h"
 #include "lprintf.h"
 #include "w_wad.h"
-#include "heretic/dstrings.h"
 
 #include "dsda/args.h"
 #include "dsda/configuration.h"
@@ -26,6 +25,8 @@
 #include "dsda/preferences.h"
 #include "dsda/text_color.h"
 #include "dsda/utility.h"
+
+#include "heretic/hhe/strings.h"
 
 #include "skill_info.h"
 
@@ -83,33 +84,33 @@ const skill_info_t uvplus_skill_infos[1] = {
   },
 };
 
-const skill_info_t heretic_skill_infos[5] = {
+skill_info_t heretic_skill_infos[5] = {
   {
     .ammo_factor = FRACUNIT * 3 / 2,
     .damage_factor = FRACUNIT / 2,
     .spawn_filter = 1,
-    .name = HERETIC_SKILL_1,
+    .name = "THOU NEEDETH A WET-NURSE",
     .flags = SI_AUTO_USE_HEALTH | SI_EASY_KEY
   },
   {
     .spawn_filter = 2,
-    .name = HERETIC_SKILL_2,
+    .name = "YELLOWBELLIES-R-US",
     .flags = 0
   },
   {
     .spawn_filter = 3,
-    .name = HERETIC_SKILL_3,
+    .name = "BRINGEST THEM ONETH",
     .flags = 0
   },
   {
     .spawn_filter = 4,
-    .name = HERETIC_SKILL_4,
+    .name = "THOU ART A SMITE-MEISTER",
     .flags = 0
   },
   {
     .ammo_factor = FRACUNIT * 3 / 2,
     .spawn_filter = 5,
-    .name = HERETIC_SKILL_5,
+    .name = "BLACK PLAGUE POSSESSES THEE",
     .flags = SI_FAST_MONSTERS | SI_INSTANT_REACTION
   },
 };
@@ -183,6 +184,15 @@ static void dsda_CopySkillInfo(int i, const doom_mapinfo_skill_t* info) {
   skill_infos[i].flags = info->flags;
 }
 
+void dsda_RefreshHereticSkills(void)
+{
+  heretic_skill_infos[0].name = s_HERETIC_SKILL_1;
+  heretic_skill_infos[1].name = s_HERETIC_SKILL_2;
+  heretic_skill_infos[2].name = s_HERETIC_SKILL_3;
+  heretic_skill_infos[3].name = s_HERETIC_SKILL_4;
+  heretic_skill_infos[4].name = s_HERETIC_SKILL_5;
+}
+
 void dsda_InitSkills(void) {
   int i = 0;
   int j;
@@ -203,6 +213,9 @@ void dsda_InitSkills(void) {
 
   if (!clear_skills) {
     const skill_info_t* original_skill_infos;
+
+    if (heretic)
+      dsda_RefreshHereticSkills();
 
     original_skill_infos = hexen   ? hexen_skill_infos   :
                            heretic ? heretic_skill_infos :

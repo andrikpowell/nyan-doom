@@ -19,10 +19,12 @@
 
 #include "doomtype.h"
 #include "doomstat.h"
-#include "deh/strings.h"
 #include "m_misc.h"
 #include "p_mobj.h"
 #include "p_inter.h"
+
+#include "deh/strings.h"
+#include "heretic/hhe/strings.h"
 #include "heretic/dstrings.h"
 
 #include "dsda/utility.h"
@@ -69,23 +71,23 @@ static void dsda_SetObituaryDefaults(void)
 {
   if (heretic)
   {
-    dsda_AssignObituary(HERETIC_MT_IMP,              OB_HERETICIMP,  OB_HERETICIMPHIT);
-    dsda_AssignObituary(HERETIC_MT_IMPLEADER,        OB_HERETICIMP,  OB_HERETICIMPHIT);
-    dsda_AssignObituary(HERETIC_MT_MUMMY,            OB_MUMMY,       NULL);
-    dsda_AssignObituary(HERETIC_MT_MUMMYGHOST,       OB_MUMMY,       NULL);
-    dsda_AssignObituary(HERETIC_MT_MUMMYLEADER,      OB_MUMMYLEADER, NULL);
-    dsda_AssignObituary(HERETIC_MT_MUMMYLEADERGHOST, OB_MUMMYLEADER, NULL);
-    dsda_AssignObituary(HERETIC_MT_KNIGHT,           OB_BONEKNIGHT,  OB_BONEKNIGHTHIT);
-    dsda_AssignObituary(HERETIC_MT_KNIGHTGHOST,      OB_BONEKNIGHT,  OB_BONEKNIGHTHIT);
-    dsda_AssignObituary(HERETIC_MT_WIZARD,           OB_WIZARD,      OB_WIZARDHIT);
-    dsda_AssignObituary(HERETIC_MT_BEAST,            OB_BEAST,       NULL);
-    dsda_AssignObituary(HERETIC_MT_CLINK,            OB_CLINK,       NULL);
-    dsda_AssignObituary(HERETIC_MT_SNAKE,            OB_SNAKE,       NULL);
-    dsda_AssignObituary(HERETIC_MT_HEAD,             OB_IRONLICH,    OB_IRONLICHHIT);
-    dsda_AssignObituary(HERETIC_MT_MINOTAUR,         OB_MINOTAUR,    OB_MINOTAURHIT);
-    dsda_AssignObituary(HERETIC_MT_SORCERER1,        OB_DSPARIL1,    OB_DSPARIL1HIT);
-    dsda_AssignObituary(HERETIC_MT_SORCERER2,        OB_DSPARIL2,    OB_DSPARIL2HIT);
-    dsda_AssignObituary(HERETIC_MT_CHICKEN,          OB_CHICKEN,     NULL);
+    dsda_AssignObituary(HERETIC_MT_IMP,              s_OB_HERETICIMP,  s_OB_HERETICIMPHIT);
+    dsda_AssignObituary(HERETIC_MT_IMPLEADER,        s_OB_HERETICIMP,  s_OB_HERETICIMPHIT);
+    dsda_AssignObituary(HERETIC_MT_MUMMY,            s_OB_MUMMY,       NULL);
+    dsda_AssignObituary(HERETIC_MT_MUMMYGHOST,       s_OB_MUMMY,       NULL);
+    dsda_AssignObituary(HERETIC_MT_MUMMYLEADER,      s_OB_MUMMYLEADER, NULL);
+    dsda_AssignObituary(HERETIC_MT_MUMMYLEADERGHOST, s_OB_MUMMYLEADER, NULL);
+    dsda_AssignObituary(HERETIC_MT_KNIGHT,           s_OB_BONEKNIGHT,  s_OB_BONEKNIGHTHIT);
+    dsda_AssignObituary(HERETIC_MT_KNIGHTGHOST,      s_OB_BONEKNIGHT,  s_OB_BONEKNIGHTHIT);
+    dsda_AssignObituary(HERETIC_MT_WIZARD,           s_OB_WIZARD,      s_OB_WIZARDHIT);
+    dsda_AssignObituary(HERETIC_MT_BEAST,            s_OB_BEAST,       NULL);
+    dsda_AssignObituary(HERETIC_MT_CLINK,            s_OB_CLINK,       NULL);
+    dsda_AssignObituary(HERETIC_MT_SNAKE,            s_OB_SNAKE,       NULL);
+    dsda_AssignObituary(HERETIC_MT_HEAD,             s_OB_IRONLICH,    s_OB_IRONLICHHIT);
+    dsda_AssignObituary(HERETIC_MT_MINOTAUR,         s_OB_MINOTAUR,    s_OB_MINOTAURHIT);
+    dsda_AssignObituary(HERETIC_MT_SORCERER1,        s_OB_DSPARIL1,    s_OB_DSPARIL1HIT);
+    dsda_AssignObituary(HERETIC_MT_SORCERER2,        s_OB_DSPARIL2,    s_OB_DSPARIL2HIT);
+    dsda_AssignObituary(HERETIC_MT_CHICKEN,          s_OB_CHICKEN,     NULL);
   }
   else if (hexen)
   {
@@ -146,31 +148,31 @@ static const char *dsda_GetWeaponObituary(const char *ob, mobj_t *source, method
     switch (source->player->readyweapon)
     {
       case wp_staff:
-        ob = source->player->powers[pw_weaponlevel2] ? OB_MPPSTAFF : OB_MPSTAFF;
+        ob = source->player->powers[pw_weaponlevel2] ? s_OB_MPPSTAFF : s_OB_MPSTAFF;
         break;
       case wp_goldwand:
-        ob = source->player->powers[pw_weaponlevel2] ? OB_MPPGOLDWAND : OB_MPGOLDWAND;
+        ob = source->player->powers[pw_weaponlevel2] ? s_OB_MPPGOLDWAND : s_OB_MPGOLDWAND;
         break;
       case wp_crossbow:
-        ob = source->player->powers[pw_weaponlevel2] ? OB_MPPCROSSBOW : OB_MPCROSSBOW;
+        ob = source->player->powers[pw_weaponlevel2] ? s_OB_MPPCROSSBOW : s_OB_MPCROSSBOW;
         break;
       case wp_blaster:
-        ob = source->player->powers[pw_weaponlevel2] ? OB_MPPBLASTER : OB_MPBLASTER;
+        ob = source->player->powers[pw_weaponlevel2] ? s_OB_MPPBLASTER : s_OB_MPBLASTER;
         break;
       case wp_skullrod:
-        ob = source->player->powers[pw_weaponlevel2] ? OB_MPPSKULLROD : OB_MPSKULLROD;
+        ob = source->player->powers[pw_weaponlevel2] ? s_OB_MPPSKULLROD : s_OB_MPSKULLROD;
         break;
       case wp_phoenixrod:
-        ob = source->player->powers[pw_weaponlevel2] ? OB_MPPPHOENIXROD : OB_MPPHOENIXROD;
+        ob = source->player->powers[pw_weaponlevel2] ? s_OB_MPPPHOENIXROD : s_OB_MPPHOENIXROD;
         break;
       case wp_mace:
-        ob = source->player->powers[pw_weaponlevel2] ? OB_MPPMACE : OB_MPMACE;
+        ob = source->player->powers[pw_weaponlevel2] ? s_OB_MPPMACE : s_OB_MPMACE;
         break;
       case wp_gauntlets:
-        ob = source->player->powers[pw_weaponlevel2] ? OB_MPPGAUNTLETS : OB_MPGAUNTLETS;
+        ob = source->player->powers[pw_weaponlevel2] ? s_OB_MPPGAUNTLETS : s_OB_MPGAUNTLETS;
         break;
       case wp_beak:
-        ob = OB_CHICKEN;
+        ob = s_OB_CHICKEN;
         break;
       default:
         ob = s_OB_MPDEFAULT;

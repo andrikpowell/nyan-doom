@@ -19,10 +19,12 @@
 #include "lprintf.h"
 #include "w_wad.h"
 #include "z_zone.h"
-#include "heretic/dstrings.h"
 
 #include "dsda/mapinfo.h"
 #include "dsda/mapinfo/doom/parser.h"
+
+#include "heretic/dstrings.h"
+#include "heretic/hhe/strings.h"
 
 #include "episode.h"
 
@@ -38,13 +40,13 @@ static void dsda_DetermineEpisodeMap(dsda_episode_t* episode) {
 
 void dsda_AddOriginalEpisodes(void) {
   if (heretic) {
-    dsda_AddEpisode("e1m1", HERETIC_EPISODE_1, NULL, 'c', true);
-    dsda_AddEpisode("e2m1", HERETIC_EPISODE_2, NULL, 'h', true);
-    dsda_AddEpisode("e3m1", HERETIC_EPISODE_3, NULL, 't', true);
+    dsda_AddEpisode("e1m1", s_HERETIC_EPISODE_1, NULL, 'c', true);
+    dsda_AddEpisode("e2m1", s_HERETIC_EPISODE_2, NULL, 'h', true);
+    dsda_AddEpisode("e3m1", s_HERETIC_EPISODE_3, NULL, 't', true);
 
     if (gamemode == retail) {
-      dsda_AddEpisode("e4m1", HERETIC_EPISODE_4, NULL, 't', true);
-      dsda_AddEpisode("e5m1", HERETIC_EPISODE_5, NULL, 't', true);
+      dsda_AddEpisode("e4m1", s_HERETIC_EPISODE_4, NULL, 't', true);
+      dsda_AddEpisode("e5m1", s_HERETIC_EPISODE_5, NULL, 't', true);
     }
   }
   else if (hexen) {

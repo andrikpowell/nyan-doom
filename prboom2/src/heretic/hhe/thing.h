@@ -1,6 +1,4 @@
 //
-// Copyright(C) 1999-2004 by Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
-// Copyright(C) 2005-2006 by Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
 // Copyright(C) 2026 by Andrik Powell
 //
 // This program is free software; you can redistribute it and/or
@@ -14,13 +12,19 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	DEH Parser
+//	HHE Thing
 //
 
-#ifndef __DEH__
-#define __DEH__
+#ifndef __HHE_THING__
+#define __HHE_THING__
 
-extern void ProcessDehacked(const char *filename, const char *outfilename, int lumpnum);
-extern void PostProcessDehacked(void);
+#include "m_file.h"
+#include "deh/func.h"
+
+extern const struct deh_flag_s hhe_mobjflags[];
+extern const struct deh_flag_s hhe_mobjflags2[];
+
+extern uint64_t hhe_stringToMobjFlags(char *strval);
+extern uint64_t hhe_stringToMobjFlags2(char *strval);
 
 #endif

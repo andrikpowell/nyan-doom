@@ -40,6 +40,9 @@
 #include "smooth.h"
 #include "v_video.h"
 
+#include "heretic/hhe/strings.h"
+#include "heretic/hhe/thing.h"
+
 #include "dsda.h"
 #include "dsda/build.h"
 #include "dsda/brute_force.h"
@@ -1467,8 +1470,16 @@ static dboolean console_TargetAddFlags(const char* command, const char* args) {
   if (!target)
     return false;
 
-  flags = target->flags | deh_stringToMobjFlags(flag_str);
-  flags2 = target->flags2 | deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    flags = target->flags | hhe_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 | hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    flags = target->flags | deh_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 | deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   console_SetMobjFlags(target, flags, flags2);
 
@@ -1488,8 +1499,16 @@ static dboolean console_TargetRemoveFlags(const char* command, const char* args)
   if (!target)
     return false;
 
-  flags = target->flags & ~deh_stringToMobjFlags(flag_str);
-  flags2 = target->flags2 & ~deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    flags = target->flags & ~hhe_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 & ~hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    flags = target->flags & ~deh_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 & ~deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   console_SetMobjFlags(target, flags, flags2);
 
@@ -1509,8 +1528,16 @@ static dboolean console_TargetSetFlags(const char* command, const char* args) {
   if (!target)
     return false;
 
-  flags = deh_stringToMobjFlags(flag_str);
-  flags2 = deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    flags = hhe_stringToMobjFlags(flag_str);
+    flags2 = hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    flags = deh_stringToMobjFlags(flag_str);
+    flags2 = deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   console_SetMobjFlags(target, flags, flags2);
 
@@ -1716,8 +1743,16 @@ static dboolean console_MobjAddFlags(const char* command, const char* args) {
   if (!target)
     return false;
 
-  flags = target->flags | deh_stringToMobjFlags(flag_str);
-  flags2 = target->flags2 | deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    flags = target->flags | hhe_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 | hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    flags = target->flags | deh_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 | deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   console_SetMobjFlags(target, flags, flags2);
 
@@ -1738,8 +1773,16 @@ static dboolean console_MobjRemoveFlags(const char* command, const char* args) {
   if (!target)
     return false;
 
-  flags = target->flags & ~deh_stringToMobjFlags(flag_str);
-  flags2 = target->flags2 & ~deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    flags = target->flags & ~hhe_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 & ~hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    flags = target->flags & ~deh_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 & ~deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   console_SetMobjFlags(target, flags, flags2);
 
@@ -1760,8 +1803,16 @@ static dboolean console_MobjSetFlags(const char* command, const char* args) {
   if (!target)
     return false;
 
-  flags = deh_stringToMobjFlags(flag_str);
-  flags2 = deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    flags = hhe_stringToMobjFlags(flag_str);
+    flags2 = hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    flags = deh_stringToMobjFlags(flag_str);
+    flags2 = deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   console_SetMobjFlags(target, flags, flags2);
 
@@ -2186,8 +2237,16 @@ static dboolean console_MobjInfoAddFlags(const char* command, const char* args) 
   if (type == DEH_INDEX_NOT_FOUND)
     return false;
 
-  mobjinfo[type].flags |= deh_stringToMobjFlags(flag_str);
-  mobjinfo[type].flags2 |= deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    mobjinfo[type].flags |= hhe_stringToMobjFlags(flag_str);
+    mobjinfo[type].flags2 |= hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    mobjinfo[type].flags |= deh_stringToMobjFlags(flag_str);
+    mobjinfo[type].flags2 |= deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   return true;
 }
@@ -2204,8 +2263,16 @@ static dboolean console_MobjInfoRemoveFlags(const char* command, const char* arg
   if (type == DEH_INDEX_NOT_FOUND)
     return false;
 
-  mobjinfo[type].flags &= ~deh_stringToMobjFlags(flag_str);
-  mobjinfo[type].flags2 &= ~deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    mobjinfo[type].flags &= ~hhe_stringToMobjFlags(flag_str);
+    mobjinfo[type].flags2 &= ~hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    mobjinfo[type].flags &= ~deh_stringToMobjFlags(flag_str);
+    mobjinfo[type].flags2 &= ~deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   return true;
 }
@@ -2222,8 +2289,16 @@ static dboolean console_MobjInfoSetFlags(const char* command, const char* args) 
   if (type == DEH_INDEX_NOT_FOUND)
     return false;
 
-  mobjinfo[type].flags = deh_stringToMobjFlags(flag_str);
-  mobjinfo[type].flags2 = deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    mobjinfo[type].flags = hhe_stringToMobjFlags(flag_str);
+    mobjinfo[type].flags2 = hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    mobjinfo[type].flags = deh_stringToMobjFlags(flag_str);
+    mobjinfo[type].flags2 = deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   return true;
 }

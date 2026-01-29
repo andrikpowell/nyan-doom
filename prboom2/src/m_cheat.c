@@ -55,6 +55,8 @@
 
 #include "heretic/def.h"
 #include "heretic/sb_bar.h"
+#include "heretic/hhe/strings.h"
+#include "heretic/dstrings.h"
 
 #include "dsda.h"
 #include "dsda/args.h"
@@ -449,7 +451,7 @@ static void cheat_hexen_suicide(void)
 static void cheat_god_raven(void)
 {
   P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
-  dsda_AddMessage(HERETIC_TXT_CHEATIDDQD);
+  dsda_AddMessage(s_HERETIC_TXT_CHEATIDDQD);
 }
 
 static void cheat_suicide()
@@ -597,7 +599,7 @@ static void cheat_dostrip(int idkfa_raven)
 
   // Force weapon switch
   plyr->pendingweapon = wp_staff;
-  dsda_AddMessage(idkfa_raven ? HERETIC_TXT_CHEATIDKFA : "Stripped down to the bone");
+  dsda_AddMessage(idkfa_raven ? s_HERETIC_TXT_CHEATIDKFA : "Stripped down to the bone");
   return;
 }
 
@@ -2271,21 +2273,21 @@ static void cheat_reset_health(void)
   {
     plyr->health = plyr->mo->health = MAXHEALTH;
   }
-  dsda_AddMessage(HERETIC_TXT_CHEATHEALTH);
+  dsda_AddMessage(s_HERETIC_TXT_CHEATHEALTH);
 }
 
 static void cheat_artifact()
 {
   if (!heretic) return;
 
-  dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS1);
+  dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTS1);
 }
 
 static void cheat_artifactx(char *buf) // eat keypress for second prompt
 {
   if (!heretic) return;
 
-  dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS2);
+  dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTS2);
 }
 
 static void cheat_artifactxx(char *buf)
@@ -2312,24 +2314,24 @@ static void cheat_artifactxx(char *buf)
         P_GiveArtifact(plyr, i, NULL);
       }
     }
-    dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS3);
+    dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTS3);
   }
   else if (type > arti_none && type < NUMARTIFACTS && count > 0 && count < 10)
   {
     if (gamemode == shareware && (type == arti_superhealth || type == arti_teleport))
     {
-      dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTSFAIL);
+      dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTSFAIL);
       return;
     }
     for (i = 0; i < count; i++)
     {
       P_GiveArtifact(plyr, type, NULL);
     }
-    dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS3);
+    dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTS3);
   }
   else
   {
-    dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTSFAIL);
+    dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTSFAIL);
   }
 }
 
@@ -2340,12 +2342,12 @@ static void cheat_tome(void)
   if (plyr->powers[pw_weaponlevel2])
   {
     plyr->powers[pw_weaponlevel2] = 0;
-    dsda_AddMessage(HERETIC_TXT_CHEATPOWEROFF);
+    dsda_AddMessage(s_HERETIC_TXT_CHEATPOWEROFF);
   }
   else
   {
     P_UseArtifact(plyr, arti_tomeofpower);
-    dsda_AddMessage(HERETIC_TXT_CHEATPOWERON);
+    dsda_AddMessage(s_HERETIC_TXT_CHEATPOWERON);
   }
 }
 
@@ -2360,12 +2362,12 @@ static void cheat_chicken(void)
     {
       if (P_UndoPlayerChicken(plyr))
       {
-          dsda_AddMessage(HERETIC_TXT_CHEATCHICKENOFF);
+          dsda_AddMessage(s_HERETIC_TXT_CHEATCHICKENOFF);
       }
     }
     else if (P_ChickenMorphPlayer(plyr))
     {
-      dsda_AddMessage(HERETIC_TXT_CHEATCHICKENON);
+      dsda_AddMessage(s_HERETIC_TXT_CHEATCHICKENON);
     }
   }
   else
@@ -2391,7 +2393,7 @@ static void cheat_init(void)
 {
   if (dsda_ResolveINIT())
   {
-    P_SetMessage(plyr, HERETIC_TXT_CHEATWARP, true);
+    P_SetMessage(plyr, s_HERETIC_TXT_CHEATWARP, true);
   }
 }
 

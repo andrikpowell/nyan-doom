@@ -1250,6 +1250,7 @@ static void DoLooseFiles(void)
     { ".lmp", dsda_arg_playdemo },
     { ".deh", dsda_arg_deh },
     { ".bex", dsda_arg_deh },
+    { ".hhe", dsda_arg_deh },
     // assume wad if no extension or length of the extention is not equal to 3
     // must be last entry
     { "", dsda_arg_file },
@@ -1377,7 +1378,7 @@ static void D_ProcessDehAutoloadQueue(deh_queue_t *queue)
 
   for (i = 0; i < queue->count; ++i)
   {
-    ProcessDehFile(queue->list[i], D_dehout(), 0);
+    ProcessDehacked(queue->list[i], D_dehout(), 0);
     Z_Free(queue->list[i]);
   }
 
@@ -1412,7 +1413,7 @@ static void LoadDehackedFilesAtPath(const char *path, dboolean defer_loading, de
     glob_t *glob;
 
     glob = I_StartMultiGlob(path, GLOB_FLAG_NOCASE|GLOB_FLAG_SORTED,
-                            "*.deh", "*.bex", NULL);
+                            "*.deh", "*.bex", "*.hhe", NULL);
     for (;;)
     {
         filename = I_NextGlob(glob);
@@ -1431,7 +1432,7 @@ static void LoadDehackedFilesAtPath(const char *path, dboolean defer_loading, de
         }
         else
         {
-            ProcessDehFile(filename, D_dehout(), 0);
+            ProcessDehacked(filename, D_dehout(), 0);
         }
     }
 
@@ -1790,13 +1791,13 @@ static void dsda_Loadfiles(void)
 
       if (!dsda_FileExtension(file_name))
       {
-        const char *extensions[] = { ".wad", ".lmp", ".zip", ".deh", ".bex", NULL };
+        const char *extensions[] = { ".wad", ".lmp", ".zip", ".deh", ".bex", ".hhe", NULL };
 
         file = I_RequireAnyFile(file_name, extensions);
         file_name = file;
       }
 
-      if (dsda_HasFileExt(file_name, ".deh") || dsda_HasFileExt(file_name, ".bex"))
+      if (dsda_HasFileExt(file_name, ".deh") || dsda_HasFileExt(file_name, ".bex") || dsda_HasFileExt(file_name, ".hhe"))
       {
         if (MainLumpCache)
           dsda_AppendStringArg(dsda_arg_deh, file_name);
@@ -1953,6 +1954,7 @@ static void D_DoomMainSetup(void)
   int p;
   dsda_arg_t *arg;
   dboolean autoload;
+  const char* DehackedLump;
 
   setbuf(stdout,NULL);
 
@@ -2047,7 +2049,7 @@ static void D_DoomMainSetup(void)
   //e6y: Calculate the screen resolution and init all buffers
   I_InitScreenResolution();
 
-  //e6y: some stuff from command-line should be initialised before ProcessDehFile()
+  //e6y: some stuff from command-line should be initialised before ProcessDehacked()
   e6y_InitCommandLine();
 
   D_AddFile(port_wad_file, source_port_wad);
@@ -2113,20 +2115,23 @@ static void D_DoomMainSetup(void)
   if (limitremoving_arg)
     lprintf(LO_INFO, "Limit-removing detected. Overflows disabled\n");
 
+  // to allow runtime deh cheat swapping, we copy main cheats over to deh cheats
   dsda_CopyDefaultCheats();
+
+  DehackedLump = !heretic ? "DEHACKED" : "HEHACKED";
 
   // e6y
   // option to disable automatic loading of dehacked-in-wad lump
   if (!dsda_Flag(dsda_arg_nodeh))
   {
     // MBF-style DeHackEd in wad support: load all lumps, not just the last one
-    for (p = -1; (p = W_ListNumFromName("DEHACKED", p)) >= 0; )
+    for (p = -1; (p = W_ListNumFromName(DehackedLump, p)) >= 0; )
       // Split loading DEHACKED lumps into IWAD/autoload and PWADs/others
       if (lumpinfo[p].source == source_iwad
           || lumpinfo[p].source == source_port_wad
           || lumpinfo[p].source == source_auto_load
           || lumpinfo[p].source == source_pwad_auto_load)
-        ProcessDehFile(NULL, D_dehout(), p); // cph - add dehacked-in-a-wad support
+        ProcessDehacked(NULL, D_dehout(), p); // cph - add dehacked-in-a-wad support
 
     if (!raven)
     {
@@ -2135,7 +2140,7 @@ static void D_DoomMainSetup(void)
         int lump = W_CheckNumForName2("BFGBEX", ns_prboom);
         if (lump != LUMP_NOT_FOUND)
         {
-          ProcessDehFile(NULL, D_dehout(), lump);
+          ProcessDehacked(NULL, D_dehout(), lump);
         }
       }
       if (gamemission == pack_nerve)
@@ -2143,7 +2148,7 @@ static void D_DoomMainSetup(void)
         int lump = W_CheckNumForName2("NERVEBEX", ns_prboom);
         if (lump != LUMP_NOT_FOUND)
         {
-          ProcessDehFile(NULL, D_dehout(), lump);
+          ProcessDehacked(NULL, D_dehout(), lump);
         }
       }
       if (gamemission == tc_chex)
@@ -2151,7 +2156,7 @@ static void D_DoomMainSetup(void)
         int lump = W_CheckNumForName2("CHEXDEH", ns_prboom);
         if (lump != LUMP_NOT_FOUND)
         {
-          ProcessDehFile(NULL, D_dehout(), lump);
+          ProcessDehacked(NULL, D_dehout(), lump);
         }
       }
     }
@@ -2171,12 +2176,12 @@ static void D_DoomMainSetup(void)
     D_AutoloadDehIWadDir();
 
   if (!dsda_Flag(dsda_arg_nodeh))
-    for (p = -1; (p = W_ListNumFromName("DEHACKED", p)) >= 0; )
+    for (p = -1; (p = W_ListNumFromName(DehackedLump, p)) >= 0; )
       if (!(lumpinfo[p].source == source_iwad
             || lumpinfo[p].source == source_port_wad
             || lumpinfo[p].source == source_auto_load
             || lumpinfo[p].source == source_pwad_auto_load))
-        ProcessDehFile(NULL, D_dehout(), p);
+        ProcessDehacked(NULL, D_dehout(), p);
 
   // process .deh files from PWADs autoload directories
   if (autoload)
@@ -2206,12 +2211,12 @@ static void D_DoomMainSetup(void)
       file = I_RequireDeh(arg->value.v_string_array[i]);
 
       // during the beta we have debug output to dehout.txt
-      ProcessDehFile(file,D_dehout(),0);
+      ProcessDehacked(file,D_dehout(),0);
       Z_Free(file);
     }
   }
 
-  PostProcessDeh();
+  PostProcessDehacked();
   dsda_AppendZDoomMobjInfo();
   dsda_ApplyDefaultMapFormat();
 

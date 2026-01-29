@@ -319,7 +319,8 @@ static void DemoEx_AddParams(wadtbl_t* wadtbl) {
   }
 
   if (dehs.string) {
-    dsda_StringCat(&files, "-deh ");
+    const char* deh_param = heretic ? "-hhe " : "-deh ";
+    dsda_StringCat(&files, deh_param);
     dsda_StringCat(&files, dehs.string);
   }
 

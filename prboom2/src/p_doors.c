@@ -894,7 +894,7 @@ void P_SpawnDoorRaiseIn5Mins
 // heretic
 
 #include "p_inter.h"
-#include "heretic/dstrings.h"
+#include "heretic/hhe/strings.h"
 
 void Heretic_EV_VerticalDoor(line_t * line, mobj_t * thing)
 {
@@ -918,7 +918,7 @@ void Heretic_EV_VerticalDoor(line_t * line, mobj_t * thing)
             }
             if (!player->cards[key_blue])
             {
-                P_SetMessage(player, HERETIC_TXT_NEEDBLUEKEY, false);
+                P_SetMessage(player, s_HERETIC_TXT_NEEDBLUEKEY, false);
                 S_StartVoidSound(heretic_sfx_plroof);
                 ST_SetKeyBlink(player, KEYBLINK_CARD, KEYBLINK_NONE, KEYBLINK_NONE);
                 return;
@@ -932,7 +932,7 @@ void Heretic_EV_VerticalDoor(line_t * line, mobj_t * thing)
             }
             if (!player->cards[key_yellow])
             {
-                P_SetMessage(player, HERETIC_TXT_NEEDYELLOWKEY, false);
+                P_SetMessage(player, s_HERETIC_TXT_NEEDYELLOWKEY, false);
                 S_StartVoidSound(heretic_sfx_plroof);
                 ST_SetKeyBlink(player, KEYBLINK_NONE, KEYBLINK_CARD, KEYBLINK_NONE);
                 return;
@@ -946,7 +946,7 @@ void Heretic_EV_VerticalDoor(line_t * line, mobj_t * thing)
             }
             if (!player->cards[key_green])
             {
-                P_SetMessage(player, HERETIC_TXT_NEEDGREENKEY, false);
+                P_SetMessage(player, s_HERETIC_TXT_NEEDGREENKEY, false);
                 S_StartVoidSound(heretic_sfx_plroof);
                 ST_SetKeyBlink(player, KEYBLINK_NONE, KEYBLINK_NONE, KEYBLINK_CARD);
                 return;

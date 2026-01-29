@@ -325,7 +325,7 @@ typedef enum
   HERETIC_SPR_AMP2,
   HERETIC_SPR_AMB1,
   HERETIC_SPR_AMB2,
-  HERETIC_NUMSPRITES,
+  HERETIC_NUMSPRITES = HERETIC_SPR_AMB2 + 101,  /* counter of how many there are */
 
   // hexen
   HEXEN_SPR_MAN1 = 0,

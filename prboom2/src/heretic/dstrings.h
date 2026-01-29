@@ -99,7 +99,7 @@
 #define HERETIC_TXT_CHEATARTIFACTS3		"YOU GOT IT"
 #define HERETIC_TXT_CHEATARTIFACTSFAIL	"BAD INPUT"
 #define HERETIC_TXT_CHEATWARP			"LEVEL WARP"
-#define HERETIC_TXT_CHEATSCREENSHOT		"SCREENSHOT"
+#define HERETIC_TXT_CHEATSCREENSHOT		"SCREEN SHOT"
 #define HERETIC_TXT_CHEATCHICKENON		"CHICKEN ON"
 #define HERETIC_TXT_CHEATCHICKENOFF		"CHICKEN OFF"
 #define HERETIC_TXT_SHOWFPSON			"SHOW FPS ON"	// [crispy]
@@ -141,6 +141,8 @@
 #define HERETIC_AMSTR_MARKEDSPOT	"Marked Spot"
 #define HERETIC_AMSTR_MARKSCLEARED	"All Marks Cleared"
 
+#define HERETIC_AUTOPAGE			"AUTOPAGE"
+
 //---------------------------------------------------------------------------
 //
 // m_menu.c
@@ -148,17 +150,22 @@
 //---------------------------------------------------------------------------
 
 #define HERETIC_SWSTRING		"ONLY AVAILABLE IN THE REGISTERED VERSION"
-#define HERETIC_QUITMSG			"ARE YOU SURE YOU WANT TO QUIT?"
+#define HERETIC_RAVENQUITMSG	"ARE YOU SURE YOU WANT TO QUIT?"
+#define HERETIC_ENDGAME			"ARE YOU SURE YOU WANT TO END THE GAME?"
 
-#define HERETIC_MN_NEW_GAME		"NEW GAME"
-#define HERETIC_MN_OPTIONS		"OPTIONS"
-#define HERETIC_MN_GAME_FILES	"GAME FILES"
-#define HERETIC_MN_INFO			"INFO"
-#define HERETIC_MN_QUIT_GAME	"QUIT GAME"
-#define HERETIC_MN_SAVE_GAME	"SAVE GAME"
-#define HERETIC_MN_LOAD_GAME	"LOAD GAME"
-#define HERETIC_MN_MUSIC_VOL	"MUSIC VOLUME"
-#define HERETIC_MN_SFX_VOL		"SFX VOLUME"
+#define HERETIC_MSGON			"MESSAGES ON"
+#define HERETIC_MSGOFF			"MESSAGES OFF"
+
+#define HERETIC_MNU_NEW_GAME	"NEW GAME"
+#define HERETIC_MNU_OPTIONS		"OPTIONS"
+#define HERETIC_MNU_GAME_FILES	"GAME FILES"
+#define HERETIC_MNU_INFO		"INFO"
+#define HERETIC_MNU_QUIT_GAME	"QUIT GAME"
+#define HERETIC_MNU_SAVE_GAME	"SAVE GAME"
+#define HERETIC_MNU_LOAD_GAME	"LOAD GAME"
+#define HERETIC_MNU_MUSIC_VOL	"MUSIC VOLUME"
+#define HERETIC_MNU_SFX_VOL		"SFX VOLUME"
+#define HERETIC_MNU_CHOOSESKILL "CHOOSE SKILL LEVEL:"
 
 #define HERETIC_EPISODE_1		"CITY OF THE DAMNED"
 #define HERETIC_EPISODE_2		"HELL'S MAW"
@@ -226,6 +233,17 @@
 #define HERETIC_HUSTR_E5M7 "E5M7:  FOETID MANSE"
 #define HERETIC_HUSTR_E5M8 "E5M8:  FIELD OF JUDGEMENT"
 #define HERETIC_HUSTR_E5M9 "E5M9:  SKEIN OF D'SPARIL"
+
+// EPISODE 6: Extra
+#define HERETIC_HUSTR_E6M1 "E6M1:  UNKNOWN"
+#define HERETIC_HUSTR_E6M2 "E6M2:  UNKNOWN"
+#define HERETIC_HUSTR_E6M3 "E6M3:  UNKNOWN"
+#define HERETIC_HUSTR_E6M4 "E6M4:  UNKNOWN"
+#define HERETIC_HUSTR_E6M5 "E6M5:  UNKNOWN"
+#define HERETIC_HUSTR_E6M6 "E6M6:  UNKNOWN"
+#define HERETIC_HUSTR_E6M7 "E6M7:  UNKNOWN"
+#define HERETIC_HUSTR_E6M8 "E6M8:  UNKNOWN"
+#define HERETIC_HUSTR_E6M9 "E6M9:  UNKNOWN"
 
 //---------------------------------------------------------------------------
 //
@@ -341,6 +359,17 @@
 #define HERETIC_BGFLATE5 "FLOOR08"
 
 //
+// killers
+//
+
+#define HERETIC_IN_KILLERS1 "K"
+#define HERETIC_IN_KILLERS2 "I"
+#define HERETIC_IN_KILLERS3 "L"
+#define HERETIC_IN_KILLERS4 "E"
+#define HERETIC_IN_KILLERS5 "R"
+#define HERETIC_IN_KILLERS6 "S"
+
+//
 // Heretic Intermission
 //
 
@@ -349,11 +378,13 @@
 #define HERETIC_IN_ENTERING "NOW ENTERING:"
 #define HERETIC_IN_KILLS	"KILLS"
 #define HERETIC_IN_ITEMS	"ITEMS"
-#define HERETIC_IN_SECRET	"SECRETS"
+#define HERETIC_IN_SECRETS	"SECRETS"
 #define HERETIC_IN_TIME		"TIME"
-#define HERETIC_IN_BONUS	"BONUS"
 #define HERETIC_IN_TOTAL	"TOTAL"
 #define HERETIC_IN_VICTIMS	"VICTIMS"
+
+#define HERETIC_COOP_BONUS	"BONUS"
+#define HERETIC_COOP_SECRET	"SECRET"
 
 //
 // Heretic Skills
@@ -405,7 +436,6 @@
 #define OB_MPPSTAFF			"%o got clapped by %k's charged staff."
 #define OB_MPPGAUNTLETS		"%o was bled dry by %k's gauntlets."
 #define OB_MPPGOLDWAND		"%o was assaulted by %k's elven wand."
-#define OB_MPSHOTGUN		"%o chewed on %k's boomstick."
 #define OB_MPPCROSSBOW		"%o was shafted by %k's ethereal crossbow."
 #define OB_MPPBLASTER		"%o was ripped apart by %k's dragon claw."
 #define OB_MPPSKULLROD		"%k poured the hellstaff on %o."

@@ -1,6 +1,4 @@
 //
-// Copyright(C) 1999-2004 by Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
-// Copyright(C) 2005-2006 by Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
 // Copyright(C) 2026 by Andrik Powell
 //
 // This program is free software; you can redistribute it and/or
@@ -14,13 +12,23 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	DEH Parser
+//	HHE [STRINGS] Parser
 //
 
-#ifndef __DEH__
-#define __DEH__
+#ifndef __HHE_REX_STR__
+#define __HHE_REX_STR__
 
-extern void ProcessDehacked(const char *filename, const char *outfilename, int lumpnum);
-extern void PostProcessDehacked(void);
+#include "heretic/hhe/version.h"
+
+// CPhipps - make strings pointed to const
+typedef struct {
+  int offsets[deh_hhe_num_versions];
+  const char **ppstr;  // doubly indirect pointer to string
+  const char *lookup;  // pointer to lookup string name
+  const char *orig;
+} hhe_strs;
+
+extern int hhe_numstrlookup;
+extern hhe_strs hhe_strlookup[];
 
 #endif

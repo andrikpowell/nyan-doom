@@ -39,6 +39,7 @@ typedef enum {
 typedef struct {
   const char* name;
   const char* alias;
+  const char* alias2;
   const char* default_value;
   const char* description;
 
@@ -56,647 +57,652 @@ typedef struct {
 
 static arg_config_t arg_config[dsda_arg_count] = {
   [dsda_arg_help] = {
-    "-help", "--help", NULL,
+    "-help", "--help", NULL, NULL,
     "prints out command line argument information",
     arg_null,
   },
   [dsda_arg_iwad] = {
-    "-iwad", NULL, NULL,
+    "-iwad", NULL, NULL, NULL,
     "loads the given iwad file",
     arg_string,
   },
   [dsda_arg_file] = {
-    "-file", NULL, NULL,
+    "-file", NULL, NULL, NULL,
     "loads additional wad files",
     arg_string_array, AT_LEAST_ONE_STRING,
   },
   [dsda_arg_deh] = {
-    "-deh", "-bex", NULL,
+    "-deh", "-bex", "-hhe", NULL,
     "loads additional deh files",
     arg_string_array, AT_LEAST_ONE_STRING,
   },
   [dsda_arg_playdemo] = {
-    "-playdemo", NULL, NULL,
+    "-playdemo", NULL, NULL, NULL,
     "plays the given demo file",
     arg_string,
   },
   [dsda_arg_playlump] = {
-    "-playlump", NULL, NULL,
+    "-playlump", NULL, NULL, NULL,
     "plays the given internal demo lump (e.g., DEMO1)",
     arg_string,
   },
   [dsda_arg_timedemo] = {
-    "-timedemo", NULL, NULL,
+    "-timedemo", NULL, NULL, NULL,
     "plays the given demo file as fast as possible, timing the process",
     arg_string,
   },
   [dsda_arg_fastdemo] = {
-    "-fastdemo", NULL, NULL,
+    "-fastdemo", NULL, NULL, NULL,
     "plays the given demo file as fast as possible, skipping some frames",
     arg_string,
   },
   [dsda_arg_record] = {
-    "-record", NULL, NULL,
+    "-record", NULL, NULL, NULL,
     "records a demo to the given file",
     arg_string,
   },
   [dsda_arg_recordfromto] = {
-    "-recordfromto", NULL, NULL,
+    "-recordfromto", NULL, NULL, NULL,
     "plays back the first file while writing to the second",
     arg_string_array, EXACT_ARRAY_LENGTH(2),
   },
   [dsda_arg_from_key_frame] = {
-    "-from_key_frame", NULL, NULL,
+    "-from_key_frame", NULL, NULL, NULL,
     "restores state and demo buffer from a key frame file",
     arg_string,
   },
   [dsda_arg_warp] = {
-    "-warp", NULL, NULL,
+    "-warp", NULL, NULL, NULL,
     "warp to the given episode and / or map",
     arg_int_array, 0, 99, 0, 2,
   },
   [dsda_arg_skill] = {
-    "-skill", NULL, NULL,
+    "-skill", NULL, NULL, NULL,
     "sets the skill level",
     arg_int, 1, 255,
   },
   [dsda_arg_uv] = {
-    "-uv", NULL, NULL,
+    "-uv", NULL, NULL, NULL,
     "sets the skill level to 4",
     arg_null,
   },
   [dsda_arg_nm] = {
-    "-nm", NULL, NULL,
+    "-nm", NULL, NULL, NULL,
     "sets the skill level to 5",
     arg_null,
   },
   [dsda_arg_episode] = {
-    "-episode", NULL, NULL,
+    "-episode", NULL, NULL, NULL,
     "warp to the first map in the given episode",
     arg_int, 0, 9,
   },
   [dsda_arg_complevel] = {
-    "-complevel", "-cl", NULL,
+    "-complevel", "-cl", NULL, NULL,
     "sets the compatibility level",
     arg_complevel, -1, mbf21_compatibility,
   },
   [dsda_arg_fast] = {
-    "-fast", NULL, NULL,
+    "-fast", NULL, NULL, NULL,
     "turns on fast monsters",
     arg_null,
   },
   [dsda_arg_respawn] = {
-    "-respawn", NULL, NULL,
+    "-respawn", NULL, NULL, NULL,
     "turns on monster respawning",
     arg_null,
   },
   [dsda_arg_nomonsters] = {
-    "-nomonsters", "-nomo", NULL,
+    "-nomonsters", "-nomo", NULL, NULL,
     "turns off monster spawning",
     arg_null,
   },
   [dsda_arg_longtics] = {
-    "-longtics", NULL, NULL,
+    "-longtics", NULL, NULL, NULL,
     "enables high precision turn angles (in supported formats)",
     arg_null,
   },
   [dsda_arg_shorttics] = {
-    "-shorttics", NULL, NULL,
+    "-shorttics", NULL, NULL, NULL,
     "restricts turn angles to lower precision",
     arg_null,
   },
   [dsda_arg_heretic] = {
-    "-heretic", NULL, NULL,
+    "-heretic", NULL, NULL, NULL,
     "sets the game to heretic",
     arg_null,
   },
   [dsda_arg_hexen] = {
-    "-hexen", NULL, NULL,
+    "-hexen", NULL, NULL, NULL,
     "sets the game to hexen",
     arg_null,
   },
   [dsda_arg_class] = {
-    "-class", NULL, NULL,
+    "-class", NULL, NULL, NULL,
     "sets the player class in hexen",
     arg_int, 0, 2,
   },
   [dsda_arg_randclass] = {
-    "-randclass", NULL, NULL,
+    "-randclass", NULL, NULL, NULL,
     "sets a random player class in hexen deathmatch",
     arg_null,
   },
   [dsda_arg_dsdademo] = {
-    "-dsdademo", NULL, NULL,
+    "-dsdademo", NULL, NULL, NULL,
     "turns on extended demo format (for testing)",
     arg_null,
   },
   [dsda_arg_solo_net] = {
-    "-solo-net", NULL, NULL,
+    "-solo-net", NULL, NULL, NULL,
     "play a net game with one player",
     arg_null,
   },
   [dsda_arg_coop_spawns] = {
-    "-coop_spawns", NULL, NULL,
+    "-coop_spawns", NULL, NULL, NULL,
     "play single player with coop thing spawns",
     arg_null,
   },
   [dsda_arg_pistol_start] = {
-    "-pistolstart", "-wandstart", NULL,
+    "-pistolstart", "-wandstart", NULL, NULL,
     "automatically pistol start each map",
     arg_null,
   },
   [dsda_arg_limitremoving] = {
-  "-lr", "-limitremoving", NULL,
+  "-lr", "-limitremoving", NULL, NULL,
   "ignore overflows and warnings in vanilla complevels",
   arg_null,
   },
   [dsda_arg_chain_episodes] = {
-    "-chain_episodes", NULL, NULL,
+    "-chain_episodes", NULL, NULL, NULL,
     "completing one episode leads to the next without interruption",
     arg_null,
   },
   [dsda_arg_stroller] = {
-    "-stroller", NULL, NULL,
+    "-stroller", NULL, NULL, NULL,
     "applies stroller category limitations",
     arg_null,
   },
   [dsda_arg_turbo] = {
-    "-turbo", NULL, "255",
+    "-turbo", NULL, NULL, "255",
     "sets player speed percent",
     arg_int, 10, 255,
   },
   [dsda_arg_game_speed] = {
-    "-game_speed", NULL, NULL,
+    "-game_speed", NULL, NULL, NULL,
     "sets game speed percent",
     arg_int, 10, 10000,
   },
   [dsda_arg_tas] = {
-    "-tas", NULL, NULL,
+    "-tas", NULL, NULL, NULL,
     "lifts strict mode restrictions",
     arg_null,
   },
   [dsda_arg_build] = {
-    "-build", NULL, NULL,
+    "-build", NULL, NULL, NULL,
     "starts in build mode",
     arg_null,
   },
   [dsda_arg_quit_after_brute_force] = {
-    "-quit_after_brute_force", NULL, NULL,
+    "-quit_after_brute_force", NULL, NULL, NULL,
     "quits the game when brute force ends",
     arg_null,
   },
   [dsda_arg_first_input] = {
-    "-first_input", NULL, NULL,
+    "-first_input", NULL, NULL, NULL,
     "builds the first frame F S T",
     arg_int_array, -128, 127, 3, 3
   },
   [dsda_arg_command] = {
-    "-command", NULL, NULL,
+    "-command", NULL, NULL, NULL,
     "runs a console command",
     arg_string
   },
   [dsda_arg_skipsec] = {
-    "-skipsec", NULL, NULL,
+    "-skipsec", NULL, NULL, NULL,
     "skip to the given time (mm:ss or ss) - negative times seek from the end",
     arg_string,
   },
   [dsda_arg_skiptic] = {
-    "-skiptic", NULL, NULL,
+    "-skiptic", NULL, NULL, NULL,
     "skip to the given tic - negative tics seek from the end",
     arg_int, INT_MIN, INT_MAX,
   },
   [dsda_arg_track_pacifist] = {
-    "-track_pacifist", NULL, NULL,
+    "-track_pacifist", NULL, NULL, NULL,
     "tracks pacifist category restrictions",
     arg_null,
   },
   [dsda_arg_track_100k] = {
-    "-track_100k", NULL, NULL,
+    "-track_100k", NULL, NULL, NULL,
     "tracks when 100% kills is reached",
     arg_null,
   },
   [dsda_arg_track_reality] = {
-    "-track_reality", NULL, NULL,
+    "-track_reality", NULL, NULL, NULL,
     "tracks reality and almost reality categories restrictions",
     arg_null,
   },
   [dsda_arg_time_keys] = {
-    "-time_keys", NULL, "105",
+    "-time_keys", NULL, NULL, "105",
     "announces the time when keys are picked up",
     arg_int, 0, 350
   },
   [dsda_arg_time_use] = {
-    "-time_use", NULL, "105",
+    "-time_use", NULL, NULL, "105",
     "announces the time when the use command is activated",
     arg_int, 0, 350
   },
   [dsda_arg_time_secrets] = {
-    "-time_secrets", NULL, "105",
+    "-time_secrets", NULL, NULL, "105",
     "announces the time when a secret is collected",
     arg_int, 0, 350
   },
   [dsda_arg_time_all] = {
-    "-time_all", NULL, "105",
+    "-time_all", NULL, NULL, "105",
     "announces the time when any -time_* event happens",
     arg_int, 0, 350
   },
   [dsda_arg_track_player] = {
-    "-track_player", NULL, NULL,
+    "-track_player", NULL, NULL, NULL,
     "adds player info to the tracker",
     arg_null,
   },
   [dsda_arg_track_line] = {
-    "-track_line", NULL, NULL,
+    "-track_line", NULL, NULL, NULL,
     "adds at least one line to the tracker",
     arg_int_array, AT_LEAST_ONE_NONNEGATIVE_INT,
   },
   [dsda_arg_track_line_distance] = {
-    "-track_line_distance", NULL, NULL,
+    "-track_line_distance", NULL, NULL, NULL,
     "adds at least one line distance to the tracker",
     arg_int_array, AT_LEAST_ONE_NONNEGATIVE_INT,
   },
   [dsda_arg_track_sector] = {
-    "-track_sector", NULL, NULL,
+    "-track_sector", NULL, NULL, NULL,
     "adds at least one sector to the tracker",
     arg_int_array, AT_LEAST_ONE_NONNEGATIVE_INT,
   },
   [dsda_arg_track_mobj] = {
-    "-track_mobj", NULL, NULL,
+    "-track_mobj", NULL, NULL, NULL,
     "adds at least one mobj to the tracker",
     arg_int_array, AT_LEAST_ONE_NONNEGATIVE_INT,
   },
   [dsda_arg_assign] = {
-    "-assign", NULL, NULL,
+    "-assign", NULL, NULL, NULL,
     "temporarily assign config variables",
     arg_string_array, AT_LEAST_ONE_STRING,
   },
   [dsda_arg_update] = {
-    "-update", NULL, NULL,
+    "-update", NULL, NULL, NULL,
     "permanently update config variables",
     arg_string_array, AT_LEAST_ONE_STRING,
   },
   [dsda_arg_analysis] = {
-    "-analysis", NULL, NULL,
+    "-analysis", NULL, NULL, NULL,
     "writes various data to analysis.txt",
     arg_null,
   },
   [dsda_arg_levelstat] = {
-    "-levelstat", NULL, NULL,
+    "-levelstat", NULL, NULL, NULL,
     "writes level stats to levelstat.txt",
     arg_null,
   },
   [dsda_arg_export_text_file] = {
-    "-export_text_file", NULL, NULL,
+    "-export_text_file", NULL, NULL, NULL,
     "export a dsda-format text file template",
     arg_null,
   },
   [dsda_arg_track_playback] = {
-    "-track_playback", NULL, NULL,
+    "-track_playback", NULL, NULL, NULL,
     "treat demo playback as an attempt for the given split file base",
     arg_string,
   },
   [dsda_arg_export_ghost] = {
-    "-export_ghost", NULL, NULL,
+    "-export_ghost", NULL, NULL, NULL,
     "exports a ghost file",
     arg_string,
   },
   [dsda_arg_import_ghost] = {
-    "-import_ghost", NULL, NULL,
+    "-import_ghost", NULL, NULL, NULL,
     "imports at least one ghost file",
     arg_string_array, AT_LEAST_ONE_STRING,
   },
   [dsda_arg_consoleplayer] = {
-    "-consoleplayer", NULL, NULL,
+    "-consoleplayer", NULL, NULL, NULL,
     "sets the console player (for coop playback)",
     arg_int, 0, 7,
   },
   [dsda_arg_spechit] = {
-    "-spechit", NULL, NULL,
+    "-spechit", NULL, NULL, NULL,
     "sets a magic spechit base address for certain overrun demos",
     arg_int, INT_MIN, INT_MAX,
   },
   [dsda_arg_setmem] = {
-    "-setmem", NULL, NULL,
+    "-setmem", NULL, NULL, NULL,
     "sets a magic block of memory for certain overrun demos",
     arg_string_array, 0, 0, 1, 10,
   },
   [dsda_arg_data] = {
-    "-data", NULL, NULL,
+    "-data", NULL, NULL, NULL,
     "sets the data directory",
     arg_string,
   },
+  [dsda_arg_hhever] = {
+    "-hhever", NULL, NULL, NULL,
+    "sets the hehacked version",
+    arg_string,
+  },
   [dsda_arg_save] = {
-    "-save", NULL, NULL,
+    "-save", NULL, NULL, NULL,
     "sets the save directory",
     arg_string,
   },
   [dsda_arg_config] = {
-    "-config", NULL, NULL,
+    "-config", NULL, NULL, NULL,
     "sets the config file",
     arg_string,
   },
   [dsda_arg_hud] = {
-    "-hud", NULL, NULL,
+    "-hud", NULL, NULL, NULL,
     "sets the hud config file",
     arg_string,
   },
   [dsda_arg_shotdir] = {
-    "-shotdir", NULL, NULL,
+    "-shotdir", NULL, NULL, NULL,
     "sets the screenshot directory",
     arg_string,
   },
   [dsda_arg_movie] = {
-    "-movie", NULL, NULL,
+    "-movie", NULL, NULL, NULL,
     "sets the target final level for movie demos (for automatic exit detection)",
     arg_int, 0, 99,
   },
   [dsda_arg_viddump] = {
-    "-viddump", NULL, NULL,
+    "-viddump", NULL, NULL, NULL,
     "dumps a video to the chosen file name",
     arg_string,
   },
   [dsda_arg_dehout] = {
-    "-dehout", "-bexout", NULL,
+    "-dehout", "-bexout", "-hheout", NULL,
     "sets dehacked log file",
     arg_string,
   },
   [dsda_arg_verbose] = {
-    "-verbose", NULL, NULL,
+    "-verbose", NULL, NULL, NULL,
     "enable all logging",
     arg_null,
   },
   [dsda_arg_quiet] = {
-    "-quiet", NULL, NULL,
+    "-quiet", NULL, NULL, NULL,
     "disable all logging",
     arg_null,
   },
   [dsda_arg_v] = {
-    "-v", NULL, NULL,
+    "-v", NULL, NULL, NULL,
     "print the version and exit",
     arg_null,
   },
   [dsda_arg_resetgamma] = {
-    "-resetgamma", NULL, NULL,
+    "-resetgamma", NULL, NULL, NULL,
     "reset gamma and exit",
     arg_null,
   },
   [dsda_arg_force_old_zdoom_nodes] = {
-    "-force_old_zdoom_nodes", NULL, NULL,
+    "-force_old_zdoom_nodes", NULL, NULL, NULL,
     "force extended (non-gl) zdoom nodes",
     arg_null,
   },
   [dsda_arg_sigsegv] = {
-    "-sigsegv", NULL, NULL,
+    "-sigsegv", NULL, NULL, NULL,
     "disable the SIGSEGV signal handler",
     arg_null,
   },
   [dsda_arg_deathmatch] = {
-    "-deathmatch", NULL, NULL,
+    "-deathmatch", NULL, NULL, NULL,
     "turn on deathmatch mode",
     arg_null,
   },
   [dsda_arg_altdeath] = {
-    "-altdeath", NULL, NULL,
+    "-altdeath", NULL, NULL, NULL,
     "turn on altdeath mode",
     arg_null,
   },
   [dsda_arg_timer] = {
-    "-timer", NULL, NULL,
+    "-timer", NULL, NULL, NULL,
     "sets the level time limit (in minutes) for deathmatch",
     arg_int, 1, INT_MAX,
   },
   [dsda_arg_frags] = {
-    "-frags", NULL, "10",
+    "-frags", NULL, NULL, "10",
     "sets the level frag limit for deathmatch",
     arg_int, 1, INT_MAX,
   },
   [dsda_arg_nosound] = {
-    "-nosound", NULL, NULL,
+    "-nosound", NULL, NULL, NULL,
     "turn off sound",
     arg_null,
   },
   [dsda_arg_nomusic] = {
-    "-nomusic", NULL, NULL,
+    "-nomusic", NULL, NULL, NULL,
     "turn off music",
     arg_null,
   },
   [dsda_arg_nosfx] = {
-    "-nosfx", NULL, NULL,
+    "-nosfx", NULL, NULL, NULL,
     "turn off sfx",
     arg_null,
   },
   [dsda_arg_nodraw] = {
-    "-nodraw", NULL, NULL,
+    "-nodraw", NULL, NULL, NULL,
     "turn off drawing",
     arg_null,
   },
   [dsda_arg_nodeh] = {
-    "-nodeh", NULL, NULL,
+    "-nodeh", NULL, NULL, NULL,
     "skip dehacked lumps inside wads",
     arg_null,
   },
   [dsda_arg_nomapinfo] = {
-    "-nomapinfo", NULL, NULL,
+    "-nomapinfo", NULL, NULL, NULL,
     "skip *MAPINFO lumps",
     arg_null,
   },
   [dsda_arg_noautoload] = {
-    "-noautoload", "-noload", NULL,
+    "-noautoload", "-noload", NULL, NULL,
     "ignore autoload files",
     arg_null,
   },
   [dsda_arg_nocheats] = {
-    "-nocheats", NULL, NULL,
+    "-nocheats", NULL, NULL, NULL,
     "ignore dehacked cheats",
     arg_null,
   },
   [dsda_arg_nojoy] = {
-    "-nojoy", NULL, NULL,
+    "-nojoy", NULL, NULL, NULL,
     "disable joystick input",
     arg_null,
   },
   [dsda_arg_nomouse] = {
-    "-nomouse", NULL, NULL,
+    "-nomouse", NULL, NULL, NULL,
     "disable mouse input",
     arg_null,
   },
   [dsda_arg_no_message_box] = {
-    "-no_message_box", NULL, NULL,
+    "-no_message_box", NULL, NULL, NULL,
     "disable message boxes",
     arg_null,
   },
   [dsda_arg_fullscreen] = {
-    "-fullscreen", NULL, NULL,
+    "-fullscreen", NULL, NULL, NULL,
     "temporarily turns on fullscreen mode",
     arg_null,
   },
   [dsda_arg_window] = {
-    "-window", NULL, NULL,
+    "-window", NULL, NULL, NULL,
     "temporarily turns on windowed mode",
     arg_null,
   },
   [dsda_arg_width] = {
-    "-width", NULL, NULL,
+    "-width", NULL, NULL, NULL,
     "temporarily sets the resolution width",
     arg_int, 320, INT_MAX,
   },
   [dsda_arg_height] = {
-    "-height", NULL, NULL,
+    "-height", NULL, NULL, NULL,
     "temporarily sets the resolution height",
     arg_int, 200, INT_MAX,
   },
   [dsda_arg_geometry] = {
-    "-geometry", "-geom", NULL,
+    "-geometry", "-geom", NULL, NULL,
     "temporarily sets the resolution and, optionally, the window mode WxH[w|f]",
     arg_string,
   },
   [dsda_arg_vidmode] = {
-    "-vidmode", NULL, NULL,
+    "-vidmode", NULL, NULL, NULL,
     "temporarily sets the graphics renderer (sw or gl)",
     arg_string,
   },
   [dsda_arg_aspect] = {
-    "-aspect", NULL, NULL,
+    "-aspect", NULL, NULL, NULL,
     "sets the fov aspect ratio WxH",
     arg_string, 0, 21,
   },
   [dsda_arg_emulate] = {
-    "-emulate", NULL, NULL,
+    "-emulate", NULL, NULL, NULL,
     "emulates errors from a version of prboom+ (a.b.c.d)",
     arg_string,
   },
   [dsda_arg_doom95] = {
-    "-doom95", NULL, NULL,
+    "-doom95", NULL, NULL, NULL,
     "use doom95's adjacent sector limit",
     arg_null,
   },
   [dsda_arg_blockmap] = {
-    "-blockmap", NULL, NULL,
+    "-blockmap", NULL, NULL, NULL,
     "rebuild the blockmap (ignore BLOCKMAP lump)",
     arg_null,
   },
   [dsda_arg_force_monster_avoid_hazards] = {
-    "-force_monster_avoid_hazards", NULL, NULL,
+    "-force_monster_avoid_hazards", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_force_remove_slime_trails] = {
-    "-force_remove_slime_trails", NULL, NULL,
+    "-force_remove_slime_trails", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_force_no_dropoff] = {
-    "-force_no_dropoff", NULL, NULL,
+    "-force_no_dropoff", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_force_truncated_sector_specials] = {
-    "-force_truncated_sector_specials", NULL, NULL,
+    "-force_truncated_sector_specials", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_force_boom_brainawake] = {
-    "-force_boom_brainawake", NULL, NULL,
+    "-force_boom_brainawake", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_force_prboom_friction] = {
-    "-force_prboom_friction", NULL, NULL,
+    "-force_prboom_friction", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_reject_pad_with_ff] = {
-    "-reject_pad_with_ff", NULL, NULL,
+    "-reject_pad_with_ff", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_force_lxdoom_demo_compatibility] = {
-    "-force_lxdoom_demo_compatibility", NULL, NULL,
+    "-force_lxdoom_demo_compatibility", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_allow_ssg_direct] = {
-    "-allow_ssg_direct", NULL, NULL,
+    "-allow_ssg_direct", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_treat_no_clipping_things_as_not_blocking] = {
-    "-treat_no_clipping_things_as_not_blocking", NULL, NULL,
+    "-treat_no_clipping_things_as_not_blocking", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_force_incorrect_processing_of_respawn_frame_entry] = {
-    "-force_incorrect_processing_of_respawn_frame_entry", NULL, NULL,
+    "-force_incorrect_processing_of_respawn_frame_entry", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_force_correct_code_for_3_keys_doors_in_mbf] = {
-    "-force_correct_code_for_3_keys_doors_in_mbf", NULL, NULL,
+    "-force_correct_code_for_3_keys_doors_in_mbf", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_uninitialize_crush_field_for_stairs] = {
-    "-uninitialize_crush_field_for_stairs", NULL, NULL,
+    "-uninitialize_crush_field_for_stairs", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_force_boom_findnexthighestfloor] = {
-    "-force_boom_findnexthighestfloor", NULL, NULL,
+    "-force_boom_findnexthighestfloor", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_allow_sky_transfer_in_boom] = {
-    "-allow_sky_transfer_in_boom", NULL, NULL,
+    "-allow_sky_transfer_in_boom", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_apply_green_armor_class_to_armor_bonuses] = {
-    "-apply_green_armor_class_to_armor_bonuses", NULL, NULL,
+    "-apply_green_armor_class_to_armor_bonuses", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_apply_blue_armor_class_to_megasphere] = {
-    "-apply_blue_armor_class_to_megasphere", NULL, NULL,
+    "-apply_blue_armor_class_to_megasphere", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_force_incorrect_bobbing_in_boom] = {
-    "-force_incorrect_bobbing_in_boom", NULL, NULL,
+    "-force_incorrect_bobbing_in_boom", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_boom_deh_parser] = {
-    "-boom_deh_parser", NULL, NULL,
+    "-boom_deh_parser", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_mbf_remove_thinker_in_killmobj] = {
-    "-mbf_remove_thinker_in_killmobj", NULL, NULL,
+    "-mbf_remove_thinker_in_killmobj", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_do_not_inherit_friendlyness_flag_on_spawn] = {
-    "-do_not_inherit_friendlyness_flag_on_spawn", NULL, NULL,
+    "-do_not_inherit_friendlyness_flag_on_spawn", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_do_not_use_misc12_frame_parameters_in_a_mushroom] = {
-    "-do_not_use_misc12_frame_parameters_in_a_mushroom", NULL, NULL,
+    "-do_not_use_misc12_frame_parameters_in_a_mushroom", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_apply_mbf_codepointers_to_any_complevel] = {
-    "-apply_mbf_codepointers_to_any_complevel", NULL, NULL,
+    "-apply_mbf_codepointers_to_any_complevel", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_reset_monsterspawner_params_after_loading] = {
-    "-reset_monsterspawner_params_after_loading", NULL, NULL,
+    "-reset_monsterspawner_params_after_loading", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
   [dsda_arg_debug_mapinfo] = {
-    "-debug_mapinfo", NULL, NULL,
+    "-debug_mapinfo", NULL, NULL, NULL,
     "turns on mapinfo parsing in doom (temporary arg for testing)",
     arg_null,
   },
@@ -877,7 +883,8 @@ void dsda_ParseCommandLineArgs(int argc, char** argv) {
 
         if (
           !strcasecmp(config->name, dsda_argv[argv_i]) ||
-          (config->alias && !strcasecmp(config->alias, dsda_argv[argv_i]))
+          (config->alias && !strcasecmp(config->alias, dsda_argv[argv_i])) ||
+          (config->alias2 && !strcasecmp(config->alias2, dsda_argv[argv_i]))
         ) {
           if (arg_value[i].found)
             lprintf(LO_WARN, "Warning: ignoring duplicate argument %s\n", config->name);
@@ -994,6 +1001,8 @@ void dsda_PrintArgHelp(void) {
     lprintf(LO_INFO, "  %s", config->name);
     if (config->alias)
       lprintf(LO_INFO, " / %s", config->alias);
+    if (config->alias2)
+      lprintf(LO_INFO, " / %s", config->alias2);
     lprintf(LO_INFO, ":\n");
     lprintf(LO_INFO, "    %s\n", config->description);
     if (config->default_value)

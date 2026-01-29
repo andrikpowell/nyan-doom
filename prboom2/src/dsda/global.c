@@ -40,6 +40,8 @@
 #include "dsda/sprite.h"
 #include "dsda/state.h"
 
+#include "heretic/hhe/strings.h"
+
 #define IGNORE_VALUE -1
 
 const demostate_t (*demostates)[4];
@@ -141,6 +143,13 @@ int g_autopage_height;
 
 const char* g_skyflatname;
 
+const char* g_am_followon;
+const char* g_am_followoff;
+const char* g_am_gridon;
+const char* g_am_gridoff;
+const char* g_msgoff;
+const char* g_msgon;
+
 dboolean started_demo = false;
 dboolean hexen = false;
 dboolean heretic = false;
@@ -219,6 +228,13 @@ static void dsda_InitDoom(void) {
   g_autopage = "AUTOPAGE";
   g_autopage_width = 320;
   g_autopage_height = 158;
+
+  g_am_followon = s_AMSTR_FOLLOWON;
+  g_am_followoff = s_AMSTR_FOLLOWOFF;
+  g_am_gridon = s_AMSTR_GRIDON;
+  g_am_gridoff = s_AMSTR_GRIDOFF;
+  g_msgoff = s_MSGOFF;
+  g_msgon = s_MSGON;
 
   g_skyflatname = "F_SKY1";
 
@@ -393,11 +409,18 @@ static void dsda_InitHeretic(void) {
   g_menu_save_page_size = 5;
   g_menu_font_spacing = -1;
 
-  g_autopage = "AUTOPAGE";
+  g_autopage = s_HERETIC_AUTOPAGE;
   g_autopage_width = 320;
   g_autopage_height = 158;
 
   g_skyflatname = "F_SKY1";
+
+  g_am_followon = s_HERETIC_AMSTR_FOLLOWON;
+  g_am_followoff = s_HERETIC_AMSTR_FOLLOWOFF;
+  g_am_gridon = s_HERETIC_AMSTR_GRIDON;
+  g_am_gridoff = s_HERETIC_AMSTR_GRIDOFF;
+  g_msgoff = s_HERETIC_MSGOFF;
+  g_msgon = s_HERETIC_MSGON;
 
   // convert heretic mobj types to shared type
   for (i = 0; i < HERETIC_NUMMOBJTYPES - HERETIC_MT_ZERO; ++i) {
@@ -547,13 +570,20 @@ static void dsda_InitHexen(void) {
   g_mf_shadow = 0; // doesn't exist in hexen
 
   g_menu_flat = "F_032";
-  g_autopage = "AUTOPAGE";
+  g_autopage = s_HERETIC_AUTOPAGE;
   g_autopage_width = 320;
   g_autopage_height = 158;
   g_menu_save_page_size = 5;
   g_menu_font_spacing = -1;
 
   g_skyflatname = "F_SKY";
+
+  g_am_followon = s_HERETIC_AMSTR_FOLLOWON;
+  g_am_followoff = s_HERETIC_AMSTR_FOLLOWOFF;
+  g_am_gridon = s_HERETIC_AMSTR_GRIDON;
+  g_am_gridoff = s_HERETIC_AMSTR_GRIDOFF;
+  g_msgoff = s_HERETIC_MSGOFF;
+  g_msgon = s_HERETIC_MSGON;
 
   // convert hexen mobj types to shared type
   for (i = 0; i < HEXEN_NUMMOBJTYPES - HEXEN_MT_ZERO; ++i) {
