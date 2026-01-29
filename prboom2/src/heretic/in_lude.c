@@ -164,7 +164,9 @@ static const char *NameForMap(int map)
 
     if (strlen(name) < 7)
     {
-        return "";
+        // Vanilla Heretic would only print ""
+        // I think it's better to just print the short name
+        return name; 
     }
     return name + 7;
 }
