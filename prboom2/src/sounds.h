@@ -102,6 +102,7 @@ struct sfxinfo_struct {
 typedef struct {
   // up to 6-character name
   const char *name; // CPhipps - const
+  const char *name_rpl; // Heretic - support for replacement music
 
   // lump number of music
   int lumpnum;

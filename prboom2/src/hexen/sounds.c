@@ -19,11 +19,11 @@
 
 // Hexen map music is set dynamically in SNDINFO
 musicinfo_t hexen_S_music[HEXEN_NUMMUSIC] = {
-    [hexen_mus_hexen] = { "HEXEN", 0 },
-    [hexen_mus_hub]   = { "HUB", 0 },
-    [hexen_mus_hall]  = { "HALL", 0 },
-    [hexen_mus_orb]   = { "ORB", 0 },
-    [hexen_mus_chess] = { "CHESS", 0 },
+    [hexen_mus_hexen] = { "HEXEN", NULL, 0 },
+    [hexen_mus_hub]   = { "HUB", NULL, 0 },
+    [hexen_mus_hall]  = { "HALL", NULL, 0 },
+    [hexen_mus_orb]   = { "ORB", NULL, 0 },
+    [hexen_mus_chess] = { "CHESS", NULL, 0 },
 };
 
 sfxinfo_t hexen_S_sfx[] = {

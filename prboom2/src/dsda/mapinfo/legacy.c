@@ -339,13 +339,30 @@ int dsda_LegacyResolveINIT(int* init) {
   return true;
 }
 
+const char* dsda_HereticReplaceMusicName(int music_index) {
+  if (S_music[music_index].name_rpl != NULL)
+  {
+    if (W_LumpNameExists(S_music[music_index].name_rpl))
+      return S_music[music_index].name_rpl;
+  }
+
+  return S_music[music_index].name;
+}
+
 int dsda_LegacyMusicIndexToLumpNum(int* lump, int music_index) {
   char name[9];
   const char* format;
+  const char* music_name;
 
   format = raven ? "%s" : "d_%s";
+  music_name = S_music[music_index].name;
+  
+  // Heretic reuses music lumps
+  // This allows lumps like "MUS_E4M1" to be used
+  if (heretic)
+    music_name = dsda_HereticReplaceMusicName(music_index, format);
 
-  snprintf(name, sizeof(name), format, S_music[music_index].name);
+  snprintf(name, sizeof(name), format, music_name);
 
   *lump = W_GetNumForName(name);
 
