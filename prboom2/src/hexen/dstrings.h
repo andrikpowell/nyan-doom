@@ -86,6 +86,24 @@
 #define TXT_ARTIPUZZGEAR       "CLOCK GEAR"
 #define TXT_USEPUZZLEFAILED    "YOU CANNOT USE THIS HERE"
 
+// Hexen Artifact Descriptions
+#define HEXEN_ARTI_DESC_A "Temporarily Grants Invulnerability" // Icon of the Defender
+#define HEXEN_ARTI_DESC_B "Heals 25% Health" // Quartz Flask
+#define HEXEN_ARTI_DESC_C "Heals 100% Health" // Mystic Urn
+#define HEXEN_ARTI_DESC_D "Buffs Nearby Players with Class-Based Effects" // Mystic Ambit Incant
+#define HEXEN_ARTI_DESC_E "Summons a Friendly Maulotaur to Aid You in Battle" // Dark Servant
+#define HEXEN_ARTI_DESC_F "Temporarily Lights Up the Surroundings" // Torch
+#define HEXEN_ARTI_DESC_G "Transforms Enemies Into Pigs" // Porkalator
+#define HEXEN_ARTI_DESC_H "Grants Flight for the Duration of the Current Hub" // Wings of Wrath
+#define HEXEN_ARTI_DESC_I "Blasts Away Nearby Objects with Great Force" // Disc of Repulsion
+#define HEXEN_ARTI_DESC_J "A Magical Bomb with Class-Based Effects" // Flechette
+#define HEXEN_ARTI_DESC_K "Teleports Enemies Away" // Banishment Device
+#define HEXEN_ARTI_DESC_L "Temporarily Increases Movement Speed" // Boots of Speed
+#define HEXEN_ARTI_DESC_M "Grants Full Mana" // Krater of Might
+#define HEXEN_ARTI_DESC_N "Boots Armor By Up to 4 ac" // Dragonskin Bracers
+#define HEXEN_ARTI_DESC_O "Instantly Teleport to the Start of the Map" // Chaos Device
+#define HEXEN_ARTI_DESC_PUZZLE "A Mysterious Artifact..." // Hexen Puzzle Descriptions
+
 #define TXT_ITEMHEALTH        "CRYSTAL VIAL"
 #define TXT_ITEMBAGOFHOLDING "BAG OF HOLDING"
 #define TXT_ITEMSHIELD1      "SILVER SHIELD"

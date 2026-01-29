@@ -182,6 +182,8 @@ set(COMMON_SRC
     dsda/hud_components/render_stats.h
     dsda/hud_components/announce_message.c
     dsda/hud_components/announce_message.h
+    dsda/hud_components/artifact_desc.c
+    dsda/hud_components/artifact_desc.h
     dsda/hud_components/secret_message.c
     dsda/hud_components/secret_message.h
     dsda/hud_components/sector_tracker.c

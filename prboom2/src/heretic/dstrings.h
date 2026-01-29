@@ -41,6 +41,19 @@
 #define HERETIC_TXT_ARTIFIREBOMB		"TIME BOMB OF THE ANCIENTS"
 #define HERETIC_TXT_ARTITELEPORT		"CHAOS DEVICE"
 
+// Artifact Descriptions
+
+#define HERETIC_ARTI_DESC_A	"Temporarily Grants Invulnerability" // Ring of Invincibility
+#define HERETIC_ARTI_DESC_B	"Temporarily Obscures Presence" // Shadowsphere
+#define HERETIC_ARTI_DESC_C	"Heals 25% Health" // Quartz Flask
+#define HERETIC_ARTI_DESC_D	"Heals 100% Health" // Mystic Urn
+#define HERETIC_ARTI_DESC_E	"Temporarily Buffs All Weapons" // Tome of Power
+#define HERETIC_ARTI_DESC_F	"Temporarily Lights Up the Surroundings" // Torch
+#define HERETIC_ARTI_DESC_G	"A Magical Bomb That Explodes After a Few Seconds" // Time Bomb of the Ancients
+#define HERETIC_ARTI_DESC_H	"Transforms Enemies Into Chickens" // Morph Ovum
+#define HERETIC_ARTI_DESC_I	"Temporarily Grants Flight" // Wings of Wrath
+#define HERETIC_ARTI_DESC_J	"Instantly Teleport to the Start of the Map" // Chaos Device
+
 // Items
 
 #define HERETIC_TXT_ITEMHEALTH			"CRYSTAL VIAL"

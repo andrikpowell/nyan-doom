@@ -34,6 +34,7 @@ message 0 1 top 1
 announce_message 0 14 none
 secret_message 0 76 none
 add_offset 1 top_left
+artifact_desc 0 12 bottom 1
 
 hexen ex
 stat_totals 2 8 bottom_left 1 0 0
@@ -52,6 +53,7 @@ message 0 1 top 1
 announce_message 0 14 none
 secret_message 0 76 none
 add_offset 1 top_left
+artifact_desc 0 12 bottom 1
 
 doom off
 status_widget 2 56 bottom_left
@@ -152,6 +154,7 @@ message 0 1 top 1
 announce_message 0 14 none
 secret_message 0 76 none
 add_offset 1 top_left
+artifact_desc 0 36 bottom 1
 
 hexen full
 ready_ammo_text 2 8 bottom_left
@@ -178,6 +181,7 @@ message 0 1 top 1
 announce_message 0 14 none
 secret_message 0 76 none
 add_offset 1 top_left
+artifact_desc 0 36 bottom 1
 
 doom map
 map_totals 2 8 top_left
@@ -196,6 +200,7 @@ map_title 20 16 bottom_left
 message 0 1 top 1
 announce_message 0 14 none
 secret_message 0 76 none
+artifact_desc 0 12 bottom 1
 
 hexen map
 map_totals 2 8 top_left 1 0 0
@@ -205,3 +210,4 @@ map_title 24 20 bottom_left
 message 0 1 top 1
 announce_message 0 14 none
 secret_message 0 76 none
+artifact_desc 0 12 bottom 1

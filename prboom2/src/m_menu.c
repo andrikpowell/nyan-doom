@@ -2278,7 +2278,8 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
   if (!raven)
   {
     int options[] =
-    { dsda_config_hide_horns, dsda_config_skill_auto_use_health
+    { dsda_config_hide_horns, dsda_config_skill_auto_use_health,
+      dsda_config_artifact_descriptions
     };
 
     for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
@@ -4462,7 +4463,8 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
 };
 
 static const char* announce_map_list[] = { "Off", "On", "Subtle", NULL };
-static const char* secretarea_list[] = { "Off", "On", "Subtle", NULL };  
+static const char* secretarea_list[] = { "Off", "On", "Subtle", NULL };
+static const char* artifact_desc_list[] = { "Off", "Full", "Names", "Descriptions", NULL };
 
 setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
@@ -4471,6 +4473,7 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   { "Report Revealed Secrets", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
   { "Announce Map On Entry", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_announce_map, 0, announce_map_list },
   { "Detailed Quicksave Msg", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_detailed_quicksave },
+  { "Artifact Descriptions", S_CHOICE, m_conf, G_X, dsda_config_artifact_descriptions, 0, artifact_desc_list },
   FUNC("Obituaries", S_CENTER | S_NYAN, G_X, M_Sub_Obituary),
   EMPTY_LINE,
   FUNC("Ex-Hud", S_CENTER | S_NYAN, G_X, M_Sub_ExHud),

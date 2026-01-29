@@ -31,6 +31,8 @@
 #include "dsda/stretch.h"
 
 #include "heretic/def.h"
+#include "heretic/hhe/strings.h"
+#include "hexen/dstrings.h"
 
 #include "sb_bar.h"
 
@@ -920,6 +922,120 @@ void DrawArtifact(int x, int y, int vpt)
         DrSmallNumberVPT(inv->count, x + delta_x, y + delta_y, vpt);
     }
   }
+}
+
+//---------------------------------------------------------------------------
+//
+// Set Inventory Descriptions
+//
+//---------------------------------------------------------------------------
+
+typedef struct {
+    const char* const* name;  // points to a const char* variable
+    const char* desc;
+} raven_namearti_t;
+
+const char* s_blank = "";
+
+static raven_namearti_t heretic_namearti_help[11] = {
+    {&s_blank, ""},                                              // none
+    {&s_HERETIC_TXT_ARTIINVULNERABILITY,   HERETIC_ARTI_DESC_A}, // invulnerability
+    {&s_HERETIC_TXT_ARTIINVISIBILITY,      HERETIC_ARTI_DESC_B}, // invisibility
+    {&s_HERETIC_TXT_ARTIHEALTH,            HERETIC_ARTI_DESC_C}, // health
+    {&s_HERETIC_TXT_ARTISUPERHEALTH,       HERETIC_ARTI_DESC_D}, // superhealth
+    {&s_HERETIC_TXT_ARTITOMEOFPOWER,       HERETIC_ARTI_DESC_E}, // tomeofpower
+    {&s_HERETIC_TXT_ARTITORCH,             HERETIC_ARTI_DESC_F}, // torch
+    {&s_HERETIC_TXT_ARTIFIREBOMB,          HERETIC_ARTI_DESC_G}, // timebomb
+    {&s_HERETIC_TXT_ARTIEGG,               HERETIC_ARTI_DESC_H}, // charm
+    {&s_HERETIC_TXT_ARTIFLY,               HERETIC_ARTI_DESC_I}, // fly
+    {&s_HERETIC_TXT_ARTITELEPORT,          HERETIC_ARTI_DESC_J}, // teleport
+};
+
+static raven_namearti_t hexen_namearti_help[33] = {
+    {&s_blank, ""},                                    // none
+    {&s_TXT_ARTIINVULNERABILITY,   HEXEN_ARTI_DESC_A}, // invulnerability
+    {&s_TXT_ARTIHEALTH,            HEXEN_ARTI_DESC_B}, // health
+    {&s_TXT_ARTISUPERHEALTH,       HEXEN_ARTI_DESC_C}, // superhealth
+    {&s_TXT_ARTIHEALINGRADIUS,     HEXEN_ARTI_DESC_D}, // healing radius
+    {&s_TXT_ARTISUMMON,            HEXEN_ARTI_DESC_E}, // summon maulator
+    {&s_TXT_ARTITORCH,             HEXEN_ARTI_DESC_F}, // torch
+    {&s_TXT_ARTIEGG,               HEXEN_ARTI_DESC_G}, // egg
+    {&s_TXT_ARTIFLY,               HEXEN_ARTI_DESC_H}, // fly
+    {&s_TXT_ARTIBLASTRADIUS,       HEXEN_ARTI_DESC_I}, // blast radius
+    {&s_TXT_ARTIPOISONBAG,         HEXEN_ARTI_DESC_J}, // poison bag
+    {&s_TXT_ARTITELEPORTOTHER,     HEXEN_ARTI_DESC_K}, // teleport other
+    {&s_TXT_ARTISPEED,             HEXEN_ARTI_DESC_L}, // speed
+    {&s_TXT_ARTIBOOSTMANA,         HEXEN_ARTI_DESC_M}, // boost mana
+    {&s_TXT_ARTIBOOSTARMOR,        HEXEN_ARTI_DESC_N}, // boost armor
+    {&s_TXT_ARTITELEPORT,          HEXEN_ARTI_DESC_O}, // teleport
+
+    // Puzzle Items
+    {&s_TXT_ARTIPUZZSKULL,         HEXEN_ARTI_DESC_PUZZLE}, // Yorik's Skull
+    {&s_TXT_ARTIPUZZGEMBIG,        HEXEN_ARTI_DESC_PUZZLE}, // Heart of D'Sparil
+    {&s_TXT_ARTIPUZZGEMRED,        HEXEN_ARTI_DESC_PUZZLE}, // Red Planet
+    {&s_TXT_ARTIPUZZGEMGREEN1,     HEXEN_ARTI_DESC_PUZZLE}, // Green Planet
+    {&s_TXT_ARTIPUZZGEMGREEN2,     HEXEN_ARTI_DESC_PUZZLE}, // Green Planet 2
+    {&s_TXT_ARTIPUZZGEMBLUE1,      HEXEN_ARTI_DESC_PUZZLE}, // Blue Planet
+    {&s_TXT_ARTIPUZZGEMBLUE2,      HEXEN_ARTI_DESC_PUZZLE}, // Blue Planet 2
+    {&s_TXT_ARTIPUZZBOOK1,         HEXEN_ARTI_DESC_PUZZLE}, // "Daemon Codex" Book
+    {&s_TXT_ARTIPUZZBOOK2,         HEXEN_ARTI_DESC_PUZZLE}, // "Liber Oscura" Book
+    {&s_TXT_ARTIPUZZSKULL2,        HEXEN_ARTI_DESC_PUZZLE}, // Flame Mask
+    {&s_TXT_ARTIPUZZFWEAPON,       HEXEN_ARTI_DESC_PUZZLE}, // Glaive Seal
+    {&s_TXT_ARTIPUZZCWEAPON,       HEXEN_ARTI_DESC_PUZZLE}, // Holy Relic
+    {&s_TXT_ARTIPUZZMWEAPON,       HEXEN_ARTI_DESC_PUZZLE}, // Sigil of the Magus
+    {&s_TXT_ARTIPUZZGEAR,          HEXEN_ARTI_DESC_PUZZLE}, // Clock Gear
+    {&s_TXT_ARTIPUZZGEAR,          HEXEN_ARTI_DESC_PUZZLE}, // Clock Gear 2
+    {&s_TXT_ARTIPUZZGEAR,          HEXEN_ARTI_DESC_PUZZLE}, // Clock Gear 3
+    {&s_TXT_ARTIPUZZGEAR,          HEXEN_ARTI_DESC_PUZZLE}, // Clock Gear 4
+};
+
+typedef enum
+{
+  artifact_name,
+  artifact_desc,
+
+  artifact_end
+} raven_namearti_type_t;
+
+const char* dsda_InventoryString(raven_namearti_type_t type)
+{
+    inventory_t* inv;
+    static raven_namearti_t* namearti_help;
+    int artifact_shown = false;
+    int config;
+
+    // If Doom, return empty string
+    if (!raven) return "";
+
+    // Check config
+    config = dsda_IntConfig(dsda_config_artifact_descriptions);
+    artifact_shown =
+        (config == 1) ||                           // Show Both
+        (config == 2 && type == artifact_name) ||  // Show Name
+        (config == 3 && type == artifact_desc) ;   // Show Description
+
+    // Set artifact list
+    if (hexen) namearti_help = hexen_namearti_help;
+    else namearti_help = heretic_namearti_help;
+
+    // Get Description
+    if (inventory && artifact_shown)
+    {
+        inv = &players[displayplayer].inventory[CPlayer->inv_ptr];
+        if (inv->type > 0)
+        {
+            if (type == artifact_name) return *namearti_help[inv->type].name; // Name
+            if (type == artifact_desc) return  namearti_help[inv->type].desc; // Description
+        }
+    }
+    
+    return "";
+}
+
+void dsda_GetInventoryDescription(const char** name, const char** desc)
+{
+    *name = dsda_InventoryString(artifact_name);
+    *desc = dsda_InventoryString(artifact_desc);
 }
 
 // hexen

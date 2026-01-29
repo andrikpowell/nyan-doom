@@ -49,6 +49,7 @@
 #include "hud_components/ready_ammo_text.h"
 #include "hud_components/render_stats.h"
 #include "hud_components/announce_message.h"
+#include "hud_components/artifact_desc.h"
 #include "hud_components/secret_message.h"
 #include "hud_components/speed_text.h"
 #include "hud_components/stat_totals.h"

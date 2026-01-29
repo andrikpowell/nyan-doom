@@ -83,6 +83,7 @@ typedef enum {
   exhud_level_splits,
   exhud_color_test,
   exhud_free_text,
+  exhud_artifact_desc,
   exhud_message,
   exhud_announce_message,
   exhud_secret_message,
@@ -324,6 +325,12 @@ exhud_component_t components_template[exhud_component_count] = {
     dsda_DrawFreeTextHC,
     "free_text",
     .default_vpt = VPT_EX_TEXT | VPT_EX_TRANS,
+  },
+  [exhud_artifact_desc] = {
+    dsda_InitArtifactDescHC,
+    dsda_UpdateArtifactDescHC,
+    dsda_DrawArtifactDescHC,
+    "artifact_desc",
   },
   [exhud_message] = {
     dsda_InitMessageHC,

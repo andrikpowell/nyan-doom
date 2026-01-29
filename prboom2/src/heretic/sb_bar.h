@@ -38,6 +38,8 @@ void SB_Ticker(void);
 void SB_Drawer(dboolean statusbaron);
 void SB_PaletteFlash(dboolean forceChange);
 
+void dsda_GetInventoryDescription(const char** name, const char** desc);
+
 // hexen
 
 void SB_SetClassData(void);
