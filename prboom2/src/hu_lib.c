@@ -42,6 +42,7 @@
 
 #include "dsda/configuration.h"
 #include "dsda/stretch.h"
+#include "dsda/hud_components/base.h"
 
 #define HU_COLOR 0x30
 
@@ -390,6 +391,29 @@ static void HUlib_AutoEllipsisSingleLine(hu_textline_t *l, const patchnum_t *fon
   HUlib_AppendEllipsis(l, font, max_px, true);
 }
 
+static void HUlib_ForceNextLine(const hu_textline_t* l, int *i, int *x, int *y)
+{
+  // Find newline
+  while (*i < l->len && l->l[*i] != '\n')
+    (*i)++;
+
+  if (*i < l->len && l->l[*i] == '\n')
+  {
+    // Consume newline and move pen exactly once
+    (*i)++;                 // now points to first char of next line
+    *x = l->x;
+    *y += l->line_height;
+
+    // Compensate for the for-loop's i++
+    (*i)--;
+  }
+  else
+  {
+    // No newline ahead; nothing else to draw
+    *i = l->len;
+  }
+}
+
 ////////////////////////////////////////////////////////
 //
 // draw text line
@@ -461,7 +485,13 @@ void HUlib_drawTextLine
     {
       w = font[c - l->sc].width + l->kerning;
       if (x+w-font[c - l->sc].leftoffset > right)
-        break;
+      {
+        if (memchr(l->l, '\n', l->len)) { // multi-line
+          HUlib_ForceNextLine(l, &i, &x, &y);
+          continue;
+        }
+        break; // single-line
+      }
       // killough 1/18/98 -- support multiple lines:
       // CPhipps - patch drawing updated
       if (shadow)
@@ -474,7 +504,13 @@ void HUlib_drawTextLine
     {
       x += l->space_width;
       if (x >= right)
-      break;
+      {
+        if (memchr(l->l, '\n', l->len)) { // multi-line
+          HUlib_ForceNextLine(l, &i, &x, &y);
+          continue;
+        }
+        break; // single-line
+      }
     }
   }
   l->cm = oc; //jff 2/17/98 restore original color
@@ -569,6 +605,38 @@ static int HUlib_LineWidthRaw(const hu_textline_t* l, const char* s)
 
   if (!any) return 0;
   return maxx - minx;
+}
+
+int HUlib_CountRenderedLines(const hu_textline_t *t)
+{
+  if (!t || t->len <= 0) return 0;
+
+  int lines = 1;
+  for (int i = 0; i < t->len; ++i)
+    if (t->l[i] == '\n')
+      ++lines;
+
+  // If the buffer ends with '\n', the last "line" is empty (not drawn)
+  if (t->len > 0 && t->l[t->len - 1] == '\n')
+    --lines;
+
+  if (lines < 1) lines = 1;
+  return lines;
+}
+
+void HUlib_AdjustBottomOffset_MultiLine(hu_textline_t *t, int y_offset, double ratio, int vpt)
+{
+  int lines;
+
+  // Extra guard, cuz why not
+  if (!BOTTOM_ALIGNMENT(t->flags & VPT_ALIGN_MASK))
+    return;
+
+  lines = HUlib_CountRenderedLines(t);
+  if (lines < 1) lines = 1;
+
+  // Alter Y coordinate from the original offset each update
+  t->y = dsda_HudComponentY(y_offset, vpt, ratio) - (lines - 1) * t->line_height;
 }
 
 //

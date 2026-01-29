@@ -22,6 +22,9 @@
 typedef struct {
   dsda_text_t component;
   dboolean center;
+  int y_offset;
+  int vpt;
+  double ratio;
 } local_component_t;
 
 static local_component_t* local;
@@ -107,6 +110,10 @@ void dsda_InitAnnounceMessageHC(int x_offset, int y_offset, int vpt, int* args, 
   local->center = arg_count > 0 ? !!args[0] : true;
 
   dsda_InitBlockyHC(&local->component, x_offset, y_offset, vpt);
+
+  local->vpt = vpt;
+  local->y_offset = y_offset;
+  local->ratio = (hud_font.line_height != 8) ? (double)hud_font.line_height / 8.0 : 0.0;
 }
 
 void dsda_UpdateAnnounceMessageHC(void* data) {
@@ -117,6 +124,10 @@ void dsda_UpdateAnnounceMessageHC(void* data) {
 
   if (local->center)
     HUlib_setTextXCenter(&local->component.text);
+
+  // Adjust y-offset for multi-line if bottom-aligned
+  if (BOTTOM_ALIGNMENT(local->component.text.flags & VPT_ALIGN_MASK))
+    HUlib_AdjustBottomOffset_MultiLine(&local->component.text, local->y_offset, local->ratio, local->vpt);
 }
 
 void dsda_DrawAnnounceMessageHC(void* data) {
