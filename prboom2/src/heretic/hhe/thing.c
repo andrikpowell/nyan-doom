@@ -301,18 +301,20 @@ static int HHE_TranslateState(int s)
 // Gotta translate certain states for Heretic :)
 static void setHereticMobjInfoValue(int mobjInfoIndex, int keyIndex, uint64_t value) {
   mobjinfo_t *mi;
+  int shifted_value;
   if (mobjInfoIndex >= num_mobj_types || mobjInfoIndex < 0) return;
   mi = &mobjinfo[mobjInfoIndex];
+  shifted_value = HHE_TranslateState((int)value);
   switch (keyIndex) {
     // we must translate state number based on HHE version :(
-    case HHE_MOBJINFO_SPAWNSTATE:   mi->spawnstate = HHE_TranslateState((int)value); return;
-    case HHE_MOBJINFO_SEESTATE:     mi->seestate = HHE_TranslateState((int)value); return;
-    case HHE_MOBJINFO_PAINSTATE:    mi->painstate = HHE_TranslateState((int)value); return;
-    case HHE_MOBJINFO_MELEESTATE:   mi->meleestate = HHE_TranslateState((int)value); return;
-    case HHE_MOBJINFO_MISSILESTATE: mi->missilestate = HHE_TranslateState((int)value); return;
-    case HHE_MOBJINFO_CRASHSTATE:   mi->crashstate = HHE_TranslateState((int)value); return;
-    case HHE_MOBJINFO_DEATHSTATE:   mi->deathstate = HHE_TranslateState((int)value); return;
-    case HHE_MOBJINFO_XDEATHSTATE:  mi->xdeathstate = HHE_TranslateState((int)value); return;
+    case HHE_MOBJINFO_SPAWNSTATE:   mi->spawnstate = shifted_value; return;
+    case HHE_MOBJINFO_SEESTATE:     mi->seestate = shifted_value; return;
+    case HHE_MOBJINFO_PAINSTATE:    mi->painstate = shifted_value; return;
+    case HHE_MOBJINFO_MELEESTATE:   mi->meleestate = shifted_value; return;
+    case HHE_MOBJINFO_MISSILESTATE: mi->missilestate = shifted_value; return;
+    case HHE_MOBJINFO_CRASHSTATE:   mi->crashstate = shifted_value; return;
+    case HHE_MOBJINFO_DEATHSTATE:   mi->deathstate = shifted_value; return;
+    case HHE_MOBJINFO_XDEATHSTATE:  mi->xdeathstate = shifted_value; return;
 
     // Rest of the normal stuff
     case HHE_MOBJINFO_DOOMEDNUM:    mi->doomednum = (int)value; return;
