@@ -381,13 +381,14 @@ void HU_Start(void)
 {
   HU_InitThresholds();
   HU_InitPlayer();
-  dsda_InitObituaries();
+  HU_InitColorStrings();
   HU_InitMessages();
   HU_FetchTitle();
   HU_FetchAuthor();
   HU_InitCrosshair();
 
   dsda_InitExHud();
+  dsda_InitObituaries();
 
   HU_AnnounceMap();
 }

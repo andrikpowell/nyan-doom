@@ -103,6 +103,7 @@ dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean c
 
 char HUlib_Color(int cm);
 char *HU_ColorFromConfig(int config);
-char *HU_ColorFromValue(int value);
+char *HU_ColorFromValue(int cm);
+extern void HU_InitColorStrings(void);
 
 #endif

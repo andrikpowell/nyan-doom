@@ -50,26 +50,30 @@ char HUlib_Color(int cm)
   return HU_COLOR + cm;
 }
 
-char* HU_ColorFromConfig(int config)
+static char hu_color_str[CR_LIMIT][3];
+
+void HU_InitColorStrings(void)
 {
-  static char buf[3];
-
-  int cm = dsda_IntConfig(config);
-
-  buf[0] = '\x1b';
-  buf[1] = HUlib_Color(cm);
-  buf[2] = '\0';
-  return buf;
+  int i;
+  for (i = 0; i < CR_HUD_LIMIT; i++)
+  {
+    hu_color_str[i][0] = '\x1b';
+    hu_color_str[i][1] = HUlib_Color(i); // HU_COLOR + i
+    hu_color_str[i][2] = '\0';
+  }
 }
 
-char* HU_ColorFromValue(int value)
+char* HU_ColorFromConfig(int config)
 {
-  static char buf[3];
+  int cm = dsda_IntConfig(config);
+  if (cm >= CR_HUD_LIMIT) cm = CR_HUD_LIMIT - 1;
+  return hu_color_str[cm];
+}
 
-  buf[0] = '\x1b';
-  buf[1] = HUlib_Color(value);
-  buf[2] = '\0';
-  return buf;
+char* HU_ColorFromValue(int cm)
+{
+  if (cm >= CR_HUD_LIMIT) cm = CR_HUD_LIMIT - 1;
+  return hu_color_str[cm];
 }
 
 ////////////////////////////////////////////////////////
