@@ -57,7 +57,6 @@ void G_BeginRecording(void);
 void G_ExitLevel(int position);
 void G_SecretExitLevel(int position);
 void G_WorldDone(void);
-void G_EndGame(void); /* cph - make m_menu.c call a G_* function for this */
 void G_Ticker(void);
 void G_ReloadDefaults(void);     // killough 3/1/98: loads game defaults
 void G_RefreshFastMonsters(void); // killough 4/10/98: sets -fast parameters
@@ -73,11 +72,9 @@ const byte *G_ReadOptions(const byte *demo_p);   /* killough 3/1/98 - cph: const
 byte *G_WriteOptions(byte *demo_p);        // killough 3/1/98
 void G_PlayerReborn(int player);
 void G_RestartWithLoadout(int skill);
-void G_DoVictory(void);
 void G_BuildTiccmd (ticcmd_t* cmd); // CPhipps - move decl to header
 void G_ReadOneTick(ticcmd_t* cmd, const byte **data_p);
 void G_ChangedPlayerColour(int pn, int cl); // CPhipps - On-the-fly player colour changing
-void G_MakeSpecialEvent(buttoncode_t bc, ...); /* cph - new event stuff */
 int G_ValidateMapName(const char *mapname, int *pEpi, int *pMap);
 
 // Exhud Target Health Widget
@@ -91,7 +88,6 @@ void G_SetSpeed(dboolean force);
 #define RDH_SAFE 0x00000001
 #define RDH_SKIP_HEADER 0x00000002
 const byte* G_ReadDemoHeaderEx(const byte* demo_p, size_t size, unsigned int params);
-void G_CalculateDemoParams(const byte *demo_p);
 
 // killough 1/18/98: Doom-style printf;   killough 4/25/98: add gcc attributes
 // CPhipps - renames to doom_printf to avoid name collision with glibc

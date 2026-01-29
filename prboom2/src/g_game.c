@@ -69,7 +69,6 @@
 #include "w_wad.h"
 #include "r_main.h"
 #include "r_draw.h"
-#include "p_map.h"
 #include "s_sound.h"
 #include "s_advsound.h"
 #include "s_random.h"
@@ -107,7 +106,6 @@
 #include "dsda/settings.h"
 #include "dsda/input.h"
 #include "dsda/map_format.h"
-#include "dsda/mapinfo.h"
 #include "dsda/mouse.h"
 #include "dsda/options.h"
 #include "dsda/pause.h"
@@ -1889,8 +1887,6 @@ static void G_PlayerFinishLevel(int player)
 // Player colours stuff
 //
 // G_SetPlayerColour
-
-#include "r_draw.h"
 
 void G_ChangedPlayerColour(int pn, int cl)
 {
