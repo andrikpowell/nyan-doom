@@ -847,12 +847,45 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 
 static mobj_t *ActiveMinotaur(player_t * master);
 
+static int P_CheckGibDeath(mobj_t *source, mobj_t *target, method_t mod)
+{
+  // if triggered from suicide cheat
+  if (mod == MOD_Nyan_Suicide)
+    return true;
+
+  // if receiving damage is -100 (player health)
+  else if (target->player && source && target->health < -target->info->spawnhealth/2)
+  {
+    angle_t rear_attack_angle;
+    dboolean attack_from_behind;
+
+    // This condition here avoids the player being able to trigger this death
+    // I wasn't able to recreate this, but this can't hurt :)
+    if (source == target || (source->player && source->player == target->player))
+      return false;
+
+    // if attacked from behind by the enemy
+    rear_attack_angle = R_PointToAngle2(target->x, target->y, source->x, source->y) - target->angle;
+    attack_from_behind = (rear_attack_angle > (unsigned)(ANG180 - ANG45) && rear_attack_angle < (unsigned)(ANG180 + ANG45));
+    return attack_from_behind;
+  }
+
+  return false;
+}
+
 // killough 11/98: make static
 static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method_t mod)
 {
   mobjtype_t item;
   mobj_t     *mo;
   int xdeath_limit;
+  dboolean gibdeath = false;
+
+  // This is a very specific easter egg
+  // that requires that the player gets killed from an enemy behind them
+  // with a total damage of -100
+  if (!raven && allow_incompatibility)
+    gibdeath = P_CheckGibDeath(source, target, mod);
 
   target->flags &= ~(MF_SHOOTABLE|MF_FLOAT|MF_SKULLFLY);
 
@@ -1178,11 +1211,18 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
   }
   else
   {
-    xdeath_limit = heretic ? (P_MobjSpawnHealth(target) >> 1) : P_MobjSpawnHealth(target);
-    if (target->health < -xdeath_limit && target->info->xdeathstate)
-      P_SetMobjState (target, target->info->xdeathstate);
+    if (gibdeath)
+    {
+      P_SetMobjState (target, S_PLAY_GDIE1);
+    }
     else
-      P_SetMobjState (target, target->info->deathstate);
+    {
+      xdeath_limit = heretic ? (P_MobjSpawnHealth(target) >> 1) : P_MobjSpawnHealth(target);
+      if (target->health < -xdeath_limit && target->info->xdeathstate)
+        P_SetMobjState (target, target->info->xdeathstate);
+      else
+        P_SetMobjState (target, target->info->deathstate);
+    }
   }
 
   target->tics -= P_Random(pr_killtics)&3;
@@ -1238,7 +1278,7 @@ static dboolean P_InfightingImmune(mobj_t *target, mobj_t *source)
 
 static dboolean P_MorphMonster(mobj_t * actor);
 
-void P_DamageMobjBy(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage, method_t mod)
+void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage, method_t mod)
 {
   player_t *player;
   dboolean justhit = false;          /* killough 11/98 */

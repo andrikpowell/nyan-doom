@@ -397,6 +397,7 @@ typedef enum {
 
   //e6y
   sfx_secret,
+  sfx_gibdth,
   
   // Nyan sfx
   sfx_idnut,

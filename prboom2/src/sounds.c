@@ -256,6 +256,7 @@ sfxinfo_t doom_S_sfx[] = {
 
   //e6y
   { "dssecret", 60, 0, -1, 0, 0, 0, "" },
+  { "dsgibdth", 60, 0, -1, 0, 0, 0, "" },
   
   // Nyan
   { "dsnyanut", 60, 0, -1, 0, 0, 0, "" },
@@ -786,4 +787,6 @@ sfxinfo_t doom_disambiguated_sfx[] = {
   DISAMBIGUATED_SFX(sfx_dgpain, "dog/pain"),
 
   DISAMBIGUATED_SFX(sfx_secret, "misc/secret"),
+
+  DISAMBIGUATED_SFX(sfx_gibdth, "misc/gibdth"),
 };

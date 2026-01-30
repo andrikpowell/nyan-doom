@@ -455,7 +455,7 @@ static void cheat_god_raven(void)
 
 static void cheat_suicide()
 {
-  P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
+  P_DamageMobjBy(plyr->mo, NULL, plyr->mo, 10000, MOD_Nyan_Suicide);
   dsda_AddMessage("Fuck my life");
 }
 

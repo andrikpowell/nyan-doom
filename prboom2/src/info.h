@@ -1685,6 +1685,16 @@ typedef enum
 
   S_MUSHROOM,  /* killough 10/98: mushroom explosion effect */
 
+  S_PLAY_GDIE1,  /* Player Gib Death */
+  S_PLAY_GDIE2,
+  S_PLAY_GDIE3,
+  S_PLAY_GDIE4,
+  S_PLAY_GDIE5,
+  S_PLAY_GDIE6,
+  S_PLAY_GDIE7,
+  S_PLAY_GDIE8,
+  S_PLAY_GDIE9,
+
   DOOM_NUMSTATES,
 
   // heretic
@@ -5924,6 +5934,7 @@ typedef enum {
   MT_BIBLE,   // killough 7/11/98: unholy bible in beta version
 
   MT_MUSICSOURCE, /* MUSINFO lump */
+  MT_GIBDTH, /* Player Gib Death */
 
   DOOM_NUMMOBJTYPES,
 

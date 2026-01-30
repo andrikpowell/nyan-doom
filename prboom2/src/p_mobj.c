@@ -1059,7 +1059,7 @@ floater:
       return;
     }
   }
-  else if (mo->flags2 & MF2_LOGRAV)
+  else if (mo->flags2 & MF2_LOGRAV || (!raven && mo->type == g_skullpop_mt))
   {
     if (mo->momz == 0)
       mo->momz = -(gravity >> 3) * 2;

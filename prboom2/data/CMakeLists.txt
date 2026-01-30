@@ -102,6 +102,7 @@ set(SOUNDS
     sounds/dsdgdth.wav
     sounds/dsdgpain.wav
     sounds/dssecret.wav
+    sounds/dsgibdth.wav
     sounds/dsnyanut.wav
 )
 
