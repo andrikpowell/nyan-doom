@@ -93,6 +93,7 @@
 #include "dsda/features.h"
 #include "dsda/global.h"
 #include "dsda/save.h"
+#include "dsda/stretch.h"
 #include "dsda/data_organizer.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
@@ -342,24 +343,28 @@ extern dboolean setsizeneeded;
 
 static void D_DrawPause(void)
 {
+  stretch_param_t *params;
+  int viewwindowy_scaled;
+
   if (dsda_PauseMode(PAUSE_BUILDMODE))
     return;
 
+  params = dsda_StretchParams(VPT_STRETCH);
+  viewwindowy_scaled = (viewwindowy - params->deltay1) * 200.0f / params->video->height;
+
   V_BeginUIDraw();
 
-  if (hexen)
+  if (raven)
   {
     if (!netgame)
     {
-      V_DrawNamePatch(160, viewwindowy + 5, "PAUSED", CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatch(160, viewwindowy_scaled + 5, "PAUSED", CR_DEFAULT, VPT_STRETCH);
     }
     else
     {
       V_DrawNamePatch(160, 70, "PAUSED", CR_DEFAULT, VPT_STRETCH);
     }
   }
-  else if (heretic)
-    MN_DrawPause();
   else
     V_DrawNamePatch((320 - V_NamePatchWidth("M_PAUSE")) / 2, 4, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
 
