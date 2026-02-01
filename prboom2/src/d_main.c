@@ -366,7 +366,7 @@ static void D_DrawPause(void)
     }
   }
   else
-    V_DrawNamePatch((320 - V_NamePatchWidth("M_PAUSE")) / 2, 4, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatch((320 - V_NamePatchWidth("M_PAUSE")) / 2, viewwindowy_scaled + 4, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
 
   V_EndUIDraw();
 }
