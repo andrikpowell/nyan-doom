@@ -71,7 +71,7 @@ static void R_FLUSHWHOLE_FUNCNAME(void)
       yl = tempyl[temp_x - 1];
       yh = tempyh[temp_x - 1];
 
-      count = yh - yl + 1;
+      count = yh - yl;
 
       if (count < 0)
       {
@@ -85,56 +85,66 @@ static void R_FLUSHWHOLE_FUNCNAME(void)
       }
    #endif
       {
-      byte *dest = drawvars.topleft + yl * drawvars.pitch + startx + temp_x - FUZZCELLSIZE;
+         byte *dest = drawvars.topleft + yl * drawvars.pitch + startx + temp_x - FUZZCELLSIZE;
 
-      int lines = FUZZCELLSIZE - (yl % FUZZCELLSIZE);
-      static int dark, offset;
-
-      if (REFRACTION_FUZZ)
-      {
-         dark = FUZZDARK;
-         offset = 0;
-      }
-
-      ++count;
-
-      do
-      {
-         int mask;
-         const byte fuzz = REFRACTION_FUZZ ?
-               fullcolormap[dark + dest[offset]] :
-               fullcolormap[6 * 256 + dest[fuzzoffset[FUZZPOS]]];
-
-         count -= lines;
-
-         // if (count < 0)
-         // {
-         //    lines += count;
-         //    count = 0;
-         // }
-         mask = count >> (8 * sizeof(mask) - 1);
-         lines += count & mask;
-         count &= ~mask;
-
-         do
-         {
-               memset(dest, fuzz, FUZZCELLSIZE);
-               dest += drawvars.pitch;
-         } while (--lines);
-
-         ++FUZZPOS;
-
-         // Clamp table lookup index.
-         FUZZPOS &= (FUZZPOS - FUZZTABLE) >> (8 * sizeof(FUZZPOS) - 1); // killough 1/99
+         int lines = FUZZCELLSIZE - (yl % FUZZCELLSIZE);
+         static int dark, offset;
 
          if (REFRACTION_FUZZ)
          {
-            dark = fuzzdark[FUZZPOS];
-            offset = fuzzoffset[FUZZPOS];
+            dark = FUZZDARK;
+            offset = 0;
          }
 
-         lines = FUZZCELLSIZE;
-      } while (count);
+         ++count;
+
+         do
+         {
+            int mask;
+            const byte fuzz = REFRACTION_FUZZ ?
+                  fullcolormap[dark + dest[offset]] :
+                  fullcolormap[6 * 256 + dest[fuzzoffset[FUZZPOS]]];
+
+            count -= lines;
+
+            // if (count < 0)
+            // {
+            //    lines += count;
+            //    count = 0;
+            // }
+            mask = count >> (8 * sizeof(mask) - 1);
+            lines += count & mask;
+            count &= ~mask;
+
+            do
+            {
+                  memset(dest, fuzz, FUZZCELLSIZE);
+                  dest += drawvars.pitch;
+            } while (--lines);
+
+            ++FUZZPOS;
+
+            // Clamp table lookup index.
+            FUZZPOS &= (FUZZPOS - FUZZTABLE) >> (8 * sizeof(FUZZPOS) - 1); // killough 1/99
+
+            if (REFRACTION_FUZZ)
+            {
+               dark = fuzzdark[FUZZPOS];
+               offset = fuzzoffset[FUZZPOS];
+            }
+
+            lines = FUZZCELLSIZE;
+         } while (count);
+
+         // [crispy] if the line at the bottom had to be cut off,
+         // draw one extra line using only pixels of that line and the one above
+         if (fuzz_cutoff)
+         {
+            const byte fuzz = REFRACTION_FUZZ ?
+               fullcolormap[dark + dest[(offset - drawvars.pitch) / 2]] :
+               fullcolormap[6 * 256 + dest[(fuzzoffset[FUZZPOS] - drawvars.pitch) / 2]];
+            memset(dest, fuzz, FUZZCELLSIZE);
+         }
       }
    }
    else if (SHADOW_FUZZ)

@@ -167,6 +167,7 @@ void R_CheckFuzzCol(int x, int height);
 extern int fuzzcellsize;
 extern int min_fuzzcellsize;
 extern int scaled_fuzzcellsize;
+extern int fuzz_cutoff;
 
 extern void R_UpdateFuzzSize(void);
 

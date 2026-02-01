@@ -148,6 +148,7 @@ static int scaledfuzzpos = 0;
 int fuzzcellsize;
 int min_fuzzcellsize;
 int scaled_fuzzcellsize;
+int fuzz_cutoff = false;
 
 // render pipelines
 #define RDC_STANDARD      1
