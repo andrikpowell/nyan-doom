@@ -748,6 +748,7 @@ void MN_DrawSave(void)
     M_DrawDelVerify();
 }
 
+// Heretic has a "PAUSED" graphic... Why does this exist :/
 void MN_DrawPause(void)
 {
   const char *title;
