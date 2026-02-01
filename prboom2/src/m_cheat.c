@@ -418,10 +418,10 @@ void M_CheatGod(void)
       plyr->mo->health = god_health;  // Ty 03/09/98 - deh
 
     plyr->health = god_health;
-    dsda_AddMessage(s_STSTR_DQDON);
+    dsda_AddMessage(raven ? s_HERETIC_TXT_CHEATGODON : s_STSTR_DQDON);
   }
   else
-    dsda_AddMessage(s_STSTR_DQDOFF);
+    dsda_AddMessage(raven ? s_HERETIC_TXT_CHEATGODOFF : s_STSTR_DQDOFF);
 }
 
 int hexen_suicide_seq = 0;
@@ -623,7 +623,9 @@ static void cheat_kfa()
 
 void M_CheatNoClip(void)
 {
-  dsda_AddMessage((plyr->cheats ^= CF_NOCLIP) & CF_NOCLIP ? s_STSTR_NCON : s_STSTR_NCOFF);
+  const char *str_noclipon  = raven ? s_HERETIC_TXT_CHEATNOCLIPON : s_STSTR_NCON;
+  const char *str_noclipoff = raven ? s_HERETIC_TXT_CHEATNOCLIPOFF : s_STSTR_NCOFF;
+  dsda_AddMessage((plyr->cheats ^= CF_NOCLIP) & CF_NOCLIP ? str_noclipon : str_noclipoff);
 }
 
 static void cheat_noclip()
@@ -699,7 +701,7 @@ static void cheat_clevx(char *buf)
 
   if (dsda_ResolveCLEV(&epsd, &map))
   {
-    dsda_AddMessage(s_STSTR_CLEV);
+    dsda_AddMessage(raven ? s_HERETIC_TXT_CHEATWARP : s_STSTR_CLEV);
 
     G_DeferedInitNew(gameskill, epsd, map);
   }
