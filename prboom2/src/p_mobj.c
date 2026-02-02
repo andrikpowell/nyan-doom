@@ -1355,9 +1355,9 @@ void P_MobjThinker (mobj_t* mobj)
       }
       else
       {
-        mobj->momz = 0;
-
         mobj_t *oumobj;
+
+        mobj->momz = 0;
 
         if ((oumobj = mobj->below_thing) && zdir == OU_UNDER)
           mobj->z = oumobj->z + oumobj->height;
