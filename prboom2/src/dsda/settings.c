@@ -366,6 +366,20 @@ dboolean dsda_DisableHorizAutoaim(void) {
   return dsda_IntConfig(dsda_config_disable_horiz_autoaim) && allow_incompatibility;
 }
 
+dboolean dsda_EnhancedRavenOverUnder(void) {
+  if (map_format.zdoom || !allow_incompatibility)
+    return false;
+
+  return dsda_IntConfig(dsda_config_enhanced_raven_over_under);
+}
+
+int dsda_EnhancedDoomOverUnder(void) {
+  if (map_format.zdoom || !allow_incompatibility)
+    return false;
+
+  return dsda_IntConfig(dsda_config_enhanced_doom_over_under);
+}
+
 int dsda_TranslucencyPercent(void) {
   if (!allow_incompatibility) return 66;
 

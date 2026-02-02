@@ -410,6 +410,10 @@ typedef struct mobj_s
     byte color;
     const byte* tranmap;
 
+    // Over/Under support [Nugget]
+    struct mobj_s* below_thing;
+    struct mobj_s* above_thing;
+
     // SEE WARNING ABOVE ABOUT POINTER FIELDS!!!
 } mobj_t;
 

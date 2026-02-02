@@ -46,6 +46,7 @@
 #include "g_game.h"
 #include "p_enemy.h"
 #include "p_tick.h"
+#include "p_map.h"
 #include "i_sound.h"
 #include "m_bbox.h"
 #include "hu_stuff.h"
@@ -427,14 +428,37 @@ static dboolean P_Move(mobj_t *actor, dboolean dropoff) /* killough 9/12/98 */
 
     if (actor->flags & MF_FLOAT && floatok)
     {
+      // [Nugget] Over/Under
+      fixed_t oldz = actor->z;
+
       if (actor->z < tmfloorz)          // must adjust height
         actor->z += FLOATSPEED;
       else
         actor->z -= FLOATSPEED;
 
-      actor->flags |= MF_INFLOAT;
+      if (P_EnableOverUnderForThing())
+      {
+        if (actor->z < tmfloorz)
+        {
+          // [Nugget] Over/Under: don't ascend into other things
+          mobj_t *above = actor->above_thing;
+          if (above && above->z < actor->z + actor->height)
+            actor->z = above->z - actor->height;
+        }
+        else
+        {
+          // [Nugget] Over/Under: don't descend into other things
+          mobj_t *below = actor->below_thing;
+          if (below && actor->z < below->z + below->height)
+            actor->z = below->z + below->height;
+        }
+      }
 
-      return true;
+      if (actor->z != oldz)
+      {
+          actor->flags |= MF_INFLOAT;
+          return true;
+      }
     }
 
     if (!numspechit)
@@ -486,6 +510,10 @@ static dboolean P_Move(mobj_t *actor, dboolean dropoff) /* killough 9/12/98 */
       P_HitFloor(actor);
     }
     actor->z = actor->floorz;
+
+    // [Nugget] Over/Under
+    if (actor->below_thing)
+      actor->z = MAX(actor->floorz, actor->below_thing->z + actor->below_thing->height);
   }
 
   return true;

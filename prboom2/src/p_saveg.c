@@ -1143,6 +1143,10 @@ void P_ArchiveThinkers(void) {
 
       // killough 2/14/98: end changes
 
+      // [Nugget] Over/Under
+      P_ReplaceMobjWithIndex(&mobj->above_thing);
+      P_ReplaceMobjWithIndex(&mobj->below_thing);
+
       if (raven)
       {
         P_ReplaceMobjWithIndex(&mobj->special1.m);
@@ -1749,6 +1753,10 @@ void P_UnArchiveThinkers(void) {
       P_ReplaceIndexWithMobj(&((mobj_t *) th)->target, mobj_p, mobj_count);
       P_ReplaceIndexWithMobj(&((mobj_t *) th)->tracer, mobj_p, mobj_count);
       P_ReplaceIndexWithMobj(&((mobj_t *) th)->lastenemy, mobj_p, mobj_count);
+
+      // [Nugget] Over/Under
+      P_ReplaceIndexWithMobj(&((mobj_t *) th)->above_thing, mobj_p, mobj_count);
+      P_ReplaceIndexWithMobj(&((mobj_t *) th)->below_thing, mobj_p, mobj_count);
 
       if (raven)
       {

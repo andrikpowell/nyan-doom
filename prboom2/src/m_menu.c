@@ -87,6 +87,7 @@
 #include "dsda/game_controller.h"
 #include "dsda/global.h"
 #include "dsda/mapinfo.h"
+#include "dsda/map_format.h"
 #include "dsda/messenger.h"
 #include "dsda/settings.h"
 #include "dsda/key_frame.h"
@@ -2187,6 +2188,22 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
         return true;
   }
 
+  // ZDoom Format Disable Options
+  if (map_format.zdoom)
+  {
+    int options[] =
+    { dsda_config_enhanced_doom_over_under,
+    };
+
+    // Disable + turn off
+    for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
+      if(s->config_id == options[i])
+      {
+        dsda_UpdateIntConfig(options[i], 0, false);
+        return true;
+      }
+  }
+
   // Raven Disable Options
   if (raven)
   {
@@ -2197,7 +2214,7 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
       nyan_config_hud_berserk, nyan_config_hud_armoricon, nyan_config_ex_status_widget,
       nyan_config_ex_status_armor, nyan_config_ex_status_berserk, nyan_config_ex_status_areamap,
       nyan_config_ex_status_backpack, nyan_config_ex_status_radsuit, nyan_config_ex_status_invis,
-      nyan_config_ex_status_liteamp, nyan_config_ex_status_invuln, 
+      nyan_config_ex_status_liteamp, nyan_config_ex_status_invuln, dsda_config_enhanced_doom_over_under,
     };
 
     int options2[] =
@@ -2279,7 +2296,7 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
   {
     int options[] =
     { dsda_config_hide_horns, dsda_config_skill_auto_use_health,
-      dsda_config_artifact_descriptions
+      dsda_config_artifact_descriptions, dsda_config_enhanced_raven_over_under
     };
 
     for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
@@ -4890,13 +4907,14 @@ setup_menu_t comp_options_settings[] = {
   { "Coop Spawns", S_YESNO, m_conf, G2_X, dsda_config_coop_spawns },
   EMPTY_LINE,
   { "Always Pistol Start", S_YESNO, m_conf, G2_X, dsda_config_always_pistol_start },
-  { "Allow Jumping", S_YESNO, m_conf, G2_X, dsda_config_allow_jumping },
 
   NEXT_PAGE(comp_emulation_settings),
   FINAL_ENTRY
 };
 
-#define CP_X 250
+#define CP_X 230
+static const char *over_under_list[] =
+  { "Off", "Player", "All things", NULL };
 
 setup_menu_t comp_emulation_settings[] = {
   { "Limit-Removing", S_YESNO | S_NYAN, m_conf, CP_X, dsda_config_limit_removing },
@@ -4908,6 +4926,11 @@ setup_menu_t comp_emulation_settings[] = {
   { "Walk Under Solid Hanging Bodies", S_YESNO, m_conf, CP_X, dsda_config_comperr_hangsolid },
   { "Fix Clipping in Large Levels", S_YESNO, m_conf, CP_X, dsda_config_comperr_blockmap },
   { "Allow Multiple Map Pickups", S_YESNO | S_NYAN, m_conf, CP_X, dsda_config_multiple_area_maps },
+  EMPTY_LINE,
+  TITLE("Compat Breaking Features", CP_X),
+  { "Raven Stuck Monsters Fix", S_YESNO | S_NYAN, m_conf, CP_X, dsda_config_enhanced_raven_over_under },
+  { "Allow Movement Over/Under Things", S_CHOICE | S_NYAN, m_conf, CP_X, dsda_config_enhanced_doom_over_under, 0, over_under_list },
+  { "Allow Jumping", S_YESNO, m_conf, CP_X, dsda_config_allow_jumping },
 
   PREV_PAGE(comp_options_settings),
   FINAL_ENTRY

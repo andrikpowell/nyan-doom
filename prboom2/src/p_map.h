@@ -133,6 +133,20 @@ dboolean P_TestMobjLocation(mobj_t * mobj);
 mobj_t *P_CheckOnmobj(mobj_t * thing);
 void P_FakeZMovement(mobj_t * mo);
 
+// Over/Under [Nugget]
+
+extern int over_under;
+
+typedef enum {
+  OU_UNDER = -1,
+  OU_NONE,
+  OU_OVER,
+} overunder_t;
+
+overunder_t P_CheckOverUnderMobj(mobj_t *thing);
+int P_EnableOverUnderForThing(void);
+dboolean P_SkullSlam(mobj_t **skull, mobj_t *hitthing);
+
 void P_AppendSpecHit(line_t * ld);
 
 // hexen

@@ -1300,6 +1300,8 @@ void P_MobjThinker (mobj_t* mobj)
   // removed old code which looked at target references
   // (we use pointer reference counting now)
 
+  dboolean did_over_under_check = false; // [Nugget] Over/Under
+
   // Basilisk (instant-kill) cheat
   // If monster sees the player, it dies
   if (players[consoleplayer].cheats & CF_BASILISK)
@@ -1324,6 +1326,8 @@ void P_MobjThinker (mobj_t* mobj)
     mobj->intflags &= ~MIF_SCROLLING;
     if (mobj->thinker.function != P_MobjThinker) // cph - Must've been removed
       return;       // killough - mobj was removed
+
+    did_over_under_check = true; // [Nugget] Over/Under
   }
   else if (mobj->flags2 & MF2_BLASTED)
   {                           // Reset to not blasted when momentums are gone
@@ -1337,7 +1341,36 @@ void P_MobjThinker (mobj_t* mobj)
   }
   else if (mobj->z != mobj->floorz || mobj->momz || BlockingMobj)
   {
-    if (mobj->flags2 & MF2_PASSMOBJ)
+    const dboolean overunder_enabled = P_EnableOverUnderForThing();
+    const dboolean do_over_under = overunder_enabled && (mobj->flags & MF_SOLID);
+
+    // [Nugget]
+    if (do_over_under)
+    {
+      overunder_t zdir = P_CheckOverUnderMobj(mobj);
+
+      if (zdir == OU_NONE)
+      {
+        P_ZMovement(mobj);
+      }
+      else
+      {
+        mobj->momz = 0;
+
+        mobj_t *oumobj;
+
+        if ((oumobj = mobj->below_thing) && zdir == OU_UNDER)
+          mobj->z = oumobj->z + oumobj->height;
+        else if ((oumobj = mobj->above_thing)) // zdir == OU_OVER
+          mobj->z = oumobj->z - mobj->height;
+
+        // Nyan - honestly not sure if this is needed
+        if (!raven)
+          if (oumobj && mobj->flags & MF_SKULLFLY)
+            P_SkullSlam(&mobj, oumobj);
+      }
+    }
+    else if (!overunder_enabled && (mobj->flags2 & MF2_PASSMOBJ))
     {
       mobj_t *onmo;
 
@@ -1419,6 +1452,7 @@ void P_MobjThinker (mobj_t* mobj)
     }
     else
       P_ZMovement(mobj);
+    did_over_under_check = true;
     if (mobj->thinker.function != P_MobjThinker) // cph - Must've been removed
       return;       // killough - mobj was removed
   }
@@ -1436,6 +1470,37 @@ void P_MobjThinker (mobj_t* mobj)
       P_ApplyTorque(mobj);               // Apply torque
     else
       mobj->intflags &= ~MIF_FALLING, mobj->gear = 0;  // Reset torque
+  }
+
+  // [Nugget] Over/Under: if we didn't check for over/under mobjs already,
+  // it means that this mobj is immobile, and its over/under mobjs, if any,
+  // were set by other mobj(s); check if they're still valid
+  if (P_EnableOverUnderForThing() && !did_over_under_check)
+  {
+    const mobj_t *oumobj;
+    fixed_t blockdist;
+
+    if ((oumobj = mobj->below_thing))
+    {
+      blockdist = mobj->radius + oumobj->radius;
+
+      if (   (D_abs(mobj->x - oumobj->x) >= blockdist)
+          || (D_abs(mobj->y - oumobj->y) >= blockdist))
+      {
+        mobj->below_thing = NULL;
+      }
+    }
+
+    if ((oumobj = mobj->above_thing))
+    {
+      blockdist = mobj->radius + oumobj->radius;
+
+      if (   (D_abs(mobj->x - oumobj->x) >= blockdist)
+          || (D_abs(mobj->y - oumobj->y) >= blockdist))
+      {
+        mobj->above_thing = NULL;
+      }
+    }
   }
 
   if (map_format.mobj_in_special_sector(mobj))
