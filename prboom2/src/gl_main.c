@@ -84,8 +84,6 @@ int gl_preprocessed = false;
 int gl_spriteindex;
 int scene_has_overlapped_sprites;
 
-int gl_blend_animations;
-
 float gldepthmin, gldepthmax;
 
 dboolean invul_cm;
@@ -1369,48 +1367,6 @@ void gld_EndDrawScene(void)
 
 static void gld_AddDrawWallItem(GLDrawItemType itemtype, void *itemdata)
 {
-    if (gl_blend_animations)
-    {
-        anim_t* anim;
-        int currpic, nextpic;
-        GLWall* wall = (GLWall*)itemdata;
-        float oldalpha = wall->alpha;
-
-        switch (itemtype)
-        {
-        case GLDIT_FWALL:
-            anim = anim_flats[wall->gltexture->index - firstflat].anim;
-            if (anim)
-            {
-                wall->alpha = 1.0f - ((float)tic_vars.frac + ((leveltime - 1) % anim->speed) * 65536.0f) / (65536.0f * anim->speed);
-                gld_AddDrawItem(GLDIT_FAWALL, itemdata);
-
-                currpic = wall->gltexture->index - firstflat - anim->basepic;
-                nextpic = anim->basepic + (currpic + 1) % anim->numpics;
-                wall->alpha = oldalpha;
-                wall->gltexture = gld_RegisterFlat(nextpic, true, true);
-            }
-            break;
-        case GLDIT_WALL:
-        case GLDIT_MWALL:
-            anim = anim_textures[wall->gltexture->index].anim;
-            if (anim)
-            {
-                if (itemtype == GLDIT_WALL || itemtype == GLDIT_MWALL)
-                {
-                    wall->alpha = 1.0f - ((float)tic_vars.frac + ((leveltime - 1) % anim->speed) * 65536.0f) / (65536.0f * anim->speed);
-                    gld_AddDrawItem(GLDIT_AWALL, itemdata);
-
-                    currpic = wall->gltexture->index - anim->basepic;
-                    nextpic = anim->basepic + (currpic + 1) % anim->numpics;
-                    wall->alpha = oldalpha;
-                    wall->gltexture = gld_RegisterTexture(nextpic, true, false, true, false);
-                }
-            }
-            break;
-        }
-    }
- 
   gld_AddDrawItem(itemtype, itemdata);
 }
 
@@ -2253,21 +2209,6 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   {
     flat.flags |= GLFLAT_SWIRL;
   }
-  else if (gl_blend_animations)
-  {
-      anim_t* anim = anim_flats[flat.gltexture->index - firstflat].anim;
-      if (anim)
-      {
-          int currpic, nextpic;
-
-          flat.alpha = 1.0f - ((float)tic_vars.frac + ((leveltime - 1) % anim->speed) * 65536.0f) / (65536.0f * anim->speed);
-          gld_AddDrawItem(((flat.flags & GLFLAT_CEILING) ? GLDIT_ACEILING : GLDIT_AFLOOR), &flat);
-
-          currpic = flat.gltexture->index - firstflat - anim->basepic;
-          nextpic = anim->basepic + (currpic + 1) % anim->numpics;
-          flat.gltexture = gld_RegisterFlat(nextpic, true, true);
-      }
-  }
 
   flat.alpha = 1.0;
 
@@ -2803,8 +2744,6 @@ static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
   static DICMP_ITEM itemfuncs[GLDIT_TYPES] = {
     0,
     dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall,
-    dicmp_wall, dicmp_wall,
-    dicmp_flat, dicmp_flat,
     dicmp_flat, dicmp_flat,
     dicmp_sprite, dicmp_sprite_scale, dicmp_sprite,
     0,
@@ -3044,42 +2983,6 @@ void gld_DrawScene(player_t *player)
   //
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  if (gl_blend_animations)
-  {
-      // enable backside removing
-      glEnable(GL_CULL_FACE);
-
-      // animated floors
-      glCullFace(GL_FRONT);
-      gld_DrawItemsSortByTexture(GLDIT_AFLOOR);
-      for (i = gld_drawinfo.num_items[GLDIT_AFLOOR] - 1; i >= 0; i--)
-      {
-          gld_DrawFlat(gld_drawinfo.items[GLDIT_AFLOOR][i].item.flat);
-      }
-
-      glCullFace(GL_BACK);
-      gld_DrawItemsSortByTexture(GLDIT_ACEILING);
-      for (i = gld_drawinfo.num_items[GLDIT_ACEILING] - 1; i >= 0; i--)
-      {
-          gld_DrawFlat(gld_drawinfo.items[GLDIT_ACEILING][i].item.flat);
-      }
-
-      // disable backside removing
-      glDisable(GL_CULL_FACE);
-  }
-
-  if (gl_blend_animations)
-  {
-      gld_DrawItemsSortByTexture(GLDIT_AWALL);
-      for (i = gld_drawinfo.num_items[GLDIT_AWALL] - 1; i >= 0; i--)
-      {
-          gld_ProcessWall(gld_drawinfo.items[GLDIT_AWALL][i].item.wall);
-      }
-
-      // projected animated walls
-      gld_DrawProjectedWalls(GLDIT_FAWALL);
-  }
 
   /* Transparent sprites and transparent things must be rendered
    * in far-to-near order. The approach used here is to sort in-

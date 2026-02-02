@@ -990,10 +990,6 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mapcolor_hexen_trail_2", dsda_config_mapcolor_hexen_trail_2,
     CONF_COLOR(15), &mapcolor_hexen.trail_2
   },
-  [dsda_config_gl_blend_animations] = {
-  "gl_blend_animations", dsda_config_gl_blend_animations,
-  CONF_BOOL(0), &gl_blend_animations
-  },
   [dsda_config_gl_skymode] = {
     "gl_skymode", dsda_config_gl_skymode,
     dsda_config_int, skytype_auto, skytype_count - 1, { skytype_auto }, NULL,

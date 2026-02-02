@@ -277,14 +277,8 @@ typedef enum
   GLDIT_TWALL,   // transparent walls
   GLDIT_SWALL,   // sky walls
 
-  GLDIT_AWALL,   // animated wall
-  GLDIT_FAWALL,  // animated projected wall
-
   GLDIT_CEILING, // ceiling
   GLDIT_FLOOR,   // floor
-
-  GLDIT_ACEILING, // animated ceiling
-  GLDIT_AFLOOR,   // animated floor
 
   GLDIT_SPRITE,  // opaque sprite
   GLDIT_TSPRITE, // transparent sprites
