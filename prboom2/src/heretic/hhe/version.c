@@ -43,7 +43,7 @@ const char *hhe_versions[] =
 
 int hhe_numversions = sizeof(hhe_versions) / sizeof(hhe_versions[0]);
 
-deh_hhe_version_t deh_hhe_version = deh_hhe_1_0;
+deh_hhe_version_t deh_hhe_version = deh_hhe_1_3;
 dboolean hhe_version_set = false;
 
 static void HHE_PrintUnknownVersion(const char *wrong_version)
