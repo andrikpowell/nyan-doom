@@ -141,3 +141,11 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
   - `center`: centers the component horizontally
 - `big_artifact_bar`: shows a transparent artifact inventory bar as seen on the status bar
   - works in combination with `big_artifact` (disappears when `big_artifact_bar` is visible)
+- `artifact_desc`: shows heretic/hexen inventory names and/or descriptions above the inventory (based on KEX)
+  - Uses the message font
+  - Supports 1 argument: `center`
+  - `center`: centers the component horizontally
+- `target_health`: displays the current health of enemies (based on CRL)
+  - Uses the message font (coloured)
+  - Supports 1 argument: `center`
+  - `center`: centers the component horizontally
