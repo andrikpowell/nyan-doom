@@ -2057,26 +2057,12 @@ static int choice_value;
 //
 //
 
-static dboolean M_ItemNyan(const setup_menu_t* s)
-{
-  if (s->m_flags & S_NYAN)
-    if (dsda_IntConfig(nyan_config_highlight_nyan_features))
-        return true;
-
-  return false;
-}
-
 #define SOFTWARE_MODE 0
 #define OPENGL_MODE   1
 
-static dboolean M_ItemDisabled(const setup_menu_t* s)
+static dboolean M_DependantDisabled(const setup_menu_t* s)
 {
-  // Strict Mode
-  if (dsda_StrictMode() && dsda_IsStrictConfig(s->config_id))
-    return true;
-
-  // Dependant Menu Options
-  if (s->dependents != NULL || s->dependent_num > 0)
+  if (s->dependents != NULL && s->dependent_num > 0)
   {
     for (int i = 0; i < s->dependent_num; i++)
     {
@@ -2109,7 +2095,11 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
     }
   }
 
-  // Complevel Argument
+  return false;
+}
+
+static dboolean M_ComplevelDisabled(const setup_menu_t* s)
+{
   if (s->config_id == dsda_config_default_complevel)
   {
     // Disable for certain games
@@ -2133,188 +2123,277 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
     }
   }
 
-  // Limit-Removing
+  return false;
+}
+
+static dboolean M_LimitRemovingDisabled(const setup_menu_t* s)
+{
   if (s->config_id == dsda_config_limit_removing)
   {
     if (hexen)
     {
-      dsda_UpdateIntConfig(dsda_config_limit_removing, true, true);
+      dsda_UpdateIntConfig(dsda_config_limit_removing, true, false);
       return true;
     }
 
     if (dsda_IntConfig(dsda_config_default_complevel) > tasdoom_compatibility)
     {
-      dsda_UpdateIntConfig(dsda_config_limit_removing, false, true);
+      dsda_UpdateIntConfig(dsda_config_limit_removing, false, false);
       return true;
     }
 
     if (limitremoving_arg || limitremoving_lmp)
     {
-      dsda_UpdateIntConfig(dsda_config_limit_removing, true, true);
+      dsda_UpdateIntConfig(dsda_config_limit_removing, true, false);
       return true;
     }
   }
 
-  // Raven - Disable Overflows
+  return false;
+}
+
+static dboolean M_DisableConfig(const setup_menu_t* s, const int* list, size_t n)
+{
+  for (size_t i = 0; i < n; i++)
+    if (s->config_id == list[i])
+      return true;
+
+  return false;
+}
+
+static dboolean M_DisableAndSetConfig(const setup_menu_t* s, const int* list, size_t n, int value)
+{
+  if (!M_DisableConfig(s, list, n))
+    return false;
+
+  dsda_UpdateIntConfig(s->config_id, value, false);
+  return true;
+}
+
+static dboolean M_DisableTitle(const setup_menu_t* s, const char* const* titles, size_t n)
+{
+  if (!s->m_text) return false;
+
+  for (size_t i = 0; i < n; i++)
+    if (!strcmp(s->m_text, titles[i]))
+      return true;
+
+  return false;
+}
+
+static dboolean M_RavenDisabled(const setup_menu_t* s)
+{
+  if (!raven)
+    return false;
+
+  // Heretic + Hexen Disable Options
   if (raven)
   {
-    const int *options = NULL;
-    size_t opt_size;
+    // Disable + turn off
+    {
+      static const int options_disable_false[] =
+      { dsda_config_render_wipescreen, dsda_config_skill_easy_brain,
+        nyan_config_loading_disk, dsda_config_fuzzmode, dsda_config_fuzzscale, dsda_config_enhanced_liteamp,
+        nyan_config_item_bonus_flash, nyan_config_colored_blood, dsda_config_sts_traditional_keys,
+        nyan_config_hud_berserk, nyan_config_hud_armoricon, nyan_config_ex_status_widget,
+        nyan_config_ex_status_armor, nyan_config_ex_status_berserk, nyan_config_ex_status_areamap,
+        nyan_config_ex_status_backpack, nyan_config_ex_status_radsuit, nyan_config_ex_status_invis,
+        nyan_config_ex_status_liteamp, nyan_config_ex_status_invuln, dsda_config_enhanced_doom_over_under,
+      };
 
-    if (heretic)
-    {
-      static const int heretic_opts[] = {
-        dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
-      };
-      options   = heretic_opts;
-      opt_size  = sizeof(heretic_opts) / sizeof(heretic_opts[0]);
-    }
-    else // Hexen
-    {
-      static const int hexen_opts[] = {
-        dsda_config_overrun_spechit_warn,          dsda_config_overrun_spechit_emulate,
-        dsda_config_overrun_reject_warn,           dsda_config_overrun_reject_emulate,
-        dsda_config_overrun_intercept_warn,        dsda_config_overrun_intercept_emulate,
-        dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
-        dsda_config_overrun_playeringame_warn,     dsda_config_overrun_playeringame_emulate,
-        dsda_config_overrun_missedbackside_warn,   dsda_config_overrun_missedbackside_emulate,
-      };
-      options   = hexen_opts;
-      opt_size  = sizeof(hexen_opts) / sizeof(hexen_opts[0]);
+      if (M_DisableAndSetConfig(s, options_disable_false, arrlen(options_disable_false), false))
+        return true;
     }
 
-    for (int i = 0; (size_t)i < opt_size; i++)
-      if(s->config_id == options[i])
+    // Disable + set translucnecy
+    {
+      static const int options_disable_trans[] =
+      { dsda_config_tran_filter_pct
+      };
+
+      if (M_DisableAndSetConfig(s, options_disable_trans, arrlen(options_disable_trans), 33))
         return true;
-  }
-
-  // ZDoom Format Disable Options
-  if (map_format.zdoom)
-  {
-    int options[] =
-    { dsda_config_enhanced_doom_over_under,
-    };
-
-    // Disable + turn off
-    for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
-      if(s->config_id == options[i])
-      {
-        dsda_UpdateIntConfig(options[i], 0, false);
-        return true;
-      }
-  }
-
-  // Raven Disable Options
-  if (raven)
-  {
-    int options[] =
-    { dsda_config_render_wipescreen, dsda_config_skill_easy_brain,
-      nyan_config_loading_disk, dsda_config_fuzzmode, dsda_config_fuzzscale, dsda_config_enhanced_liteamp,
-      nyan_config_item_bonus_flash, nyan_config_colored_blood, dsda_config_sts_traditional_keys,
-      nyan_config_hud_berserk, nyan_config_hud_armoricon, nyan_config_ex_status_widget,
-      nyan_config_ex_status_armor, nyan_config_ex_status_berserk, nyan_config_ex_status_areamap,
-      nyan_config_ex_status_backpack, nyan_config_ex_status_radsuit, nyan_config_ex_status_invis,
-      nyan_config_ex_status_liteamp, nyan_config_ex_status_invuln, dsda_config_enhanced_doom_over_under,
-    };
-
-    int options2[] =
-    { dsda_config_tran_filter_pct, dsda_config_translucent_sprites,
-      dsda_config_translucent_ghosts, dsda_config_translucent_missiles, dsda_config_translucent_powerups,
-      dsda_config_translucent_effects
-    };
-
-    const char* titles[] =
-    { "Status Widget", "Boom Translucency" };
-
-    // Disable + turn off
-    for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
-      if(s->config_id == options[i])
-      {
-        dsda_UpdateIntConfig(options[i], 0, false);
-        return true;
-      }
+    }
 
     // Disable
-    for (int i = 0; (size_t)i < sizeof(options2) / sizeof(options2[0]); i++)
-      if(s->config_id == options2[i])
-      {
-        return true;
-      }
+    {
+      static const int options_disable[] =
+      { dsda_config_translucent_sprites, dsda_config_translucent_ghosts, dsda_config_translucent_missiles,
+        dsda_config_translucent_powerups, dsda_config_translucent_effects
+      };
 
-    for (int i = 0; (size_t)i < sizeof(titles) / sizeof(titles[0]); i++)
-      if(s->m_text == titles[i])
-      {
+      if (M_DisableConfig(s, options_disable, arrlen(options_disable)))
         return true;
-      }
+    }
+
+    // Disable titles
+    {
+      static const char* const titles_disable[] =
+      { "Status Widget", "Boom Translucency" };
+
+      if (M_DisableTitle(s, titles_disable, arrlen(titles_disable)))
+        return true;
+    }
   }
 
+  // Disable Overflows
+  if (heretic)
+  {
+    static const int heretic_overflows[] = {
+      dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
+    };
 
-  // Hexen Disable Options
+    // Disable
+    if (M_DisableConfig(s, heretic_overflows, arrlen(heretic_overflows)))
+      return true;
+  }
+  else // Hexen
+  {
+    static const int hexen_overflows[] = {
+      dsda_config_overrun_spechit_warn,          dsda_config_overrun_spechit_emulate,
+      dsda_config_overrun_reject_warn,           dsda_config_overrun_reject_emulate,
+      dsda_config_overrun_intercept_warn,        dsda_config_overrun_intercept_emulate,
+      dsda_config_overrun_donut_warn,            dsda_config_overrun_donut_emulate,
+      dsda_config_overrun_playeringame_warn,     dsda_config_overrun_playeringame_emulate,
+      dsda_config_overrun_missedbackside_warn,   dsda_config_overrun_missedbackside_emulate,
+    };
+
+    // Disable
+    if (M_DisableConfig(s, hexen_overflows, arrlen(hexen_overflows)))
+      return true;
+  }
+
+  // If Hexen
   if (hexen)
   {
-    if (s->config_id == dsda_config_sts_blink_keys)
+    // Disable + set false
     {
-      dsda_UpdateIntConfig(dsda_config_sts_blink_keys, false, false);
-      return true;
+      static const int options_disable_false[] =
+      { dsda_config_sts_blink_keys,
+        dsda_config_pistol_start, dsda_config_always_pistol_start,
+        dsda_config_enhanced_raven_over_under,
+      };
+
+      if (M_DisableAndSetConfig(s, options_disable_false, arrlen(options_disable_false), false))
+        return true;
     }
 
-    if (s->config_id == dsda_config_allow_jumping)
+    // Disable + set true
     {
-      dsda_UpdateIntConfig(dsda_config_allow_jumping, true, false);
-      return true;
-    }
+      static const int options_disable_true[] =
+      { dsda_config_allow_jumping
+      };
 
-    if (s->config_id == dsda_config_pistol_start)
-    {
-      dsda_UpdateIntConfig(dsda_config_pistol_start, false, false);
-      return true;
-    }
-
-    if (s->config_id == dsda_config_always_pistol_start)
-    {
-      dsda_UpdateIntConfig(dsda_config_always_pistol_start, false, false);
-      return true;
+      if (M_DisableAndSetConfig(s, options_disable_true, arrlen(options_disable_true), true))
+        return true;
     }
 
     // Hexen doesn't allow pistolstart + loadout doesn't work due to key management
     if (s->action == CSPistolStart || s->action == CSCurrentLoadout)
       return true;
-
-    if (s->config_id == dsda_config_enhanced_raven_over_under)
-    {
-      dsda_UpdateIntConfig(dsda_config_enhanced_raven_over_under, false, false);
-      return true;
-    }
   }
 
-  // Disable Hexen only Options
-  if (!hexen)
+  // If Heretic
+  if (heretic)
   {
-    if (s->config_id == dsda_config_hexen_skip_ethereal_travel)
-    {
-      dsda_UpdateIntConfig(dsda_config_hexen_skip_ethereal_travel, false, false);
-      return true;
-    }
-  }
-
-  // Disable Doom Options
-  if (!raven)
-  {
-    int options[] =
-    { dsda_config_hide_horns, dsda_config_skill_auto_use_health,
-      dsda_config_artifact_descriptions, dsda_config_enhanced_raven_over_under
+    static const int options_disable_false[] =
+    { dsda_config_hexen_skip_ethereal_travel
     };
 
-    for (int i = 0; (size_t)i < sizeof(options) / sizeof(options[0]); i++)
-      if(s->config_id == options[i])
-      {
-        dsda_UpdateIntConfig(options[i], 0, false);
-        return true;
-      }
+    // Disable + set false
+    if (M_DisableAndSetConfig(s, options_disable_false, arrlen(options_disable_false), false))
+      return true;
   }
 
   return false;
 }
+
+static dboolean M_DoomDisabled(const setup_menu_t* s)
+{
+  // Disable in Doom
+  if (!raven)
+  {
+    static const int options_disable_false[] =
+    { dsda_config_hide_horns, dsda_config_skill_auto_use_health,
+      dsda_config_artifact_descriptions, dsda_config_hexen_skip_ethereal_travel,
+      dsda_config_enhanced_raven_over_under
+    };
+
+    // Disable + set false
+    if (M_DisableAndSetConfig(s, options_disable_false, arrlen(options_disable_false), false))
+      return true;
+  }
+
+  // Disable in ZDoom
+  if (map_format.zdoom)
+  {
+    static const int options_disable_false[] = {
+      dsda_config_enhanced_doom_over_under
+    };
+
+    // Disable + turn off
+    if (M_DisableAndSetConfig(s, options_disable_false, arrlen(options_disable_false), false))
+      return true;
+  }
+
+  return false;
+}
+
+//
+// Main Disable Function
+//
+
+static dboolean M_ItemDisabled(const setup_menu_t* s)
+{
+  // Strict Mode
+  if (dsda_StrictMode() && dsda_IsStrictConfig(s->config_id))
+    return true;
+
+  // MAIN: Dependant Menu Options
+  if (M_DependantDisabled(s))
+    return true;
+
+  // Complevel Argument
+  if (M_ComplevelDisabled(s))
+    return true;
+
+  // Limit-Removing
+  if (M_LimitRemovingDisabled(s))
+    return true;
+
+  // Raven-Specific
+  if (M_RavenDisabled(s))
+    return true;
+
+  // Doom-Specific
+  if (M_DoomDisabled(s))
+    return true;
+
+  return false;
+}
+
+/////////////////////////////
+//
+// M_ItemNyan
+//
+// Highlight Nyan Doom exclusive options
+//
+//
+
+static dboolean M_ItemNyan(const setup_menu_t* s)
+{
+  if (s->m_flags & S_NYAN)
+    if (dsda_IntConfig(nyan_config_highlight_nyan_features))
+        return true;
+
+  return false;
+}
+
+/////////////////////////////
+//
+// Menu Color Item Functions
+//
+//
 
 static int GetItemColor(menu_flags_t flags)
 {
