@@ -2279,6 +2279,12 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
     // Hexen doesn't allow pistolstart + loadout doesn't work due to key management
     if (s->action == CSPistolStart || s->action == CSCurrentLoadout)
       return true;
+
+    if (s->config_id == dsda_config_enhanced_raven_over_under)
+    {
+      dsda_UpdateIntConfig(dsda_config_enhanced_raven_over_under, false, false);
+      return true;
+    }
   }
 
   // Disable Hexen only Options
@@ -4921,7 +4927,7 @@ setup_menu_t comp_emulation_settings[] = {
   { "Allow Multiple Map Pickups", S_YESNO | S_NYAN, m_conf, CP_X, dsda_config_multiple_area_maps },
   EMPTY_LINE,
   TITLE("Compat Breaking Features", CP_X),
-  { "Raven Stuck Monsters Fix", S_YESNO | S_NYAN, m_conf, CP_X, dsda_config_enhanced_raven_over_under },
+  { "Heretic Stuck Monsters Fix", S_YESNO | S_NYAN, m_conf, CP_X, dsda_config_enhanced_raven_over_under },
   { "Allow Movement Over/Under Things", S_CHOICE | S_NYAN, m_conf, CP_X, dsda_config_enhanced_doom_over_under, 0, over_under_list },
   { "Allow Jumping", S_YESNO, m_conf, CP_X, dsda_config_allow_jumping },
 

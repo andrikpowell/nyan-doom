@@ -707,6 +707,9 @@ static dboolean P_ProjectileImmune(mobj_t *target, mobj_t *source)
 
 int P_EnableOverUnderForThing(void)
 {
+  if (hexen)
+    return false; // needs work to get it working in Hexen
+
   if (raven)
     return dsda_EnhancedRavenOverUnder(); // note: only true/false (off/all things)
 
