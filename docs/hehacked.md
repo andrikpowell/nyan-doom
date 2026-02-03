@@ -4,9 +4,9 @@ Nyan Doom supports Hehacked patches for Heretic.
 
 Hehacked is more complicated to support compared to Dehacked, as all patches currently use the header of `Heretic version = 10` regardless of Heretic version.
 
-While Nyan Doom does support stacking Hehacked patches, mixing different version patches is NOT supported. (for more information, see the `HeHackEd Versions` section below)
+While Nyan Doom does support stacking Hehacked patches, mixing different version patches is NOT supported. (for more information, see the `HeHackEd Versioning` section below)
 
-The following Hehacked features are supported:
+The following Vanilla Hehacked features are supported:
 - Ammo
 - Frame
 - Sound
@@ -15,7 +15,7 @@ The following Hehacked features are supported:
 - Thing
 - Weapon
 
-## HeHackEd Versions
+## HeHackEd Versioning
 
 Nyan Doom supports Hehacked patches for Heretic `1.0`, `1.2`, and `1.3`. In order to get around the lack of version detection, Nyan Doom uses an auto-detect system to "vote" on which version a hehacked patch is most likely for.
 
@@ -26,6 +26,14 @@ Modders can also use a `HHEVER` lump to specify an exact version.
 - Example: `HHEVER` text lump with the value `1.0`
 
 >Note that Heretic Hehacked versions adjust the state and frame tables... So mixing and matching multiple Hehacked patches is NOT supported. Once a version has been selected, that version is "locked" for the rest of the loaded patches.
+
+## DSDhacked Support
+
+Nyan Doom supports unlimited states, frames, sprites, sounds, things via DSDhacked.
+It also supports sprites named `SP##` and sounds named `DSFRE###` just like in Doom.
+
+For more info about DSDhacked, take a look at this page here:
+[DSDhacked](dsdhacked.md)
 
 ## REX (Raven Extended) Support
 
