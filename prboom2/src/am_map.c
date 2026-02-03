@@ -2810,7 +2810,9 @@ static void AM_DrawNiceThings(void)
       t = sectors[i].thinglist;
       while (t) // for all things in that sector
       {
-        if (!t->player)
+        // Avoid drawing the main player again
+        // But draw voodoo dolls!
+        if (!(t->player && t == t->player->mo))
         {
           AM_GetMobjPosition(t, &p, &angle);
           if (automap_rotate)
