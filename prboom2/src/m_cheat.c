@@ -293,7 +293,7 @@ cheatseq_t cheat[] = {
   CHEAT("clubmed", NULL, NULL, not_demo, cht_hexen, cheat_reset_health, 0, false),
   CHEAT("butcher", NULL, NULL, not_demo, cht_hexen, cheat_massacre, 0, false),
   CHEAT("nra", NULL, NULL, not_demo, cht_hexen, cheat_fa, 0, false),
-  CHEAT("indiana", NULL, NULL, not_demo, cht_hexen, cheat_inventory, 0, false),
+  CHEAT("indiana", NULL, NULL, not_demo, cht_heretic | cht_hexen, cheat_inventory, 0, false),
   CHEAT("locksmith", NULL, NULL, not_demo, cht_hexen, cheat_k, 0, false),
   CHEAT("sherlock", NULL, NULL, not_demo, cht_hexen, cheat_puzzle, 0, false),
   CHEAT("casper", NULL, NULL, not_classic_demo, cht_hexen, cheat_noclip, 0, false),
