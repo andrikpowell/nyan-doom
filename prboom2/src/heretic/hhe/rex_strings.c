@@ -268,6 +268,7 @@ hhe_strs hhe_strlookup[] = {
 
   // Obituaries
     { {     0,     0,     0 }, &s_OB_CRUSH, "OB_CRUSH" },
+    { {     0,     0,     0 }, &s_OB_FALLING, "OB_FALLING" },
     { {     0,     0,     0 }, &s_OB_SLIME, "OB_SLIME" },
     { {     0,     0,     0 }, &s_OB_LAVA, "OB_LAVA" },
     { {     0,     0,     0 }, &s_OB_KILLEDSELF, "OB_KILLEDSELF" },

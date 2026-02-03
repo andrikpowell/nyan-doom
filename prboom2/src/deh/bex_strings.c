@@ -337,6 +337,7 @@ static deh_strs deh_strlookup[] = {
   {&s_stdisk,"STDISK"},
   {&savegamename,"SAVEGAMENAME"},  // Ty 05/03/98
   {&s_OB_CRUSH, "OB_CRUSH"},   // obituaries
+  {&s_OB_FALLING, "OB_FALLING"},
   {&s_OB_SLIME, "OB_SLIME"},
   {&s_OB_LAVA, "OB_LAVA"},
   {&s_OB_KILLEDSELF, "OB_KILLEDSELF"},
