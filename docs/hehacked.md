@@ -29,7 +29,7 @@ Modders can also use a `HHEVER` lump to specify an exact version.
 
 ## REX (Raven Extended) Support
 
-Nyan Doom includes support for these Boom BEX style blocks:
+Nyan Doom also includes support for these Boom style REX blocks:
 - `[MUSIC]`
 - `[CODEPTR]`
 - `[SOUNDS]`
@@ -43,6 +43,7 @@ To add support for the REX `[STRINGS]` block, names had to be assigned to certai
 Nyan Doom supports the following string mnemonics:
 
 ## Level Name Strings
+> Note that map names in heretic use the following format: "E#M#:" + 2 spaces + "map name". Heretic is hardcoded to remove the first 7 characters when displaying the map on the intermission screen. 
 
 | String Name | String Default |
 |-|-|
@@ -91,8 +92,6 @@ Nyan Doom supports the following string mnemonics:
 | HHUSTR_E5M7 | E5M7:  FOETID MANSE |
 | HHUSTR_E5M8 | E5M8:  FIELD OF JUDGEMENT |
 | HHUSTR_E5M9 | E5M9:  SKEIN OF D'SPARIL |
-
-> Note that map names in heretic use the following format: "E#M#:" + 2 spaces + "map name". Heretic is hardcoded to remove the first 7 characters when displaying the map on the intermission screen. 
 
 ## Story Text strings
 
