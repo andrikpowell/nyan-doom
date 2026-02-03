@@ -54,13 +54,21 @@ int dsda_PlayerLookDir(player_t* player)
   return dsda_FreeAim() ? dsda_PitchToLookDir(player->mo->pitch) : player->lookdir;
 }
 
+dboolean dsda_PlayerFreelookAutoAim(void)
+{
+  if (HU_Target())
+    return true;
+
+  return false;
+}
+
 void dsda_PlayerAim(mobj_t* source, angle_t angle, aim_t* aim, uint64_t target_mask)
 {
   dboolean freelook_autoaim = false;
   aim->angle = angle;
 
   if (dsda_MouselookAutoAim())
-    freelook_autoaim = HU_Target();
+    freelook_autoaim = dsda_PlayerFreelookAutoAim();
 
   if (dsda_FreeAim() && !freelook_autoaim)
   {
@@ -106,7 +114,7 @@ void dsda_PlayerAimBad(mobj_t* source, angle_t angle, aim_t* aim, uint64_t targe
   aim->z_offset = 0;
 
   if (dsda_MouselookAutoAim())
-    freelook_autoaim = HU_Target();
+    freelook_autoaim = dsda_PlayerFreelookAutoAim();
 
   if (dsda_FreeAim() && !freelook_autoaim)
   {
