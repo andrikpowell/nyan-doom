@@ -3852,10 +3852,11 @@ setup_menu_t auto_colors_settings[] =  // 2st AutoMap Settings screen
   { "Pickup sprite",                        S_COLOR, m_conf, AU_X, dsda_config_mapcolor_pickup },
   { "Countable enemy sprite",               S_COLOR, m_conf, AU_X, dsda_config_mapcolor_enemy },      // cph 2006/06/30
   { "Countable item sprite",                S_COLOR, m_conf, AU_X, dsda_config_mapcolor_item },       // mead 3/4/2003
+  { "Hitboxes",                             S_COLOR|S_NYAN, m_conf, AU_X, dsda_config_mapcolor_hitbox },
   { "Crosshair",                            S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hair },
+  { "Line automap markers",                 S_COLOR, m_conf, AU_X, dsda_config_mapcolor_marker },
   { "Single player arrow",                  S_COLOR, m_conf, AU_X, dsda_config_mapcolor_sngl },
   { "Your colour in multiplayer",           S_COLOR, m_conf,  AU_X, dsda_config_mapcolor_me },
-  { "Hitboxes",                             S_COLOR|S_NYAN, m_conf, AU_X, dsda_config_mapcolor_hitbox },
   EMPTY_LINE,
   { "Player trail 1",                       S_COLOR, m_conf, AU_X, dsda_config_mapcolor_trail_1 },
   { "Player trail 2",                       S_COLOR, m_conf, AU_X, dsda_config_mapcolor_trail_2 },
@@ -3892,10 +3893,11 @@ setup_menu_t auto_heretic_colors_settings[] =  // 2st AutoMap Settings screen
   { "Pickup sprite",                        S_COLOR, m_conf, AU_X, dsda_config_mapcolor_heretic_pickup },
   { "Countable enemy sprite",               S_COLOR, m_conf, AU_X, dsda_config_mapcolor_heretic_enemy },      // cph 2006/06/30
   { "Countable item sprite",                S_COLOR, m_conf, AU_X, dsda_config_mapcolor_heretic_item },       // mead 3/4/2003
+  { "Hitboxes",                             S_COLOR|S_NYAN, m_conf, AU_X, dsda_config_mapcolor_heretic_hitbox },
   { "Crosshair",                            S_COLOR, m_conf, AU_X, dsda_config_mapcolor_heretic_hair },
+  { "Line automap markers",                 S_COLOR, m_conf, AU_X, dsda_config_mapcolor_heretic_marker },
   { "Single player arrow",                  S_COLOR, m_conf, AU_X, dsda_config_mapcolor_heretic_sngl },
   { "Your colour in multiplayer",           S_COLOR, m_conf, AU_X, dsda_config_mapcolor_heretic_me },
-  { "Hitboxes",                             S_COLOR|S_NYAN, m_conf, AU_X, dsda_config_mapcolor_heretic_hitbox },
   EMPTY_LINE,
   { "Player trail 1",                       S_COLOR, m_conf, AU_X, dsda_config_mapcolor_heretic_trail_1 },
   { "Player trail 2",                       S_COLOR, m_conf, AU_X, dsda_config_mapcolor_heretic_trail_2 },
@@ -3926,10 +3928,11 @@ setup_menu_t auto_hexen_colors_settings[] =  // 2st AutoMap Settings screen
   { "Pickup sprite",                       S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hexen_pickup },
   { "Countable enemy sprite",              S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hexen_enemy },      // cph 2006/06/30
   { "Artifact sprite",                     S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hexen_item },       // mead 3/4/2003
+  { "Hitboxes",                            S_COLOR|S_NYAN, m_conf, AU_X, dsda_config_mapcolor_hexen_hitbox },
   { "Crosshair",                           S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hexen_hair },
+  { "Line automap markers",                S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hexen_marker },
   { "Single player arrow",                 S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hexen_sngl },
   { "Your colour in multiplayer",          S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hexen_me },
-  { "Hitboxes",                            S_COLOR|S_NYAN, m_conf, AU_X, dsda_config_mapcolor_hexen_hitbox },
   EMPTY_LINE,
   { "Player trail 1",                      S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hexen_trail_1 },
   { "Player trail 2",                      S_COLOR, m_conf, AU_X, dsda_config_mapcolor_hexen_trail_2 },

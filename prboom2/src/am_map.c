@@ -3282,7 +3282,7 @@ static void AM_drawMarks(void)
             if ((unsigned)d <= 9)
             {
               AM_drawLineCharacter(am_digits[d], am_digit_lines[d],
-                                  digit_scale, 0, digit_angle, mapcolor_p->trail_1,
+                                  digit_scale, 0, digit_angle, mapcolor_p->marker,
                                   bx, by);
             }
             bx += digit_spacing;

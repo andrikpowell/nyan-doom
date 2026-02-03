@@ -69,6 +69,7 @@ typedef struct
   int frnd;
   int enemy;
   int hair;
+  int marker;
   int sngl;
   int me;
   int plyr[8];

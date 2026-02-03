@@ -734,6 +734,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mapcolor_hair", dsda_config_mapcolor_hair,
     CONF_COLOR(208), &mapcolor.hair
   },
+  [dsda_config_mapcolor_marker] = {
+    "mapcolor_marker", dsda_config_mapcolor_marker,
+    CONF_COLOR(208), &mapcolor.marker
+  },
   [dsda_config_mapcolor_sngl] = {
     "mapcolor_sngl", dsda_config_mapcolor_sngl,
     CONF_COLOR(208), &mapcolor.sngl
@@ -858,6 +862,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mapcolor_heretic_hair", dsda_config_mapcolor_heretic_hair,
     CONF_COLOR(32), &mapcolor_heretic.hair
   },
+  [dsda_config_mapcolor_heretic_marker] = {
+    "mapcolor_heretic_marker", dsda_config_mapcolor_heretic_marker,
+    CONF_COLOR(32), &mapcolor_heretic.marker
+  },
   [dsda_config_mapcolor_heretic_sngl] = {
     "mapcolor_heretic_sngl", dsda_config_mapcolor_heretic_sngl,
     CONF_COLOR(32), &mapcolor_heretic.sngl
@@ -957,6 +965,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_mapcolor_hexen_hair] = {
     "mapcolor_hexen_hair", dsda_config_mapcolor_hexen_hair,
     CONF_COLOR(32), &mapcolor_hexen.hair
+  },
+  [dsda_config_mapcolor_hexen_marker] = {
+    "mapcolor_hexen_marker", dsda_config_mapcolor_hexen_marker,
+    CONF_COLOR(32), &mapcolor_hexen.marker
   },
   [dsda_config_mapcolor_hexen_sngl] = {
     "mapcolor_hexen_sngl", dsda_config_mapcolor_hexen_sngl,
