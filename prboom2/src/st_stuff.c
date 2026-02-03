@@ -1080,8 +1080,6 @@ void ST_Ticker(void)
   st_randomnumber = M_Random();
   ST_updateWidgets();
   st_oldhealth = plyr->health;
-
-  ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 }
 
 int ST_HealthColor(int health)
@@ -1214,6 +1212,8 @@ void ST_Drawer(void)
    * completely by the call from D_Display
    * proff - really do it
    */
+
+  ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
   if (statusbaron) {
     ST_refreshBackground(); // draw status bar background to off-screen buff
