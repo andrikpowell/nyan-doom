@@ -189,7 +189,6 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_aspect_ratio_correction),
   MIGRATED_SETTING(dsda_config_freelook),
   MIGRATED_SETTING(dsda_config_freelook_autoaim),
-  MIGRATED_SETTING(dsda_config_freelook_autoaim_pct),
   MIGRATED_SETTING(dsda_config_freelook_enhanced_flying),
   MIGRATED_SETTING(dsda_config_extra_level_brightness),
 

@@ -4078,12 +4078,6 @@ DEPEND_LIST(freelook_list,
   DEP(dsda_config_freelook, true)
 );
 
-DEPEND_LIST(freelook_autoaim_list,
-  DEP(dsda_config_videomode, OPENGL_MODE),
-  DEP(dsda_config_freelook, true),
-  DEP(dsda_config_freelook_autoaim, true)
-);
-
 setup_menu_t gen_device_settings[] = {
   { "Enable Mouse", S_YESNO, m_conf, G2_X, dsda_config_use_mouse },
   FUNC_DEPEND("Mouse Options", S_CENTER, G_X, M_Sub_Mouse, dsda_config_use_mouse, true),
@@ -4094,7 +4088,6 @@ setup_menu_t gen_device_settings[] = {
   { "Enable Freelook", S_YESNO, m_conf, G2_X, dsda_config_freelook },
   { "Invert Freelook", S_YESNO, m_conf, G2_X, dsda_config_movement_mouseinvert, 0, empty_list, DEPEND_MULTI(freelook_list) },
   { "Freelook AutoAim", S_YESNO | S_NYAN, m_conf, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_list) },
-  { "GL AutoAim from Center", S_PERC | S_NYAN, m_conf, G2_X, dsda_config_freelook_autoaim_pct, 0, empty_list, DEPEND_MULTI(freelook_autoaim_list) },
   { "Freelook Enhanced Flying", S_YESNO | S_NYAN, m_conf, G2_X, dsda_config_freelook_enhanced_flying, 0, empty_list, DEPEND_MULTI(freelook_list) },
 
   PREV_PAGE(gen_audio_settings),

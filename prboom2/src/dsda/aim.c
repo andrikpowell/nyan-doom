@@ -54,73 +54,13 @@ int dsda_PlayerLookDir(player_t* player)
   return dsda_FreeAim() ? dsda_PitchToLookDir(player->mo->pitch) : player->lookdir;
 }
 
-dboolean dsda_TargetNearScreenCenter(mobj_t* target, float max_distance_fraction)
-{
-  float winx, winy, winz;
-  float x, y, z;
-
-  if (!target)
-    return false;
-
-  // Note: Software has no way to check near the center of the screen
-  if (V_IsSoftwareMode())
-    return true;
-
-  x = -(float)target->x / MAP_SCALE;
-  z =  (float)target->y / MAP_SCALE;
-  y =  (float)target->z / MAP_SCALE;
-
-  if (R_Project(x, y, z, &winx, &winy, &winz))
-  {
-    float screen_center_x, screen_center_y;
-    float reference;
-    float dx, dy;
-    float dist_sq, max_dist, max_dist_sq;
-
-    reference = SCREENWIDTH < SCREENHEIGHT ? SCREENWIDTH : SCREENHEIGHT;
-
-    screen_center_x = SCREENWIDTH  / 2.0f;
-    screen_center_y = SCREENHEIGHT / 2.0f;
-
-    // I don't know why we have this here
-    // (like in the Crosshair function)
-    // Because Software can't use R_Project()
-    if (V_IsSoftwareMode())
-    {
-      int top = SCREENHEIGHT;
-      int bottom = top - viewheight;
-
-      winy += (float)(viewheight / 2 - centery);
-      winy = BETWEEN(bottom, top, winy);
-    }
-
-    dx = winx - screen_center_x;
-    dy = winy - screen_center_y;
-
-    dist_sq = dx * dx + dy * dy;
-    max_dist = max_distance_fraction * reference;  // example: 0.05f for 5%
-    max_dist_sq = max_dist * max_dist;
-
-    return (dist_sq <= max_dist_sq);
-  }
-
-  return false;
-}
-
-dboolean dsda_PlayerFreelookAutoAim(void)
-{
-  mobj_t* target = HU_Target();
-
-  return target && dsda_TargetNearScreenCenter(target, dsda_MouselookAutoAimPercent() * 0.01f);
-}
-
 void dsda_PlayerAim(mobj_t* source, angle_t angle, aim_t* aim, uint64_t target_mask)
 {
   dboolean freelook_autoaim = false;
   aim->angle = angle;
 
   if (dsda_MouselookAutoAim())
-    freelook_autoaim = dsda_PlayerFreelookAutoAim();
+    freelook_autoaim = HU_Target();
 
   if (dsda_FreeAim() && !freelook_autoaim)
   {
@@ -166,7 +106,7 @@ void dsda_PlayerAimBad(mobj_t* source, angle_t angle, aim_t* aim, uint64_t targe
   aim->z_offset = 0;
 
   if (dsda_MouselookAutoAim())
-    freelook_autoaim = dsda_PlayerFreelookAutoAim();
+    freelook_autoaim = HU_Target();
 
   if (dsda_FreeAim() && !freelook_autoaim)
   {
