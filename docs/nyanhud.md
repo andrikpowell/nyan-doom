@@ -109,7 +109,7 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
   - Supports 1 argument: `center`
   - `center`: centers the component horizontally
 
-### Nyan-specific Components
+### Nyan-Extended Components
 - `stat_totals`: shows the kills / secrets / items on the current map
   - Supports 6 arguments: `show_kills show_items show_secrets vertical show_labels stat_format`
   - `show_kills`: shows kills in the component
@@ -125,12 +125,14 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
   - `show_items`: shows items in the component
   - `show_secrets`: shows secrets in the component
   - `stat_format`: shows stats in a particular format (0 - Ratio, 1 - Percent, 2 - Count, 3 - Remaining, 4 - DSDA Classic)
-- `status_widget`: shows icons for armor type, backpack, and other powerups
-  - Supports 1 argument: `vertical`
 - `map_title`: shows the current map's title
   - Uses the message font
   - Supports 1 argument: `cycle_author`
   - `cycle_author`: cycles between map title and author on automap
+
+### Nyan-Only Components
+- `status_widget`: shows icons for armor type, backpack, and other powerups
+  - Supports 1 argument: `vertical`
 - `announce_message`: shows the announce map message with author on next line
   - Uses the message font
   - Supports 1 argument: `center`
