@@ -1135,7 +1135,8 @@ static void R_DrawPSprite (pspdef_t *psp)
 
       // [crispy] don't center vertically during lowering and raising states
       if (weapon_attack_alignment >= CENTERWEAPON_HORVER &&
-          psp->state->action != A_Lower && psp->state->action != A_Raise && !swiping_weapon)
+          psp->state->action != A_Lower && psp->state->action != A_Raise && !swiping_weapon &&
+          viewplayer->playerstate == PST_LIVE) // Player must be alive - fixes lingering flash states
       {
           R_ApplyWeaponBob(NULL, false, &psp_sy, weapon_attack_alignment == CENTERWEAPON_BOB);
       }
