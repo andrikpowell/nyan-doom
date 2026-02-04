@@ -120,10 +120,6 @@ set(COMMON_SRC
     dsda/hud_components/big_artifact.h
     dsda/hud_components/big_artifact_bar.c
     dsda/hud_components/big_artifact_bar.h
-    dsda/hud_components/sml_berserk.c
-    dsda/hud_components/sml_berserk.h
-    dsda/hud_components/sml_armor.c
-    dsda/hud_components/sml_armor.h
     dsda/hud_components/status.c
     dsda/hud_components/status.h
     dsda/hud_components/big_health.c

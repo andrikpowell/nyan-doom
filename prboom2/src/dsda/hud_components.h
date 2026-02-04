@@ -23,8 +23,6 @@
 #include "hud_components/big_armor_text.h"
 #include "hud_components/big_artifact.h"
 #include "hud_components/big_artifact_bar.h"
-#include "hud_components/sml_berserk.h"
-#include "hud_components/sml_armor.h"
 #include "hud_components/status.h"
 #include "hud_components/big_health.h"
 #include "hud_components/big_health_text.h"
