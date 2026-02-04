@@ -17,7 +17,7 @@ The following Vanilla Hehacked features are supported:
 
 ## HeHackEd Versioning
 
-Nyan Doom supports Hehacked patches for Heretic `1.0`, `1.2`, and `1.3`. In order to get around the lack of version detection, Nyan Doom uses an auto-detect system to "vote" on which version a hehacked patch is most likely for.
+Nyan Doom supports Hehacked patches for Heretic `1.0`, `1.2`, and `1.3`. In order to get around the lack of version detection, Nyan Doom uses an auto-detect system to "vote" on which version a hehacked patch is most likely for. If undetected, Heretic will default to the latest (currently `1.3`).
 
 Modders can also force a version via the `-hhever` argument to specify/override which Heretic version.
 - Example: `-hhever 1.2`
