@@ -916,7 +916,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_mapcolor_hexen_clsd] = {
     "mapcolor_hexen_clsd", dsda_config_mapcolor_hexen_clsd,
-    CONF_COLOR(32), &mapcolor_hexen.clsd
+    CONF_COLOR(119), &mapcolor_hexen.clsd
   },
   [dsda_config_mapcolor_hexen_key] = {
     "mapcolor_hexen_key", dsda_config_mapcolor_hexen_key,
