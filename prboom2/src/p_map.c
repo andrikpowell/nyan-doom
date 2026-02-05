@@ -705,13 +705,10 @@ static dboolean P_ProjectileImmune(mobj_t *target, mobj_t *source)
 
 // [Nugget] Over/Under /------------------------------------------------------
 
-int P_EnableOverUnderForThing(void)
+int P_EnableOverUnderForThing()
 {
-  if (hexen)
-    return false; // needs work to get it working in Hexen
-
   if (raven)
-    return dsda_EnhancedRavenOverUnder(); // note: only true/false (off/all things)
+    return false; // needs work to get it working
 
   // Doom
   return dsda_EnhancedDoomOverUnder(); // note: can be 0/1/2 (off/player/all things)
@@ -881,21 +878,6 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 
     if (ou_tm && (tmthing->flags & MF_SOLID) && !(thing->flags & MF_SPECIAL)
         && (ou_tm == 2 || tmthing->player || thing->player))
-    {
-      if (P_CheckAndUpdateOverUnderMobjs(thing))
-        return true;
-    }
-  }
-  else // Raven
-  {
-    const int ou_tm = P_EnableOverUnderForThing();
-
-    // Over/Under candidate detection (mover-driven)
-    if (ou_tm && !tmthing->player &&
-        (tmthing->flags2 & MF2_PASSMOBJ) &&
-        (tmthing->flags & MF_SOLID) &&
-        (thing->flags & MF_SOLID) &&
-        !(thing->flags & MF_SPECIAL))
     {
       if (P_CheckAndUpdateOverUnderMobjs(thing))
         return true;
@@ -1656,20 +1638,6 @@ dboolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
   if (!raven)
   {
     if (P_EnableOverUnderForThing())
-    {
-      // `tmfloorz` may have changed, so make sure the thing fits
-      if (p_above_tmthing && p_above_tmthing->z < (tmfloorz + thing->height))
-        return false;
-
-      // If move was valid, set new over/under mobjs
-      P_SetOverUnderMobjs(thing);
-    }
-  }
-  else // raven
-  {
-    if (P_EnableOverUnderForThing() && !thing->player
-        && (thing->flags2 & MF2_PASSMOBJ)
-        && (thing->flags & MF_SOLID))
     {
       // `tmfloorz` may have changed, so make sure the thing fits
       if (p_above_tmthing && p_above_tmthing->z < (tmfloorz + thing->height))
@@ -4177,12 +4145,10 @@ static dboolean Hexen_P_TryMove(mobj_t* thing, fixed_t x, fixed_t y)
     fixed_t oldx, oldy;
     int side, oldside;
     line_t *ld;
-    dboolean pos_ok = true;
 
     floatok = false;
     if (!P_CheckPosition(thing, x, y))
     {                           // Solid wall or thing
-        pos_ok = false;         // do not set over/under mobjs for this move attempt
         if (!BlockingMobj || BlockingMobj->player || !thing->player)
         {
             goto pushline;
@@ -4197,37 +4163,6 @@ static dboolean Hexen_P_TryMove(mobj_t* thing, fixed_t x, fixed_t y)
         {
             goto pushline;
         }
-    }
-
-    if (pos_ok)
-    {
-      // [Nugget] Over/Under
-      if (!raven)
-      {
-        if (P_EnableOverUnderForThing())
-        {
-          // `tmfloorz` may have changed, so make sure the thing fits
-          if (p_above_tmthing && p_above_tmthing->z < (tmfloorz + thing->height))
-            return false;
-
-          // If move was valid, set new over/under mobjs
-          P_SetOverUnderMobjs(thing);
-        }
-      }
-      else // raven
-      {
-        if (P_EnableOverUnderForThing() && !thing->player
-            && (thing->flags2 & MF2_PASSMOBJ)
-            && (thing->flags & MF_SOLID))
-        {
-          // `tmfloorz` may have changed, so make sure the thing fits
-          if (p_above_tmthing && p_above_tmthing->z < (tmfloorz + thing->height))
-            return false;
-
-          // If move was valid, set new over/under mobjs
-          P_SetOverUnderMobjs(thing);
-        }
-      }
     }
 
     if (!(thing->flags & MF_NOCLIP))

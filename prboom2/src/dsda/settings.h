@@ -69,7 +69,6 @@ dboolean dsda_RenderWipeScreen(void);
 dboolean dsda_WipeAtFullSpeed(void);
 dboolean dsda_ShowAutomapKeys(void);
 dboolean dsda_DisableHorizAutoaim(void);
-dboolean dsda_EnhancedRavenOverUnder(void);
 int dsda_EnhancedDoomOverUnder(void);
 int dsda_ShowAliveMonsters(void);
 int dsda_ShowDataDisk(void);

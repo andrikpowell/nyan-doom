@@ -1379,10 +1379,6 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_allow_jumping", dsda_config_allow_jumping,
     CONF_BOOL(0), NULL, NOT_STRICT, dsda_ResetAirControl
   },
-  [dsda_config_enhanced_raven_over_under] = {
-    "dsda_enhanced_raven_over_under", dsda_config_enhanced_raven_over_under,
-    CONF_BOOL(0), NULL, STRICT_INT(0)
-  },
   [dsda_config_enhanced_doom_over_under] = {
     "dsda_enhanced_doom_over_under", dsda_config_enhanced_doom_over_under,
     dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0)

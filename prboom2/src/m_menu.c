@@ -2270,8 +2270,7 @@ static dboolean M_RavenDisabled(const setup_menu_t* s)
     {
       static const int options_disable_false[] =
       { dsda_config_sts_blink_keys,
-        dsda_config_pistol_start, dsda_config_always_pistol_start,
-        dsda_config_enhanced_raven_over_under,
+        dsda_config_pistol_start, dsda_config_always_pistol_start
       };
 
       if (M_DisableAndSetConfig(s, options_disable_false, arrlen(options_disable_false), false))
@@ -2315,8 +2314,7 @@ static dboolean M_DoomDisabled(const setup_menu_t* s)
   {
     static const int options_disable_false[] =
     { dsda_config_hide_horns, dsda_config_skill_auto_use_health,
-      dsda_config_artifact_descriptions, dsda_config_hexen_skip_ethereal_travel,
-      dsda_config_enhanced_raven_over_under
+      dsda_config_artifact_descriptions, dsda_config_hexen_skip_ethereal_travel
     };
 
     // Disable + set false
@@ -5009,7 +5007,6 @@ setup_menu_t comp_emulation_settings[] = {
   { "Allow Multiple Map Pickups", S_YESNO | S_NYAN, m_conf, CP_X, dsda_config_multiple_area_maps },
   EMPTY_LINE,
   TITLE("Compat Breaking Features", CP_X),
-  { "Heretic Stuck Monsters Fix", S_YESNO | S_NYAN, m_conf, CP_X, dsda_config_enhanced_raven_over_under },
   { "Allow Movement Over/Under Things", S_CHOICE | S_NYAN, m_conf, CP_X, dsda_config_enhanced_doom_over_under, 0, over_under_list },
   { "Allow Jumping", S_YESNO, m_conf, CP_X, dsda_config_allow_jumping },
 
