@@ -103,6 +103,10 @@ static actionf_t hhe_GetOffsetPointer(int offset)
 {
   int i;
 
+  // skip NULL pointers for detection
+  if (offset == 0)
+    return NULL;
+
   if (offset != 0)
   {
     for (i = 0; hhe_rexptrs[i].cptr != NULL; ++i)

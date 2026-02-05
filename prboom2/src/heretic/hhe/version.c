@@ -236,6 +236,7 @@ static int HHE_VotePointerOffset(int offset, int votes[deh_hhe_num_versions])
 {
   int i, v, hit = 0;
 
+  // skip NULL pointers for detection
   if (offset <= 0) return 0;
 
   for (i = 0; hhe_rexptrs[i].cptr != NULL; ++i)
