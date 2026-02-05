@@ -1804,7 +1804,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_render_stretchsky] = {
     "render_stretchsky", dsda_config_render_stretchsky,
-    CONF_BOOL(1)
+    CONF_BOOL(1), NULL, NOT_STRICT, M_ChangeSkyMode
   },
   [dsda_config_render_linearsky] = {
     "render_linearsky", dsda_config_render_linearsky,
