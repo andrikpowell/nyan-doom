@@ -3530,7 +3530,7 @@ setup_menu_t keys_raven_settings[] = {
 setup_menu_t keys_cheats_settings[] =
 {
   { "God Mode", S_INPUT, m_scrn, KB_X, 0, dsda_input_iddqd },
-  { "Buhdda Mode", S_INPUT|S_NYAN, m_scrn, KB_X, 0, dsda_input_buddha },
+  { "Buddha Mode", S_INPUT|S_NYAN, m_scrn, KB_X, 0, dsda_input_buddha },
   { "Ammo & Keys", S_INPUT, m_scrn, KB_X, 0, dsda_input_idkfa },
   { "Ammo", S_INPUT, m_scrn, KB_X, 0, dsda_input_idfa },
   { "No Clipping", S_INPUT, m_scrn, KB_X, 0, dsda_input_idclip },
