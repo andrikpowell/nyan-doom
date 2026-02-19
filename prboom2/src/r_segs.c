@@ -96,12 +96,33 @@ static int      worldhigh;
 static int      worldlow;
 static int64_t  pixhigh; // R_WiggleFix
 static int64_t  pixlow; // R_WiggleFix
-static fixed_t  pixhighstep;
-static fixed_t  pixlowstep;
+static int64_t  pixhighstep;// [PN] WiggleFix
+static int64_t  pixlowstep; // [PN] WiggleFix
 static int64_t  topfrac; // R_WiggleFix
-static fixed_t  topstep;
+static int64_t  topstep;    // [PN] WiggleFix
 static int64_t  bottomfrac; // R_WiggleFix
-static fixed_t  bottomstep;
+static int64_t  bottomstep; // [PN] WiggleFix
+
+// [PN] Sub-pixel stable DDA for rw_scale/topfrac/bottomfrac
+//
+// Integer division used for rw_scalestep leaves a remainder. Accumulating the
+// truncated step causes a tiny drift that is most noticeable toward the right
+// edge of long walls. We fix this by distributing the remainder Bresenham-style
+// and applying the same +1/-1 correction to dependent 64-bit fractions.
+
+static fixed_t  rw_scalespan;
+static int64_t  rw_scalerem;
+static int64_t  rw_scaleerr;
+static dboolean  have_pixhigh;
+static dboolean  have_pixlow;
+
+// [PN] Cached constants for DDA correction (per wall range).
+static int64_t  rw_scalespan64;
+static int64_t  rw_worldtopcorr;
+static int64_t  rw_worldbottomcorr;
+static int64_t  rw_worldhighcorr;
+static int64_t  rw_worldlowcorr;
+
 static int      *maskedtexturecol; // dropoff overflow
 
 static int	max_rwscale = 64 * FRACUNIT;
@@ -682,6 +703,33 @@ static void R_RenderSegLoop (void)
     rw_scale += rw_scalestep;
     topfrac += topstep;
     bottomfrac += bottomstep;
+
+    // [PN] Distribute the truncated remainder of rw_scalestep Bresenham-style.
+    // This removes the tiny right-edge drift/jitter on long walls.
+    if (rw_scalerem)
+    {
+        rw_scaleerr += rw_scalerem;
+
+        if (rw_scaleerr >= rw_scalespan64)
+        {
+            rw_scaleerr -= rw_scalespan64;
+            rw_scale += 1;
+            topfrac -= rw_worldtopcorr;
+            bottomfrac -= rw_worldbottomcorr;
+            if (have_pixhigh) pixhigh -= rw_worldhighcorr;
+            if (have_pixlow)  pixlow  -= rw_worldlowcorr;
+        }
+
+        else if (rw_scaleerr <= -rw_scalespan64)
+        {
+            rw_scaleerr += rw_scalespan64;
+            rw_scale -= 1;
+            topfrac += rw_worldtopcorr;
+            bottomfrac += rw_worldbottomcorr;
+            if (have_pixhigh) pixhigh += rw_worldhighcorr;
+            if (have_pixlow)  pixlow  += rw_worldlowcorr;
+        }
+    }
   }
 }
 
@@ -788,13 +836,32 @@ void R_StoreWallRange(const int start, const int stop)
   ds_p->scale1 = rw_scale =
     R_ScaleFromGlobalAngle (viewangle + xtoviewangle[start]);
 
-  if (stop > start)
+  rw_scalespan = stop - start;
+  rw_scalerem  = 0;
+  rw_scaleerr  = 0;
+  rw_scalespan64 = (int64_t)rw_scalespan;
+
+  // [PN] Sub-pixel stable wall stepping:
+  // Instead of computing rw_scalestep via fixed_t division (which drops remainder),
+  // we preserve both the integer step and the residual error. The step is applied
+  // per-column, and the error is distributed Bresenham-style across the span,
+  // ensuring sub-pixel precision is evenly compensated. This eliminates visible jitter
+  // toward the right edge of long walls, especially when the camera pans horizontally.
+  if (rw_scalespan > 0)
   {
-    ds_p->scale2 = R_ScaleFromGlobalAngle (viewangle + xtoviewangle[stop]);
-    ds_p->scalestep = rw_scalestep = (ds_p->scale2-rw_scale) / (stop-start);
+    const int64_t scale2 = (int64_t)R_ScaleFromGlobalAngle (viewangle + xtoviewangle[stop]);
+    const int64_t delta = scale2 - (int64_t)rw_scale;
+    const int64_t step64 = delta / (int64_t)rw_scalespan;
+
+    ds_p->scale2 = (fixed_t)scale2;
+    ds_p->scalestep = rw_scalestep = (fixed_t)step64;
+    rw_scalerem = delta - step64 * (int64_t)rw_scalespan;
   }
   else
+  {
     ds_p->scale2 = ds_p->scale1;
+    ds_p->scalestep = rw_scalespan = rw_scalestep = 0;
+  }
 
   // calculate texture boundaries
   //  and decide if floor / ceiling marks are needed
@@ -976,10 +1043,15 @@ void R_StoreWallRange(const int start, const int stop)
     worldtop >>= invhgtbits;
     worldbottom >>= invhgtbits;
 
-    topstep = -FixedMul (rw_scalestep, worldtop);
+    // [PN] Cache DDA correction constants once per wall range.
+    rw_worldtopcorr = ((int64_t)worldtop >> FRACBITS);
+    rw_worldbottomcorr = ((int64_t)worldbottom >> FRACBITS);
+    rw_worldhighcorr = rw_worldlowcorr = 0;
+
+    topstep = -FixedMul64((int64_t)rw_scalestep, (int64_t)worldtop); // [PN] WiggleFix
     topfrac = ((int64_t)centeryfrac>>invhgtbits) - (((int64_t)worldtop*rw_scale)>>FRACBITS); // R_WiggleFix
 
-    bottomstep = -FixedMul (rw_scalestep,worldbottom);
+    bottomstep = -FixedMul64((int64_t)rw_scalestep, (int64_t)worldbottom); // [PN] WiggleFix
     bottomfrac = ((int64_t)centeryfrac>>invhgtbits) - (((int64_t)worldbottom*rw_scale)>>FRACBITS); // R_WiggleFix
 
     if (backsector)
@@ -987,15 +1059,25 @@ void R_StoreWallRange(const int start, const int stop)
       worldhigh >>= invhgtbits;
       worldlow >>= invhgtbits;
 
+      // [PN] WiggleFix:
+      have_pixhigh = false;
+      have_pixlow  = false;
+
       if (high_less_than_top)
       {
         pixhigh = ((int64_t)centeryfrac>>invhgtbits) - (((int64_t)worldhigh*rw_scale)>>FRACBITS); // R_WiggleFix
-        pixhighstep = -FixedMul (rw_scalestep,worldhigh);
+        // [PN] WiggleFix:
+        pixhighstep  = -FixedMul64((int64_t)rw_scalestep, (int64_t)worldhigh);
+        rw_worldhighcorr = ((int64_t)worldhigh >> FRACBITS);
+        have_pixhigh = true;
       }
       if (low_greater_than_bottom)
       {
         pixlow = ((int64_t)centeryfrac>>invhgtbits) - (((int64_t)worldlow*rw_scale)>>FRACBITS); // R_WiggleFix
-        pixlowstep = -FixedMul (rw_scalestep,worldlow);
+        // [PN] WiggleFix:
+        pixlowstep  = -FixedMul64((int64_t)rw_scalestep, (int64_t)worldlow);
+        rw_worldlowcorr = ((int64_t)worldlow >> FRACBITS);
+        have_pixlow = true;
       }
     }
   }
