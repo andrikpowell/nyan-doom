@@ -60,8 +60,10 @@
 #include "dsda/animinfo.h"
 #include "dsda/configuration.h"
 #include "dsda/cr_table.h"
+#include "dsda/exhud.h"
 #include "dsda/global.h"
 #include "dsda/palette.h"
+#include "dsda/settings.h"
 #include "dsda/stretch.h"
 #include "dsda/tranmap.h"
 #include "dsda/text_color.h"
@@ -2364,6 +2366,12 @@ void V_ChangeScreenResolution(void)
   if (V_IsOpenGLMode())
   {
     gld_PreprocessLevel();
+  }
+
+  // Refresh Minimap Coordinates
+  if (dsda_ShowMinimap())
+  {
+    dsda_RefreshExHudMinimap();
   }
 }
 
