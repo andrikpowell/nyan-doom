@@ -495,17 +495,7 @@ static void N_CombinePrefixedLump(char out[9], const char *prefix, const char *n
 
     if (!prefix) prefix = "W_";
 
-    while (prefix[i] && i < 8) {
-        out[i] = prefix[i];
-        i++;
-    }
-
-    while (name[j] && i < 8) {
-        out[i] = name[j];
-        i++; j++;
-    }
-
-    out[i] = '\0';
+    snprintf(out, 9, "%s%s", prefix, name);
     M_Strupr(out);
 }
 
