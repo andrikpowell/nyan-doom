@@ -17,9 +17,15 @@
 
 #include "d_player.h"
 #include "doomstat.h"
+#include "hu_lib.h"
+#include "lprintf.h"
+#include "m_misc.h"
 #include "z_zone.h"
 
 #include "dsda/settings.h"
+
+#include "deh/strings.h"
+#include "heretic/hhe/strings.h"
 
 #include "messenger.h"
 
@@ -191,4 +197,95 @@ int dsda_PlayerMessageIsYellow(void) {
     return false;
 
   return true;
+}
+
+// Multi-Colored Messages
+
+typedef struct
+{
+  const char * const *deh_string;
+  const char *word;
+  int cm;
+} dsda_msg_color_rule_t;
+
+static const dsda_msg_color_rule_t msg_color_rules[] =
+{
+    { &s_GOTBLUECARD, "blue",   CR_BLUE },
+    { &s_GOTBLUESKUL, "blue",   CR_BLUE },
+    { &s_GOTREDCARD,  "red",    CR_RED  },
+    { &s_GOTREDSKULL, "red",    CR_RED  },
+    { &s_GOTYELWCARD, "yellow", CR_GOLD },
+    { &s_GOTYELWSKUL, "yellow", CR_GOLD },
+    { &s_PD_BLUEC,    "blue",   CR_BLUE },
+    { &s_PD_BLUEK,    "blue",   CR_BLUE },
+    { &s_PD_BLUEO,    "blue",   CR_BLUE },
+    { &s_PD_BLUES,    "blue",   CR_BLUE },
+    { &s_PD_REDC,     "red",    CR_RED  },
+    { &s_PD_REDK,     "red",    CR_RED  },
+    { &s_PD_REDO,     "red",    CR_RED  },
+    { &s_PD_REDS,     "red",    CR_RED  },
+    { &s_PD_YELLOWC,  "yellow", CR_GOLD },
+    { &s_PD_YELLOWK,  "yellow", CR_GOLD },
+    { &s_PD_YELLOWO,  "yellow", CR_GOLD },
+    { &s_PD_YELLOWS,  "yellow", CR_GOLD },
+
+    // Heretic
+    { &s_HERETIC_TXT_GOTBLUEKEY,    "blue",   CR_BLUE   },
+    { &s_HERETIC_TXT_GOTYELLOWKEY,  "yellow", CR_GOLD   },
+    { &s_HERETIC_TXT_GOTGREENKEY,   "green",  CR_GREEN  },
+    { &s_HERETIC_TXT_NEEDBLUEKEY,   "blue",   CR_BLUE   },
+    { &s_HERETIC_TXT_NEEDYELLOWKEY, "yellow", CR_GOLD   },
+    { &s_HERETIC_TXT_NEEDGREENKEY,  "green",  CR_GREEN  },
+};
+
+static const dsda_msg_color_rule_t *dsda_GetColorRuleForMessage(const char *str)
+{
+  int i;
+
+  for (i = 0; i < arrlen(msg_color_rules); ++i)
+    if (str == *msg_color_rules[i].deh_string)
+      return &msg_color_rules[i];
+
+  return NULL;
+}
+
+const char *dsda_ColorizeMessage(const char *str)
+{
+  static char buf[1024];
+
+  const dsda_msg_color_rule_t *rule;
+  char repl[128];
+  char *out;
+
+  if (!dsda_ColorizeMessages() || !str)
+    return str;
+
+  rule = dsda_GetColorRuleForMessage(str);
+  if (!rule)
+    return str;
+
+  snprintf(repl, sizeof(repl), "%s%s%s",
+           HU_ColorFromValue(rule->cm),
+           rule->word,
+           HU_ColorOrig());
+
+  out = M_StringReplaceWord(str, rule->word, repl);
+  if (!out)
+    I_Error("alloc failed");
+
+  if (strcmp(out, str) == 0)
+  {
+    free(out);
+    return str;
+  }
+
+  snprintf(buf, sizeof(buf), "%s", out);
+  free(out);
+
+  return buf;
+}
+
+void dsda_AddPlayerColoredMessage(const char* str, player_t* player) {
+  if (dsda_ShowMessages() && player == &players[displayplayer])
+    dsda_QueueMessage(dsda_ColorizeMessage(str), message_normal, true);
 }

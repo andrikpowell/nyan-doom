@@ -4566,6 +4566,7 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
   TITLE("Messages", G_X),
   { "Show Messages", S_YESNO, m_conf, G_X, dsda_config_show_messages },
+  { "Colorize Messages", S_YESNO, m_conf, G_X, dsda_config_colorize_messages },
   { "Report Revealed Secrets", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
   { "Announce Map On Entry", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_announce_map, 0, announce_map_list },
   { "Detailed Quicksave Msg", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_detailed_quicksave },

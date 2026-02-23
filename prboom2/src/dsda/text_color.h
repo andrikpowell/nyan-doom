@@ -19,6 +19,7 @@
 #define __DSDA_TEXT_COLOR__
 
 typedef enum {
+  dsda_tc_orig,
   dsda_tc_exhud_time_label,
   dsda_tc_exhud_level_time,
   dsda_tc_exhud_total_time,

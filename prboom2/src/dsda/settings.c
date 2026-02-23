@@ -196,6 +196,10 @@ dboolean dsda_ShowMessages(void) {
   return dsda_IntConfig(dsda_config_show_messages);
 }
 
+dboolean dsda_ColorizeMessages(void) {
+  return dsda_IntConfig(dsda_config_colorize_messages);
+}
+
 dboolean dsda_AutoRun(void) {
   return dsda_IntConfig(dsda_config_autorun);
 }

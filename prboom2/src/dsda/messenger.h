@@ -26,6 +26,7 @@ void dsda_AddPlayerYellowMessage(const char* str, player_t* player, dboolean ult
 void dsda_AddYellowMessage(const char* str, dboolean ultmsg);
 void dsda_AddPlayerMessage(const char* str, player_t* player);
 void dsda_AddMessage(const char* str);
+void dsda_AddPlayerColoredMessage(const char* str, player_t* player);
 void dsda_AddUnblockableMessage(const char* str);
 void dsda_UpdateMessenger(void);
 void dsda_InitMessenger(void);

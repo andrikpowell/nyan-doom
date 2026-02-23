@@ -32,6 +32,7 @@ typedef struct {
 } dsda_text_color_t;
 
 dsda_text_color_t dsda_text_colors[] = {
+  [dsda_tc_orig] = { "orig", 0 }, // placeholder
   [dsda_tc_exhud_time_label] = { "exhud_time_label", CR_GRAY },
   [dsda_tc_exhud_level_time] = { "exhud_level_time", CR_GREEN },
   [dsda_tc_exhud_total_time] = { "exhud_total_time", CR_GOLD },
@@ -176,7 +177,13 @@ void dsda_LoadTextColor(void) {
   for (p = dsda_text_colors; p->key; p++) {
     p->color_str[0] = '\x1b';
     p->color_str[1] = HUlib_Color(p->color_range);
+    p->color_str[2] = '\0';
   }
+
+  // Force ORIG/reset escape (not a real CR color)
+  dsda_text_colors[dsda_tc_orig].color_str[0] = '\x1b';
+  dsda_text_colors[dsda_tc_orig].color_str[1] = HUlib_Orig();
+  dsda_text_colors[dsda_tc_orig].color_str[2] = '\0';
 
   Z_Free(lines);
   Z_Free(lump);

@@ -58,6 +58,11 @@ char* M_Strlwr(char* str);
 char* M_Strupr(char* str);
 char* M_StrRTrim(char* str);
 
+char *M_StringReplace(const char *haystack, const char *needle,
+                      const char *replacement);
+char *M_StringReplaceWord(const char *haystack, const char *needle,
+                          const char *replacement);
+
 typedef struct array_s
 {
   void *data;

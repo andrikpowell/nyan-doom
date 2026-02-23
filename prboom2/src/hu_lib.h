@@ -103,8 +103,10 @@ dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean c
 void HUlib_AdjustBottomOffset_MultiLine(hu_textline_t *t, int y_offset, double ratio, int vpt);
 
 char HUlib_Color(int cm);
+char HUlib_Orig(void);
 char *HU_ColorFromConfig(int config);
 char *HU_ColorFromValue(int cm);
+const char *HU_ColorOrig(void);
 extern void HU_InitColorStrings(void);
 
 #endif

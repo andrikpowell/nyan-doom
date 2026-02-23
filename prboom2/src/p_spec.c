@@ -1107,7 +1107,7 @@ dboolean P_CanUnlockGenDoor
         (!skulliscard || !player->cards[it_redskull])
       )
       {
-        dsda_AddPlayerMessage(skulliscard ? s_PD_REDK : s_PD_REDC, player);
+        dsda_AddPlayerColoredMessage(skulliscard ? s_PD_REDK : s_PD_REDC, player);
         S_StartMobjSound(player->mo,sfx_oof);             // killough 3/20/98
         ST_SetKeyBlink(player, KEYBLINK_NONE, KEYBLINK_NONE, skulliscard ? KEYBLINK_EITHER : KEYBLINK_CARD);
         return false;
@@ -1120,7 +1120,7 @@ dboolean P_CanUnlockGenDoor
         (!skulliscard || !player->cards[it_blueskull])
       )
       {
-        dsda_AddPlayerMessage(skulliscard ? s_PD_BLUEK : s_PD_BLUEC, player);
+        dsda_AddPlayerColoredMessage(skulliscard ? s_PD_BLUEK : s_PD_BLUEC, player);
         S_StartMobjSound(player->mo,sfx_oof);             // killough 3/20/98
         ST_SetKeyBlink(player, skulliscard ? KEYBLINK_EITHER : KEYBLINK_CARD, KEYBLINK_NONE, KEYBLINK_NONE);
         return false;
@@ -1133,7 +1133,7 @@ dboolean P_CanUnlockGenDoor
         (!skulliscard || !player->cards[it_yellowskull])
       )
       {
-        dsda_AddPlayerMessage(skulliscard ? s_PD_YELLOWK : s_PD_YELLOWC, player);
+        dsda_AddPlayerColoredMessage(skulliscard ? s_PD_YELLOWK : s_PD_YELLOWC, player);
         S_StartMobjSound(player->mo,sfx_oof);             // killough 3/20/98
         ST_SetKeyBlink(player, KEYBLINK_NONE, skulliscard ? KEYBLINK_EITHER : KEYBLINK_CARD, KEYBLINK_NONE);
         return false;
@@ -1146,7 +1146,7 @@ dboolean P_CanUnlockGenDoor
         (!skulliscard || !player->cards[it_redcard])
       )
       {
-        dsda_AddPlayerMessage(skulliscard ? s_PD_REDK : s_PD_REDS, player);
+        dsda_AddPlayerColoredMessage(skulliscard ? s_PD_REDK : s_PD_REDS, player);
         S_StartMobjSound(player->mo,sfx_oof);             // killough 3/20/98
         ST_SetKeyBlink(player, KEYBLINK_NONE, KEYBLINK_NONE, skulliscard ? KEYBLINK_EITHER : KEYBLINK_SKULL);
         return false;
@@ -1159,7 +1159,7 @@ dboolean P_CanUnlockGenDoor
         (!skulliscard || !player->cards[it_bluecard])
       )
       {
-        dsda_AddPlayerMessage(skulliscard ? s_PD_BLUEK : s_PD_BLUES, player);
+        dsda_AddPlayerColoredMessage(skulliscard ? s_PD_BLUEK : s_PD_BLUES, player);
         S_StartMobjSound(player->mo,sfx_oof);             // killough 3/20/98
         ST_SetKeyBlink(player, skulliscard ? KEYBLINK_EITHER : KEYBLINK_SKULL, KEYBLINK_NONE, KEYBLINK_NONE);
         return false;
@@ -1172,7 +1172,7 @@ dboolean P_CanUnlockGenDoor
         (!skulliscard || !player->cards[it_yellowcard])
       )
       {
-        dsda_AddPlayerMessage(skulliscard ? s_PD_YELLOWK : s_PD_YELLOWS, player);
+        dsda_AddPlayerColoredMessage(skulliscard ? s_PD_YELLOWK : s_PD_YELLOWS, player);
         S_StartMobjSound(player->mo,sfx_oof);             // killough 3/20/98
         ST_SetKeyBlink(player, KEYBLINK_NONE, skulliscard ? KEYBLINK_EITHER : KEYBLINK_SKULL, KEYBLINK_NONE);
         return false;
@@ -1373,7 +1373,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
 
   if (message)
   {
-    dsda_AddPlayerMessage(message, player);
+    dsda_AddPlayerColoredMessage(message, player);
   }
 
   if (sfx != sfx_None)

@@ -59,6 +59,7 @@ typedef enum {
   dsda_config_freelook_enhanced_flying,
   dsda_config_autorun,
   dsda_config_show_messages,
+  dsda_config_colorize_messages,
   dsda_config_stats_format,
   dsda_config_command_display,
   dsda_config_target_health,

@@ -576,7 +576,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
         // leave cards for everyone
     case SPR_BKEY:
       if (!player->cards[it_bluecard])
-        dsda_AddPlayerMessage(s_GOTBLUECARD, player);
+        dsda_AddPlayerColoredMessage(s_GOTBLUECARD, player);
       P_GiveCard (player, it_bluecard);
       if (!netgame)
         break;
@@ -584,7 +584,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 
     case SPR_YKEY:
       if (!player->cards[it_yellowcard])
-        dsda_AddPlayerMessage(s_GOTYELWCARD, player);
+        dsda_AddPlayerColoredMessage(s_GOTYELWCARD, player);
       P_GiveCard (player, it_yellowcard);
       if (!netgame)
         break;
@@ -592,7 +592,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 
     case SPR_RKEY:
       if (!player->cards[it_redcard])
-        dsda_AddPlayerMessage(s_GOTREDCARD, player);
+        dsda_AddPlayerColoredMessage(s_GOTREDCARD, player);
       P_GiveCard (player, it_redcard);
       if (!netgame)
         break;
@@ -600,7 +600,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 
     case SPR_BSKU:
       if (!player->cards[it_blueskull])
-        dsda_AddPlayerMessage(s_GOTBLUESKUL, player);
+        dsda_AddPlayerColoredMessage(s_GOTBLUESKUL, player);
       P_GiveCard (player, it_blueskull);
       if (!netgame)
         break;
@@ -608,7 +608,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 
     case SPR_YSKU:
       if (!player->cards[it_yellowskull])
-        dsda_AddPlayerMessage(s_GOTYELWSKUL, player);
+        dsda_AddPlayerColoredMessage(s_GOTYELWSKUL, player);
       P_GiveCard (player, it_yellowskull);
       if (!netgame)
         break;
@@ -616,7 +616,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 
     case SPR_RSKU:
       if (!player->cards[it_redskull])
-        dsda_AddPlayerMessage(s_GOTREDSKULL, player);
+        dsda_AddPlayerColoredMessage(s_GOTREDSKULL, player);
       P_GiveCard (player, it_redskull);
       if (!netgame)
         break;
@@ -1935,6 +1935,12 @@ void P_SetMessage(player_t * player, const char *message, dboolean ultmsg)
     player->yellowMessage = false;
 }
 
+void P_SetColoredMessage(player_t * player, const char *message, dboolean ultmsg)
+{
+    dsda_AddPlayerColoredMessage(message, player);
+    player->yellowMessage = false;
+}
+
 static void Heretic_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 {
     int i;
@@ -2010,7 +2016,7 @@ static void Heretic_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
         case HERETIC_SPR_BKYY:         // Key_Blue
             if (!player->cards[key_blue])
             {
-                P_SetMessage(player, s_HERETIC_TXT_GOTBLUEKEY, false);
+                P_SetColoredMessage(player, s_HERETIC_TXT_GOTBLUEKEY, false);
             }
             P_GiveCard(player, key_blue);
             sound = heretic_sfx_keyup;
@@ -2022,7 +2028,7 @@ static void Heretic_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
         case HERETIC_SPR_CKYY:         // Key_Yellow
             if (!player->cards[key_yellow])
             {
-                P_SetMessage(player, s_HERETIC_TXT_GOTYELLOWKEY, false);
+                P_SetColoredMessage(player, s_HERETIC_TXT_GOTYELLOWKEY, false);
             }
             sound = heretic_sfx_keyup;
             P_GiveCard(player, key_yellow);
@@ -2034,7 +2040,7 @@ static void Heretic_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
         case HERETIC_SPR_AKYY:         // Key_Green
             if (!player->cards[key_green])
             {
-                P_SetMessage(player, s_HERETIC_TXT_GOTGREENKEY, false);
+                P_SetColoredMessage(player, s_HERETIC_TXT_GOTGREENKEY, false);
             }
             sound = heretic_sfx_keyup;
             P_GiveCard(player, key_green);

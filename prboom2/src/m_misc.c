@@ -107,6 +107,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_sts_blink_keys),
   MIGRATED_SETTING(dsda_config_sts_solid_bg_color),
   MIGRATED_SETTING(dsda_config_show_messages),
+  MIGRATED_SETTING(dsda_config_colorize_messages),
   MIGRATED_SETTING(dsda_config_stats_format),
   MIGRATED_SETTING(dsda_config_autorun),
   MIGRATED_SETTING(dsda_config_deh_change_cheats),
@@ -1082,6 +1083,119 @@ void M_ScreenShot(void)
 
   doom_printf ("M_ScreenShot: Couldn't create screenshot");
   return;
+}
+
+// [Woof]
+// String replace function.
+
+// Source - https://stackoverflow.com/questions/27303062/strstr-function-like-that-ignores-upper-or-lower-case
+// Posted by chux, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-01-03, License - CC BY-SA 3.0
+char *M_strcasestr(const char *haystack, const char *needle)
+{
+    do
+    {
+        const char *h = haystack;
+        const char *n = needle;
+        while (tolower((unsigned char)*h) == tolower((unsigned char)*n) && *n)
+        {
+            h++;
+            n++;
+        }
+        if (*n == 0)
+        {
+            return (char *)haystack;
+        }
+    } while (*haystack++);
+    return NULL;
+}
+
+static inline int is_boundary(char c)
+{
+    return c == '\0' || isspace((unsigned char)c) || ispunct((unsigned char)c);
+}
+
+static char *M_StringReplaceEx(const char *haystack, const char *needle,
+                               const char *replacement, const dboolean whole_word)
+{
+    char *result, *dst;
+    const char *p;
+    const size_t needle_len = strlen(needle);
+    const size_t repl_len = strlen(replacement);
+    size_t result_len, dst_len;
+
+    // Iterate through occurrences of 'needle' and calculate the size of
+    // the new string.
+    result_len = strlen(haystack) + 1;
+    p = haystack;
+
+    for (;;)
+    {
+        p = M_strcasestr(p, needle);
+        if (p == NULL)
+        {
+            break;
+        }
+
+        if (!whole_word ||
+            ((p == haystack || is_boundary(p[-1])) &&
+            is_boundary(p[needle_len])))
+        {
+            result_len += repl_len - needle_len;
+        }
+
+        p += needle_len;
+    }
+
+    // Construct new string.
+
+    result = malloc(result_len);
+    if (result == NULL)
+    {
+        I_Error("Failed to allocate new string");
+        return NULL;
+    }
+
+    dst = result;
+    dst_len = result_len;
+    p = haystack;
+
+    while (*p != '\0')
+    {
+        if (!strncasecmp(p, needle, needle_len) &&
+            (!whole_word ||
+            ((p == haystack || is_boundary(p[-1])) &&
+            is_boundary(p[needle_len]))))
+        {
+            M_StringCopy(dst, replacement, dst_len);
+            p += needle_len;
+            dst += repl_len;
+            dst_len -= repl_len;
+        }
+        else
+        {
+            *dst = *p;
+            ++dst;
+            --dst_len;
+            ++p;
+        }
+    }
+
+    *dst = '\0';
+
+    return result;
+}
+
+char *M_StringReplace(const char *haystack, const char *needle,
+                      const char *replacement)
+{
+    return M_StringReplaceEx(haystack, needle, replacement, false);
+}
+
+char *M_StringReplaceWord(const char *haystack, const char *needle,
+                          const char *replacement)
+{
+    return M_StringReplaceEx(haystack, needle, replacement, true);
 }
 
 // Safe string copy function that works like OpenBSD's strlcpy().

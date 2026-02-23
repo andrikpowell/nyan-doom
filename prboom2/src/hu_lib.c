@@ -45,6 +45,8 @@
 #include "dsda/hud_components/base.h"
 
 #define HU_COLOR 0x30
+#define HU_COLOR_ORIG   (HU_COLOR - 1)  // 47
+#define HU_XOFF_MAX     (HU_COLOR - 2)  // 46
 
 char HUlib_Color(int cm)
 {
@@ -75,6 +77,17 @@ char* HU_ColorFromValue(int cm)
 {
   if (cm >= CR_HUD_LIMIT) cm = CR_HUD_LIMIT - 1;
   return hu_color_str[cm];
+}
+
+char HUlib_Orig(void)
+{
+  return HU_COLOR_ORIG;
+}
+
+const char *HU_ColorOrig(void)
+{
+  static const char hu_orig_str[3] = { '\x1b', HU_COLOR_ORIG, '\0' };
+  return hu_orig_str;
 }
 
 ////////////////////////////////////////////////////////
@@ -440,6 +453,8 @@ void HUlib_drawTextLine
   int     x;
   unsigned char c;
   int oc = l->cm; //jff 2/17/98 remember default color
+  int base_cm = oc;
+  dboolean base_set = false;
   int y;          // killough 1/18/98 -- support multiple lines
 
   // Choose which font to use (Hexen Yellow Message)
@@ -475,8 +490,23 @@ void HUlib_drawTextLine
     {                    //jff 3/26/98 changed to actual escape char
       if (++i < l->len)
       {
+        if (l->l[i] == HU_COLOR_ORIG)
+        {
+          l->cm = base_cm;
+          continue;
+        }
+
         if (l->l[i] >= HU_COLOR && l->l[i] < HU_COLOR + CR_HUD_LIMIT)
+        {
+          // First color code in the string becomes color "base"
+          if (!base_set)
+          {
+            base_cm = l->l[i] - HU_COLOR;
+            base_set = true;
+          }
+
           l->cm = l->l[i] - HU_COLOR;
+        }
         else if (l->l[i] < HU_COLOR)
           x += l->l[i];
       }
@@ -673,7 +703,7 @@ void HUlib_setTextXCenter(hu_textline_t* t)
     while (indent > 0 && out < (int)sizeof(((hu_textline_t*)0)->l) - 3)
     {
       int chunk = indent;
-      if (chunk > HU_COLOR - 1) chunk = HU_COLOR - 1; // 47
+      if (chunk > HU_XOFF_MAX) chunk = HU_XOFF_MAX;
       outbuf[(out)++] = '\x1b';
       outbuf[(out)++] = (char)chunk;
       indent -= chunk;
@@ -681,7 +711,7 @@ void HUlib_setTextXCenter(hu_textline_t* t)
 
     // Skip existing *position* ESC offsets that we previously injected
     // (but keep color changes: param >= HU_COLOR).
-    while (p[0] == '\x1b' && p[1] && p[1] < HU_COLOR)
+    while (p[0] == '\x1b' && p[1] && p[1] < HU_COLOR && p[1] != HU_COLOR_ORIG)
       p += 2;
 
     while (*p && *p != '\n' && out < (int)sizeof(outbuf) - 1)
