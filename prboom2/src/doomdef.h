@@ -463,9 +463,7 @@ typedef enum {
 
 #define TOCENTER -8
 
-#define BLINKTHRESHOLD (4*32)
-
-// TODO_HEXEN: BLINKTHRESHOLD is (4*35)
+#define BLINKTHRESHOLD (hexen ? 4*35 : 4*32)
 
 extern dboolean heretic;
 
