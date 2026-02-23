@@ -311,6 +311,7 @@ typedef enum {
   dsda_config_show_split_data,
   dsda_config_demo_author,
   dsda_config_player_name,
+  dsda_config_player_gender,
   dsda_config_quickstart_cache_tics,
   dsda_config_death_use_action,
   dsda_config_allow_jumping,

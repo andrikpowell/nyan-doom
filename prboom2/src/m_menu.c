@@ -4762,9 +4762,12 @@ setup_menu_t* obituary_settings[] =
   NULL
 };
 
+static const char* gender_list[] = { "Male", "Female", "Neutral", "Object", NULL };
+
 setup_menu_t obituary_gen_settings[] = {
   { "Show Obituaries", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_obituaries },
   { "Player Name", S_NAME | S_NYAN, m_conf, G_X, dsda_config_player_name, 0, color_list, DEPEND(dsda_config_obituaries, true) },
+  { "Player Gender", S_CHOICE, m_conf, G_X, dsda_config_player_gender, 0, gender_list, DEPEND(dsda_config_obituaries, true) },
   { "Obituaries Color", S_CHOICE | S_CRITEM | S_NYAN, m_conf, G_X, dsda_config_obituaries_color, 0, color_list, DEPEND(dsda_config_obituaries, true) },
   FINAL_ENTRY
 };

@@ -34,18 +34,23 @@
 
 #include "hu_obituary.h"
 
-// gender-neutral pronouns
+// pronouns
 
-struct
+enum
 {
-    const char *const from;
-    const char *const to;
-} static const pronouns[] = {
-    { "%g", "they"    },
-    { "%h", "them"    },
-    { "%p", "their"   },
-    { "%s", "theirs"  },
-    { "%r", "they're" },
+	GENDER_MALE,
+	GENDER_FEMALE,
+	GENDER_NEUTER,
+	GENDER_OBJECT,
+	GENDER_MAX
+};
+
+static const char *pronoun_list[GENDER_MAX][5] =
+{
+    { "he",   "him",  "his",   "his",    "he's"    },
+    { "she",  "her",  "her",   "hers",   "she's"   },
+    { "they", "them", "their", "theirs", "they're" },
+    { "it",   "it",   "its",   "its'",   "it's"    }
 };
 
 static const char *playerstr[] = {
@@ -387,6 +392,26 @@ static void dsda_ExpandObituary(dsda_string_t *out, const char *tmp, mobj_t *tar
       {
         char key[3] = { '%', code, '\0' };
         dboolean matched = false;
+
+        // Default gender
+        int pronoun = GENDER_NEUTER;
+
+        // only allow gender customisation for player
+        // (we don't know gender info for other players)
+        if ((target && target->player) && ((target->player - players) == consoleplayer))
+          pronoun = dsda_IntConfig(dsda_config_player_gender);
+
+        struct
+        {
+            const char *const from;
+            const char *to;
+        } pronouns[] = {
+            { "%g", pronoun_list[pronoun][0] }, // Subject
+            { "%h", pronoun_list[pronoun][1] }, // Object
+            { "%p", pronoun_list[pronoun][2] }, // Possessive Determiner
+            { "%s", pronoun_list[pronoun][3] }, // Possessive Pronoun
+            { "%r", pronoun_list[pronoun][4] }, // Perfective
+        };
 
         for (int i = 0; i < (int)(sizeof(pronouns) / sizeof(pronouns[0])); i++)
         {

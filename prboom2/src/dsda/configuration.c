@@ -1359,10 +1359,6 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_show_split_data", dsda_config_show_split_data,
     CONF_BOOL(1)
   },
-  [dsda_config_player_name] = {
-    "dsda_player_name", dsda_config_player_name,
-    CONF_STRING("Player"), NULL, NOT_STRICT, dsda_InitObituaries
-  },
   [dsda_config_demo_author] = {
     "dsda_demo_author", dsda_config_demo_author,
     CONF_STRING("Anonymous")
@@ -1957,6 +1953,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_announce_map] = {
     "announce_map", dsda_config_announce_map,
     dsda_config_int, 0, 2, { 0 }
+  },
+  [dsda_config_player_name] = {
+    "dsda_player_name", dsda_config_player_name,
+    CONF_STRING("Player"), NULL, NOT_STRICT, dsda_InitObituaries
+  },
+  [dsda_config_player_gender] = {
+    "dsda_player_gender", dsda_config_player_gender,
+    dsda_config_int, 0, 3, { 2 }
   },
   [dsda_config_obituaries] = {
     "dsda_obituaries", dsda_config_obituaries,

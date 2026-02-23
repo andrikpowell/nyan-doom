@@ -434,6 +434,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_artifact_descriptions),
   MIGRATED_SETTING(dsda_config_hexen_skip_ethereal_travel),
   MIGRATED_SETTING(dsda_config_player_name),
+  MIGRATED_SETTING(dsda_config_player_gender),
   MIGRATED_SETTING(dsda_config_obituaries),
   MIGRATED_SETTING(dsda_config_obituaries_color),
   MIGRATED_SETTING(dsda_config_playback_mouse_controls),
