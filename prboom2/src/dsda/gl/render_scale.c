@@ -88,13 +88,12 @@ void dsda_GLSetScreenSpaceScissor(int x, int y, int w, int h)
 void dsda_GLUpdateStatusBarVisible() {
   int saved_visible;
   int current_visible;
-  float gl_stbar_window_fix = !desired_fullscreen; // window black line fix - TODO: Come up with a better fix
 
   saved_visible = (gl_statusbar_height > 0);
   current_visible = R_PartialView();
 
   if (saved_visible != current_visible) {
-    gl_statusbar_height = (int)(gl_scale_y * (float)ST_SCALED_HEIGHT + gl_stbar_window_fix) * R_PartialView();
+    gl_statusbar_height = (int)(gl_scale_y * (float)ST_SCALED_HEIGHT + 1) * R_PartialView();
     gl_scene_height = viewport_rect.h - gl_statusbar_height - (gl_scene_offset_y * 2);
   }
 }
