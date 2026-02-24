@@ -497,28 +497,30 @@ void HUlib_drawTextLine
     {                    //jff 3/26/98 changed to actual escape char
       if (++i < l->len)
       {
-        if (l->l[i] == HU_COLOR_ORIG)
+        unsigned char p = l->l[i];
+
+        if (p == HU_COLOR_ORIG)
         {
           l->cm = base_cm;
           continue;
         }
 
-        if (l->l[i] >= HU_COLOR && l->l[i] < HU_COLOR + CR_HUD_LIMIT)
+        if (p >= HU_COLOR && p < HU_COLOR + CR_HUD_LIMIT)
         {
           // First color code in the string becomes color "base"
           if (!base_set)
           {
-            base_cm = l->l[i] - HU_COLOR;
+            base_cm = p - HU_COLOR;
             base_set = true;
           }
 
-          l->cm = l->l[i] - HU_COLOR;
+          l->cm = p - HU_COLOR;
         }
-        else if (l->l[i] < HU_COLOR)
-          x += l->l[i];
+        else if (p < HU_COLOR)
+          x += p;
       }
     }
-    else  if (c != ' ' && c >= l->sc && c <= 127)
+    else if (c != ' ' && c >= l->sc && c <= 127)
     {
       w = font[c - l->sc].width + l->kerning;
       if (x+w-font[c - l->sc].leftoffset > right)
@@ -642,39 +644,6 @@ static int HUlib_LineWidthRaw(const hu_textline_t* l, const char* s)
 
   if (!any) return 0;
   return maxx - minx;
-}
-
-int HUlib_CountRenderedLines(const hu_textline_t *t)
-{
-  int lines = 1;
-
-  if (!t || t->len <= 0) return 0;
-
-  for (int i = 0; i < t->len; ++i)
-    if (t->l[i] == '\n')
-      ++lines;
-
-  // If the buffer ends with '\n', the last "line" is empty (not drawn)
-  if (t->len > 0 && t->l[t->len - 1] == '\n')
-    --lines;
-
-  if (lines < 1) lines = 1;
-  return lines;
-}
-
-void HUlib_AdjustBottomOffset_MultiLine(hu_textline_t *t, int y_offset, double ratio, int vpt)
-{
-  int lines;
-
-  // Extra guard, cuz why not
-  if (!BOTTOM_ALIGNMENT(t->flags & VPT_ALIGN_MASK))
-    return;
-
-  lines = HUlib_CountRenderedLines(t);
-  if (lines < 1) lines = 1;
-
-  // Alter Y coordinate from the original offset each update
-  t->y = dsda_HudComponentY(y_offset, vpt, ratio) - (lines - 1) * t->line_height;
 }
 
 //
@@ -990,4 +959,44 @@ dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean c
   }
 
   return false;
+}
+
+////////////////////////////////////////////////////////
+//
+// Bottom Align wrapped text lines
+//
+////////////////////////////////////////////////////////
+
+
+int HUlib_CountRenderedLines(const hu_textline_t *t)
+{
+  int lines = 1;
+
+  if (!t || t->len <= 0) return 0;
+
+  for (int i = 0; i < t->len; ++i)
+    if (t->l[i] == '\n')
+      ++lines;
+
+  // If the buffer ends with '\n', the last "line" is empty (not drawn)
+  if (t->len > 0 && t->l[t->len - 1] == '\n')
+    --lines;
+
+  if (lines < 1) lines = 1;
+  return lines;
+}
+
+void HUlib_AdjustBottomOffset_MultiLine(hu_textline_t *t, int y_offset, double ratio, int vpt)
+{
+  int lines;
+
+  // Extra guard, cuz why not
+  if (!BOTTOM_ALIGNMENT(t->flags & VPT_ALIGN_MASK))
+    return;
+
+  lines = HUlib_CountRenderedLines(t);
+  if (lines < 1) lines = 1;
+
+  // Alter Y coordinate from the original offset each update
+  t->y = dsda_HudComponentY(y_offset, vpt, ratio) - (lines - 1) * t->line_height;
 }
