@@ -356,9 +356,16 @@ static int HUlib_SingleLineMaxRightEdgePx(const hu_textline_t *l, const patchnum
         }
         else if (p < HU_COLOR)
         {
-          // x-offset
-          x += p;
-          if (x > max_right) max_right = x;
+          if (p == HU_COLOR_ORIG)
+          {
+            /* orig/reset is NOT an x-offset */
+          }
+          else
+          {
+            // x-offset
+            x += p;
+            if (x > max_right) max_right = x;
+          }
         }
       }
       continue;
