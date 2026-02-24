@@ -29,7 +29,8 @@
 
 #include "messenger.h"
 
-#define MESSAGE_LIFETIME 140
+#define MESSAGE_LIFETIME        (TICRATE*4)
+#define YELLOW_MESSAGE_LIFETIME (5*MESSAGE_LIFETIME)
 
 typedef enum {
   message_alert,
@@ -86,7 +87,7 @@ static void dsda_QueueMessage(const char* str, message_priority_t priority, dboo
   // Hexen's Yellow Messages last 5 times longer than normal messages
   if (first_time)
     if (priority == message_yellow)
-      message_lifetime = 5*MESSAGE_LIFETIME;  // hexen_note - yellow message
+      message_lifetime = YELLOW_MESSAGE_LIFETIME;  // hexen_note - yellow message
 
   if (current_message) {
     if (current_message->priority < priority)
