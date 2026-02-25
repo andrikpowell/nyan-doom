@@ -268,7 +268,7 @@ const char *dsda_ColorizeMessage(const char *str)
   snprintf(repl, sizeof(repl), "%s%s%s",
            HU_ColorFromValue(rule->cm),
            rule->word,
-           HU_ColorOrig());
+           HU_ColorReset());
 
   out = M_StringReplaceWord(str, rule->word, repl);
   if (!out)

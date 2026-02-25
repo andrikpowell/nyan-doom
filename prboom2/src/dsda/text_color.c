@@ -182,7 +182,7 @@ void dsda_LoadTextColor(void) {
 
   // Force ORIG/reset escape (not a real CR color)
   dsda_text_colors[dsda_tc_orig].color_str[0] = '\x1b';
-  dsda_text_colors[dsda_tc_orig].color_str[1] = HUlib_Orig();
+  dsda_text_colors[dsda_tc_orig].color_str[1] = HUlib_ColorReset();
   dsda_text_colors[dsda_tc_orig].color_str[2] = '\0';
 
   Z_Free(lines);

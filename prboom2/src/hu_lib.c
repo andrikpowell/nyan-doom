@@ -53,6 +53,11 @@ char HUlib_Color(int cm)
   return HU_COLOR + cm;
 }
 
+char HUlib_ColorReset(void)
+{
+  return HU_COLOR_ORIG;
+}
+
 static char hu_color_str[CR_LIMIT][3];
 
 void HU_InitColorStrings(void)
@@ -66,6 +71,17 @@ void HU_InitColorStrings(void)
   }
 }
 
+static char hu_orig_str[3];
+
+const char *HU_ColorReset(void)
+{
+  hu_orig_str[0] = '\x1b';
+  hu_orig_str[1] = HU_COLOR_ORIG;
+  hu_orig_str[2] = '\0';
+
+  return hu_orig_str;
+}
+
 char* HU_ColorFromConfig(int config)
 {
   int cm = dsda_IntConfig(config);
@@ -77,17 +93,6 @@ char* HU_ColorFromValue(int cm)
 {
   if (cm >= CR_HUD_LIMIT) cm = CR_HUD_LIMIT - 1;
   return hu_color_str[cm];
-}
-
-char HUlib_Orig(void)
-{
-  return HU_COLOR_ORIG;
-}
-
-const char *HU_ColorOrig(void)
-{
-  static const char hu_orig_str[3] = { '\x1b', HU_COLOR_ORIG, '\0' };
-  return hu_orig_str;
 }
 
 ////////////////////////////////////////////////////////
