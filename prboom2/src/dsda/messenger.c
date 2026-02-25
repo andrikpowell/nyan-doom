@@ -276,12 +276,12 @@ const char *dsda_ColorizeMessage(const char *str)
 
   if (strcmp(out, str) == 0)
   {
-    free(out);
+    Z_Free(out);
     return str;
   }
 
   snprintf(buf, sizeof(buf), "%s", out);
-  free(out);
+  Z_Free(out);
 
   return buf;
 }

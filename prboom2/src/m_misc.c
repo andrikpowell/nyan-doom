@@ -1149,7 +1149,7 @@ static char *M_StringReplaceEx(const char *haystack, const char *needle,
 
     // Construct new string.
 
-    result = malloc(result_len);
+    result = Z_Malloc(result_len);
     if (result == NULL)
     {
         I_Error("Failed to allocate new string");
