@@ -59,6 +59,7 @@ char HUlib_ColorReset(void)
 }
 
 static char hu_color_str[CR_LIMIT][3];
+static char hu_orig_str[3];
 
 void HU_InitColorStrings(void)
 {
@@ -70,8 +71,6 @@ void HU_InitColorStrings(void)
     hu_color_str[i][2] = '\0';
   }
 }
-
-static char hu_orig_str[3];
 
 const char *HU_ColorReset(void)
 {
@@ -979,13 +978,37 @@ int HUlib_CountRenderedLines(const hu_textline_t *t)
 
   if (!t || t->len <= 0) return 0;
 
-  for (int i = 0; i < t->len; ++i)
-    if (t->l[i] == '\n')
-      ++lines;
+  for (int i = 0; i < t->len; i++)
+  {
+    unsigned char c = t->l[i];
 
-  // If the buffer ends with '\n', the last "line" is empty (not drawn)
-  if (t->len > 0 && t->l[t->len - 1] == '\n')
-    --lines;
+    // skip ESC + Param (needed for HU_COLOR_ORIG)
+    if (c == '\x1b')
+    {
+      if (i + 1 < t->len) i++; // skip ESC + param (2 bytes)
+      continue;
+    }
+
+    // if new line found, add to line count
+    if (c == '\n')
+      lines++;
+  }
+
+  // If the buffer ends with a REAL '\n', the last "line" is empty (not drawn)
+  if (t->len > 0)
+  {
+    int last = t->len - 1;
+
+    // If last byte is the param of an ESC pair, it's not a real '\n'
+    if (last >= 1 && t->l[last - 1] == '\x1b')
+    {
+      // do nothing
+    }
+    else if (t->l[last] == '\n')
+    {
+      --lines;
+    }
+  }
 
   if (lines < 1) lines = 1;
   return lines;
