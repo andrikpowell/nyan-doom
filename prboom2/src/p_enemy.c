@@ -4246,6 +4246,7 @@ void A_GenWizard(mobj_t * actor)
     dsda_WatchDSparilSpawn(mo);
     if (P_TestMobjLocation(mo) == false)
     {                           // Didn't fit
+        dsda_WatchFailedSpawn(mo);
         P_RemoveMobj(mo);
         return;
     }
@@ -8036,6 +8037,7 @@ void A_SpawnBishop(mobj_t * actor)
     {
         if (!P_TestMobjLocation(mo))
         {
+            dsda_WatchFailedSpawn(mo);
             P_SetMobjState(mo, HEXEN_S_NULL);
         }
     }
