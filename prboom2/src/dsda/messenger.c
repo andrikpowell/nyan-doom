@@ -291,8 +291,20 @@ static const dsda_msg_color_rule_t *dsda_GetColorRuleForMessage(const char *str)
   int i;
 
   for (i = 0; i < arrlen(msg_color_rules); ++i)
-    if (str == *msg_color_rules[i].deh_string)
-      return &msg_color_rules[i];
+  {
+    const char *rule_str = *msg_color_rules[i].deh_string;
+
+    if (!rule_str || !str)
+        continue;
+
+    // if string matches exactly
+    if (str == rule_str)
+        return &msg_color_rules[i];
+
+    // Match prefix (ignore trailing '\n')
+    if (strncmp(str, rule_str, strlen(rule_str)) == 0)
+        return &msg_color_rules[i];
+  }
 
   return NULL;
 }
