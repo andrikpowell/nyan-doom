@@ -1112,13 +1112,28 @@ static void R_DrawPSprite (pspdef_t *psp)
                                              (viewplayer->pclass == PCLASS_CLERIC &&
                                              viewplayer->readyweapon == wp_first));
 
+    // [crispy] don't center vertically during lowering and raising states
+    const dboolean raise_or_lower = (psp->state->action == A_Lower || psp->state->action == A_Raise);
+
+    // Player must be alive - fixes lingering flash states
+    const dboolean is_alive       = (viewplayer->playerstate == PST_LIVE);
+
+    // Continuous bobbing
+    const dboolean forced_bobbing = (weapon_attack_alignment == CENTERWEAPON_BOB);
+
+    // Misc Offsets
+    const dboolean x_offset       = (psp->state->misc1);
+    const dboolean y_offset       = (hexen ? psp->state->misc2 :
+                                     x_offset && psp->state->misc2);
+
+
     if (!dsda_WeaponBob() && !(swiping_weapon && viewplayer->attackdown))
     {
       static fixed_t last_sy = 32 * FRACUNIT;
 
       psp_sx = FRACUNIT;
 
-      if (psp->state->action != A_Lower && psp->state->action != A_Raise)
+      if (!raise_or_lower)
       {
         last_sy = psp->sy;
         psp_sy = 32 * FRACUNIT;
@@ -1129,16 +1144,21 @@ static void R_DrawPSprite (pspdef_t *psp)
         psp_sy -= (last_sy - 32 * FRACUNIT);
       }
     }
-    else if (weapon_attack_alignment && viewplayer->attackdown && !psp->state->misc1)
+    else if (weapon_attack_alignment && viewplayer->attackdown)
     { // [crispy] center the weapon sprite horizontally and vertically
-      R_ApplyWeaponBob(&psp_sx, weapon_attack_alignment == CENTERWEAPON_BOB, NULL, false);
+      if (!x_offset)
+        R_ApplyWeaponBob(&psp_sx, forced_bobbing, NULL, false);
 
-      // [crispy] don't center vertically during lowering and raising states
+      // y_offset "centering" or "push up"
       if (weapon_attack_alignment >= CENTERWEAPON_HORVER &&
-          psp->state->action != A_Lower && psp->state->action != A_Raise && !swiping_weapon &&
-          viewplayer->playerstate == PST_LIVE) // Player must be alive - fixes lingering flash states
+          !raise_or_lower && !swiping_weapon && is_alive)
       {
-          R_ApplyWeaponBob(NULL, false, &psp_sy, weapon_attack_alignment == CENTERWEAPON_BOB);
+        if (forced_bobbing)
+          R_ApplyWeaponBob(NULL, false, &psp_sy, true);
+
+        // bob for centered horiz/vertical, unless y-offset
+        else if (!y_offset)
+          R_ApplyWeaponBob(NULL, false, &psp_sy, false);
       }
     }
     else if (psp->state->action == A_WeaponReady && psp->state->tics > 1 && movement_smooth)
