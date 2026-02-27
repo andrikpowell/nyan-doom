@@ -32,6 +32,7 @@
 #include "hu_stuff.h"
 #include "lprintf.h"
 
+#include "dsda.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
 
@@ -1971,11 +1972,11 @@ void SV_MapTeleport(int map, int position)
         playerBackup[i] = players[i];
     }
 
-    // Save some globals that get trashed during the load
-    for (i = 0; i < g_maxplayers; i++)
+    // Save trashed player 1 globals
+    if (playeringame[consoleplayer])
     {
-        inventoryPtr = players[i].inv_ptr;
-        currentInvPos = players[i].curpos;
+        inventoryPtr  = players[consoleplayer].inv_ptr;
+        currentInvPos = players[consoleplayer].curpos;
     }
 
     // Only SV_LoadMap() uses TargetPlayerAddrs, so it's NULLed here
@@ -2097,11 +2098,11 @@ void SV_MapTeleport(int map, int position)
         }
     }
 
-    // Restore trashed globals
-    for (i = 0; i < g_maxplayers; i++)
+    // Restore trashed player 1 globals
+    if (playeringame[consoleplayer])
     {
-        players[i].inv_ptr = inventoryPtr;
-        players[i].curpos = currentInvPos;
+        players[consoleplayer].inv_ptr = inventoryPtr;
+        players[consoleplayer].curpos  = currentInvPos;
     }
 
     // Launch waiting scripts
