@@ -48,6 +48,21 @@
 #define MOBJ_XX_PLAYER -2
 #define MAX_MAPS 99
 
+typedef struct
+{
+  dboolean visited; // whether to reset stats
+  int killcount[MAX_MAXPLAYERS];
+  int maxkilldiscount[MAX_MAXPLAYERS];  // Hexen currently doesn't use this...
+  int itemcount[MAX_MAXPLAYERS];        // Hexen doesn't have counted items
+  int secretcount[MAX_MAXPLAYERS];      // Hexen doesn't have secrets
+
+  // per-map globals
+  int totalkills;           // original map spawn kill count
+  int maxkillrequirement;   // dsda "dynamic" kill count
+} hub_mapstats_t;
+
+static hub_mapstats_t hub_mapstats[MAX_MAPS];
+
 typedef enum
 {
     ASEG_GAME_HEADER = 101,
@@ -1876,6 +1891,26 @@ static void UnarchivePolyobjs(void)
     }
 }
 
+static void ArchiveStats(void)
+{
+    SV_Write(&hub_mapstats[gamemap], sizeof(hub_mapstats[gamemap]));
+}
+
+static void UnarchiveStats(void)
+{
+    SV_Read(&hub_mapstats[gamemap], sizeof(hub_mapstats[gamemap]));
+}
+
+static void dsda_ArchiveExtra(void)
+{
+    ArchiveStats(); // save stats per map
+}
+
+static void dsda_UnarchiveExtra(void)
+{
+    UnarchiveStats(); // load stats per map
+}
+
 void SV_SaveMap(void)
 {
     // Initialize the output buffer
@@ -1900,6 +1935,9 @@ void SV_SaveMap(void)
 
     // Place a termination marker
     SV_WriteLong(ASEG_END);
+
+    // DSDA Extra
+    dsda_ArchiveExtra();
 }
 
 void SV_LoadMap(void)
@@ -1928,8 +1966,67 @@ void SV_LoadMap(void)
 
     AssertSegment(ASEG_END);
 
+    // DSDA Extra
+    dsda_UnarchiveExtra();
+
     // Free mobj list and save buffer
     Z_Free(MobjList);
+}
+
+static void SV_SaveCurrentMapStats(void)
+{
+  if (gamemap < MAX_MAPS)
+  {
+    hub_mapstats_t *hub_stats = &hub_mapstats[gamemap];
+    hub_stats->visited = true;
+
+    // store global per-map data
+    hub_stats->totalkills = totalkills;
+    hub_stats->maxkillrequirement = dsda_MaxKillRequirement();
+
+    // store kill count
+    for (int i = 0; i < g_maxplayers; ++i)
+    {
+        if (!playeringame[i]) continue;
+        hub_stats->killcount[i] = players[i].killcount;
+        hub_stats->maxkilldiscount[i] = players[i].maxkilldiscount;
+    }
+  }
+}
+
+static void SV_LoadCurrentMapStats(void)
+{
+  if (gamemap < MAX_MAPS)
+  {
+    hub_mapstats_t *hub_stats = &hub_mapstats[gamemap];
+
+    if (hub_stats->visited)
+    {
+        // restore global per-map data
+        totalkills = hub_stats->totalkills;
+        dsda_SetMaxKillRequirement(hub_stats->maxkillrequirement);
+
+        // restore kill count
+        for (int i = 0; i < g_maxplayers; ++i)
+        {
+            if (!playeringame[i]) continue;
+            players[i].killcount        = hub_stats->killcount[i];
+            players[i].maxkilldiscount  = hub_stats->maxkilldiscount[i];
+        }
+    }
+    else
+    {
+        for (int i = 0; i < g_maxplayers; ++i)
+        {
+            // First visit: reset
+            if (!playeringame[i]) continue;
+            players[i].killcount        = 0;
+            players[i].maxkilldiscount  = 0;
+            players[i].itemcount        = 0;
+            players[i].secretcount      = 0;
+        }
+    }
+  }
 }
 
 void SV_MapTeleport(int map, int position)
@@ -1952,6 +2049,9 @@ void SV_MapTeleport(int map, int position)
     memset(oldKeys, 0, sizeof(oldKeys));
     memset(oldWeaponowned, 0, sizeof(oldWeaponowned));
 
+    // Save map stats (ex: kills)
+    SV_SaveCurrentMapStats();
+
     if (!deathmatch)
     {
         if (dsda_MapCluster(gamemap) == dsda_MapCluster(map))
@@ -1961,6 +2061,7 @@ void SV_MapTeleport(int map, int position)
         else
         {                       // Entering new cluster - clear map archive
             SV_Init();
+            memset(hub_mapstats, 0, sizeof(hub_mapstats)); // reset stats
         }
     }
 
@@ -2078,6 +2179,9 @@ void SV_MapTeleport(int map, int position)
         }
     }
     randomclass = rClass;
+
+    // Load map stats (ex: kills)
+    SV_LoadCurrentMapStats();
 
     // Redirect anything targeting a player mobj
     if (TargetPlayerAddrs)
