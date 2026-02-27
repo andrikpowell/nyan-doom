@@ -331,5 +331,33 @@ const char *s_TXT_ARTIPUZZCWEAPON     = TXT_ARTIPUZZCWEAPON;
 const char *s_TXT_ARTIPUZZMWEAPON     = TXT_ARTIPUZZMWEAPON;
 const char *s_TXT_ARTIPUZZGEAR        = TXT_ARTIPUZZGEAR;
 
+const char *s_TXT_KEY_STEEL           = TXT_KEY_STEEL;
+const char *s_TXT_KEY_CAVE            = TXT_KEY_CAVE;
+const char *s_TXT_KEY_AXE             = TXT_KEY_AXE;
+const char *s_TXT_KEY_FIRE            = TXT_KEY_FIRE;
+const char *s_TXT_KEY_EMERALD         = TXT_KEY_EMERALD;
+const char *s_TXT_KEY_DUNGEON         = TXT_KEY_DUNGEON;
+const char *s_TXT_KEY_SILVER          = TXT_KEY_SILVER;
+const char *s_TXT_KEY_RUSTED          = TXT_KEY_RUSTED;
+const char *s_TXT_KEY_HORN            = TXT_KEY_HORN;
+const char *s_TXT_KEY_SWAMP           = TXT_KEY_SWAMP;
+const char *s_TXT_KEY_CASTLE          = TXT_KEY_CASTLE;
+
+const char *s_TXT_NEED_KEY_STEEL      = TXT_NEED_KEY_STEEL;
+const char *s_TXT_NEED_KEY_CAVE       = TXT_NEED_KEY_CAVE;
+const char *s_TXT_NEED_KEY_AXE        = TXT_NEED_KEY_AXE;
+const char *s_TXT_NEED_KEY_FIRE       = TXT_NEED_KEY_FIRE;
+const char *s_TXT_NEED_KEY_EMERALD    = TXT_NEED_KEY_EMERALD;
+const char *s_TXT_NEED_KEY_DUNGEON    = TXT_NEED_KEY_DUNGEON;
+const char *s_TXT_NEED_KEY_SILVER     = TXT_NEED_KEY_SILVER;
+const char *s_TXT_NEED_KEY_RUSTED     = TXT_NEED_KEY_RUSTED;
+const char *s_TXT_NEED_KEY_HORN       = TXT_NEED_KEY_HORN;
+const char *s_TXT_NEED_KEY_SWAMP      = TXT_NEED_KEY_SWAMP;
+const char *s_TXT_NEED_KEY_CASTLE     = TXT_NEED_KEY_CASTLE;
+
+const char *s_TXT_MANA_1              = TXT_MANA_1;
+const char *s_TXT_MANA_2              = TXT_MANA_2;
+const char *s_TXT_MANA_BOTH           = TXT_MANA_BOTH;
+
 // end heretic/dstrings.h variable declarations
 // ====================================================================

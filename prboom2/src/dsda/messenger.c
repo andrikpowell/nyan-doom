@@ -237,6 +237,53 @@ static const dsda_msg_color_rule_t msg_color_rules[] =
     { &s_HERETIC_TXT_NEEDBLUEKEY,   "blue",   CR_BLUE   },
     { &s_HERETIC_TXT_NEEDYELLOWKEY, "yellow", CR_GOLD   },
     { &s_HERETIC_TXT_NEEDGREENKEY,  "green",  CR_GREEN  },
+
+    // Hexen keys
+    { &s_TXT_KEY_STEEL,         "steel",    CR_WHITE  },
+    { &s_TXT_KEY_CAVE,          "cave",     CR_TAN    },
+    { &s_TXT_KEY_AXE,           "axe",      CR_WHITE  },
+    { &s_TXT_KEY_FIRE,          "fire",     CR_RED    },
+    { &s_TXT_KEY_EMERALD,       "emerald",  CR_GREEN  },
+    { &s_TXT_KEY_DUNGEON,       "dungeon",  CR_WHITE  },
+    { &s_TXT_KEY_SILVER,        "silver",   CR_WHITE  },
+    { &s_TXT_KEY_RUSTED,        "rusted",   CR_WHITE  },
+    { &s_TXT_KEY_HORN,          "horn",     CR_TAN    },
+    { &s_TXT_KEY_SWAMP,         "swamp",    CR_GREEN  },
+    { &s_TXT_KEY_CASTLE,        "castle",   CR_GOLD   },
+
+    // Hexen doors
+    { &s_TXT_NEED_KEY_STEEL,    "steel",    CR_WHITE  },
+    { &s_TXT_NEED_KEY_CAVE,     "cave",     CR_BROWN  },
+    { &s_TXT_NEED_KEY_AXE,      "axe",      CR_WHITE  },
+    { &s_TXT_NEED_KEY_FIRE,     "fire",     CR_RED    },
+    { &s_TXT_NEED_KEY_EMERALD,  "emerald",  CR_GREEN  },
+    { &s_TXT_NEED_KEY_DUNGEON,  "dungeon",  CR_WHITE  },
+    { &s_TXT_NEED_KEY_SILVER,   "silver",   CR_WHITE  },
+    { &s_TXT_NEED_KEY_RUSTED,   "rusted",   CR_WHITE  },
+    { &s_TXT_NEED_KEY_HORN,     "horn",     CR_BROWN  },
+    { &s_TXT_NEED_KEY_SWAMP,    "swamp",    CR_GREEN  },
+    { &s_TXT_NEED_KEY_CASTLE,   "castle",   CR_GOLD   },
+
+    // Hexen Puzzles
+    { &s_TXT_ARTIPUZZSKULL,     "YORICK'S SKULL",      CR_GOLD   },
+    { &s_TXT_ARTIPUZZGEMBIG,    "HEART OF D'SPARIL",   CR_RED    },
+    { &s_TXT_ARTIPUZZGEMRED,    "RUBY",                CR_RED    },
+    { &s_TXT_ARTIPUZZGEMGREEN1, "EMERALD",             CR_GREEN  },
+    { &s_TXT_ARTIPUZZGEMGREEN2, "EMERALD",             CR_GREEN  },
+    { &s_TXT_ARTIPUZZGEMBLUE1,  "SAPPHIRE",            CR_BLUE   },
+    { &s_TXT_ARTIPUZZGEMBLUE2,  "SAPPHIRE",            CR_BLUE   },
+    { &s_TXT_ARTIPUZZBOOK1,     "DAEMON CODEX",        CR_BROWN  },
+    { &s_TXT_ARTIPUZZBOOK2,     "LIBER OSCURA",        CR_BROWN  },
+    { &s_TXT_ARTIPUZZSKULL2,    "FLAME MASK",          CR_RED    },
+    { &s_TXT_ARTIPUZZFWEAPON,   "GLAIVE SEAL",         CR_GREEN  },
+    { &s_TXT_ARTIPUZZCWEAPON,   "HOLY RELIC",          CR_GOLD   },
+    { &s_TXT_ARTIPUZZMWEAPON,   "SIGIL OF THE MAGUS",  CR_RED    },
+    { &s_TXT_ARTIPUZZGEAR,      "CLOCK GEAR",          CR_GOLD   },
+
+    // Hexen mana
+    { &s_TXT_MANA_1,    "Blue",     CR_BLUE   },
+    { &s_TXT_MANA_2,    "Green",    CR_GREEN  },
+    { &s_TXT_MANA_BOTH, "Combined", CR_RED    },
 };
 
 static const dsda_msg_color_rule_t *dsda_GetColorRuleForMessage(const char *str)

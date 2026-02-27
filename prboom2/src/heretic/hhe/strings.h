@@ -327,4 +327,35 @@ extern const char *s_TXT_ARTIPUZZCWEAPON;
 extern const char *s_TXT_ARTIPUZZMWEAPON;
 extern const char *s_TXT_ARTIPUZZGEAR;
 
+// keys
+extern const char *s_TXT_KEY_STEEL;
+extern const char *s_TXT_KEY_CAVE;
+extern const char *s_TXT_KEY_AXE;
+extern const char *s_TXT_KEY_FIRE;
+extern const char *s_TXT_KEY_EMERALD;
+extern const char *s_TXT_KEY_DUNGEON;
+extern const char *s_TXT_KEY_SILVER;
+extern const char *s_TXT_KEY_RUSTED;
+extern const char *s_TXT_KEY_HORN;
+extern const char *s_TXT_KEY_SWAMP;
+extern const char *s_TXT_KEY_CASTLE;
+
+// doors
+extern const char *s_TXT_NEED_KEY_STEEL;
+extern const char *s_TXT_NEED_KEY_CAVE;
+extern const char *s_TXT_NEED_KEY_AXE;
+extern const char *s_TXT_NEED_KEY_FIRE;
+extern const char *s_TXT_NEED_KEY_EMERALD;
+extern const char *s_TXT_NEED_KEY_DUNGEON;
+extern const char *s_TXT_NEED_KEY_SILVER;
+extern const char *s_TXT_NEED_KEY_RUSTED;
+extern const char *s_TXT_NEED_KEY_HORN;
+extern const char *s_TXT_NEED_KEY_SWAMP;
+extern const char *s_TXT_NEED_KEY_CASTLE;
+
+// mana
+extern const char *s_TXT_MANA_1;
+extern const char *s_TXT_MANA_2;
+extern const char *s_TXT_MANA_BOTH;
+
 #endif

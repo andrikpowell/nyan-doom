@@ -2665,32 +2665,32 @@ void P_AutoUseHealth(player_t * player, int saveHealth)
 
 // hexen
 
-const char *TextKeyMessages[] = {
-    TXT_KEY_STEEL,
-    TXT_KEY_CAVE,
-    TXT_KEY_AXE,
-    TXT_KEY_FIRE,
-    TXT_KEY_EMERALD,
-    TXT_KEY_DUNGEON,
-    TXT_KEY_SILVER,
-    TXT_KEY_RUSTED,
-    TXT_KEY_HORN,
-    TXT_KEY_SWAMP,
-    TXT_KEY_CASTLE
+const char **TextKeyMessages[] = {
+    &s_TXT_KEY_STEEL,
+    &s_TXT_KEY_CAVE,
+    &s_TXT_KEY_AXE,
+    &s_TXT_KEY_FIRE,
+    &s_TXT_KEY_EMERALD,
+    &s_TXT_KEY_DUNGEON,
+    &s_TXT_KEY_SILVER,
+    &s_TXT_KEY_RUSTED,
+    &s_TXT_KEY_HORN,
+    &s_TXT_KEY_SWAMP,
+    &s_TXT_KEY_CASTLE
 };
 
-const char *TextLockedDoorMessages[] = {
-    TXT_NEED_KEY_STEEL,
-    TXT_NEED_KEY_CAVE,
-    TXT_NEED_KEY_AXE,
-    TXT_NEED_KEY_FIRE,
-    TXT_NEED_KEY_EMERALD,
-    TXT_NEED_KEY_DUNGEON,
-    TXT_NEED_KEY_SILVER,
-    TXT_NEED_KEY_RUSTED,
-    TXT_NEED_KEY_HORN,
-    TXT_NEED_KEY_SWAMP,
-    TXT_NEED_KEY_CASTLE
+const char **TextLockedDoorMessages[] = {
+    &s_TXT_NEED_KEY_STEEL,
+    &s_TXT_NEED_KEY_CAVE,
+    &s_TXT_NEED_KEY_AXE,
+    &s_TXT_NEED_KEY_FIRE,
+    &s_TXT_NEED_KEY_EMERALD,
+    &s_TXT_NEED_KEY_DUNGEON,
+    &s_TXT_NEED_KEY_SILVER,
+    &s_TXT_NEED_KEY_RUSTED,
+    &s_TXT_NEED_KEY_HORN,
+    &s_TXT_NEED_KEY_SWAMP,
+    &s_TXT_NEED_KEY_CASTLE
 };
 
 void P_FallingDamage(player_t * player)
@@ -3197,7 +3197,7 @@ static void TryPickupArtifact(player_t * player, artitype_t artifactType, mobj_t
         else
         {                       // Puzzle item
             S_StartVoidSound(hexen_sfx_pickup_item);
-            P_SetMessage(player, artifactMessages[artifactType], true);
+            P_SetColoredMessage(player, artifactMessages[artifactType], true);
             if (!netgame || deathmatch)
             {                   // Remove puzzle items if not cooperative netplay
                 P_RemoveMobj(artifact);
@@ -3285,8 +3285,8 @@ static void Hexen_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
             {
                 return;
             }
-            P_SetMessage(player, TextKeyMessages[special->sprite - HEXEN_SPR_KEY1],
-                         true);
+            P_SetColoredMessage(player, *TextKeyMessages[special->sprite - HEXEN_SPR_KEY1],
+                                true);
             sound = hexen_sfx_pickup_key;
 
             // Check and process the special now in case the key doesn't
@@ -3415,14 +3415,14 @@ static void Hexen_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
             {
                 return;
             }
-            P_SetMessage(player, TXT_MANA_1, false);
+            P_SetColoredMessage(player, s_TXT_MANA_1, false);
             break;
         case HEXEN_SPR_MAN2:
             if (!P_GiveMana(player, MANA_2, 15))
             {
                 return;
             }
-            P_SetMessage(player, TXT_MANA_2, false);
+            P_SetColoredMessage(player, s_TXT_MANA_2, false);
             break;
         case HEXEN_SPR_MAN3:         // Double Mana Dodecahedron
             if (!P_GiveMana(player, MANA_1, 20))
@@ -3436,7 +3436,7 @@ static void Hexen_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
             {
                 P_GiveMana(player, MANA_2, 20);
             }
-            P_SetMessage(player, TXT_MANA_BOTH, false);
+            P_SetColoredMessage(player, s_TXT_MANA_BOTH, false);
             break;
 
             // 2nd and 3rd Mage Weapons
