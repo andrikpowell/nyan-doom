@@ -318,7 +318,7 @@ void P_CalcHeight (player_t* player)
   if (player->viewz > player->mo->ceilingz - 4 * FRACUNIT)
     player->viewz = player->mo->ceilingz - 4 * FRACUNIT;
 
-  if (heretic && player->viewz < player->mo->floorz + 4 * FRACUNIT)
+  if (raven && player->viewz < player->mo->floorz + 4 * FRACUNIT)
     player->viewz = player->mo->floorz + 4 * FRACUNIT;
 }
 
