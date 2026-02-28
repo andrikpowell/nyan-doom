@@ -491,8 +491,6 @@ int N_GetPatchAnimateNum(const char* lump, int animation)
 
 static void N_CombinePrefixedLump(char out[9], const char *prefix, const char *name)
 {
-    size_t i = 0, j = 0;
-
     if (!prefix) prefix = "W_";
 
     snprintf(out, 9, "%s%s", prefix, name);

@@ -1091,7 +1091,7 @@ void M_ScreenShot(void)
 // Source - https://stackoverflow.com/questions/27303062/strstr-function-like-that-ignores-upper-or-lower-case
 // Posted by chux, modified by community. See post 'Timeline' for change history
 // Retrieved 2026-01-03, License - CC BY-SA 3.0
-char *M_strcasestr(const char *haystack, const char *needle)
+const char *M_strcasestr(const char *haystack, const char *needle)
 {
     do
     {
@@ -1104,7 +1104,7 @@ char *M_strcasestr(const char *haystack, const char *needle)
         }
         if (*n == 0)
         {
-            return (char *)haystack;
+            return haystack;
         }
     } while (*haystack++);
     return NULL;
