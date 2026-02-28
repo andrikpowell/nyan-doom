@@ -34,7 +34,7 @@
 
 #include "hu_obituary.h"
 
-// pronouns
+// Pronouns
 
 enum
 {
@@ -59,6 +59,21 @@ static const char *playerstr[] = {
     "Player 3",
     "Player 4",
 };
+
+static const char *dsda_GetPronoun(int pronoun, char code)
+{
+  switch (code)
+  {
+    case 'g': return pronoun_list[pronoun][0]; // Subject
+    case 'h': return pronoun_list[pronoun][1]; // Object
+    case 'p': return pronoun_list[pronoun][2]; // Possessive Determiner
+    case 's': return pronoun_list[pronoun][3]; // Possessive Pronoun
+    case 'r': return pronoun_list[pronoun][4]; // Perfective
+    default:  return "";
+  }
+}
+
+// Obituaries
 
 static void dsda_AssignObituary(const int type, const char *ob, const char *ob_m)
 {
@@ -390,8 +405,7 @@ static void dsda_ExpandObituary(dsda_string_t *out, const char *tmp, mobj_t *tar
 
       // pronoun lookup (%g %h %p %s %r)
       {
-        char key[3] = { '%', code, '\0' };
-        dboolean matched = false;
+        const char *key;
 
         // Default gender
         int pronoun = GENDER_NEUTER;
@@ -401,30 +415,12 @@ static void dsda_ExpandObituary(dsda_string_t *out, const char *tmp, mobj_t *tar
         if ((target && target->player) && ((target->player - players) == consoleplayer))
           pronoun = dsda_IntConfig(dsda_config_player_gender);
 
-        struct
+        key = dsda_GetPronoun(pronoun, code);
+        if (key)
         {
-            const char *const from;
-            const char *to;
-        } pronouns[] = {
-            { "%g", pronoun_list[pronoun][0] }, // Subject
-            { "%h", pronoun_list[pronoun][1] }, // Object
-            { "%p", pronoun_list[pronoun][2] }, // Possessive Determiner
-            { "%s", pronoun_list[pronoun][3] }, // Possessive Pronoun
-            { "%r", pronoun_list[pronoun][4] }, // Perfective
-        };
-
-        for (int i = 0; i < (int)(sizeof(pronouns) / sizeof(pronouns[0])); i++)
-        {
-          if (!strcmp(pronouns[i].from, key))
-          {
-            dsda_StringCat(out, pronouns[i].to);
-            matched = true;
-            break;
-          }
-        }
-
-        if (matched)
+          dsda_StringCat(out, key);
           continue;
+        }
       }
 
       dsda_AppendChar(out, '%');
