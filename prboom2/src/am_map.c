@@ -1405,7 +1405,7 @@ dboolean AM_Responder
   else if (dsda_InputActivated(dsda_input_map_highlight_by_tag))
   {
     if (!dsda_RevealAutomap())
-      doom_printf("Highlight requires iddt");
+      doom_printf("Highlight requires map cheat");
     else
       AM_HighlightByTag();
 
