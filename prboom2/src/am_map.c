@@ -2180,7 +2180,7 @@ static void AM_drawLineCharacter
   int   i;
   mline_t l;
 
-  if (box_scale)
+  if (box_scale && dsda_RevealAutomap() == 2)
     AM_drawLineCharacter(thingbox_guy, NUMTHINGBOXGUYLINES, box_scale, 0, 0x40000000, mapcolor_p->hitbox, x, y);
 
   if (automap_rotate) angle -= viewangle - ANG90; // cph
