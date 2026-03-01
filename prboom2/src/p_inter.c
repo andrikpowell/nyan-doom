@@ -871,6 +871,50 @@ static int P_CheckGibDeath(mobj_t *source, mobj_t *target, method_t mod)
   return false;
 }
 
+// [PrBoom X] Buddha Messages
+void P_BuddhaMessage(player_t* player)
+{
+  const char* message;
+
+  switch( rand() % 10 ) {
+      case 9:
+          message = "You shrug off mortal damage.";
+          break;
+      case 8:
+          message = "Your life force is drained, but returns!";
+          break;
+      case 7:
+          message = "You roll a natural 20 and escape death!";
+          break;
+      case 6:
+          message = "Your death is avoided.";
+          break;
+      case 5:
+          message = "You will pay for your sins, but not today!";
+          break;
+      case 4:
+          message = "A calm wind wafts the fatal damage away.";
+          break;
+      case 3:
+          message = "A distant bell awakens you. You live!";
+          break;
+      case 2:
+          message = "Death has not won this day!";
+          break;
+      case 1:
+          message = "Your mortality is a distant memory.";
+          break;
+      case 0:
+          message = "You escape punishment. Your enemies fume!";
+          break;
+      default:
+          message = "A programming error saves you!";
+          break;
+  }
+  dsda_AddPlayerMessage(message, player);
+  return;
+}
+
 //
 // KillMobj
 //
@@ -1286,6 +1330,7 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
 {
   player_t *player;
   dboolean justhit = false;          /* killough 11/98 */
+  dboolean buddha = false;
 
   /* killough 8/31/98: allow bouncers to take damage */
   if (!(target->flags & (MF_SHOOTABLE | MF_BOUNCES)))
@@ -1354,6 +1399,7 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
   }
 
   player = target->player;
+  buddha = player && player->cheats & CF_BUDDHA;
   if (player && skill_info.damage_factor)
     damage = FixedMul(damage, skill_info.damage_factor);
 
@@ -1672,9 +1718,9 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
     }
 
     player->health -= damage;       // mirror mobj health here for Dave
+
     // BUDDHA cheat
-    if (player->cheats & CF_BUDDHA &&
-        player->health < 1)
+    if (buddha && player->health < 1)
       player->health = 1;
     else
     if (player->health < 0)
@@ -1698,10 +1744,10 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
   target->health -= damage;
 
   // BUDDHA cheat
-  if (player && player->cheats & CF_BUDDHA &&
-      target->health < 1)
+  if (buddha && target->health < 1)
   {
     target->health = 1;
+    P_BuddhaMessage(player);
   }
   else
   if (target->health <= 0)
@@ -2722,6 +2768,7 @@ void P_PoisonDamage(player_t * player, mobj_t * source, int damage,
 {
     mobj_t *target;
     mobj_t *inflictor;
+    dboolean buddha = player && player->cheats & CF_BUDDHA;
 
     target = player->mo;
     inflictor = source;
@@ -2748,9 +2795,9 @@ void P_PoisonDamage(player_t * player, mobj_t * source, int damage,
         P_AutoUseHealth(player, damage - player->health + 1);
     }
     player->health -= damage;   // mirror mobj health here for Dave
+
     // BUDDHA cheat
-    if (player->cheats & CF_BUDDHA &&
-        player->health < 1)
+    if (buddha && player->health < 1)
       player->health = 1;
     else
     if (player->health < 0)
@@ -2765,10 +2812,10 @@ void P_PoisonDamage(player_t * player, mobj_t * source, int damage,
     target->health -= damage;
 
     // BUDDHA cheat
-    if (player && player->cheats & CF_BUDDHA &&
-        target->health < 1)
+    if (buddha && target->health < 1)
     {
       target->health = 1;
+      P_BuddhaMessage(player);
     }
     else
     if (target->health <= 0)
