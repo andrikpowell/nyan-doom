@@ -631,7 +631,7 @@ int dsda_LegacyMapAuthor(const char** author) {
   return true;
 }
 
-int dsda_LegacyGenericMapname(dsda_string_t* str, int epsd, int map) {
+int dsda_LegacyMapMatch(int epsd, int map) {
   extern char** mapnames[];
   extern char** mapnames2[];
   extern char** mapnamesp[];
@@ -641,51 +641,60 @@ int dsda_LegacyGenericMapname(dsda_string_t* str, int epsd, int map) {
   extern char* og_mapnamesp[];
   extern char* og_mapnamest[];
 
+  // Ignore iwad map check for Raven
+  if (raven) return true;
+
+  if (map > 0 && epsd > 0) {
+    switch (gamemode) {
+      case shareware:
+      case registered:
+      case retail:
+        if (epsd < 6 && map < 10)
+        {
+          if (!strcmp(*mapnames[(epsd - 1) * 9 + map - 1], og_mapnames[(epsd - 1) * 9 + map - 1]))
+            return true;
+        }
+        break;
+
+      default:
+        if (gamemission == pack_tnt && map < 33)
+        {
+          if (!strcmp(*mapnamest[map - 1], og_mapnamest[map - 1]))
+            return true;
+        }
+        else if (gamemission == pack_plut && map < 33)
+        {
+          if (!strcmp(*mapnamesp[map - 1], og_mapnamesp[map - 1]))
+            return true;
+        }
+        else if (map < 34)
+        {
+          if (!strcmp(*mapnames2[map - 1], og_mapnames2[map - 1]))
+            return true;
+        }
+        break;
+    }
+  }
+
+  return false;
+}
+
+int dsda_IsPWADMapMatch(const char* mapname) {
+  return W_PWADLumpNameExists2(mapname);
+}
+
+int dsda_LegacyGenericMapname(dsda_string_t* str, int epsd, int map) {
   if (raven) return false;
 
   if (map > 0 && epsd > 0) {
     char* mapname = VANILLA_MAP_LUMP_NAME(epsd, map);
 
-    if (W_PWADLumpNameExists2(mapname)) {
-      int classic_mapname = 0;
-
-      switch (gamemode) {
-        case shareware:
-        case registered:
-        case retail:
-          if (epsd < 6 && map < 10)
-          {
-            if (*mapnames[(epsd - 1) * 9 + map - 1] == og_mapnames[(epsd - 1) * 9 + map - 1])
-              classic_mapname++;
-          }
-          break;
-
-        default:
-          if (gamemission == pack_tnt && map < 33)
-          {
-            if (*mapnamest[map - 1] == og_mapnamest[map - 1])
-              classic_mapname++;
-          }
-          else if (gamemission == pack_plut && map < 33)
-          {
-            if (*mapnamesp[map - 1] == og_mapnamesp[map - 1])
-              classic_mapname++;
-          }
-          else if (map < 34)
-          {
-            if (*mapnames2[map - 1] == og_mapnames2[map - 1])
-              classic_mapname++;
-          }
-          break;
-      }
-
-      if (classic_mapname > 0)
-      {
+    // if legacy title found, but pwad map found, use generic title
+    if (dsda_LegacyMapMatch(epsd, map) && dsda_IsPWADMapMatch(mapname)) {
         if (gamemode == commercial)
           sprintf(mapname, "level %i", map);
         dsda_StringCat(str, mapname);
         return true;
-      }
     }
   }
 
