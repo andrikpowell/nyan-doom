@@ -269,10 +269,11 @@ static dboolean dsda_IsIconSpawn(mobj_t* mo) {
 }
 
 static dboolean dsda_IsDSparilSpawn(mobj_t* mo) {
-  return mo->intflags & MIF_SPAWNED_BY_ICON;
+  return mo->intflags & MIF_SPAWNED_BY_DSPARIL;
 }
 
-/* killough 7/20/98: exclude friends */
+// killough 7/20/98: exclude friends
+// Translated: countkill and not friend
 dboolean dsda_IsCountedKill(mobj_t* mo) {
   return !((mo->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL));
 }
@@ -331,7 +332,7 @@ void dsda_WatchResurrection(mobj_t* target, mobj_t* raiser) {
   if (raiser && dsda_IsIconSpawn(raiser))
     target->intflags |= MIF_SPAWNED_BY_ICON;
 
-  if (dsda_IsCountedKill(target) || dsda_IsIconSpawn(target))
+  if (!dsda_IsCountedKill(target) || dsda_IsIconSpawn(target))
     return;
 
   for (i = 0; i < g_maxplayers; ++i) {
