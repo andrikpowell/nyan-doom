@@ -625,12 +625,6 @@ int dsda_LegacyMapLumpName(const char** name, int episode, int map) {
   return true;
 }
 
-int dsda_LegacyMapAuthor(const char** author) {
-  *author = NULL;
-
-  return true;
-}
-
 int dsda_LegacyMapMatch(int epsd, int map) {
   extern char** mapnames[];
   extern char** mapnames2[];
@@ -692,6 +686,63 @@ int dsda_IsPWADMapMatch(const char* mapname) {
     return false;
 
   return W_PWADLumpNameExists2(mapname);
+}
+
+const char* dsda_IWADLegacyAuthor(const char** author) {
+  extern char* doom1_authors[];
+  extern char* doom2_authors[];
+  extern char* plutonia_authors[];
+  extern char* tnt_authors[];
+  extern char* nerve_authors[];
+
+  int epsd = gameepisode;
+  int map = gamemap;
+
+  *author = NULL;
+
+  if (raven) return NULL; // Raven doesn't use authors
+
+  // only allow authors for Doom, Doom2, TNT, and Plutonia
+  if (!(gamemission == doom || gamemission == doom2 ||
+        gamemission == pack_tnt || gamemission == pack_plut ||
+        gamemission == pack_nerve))
+    return NULL;
+
+  if (map > 0 && epsd > 0) {
+    char* mapname = VANILLA_MAP_LUMP_NAME(epsd, map);
+
+    // if dehacked title found, or pwad map found, don't use iwad authors
+    if (!dsda_LegacyMapMatch(epsd, map) || (gamemission != pack_nerve && dsda_IsPWADMapMatch(mapname))) return NULL;
+
+    switch (gamemode)
+    {
+      case shareware:
+      case registered:
+      case retail:
+        if (epsd < 6 && map < 10)
+          *author = doom1_authors[(epsd - 1) * 9 + map - 1];
+        break;
+
+      default:
+        if (gamemission == pack_nerve && map < 10)
+          *author = nerve_authors[map - 1];
+        else if (gamemission == pack_tnt && map < 33)
+          *author = tnt_authors[map - 1];
+        else if (gamemission == pack_plut && map < 33)
+          *author = plutonia_authors[map - 1];
+        else if (map < 34)
+          *author = doom2_authors[map - 1];
+        break;
+    }
+  }
+
+  return *author;
+}
+
+int dsda_LegacyMapAuthor(const char** author) {
+  *author = dsda_IWADLegacyAuthor(author);
+
+  return true;
 }
 
 int dsda_LegacyGenericMapname(dsda_string_t* str, int epsd, int map) {

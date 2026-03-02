@@ -611,3 +611,197 @@ const char* og_mapnamest[] =
   THUSTR_12, THUSTR_13, THUSTR_14, THUSTR_15, THUSTR_16, THUSTR_17, THUSTR_18, THUSTR_19, THUSTR_20, THUSTR_21,
   THUSTR_22, THUSTR_23, THUSTR_24, THUSTR_25, THUSTR_26, THUSTR_27, THUSTR_28, THUSTR_29, THUSTR_30, THUSTR_31, THUSTR_32,
 };
+
+const char *const doom1_authors[] =
+{
+  "John Romero",    // E1M1
+  "John Romero",    // E1M2
+  "John Romero",    // E1M3
+  "Sandy Petersen", // E1M4
+  "John Romero",    // E1M5
+  "John Romero",    // E1M6
+  "John Romero",    // E1M7
+  "Sandy Petersen", // E1M8
+  "John Romero",    // E1M9
+
+  "Sandy Petersen", // E2M1
+  "Sandy Petersen", // E2M2
+  "Sandy Petersen", // E2M3
+  "Sandy Petersen", // E2M4
+  "Sandy Petersen", // E2M5
+  "Sandy Petersen", // E2M6
+  "Sandy Petersen", // E2M7
+  "Sandy Petersen", // E2M8
+  "Sandy Petersen", // E2M9
+
+  "Sandy Petersen", // E3M1
+  "Sandy Petersen", // E3M2
+  "Sandy Petersen", // E3M3
+  "Sandy Petersen", // E3M4
+  "Sandy Petersen", // E3M5
+  "Sandy Petersen", // E3M6
+  "Sandy Petersen", // E3M7
+  "Sandy Petersen", // E3M8
+  "Sandy Petersen", // E3M9
+
+  "American McGee", // E4M1
+  "John Romero",    // E4M2
+  "Shawn Green",    // E4M3
+  "American McGee", // E4M4
+  "Tim Willits",    // E4M5
+  "John Romero",    // E4M6
+  "John Anderson",  // E4M7
+  "Shawn Green",    // E4M8
+  "Tim Willits",    // E4M9
+
+  NULL,             // E5M1
+  NULL,             // E5M2
+  NULL,             // E5M3
+  NULL,             // E5M4
+  NULL,             // E5M5
+  NULL,             // E5M6
+  NULL,             // E5M7
+  NULL,             // E5M8
+  NULL,             // E5M9
+
+  NULL,             // E6M1
+  NULL,             // E6M2
+  NULL,             // E6M3
+  NULL,             // E6M4
+  NULL,             // E6M5
+  NULL,             // E6M6
+  NULL,             // E6M7
+  NULL,             // E6M8
+  NULL,             // E6M9
+};
+
+const char *const doom2_authors[] =
+{
+  "Sandy Petersen", // MAP01
+  "American McGee", // MAP02
+  "American McGee", // MAP03
+  "American McGee", // MAP04
+  "American McGee", // MAP05
+  "American McGee", // MAP06
+  "American McGee", // MAP07
+  "Sandy Petersen", // MAP08
+  "Sandy Petersen", // MAP09
+  "Sandy Petersen", // MAP10
+
+  "John Romero",    // MAP11
+  "Sandy Petersen", // MAP12
+  "Sandy Petersen", // MAP13
+  "American McGee", // MAP14
+  "John Romero",    // MAP15
+  "Sandy Petersen", // MAP16
+  "John Romero",    // MAP17
+  "Sandy Petersen", // MAP18
+  "Sandy Petersen", // MAP19
+  "John Romero",    // MAP20
+
+  "Sandy Petersen", // MAP21
+  "American McGee", // MAP22
+  "Sandy Petersen", // MAP23
+  "Sandy Petersen", // MAP24
+  "Shawn Green",    // MAP25
+  "John Romero",    // MAP26
+  "Sandy Petersen", // MAP27
+  "Sandy Petersen", // MAP28
+  "John Romero",    // MAP29
+  "Sandy Petersen", // MAP30
+
+  "Sandy Petersen", // MAP31
+  "Sandy Petersen", // MAP32
+  "Michael Bukowski", // MAP33 - Betray
+};
+
+const char *const plutonia_authors[] =
+{
+  "Milo Casali",  // MAP01
+  "Dario Casali", // MAP02
+  "Milo Casali",  // MAP03
+  "Dario Casali", // MAP04
+  "Milo Casali",  // MAP05
+  "Dario Casali", // MAP06
+  "Dario Casali", // MAP07
+  "Dario Casali", // MAP08
+  "Milo Casali",  // MAP09
+  "Dario Casali", // MAP10
+
+  "Dario Casali", // MAP11
+  "Milo Casali",  // MAP12
+  "Dario Casali", // MAP13
+  "Dario Casali", // MAP14
+  "Milo Casali",  // MAP15
+  "Milo Casali",  // MAP16
+  "Dario Casali", // MAP17
+  "Milo Casali",  // MAP18
+  "Milo Casali",  // MAP19
+  "Dario Casali", // MAP20
+
+  "Milo Casali",  // MAP21
+  "Dario Casali", // MAP22
+  "Milo Casali",  // MAP23
+  "Dario Casali", // MAP24
+  "Dario Casali", // MAP25
+  "Dario Casali", // MAP26
+  "Milo Casali",  // MAP27
+  "Milo Casali",  // MAP28
+  "Milo Casali",  // MAP29
+  "Milo Casali",  // MAP30
+
+  "Dario Casali", // MAP31
+  "Milo Casali",  // MAP32
+};
+
+const char *const tnt_authors[] =
+{
+  "Tom Mustaine",                     // MAP01
+  "John Wakelin",                     // MAP02
+  "Robin Patenall and John Minadeo",  // MAP03
+  "Ty Halderman",                     // MAP04
+  "Jim Dethlefsen",                   // MAP05
+  "Jimmy Sieben and Ty Halderman",    // MAP06
+  "Andrew Dowswell",                  // MAP07
+  "John Minadeo",                     // MAP08
+  "Jimmy Sieben",                     // MAP09
+  "Tom Mustaine",                     // MAP10
+
+  "Dean Johnson",                     // MAP11
+  "Jim Lowell",                       // MAP12
+  "Brian Kidby",                      // MAP13
+  "Robin Patenall",                   // MAP14
+  "William D. Whitaker",              // MAP15
+  "Andre Arsenault",                  // MAP16
+  "Tom Mustaine",                     // MAP17
+  "Dario Casali and Ty Halderman",    // MAP18
+  "Ty Halderman",                     // MAP19
+  "Drake O'Brien",                    // MAP20
+
+  "Drake O'Brien",                    // MAP21
+  "Christopher Buteau",               // MAP22
+  "Paul Turnbull",                    // MAP23
+  "Dean Johnson",                     // MAP24
+  "David J. Hill",                    // MAP25
+  "Mark Snell and Jim Lowell",        // MAP26
+  "Drake O'Brien",                    // MAP27
+  "Milo Casali",                      // MAP28
+  "Jimmy Sieben",                     // MAP29
+  "Jimmy Sieben",                     // MAP30
+
+  "Dario Casali",                     // MAP31
+  "Dario Casali",                     // MAP32
+};
+
+const char *const nerve_authors[] =
+{
+  "Russell Meakim",  // MAP01
+  "Arya Iwakura",    // MAP02
+  "Russell Meakim",  // MAP03
+  "Russell Meakim",  // MAP04
+  "Arya Iwakura",    // MAP05
+  "Arya Iwakura",    // MAP06
+  "Arya Iwakura",    // MAP07
+  "Arya Iwakura",    // MAP08
+  "Russell Meakim",  // MAP09
+};
