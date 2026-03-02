@@ -174,14 +174,17 @@ int dsda_LegacyNextMap(int* episode, int* map) {
     // secret level
     doom2_next[14] = (haswolflevels ? 31 : 16);
 
-    if (bfgedition && allow_incompatibility) {
-      if (gamemission == pack_nerve) {
+    if (allow_incompatibility)
+    {
+      if (bfgedition)
+        doom2_next[1] = 33;
+      
+      if (gamemission == pack_nerve)
+      {
         doom2_next[3] = 9;
         doom2_next[7] = 1;
         doom2_next[8] = 5;
       }
-      else
-        doom2_next[1] = 33;
     }
 
     *episode = 1;
@@ -241,13 +244,16 @@ int dsda_LegacyPrevMap(int* episode, int* map) {
     // secret level
     doom2_prev[15] = (haswolflevels ? 32 : 15);
 
-    if (bfgedition && allow_incompatibility) {
-      if (gamemission == pack_nerve) {
+    if (allow_incompatibility)
+    {
+      if (bfgedition)
+        doom2_prev[2] = 33;
+      
+      if (gamemission == pack_nerve)
+      {
         doom2_prev[4] = 9;
         doom2_prev[8] = 4;
       }
-      else
-        doom2_prev[2] = 33;
     }
 
     *episode = 1;
