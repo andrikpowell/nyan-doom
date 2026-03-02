@@ -640,6 +640,7 @@ int dsda_LegacyMapMatch(int epsd, int map) {
   extern char* og_mapnames2[];
   extern char* og_mapnamesp[];
   extern char* og_mapnamest[];
+  extern char* og_mapnames_nerve[];
 
   // Ignore iwad map check for Raven
   if (raven) return true;
@@ -657,7 +658,12 @@ int dsda_LegacyMapMatch(int epsd, int map) {
         break;
 
       default:
-        if (gamemission == pack_tnt && map < 33)
+        if (gamemission == pack_nerve && map < 10)
+        {
+          if (!strcmp(*mapnames2[map - 1], og_mapnames_nerve[map - 1]))
+            return true;
+        }
+        else if (gamemission == pack_tnt && map < 33)
         {
           if (!strcmp(*mapnamest[map - 1], og_mapnamest[map - 1]))
             return true;
@@ -680,6 +686,11 @@ int dsda_LegacyMapMatch(int epsd, int map) {
 }
 
 int dsda_IsPWADMapMatch(const char* mapname) {
+  dboolean nerve = (gamemission == pack_nerve && gamemap < 10);
+
+  if (nerve)
+    return false;
+
   return W_PWADLumpNameExists2(mapname);
 }
 

@@ -306,6 +306,17 @@
 #define THUSTR_31   "level 31: pharaoh"
 #define THUSTR_32   "level 32: caribbean"
 
+// No Rest for the Living
+#define NHUSTR_1    "level 1: the earth base"
+#define NHUSTR_2    "level 2: the pain labs"
+#define NHUSTR_3    "level 3: canyon of the dead"
+#define NHUSTR_4    "level 4: hell mountain"
+#define NHUSTR_5    "level 5: vivisection"
+#define NHUSTR_6    "level 6: inferno of blood"
+#define NHUSTR_7    "level 7: baron's banquet"
+#define NHUSTR_8    "level 8: tomb of malevolence"
+#define NHUSTR_9    "level 9: march of the demons"
+
 /* am_map.c */
 
 #define AMSTR_FOLLOWON    "Follow Mode ON"

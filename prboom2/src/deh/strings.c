@@ -579,6 +579,8 @@ const char **const mapnamest[] = // TNT WAD map names.
 
 #define DEH_NEWLEVEL "NEW LEVEL"
 
+const char* og_mapnames_nerve[] = { NHUSTR_1, NHUSTR_2, NHUSTR_3, NHUSTR_4, NHUSTR_5, NHUSTR_6, NHUSTR_7, NHUSTR_8, NHUSTR_9 };
+
 const char* og_mapnames[] =
 {
   HUSTR_E1M1, HUSTR_E1M2, HUSTR_E1M3, HUSTR_E1M4, HUSTR_E1M5, HUSTR_E1M6, HUSTR_E1M7, HUSTR_E1M8, HUSTR_E1M9,
