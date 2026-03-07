@@ -164,7 +164,7 @@ void V_InitColorTranslation(void)
   for (i = 0; i < CR_LIMIT; ++i)
     colrngs[i] = full_table + 256 * i;
 
-  dsda_LoadTextColor();
+  dsda_RefreshTextColors();
 }
 
 //

@@ -54,6 +54,7 @@
 #include "dsda/args.h"
 #include "dsda/game_controller.h"
 #include "dsda/settings.h"
+#include "dsda/text_color.h"
 
 // NSM
 #include "i_capture.h"
@@ -816,6 +817,8 @@ void M_SaveDefaults (void)
     fprintf(f, "\n");
   }
 
+  dsda_SaveTextColorEntries(f, maxlen);
+
   fclose (f);
 }
 
@@ -954,6 +957,8 @@ void M_LoadDefaults (void)
 
               break;
             }
+
+          dsda_LoadTextColorEntries(def, parm);
         }
       }
     }

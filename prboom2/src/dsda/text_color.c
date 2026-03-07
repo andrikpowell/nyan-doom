@@ -25,12 +25,6 @@
 
 #include "text_color.h"
 
-typedef struct {
-  const char* key;
-  int color_range;
-  char color_str[3];
-} dsda_text_color_t;
-
 dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_orig] = { "orig", 0 }, // placeholder
   [dsda_tc_exhud_time_label] = { "exhud_time_label", CR_GRAY },
@@ -91,7 +85,6 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_exhud_local_time] = { "exhud_local_time", CR_GRAY },
   [dsda_tc_exhud_free_text] = { "exhud_free_text", CR_GRAY },
   [dsda_tc_hud_message] = { "hud_message", CR_DEFAULT },
-  [dsda_tc_hud_yellow_message] = { "hud_yellow_message", CR_DEFAULT },
   [dsda_tc_hud_announce_message] = { "hud_announce_message", CR_GOLD },
   [dsda_tc_hud_announce_author] = { "hud_announce_author", CR_DEFAULT },
   [dsda_tc_hud_secret_message] = { "hud_secret_message", CR_GOLD },
@@ -134,6 +127,8 @@ dsda_text_color_t dsda_text_colors[] = {
   { NULL },
 };
 
+static int textcolor_def_count = (sizeof(dsda_text_colors) / sizeof(dsda_text_colors[0])) - 1;
+
 const char* dsda_TextColor(dsda_text_color_index_t i) {
   return dsda_text_colors[i].color_str;
 }
@@ -142,37 +137,8 @@ int dsda_TextCR(dsda_text_color_index_t i) {
   return dsda_text_colors[i].color_range;
 }
 
-void dsda_LoadTextColor(void) {
-  char* lump;
-  char** lines;
-  const char* line;
-  int line_i;
-  int color_range;
-  char key[33] = { 0 };
+void dsda_RefreshTextColors(void) {
   dsda_text_color_t* p;
-
-  lump = W_ReadLumpToString(W_GetNumForName("NYANTC"));
-
-  lines = dsda_SplitString(lump, "\n\r");
-
-  for (line_i = 0; lines[line_i]; ++line_i) {
-    line = lines[line_i];
-
-    if (!line[0] || line[0] == '/')
-      continue;
-
-    if (sscanf(line, "%32s %d", key, &color_range) != 2)
-      I_Error("NYANTC lump has unknown format! (%s)", line);
-
-    for (p = dsda_text_colors; p->key; p++)
-      if (!strcasecmp(key, p->key)) {
-        p->color_range = color_range;
-        break;
-      }
-
-    if (!p->key)
-      I_Error("NYANTC lump has unknown key %s!", key);
-  }
 
   for (p = dsda_text_colors; p->key; p++) {
     p->color_str[0] = '\x1b';
@@ -184,9 +150,72 @@ void dsda_LoadTextColor(void) {
   dsda_text_colors[dsda_tc_orig].color_str[0] = '\x1b';
   dsda_text_colors[dsda_tc_orig].color_str[1] = HUlib_ColorReset();
   dsda_text_colors[dsda_tc_orig].color_str[2] = '\0';
+}
 
-  Z_Free(lines);
-  Z_Free(lump);
+static int dsda_ClampCR(int cr)
+{
+  if (cr < CR_DEFAULT) return CR_DEFAULT;
+  if (cr >= CR_HUD_LIMIT) return CR_DEFAULT;
+  return cr;
+}
+
+int dsda_TextColorConfig(int config_id)
+{
+  const int i = config_id;
+
+  if (i <= dsda_tc_orig || i >= textcolor_def_count)
+    return CR_DEFAULT;
+
+  return dsda_text_colors[i].color_range;
+}
+
+void dsda_UpdateTextColorCR(dsda_text_color_index_t i, int cr)
+{
+  if (i <= dsda_tc_orig || i >= textcolor_def_count)
+    return;
+
+  cr = dsda_ClampCR(cr);
+
+  if (dsda_text_colors[i].color_range == cr)
+    return;
+
+  dsda_text_colors[i].color_range = cr;
+  dsda_RefreshTextColors();
+}
+
+void dsda_UpdateTextColorConfig(int config_id, int cr)
+{
+  dsda_UpdateTextColorCR(config_id, cr);
+}
+
+void dsda_LoadTextColorEntries(const char* def, int parm) {
+  int i;
+  char name[128];
+
+  for (i = dsda_tc_orig + 1; i < textcolor_def_count; ++i)
+  {
+    snprintf(name, sizeof(name), "dsda_tc_%s", dsda_text_colors[i].key);
+
+    if (!strcmp(def, name))
+    {
+      parm = dsda_ClampCR(parm);
+
+      dsda_text_colors[i].color_range = parm;
+    }
+  }
+}
+
+void dsda_SaveTextColorEntries(FILE* f, int maxlen) {
+  int i;
+  char name[128];
+
+  fprintf(f, "\n# Text colors\n");
+
+  for (i = dsda_tc_orig + 1; i < textcolor_def_count; ++i)
+  {
+    snprintf(name, sizeof(name), "dsda_tc_%s", dsda_text_colors[i].key);
+    fprintf(f, "%-*s %d\n", maxlen, name, dsda_text_colors[i].color_range);
+  }
 }
 
 static const char* color_name_to_index[CR_HUD_LIMIT] = {

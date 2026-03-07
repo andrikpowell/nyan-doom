@@ -149,7 +149,7 @@
 #define S_STR      0x40000000ULL // need to refactor things...
 #define S_NYAN     0x80000000ULL
 #define S_NYAN_HILITE   0x000000100000000ULL
-// #define S_           0x000000200000000ULL
+#define S_CRCHOICE     0x000000200000000ULL
 // #define S_           0x000000400000000ULL
 // #define S_           0x000000800000000ULL
 // #define S_           0x000001000000000ULL
@@ -161,13 +161,13 @@
  * S_HASDEFPTR = the set of items whose var field points to default array
  */
 
-#define S_SHOWDESC (S_LABEL|S_TITLE|S_YESNO|S_CRITEM|S_CRBLOOD|S_COLOR|S_PREV|S_NEXT|S_INPUT|S_WEAP|S_NUM|S_PERC|S_FILE|S_CREDIT|S_CHOICE|S_FUNC|S_THERMO|S_NAME)
+#define S_SHOWDESC (S_LABEL|S_TITLE|S_YESNO|S_CRITEM|S_CRBLOOD|S_CRCHOICE|S_COLOR|S_PREV|S_NEXT|S_INPUT|S_WEAP|S_NUM|S_PERC|S_FILE|S_CREDIT|S_CHOICE|S_FUNC|S_THERMO|S_NAME)
 
-#define S_SHOWSET  (S_YESNO|S_CRITEM|S_CRBLOOD|S_COLOR|S_INPUT|S_WEAP|S_NUM|S_PERC|S_FILE|S_CHOICE|S_FUNC|S_THERMO|S_NAME)
+#define S_SHOWSET  (S_YESNO|S_CRITEM|S_CRBLOOD|S_CRCHOICE|S_COLOR|S_INPUT|S_WEAP|S_NUM|S_PERC|S_FILE|S_CHOICE|S_FUNC|S_THERMO|S_NAME)
 
 #define S_STRING (S_FILE|S_NAME)
 
-#define S_HASDEFPTR (S_STRING|S_YESNO|S_NUM|S_PERC|S_WEAP|S_COLOR|S_CRITEM|S_CRBLOOD|S_CHOICE)
+#define S_HASDEFPTR (S_STRING|S_YESNO|S_NUM|S_PERC|S_WEAP|S_COLOR|S_CRITEM|S_CRBLOOD|S_CRCHOICE|S_CHOICE)
 
 /////////////////////////////
 //
@@ -237,6 +237,38 @@ static void M_DrawBackground(const char *flat)
   if (dsda_IntConfig(dsda_config_menu_background) == 2)
     V_DrawBackgroundName(flat);
 }
+
+static const char* color_list[] = {
+  "Default",
+  "Brick",
+  "Tan",
+  "Gray",
+  "Green",
+  "Brown",
+  "Gold",
+  "Red",
+  "Blue",
+  "Orange",
+  "YELLOW",
+  "LIGHT BLUE",
+  "BLACK",
+  "PURPLE",
+  "WHITE", 
+  NULL
+};
+
+static const char* bloodcolor_list[] = {
+  "Default",
+  "Gray",
+  "Green",
+  "Blue",
+  "Yellow",
+  "Black",
+  "Purple",
+  "White",
+  "Orange",
+  NULL
+};
 
 // we are going to be entering a savegame string
 
@@ -2344,6 +2376,10 @@ static dboolean M_DoomDisabled(const setup_menu_t* s)
 
 static dboolean M_ItemDisabled(const setup_menu_t* s)
 {
+  // Ignore text colours
+  if (s->m_flags & S_CRCHOICE)
+    return false;
+
   // Strict Mode
   if (dsda_StrictMode() && dsda_IsStrictConfig(s->config_id))
     return true;
@@ -2799,7 +2835,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
 
   // Is the item a selection of choices?
 
-  if (flags & S_CHOICE) {
+  if (flags & S_CHOICE || flags & S_CRCHOICE) {
     if (flags & S_STR)
     {
       if (setup_select && (s->m_flags & (S_HILITE | S_SELECT)))
@@ -2810,13 +2846,16 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
     else
     {
       int value;
+      const char **choice_list = (flags & S_CRCHOICE) ? color_list : s->selectstrings;
 
       if (setup_select && (s->m_flags & (S_HILITE | S_SELECT)))
         value = choice_value;
+      else if (flags & S_CRCHOICE)
+        value = dsda_TextColorConfig(s->config_id);
       else
         value = dsda_IntConfig(s->config_id);
 
-      if (flags & S_CRITEM)
+      if (flags & S_CRITEM || flags & S_CRCHOICE)
       {
         color = value;
         if (flags & S_DISABLED)
@@ -2847,10 +2886,10 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
           color += CR_DARKEN;
       }
 
-      if (s->selectstrings == NULL) {
+      if (choice_list == NULL) {
         snprintf(menu_buffer, sizeof(menu_buffer), "%d", value);
       } else {
-        strcpy(menu_buffer, s->selectstrings[value]);
+        strcpy(menu_buffer, choice_list[value]);
       }
     }
 
@@ -3103,6 +3142,7 @@ static void M_DrawInstructions(void)
       case S_CRITEM:
       case S_CRBLOOD:
       case S_CHOICE:
+      case S_CRCHOICE:
       case S_THERMO:
         M_DrawInstructionString(cr_info_edit, "Press left or right to choose");
         break;
@@ -3153,38 +3193,6 @@ static const char *empty_list[] = { NULL };
   enum { name##_count = sizeof(name) / sizeof(name[0]) }
 #define DEP(config, value)   { config, value, false }
 #define EXC(config, value)   { config, value, true }
-
-static const char* color_list[] = {
-  "Default",
-  "Brick",
-  "Tan",
-  "Gray",
-  "Green",
-  "Brown",
-  "Gold",
-  "Red",
-  "Blue",
-  "Orange",
-  "YELLOW",
-  "LIGHT BLUE",
-  "BLACK",
-  "PURPLE",
-  "WHITE", 
-  NULL
-};
-
-static const char* bloodcolor_list[] = {
-  "Default",
-  "Gray",
-  "Green",
-  "Blue",
-  "Yellow",
-  "Black",
-  "Purple",
-  "White",
-  "Orange",
-  NULL
-};
 
 static void M_SaveSetupPage(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
 {
@@ -4438,11 +4446,12 @@ static const char *display_pages[] =
   "Nyan",
   "Status Bar",
   "HUD",
+  "Colors",
   NULL
 };
 
 setup_menu_t display_options_settings[], display_nyan_settings[], display_statbar_settings[];
-setup_menu_t display_hud_settings[];
+setup_menu_t display_hud_settings[], display_color_settings[];
 
 setup_menu_t* display_settings[] =
 {
@@ -4450,6 +4459,7 @@ setup_menu_t* display_settings[] =
   display_nyan_settings,
   display_statbar_settings,
   display_hud_settings,
+  display_color_settings,
   NULL
 };
 
@@ -4574,6 +4584,152 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   FUNC("Crosshair", S_CENTER, G_X, M_Sub_Crosshair),
 
   PREV_PAGE(display_statbar_settings),
+  NEXT_PAGE(display_color_settings),
+  FINAL_ENTRY
+};
+
+setup_menu_t display_color_settings[] = {
+  TITLE("Messages", G_X),
+  {"Message", S_CRCHOICE, m_conf, G_X, dsda_tc_hud_message },
+  {"Secret Message", S_CRCHOICE, m_conf, G_X, dsda_tc_hud_secret_message },
+  {"Announce Map Title", S_CRCHOICE, m_conf, G_X, dsda_tc_hud_announce_message },
+  EMPTY_LINE,
+
+  TITLE("Automap", G_X),
+  {"Map Title", S_CRCHOICE, m_conf, G_X, dsda_tc_map_title },
+  {"Map Author", S_CRCHOICE, m_conf, G_X, dsda_tc_map_author },
+  {"Map Totals Label", S_CRCHOICE, m_conf, G_X, dsda_tc_map_totals_label },
+  {"Map Totals Value", S_CRCHOICE, m_conf, G_X, dsda_tc_map_totals_value },
+  {"Map Totals Max", S_CRCHOICE, m_conf, G_X, dsda_tc_map_totals_max },
+  {"Map Time Level", S_CRCHOICE, m_conf, G_X, dsda_tc_map_time_level },
+  {"Map Time Total", S_CRCHOICE, m_conf, G_X, dsda_tc_map_time_total },
+  {"Map Coords", S_CRCHOICE, m_conf, G_X, dsda_tc_map_coords },
+  EMPTY_LINE,
+
+  TITLE("Intermission", G_X),
+  {"Level Split Normal", S_CRCHOICE, m_conf, G_X, dsda_tc_inter_split_normal },
+  {"Level Split Good", S_CRCHOICE, m_conf, G_X, dsda_tc_inter_split_good },
+  {"Level Split Best", S_CRCHOICE, m_conf, G_X, dsda_tc_inter_split_best },
+  {"Event Split", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_event_split },
+  EMPTY_LINE,
+
+  TITLE("Status Bar", G_X),
+  {"Health Bad", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_health_bad },
+  {"Health Warning", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_health_warning },
+  {"Health Ok", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_health_ok },
+  {"Health Super", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_health_super },
+  {"Armor Zero", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_armor_zero },
+  {"Armor One", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_armor_one },
+  {"Armor Two", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_armor_two },
+  {"Ammo Bad", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_ammo_bad },
+  {"Ammo Warning", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_ammo_warning },
+  {"Ammo Ok", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_ammo_ok },
+  {"Ammo Full", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_ammo_full },
+  EMPTY_LINE,
+
+  TITLE("Menu", G_X),
+  //{"Logo", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_logo },
+  {"Title", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_title },
+  {"Tab", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_tab },
+  {"Tab Highlight", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_tab_highlight },
+  {"Label", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_label },
+  {"Label Highlight", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_label_highlight },
+  {"Label Edit", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_label_edit },
+  {"Value", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_value },
+  {"Value Highlight", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_value_highlight },
+  {"Value Edit", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_value_edit },
+  {"Info Highlight", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_info_highlight },
+  {"Info Edit", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_info_edit },
+  {"Warning", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_warning },
+  {"Scrollbar", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_scrollbar },
+  //{"Nyan Feature", S_CRCHOICE, m_conf, G_X, dsda_tc_menu_nyan_feature },
+  EMPTY_LINE,
+
+  TITLE("Exhud", G_X),
+  {"Time Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_time_label },
+  {"Level Time", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_level_time },
+  {"Total Time", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_total_time },
+  {"Demo Length", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_demo_length },
+  {"Totals Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_totals_label },
+  {"Totals Value", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_totals_value },
+  {"Totals Max", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_totals_max },
+  {"Weapon Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_label },
+  {"Weapon Owned", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_owned },
+  {"Weapon Berserk", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_berserk },
+  {"Free Text", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_free_text },
+  {"Local Time", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_local_time },
+  {"Attempts", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_attempts },
+  EMPTY_LINE,
+
+  TITLE("Small Armor", G_X),
+  {"Armor Zero", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_armor_zero },
+  {"Armor One", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_armor_one },
+  {"Armor Two", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_armor_two },
+  EMPTY_LINE,
+
+  TITLE("Small Health", G_X),
+  {"Health Bad", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_health_bad },
+  {"Health Warning", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_health_warning },
+  {"Health Ok", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_health_ok },
+  {"Health Super", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_health_super },
+  {"Health Super Dark", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_health_super_dark },
+  EMPTY_LINE,
+
+  TITLE("Small Ammo", G_X),
+  {"Ammo Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_label },
+  {"Ammo Mana1", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_mana1 },
+  {"Ammo Mana2", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_mana2 },
+  {"Ammo Value", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_value },
+  {"Ammo Bad", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_bad },
+  {"Ammo Warning", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_warning },
+  {"Ammo Ok", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_ok },
+  {"Ammo Full", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_full },
+  EMPTY_LINE,
+
+  TITLE("Command Display", G_X),
+  {"Command Entry", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_command_entry },
+  {"Command Queue", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_command_queue },
+  EMPTY_LINE,
+
+  TITLE("Coordinate Display", G_X),
+  {"Coords Base", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_coords_base },
+  {"Coords MF50", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_coords_mf50 },
+  {"Coords SR40", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_coords_sr40 },
+  {"Coords SR50", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_coords_sr50 },
+  {"Coords Fast", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_coords_fast },
+  {"Line Activation", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_line_activation },
+  EMPTY_LINE,
+
+  TITLE("Render Stats", G_X),
+  {"FPS Bad", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_fps_bad },
+  {"FPS Fine", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_fps_fine },
+  {"Render Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_render_label },
+  {"Render Good", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_render_good },
+  {"Render Bad", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_render_bad },
+  EMPTY_LINE,
+
+  TITLE("Tracker", G_X),
+  {"Line Special", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_line_special },
+  {"Line Normal", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_line_normal },
+  {"Line Close", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_line_close },
+  {"Line Far", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_line_far },
+  {"Sector Active", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_sector_active },
+  {"Sector Special", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_sector_special },
+  {"Sector Normal", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_sector_normal },
+  {"Mobj Alive", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_mobj_alive },
+  {"Mobj Dead", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_mobj_dead },
+  {"Player Damage", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_player_damage },
+  {"Player Neutral", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_player_neutral },
+  EMPTY_LINE,
+
+  TITLE("Speed", G_X),
+  {"Speed Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_speed_label },
+  {"Speed Slow", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_speed_slow },
+  {"Speed Normal", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_speed_normal },
+  {"Speed Fast", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_speed_fast },
+  EMPTY_LINE,
+
+  PREV_PAGE(display_hud_settings),
   FINAL_ENTRY
 };
 
@@ -6824,21 +6980,22 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
       return true;
     }
 
-    if (ptr1->m_flags & S_CHOICE) // selection of choices?
+    if (ptr1->m_flags & S_CHOICE || ptr1->m_flags & S_CRCHOICE) // selection of choices?
     {
+      const char** choice_list = (ptr1->m_flags & S_CRCHOICE) ? color_list : ptr1->selectstrings;
       if (action == MENU_LEFT) {
         if (ptr1->m_flags & S_STR)
         {
           int old_value, value;
 
-          old_value = M_IndexInChoices(entry_string_index, ptr1->selectstrings);
+          old_value = M_IndexInChoices(entry_string_index, choice_list);
           value = old_value - 1;
           if (value < 0)
             value = 0;
           if (old_value != value)
           {
             S_StartVoidSound(g_sfx_menu);
-            strncpy(entry_string_index, ptr1->selectstrings[value], ENTRY_STRING_BFR_SIZE - 1);
+            strncpy(entry_string_index, choice_list[value], ENTRY_STRING_BFR_SIZE - 1);
           }
         }
         else
@@ -6847,7 +7004,7 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
 
           do {
             --value;
-          } while (value > 0 && ptr1->selectstrings && ptr1->selectstrings[value][0] == '~');
+          } while (value > 0 && choice_list && choice_list[value][0] == '~');
 
           if (value >= 0 && choice_value != value) {
             S_StartVoidSound(g_sfx_menu);
@@ -6860,14 +7017,14 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
         {
           int old_value, value;
 
-          old_value = M_IndexInChoices(entry_string_index, ptr1->selectstrings);
+          old_value = M_IndexInChoices(entry_string_index, choice_list);
           value = old_value + 1;
-          if (ptr1->selectstrings[value] == NULL)
+          if (choice_list[value] == NULL)
             value = old_value;
           if (old_value != value)
           {
             S_StartVoidSound(g_sfx_menu);
-            strncpy(entry_string_index, ptr1->selectstrings[value], ENTRY_STRING_BFR_SIZE - 1);
+            strncpy(entry_string_index, choice_list[value], ENTRY_STRING_BFR_SIZE - 1);
           }
         }
         else
@@ -6876,9 +7033,9 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
 
           do {
             ++value;
-          } while (ptr1->selectstrings && ptr1->selectstrings[value] && ptr1->selectstrings[value][0] == '~');
+          } while (choice_list && choice_list[value] && choice_list[value][0] == '~');
 
-          if (ptr1->selectstrings[value] && choice_value != value) {
+          if (choice_list[value] && choice_value != value) {
             S_StartVoidSound(g_sfx_menu);
             choice_value = value;
           }
@@ -6888,6 +7045,12 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
         if (ptr1->m_flags & S_STR)
         {
           dsda_UpdateStringConfig(ptr1->config_id, entry_string_index, true);
+        }
+        else if (ptr1->m_flags & S_CRCHOICE)
+        {
+          dsda_UpdateTextColorConfig(ptr1->config_id, choice_value);
+          M_LoadTextColors();
+          ST_LoadTextColors();
         }
         else
         {
@@ -7024,12 +7187,16 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
 
       entry_index = 0; // current cursor position in entry_string_index
     }
-    else if (flags & S_CHOICE)
+    else if (flags & S_CHOICE || flags & S_CRCHOICE)
     {
       if (flags & S_STR)
       {
         strncpy(entry_string_index, dsda_StringConfig(ptr1->config_id),
                 ENTRY_STRING_BFR_SIZE - 1);
+      }
+      else if (flags & S_CRCHOICE)
+      {
+        choice_value = dsda_TextColorConfig(ptr1->config_id);
       }
       else
       {

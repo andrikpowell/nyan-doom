@@ -18,6 +18,12 @@
 #ifndef __DSDA_TEXT_COLOR__
 #define __DSDA_TEXT_COLOR__
 
+typedef struct {
+  const char* key;
+  int color_range;
+  char color_str[3];
+} dsda_text_color_t;
+
 typedef enum {
   dsda_tc_orig,
   dsda_tc_exhud_time_label,
@@ -78,7 +84,6 @@ typedef enum {
   dsda_tc_exhud_local_time,
   dsda_tc_exhud_free_text,
   dsda_tc_hud_message,
-  dsda_tc_hud_yellow_message,
   dsda_tc_hud_announce_message,
   dsda_tc_hud_announce_author,
   dsda_tc_hud_secret_message,
@@ -120,7 +125,12 @@ typedef enum {
   dsda_tc_stbar_ammo_full,
 } dsda_text_color_index_t;
 
-void dsda_LoadTextColor(void);
+extern void dsda_LoadTextColorEntries(const char* def, int parm);
+extern void dsda_SaveTextColorEntries(FILE* f, int maxlen);
+extern int dsda_TextColorConfig(int config_id);
+extern void dsda_UpdateTextColorConfig(int config_id, int cr);
+
+void dsda_RefreshTextColors(void);
 const char* dsda_TextColor(dsda_text_color_index_t i);
 int dsda_TextCR(dsda_text_color_index_t i);
 int dsda_ColorNameToIndex(const char* name);
