@@ -40,7 +40,8 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
     length = snprintf(
       str,
       max_size,
-      "%s%s%d:%02d %s%d:%05.2f ",
+      "%s%s%s%d:%02d %s%d:%05.2f ",
+      dsda_TextColor(dsda_tc_exhud_time_label),
       local->label,
       dsda_TextColor(dsda_tc_exhud_total_time),
       total_time / 35 / 60,
@@ -53,7 +54,8 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
     length = snprintf(
       str,
       max_size,
-      "%s%s%d:%05.2f ",
+      "%s%s%s%d:%05.2f ",
+      dsda_TextColor(dsda_tc_exhud_time_label),
       local->label,
       dsda_TextColor(dsda_tc_exhud_level_time),
       leveltime / 35 / 60,
@@ -79,7 +81,7 @@ void dsda_InitCompositeTimeHC(int x_offset, int y_offset, int vpt, int* args, in
   local = *data;
 
   if (arg_count < 1 || args[0])
-    snprintf(local->label, sizeof(local->label), "%stime ", dsda_TextColor(dsda_tc_exhud_time_label));
+    snprintf(local->label, sizeof(local->label), "time ");
   else
     local->label[0] = '\0';
 
