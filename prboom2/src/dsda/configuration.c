@@ -396,6 +396,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_colorize_messages", dsda_config_colorize_messages,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
+  [dsda_config_fade_messages] = {
+    "dsda_fade_messages", dsda_config_fade_messages,
+    CONF_BOOL(1), NULL, NOT_STRICT, dsda_UpdateTranMap
+  },
   [dsda_config_stats_format] = {
     "dsda_stats_format", dsda_config_stats_format,
     dsda_config_int, 0, 5, { 0 }, NULL, NOT_STRICT

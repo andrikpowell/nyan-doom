@@ -64,6 +64,7 @@ void dsda_InitMessageHC(int x_offset, int y_offset, int vpt, int* args, int arg_
 }
 
 void dsda_UpdateMessageHC(void* data) {
+  int dsda_MessageTics(void);
   local = data;
 
   dsda_UpdateComponentText(local->component.msg, sizeof(local->component.msg));
@@ -75,6 +76,8 @@ void dsda_UpdateMessageHC(void* data) {
   // Adjust y-offset for multi-line if bottom-aligned
   if (BOTTOM_ALIGNMENT(local->component.text.flags & VPT_ALIGN_MASK))
     HUlib_AdjustBottomOffset_MultiLine(&local->component.text, local->y_offset, local->ratio, local->vpt);
+
+  local->component.text.fade_alpha = dsda_MessageFadeOut(dsda_MessageTics(), false);
 }
 
 void dsda_DrawMessageHC(void* data) {

@@ -32,4 +32,11 @@ void dsda_UpdateMessenger(void);
 void dsda_InitMessenger(void);
 void dsda_ReplayMessage(void);
 
+#define MESSAGE_FADE_TICS 9
+#define MESSAGE_FADE_STEPS 10
+
+extern int dsda_MessageFadeOut(int tics, dboolean forced);
+extern int dsda_MessageFadeIn(int tics, dboolean forced);
+extern int dsda_MessageTics(void);
+
 #endif

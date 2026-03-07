@@ -43,6 +43,7 @@ const byte* dsda_TranMap(unsigned int alpha);
 const byte* dsda_TranMap_Custom(unsigned int alpha, int context);
 const byte* dsda_DefaultTranMap(void);
 void dsda_UpdateTranMap(void);
+void dsda_UpdateFadeTranMaps(void);
 extern int tran_filter_pct;
 extern int exhud_tran_filter_pct;
 extern int exhud_tint_filter_pct;

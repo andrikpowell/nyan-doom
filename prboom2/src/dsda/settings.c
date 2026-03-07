@@ -262,6 +262,10 @@ dboolean dsda_DetailedQuicksave(void) {
   return dsda_IntConfig(dsda_config_detailed_quicksave);
 }
 
+dboolean dsda_FadeMessages(void) {
+  return dsda_IntConfig(dsda_config_fade_messages);
+}
+
 dboolean dsda_TrackSplits(void) {
   return demorecording || (demoplayback && dsda_Flag(dsda_arg_track_playback));
 }

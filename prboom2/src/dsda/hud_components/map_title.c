@@ -33,6 +33,7 @@ static local_component_t* local;
 int titleTime = 3 * TICRATE;
 short titleCounter;
 short titleSwap;
+static int titlePhase;
 
 void dsda_UpdateTitleSwap(void)
 {
@@ -41,23 +42,58 @@ void dsda_UpdateTitleSwap(void)
   {
     titleSwap = 0;
     titleCounter = titleTime;
+    titlePhase = 0;
+
     dsda_StringPrintF(&hud_title_cycle, "%s", hud_title.string);
+    return;
   }
 
+  titleCounter--;
+
   // Restart counter + init swap 
-  if (--titleCounter <= 0)
+  if (titleCounter <= 0)
   {
     titleSwap ^= 1;
     titleCounter = titleTime;
-  }
+    titlePhase++;
 
-  // Swap title to map or author
-  if (titleCounter == titleTime)
-  {
+    // Swap title to map or author
     if (titleSwap)
       dsda_StringPrintF(&hud_title_cycle, "Author: %s", hud_author.string);
     else
       dsda_StringPrintF(&hud_title_cycle, "%s", hud_title.string);
+  }
+}
+
+static void dsda_UpdateMapTitleFade(void)
+{
+  const int fade_tics = MESSAGE_FADE_TICS;
+  dboolean first_phase;
+  dboolean cycle_title_active = (hud_author.string != NULL) &&
+                                (local->cycle_author || dsda_IntConfig(dsda_config_map_title_author_cycle));
+
+  local->component.text.fade_alpha = 100;
+
+  if (!cycle_title_active || !dsda_FadeMessages())
+    return;
+
+  first_phase = (titlePhase == 0);
+
+  // First title: show instantly, then fade out
+  if (first_phase)
+  {
+    if (titleCounter <= fade_tics)
+      local->component.text.fade_alpha = dsda_MessageFadeOut(titleCounter, true);
+  }
+  // fade in, fade out
+  else
+  {
+    int elapsed = titleTime - titleCounter;
+
+    if (elapsed < fade_tics)
+      local->component.text.fade_alpha = dsda_MessageFadeIn(elapsed, true);
+    else if (titleCounter <= fade_tics)
+      local->component.text.fade_alpha = dsda_MessageFadeOut(titleCounter, true);
   }
 }
 
@@ -91,6 +127,8 @@ void dsda_UpdateMapTitleHC(void* data) {
 
   dsda_UpdateComponentText(local->component.msg, sizeof(local->component.msg));
   dsda_RefreshHudText(&local->component);
+
+  dsda_UpdateMapTitleFade();
 }
 
 void dsda_DrawMapTitleHC(void* data) {

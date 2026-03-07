@@ -28,6 +28,7 @@
 
 #include "dsda/configuration.h"
 #include "dsda/data_organizer.h"
+#include "dsda/messenger.h"
 #include "dsda/settings.h"
 #include "dsda/utility.h"
 
@@ -253,6 +254,69 @@ int P_ConvertTrans(int val) {
   return CLAMP(val, 1, 99);
 }
 
+static void dsda_PrecacheFadeAlphasForContext(int context, int base_alpha)
+{
+  int step_size;
+  int fade;
+
+  if (context <= UI_NONE || context >= UI_END)
+    return;
+
+  step_size = 100 / MESSAGE_FADE_STEPS;
+
+  for (fade = step_size; fade < 100; fade += step_size)
+  {
+    int percent;
+    int alpha;
+
+    percent = (base_alpha * fade + 50) / 100;
+
+    if (percent <= 0 || percent >= 100)
+      continue;
+
+    alpha = P_ConvertTrans(percent);
+
+    dsda_TranMap_Custom(alpha, context);
+  }
+}
+
+typedef struct {
+  int steps;
+  int base_alpha;
+} tranmap_cache_t;
+
+static tranmap_cache_t fade_cache[UI_END];
+
+static dboolean dsda_FadeCacheReady(int context, int base_alpha)
+{
+  if (context <= UI_NONE || context >= UI_END)
+    return true;
+
+  return fade_cache[context].steps == MESSAGE_FADE_STEPS &&
+         fade_cache[context].base_alpha == base_alpha;
+}
+
+static void dsda_FadeCacheMarkReady(int context, int base_alpha)
+{
+  fade_cache[context].steps = MESSAGE_FADE_STEPS;
+  fade_cache[context].base_alpha = base_alpha;
+}
+
+void dsda_UpdateFadeTranMaps(void)
+{
+  if (!dsda_FadeCacheReady(UI_TRANS, 100))
+  {
+    dsda_PrecacheFadeAlphasForContext(UI_TRANS, 100);
+    dsda_FadeCacheMarkReady(UI_TRANS, 100);
+  }
+
+  if (!dsda_FadeCacheReady(UI_SHADOW, shadow_ui_filter_pct))
+  {
+    dsda_PrecacheFadeAlphasForContext(UI_SHADOW, shadow_ui_filter_pct);
+    dsda_FadeCacheMarkReady(UI_SHADOW, shadow_ui_filter_pct);
+  }
+}
+
 //
 //
 // Set tranmap percentages for OpenGL
@@ -293,4 +357,7 @@ void dsda_UpdateTranMap(void) {
   // store main transmaps
   main_tranmap      = dsda_DefaultTranMap();
   menu_ui_tranmap   = dsda_TranMap_Custom(menu_ui_filter_pct, UI_TRANS); // ui menu translucency
+
+  if (dsda_FadeMessages())
+    dsda_UpdateFadeTranMaps();
 }

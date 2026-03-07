@@ -443,6 +443,10 @@ char* HU_SecretMessage(void) {
   return custom_message_p->ticks > 0 ? secret_message : NULL;
 }
 
+int HU_SecretMessageTics(void) {
+  return custom_message_p->ticks > 0 ? custom_message_p->ticks : 0;
+}
+
 //
 // Announce Map Message
 char* announce_message;
@@ -459,6 +463,10 @@ char* HU_AnnounceMessage(void) {
   return title_message_p->ticks > 0 ? announce_message : NULL;
 }
 
+int HU_AnnounceMessageTics(void) {
+  return title_message_p->ticks > 0 ? title_message_p->ticks : 0;
+}
+
 //
 // Author Map Message
 char* announce_author_message;
@@ -473,6 +481,10 @@ static void HU_UpdateAuthorMessage(const char* message)
 
 char* HU_AuthorMessage(void) {
   return author_message_p->ticks > 0 ? announce_author_message : NULL;
+}
+
+int HU_AuthorMessageTics(void) {
+  return author_message_p->ticks > 0 ? author_message_p->ticks : 0;
 }
 
 //

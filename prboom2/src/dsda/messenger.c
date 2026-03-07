@@ -77,6 +77,57 @@ static void dsda_AppendMessage(message_t* message) {
   }
 }
 
+static int dsda_GetAlphaStep(int a)
+{
+  int step_size;
+
+  if (a <= 0)   return 0;
+  if (a >= 100) return 100;
+
+  step_size = 100 / MESSAGE_FADE_STEPS;
+
+  a = ((a + step_size / 2) / step_size) * step_size;
+
+  return CLAMP(a, 0, 100);
+}
+
+int dsda_MessageFadeOut(int tics, dboolean forced)
+{
+  const int fade_tics = MESSAGE_FADE_TICS;
+  int alpha;
+
+  if (!dsda_FadeMessages() && !forced)
+    return 100;
+
+  if (tics <= 0) return 0;
+  if (tics > fade_tics) return 100;
+
+  alpha = (tics * 100 + (fade_tics / 2)) / fade_tics;
+  alpha = dsda_GetAlphaStep(alpha);
+  return alpha;
+}
+
+int dsda_MessageFadeIn(int tics, dboolean forced)
+{
+  const int fade_tics = MESSAGE_FADE_TICS;
+  int alpha;
+
+  if (!dsda_FadeMessages() && !forced)
+    return 100;
+
+  if (tics <= 0) return 100 / fade_tics;
+  if (tics >= fade_tics) return 100;
+
+  alpha = ((tics + 1) * 100 + (fade_tics / 2)) / fade_tics;
+  alpha = dsda_GetAlphaStep(alpha);
+  return alpha;
+}
+
+int dsda_MessageTics(void)
+{
+  return current_message ? current_message->tics : 0;
+}
+
 static void dsda_QueueMessage(const char* str, message_priority_t priority, dboolean first_time) {
   message_t* new_message;
   int message_lifetime;
