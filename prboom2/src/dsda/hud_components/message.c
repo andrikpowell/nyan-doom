@@ -33,6 +33,7 @@ static dboolean yellow;
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
   char* dsda_PlayerMessage(void);
   int dsda_PlayerMessageIsYellow(void);
+  const char* textcolor = yellow ? HU_ColorFromValue(CR_DEFAULT) : dsda_TextColor(dsda_tc_hud_message);
 
   char* message;
 
@@ -44,7 +45,7 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
       str,
       max_size,
       "%s%s",
-      dsda_TextColor(yellow ? dsda_tc_hud_yellow_message : dsda_tc_hud_message),
+      textcolor,
       message
     );
   else

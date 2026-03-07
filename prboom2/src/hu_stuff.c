@@ -343,6 +343,8 @@ void HU_DrawCrosshair(void)
   }
 }
 
+#define ANNOUNCE_TICS (4*TICRATE)
+
 void HU_AnnounceMap(void)
 {
   if (dsda_IntConfig(dsda_config_announce_map)>0)
@@ -368,8 +370,8 @@ void HU_AnnounceMap(void)
         }
         else
         {
-          SetTitleMessage(plr - players, hud_title.string, 4 * TICRATE, 0);
-          SetAuthorMessage(plr - players, hud_author.string, 4 * TICRATE, 0);
+          SetTitleMessage(plr - players, hud_title.string, ANNOUNCE_TICS, 0);
+          SetAuthorMessage(plr - players, hud_author.string, ANNOUNCE_TICS, 0);
         }
       }
       else
@@ -377,7 +379,7 @@ void HU_AnnounceMap(void)
         if (announce_config==2)
           dsda_AddAlert(hud_title.string);
         else
-          SetTitleMessage(plr - players, hud_title.string, 4 * TICRATE, 0);
+          SetTitleMessage(plr - players, hud_title.string, ANNOUNCE_TICS, 0);
       }
     }
   }
@@ -397,8 +399,8 @@ void HU_Start(void)
 {
   HU_InitThresholds();
   HU_InitPlayer();
-  HU_InitColorStrings();
   HU_InitMessages();
+  HU_InitColorStrings();
   HU_FetchTitle();
   HU_FetchAuthor();
   HU_InitCrosshair();
