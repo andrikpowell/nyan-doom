@@ -850,7 +850,9 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
 
 typedef struct {
   dboolean active;
-  int trans;
+  int trans;          // final translucency
+  int trans_base;     // initial translucency
+  int trans_context;  // translucency context
   const byte *colortr;
   const byte *transmap;
   enum patch_translation_e flags;
@@ -858,15 +860,116 @@ typedef struct {
 
 #define NO_TRANS -1
 
-v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
-{
-  v_patchinfo_t patch;
-  int trans_context;
+static void V_SetTransmap(v_patchinfo_t *p, int shadowtype, dboolean is_shadow, int fade_alpha) {
   extern int dsda_ExHudTranslucency(void);
+  int final_trans;
 
-  patch.transmap = NULL;
+  p->trans_base = 100;
+  p->trans_context = UI_TRANS;
+  p->trans = NO_TRANS;
+  p->transmap = NULL;
+
+  // Add translucency
+  if (is_shadow)
+  {
+    p->trans_base = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : shadow_filter_pct;
+    p->trans_context = (shadowtype == SHADOW_DEFAULT) ? UI_SHADOW : UI_RAVEN_TINT;
+
+    // Shadow always has translucency
+    if (!(p->flags & VPT_TRANSMAP))
+      p->flags |= VPT_TRANSMAP;
+  }
+  else
+  {
+    if (p->flags & VPT_TRANSMAP)
+    {
+      p->trans_base = tran_filter_pct;
+      p->trans_context = UI_TRANS;
+    }
+    else if (p->flags & VPT_ALT_TRANSMAP)
+    {
+      p->trans_base = alttint_filter_pct;
+      p->trans_context = UI_RAVEN_ALTTINT;
+    }
+  }
+
+  // ExHUD translucency logic
+  if ((p->flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
+  {
+    if (is_shadow)
+    {
+      p->trans_base = exhud_shadow_filter_pct;
+      p->trans_context = UI_EXHUD_SHADOW;
+    }
+    else if (p->flags & VPT_TRANSMAP)
+    {
+      p->trans_base = exhud_tint_filter_pct;
+      p->trans_context = UI_EXHUD_TRANS;
+    }
+    else if (p->flags & VPT_ALT_TRANSMAP)
+    {
+      p->trans_base = exhud_alttint_filter_pct;
+      p->trans_context = UI_EXHUD_RAVEN_ALTTINT;
+    }
+    else
+    {
+      p->trans_base = exhud_tran_filter_pct;
+      p->trans_context = UI_EXHUD;
+    }
+
+    // If using ExHUD translucency, make sure translucency is active
+    if (!(p->flags & VPT_TRANSMAP))
+      p->flags |= VPT_TRANSMAP;
+  }
+
+  if (p->trans_base >= 99) p->trans_base = 100;
+  if (p->trans_base <= 1)  p->trans_base = 0;
+
+  // Do fade logic
+  {
+    fade_alpha = CLAMP(fade_alpha, 0, 100);
+
+    if (fade_alpha >= 100)
+      final_trans = p->trans_base;
+    else if (fade_alpha <= 0)
+      final_trans = 0;
+    else
+      final_trans = (p->trans_base * fade_alpha + 50) / 100;
+  }
+
+  // Set translucency
+  p->trans = final_trans;
+
+  // If fade, add translucency
+  if (p->trans > 0 && p->trans < 99)
+  {
+    if (!(p->flags & VPT_TRANSMAP))
+      p->flags |= VPT_TRANSMAP;
+  }
+
+  // if close, just go with 100
+  if (p->trans >= 99)
+  {
+    p->trans = NO_TRANS;
+    p->flags &= ~(VPT_TRANSMAP | VPT_ALT_TRANSMAP);
+    p->transmap = NULL;
+  }
+  // Invisible
+  else if (p->trans <= 0)
+  {
+    p->trans = 0;
+    p->transmap = NULL;
+  }
+
+  if (p->trans > 0 && p->trans != NO_TRANS)
+    p->transmap = dsda_TranMap_Custom(p->trans, p->trans_context);
+}
+
+v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags, int fade_alpha)
+{
+  v_patchinfo_t patch = { 0 };
+
   patch.flags = flags;
-  patch.trans = NO_TRANS;
 
   // color translation
   if (cm == CR_DEFAULT)
@@ -884,56 +987,13 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags)
   if (!patch.colortr)
     patch.flags &= ~VPT_COLOR;
 
-  if (patch.flags & VPT_TRANSMAP)
-  {
-    patch.trans = tran_filter_pct;
-    trans_context = TMC_MAIN;
-  }
-  else if (patch.flags & VPT_ALT_TRANSMAP)
-  {
-    patch.trans = alttint_filter_pct;
-    trans_context = TMC_ALT;
-  }
-
-  // ExHUD translucency logic
-  if ((patch.flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
-  {
-    patch.trans = exhud_tran_filter_pct;
-    trans_context = TMC_EXHUD;
-  
-    if (patch.flags & VPT_TRANSMAP)
-    {
-      patch.trans = exhud_tint_filter_pct;
-      trans_context = TMC_EXHUD_MAIN;
-    }
-    else if (patch.flags & VPT_ALT_TRANSMAP)
-    {
-      patch.trans = exhud_alttint_filter_pct;
-      trans_context = TMC_EXHUD_ALT;
-    }
-  
-    if (!(patch.flags & VPT_TRANSMAP))
-      patch.flags |= VPT_TRANSMAP;
-  }
-
-  // if close, just go with 100
-  if (patch.trans == 99)
-  {
-    patch.trans = NO_TRANS;
-    patch.flags &= ~VPT_TRANSMAP;
-  }
-
-  if (patch.trans != NO_TRANS)
-    patch.transmap = dsda_TranMap_Custom(patch.trans, trans_context);
+  V_SetTransmap(&patch, 0, false, fade_alpha);
 
   return patch;
 }
 
-v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype) {
+v_patchinfo_t V_GetShadowDrawInfo(int shadowtype, enum patch_translation_e flags, int fade_alpha) {
   v_patchinfo_t shadow = { 0 };
-  int trans_context;
-  shadow.trans = NO_TRANS;
-
   if ((shadowtype == SHADOW_DEFAULT && !dsda_ShadowTranslucency()))
     shadowtype = 0;
 
@@ -945,33 +1005,13 @@ v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype
 
   shadow.active = true;
   shadow.colortr = &colormaps[0][256 * 31]; // close to black
-  shadow.transmap = NULL;
   shadow.flags = flags | VPT_SHADOW;
-  shadow.trans = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : tran_filter_pct;
-  trans_context = (shadowtype == SHADOW_DEFAULT) ? TMC_UI_SHADOW : TMC_SHADOW;
 
-  // Shadow always has translucency and color
-  if (!(shadow.flags & VPT_TRANSMAP))
-    shadow.flags |= VPT_TRANSMAP;
+  // Shadow always has color
   if (!(shadow.flags & VPT_COLOR))
     shadow.flags |= VPT_COLOR;
 
-  // Ex hud stuff
-  if ((shadow.flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
-  {
-    shadow.trans = exhud_shadow_filter_pct;
-    trans_context = TMC_EXHUD_SHADOW;
-  }
-
-  // if close, just go with 100
-  if (shadow.trans == 99)
-  {
-    shadow.trans = NO_TRANS;
-    shadow.flags &= ~VPT_TRANSMAP;
-  }
-
-  if (shadow.trans != NO_TRANS)
-    shadow.transmap = dsda_TranMap_Custom(shadow.trans, trans_context);
+  V_SetTransmap(&shadow, shadowtype, true, fade_alpha);
 
   return shadow;
 }
@@ -979,7 +1019,7 @@ v_patchinfo_t V_GetShadowDrawInfo(enum patch_translation_e flags, int shadowtype
 void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
         dboolean center, int shadowtype,
         int clip_top, int clip_bottom, int clip_left, int clip_right,
-        int cm, enum patch_translation_e flags)
+        int cm, int fade_alpha, enum patch_translation_e flags)
 {
   v_patchinfo_t patchinfo = {0}, shadowinfo = {0};
   int shadow_x, shadow_y;
@@ -1013,8 +1053,16 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
       x -= (patch->width - 320) / 2;
   }
 
-  patchinfo  = V_GetMainDrawInfo(cm, flags);
-  shadowinfo = V_GetShadowDrawInfo(flags, shadowtype);
+  patchinfo  = V_GetMainDrawInfo(cm, flags, fade_alpha);
+  shadowinfo = V_GetShadowDrawInfo(shadowtype, flags, fade_alpha);
+
+  // Disable drawing if invisible
+  if (patchinfo.trans == 0)
+    return;
+
+  // Disable shadow if shadow is invisible
+  if (shadowinfo.active && shadowinfo.trans == 0)
+    shadowinfo.active = false;
 
   // Clamp shadow so it doesn't exceed screen bounds,
   // Stops V_DrawPatch vertical overflow error.
@@ -1098,30 +1146,30 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 
 static void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center,
          int clip_top, int clip_bottom, int clip_left, int clip_right,
-         int cm, enum patch_translation_e flags)
+         int cm, int fade_alpha, enum patch_translation_e flags)
 {
-  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, false, clip_top, clip_bottom, clip_left, clip_right, cm, flags);
+  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, false, clip_top, clip_bottom, clip_left, clip_right, cm, fade_alpha, flags);
 }
 
 static void FUNC_V_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center,
          float clip_top, float clip_bottom, float clip_left, float clip_right,
-         int cm, enum patch_translation_e flags)
+         int cm, int fade_alpha, enum patch_translation_e flags)
 {
-  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, false, (int)clip_top, (int)clip_bottom, (int)clip_left, (int)clip_right, cm, flags);
+  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, false, (int)clip_top, (int)clip_bottom, (int)clip_left, (int)clip_right, cm, fade_alpha, flags);
 }
 
 static void FUNC_V_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadowtype,
          int clip_top, int clip_bottom, int clip_left, int clip_right,
-         int cm, enum patch_translation_e flags)
+         int cm, int fade_alpha, enum patch_translation_e flags)
 {
-  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, shadowtype, clip_top, clip_bottom, clip_left, clip_right, cm, flags);
+  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, shadowtype, clip_top, clip_bottom, clip_left, clip_right, cm, fade_alpha, flags);
 }
 
 static void FUNC_V_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadowtype,
          float clip_top, float clip_bottom, float clip_left, float clip_right,
-         int cm, enum patch_translation_e flags)
+         int cm, int fade_alpha, enum patch_translation_e flags)
 {
-  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, shadowtype, (int)clip_top, (int)clip_bottom, (int)clip_left, (int)clip_right, cm, flags);
+  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, shadowtype, (int)clip_top, (int)clip_bottom, (int)clip_left, (int)clip_right, cm, fade_alpha, flags);
 }
 
 static int currentPaletteIndex = 0;
@@ -1292,31 +1340,31 @@ static void WRAP_gld_FillPatch(int lump, int n, int x, int y, int width, int hei
 {
   gld_FillPatch(lump, x, y, width, height, flags);
 }
-static void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags)
+static void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, int fade_alpha, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch(x,y,lump,center,false,clip_top,clip_bottom,clip_left,clip_right,cm,flags);
+  gld_DrawNumPatch(x,y,lump,center,false,clip_top,clip_bottom,clip_left,clip_right,cm,fade_alpha,flags);
 }
-static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags)
+static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, int fade_alpha, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f(x,y,lump,center,false,clip_top,clip_bottom,clip_left,clip_right,cm,flags);
+  gld_DrawNumPatch_f(x,y,lump,center,false,clip_top,clip_bottom,clip_left,clip_right,cm,fade_alpha,flags);
 }
-static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int offset, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags)
+static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int offset, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, int fade_alpha, enum patch_translation_e flags)
 {
   int shadow = (offset == SHADOW_DEFAULT && dsda_ShadowTranslucency()) || (offset == SHADOW_RAVEN);
 
   if (shadow)
-    gld_DrawNumPatch(x+offset,y+offset,lump,center,offset,0,0,0,0,cm,flags|VPT_SHADOW); // draw offset shadow
+    gld_DrawNumPatch(x+offset,y+offset,lump,center,offset,0,0,0,0,cm,fade_alpha,flags|VPT_SHADOW); // draw offset shadow
 
-  gld_DrawNumPatch(x,y,lump,center,false,0,0,0,0,cm,flags);
+  gld_DrawNumPatch(x,y,lump,center,false,0,0,0,0,cm,fade_alpha,flags);
 }
-static void WRAP_gld_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int offset, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags)
+static void WRAP_gld_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int offset, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, int fade_alpha, enum patch_translation_e flags)
 {
   int shadow = (offset == SHADOW_DEFAULT && dsda_ShadowTranslucency()) || (offset == SHADOW_RAVEN);
 
   if (shadow)
-    gld_DrawNumPatch_f(x+offset,y+offset,lump,center,offset,0,0,0,0,cm,flags|VPT_SHADOW); // draw offset shadow
+    gld_DrawNumPatch_f(x+offset,y+offset,lump,center,offset,0,0,0,0,cm,fade_alpha,flags|VPT_SHADOW); // draw offset shadow
 
-  gld_DrawNumPatch_f(x,y,lump,center,false,0,0,0,0,cm,flags);
+  gld_DrawNumPatch_f(x,y,lump,center,false,0,0,0,0,cm,fade_alpha,flags);
 }
 static void V_PlotPixelGL(int scrn, int x, int y, byte color) {
   gld_DrawPoint(x, y, color);
@@ -1347,10 +1395,10 @@ static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, 
 static void NULL_FillRaw(int lump, int n, int x, int y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags) {}
 static void NULL_FillRawPrecise(int lump, int n, float x, float y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags) {}
 static void NULL_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
-static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags) {}
-static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags) {}
-static void NULL_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadow, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags) {}
-static void NULL_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadow, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags) {}
+static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, int fade_alpha, enum patch_translation_e flags) {}
+static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, int fade_alpha, enum patch_translation_e flags) {}
+static void NULL_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadow, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, int fade_alpha, enum patch_translation_e flags) {}
+static void NULL_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadow, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, int fade_alpha, enum patch_translation_e flags) {}
 static void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
 static void NULL_PlotPixelWu(int scrn, int x, int y, byte color, int weight) {}
 static void NULL_DrawLine(fline_t* fl, int color) {}

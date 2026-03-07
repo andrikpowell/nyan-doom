@@ -153,7 +153,7 @@ void dsda_AlterGameFlags(void);
 void dsda_RefreshPistolStart(void);
 void dsda_RefreshAlwaysPistolStart(void);
 void S_ToggleRandomMusic(void);
-void P_UpdateTranMap(void);
+void dsda_UpdateTranMap(void);
 void cht_UpdateCheats(void);
 void R_UpdateFuzzSize(void);
 
@@ -1816,31 +1816,31 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_tran_filter_pct] = {
     "tran_filter_pct", dsda_config_tran_filter_pct,
-    dsda_config_int, 0, 100, { 66 }, NULL, STRICT_INT(66), P_UpdateTranMap
+    dsda_config_int, 0, 100, { 66 }, NULL, STRICT_INT(66), dsda_UpdateTranMap
   },
   [dsda_config_menu_tran_filter] = {
     "tran_menu_filter", dsda_config_menu_tran_filter,
-    CONF_BOOL(1), NULL, NOT_STRICT, P_UpdateTranMap
+    CONF_BOOL(1), NULL, NOT_STRICT, dsda_UpdateTranMap
   },
   [dsda_config_menu_tran_filter_pct] = {
     "tran_menu_filter_pct", dsda_config_menu_tran_filter_pct,
-    dsda_config_int, 0, 100, { 66 }, NULL, NOT_STRICT, P_UpdateTranMap
+    dsda_config_int, 0, 100, { 66 }, NULL, NOT_STRICT, dsda_UpdateTranMap
   },
   [dsda_config_shadow_tran_filter] = {
     "tran_shadow_filter", dsda_config_shadow_tran_filter,
-    CONF_BOOL(1), NULL, NOT_STRICT, P_UpdateTranMap
+    CONF_BOOL(1), NULL, NOT_STRICT, dsda_UpdateTranMap
   },
   [dsda_config_shadow_tran_filter_pct] = {
     "tran_shadow_filter_pct", dsda_config_shadow_tran_filter_pct,
-    dsda_config_int, 0, 100, { 50 }, NULL, NOT_STRICT, P_UpdateTranMap
+    dsda_config_int, 0, 100, { 50 }, NULL, NOT_STRICT, dsda_UpdateTranMap
   },
   [dsda_config_ex_text_tran_filter] = {
     "ex_text_tran_filter", dsda_config_ex_text_tran_filter,
-    CONF_BOOL(0), NULL, NOT_STRICT, P_UpdateTranMap
+    CONF_BOOL(0), NULL, NOT_STRICT, dsda_UpdateTranMap
   },
   [dsda_config_ex_text_tran_filter_pct] = {
     "ex_text_tran_filter_pct", dsda_config_ex_text_tran_filter_pct,
-    dsda_config_int, 0, 100, { 66 }, NULL, NOT_STRICT, P_UpdateTranMap
+    dsda_config_int, 0, 100, { 66 }, NULL, NOT_STRICT, dsda_UpdateTranMap
   },
   [dsda_config_translucent_sprites] = {
     "boom_translucent_sprites", dsda_config_translucent_sprites,

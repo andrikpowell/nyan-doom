@@ -97,6 +97,7 @@
 #include "dsda/skill_info.h"
 #include "dsda/skip.h"
 #include "dsda/time.h"
+#include "dsda/tranmap.h"
 #include "dsda/console.h"
 #include "dsda/stretch.h"
 #include "dsda/text_color.h"
@@ -8528,7 +8529,7 @@ static void M_InitCompStr(void)
 void M_Init(void)
 {
   M_InitCompStr();
-  P_UpdateTranMap();
+  dsda_UpdateTranMap();
 
   if (raven) MN_Init();
 

@@ -173,6 +173,7 @@ void HUlib_initTextLine(hu_textline_t* t, int x, int y,
   t->line_height = f->line_height;
   t->space_width = f->space_width;
   t->kerning = f->kerning;
+  t->fade_alpha = 100;
   HUlib_clearTextLine(t);
 }
 
@@ -645,6 +646,7 @@ void HUlib_drawTextLine
   int oc = l->cm; //jff 2/17/98 remember default color
   int base_cm = oc;
   dboolean base_set = false;
+  int fade_alpha = l->fade_alpha;
 
   // Choose which font to use (Hexen Yellow Message)
   const patchnum_t* font = yellow ? l->fy : l->f;
@@ -670,6 +672,10 @@ void HUlib_drawTextLine
   // and should not get draw-time ellipsis.
   if (allow_auto_ellipsis)
     HUlib_AppendEllipsis_SingleLine(l, font, right);
+
+  // fade stuff
+  fade_alpha = CLAMP(fade_alpha, 0, 100);
+  if (fade_alpha == 0) return;
 
   // draw the new stuff
 
@@ -763,9 +769,9 @@ void HUlib_drawTextLine
       }
 
       if (shadow)
-        V_DrawMenuNumPatch(x, y, font[c - l->sc].lumpnum, l->cm, VPT_COLOR | l->flags);
+        V_DrawMenuFadeNumPatch(x, y, font[c - l->sc].lumpnum, l->cm, fade_alpha, VPT_COLOR | l->flags);
       else
-        V_DrawNumPatch(x, y, font[c - l->sc].lumpnum, l->cm, VPT_COLOR | l->flags);
+        V_DrawFadeNumPatch(x, y, font[c - l->sc].lumpnum, l->cm, fade_alpha, VPT_COLOR | l->flags);
 
       x += w;
       continue;

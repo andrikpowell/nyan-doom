@@ -71,6 +71,7 @@ typedef struct
   int line_height;
   int kerning; // Heretic/Hexen -1 kerning
   int space_width;
+  int fade_alpha; // dyanamic font translucency
 } hu_textline_t;
 
 //

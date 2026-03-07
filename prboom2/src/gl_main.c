@@ -512,52 +512,57 @@ void gld_EndMenuDraw(void)
   glsl_PopNullShader();
 }
 
-#define NO_TRANS -1
-
-float gld_GetTranslucency(int shadowtype, enum patch_translation_e flags)
+static float gld_GetAlpha(int shadowtype, int fade_alpha, enum patch_translation_e flags)
 {
-  int trans_percent = NO_TRANS;
+  int base_alpha;
+  int final_alpha;
   extern int dsda_ExHudTranslucency(void);
+
+  fade_alpha = CLAMP(fade_alpha, 0, 100);
+  if (fade_alpha <= 0)
+    return 0.0f;
+
+  // default
+  base_alpha = 100;
 
   // apply translucency
   if (flags & VPT_SHADOW)
-  {
-    trans_percent = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : shadow_filter_pct;
-  }
-  else
-  {
-    if (flags & VPT_TRANSMAP)
-      trans_percent = tran_filter_pct;
-    else if (flags & VPT_ALT_TRANSMAP)
-      trans_percent = gl_alttint_filter_pct;
-  }
+    base_alpha = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : shadow_filter_pct;
+  else if (flags & VPT_TRANSMAP)
+    base_alpha = tran_filter_pct;
+  else if (flags & VPT_ALT_TRANSMAP)
+    base_alpha = gl_alttint_filter_pct;
 
   // apply translucency under exhud
-  if (flags & VPT_EX_TRANS && dsda_ExHudTranslucency())
+  if ((flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
   {
     if (flags & VPT_SHADOW)
-      trans_percent = exhud_shadow_filter_pct;
+      base_alpha = exhud_shadow_filter_pct;
     else if (flags & VPT_TRANSMAP)
-      trans_percent = exhud_tint_filter_pct;
+      base_alpha = exhud_tint_filter_pct;
     else if (flags & VPT_ALT_TRANSMAP)
-      trans_percent = gl_exhud_alttint_filter_pct;
+      base_alpha = gl_exhud_alttint_filter_pct;
     else
-      trans_percent = exhud_tran_filter_pct;
+      base_alpha = exhud_tran_filter_pct;
   }
 
   // if close, just go wtih 100 or 0
-  if (trans_percent == 99)
-    trans_percent = NO_TRANS;
-  else if (trans_percent == 1)
-    trans_percent = 0.0f;
+  if (base_alpha >= 99) base_alpha = 100;
+  if (base_alpha <= 1)  base_alpha = 0;
 
-  if (trans_percent != NO_TRANS)
-    return trans_percent * 0.01f;
+  // Apply fade
+  if (fade_alpha < 100)
+    final_alpha = (base_alpha * fade_alpha + 50) / 100;
   else
-    return 1.0f;
+    final_alpha = base_alpha;
+
+  if (final_alpha <= 0)   return 0.0f;
+  if (final_alpha >= 100) return 1.0f;
+
+  return (float)final_alpha / 100.0f;
 }
 
-void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags)
+void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, int fade_alpha, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
@@ -576,7 +581,20 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
     cm = CR_SHADOW;
   }
 
-  alpha = 1.0f;
+  // Add translucency
+  alpha = gld_GetAlpha(shadowtype, fade_alpha, flags);
+
+  // if invisible, return
+  if (alpha <= 0.0f)
+    return;
+
+  // calculate ALT translucency as smaller translucency
+  if (alpha < 1.0f)
+  {
+    flags &= ~VPT_ALT_TRANSMAP;
+    flags |= VPT_TRANSMAP;
+  }
+
   cmap = ((flags & VPT_COLOR) ? cm : CR_DEFAULT);
   gltexture=gld_RegisterPatch(lump, cmap, false, V_IsUILightmodeIndexed());
   gld_BindPatch(gltexture, cmap);
@@ -636,21 +654,6 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
       x -= (float)(gltexture->width - 320) / 2;
   }
 
-  // Add translucency
-  if (flags & VPT_SHADOW || flags & VPT_EX_TRANS || flags & VPT_TRANSMAP || flags & VPT_ALT_TRANSMAP)
-  {
-    alpha = gld_GetTranslucency(shadowtype, flags);
-
-    // If translucent
-    if (alpha != 1.0f)
-    {
-      // calculate ALT translucency as smaller translucency
-      flags &= ~VPT_ALT_TRANSMAP;
-      if (!(flags & VPT_TRANSMAP))
-        flags |= VPT_TRANSMAP;
-    }
-  }
-
   if (flags & VPT_STRETCH_MASK)
   {
     stretch_param_t *params = dsda_StretchParams(flags);
@@ -684,9 +687,9 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   glEnd();
 }
 
-void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags)
+void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, int alpha, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, (float)clip_top, (float)clip_bottom, (float)clip_left, (float)clip_right, cm, flags);
+  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, (float)clip_top, (float)clip_bottom, (float)clip_left, (float)clip_right, cm, alpha, flags);
 }
 
 void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags)
@@ -788,7 +791,7 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
       scaled_x = sx;
       scaled_y = sy;
 
-      gld_DrawNumPatch(scaled_x, scaled_y, lump, false, false, 0, clip_bottom, 0, clip_right, CR_DEFAULT, flags);
+      gld_DrawNumPatch(scaled_x, scaled_y, lump, false, false, 0, clip_bottom, 0, clip_right, CR_DEFAULT, 100, flags);
     }
   }
 }

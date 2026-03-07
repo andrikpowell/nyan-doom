@@ -67,7 +67,6 @@ typedef struct
 extern blockmap_t original_blockmap;
 
 void P_RestoreOriginalBlockMap(void);
-void P_UpdateTranMap(void);
 
 typedef struct
 {

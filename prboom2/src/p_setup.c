@@ -3662,51 +3662,6 @@ void P_MustRebuildBlockmap(void)
   must_rebuild_blockmap = true;
 }
 
-int P_ConvertTrans(int val) {
-  if (val <= 0)
-    val = 1;
-  else if (val >= 100)
-    val = 99;
-  
-  return val;
-}
-
-// Following values from https://zdoom.org/wiki/ZScript_constants
-// 40% - MF_SHADOW (Heretic) + MF_ALTSHADOW (Hexen)
-// 60% - MF_SHADOW (Hexen)
-
-//int tranmap_pct        = 66;    // Doom + Boom Transmap
-int tinttable_pct        = 40;    // Heretic MF_SHADOW + Hexen MF_ALTSHADOW
-int alt_tinttable_pct    = 60;    // Hexen MF_SHADOW
-
-void P_UpdateTranMap(void) {
-  // Heretic + Hexen have forced percentages due to use of tinttable
-
-  // main percentages
-  tran_filter_pct       = raven ? tinttable_pct : dsda_TranslucencyPercent(); // Allow translucency customisation only for Doom / Boom
-  alttint_filter_pct    = raven ? alt_tinttable_pct : P_ConvertTrans(100-tran_filter_pct); // reverse translucency
-  shadow_filter_pct     = hexen ? alt_tinttable_pct : tinttable_pct;
-
-  // ui stuff (menu text shadows) - never use tinttable
-  shadow_ui_filter_pct  = P_ConvertTrans(dsda_ShadowTranslucencyPercent());
-  menu_ui_filter_pct    = P_ConvertTrans(dsda_MenuTranslucencyPercent());
-
-  // exhud percentages
-  exhud_tran_filter_pct    = P_ConvertTrans(dsda_ExHudTranslucencyPercent());
-  exhud_shadow_filter_pct  = P_ConvertTrans((int)(((float)shadow_filter_pct/100.0)*((float)exhud_tran_filter_pct/100.0)*100.0));
-  exhud_tint_filter_pct    = P_ConvertTrans((int)(((float)tran_filter_pct/100.0)*((float)exhud_tran_filter_pct/100.0)*100.0));    // normal translucency under translucency o.O
-  exhud_alttint_filter_pct = P_ConvertTrans(100-exhud_tint_filter_pct);                                                           // reverse translucency under translucency o.O
-
-  // OpenGL special precentages
-  // Let's just avoid the reversing part (since we can't access tinttable)
-  gl_alttint_filter_pct       = raven ? P_ConvertTrans(tran_filter_pct + 20) : P_ConvertTrans(tran_filter_pct - 20);              // reverse translucency o.O
-  gl_exhud_alttint_filter_pct = raven ? P_ConvertTrans(exhud_tint_filter_pct + 20) : P_ConvertTrans(exhud_tint_filter_pct - 20);  // reverse translucency under translucency o.O
-
-  // store main transmaps
-  main_tranmap      = dsda_DefaultTranMap();
-  menu_ui_tranmap   = dsda_TranMap_Custom(menu_ui_filter_pct, TMC_UI_MAIN); // ui menu translucency
-}
-
 //
 // P_SetupLevel
 //
@@ -3721,7 +3676,7 @@ void P_SetupLevel(int episode, int map, int playermask, int skill)
   //e6y
   totallive = 0;
 
-  P_UpdateTranMap();
+  dsda_UpdateTranMap();
 
   dsda_WatchBeforeLevelSetup();
 
