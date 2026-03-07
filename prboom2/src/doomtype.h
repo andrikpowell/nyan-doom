@@ -54,6 +54,9 @@ typedef unsigned char byte;
 #ifndef BETWEEN
 #define BETWEEN(l,u,x) ((l)>(x)?(l):(x)>(u)?(u):(x))
 #endif
+#ifndef CLAMP
+#define CLAMP(x,l,u) BETWEEN(l,u,x)
+#endif
 
 #include <inttypes.h>
 #include <limits.h>
