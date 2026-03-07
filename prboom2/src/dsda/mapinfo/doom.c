@@ -116,6 +116,10 @@ int dsda_DoomNewGameMap(int* episode, int* map) {
   return false;
 }
 
+int dsda_DoomMapToWarp(int* episode, int* map) {
+  return false;
+}
+
 int dsda_DoomResolveWarp(int* args, int arg_count, int* episode, int* map) {
   const doom_mapinfo_map_t* entry;
 

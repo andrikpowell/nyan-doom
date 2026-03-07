@@ -26,6 +26,7 @@
 int dsda_DoomNameToMap(int* found, const char* name, int* episode, int* map);
 int dsda_DoomFirstMap(int* episode, int* map);
 int dsda_DoomNewGameMap(int* episode, int* map);
+int dsda_DoomMapToWarp(int* episode, int* map);
 int dsda_DoomResolveWarp(int* args, int arg_count, int* episode, int* map);
 int dsda_DoomNextMap(int* episode, int* map);
 int dsda_DoomPrevMap(int* episode, int* map);

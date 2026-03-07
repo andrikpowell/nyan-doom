@@ -111,6 +111,10 @@ int dsda_LegacyNewGameMap(int* episode, int* map) {
   return true;
 }
 
+int dsda_LegacyMapToWarp(int* episode, int* map) {
+  return true;
+}
+
 int dsda_LegacyResolveWarp(int* args, int arg_count, int* episode, int* map) {
   if (gamemode == commercial)
   {

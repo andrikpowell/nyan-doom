@@ -69,6 +69,10 @@ int dsda_UNewGameMap(int* episode, int* map) {
   return false;
 }
 
+int dsda_UMapToWarp(int* episode, int* map) {
+  return false;
+}
+
 int dsda_UResolveWarp(int* args, int arg_count, int* episode, int* map) {
   return false;
 }
