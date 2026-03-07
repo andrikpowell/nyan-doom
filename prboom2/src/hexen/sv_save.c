@@ -2029,6 +2029,17 @@ static void SV_LoadCurrentMapStats(void)
   }
 }
 
+void SV_StoreHexenMapStats(void)
+{
+  SV_SaveCurrentMapStats();
+  P_SAVE_SIZE(hub_mapstats, sizeof(hub_mapstats));
+}
+
+void SV_RestoreHexenMapStats(void)
+{
+  P_LOAD_SIZE(hub_mapstats, sizeof(hub_mapstats));
+}
+
 void SV_MapTeleport(int map, int position)
 {
     int i;
