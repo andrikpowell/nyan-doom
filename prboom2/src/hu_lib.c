@@ -723,7 +723,7 @@ void HUlib_drawTextLine
       }
 
       // x-offset
-      else if (HU_EscIsXOffset(p))
+      if (HU_EscIsXOffset(p))
       {
         x += p;
       }
@@ -828,7 +828,7 @@ static int HUlib_GetLineWidthRaw(const hu_textline_t *l, const patchnum_t *font,
   dboolean any = false;
 
   int i = 0;
-  int len = (int)strlen(s); // safe here because s points into a null-terminated t->l slice
+  int len = (int)strlen(s);
 
   for (;;)
   {
@@ -939,36 +939,36 @@ void HUlib_setTextXCenter(hu_textline_t* t)
 
       while (i < t->len)
       {
-        hu_char_t tok = HU_GetNextChar(t->l, t->len, &i);
+        hu_char_t nextch = HU_GetNextChar(t->l, t->len, &i);
 
-        if (tok.type == HU_END)
+        if (nextch.type == HU_END)
           break;
 
-        if (tok.type == HU_NEWLINE)
+        if (nextch.type == HU_NEWLINE)
         {
           outbuf[out++] = '\n';
           break;
         }
 
-        if (tok.type == HU_ESC)
+        if (nextch.type == HU_ESC)
         {
           // keep color changes, skip old x-offsets
-          if (!HU_EscIsXOffset(tok.esc))
+          if (!HU_EscIsXOffset(nextch.esc))
           {
             outbuf[(out)++] = '\x1b';
-            outbuf[(out)++] = tok.esc;
+            outbuf[(out)++] = nextch.esc;
           }
           continue;
         }
 
-        if (tok.type == HU_TAB)
+        if (nextch.type == HU_TAB)
         {
           outbuf[out++] = '\t';
           continue;
         }
 
         // HU_CHAR
-        outbuf[out++] = tok.ch;
+        outbuf[out++] = nextch.ch;
       }
     }
   }
@@ -984,15 +984,15 @@ void HUlib_setTextXCenter(hu_textline_t* t)
     int i = 0;
     while (i < t->len)
     {
-      hu_char_t tok = HU_GetNextChar(t->l, t->len, &i);
+      hu_char_t nextch = HU_GetNextChar(t->l, t->len, &i);
 
-      if (tok.type == HU_NEWLINE)
+      if (nextch.type == HU_NEWLINE)
       {
         t->linelen = 0;
         continue;
       }
 
-      if (tok.type == HU_ESC)
+      if (nextch.type == HU_ESC)
         continue;
 
       t->linelen++;
