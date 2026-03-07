@@ -1972,6 +1972,10 @@ static void cheat_fly()
       plyr->cheats ^= CF_FLY;
       if (plyr->cheats & CF_FLY)
       {
+        if (plyr->mo->z <= plyr->mo->floorz)
+        {
+            plyr->mo->z += 8 * FRACUNIT;     // thrust the player in the air a bit
+        }
         plyr->mo->flags |= MF_NOGRAVITY;
         plyr->mo->flags |= MF_FLY;
         dsda_AddMessage("Fly mode ON");
