@@ -44,7 +44,6 @@ dboolean dsda_HideWeapon(void);
 dboolean dsda_SwitchWhenAmmoRunsOut(void);
 dboolean dsda_SkipQuitPrompt(void);
 dboolean dsda_PlayQuicksaveSFX(void);
-dboolean dsda_DetailedQuicksave(void);
 dboolean dsda_FadeMessages(void);
 dboolean dsda_TrackSplits(void);
 dboolean dsda_ShowSplitData(void);

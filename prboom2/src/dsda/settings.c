@@ -258,9 +258,6 @@ dboolean dsda_PlayQuicksaveSFX(void) {
   return dsda_IntConfig(dsda_config_quicksave_sfx);
 }
 
-dboolean dsda_DetailedQuicksave(void) {
-  return dsda_IntConfig(dsda_config_detailed_quicksave);
-}
 
 dboolean dsda_FadeMessages(void) {
   return dsda_IntConfig(dsda_config_fade_messages);
