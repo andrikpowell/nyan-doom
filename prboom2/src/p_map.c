@@ -49,6 +49,7 @@
 #include "p_tick.h"
 #include "g_overflow.h"
 #include "am_map.h"
+#include "w_wad.h"
 
 #include "e6y.h"//e6y
 
@@ -2752,6 +2753,63 @@ void P_LineAttack(mobj_t* t1, angle_t angle, fixed_t distance, fixed_t slope,
 
 mobj_t*   usething;
 
+static int P_LineLength(line_t *line)
+{
+    fixed_t dx = line->v2->x - line->v1->x;
+    fixed_t dy = line->v2->y - line->v1->y;
+
+    double fx = (double)dx / FRACUNIT;
+    double fy = (double)dy / FRACUNIT;
+
+    return (int)(sqrt(fx * fx + fy * fy) + 0.5);
+}
+
+void P_UseXboxEasterEgg(intercept_t* in)
+{
+  int linenum;
+  int linelen;
+  int frontside;
+
+  if (raven || bfgedition || !allow_incompatibility)
+    return;
+
+  if (gamemission == doom2)
+  {
+    if (gamemap != 2 || W_PWADLumpNameExists2("MAP02"))
+      return;
+  } else if (gamemission == doom)
+  {
+    if (gamemap != 1 || W_PWADLumpNameExists2("E1M1"))
+      return;
+  } else
+  {
+    return;
+  }
+
+  linenum = (int)(in->d.line - lines);
+  linelen = P_LineLength(in->d.line);
+  frontside = P_PointOnLineSide (usething->x, usething->y, in->d.line) == 0;   // front side only
+
+  if (usething->player && frontside)
+  {
+    if (gamemission == doom2 &&
+        linelen == 32 &&
+        (linenum = 302 ||   // 1.666
+        linenum == 283))    // 1.9
+    {
+      doom_printf("You have been betrayed.");
+    }
+    else if (gamemission == doom &&
+        linelen == 191 &&
+        (linenum == 268 ||  // Ultimate
+        linenum == 272 ||   // 1.666
+        linenum == 273))    // 1.1
+    {
+      doom_printf("The sewers are closed for maintenance.");
+    }
+  }
+}
+
 dboolean PTR_UseTraverse (intercept_t* in)
 {
   int side;
@@ -2795,6 +2853,7 @@ dboolean PTR_UseTraverse (intercept_t* in)
       }
       else if (!heretic)
       {
+        P_UseXboxEasterEgg (in);
         S_StartSound (usething, sfx_noway);
       }
 
