@@ -3101,19 +3101,13 @@ static void M_DrawInstructions(void)
         M_DrawInstructionString(cr_info_edit, "Select color and press enter");
         break;
       case S_CRITEM:
-        M_DrawInstructionString(cr_info_edit, "Press left or right to choose color");
-        break;
       case S_CRBLOOD:
-        M_DrawInstructionString(cr_info_edit, "Press left or right to choose color");
+      case S_CHOICE:
+      case S_THERMO:
+        M_DrawInstructionString(cr_info_edit, "Press left or right to choose");
         break;
       case S_FILE:
         M_DrawInstructionString(cr_info_edit, "Type/edit filename and Press ENTER");
-        break;
-      case S_CHOICE:
-        M_DrawInstructionString(cr_info_edit, "Press left or right to choose");
-        break;
-      case S_THERMO:
-        M_DrawInstructionString(cr_info_edit, "Press left or right to choose");
         break;
       case S_NAME:
         M_DrawInstructionString(cr_info_edit, "Type / edit author and Press ENTER");
@@ -3486,7 +3480,7 @@ setup_menu_t keys_raven_settings[] = {
   { "Look Center", S_INPUT, m_scrn, MS_X, 0, dsda_input_lookcenter },
   { "Fly Up", S_INPUT, m_scrn, MS_X, 0, dsda_input_flyup },
   { "Fly Down", S_INPUT, m_scrn, MS_X, 0, dsda_input_flydown },
-  { "Fly Center", S_INPUT, m_scrn, MS_X, 0, dsda_input_flycenter },
+  { "Drop", S_INPUT, m_scrn, MS_X, 0, dsda_input_flycenter },
   { "Jump", S_INPUT, m_scrn, MS_X, 0, dsda_input_jump },
   EMPTY_LINE,
   { "Inventory Left", S_INPUT, m_scrn, MS_X, 0, dsda_input_invleft },
@@ -4197,12 +4191,14 @@ setup_menu_t gen_gamesim_settings[] = {
   FINAL_ENTRY
 };
 
+static const char* artifact_desc_list[] = { "Off", "Full", "Names", "Descriptions", NULL };
 static const char* loading_disk_list[] = { "Off", "Disk", "CD-Rom", NULL };
 static const char* endoom_list[] = { "Off", "On", "Smart", NULL };
 
 setup_menu_t gen_misc_settings[] = {
   { "Enable Cheat Code Entry", S_YESNO, m_conf, G2_X, dsda_config_cheat_codes },
   { "Use Dehacked Cheats", S_YESNO | S_NYAN, m_conf, G2_X, dsda_config_deh_change_cheats },
+  { "Artifact Descriptions", S_CHOICE | S_NYAN, m_conf, G2_X, dsda_config_artifact_descriptions, 0, artifact_desc_list },
   EMPTY_LINE,
   { "Autosave On Level Start", S_YESNO, m_conf, G2_X, dsda_config_auto_save },
   { "Organize My Save Files", S_YESNO, m_conf, G2_X, dsda_config_organized_saves },
@@ -4561,7 +4557,6 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
 
 static const char* announce_map_list[] = { "Off", "On", "Subtle", NULL };
 static const char* secretarea_list[] = { "Off", "On", "Subtle", NULL };
-static const char* artifact_desc_list[] = { "Off", "Full", "Names", "Descriptions", NULL };
 
 setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
@@ -4569,13 +4564,10 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   { "Show Messages", S_YESNO, m_conf, G_X, dsda_config_show_messages },
   { "Colorize Messages", S_YESNO, m_conf, G_X, dsda_config_colorize_messages, 0, empty_list, DEPEND(dsda_config_show_messages, true) },
   { "Fade Messages", S_YESNO, m_conf, G_X, dsda_config_fade_messages, 0, empty_list, DEPEND(dsda_config_show_messages, true)  },
-  { "Report Revealed Secrets", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
-  { "Announce Map On Entry", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_announce_map, 0, announce_map_list },
   FUNC("Obituaries", S_CENTER | S_NYAN, G_X, M_Sub_Obituary),
   EMPTY_LINE,
-  TITLE("HUD Stuff", G_X),
-  { "Show Target's Health", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_target_health },
-  { "Artifact Descriptions", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_artifact_descriptions, 0, artifact_desc_list },
+  { "Announce Map On Entry", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_announce_map, 0, announce_map_list },
+  { "Report Revealed Secrets", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
   EMPTY_LINE,
   FUNC("Ex-Hud", S_CENTER | S_NYAN, G_X, M_Sub_ExHud),
   FUNC("Status Widget", S_CENTER | S_NYAN, G_X, M_Sub_StatusWidget),
@@ -4710,12 +4702,19 @@ setup_menu_t* trans_settings[] =
   NULL
 };
 
+DEPEND_LIST(exhud_percentage_list,
+  DEP(dsda_config_exhud, true),
+  DEP(dsda_config_ex_text_tran_filter, true)
+);
+
 setup_menu_t trans_gen_settings[] = {
   TITLE("UI and Menus", G_X),
   { "Enable Translucency", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_menu_tran_filter },
   { "Percentage", S_PERC | S_NYAN, m_conf, G_X, dsda_config_menu_tran_filter_pct, 0, empty_list, DEPEND(dsda_config_menu_tran_filter, true) },
   { "Enable Text Shadows", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_shadow_tran_filter },
   { "Percentage", S_PERC | S_NYAN, m_conf, G_X, dsda_config_shadow_tran_filter_pct, 0, empty_list, DEPEND(dsda_config_shadow_tran_filter, true) },
+  { "Ex Hud Translucency", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_ex_text_tran_filter, 0, empty_list, DEPEND(dsda_config_exhud, true) },
+  { "Percentage", S_PERC | S_NYAN, m_conf, G_X, dsda_config_ex_text_tran_filter_pct, 0, empty_list, DEPEND_MULTI(exhud_percentage_list) },
   EMPTY_LINE,
   TITLE("Boom Translucency", G_X),
   { "Translucent Sprites", S_CHOICE, m_conf, G_X, dsda_config_translucent_sprites, 0, translucent_list },
@@ -4769,7 +4768,7 @@ static const char* gender_list[] = { "Male", "Female", "Neutral", "Object", NULL
 setup_menu_t obituary_gen_settings[] = {
   { "Show Obituaries", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_obituaries },
   { "Player Name", S_NAME | S_NYAN, m_conf, G_X, dsda_config_player_name, 0, color_list, DEPEND(dsda_config_obituaries, true) },
-  { "Player Gender", S_CHOICE, m_conf, G_X, dsda_config_player_gender, 0, gender_list, DEPEND(dsda_config_obituaries, true) },
+  { "Player Gender", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_player_gender, 0, gender_list, DEPEND(dsda_config_obituaries, true) },
   { "Obituaries Color", S_CHOICE | S_CRITEM | S_NYAN, m_conf, G_X, dsda_config_obituaries_color, 0, color_list, DEPEND(dsda_config_obituaries, true) },
   FINAL_ENTRY
 };
@@ -4813,21 +4812,14 @@ setup_menu_t* exhud_settings[] =
 
 static const char* stat_format_list[] = { "NYANHUD", "ratio", "percent", "count", "remaining", "dsda classic", NULL };
 
-DEPEND_LIST(exhud_percentage_list,
-  DEP(dsda_config_exhud, true),
-  DEP(dsda_config_ex_text_tran_filter, true)
-);
-
 setup_menu_t exhud_gen_settings[] = {
   { "Use Extended Hud", S_YESNO, m_conf, G_X, dsda_config_exhud },
-  { "Level Stat Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_stats_format, 0, stat_format_list, DEPEND(dsda_config_exhud, true) },
-  { "Ex Hud Free Text", S_NAME | S_NYAN, m_conf, G_X, dsda_config_free_text, EXHUD_ON },
-  EMPTY_LINE,
   { "Ex Hud Scale", S_PERC, m_conf, G_X, dsda_config_ex_text_scale_x, EXHUD_ON },
   { "Ex Hud Ratio", S_PERC, m_conf, G_X, dsda_config_ex_text_ratio_y, EXHUD_ON },
   EMPTY_LINE,
-  { "Ex Hud Translucency", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_ex_text_tran_filter, EXHUD_ON },
-  { "Percentage", S_PERC | S_NYAN, m_conf, G_X, dsda_config_ex_text_tran_filter_pct, 0, empty_list, DEPEND_MULTI(exhud_percentage_list) },
+  { "Ex Hud Free Text", S_NAME | S_NYAN, m_conf, G_X, dsda_config_free_text, EXHUD_ON },
+  { "Level Stat Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_stats_format, 0, stat_format_list, DEPEND(dsda_config_exhud, true) },
+  { "Show Target's Health", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_target_health },
   FINAL_ENTRY
 };
 
@@ -4871,7 +4863,7 @@ setup_menu_t* status_widget_settings[] =
 #define STATUS_WIDGET_ON   0, empty_list, DEPEND(nyan_config_ex_status_widget, true)
 
 setup_menu_t status_widget_gen_settings[] = {
-  { "Use Status Widget", S_YESNO, m_conf, G_X, nyan_config_ex_status_widget },
+  { "Use Status Widget", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_widget },
   EMPTY_LINE,
   { "Armor", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_armor, STATUS_WIDGET_ON },
   { "Berserk", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_berserk, STATUS_WIDGET_ON },
