@@ -108,7 +108,7 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
     str,
     max_size,
     "%s%s",
-    dsda_TextColor(dsda_tc_map_title),
+    titleSwap ? dsda_TextColor(dsda_tc_map_author) : dsda_TextColor(dsda_tc_map_title),
     cycle_title_active ? hud_title_cycle.string : hud_title.string
   );
 }

@@ -4593,6 +4593,7 @@ setup_menu_t display_color_settings[] = {
   {"Message", S_CRCHOICE, m_conf, G_X, dsda_tc_hud_message },
   {"Secret Message", S_CRCHOICE, m_conf, G_X, dsda_tc_hud_secret_message },
   {"Announce Map Title", S_CRCHOICE, m_conf, G_X, dsda_tc_hud_announce_message },
+  {"Announce Map Author", S_CRCHOICE, m_conf, G_X, dsda_tc_hud_announce_author },
   EMPTY_LINE,
 
   TITLE("Automap", G_X),
