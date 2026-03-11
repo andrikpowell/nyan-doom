@@ -1329,6 +1329,11 @@ void WI_initDeathmatchStats(void)
 void WI_endDeathmatchStats(void)
 {
   int i;
+
+  // This fixes a Hexen crash
+  // Hexen doesn't use dm_flags
+  if (hexen) return;
+
   for (i = 0; i < g_maxplayers; i++)
     Z_Free(dm_frags[i]);
 
