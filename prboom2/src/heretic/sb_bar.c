@@ -494,8 +494,18 @@ static int oldmana1 = -1;
 static int oldmana2 = -1;
 static int oldpieces = -1;
 
+static dboolean oldkeybarvisible = false;
+static int keybarstarttic = 0;
+
 void SB_Drawer(dboolean statusbaron)
 {
+    dboolean keybarvisible = hexen && !inventory && automap_active;
+
+    if (keybarvisible && !oldkeybarvisible)
+        keybarstarttic = leveltime;
+
+    oldkeybarvisible = keybarvisible;
+
     if (!statusbaron)
     {
         SB_PaletteFlash(false);
@@ -1354,24 +1364,82 @@ static void DrawAnimatedIcons(void)
     }
 }
 
+void DrawHexenKeysCycle(void)
+{
+    const int KEYBAR_NUM = 5;
+    const int KEYBAR_TICS = (4 * TICRATE);
+
+    int i;
+    int xPosition;
+    int owned[NUMCARDS];
+    int count = 0;
+    int start, end;
+    int page = 0;
+    int pages = 1;
+
+
+    xPosition = 46;
+
+    // Get keys
+    for (i = 0; i < NUMCARDS; i++)
+    {
+        if (CPlayer->ravenkeys & (1 << i))
+            owned[count++] = i;
+    }
+
+    if (count > KEYBAR_NUM)
+    {
+        pages = (count + KEYBAR_NUM - 1) / KEYBAR_NUM;
+        page = ((leveltime - keybarstarttic) / KEYBAR_TICS) % pages;
+    }
+
+    if (count <= KEYBAR_NUM)
+    {
+        start = 0;
+        end = count;
+    }
+    else if (page == pages - 1)
+    {
+        // Last page: show the final 5 keys, using keys from previous page if needed
+        start = count - KEYBAR_NUM;
+        end = count;
+    }
+    else
+    {
+        start = page * KEYBAR_NUM;
+        end = start + KEYBAR_NUM;
+    }
+
+    // Draw keys
+    for (i = start; i < end && xPosition <= 126; i++)
+    {
+        V_DrawNumPatch(xPosition, 164,
+                        W_GetNumForName("keyslot1") + owned[i],
+                        CR_DEFAULT, VPT_STRETCH);
+        xPosition += 20;
+    }
+
+    // left arrow (not first page)
+    if (page > 0)
+    {
+        V_DrawNumPatch(40, 172, LumpINVLFGEM2, CR_DEFAULT, VPT_STRETCH);
+    }
+
+    // right arrow (not last page)
+    if (page < pages - 1)
+    {
+        V_DrawNumPatch(142, 172, LumpINVRTGEM2, CR_DEFAULT, VPT_STRETCH);
+    }
+}
+
 void DrawKeyBar(void)
 {
     int i;
-    int xPosition;
     int temp;
 
     if (oldkeys != CPlayer->ravenkeys)
     {
-        xPosition = 46;
-        for (i = 0; i < NUMCARDS && xPosition <= 126; i++)
-        {
-            if (CPlayer->ravenkeys & (1 << i))
-            {
-                V_DrawNumPatch(xPosition, 164,
-                               W_GetNumForName("keyslot1") + i, CR_DEFAULT, VPT_STRETCH);
-                xPosition += 20;
-            }
-        }
+        DrawHexenKeysCycle();
         oldkeys = CPlayer->ravenkeys;
     }
     temp = pclass[CPlayer->pclass].auto_armor_save +
