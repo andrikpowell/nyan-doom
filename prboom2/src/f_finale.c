@@ -518,6 +518,8 @@ static dboolean castdeath;
 static int castframes;
 static int castonmelee;
 static dboolean castattacking;
+static uint64_t castflags;
+static uint64_t castflags2;
 static signed char	castskip; // [crispy] skippable cast
 static const char *castbackground;
 
@@ -690,6 +692,8 @@ void F_CastTicker (void)
     if (mobjinfo[castorder[castnum].type].seesound)
       S_StartVoidSound(F_RandomizeSound(mobjinfo[castorder[castnum].type].seesound));
     caststate = &states[mobjinfo[castorder[castnum].type].seestate];
+    castflags  = mobjinfo[castorder[castnum].type].flags;
+    castflags2 = mobjinfo[castorder[castnum].type].flags2;
     castframes = 0;
   }
   else
@@ -715,6 +719,18 @@ void F_CastTicker (void)
 
     caststate = &states[st];
     castframes++;
+
+    // [nyan] allow flags to be altered in cast sequence
+    if (caststate->action == A_AddFlags)
+    {
+      castflags  |= caststate->args[0];
+      castflags2 |= caststate->args[1];
+    }
+    else if (caststate->action == A_RemoveFlags)
+    {
+      castflags  &= ~caststate->args[0];
+      castflags2 &= ~caststate->args[1];
+    }
 
     sfx = F_SoundForState(st);
 /*
@@ -932,7 +948,9 @@ void F_CastDrawer (void)
   spritedef_t*        sprdef;
   spriteframe_t*      sprframe;
   int                 lump;
-  dboolean             flip;
+  dboolean            flip;
+  int                 cm;
+  int                 exflags;
 
   // e6y: wide-res
   V_ClearBorder(castbackground);
@@ -948,9 +966,32 @@ void F_CastDrawer (void)
   lump = sprframe->lump[0];
   flip = (dboolean)(sprframe->flip & 1);
 
+  // set defaults
+  cm = CR_DEFAULT;
+  exflags = 0;
+
+  // [nyan] allow colour translation
+  if (castflags & MF_TRANSLATION)
+  {
+    cm = CR_LIMIT + ((castflags & MF_TRANSLATION) >> MF_TRANSSHIFT);
+    exflags |= VPT_COLOR;
+  }
+
+  // [nyan] allow translucency
+  if (castflags & MF_TRANSLUCENT)
+  {
+    exflags |= VPT_TRANSMAP;
+  }
+
+  // [nyan] allow fuzz
+  if (castflags & MF_SHADOW)
+  {
+    exflags |= VPT_FUZZ;
+  }
+
   // CPhipps - patch drawing updated
-  V_DrawNumPatch(160, 170, lump+firstspritelump, CR_DEFAULT,
-     VPT_STRETCH | (flip ? VPT_FLIP : 0));
+  V_DrawNumPatch(160, 170, lump+firstspritelump, cm,
+     VPT_STRETCH | (flip ? VPT_FLIP : 0) | exflags);
 }
 
 //
