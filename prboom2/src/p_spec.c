@@ -1609,6 +1609,8 @@ void P_AddMobjSecret(mobj_t *mobj)
   mobj->flags2 |= MF2_COUNTSECRET;
 }
 
+#define SECRET_MESSAGE_TICS (2.5*TICRATE)
+
 void P_PlayerCollectSecret(player_t *player)
 {
   player->secretcount++;
@@ -1625,7 +1627,7 @@ void P_PlayerCollectSecret(player_t *player)
     }
     else
     {
-      SetCustomMessage(player - players, "A secret is revealed!", 2 * TICRATE, sfx_id);
+      SetCustomMessage(player - players, "A secret is revealed!", SECRET_MESSAGE_TICS, sfx_id);
     }
   }
 }
