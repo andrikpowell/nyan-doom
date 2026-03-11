@@ -639,13 +639,23 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
     int TR = flags & VPT_COLOR;
     int TL = flags & VPT_TRANSMAP;
     int ALT_TL = flags & VPT_ALT_TRANSMAP;
+    int fuzz = flags & VPT_FUZZ;
+    int fuzzheight = bottom - top + 1;
 
     R_SetDefaultDrawColumnVars(&dcvars);
 
     drawvars.topleft = screens[scrn].data;
     drawvars.pitch = screens[scrn].pitch;
 
-    if (TR && TL) {     // both translucent and color translated
+    if (fuzz) {
+      if (fuzzheight < 1)
+        fuzzheight = 1;
+      R_ResetFuzzCol(fuzzheight);
+      dcvars.colormap = NULL;
+      dcvars.drawingmasked = 1;
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ, RDRAW_FILTER_NONE);
+    }
+    else if (TR && TL) {     // both translucent and color translated
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRTL, RDRAW_FILTER_NONE);
       dcvars.translation = colortr;
       tranmap = transmap;
@@ -770,6 +780,9 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
         if (dcvars.x >= screen_clip_right)
           break;
       }
+
+      if (fuzz)
+        R_CheckFuzzCol(dcvars.x, fuzzheight);
 
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
@@ -1023,6 +1036,7 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 {
   v_patchinfo_t patchinfo = {0}, shadowinfo = {0};
   int shadow_x, shadow_y;
+  int fuzz = flags & VPT_FUZZ;
 
   // remove offsets
   if (!(flags & VPT_NOOFFSET))
@@ -1078,7 +1092,7 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   }
 
   // Draw patch unscaled
-  if (!(flags & VPT_STRETCH_MASK)) {
+  if (!(flags & VPT_STRETCH_MASK) && !fuzz) {
     if (shadowinfo.active)
       V_DrawPatch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, clip_top, clip_bottom, clip_left, clip_right, shadowinfo.flags);
     V_DrawPatch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, clip_top, clip_bottom, clip_left, clip_right, patchinfo.flags);

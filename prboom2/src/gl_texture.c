@@ -1457,6 +1457,11 @@ static const float fuzz[50] =
 
 static GLuint fuzz_texid = 0;
 
+dboolean gld_FuzzTextureExist(void)
+{
+  return (fuzz_texid == 0) ? false : true;
+}
+
 void gld_InitFuzzTexture(void)
 {
   if (fuzz_texid == 0)

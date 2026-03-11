@@ -122,6 +122,9 @@ int gld_wipe_exitMelt(int ticks);
 int gld_wipe_StartScreen(void);
 int gld_wipe_EndScreen(void);
 
+// fuzz
+dboolean gld_FuzzTextureExist(void);
+
 //clipper
 dboolean gld_clipper_SafeCheckRange(angle_t startAngle, angle_t endAngle);
 void gld_clipper_SafeAddClipRange(angle_t startangle, angle_t endangle);

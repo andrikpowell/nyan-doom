@@ -169,9 +169,10 @@ enum patch_translation_e {
   VPT_STRETCH_REAL  = (1<<11), // [XA] VPT_STRETCH in gld_fillRect means "tile", rather than "stretch"... these flags probably need a rename.
   VPT_TRANSMAP      = (1<<12),
   VPT_ALT_TRANSMAP  = (1<<13),
-  VPT_SHADOW        = (1<<14),
-  VPT_EX_TRANS      = (1<<15), // exhud translucency
-  VPT_SWIRL         = (1<<16), // swirling flat
+  VPT_FUZZ          = (1<<14),
+  VPT_SHADOW        = (1<<15),
+  VPT_EX_TRANS      = (1<<16), // exhud translucency
+  VPT_SWIRL         = (1<<17), // swirling flat
 };
 
 extern int global_patch_top_offset;

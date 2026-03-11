@@ -562,6 +562,79 @@ static float gld_GetAlpha(int shadowtype, int fade_alpha, enum patch_translation
   return (float)final_alpha / 100.0f;
 }
 
+// [XA] some UI functions may run before fullcolormap has
+// been initialized, since that's is done in SetupFrame;
+// use colormaps[0] as a fallback in such a case.
+const lighttable_t *gld_GetActiveColormap()
+{
+  if (V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed())
+    return colormaps[0];
+  else if (fixedcolormap)
+    return fixedcolormap;
+  else if (fullcolormap)
+    return fullcolormap;
+  else
+    return colormaps[0];
+}
+
+// [XA] quicky indexed color-lookup function for a couple
+// of things that aren't done in the shader for the indexed
+// lightmode. ideally this will go away in the future.
+color_rgb_t gld_LookupIndexedColor(int index, dboolean usecolormap)
+{
+  color_rgb_t color;
+  const unsigned char *playpal;
+
+  if (usecolormap)
+  {
+    int gtlump = W_CheckNumForName2("GAMMATBL", ns_prboom);
+    const byte * gtable = (const byte*)W_LumpByNum(gtlump) + 256 * usegamma;
+    const lighttable_t *colormap = gld_GetActiveColormap();
+
+    playpal = V_GetPlaypal() + (gld_paletteIndex*PALETTE_SIZE);
+
+    color.r = gtable[playpal[colormap[index] * 3 + 0]];
+    color.g = gtable[playpal[colormap[index] * 3 + 1]];
+    color.b = gtable[playpal[colormap[index] * 3 + 2]];
+  }
+  else
+  {
+    playpal = V_GetPlaypal();
+
+    color.r = playpal[3 * index + 0];
+    color.g = playpal[3 * index + 1];
+    color.b = playpal[3 * index + 2];
+  }
+
+  return color;
+}
+
+void gld_StartFuzz(int sprite, float ratio)
+{
+  color_rgb_t color;
+
+  // Required for fuzz menu patches to work
+  if (!gld_FuzzTextureExist())
+    gld_InitFuzzTexture();
+
+  // shader init
+  glsl_PushFuzzShader(gametic, sprite, ratio);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  // for indexed lightmode, the fuzz color needs to take
+  // pain/item fades and gamma into account, so do a color
+  // lookup based on the closest-to-black color index.
+  color = gld_LookupIndexedColor(invul_cm ? playpal_lightest : playpal_darkest, true);
+  glColor3f((float)color.r/255.0f,
+            (float)color.g/255.0f,
+            (float)color.b/255.0f);
+}
+
+void gld_EndFuzz()
+{
+  glsl_PopFuzzShader();
+}
+
 void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, int fade_alpha, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
@@ -573,6 +646,7 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   float alpha;
   int cmap;
   int leftoffset, topoffset;
+  dboolean fuzz = (flags & VPT_FUZZ);
 
   // Add shadow properties
   if (flags & VPT_SHADOW)
@@ -674,10 +748,14 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
     height = crop_height;
   }
 
+  if (fuzz)
+    gld_StartFuzz(-1, 0);
+
   // e6y
   // This is a workaround for some on-board Intel video cards.
   // Do you know more elegant solution?
-  glColor4f(1.0f, 1.0f, 1.0f, alpha);
+  if (!fuzz)
+    glColor4f(1.0f, 1.0f, 1.0f, alpha);
 
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(fU1, fV1); glVertex2f((xpos),(ypos));
@@ -685,6 +763,13 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
     glTexCoord2f(fU2, fV1); glVertex2f((xpos+width),(ypos));
     glTexCoord2f(fU2, fV2); glVertex2f((xpos+width),(ypos+height));
   glEnd();
+
+  if (fuzz)
+  {
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    gld_EndFuzz();
+  }
 }
 
 void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, int alpha, enum patch_translation_e flags)
@@ -796,53 +881,6 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
   }
 }
 
-// [XA] some UI functions may run before fullcolormap has
-// been initialized, since that's is done in SetupFrame;
-// use colormaps[0] as a fallback in such a case.
-const lighttable_t *gld_GetActiveColormap()
-{
-  if (V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed())
-    return colormaps[0];
-  else if (fixedcolormap)
-    return fixedcolormap;
-  else if (fullcolormap)
-    return fullcolormap;
-  else
-    return colormaps[0];
-}
-
-// [XA] quicky indexed color-lookup function for a couple
-// of things that aren't done in the shader for the indexed
-// lightmode. ideally this will go away in the future.
-color_rgb_t gld_LookupIndexedColor(int index, dboolean usecolormap)
-{
-  color_rgb_t color;
-  const unsigned char *playpal;
-
-  if (usecolormap)
-  {
-    int gtlump = W_CheckNumForName2("GAMMATBL", ns_prboom);
-    const byte * gtable = (const byte*)W_LumpByNum(gtlump) + 256 * usegamma;
-    const lighttable_t *colormap = gld_GetActiveColormap();
-
-    playpal = V_GetPlaypal() + (gld_paletteIndex*PALETTE_SIZE);
-
-    color.r = gtable[playpal[colormap[index] * 3 + 0]];
-    color.g = gtable[playpal[colormap[index] * 3 + 1]];
-    color.b = gtable[playpal[colormap[index] * 3 + 2]];
-  }
-  else
-  {
-    playpal = V_GetPlaypal();
-
-    color.r = playpal[3 * index + 0];
-    color.g = playpal[3 * index + 1];
-    color.b = playpal[3 * index + 2];
-  }
-
-  return color;
-}
-
 void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
 {
   color_rgb_t color;
@@ -945,29 +983,6 @@ void gld_DrawPoint(int x, int y, int BaseColor)
   glEnable(GL_TEXTURE_2D);
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
-}
-
-
-void gld_StartFuzz(int sprite, float ratio)
-{
-  color_rgb_t color;
-
-  // shader init
-  glsl_PushFuzzShader(gametic, sprite, ratio);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  // for indexed lightmode, the fuzz color needs to take
-  // pain/item fades and gamma into account, so do a color
-  // lookup based on the closest-to-black color index.
-  color = gld_LookupIndexedColor(invul_cm ? playpal_lightest : playpal_darkest, true);
-  glColor3f((float)color.r/255.0f,
-            (float)color.g/255.0f,
-            (float)color.b/255.0f);
-}
-
-void gld_EndFuzz()
-{
-  glsl_PopFuzzShader();
 }
 
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
