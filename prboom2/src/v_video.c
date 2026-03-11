@@ -1208,6 +1208,20 @@ void V_SetPlayPal(int playpal_index)
   }
 }
 
+const byte *dynamic_palette;
+
+void V_SetDynamicPalette(const byte *pal)
+{
+  dynamic_palette = pal;
+  V_TouchPalette();
+}
+
+void V_ClearDynamicPalette(void)
+{
+  dynamic_palette = NULL;
+  V_TouchPalette();
+}
+
 //
 // V_FillRect
 //

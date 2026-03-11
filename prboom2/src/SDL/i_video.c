@@ -499,6 +499,28 @@ static void I_InitInputs(void)
   dsda_InitGameController();
 }
 
+static void I_UploadDynamicPalette(int pal)
+{
+  int gtlump;
+  const byte *palette = dynamic_palette;
+  static SDL_Color custom_colours[256];
+  const byte *gtable;
+  int i;
+
+  gtlump = W_CheckNumForName2("GAMMATBL", ns_prboom);
+  gtable = (const byte *)W_LumpByNum(gtlump) + 256 * usegamma;
+
+  for (i = 0; i < 256; i++)
+  {
+    custom_colours[i].r = gtable[palette[0]];
+    custom_colours[i].g = gtable[palette[1]];
+    custom_colours[i].b = gtable[palette[2]];
+    palette += 3;
+  }
+
+  SDL_SetPaletteColors(screen->format->palette, custom_colours, 0, 256);
+}
+
 ///////////////////////////////////////////////////////////
 // Palette stuff.
 //
@@ -513,6 +535,9 @@ static void I_UploadNewPalette(int pal, int force)
 
   if (V_IsOpenGLMode())
     return;
+
+  if (dynamic_palette)
+    return I_UploadDynamicPalette(pal);
 
   playpal_data = dsda_PlayPalData();
 

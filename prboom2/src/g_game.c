@@ -1233,6 +1233,9 @@ static void G_DoLoadLevel (void)
   // [RH] Set up details about sky rendering
   R_InitSkyMap ();
 
+  // Reset dynamic palette (Hexen end screen)
+  V_ClearDynamicPalette();
+
   dsda_InitMessenger();
 
   levelstarttic = gametic;        // for time calculation
