@@ -94,16 +94,32 @@ static void GenLookup(short* lookup1, short* lookup2, int size, int max, int ste
 }
 
 static void EvaluateExTextScale(void) {
-  ex_text_scale_x = dsda_IntConfig(dsda_config_ex_text_scale_x) / 100.0;
-  ex_text_scale_y = dsda_IntConfig(dsda_config_ex_text_ratio_y) / 100.0;
+  double scale = dsda_IntConfig(dsda_config_ex_text_scale_x) / 100.0;
+  double ratio_y = dsda_IntConfig(dsda_config_ex_text_ratio_y) / 100.0;
+  double aspect_x = 1.0;
 
-  if (!ex_text_scale_x)
-    ex_text_scale_x = (double) WIDE_SCREENWIDTH / 320;
+  if (!scale) scale = 1.0;
+  if (!ratio_y) ratio_y = 1.0;
 
-  if (!ex_text_scale_y)
-    ex_text_scale_y = 1.0;
+  switch (render_stretch_hud) {
+    case patch_stretch_doom_format:
+      aspect_x = ((double)WIDE_SCREENWIDTH / 320.0) /
+                 ((double)WIDE_SCREENHEIGHT / 200.0);
+      break;
 
-  ex_text_scale_y *= ex_text_scale_x;
+    case patch_stretch_fit_to_width:
+      aspect_x = ((double)SCREENWIDTH / 320.0) /
+                 ((double)SCREENHEIGHT / 200.0);
+      break;
+
+    case patch_stretch_not_adjusted:
+    default:
+      aspect_x = 1.0;
+      break;
+  }
+
+  ex_text_scale_x = patches_scalex * scale * aspect_x;
+  ex_text_scale_y = patches_scaley * scale * ratio_y;
 
   ex_text_screenwidth = 320 * ex_text_scale_x;
   ex_text_screenheight = 200 * ex_text_scale_y;
