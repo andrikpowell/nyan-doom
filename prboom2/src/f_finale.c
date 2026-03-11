@@ -708,6 +708,8 @@ void F_CastTicker (void)
 
 dboolean F_CastResponder (event_t* ev)
 {
+  dboolean xdeath = false;
+
   if (ev->type != ev_keydown)
     return false;
 
@@ -724,12 +726,19 @@ dboolean F_CastResponder (event_t* ev)
     return false;
   }
 
+  // [crispy] ... and finally turn them into gibbs
+  if (dsda_InputActivated(dsda_input_speed))
+    xdeath = true;
+
   if (castdeath)
     return true;                    // already in dying frames
 
   // go into death frame
   castdeath = true;
-  caststate = &states[mobjinfo[castorder[castnum].type].deathstate];
+  if (xdeath && mobjinfo[castorder[castnum].type].xdeathstate)
+	  caststate = &states[mobjinfo[castorder[castnum].type].xdeathstate];
+  else
+    caststate = &states[mobjinfo[castorder[castnum].type].deathstate];
   casttics = caststate->tics;
 
   // [crispy] Allow A_RandomJump() in deaths in cast sequence
@@ -748,8 +757,11 @@ dboolean F_CastResponder (event_t* ev)
 
   castframes = 0;
   castattacking = false;
-  if (mobjinfo[castorder[castnum].type].deathsound)
-    S_StartVoidSound(mobjinfo[castorder[castnum].type].deathsound);
+  if (xdeath && mobjinfo[castorder[castnum].type].xdeathstate)
+      S_StartSound (NULL, sfx_slop);
+  else
+    if (mobjinfo[castorder[castnum].type].deathsound)
+      S_StartVoidSound(mobjinfo[castorder[castnum].type].deathsound);
 
   return true;
 }
