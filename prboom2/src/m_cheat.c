@@ -567,6 +567,12 @@ static void cheat_k()
     if (!plyr->cards[i])     // only print message if at least one key added
       {                      // however, caller may overwrite message anyway
         plyr->cards[i] = true;
+
+        if (raven)
+        {
+          if (plyr == &players[consoleplayer])  // Add hexen keys to hud
+            plyr->ravenkeys |= 1 << i;
+        }
         dsda_AddMessage("Keys Added");
       }
 }
