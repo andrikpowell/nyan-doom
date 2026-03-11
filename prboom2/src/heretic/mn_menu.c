@@ -772,7 +772,7 @@ void MN_DrTextA(const char *text, int x, int y)
     else
     {
       lump = MN_SafeFontALump(c - 33);
-      V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
+      V_DrawMenuNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
       x += R_NumPatchWidth(lump) - 1;
     }
   }
@@ -798,7 +798,7 @@ void MN_DrTextAColor(const char *text, int x, int y, int cm)
     else
     {
       lump = MN_SafeFontALump(c - 33);
-      V_DrawNumPatch(x, y, lump, cm, flags);
+      V_DrawMenuNumPatch(x, y, lump, cm, flags);
       x += R_NumPatchWidth(lump) - 1;
     }
   }
@@ -945,7 +945,7 @@ void MN_DrTextAYellow(const char *text, int x, int y)
       else
       {
         lump = FontAYellowBaseLump + c - 33;
-        V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
+        V_DrawMenuNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
         x += R_NumPatchWidth(lump) - 1;
       }
     }
