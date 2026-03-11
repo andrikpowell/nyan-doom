@@ -176,10 +176,7 @@ static void R_InstallSpriteLump(int lump, unsigned frame,
         if (sprtemp[frame].lump[r] == -1)
           {
             sprtemp[frame].lump[r] = lump - firstspritelump;
-            if (flipped)
-            {
-              sprtemp[frame].flip |= (1 << r);
-            }
+            sprtemp[frame].flip[r] = (byte)flipped;
             sprtemp[frame].rotate = false; //jff 4/24/98 if any subbed, rotless
           }
       return;
@@ -199,10 +196,7 @@ static void R_InstallSpriteLump(int lump, unsigned frame,
   if (sprtemp[frame].lump[rotation] == -1)
     {
       sprtemp[frame].lump[rotation] = lump - firstspritelump;
-      if (flipped)
-      {
-        sprtemp[frame].flip |= (1 << rotation);
-      }
+      sprtemp[frame].flip[rotation] = (byte)flipped;
       sprtemp[frame].rotate = true; //jff 4/24/98 only change if rot used
     }
 }
@@ -278,9 +272,7 @@ static void R_InitSpriteDefs(const char * const * namelist)
         {
           memset(sprtemp, -1, sizeof(sprtemp));
           for (k = 0; k < MAX_SPRITE_FRAMES; k++)
-          {
-            sprtemp[k].flip = 0;
-          }
+            memset(sprtemp[k].flip, 0, sizeof(sprtemp[k].flip));
 
           maxframe = -1;
           do
@@ -327,11 +319,8 @@ static void R_InitSpriteDefs(const char * const * namelist)
                     for (rot = 1; rot < 16; rot++)
                     {
                       sprtemp[frame].lump[rot] = sprtemp[frame].lump[0];
-                    }
-                    // If the frame is flipped, they all should be
-                    if (sprtemp[frame].flip & 1)
-                    {
-                      sprtemp[frame].flip = 0xFFFF;
+                      // If the frame is flipped, they all should be
+                      sprtemp[frame].flip[rot] = sprtemp[frame].flip[0];
                     }
                     break;
 
@@ -342,18 +331,12 @@ static void R_InitSpriteDefs(const char * const * namelist)
                       if (sprtemp[frame].lump[rot * 2 + 1] == -1)
                       {
                         sprtemp[frame].lump[rot * 2 + 1] = sprtemp[frame].lump[rot * 2];
-                        if (sprtemp[frame].flip & (1 << (rot * 2)))
-                        {
-                          sprtemp[frame].flip |= 1 << (rot * 2 + 1);
-                        }
+                        sprtemp[frame].flip[rot * 2 + 1] = sprtemp[frame].flip[rot * 2];
                       }
                       if (sprtemp[frame].lump[rot * 2] == -1)
                       {
                         sprtemp[frame].lump[rot * 2] = sprtemp[frame].lump[rot * 2 + 1];
-                        if (sprtemp[frame].flip & (1 << (rot * 2 + 1)))
-                        {
-                          sprtemp[frame].flip |= 1 << (rot * 2);
-                        }
+                        sprtemp[frame].flip[rot * 2] = sprtemp[frame].flip[rot * 2 + 1];
                       }
 
                     }
@@ -373,7 +356,7 @@ static void R_InitSpriteDefs(const char * const * namelist)
                 if (sprtemp[frame].rotate == -1)
                 {
                   memset(&sprtemp[frame].lump, 0, sizeof(sprtemp[0].lump));
-                  sprtemp[frame].flip = 0;
+                  memset(&sprtemp[frame].flip, 0, sizeof(sprtemp[0].flip));
                   sprtemp[frame].rotate = 0;
                 }
               }
@@ -799,13 +782,13 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
           (angle_t)(ANG180 / 16)) >> 28;
       }
       lump = sprframe->lump[rot];
-      flip = (dboolean)(sprframe->flip & (1 << rot));
+      flip = (dboolean)sprframe->flip[rot];
     }
   else
     {
       // use single rotation for all views
       lump = sprframe->lump[0];
-      flip = (dboolean)(sprframe->flip & 1);
+      flip = (dboolean)sprframe->flip[0];
     }
 
   {
@@ -1102,7 +1085,7 @@ static void R_DrawPSprite (pspdef_t *psp)
   sprframe = &sprdef->spriteframes[psp->state->frame & FF_FRAMEMASK];
 
   lump = sprframe->lump[0];
-  flip = (dboolean)(sprframe->flip & 1);
+  flip = sprframe->flip[0];
 
   {
     int weapon_attack_alignment = dsda_IntConfig(dsda_config_weapon_attack_alignment);

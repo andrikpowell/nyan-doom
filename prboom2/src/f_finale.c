@@ -520,6 +520,7 @@ static int castonmelee;
 static dboolean castattacking;
 static uint64_t castflags;
 static uint64_t castflags2;
+static signed char	castangle; // [crispy] turnable cast
 static signed char	castskip; // [crispy] skippable cast
 static const char *castbackground;
 
@@ -695,6 +696,7 @@ void F_CastTicker (void)
     castflags  = mobjinfo[castorder[castnum].type].flags;
     castflags2 = mobjinfo[castorder[castnum].type].flags2;
     castframes = 0;
+    castangle = 0; // [crispy] turnable cast
   }
   else
   {
@@ -834,7 +836,21 @@ dboolean F_CastResponder (event_t* ev)
   if (ev->type != ev_keydown)
     return false;
 
-  // [crispy] allow to skip through monsters
+  // [crispy] make monsters turnable in cast ...
+  if (dsda_InputActivated(dsda_input_turnleft))
+  {
+    if (++castangle > 7)
+        castangle = 0;
+    return false;
+  }
+  else if (dsda_InputActivated(dsda_input_turnright))
+  {
+    if (--castangle < 0)
+        castangle = 7;
+    return false;
+  }
+  else
+  // [crispy] ... and allow to skip through them ..
   if (dsda_InputActivated(dsda_input_strafeleft))
   {
     castskip = castnum ? -1 : castorder_count - 2;
@@ -949,6 +965,7 @@ void F_CastDrawer (void)
   spriteframe_t*      sprframe;
   int                 lump;
   dboolean            flip;
+  int                 rot;
   int                 cm;
   int                 exflags;
 
@@ -963,8 +980,9 @@ void F_CastDrawer (void)
   // draw the current frame in the middle of the screen
   sprdef = &sprites[caststate->sprite];
   sprframe = &sprdef->spriteframes[ caststate->frame & FF_FRAMEMASK];
-  lump = sprframe->lump[0];
-  flip = (dboolean)(sprframe->flip & 1);
+  rot = castangle * 2;
+  lump = sprframe->lump[rot]; // [crispy] turnable cast
+  flip = (dboolean)sprframe->flip[rot]; // [crispy] turnable cast
 
   // set defaults
   cm = CR_DEFAULT;

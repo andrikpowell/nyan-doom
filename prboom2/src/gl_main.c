@@ -2527,13 +2527,13 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
         (angle_t)(ANG180 / 16)) >> 28;
     }
     lump = sprframe->lump[rot];
-    flip = (dboolean)(sprframe->flip & (1 << rot));
+    flip = sprframe->flip[rot];
   }
   else
   {
     // use single rotation for all views
     lump = sprframe->lump[0];
-    flip = (dboolean)(sprframe->flip & 1);
+    flip = sprframe->flip[0];
   }
   lump += firstspritelump;
 
