@@ -36,6 +36,7 @@
 #include "d_event.h"
 #include "g_game.h"
 #include "lprintf.h"
+#include "p_enemy.h"
 #include "v_video.h"
 #include "w_wad.h"
 #include "s_sound.h"
@@ -595,10 +596,19 @@ void F_CastTicker (void)
   else
   {
     // just advance to next state in animation
-    if (!castdeath && caststate == &states[S_PLAY_ATK1])
-        goto stopattack;    // Oh, gross hack!
+
+    // [crispy] Allow A_RandomJump() in deaths in cast sequence
+    if (caststate->action == A_RandomJump && Nyan_Random() < caststate->misc2)
+    {
+        st = caststate->misc1;
+    }
     else
-      st = caststate->nextstate;
+    {
+      if (!castdeath && caststate == &states[S_PLAY_ATK1])
+          goto stopattack;    // Oh, gross hack!
+      else
+        st = caststate->nextstate;
+    }
 
     caststate = &states[st];
     castframes++;
@@ -672,8 +682,23 @@ void F_CastTicker (void)
   }
 
   casttics = caststate->tics;
+
   if (casttics == -1)
-      casttics = 15;
+  {
+    // [crispy] Allow A_RandomJump() in deaths in cast sequence
+    if (caststate->action == A_RandomJump)
+    {
+        if (Nyan_Random() < caststate->misc2)
+          caststate = &states[caststate->misc1];
+        else
+          caststate = &states[caststate->nextstate];
+
+        casttics = caststate->tics;
+    }
+
+    if (casttics == -1)
+        casttics = 15;
+  }
 }
 
 
@@ -706,6 +731,21 @@ dboolean F_CastResponder (event_t* ev)
   castdeath = true;
   caststate = &states[mobjinfo[castorder[castnum].type].deathstate];
   casttics = caststate->tics;
+
+  // [crispy] Allow A_RandomJump() in deaths in cast sequence
+  if (casttics == -1 && caststate->action == A_RandomJump)
+  {
+      if (Nyan_Random() < caststate->misc2)
+      {
+          caststate = &states [caststate->misc1];
+      }
+      else
+      {
+          caststate = &states [caststate->nextstate];
+      }
+      casttics = caststate->tics;
+  }
+
   castframes = 0;
   castattacking = false;
   if (mobjinfo[castorder[castnum].type].deathsound)
