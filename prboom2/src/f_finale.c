@@ -36,6 +36,7 @@
 #include "d_event.h"
 #include "g_game.h"
 #include "lprintf.h"
+#include "m_random.h"
 #include "p_enemy.h"
 #include "v_video.h"
 #include "w_wad.h"
@@ -542,6 +543,41 @@ static void F_StartCastMusic(const char* music, dboolean loop_music)
   }
 }
 
+// [crispy] randomize seestate and deathstate sounds in the cast
+static int F_RandomizeSound (int sound)
+{
+	switch (sound)
+	{
+		// [crispy] actor->info->seesound, from p_enemy.c:A_Look()
+		case sfx_posit1:
+		case sfx_posit2:
+		case sfx_posit3:
+			return sfx_posit1 + Nyan_Random()%3;
+			break;
+
+		case sfx_bgsit1:
+		case sfx_bgsit2:
+			return sfx_bgsit1 + Nyan_Random()%2;
+			break;
+
+		// [crispy] actor->info->deathsound, from p_enemy.c:A_Scream()
+		case sfx_podth1:
+		case sfx_podth2:
+		case sfx_podth3:
+			return sfx_podth1 + Nyan_Random()%3;
+			break;
+
+		case sfx_bgdth1:
+		case sfx_bgdth2:
+			return sfx_bgdth1 + Nyan_Random()%2;
+			break;
+
+		default:
+			return sound;
+			break;
+	}
+}
+
 void F_StartCast (const char* background, const char* music, dboolean loop_music)
 {
   castorder = (gamemode == commercial ? castorder_d2 : castorder_d1);
@@ -589,7 +625,7 @@ void F_CastTicker (void)
     if (castorder[castnum].name == NULL)
       castnum = 0;
     if (mobjinfo[castorder[castnum].type].seesound)
-      S_StartVoidSound(mobjinfo[castorder[castnum].type].seesound);
+      S_StartVoidSound(F_RandomizeSound(mobjinfo[castorder[castnum].type].seesound));
     caststate = &states[mobjinfo[castorder[castnum].type].seestate];
     castframes = 0;
   }
@@ -761,7 +797,7 @@ dboolean F_CastResponder (event_t* ev)
       S_StartSound (NULL, sfx_slop);
   else
     if (mobjinfo[castorder[castnum].type].deathsound)
-      S_StartVoidSound(mobjinfo[castorder[castnum].type].deathsound);
+      S_StartVoidSound(F_RandomizeSound(mobjinfo[castorder[castnum].type].deathsound));
 
   return true;
 }
