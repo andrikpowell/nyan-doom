@@ -21,6 +21,7 @@
 
 typedef struct {
   dsda_patch_component_t component;
+  dboolean show_empty_box;
 } local_component_t;
 
 static local_component_t* local;
@@ -28,6 +29,8 @@ static local_component_t* local;
 void dsda_InitBigArtifactHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
+
+  local->show_empty_box = arg_count > 0 ? !!args[0] : false;
 
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
 }
@@ -37,9 +40,9 @@ void dsda_UpdateBigArtifactHC(void* data) {
 }
 
 void dsda_DrawBigArtifactHC(void* data) {
-  extern void DrawArtifact(int x, int y, int vpt);
+  extern void DrawArtifact(int x, int y, dboolean show_empty_box, int vpt);
 
   local = data;
 
-  DrawArtifact(local->component.x, local->component.y, local->component.vpt);
+  DrawArtifact(local->component.x, local->component.y, local->show_empty_box, local->component.vpt);
 }

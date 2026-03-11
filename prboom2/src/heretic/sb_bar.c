@@ -915,7 +915,7 @@ void DrawInventoryBarTranslucent(int x, int y, int vpt)
     }
 }
 
-void DrawArtifact(int x, int y, int vpt)
+void DrawArtifact(int x, int y, dboolean show_empty_box, int vpt)
 {
   inventory_t *inv;
   const int box_x = x + (heretic ? 0 : 3);
@@ -933,6 +933,10 @@ void DrawArtifact(int x, int y, int vpt)
         V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | flags);
         V_DrawNumPatch(x, y, lumparti[inv->type], CR_DEFAULT, vpt);
         DrSmallNumberVPTInventory(inv->count, x + delta_x, y + delta_y, vpt);
+    }
+    else if (inv->type == 0 && show_empty_box)
+    {
+        V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | flags);
     }
   }
 }
