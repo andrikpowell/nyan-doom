@@ -52,6 +52,7 @@
 #include "dsda/configuration.h"
 #include "dsda/animinfo.h"
 #include "dsda/library.h"
+#include "dsda/input.h"
 
 #include "f_finale.h" // CPhipps - hmm...
 
@@ -506,6 +507,7 @@ static const castinfo_t castorder_d1[] = {
 };
 
 static const castinfo_t *castorder = castorder_d2;
+static int castorder_count;
 
 static int castnum;
 static int casttics;
@@ -514,6 +516,7 @@ static dboolean castdeath;
 static int castframes;
 static int castonmelee;
 static dboolean castattacking;
+static signed char	castskip; // [crispy] skippable cast
 static const char *castbackground;
 
 //
@@ -541,6 +544,7 @@ static void F_StartCastMusic(const char* music, dboolean loop_music)
 void F_StartCast (const char* background, const char* music, dboolean loop_music)
 {
   castorder = (gamemode == commercial ? castorder_d2 : castorder_d1);
+  castorder_count = (gamemode == commercial ? arrlen(castorder_d2) : arrlen(castorder_d1));
   castbackground = (background ? background : bgcastcall);
 
   wipegamestate = -1;         // force a screen wipe
@@ -567,10 +571,19 @@ void F_CastTicker (void)
   if (--casttics > 0)
     return;                 // not time to change state yet
 
-  if (caststate->tics == -1 || caststate->nextstate == S_NULL)
+  if (caststate->tics == -1 || caststate->nextstate == S_NULL || castskip) // [crispy] skippable cast
   {
-    // switch from deathstate to next monster
-    castnum++;
+    if (castskip)
+    {
+        castnum += castskip;
+        castskip = 0;
+    }
+    else
+    {
+      // switch from deathstate to next monster
+      castnum++;
+    }
+
     castdeath = false;
     if (castorder[castnum].name == NULL)
       castnum = 0;
@@ -582,9 +595,11 @@ void F_CastTicker (void)
   else
   {
     // just advance to next state in animation
-    if (caststate == &states[S_PLAY_ATK1])
-      goto stopattack;    // Oh, gross hack!
-    st = caststate->nextstate;
+    if (!castdeath && caststate == &states[S_PLAY_ATK1])
+        goto stopattack;    // Oh, gross hack!
+    else
+      st = caststate->nextstate;
+
     caststate = &states[st];
     castframes++;
 
@@ -624,7 +639,7 @@ void F_CastTicker (void)
       S_StartVoidSound(sfx);
   }
 
-  if (castframes == 12)
+  if (!castdeath && castframes == 12)
   {
     // go into attack frame
     castattacking = true;
@@ -670,6 +685,19 @@ dboolean F_CastResponder (event_t* ev)
 {
   if (ev->type != ev_keydown)
     return false;
+
+  // [crispy] allow to skip through monsters
+  if (dsda_InputActivated(dsda_input_strafeleft))
+  {
+    castskip = castnum ? -1 : castorder_count - 2;
+    return false;
+  }
+  else
+  if (dsda_InputActivated(dsda_input_straferight))
+  {
+    castskip = +1;
+    return false;
+  }
 
   if (castdeath)
     return true;                    // already in dying frames
