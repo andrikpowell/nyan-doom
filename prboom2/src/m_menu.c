@@ -4206,6 +4206,7 @@ static const char* endoom_list[] = { "Off", "On", "Smart", NULL };
 setup_menu_t gen_misc_settings[] = {
   { "Enable Cheat Code Entry", S_YESNO, m_conf, G2_X, dsda_config_cheat_codes },
   { "Use Dehacked Cheats", S_YESNO | S_NYAN, m_conf, G2_X, dsda_config_deh_change_cheats },
+  { "Randomly Mirrored Corpses", S_YESNO | S_NYAN, m_conf, G2_X, nyan_config_flip_corpses },
   { "Artifact Descriptions", S_CHOICE | S_NYAN, m_conf, G2_X, dsda_config_artifact_descriptions, 0, artifact_desc_list },
   EMPTY_LINE,
   { "Autosave On Level Start", S_YESNO, m_conf, G2_X, dsda_config_auto_save },

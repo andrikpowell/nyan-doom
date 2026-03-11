@@ -1275,6 +1275,15 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
 
   target->tics -= P_Random(pr_killtics)&3;
 
+  // [crispy] randomly flip corpse, blood and death animation sprites
+  if (target->flags_extra & MFX_MIRROREDCORPSE && !(target->flags & MF_SHOOTABLE))
+  {
+    if (Nyan_Random() & 1)
+      target->intflags |= MIF_FLIP;
+    else
+      target->intflags &= ~MIF_FLIP;
+  }
+
   if (raven) return;
 
   if (target->tics < 1)

@@ -97,6 +97,7 @@ typedef enum {
   nyan_config_enable_animate_lumps,
   nyan_config_highlight_nyan_features,
   nyan_config_item_bonus_flash,
+  nyan_config_flip_corpses,
   nyan_config_colored_blood,
   nyan_config_colored_blood_baron,
   nyan_config_colored_blood_knight,

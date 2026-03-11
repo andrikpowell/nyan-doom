@@ -308,6 +308,32 @@ static void dsda_InitDoom(void) {
 
   for (i = S_SARG_RUN1; i <= S_SARG_PAIN2; ++i)
     states[i].flags |= STATEF_SKILL5FAST;
+
+  // Woof! randomly mirrored death animations
+  for (int i = MT_PLAYER; i <= MT_KEEN; ++i)
+  {
+      switch (i)
+      {
+          case MT_FIRE:
+          case MT_TRACER:
+          case MT_SMOKE:
+          case MT_FATSHOT:
+          case MT_BRUISERSHOT:
+          case MT_CYBORG:
+              continue;
+      }
+      mobjinfo[i].flags_extra |= MFX_MIRROREDCORPSE;
+  }
+
+  mobjinfo[MT_PUFF].flags_extra  |= MFX_MIRROREDCORPSE;
+  mobjinfo[MT_BLOOD].flags_extra |= MFX_MIRROREDCORPSE;
+
+  for (int i = MT_MISC61; i <= MT_MISC69; ++i)
+  {
+      mobjinfo[i].flags_extra |= MFX_MIRROREDCORPSE;
+  }
+
+  mobjinfo[MT_DOGS].flags_extra |= MFX_MIRROREDCORPSE;
 }
 
 static void dsda_InitHeretic(void) {
@@ -477,6 +503,51 @@ static void dsda_InitHeretic(void) {
   maxammo[3] = 200; // skull rod
   maxammo[4] = 20;  // phoenix rod
   maxammo[5] = 150; // mace
+
+  // Woof! randomly mirrored death animations
+  {
+    int flippable_things[] = {
+      HERETIC_MT_PLAYER,
+      HERETIC_MT_CHICPLAYER,
+      HERETIC_MT_CHICKEN,
+      HERETIC_MT_MUMMY,
+      HERETIC_MT_MUMMYLEADER,
+      HERETIC_MT_MUMMYGHOST,
+      HERETIC_MT_MUMMYLEADERGHOST,
+      HERETIC_MT_BEAST,
+      HERETIC_MT_SNAKE,
+      HERETIC_MT_HEAD,
+      HERETIC_MT_CLINK,
+      HERETIC_MT_WIZARD,
+      HERETIC_MT_IMP,
+      HERETIC_MT_IMPLEADER,
+      HERETIC_MT_KNIGHT,
+      HERETIC_MT_KNIGHTGHOST,
+      HERETIC_MT_SORCERER1,
+      HERETIC_MT_SORCERER2,
+      HERETIC_MT_MINOTAUR,
+    };
+
+    int flippable_things2[] = {
+      HERETIC_MT_STAFFPUFF,
+      HERETIC_MT_STAFFPUFF2,
+      HERETIC_MT_BEAKPUFF,
+      HERETIC_MT_GAUNTLETPUFF1,
+      HERETIC_MT_BLASTERPUFF1,
+      HERETIC_MT_BLASTERPUFF2,
+      HERETIC_MT_GOLDWANDPUFF1,
+      HERETIC_MT_GOLDWANDPUFF2,
+      HERETIC_MT_PHOENIXPUFF,
+      HERETIC_MT_FEATHER,
+      HERETIC_MT_BLOOD,
+    };
+
+    for (int i = 0; i < arrlen(flippable_things); i++)
+      mobjinfo[flippable_things[i]].flags_extra |= MFX_MIRROREDCORPSE;
+
+    for (int i = 0; i < arrlen(flippable_things2); i++)
+      mobjinfo[flippable_things2[i]].flags_extra |= MFX_MIRROREDCORPSE;
+  }
 }
 
 static void dsda_InitHexen(void) {
@@ -634,6 +705,57 @@ static void dsda_InitHexen(void) {
     extern void P_UseHexenRNG(void);
 
     P_UseHexenRNG();
+  }
+
+  // Woof! randomly mirrored death animations
+  {
+    int flippable_things[] = {
+      HEXEN_MT_PLAYER_FIGHTER,
+      HEXEN_MT_PLAYER_CLERIC,
+      HEXEN_MT_PLAYER_MAGE,
+      HEXEN_MT_PIGPLAYER,
+      HEXEN_MT_PIG,
+      HEXEN_MT_CENTAUR,
+      HEXEN_MT_CENTAURLEADER,
+      HEXEN_MT_DEMON,
+      HEXEN_MT_DEMON2,
+      HEXEN_MT_WRAITH,
+      HEXEN_MT_MINOTAUR,
+      HEXEN_MT_SERPENT,
+      HEXEN_MT_SERPENTLEADER,
+      HEXEN_MT_BISHOP,
+      HEXEN_MT_DRAGON,
+      HEXEN_MT_ETTIN,
+      HEXEN_MT_FIREDEMON,
+      HEXEN_MT_ICEGUY,
+      HEXEN_MT_FIGHTER_BOSS,
+      HEXEN_MT_CLERIC_BOSS,
+      HEXEN_MT_FIGHTER_BOSS,
+      HEXEN_MT_MAGE_BOSS,
+      HEXEN_MT_SORCBOSS,
+      HEXEN_MT_KORAX,
+    };
+
+    int flippable_things2[] = {
+      HEXEN_MT_PUNCHPUFF,
+      HEXEN_MT_AXEPUFF,
+      HEXEN_MT_AXEPUFF_GLOW,
+      HEXEN_MT_HAMMERPUFF,
+      HEXEN_MT_CSTAFFPUFF,
+      HEXEN_MT_FLAMEPUFF,
+      HEXEN_MT_FLAMEPUFF2,
+      HEXEN_MT_HOLY_PUFF,
+      HEXEN_MT_HOLY_MISSILE_PUFF,
+      HEXEN_MT_MWANDPUFF,
+      HEXEN_MT_SNOUTPUFF,
+      HERETIC_MT_BLOOD,
+    };
+
+    for (int i = 0; i < arrlen(flippable_things); i++)
+      mobjinfo[flippable_things[i]].flags_extra |= MFX_MIRROREDCORPSE;
+
+    for (int i = 0; i < arrlen(flippable_things2); i++)
+      mobjinfo[flippable_things2[i]].flags_extra |= MFX_MIRROREDCORPSE;
   }
 }
 

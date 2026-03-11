@@ -175,6 +175,11 @@ static const struct deh_flag_s hhe_mobjflags2[] = {
   { NULL }
 };
 
+static const struct deh_flag_s hhe_mobjflags_extra[] = {
+  {"MIRROREDCORPSE", MFX_MIRROREDCORPSE}, // randomly mirrored corpse
+  { NULL }
+};
+
 static uint64_t hhe_stringToFlags(char *strval, const struct deh_flag_s *flags)
 {
   uint64_t value;
@@ -204,6 +209,11 @@ uint64_t hhe_stringToMobjFlags(char *strval)
 uint64_t hhe_stringToMobjFlags2(char *strval)
 {
   return hhe_stringToFlags(strval, hhe_mobjflags2);
+}
+
+uint64_t hhe_stringToMobjFlagsExtra(char *strval)
+{
+  return hhe_stringToFlags(strval, hhe_mobjflags_extra);
 }
 
 //---------------------------------------------------------------------------
@@ -430,9 +440,24 @@ static void hhe_procThing(DEHFILE *fpin, char *line)
       if (deh_strcasecmp(key, hhe_mobjinfo_fields[ix])) continue; // Unknown key? skip parsing
 
       // -----------------------
+      // Extra Bits
+      // -----------------------
+      if (!deh_strcasecmp(key, "Woof Bits")) {
+        if (bGetData == 1)
+        {
+          value = deh_translate_bits(value, hhe_mobjflags_extra);
+        }
+        else
+        {
+          value = hhe_stringToMobjFlagsExtra(strval);
+        }
+
+        hhe_mobjinfo.info->flags_extra = value;
+      }
+      // -----------------------
       // Bits 1
       // -----------------------
-      if (!deh_strcasecmp(key, "Bits 1"))
+      else if (!deh_strcasecmp(key, "Bits 1"))
       {
         if (bGetData == 1)
         {

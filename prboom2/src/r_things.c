@@ -791,6 +791,15 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
       flip = (dboolean)sprframe->flip[0];
     }
 
+    // [crispy] randomly flip corpse, blood and death animation sprites
+    if (dsda_IntConfig(nyan_config_flip_corpses) &&
+      (thing->flags_extra & MFX_MIRROREDCORPSE) &&
+      !(thing->flags & MF_SHOOTABLE) &&
+      (thing->intflags & MIF_FLIP))
+    {
+      flip = !flip;
+    }
+
   {
     const rpatch_t* patch = R_PatchByNum(lump+firstspritelump);
     thing->patch_width = patch->width;
@@ -863,6 +872,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   vis->heightsec = heightsec;
 
   vis->mobjflags = thing->flags;
+  vis->mobjflags_extra = thing->flags_extra;
 // proff 11/06/98: Changed for high-res
   vis->scale = FixedDiv(projectiony, tz);
   vis->gzt = gzt;                          // killough 3/27/98
@@ -1179,6 +1189,7 @@ static void R_DrawPSprite (pspdef_t *psp)
   // store information in a vissprite
   vis = &avis;
   vis->mobjflags = MF_PLAYERSPRITE;
+  vis->mobjflags_extra = 0;
   vis->pclass = 0;
   vis->floorclip = 0;
    // killough 12/98: fix psprite positioning problem

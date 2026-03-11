@@ -498,6 +498,7 @@ typedef struct vissprite_s
   fixed_t texturemid;
   int patch;
   uint64_t mobjflags;
+  uint64_t mobjflags_extra; // Woof!
 
   // for color translation and shadow draw, maxbright frames as well
   const lighttable_t *colormap;

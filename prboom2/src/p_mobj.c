@@ -1885,6 +1885,7 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   mobj->height = info->height;                                      // phares
   mobj->flags  = info->flags;
   mobj->flags2 = info->flags2;
+  mobj->flags_extra = info->flags_extra;
   if (raven) mobj->damage = info->damage;
 
   /* killough 8/23/98: no friends, bouncers, or touchy things in old demos */
@@ -1958,6 +1959,15 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   else
   {
     mobj->z = z;
+  }
+
+  // [crispy] randomly flip corpse, blood and death animation sprites
+  if (mobj->flags_extra & MFX_MIRROREDCORPSE && !(mobj->flags & MF_SHOOTABLE))
+  {
+    if (Nyan_Random() & 1)
+      mobj->intflags |= MIF_FLIP;
+    else
+      mobj->intflags &= ~MIF_FLIP;
   }
 
   if (hexen)

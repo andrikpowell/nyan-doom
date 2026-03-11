@@ -241,6 +241,11 @@ const struct deh_flag_s deh_mobjflags_mbf21[] = {
   { NULL }
 };
 
+const struct deh_flag_s deh_mobjflags_extra[] = {
+  {"MIRROREDCORPSE", MFX_MIRROREDCORPSE}, // randomly mirrored corpse
+  { NULL }
+};
+
 static uint64_t deh_stringToFlags(char *strval, const struct deh_flag_s *flags)
 {
   uint64_t value;
@@ -270,6 +275,11 @@ uint64_t deh_stringToMBF21MobjFlags(char *strval)
 uint64_t deh_stringToMobjFlags(char *strval)
 {
   return deh_stringToFlags(strval, deh_mobjflags);
+}
+
+uint64_t deh_stringToMobjFlagsExtra(char *strval)
+{
+  return deh_stringToFlags(strval, deh_mobjflags_extra);
 }
 
 //---------------------------------------------------------------------------
@@ -491,6 +501,18 @@ static void deh_procThing(DEHFILE *fpin, char *line)
         }
 
         deh_mobjinfo.info->flags2 = value;
+      }
+      else if (!deh_strcasecmp(key, "Woof Bits")) {
+        if (bGetData == 1)
+        {
+          value = deh_translate_bits(value, deh_mobjflags_extra);
+        }
+        else
+        {
+          value = deh_stringToMobjFlagsExtra(strval);
+        }
+
+        deh_mobjinfo.info->flags_extra = value;
       }
       else if (deh_strcasecmp(key, "Bits")) {
         // standard value set

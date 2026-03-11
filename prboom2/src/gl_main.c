@@ -2540,6 +2540,15 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   patch = R_PatchByNum(lump);
   thing->patch_width = patch->width;
 
+  // [crispy] randomly flip corpse, blood and death animation sprites
+  if (dsda_IntConfig(nyan_config_flip_corpses) &&
+      (thing->flags_extra & MFX_MIRROREDCORPSE) &&
+      !(thing->flags & MF_SHOOTABLE) &&
+      (thing->intflags & MIF_FLIP))
+  {
+    flip = !flip;
+  }
+
   // killough 4/9/98: clip things which are out of view due to height
   if(!mlook)
   {

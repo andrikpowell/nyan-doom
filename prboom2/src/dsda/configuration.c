@@ -1866,6 +1866,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_item_bonus_flash", nyan_config_item_bonus_flash,
     CONF_BOOL(0), NULL, NOT_STRICT, deh_changeBonusFlash
   },
+  [nyan_config_flip_corpses] = {
+    "nyan_flip_corpses", nyan_config_flip_corpses,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
   [nyan_config_colored_blood] = {
     "nyan_colored_blood", nyan_config_colored_blood,
     dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT, deh_changeColoredBlood

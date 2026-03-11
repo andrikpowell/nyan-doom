@@ -240,13 +240,14 @@
 // (some degree of opaqueness is good, to avoid compatibility woes)
 
 enum {
-  MIF_FALLING = 1,      // Object is falling
-  MIF_ARMED = 2,        // Object is armed (for MF_TOUCHY objects)
-  MIF_SCROLLING = 4,    // Object is affected by scroller / pusher / puller
-  MIF_PLAYER_DAMAGED_BARREL = 8,
-  MIF_SPAWNED_BY_ICON = 16,
-  MIF_SPAWNED_BY_DSPARIL = 32,
-  MIF_FAKE = 64, // Not a real thing, transient (e.g., for cheats)
+  MIF_FALLING               = (1<<0), // Object is falling
+  MIF_ARMED                 = (1<<1), // Object is armed (for MF_TOUCHY objects)
+  MIF_SCROLLING             = (1<<2), // Object is affected by scroller / pusher / puller
+  MIF_PLAYER_DAMAGED_BARREL = (1<<3),
+  MIF_SPAWNED_BY_ICON       = (1<<4),
+  MIF_SPAWNED_BY_DSPARIL    = (1<<5),
+  MIF_FLIP                  = (1<<6),
+  MIF_FAKE                  = (1<<7), // Not a real thing, transient (e.g., for cheats)
 };
 
 // heretic
@@ -414,6 +415,9 @@ typedef struct mobj_s
     struct mobj_s* below_thing;
     struct mobj_s* above_thing;
 
+    // extra
+    uint64_t flags_extra;
+
     // SEE WARNING ABOVE ABOUT POINTER FIELDS!!!
 } mobj_t;
 
@@ -524,6 +528,9 @@ void P_RemoveMonsters(void);
 // zdoom
 #define MF2_CANUSEWALLS       0x0002000000000000ull // can activate use lines
 #define MF2_COUNTSECRET       0x0004000000000000ull // picking up counts as a secret
+
+// extra
+#define MFX_MIRROREDCORPSE    0x00000002 // [woof] randomly flip corpse, blood and death animation sprites
 
 #define AMMO_GWND_WIMPY 10
 #define AMMO_GWND_HEFTY 50
