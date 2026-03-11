@@ -578,6 +578,69 @@ static int F_RandomizeSound (int sound)
 	}
 }
 
+typedef struct
+{
+	void *const action;
+	const int sound;
+	const dboolean early;
+} actionsound_t;
+
+static const actionsound_t actionsounds[] =
+{
+	{A_PosAttack,   sfx_pistol, false},
+	{A_SPosAttack,  sfx_shotgn, false},
+	{A_CPosAttack,  sfx_shotgn, false},
+	{A_CPosRefire,  sfx_shotgn, false},
+	{A_VileTarget,  sfx_vilatk, true},
+	{A_SkelWhoosh,  sfx_skeswg, false},
+	{A_SkelFist,    sfx_skepch, false},
+	{A_SkelMissile, sfx_skeatk, true},
+	{A_FatAttack1,  sfx_firsht, false},
+	{A_FatAttack2,  sfx_firsht, false},
+	{A_FatAttack3,  sfx_firsht, false},
+	{A_HeadAttack,  sfx_firsht, true},
+	{A_BruisAttack, sfx_firsht, true},
+	{A_TroopAttack, sfx_claw,   false},
+	{A_SargAttack,  sfx_sgtatk, true},
+	{A_SkullAttack, sfx_sklatk, false},
+	{A_PainAttack,  sfx_sklatk, true},
+	{A_BspiAttack,  sfx_plasma, false},
+	{A_CyberAttack, sfx_rlaunc, false},
+};
+
+// [crispy] play attack sound based on state action function (instead of state number)
+static int F_SoundForState (int st)
+{
+	void *const castaction = (void *) caststate->action;
+	void *const nextaction = (void *) (&states[caststate->nextstate])->action;
+
+	// [crispy] fix Doomguy in casting sequence
+	if (castaction == NULL)
+	{
+		if (st == S_PLAY_ATK2)
+			return sfx_dshtgn;
+		else
+			return 0;
+	}
+	else
+	{
+		int i;
+
+		for (i = 0; i < arrlen(actionsounds); i++)
+		{
+			const actionsound_t *const as = &actionsounds[i];
+
+			if ((!as->early && castaction == as->action) ||
+			    (as->early && nextaction == as->action))
+			{
+				return as->sound;
+			}
+		}
+	}
+
+	return 0;
+}
+
 void F_StartCast (const char* background, const char* music, dboolean loop_music)
 {
   castorder = (gamemode == commercial ? castorder_d2 : castorder_d1);
@@ -653,6 +716,8 @@ void F_CastTicker (void)
     caststate = &states[st];
     castframes++;
 
+    sfx = F_SoundForState(st);
+/*
     // sound hacks....
     switch (st)
     {
@@ -684,7 +749,7 @@ void F_CastTicker (void)
       case S_PAIN_ATK3:     sfx = sfx_sklatk; break;
       default: sfx = 0; break;
     }
-
+*/
     if (sfx)
       S_StartVoidSound(sfx);
   }
