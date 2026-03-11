@@ -222,7 +222,11 @@ int G_ReloadLevel(void)
       allow_incompatibility &&
       !menuactive)
   {
-    G_DeferedInitNew(gameskill, gameepisode, gamemap);
+    int epsd = gameepisode;
+    int map = gamemap;
+
+    dsda_MapToWarp(&epsd, &map);
+    G_DeferedInitNew(gameskill, epsd, map);
     result = true;
   }
 
