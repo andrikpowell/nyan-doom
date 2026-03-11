@@ -2103,6 +2103,37 @@ void P_UnArchiveAmbientSound(void)
   }
 }
 
+void P_ArchiveLightning(void)
+{
+  P_SAVE_X(LightningLightLevelCount);
+
+  if (LightningLightLevelCount > 0)
+    P_SAVE_SIZE(LightningLightLevels, LightningLightLevelCount * sizeof(*LightningLightLevels));
+
+  P_SAVE_X(NextLightningFlash);
+  P_SAVE_X(LightningFlash);
+}
+
+void P_UnArchiveLightning(void)
+{
+  P_LOAD_X(LightningLightLevelCount);
+
+  if (LightningLightLevelCount)
+  {
+    if (LightningLightLevelCount > 0)
+    {
+      int size = LightningLightLevelCount * sizeof(*LightningLightLevels);
+      LightningLightLevels = Z_MallocLevel(size);
+      P_LOAD_SIZE(LightningLightLevels, size);
+    }
+    else
+      LightningLightLevels = NULL;
+  }
+
+  P_LOAD_X(NextLightningFlash);
+  P_LOAD_X(LightningFlash);
+}
+
 void P_ArchiveMisc(void)
 {
   size_t size;
@@ -2121,8 +2152,7 @@ void P_ArchiveMisc(void)
   if (!hexen) return;
 
   P_SAVE_ARRAY(PlayerClass);
-  P_SAVE_X(NextLightningFlash);
-  P_SAVE_X(LightningFlash);
+  P_ArchiveLightning();
 
   SV_StoreMapArchive();
 }
@@ -2145,8 +2175,7 @@ void P_UnArchiveMisc(void)
   if (!hexen) return;
 
   P_LOAD_ARRAY(PlayerClass);
-  P_LOAD_X(NextLightningFlash);
-  P_LOAD_X(LightningFlash);
+  P_UnArchiveLightning();
 
   SV_RestoreMapArchive();
 }

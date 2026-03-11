@@ -68,7 +68,8 @@ static int AnimDefCount;
 static dboolean LevelHasLightning;
 int NextLightningFlash;
 int LightningFlash;
-static int *LightningLightLevels;
+int *LightningLightLevels;
+int LightningLightLevelCount;
 
 void P_AnimateCompatibleSurfaces(void)
 {
@@ -320,6 +321,8 @@ void P_InitLightning(void)
     {
         LevelHasLightning = false;
         LightningFlash = 0;
+        LightningLightLevelCount = 0;
+        LightningLightLevels = NULL;
         return;
     }
     LightningFlash = 0;
@@ -340,9 +343,12 @@ void P_InitLightning(void)
     else
     {
         LevelHasLightning = false;
+        LightningLightLevelCount = 0;
+        LightningLightLevels = NULL;
         return;
     }
-    LightningLightLevels = (int *) Z_MallocLevel(secCount * sizeof(int));
+    LightningLightLevelCount = secCount;
+    LightningLightLevels = (int *) Z_MallocLevel(LightningLightLevelCount * sizeof(*LightningLightLevels));
     NextLightningFlash = ((P_Random(pr_hexen) & 15) + 5) * 35;  // don't flash at level start
 }
 
