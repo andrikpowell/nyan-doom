@@ -345,6 +345,10 @@ static void D_DrawPause(void)
 {
   stretch_param_t *params;
   int viewwindowy_scaled;
+  const char* pause_lump;
+  int pause_space;
+  int pause_x;
+  int pause_y;
 
   if (dsda_PauseMode(PAUSE_BUILDMODE))
     return;
@@ -354,19 +358,16 @@ static void D_DrawPause(void)
 
   V_BeginUIDraw();
 
-  if (raven)
-  {
-    if (!netgame)
-    {
-      V_DrawNamePatch(160, viewwindowy_scaled + 5, "PAUSED", CR_DEFAULT, VPT_STRETCH);
-    }
-    else
-    {
-      V_DrawNamePatch(160, 70, "PAUSED", CR_DEFAULT, VPT_STRETCH);
-    }
-  }
-  else
-    V_DrawNamePatch((320 - V_NamePatchWidth("M_PAUSE")) / 2, viewwindowy_scaled + 4, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
+  pause_lump = raven ? "PAUSED" : "M_PAUSE";
+  pause_space = raven ? 5 : 4;
+
+  pause_x = raven ? 160 : (320 - V_NamePatchWidth(pause_lump)) / 2;
+  pause_y = automap_active ? pause_space : viewwindowy_scaled + pause_space;
+
+  if (raven && netgame)
+    pause_y = 70;
+
+  V_DrawNamePatch(pause_x, pause_y, pause_lump, CR_DEFAULT, VPT_STRETCH);
 
   V_EndUIDraw();
 }
