@@ -522,6 +522,7 @@ static uint64_t castflags;
 static uint64_t castflags2;
 static signed char	castangle; // [crispy] turnable cast
 static signed char	castskip; // [crispy] skippable cast
+static dboolean	castflip; // [crispy] flippable death sequence
 static const char *castbackground;
 
 //
@@ -697,6 +698,7 @@ void F_CastTicker (void)
     castflags2 = mobjinfo[castorder[castnum].type].flags2;
     castframes = 0;
     castangle = 0; // [crispy] turnable cast
+    castflip = false; // [crispy] flippable death sequence
   }
   else
   {
@@ -900,6 +902,12 @@ dboolean F_CastResponder (event_t* ev)
     if (mobjinfo[castorder[castnum].type].deathsound)
       S_StartVoidSound(F_RandomizeSound(mobjinfo[castorder[castnum].type].deathsound));
 
+  // [crispy] flippable death sequence
+  castflip = dsda_IntConfig(nyan_config_flip_corpses) &&
+    castdeath &&
+    (mobjinfo[castorder[castnum].type].flags_extra & MFX_MIRROREDCORPSE) &&
+    (Nyan_Random() & 1);
+
   return true;
 }
 
@@ -982,7 +990,7 @@ void F_CastDrawer (void)
   sprframe = &sprdef->spriteframes[ caststate->frame & FF_FRAMEMASK];
   rot = castangle * 2;
   lump = sprframe->lump[rot]; // [crispy] turnable cast
-  flip = (dboolean)sprframe->flip[rot]; // [crispy] turnable cast
+  flip = (dboolean)sprframe->flip[rot] ^ castflip; // [crispy] turnable cast, flippable death sequence
 
   // set defaults
   cm = CR_DEFAULT;
