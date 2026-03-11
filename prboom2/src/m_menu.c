@@ -6880,7 +6880,7 @@ static dboolean M_LevelTableResponder(int ch, int action, event_t* ev)
     map_index = set_menu_itemon - 1;
     map = &wad_stats.maps[map_index];
 
-    table_epsd = 1;
+    table_epsd = map->episode;
     table_map = map->map;
 
     dsda_MapToWarp(&table_epsd, &table_map);
