@@ -431,6 +431,21 @@ static void DrSmallNumber(int val, int x, int y)
     DrSmallNumberVPT(val, x, y, VPT_STRETCH);
 }
 
+static void DrSmallNumberVPTInventory(int val, int x, int y, int vpt)
+{
+    if (val == 1)
+        return;
+
+    DrSmallNumberVPT(val, x, y, vpt);
+}
+
+static void DrSmallNumberInventory(int val, int x, int y)
+{
+    if (val == 1)
+        return;
+
+    DrSmallNumber(val, x, y);
+}
 
 //---------------------------------------------------------------------------
 //
@@ -725,7 +740,7 @@ void DrawMainBar(void)
               179, 160, lumparti[CPlayer->readyArtifact], CR_DEFAULT, VPT_STRETCH
             );
 
-            DrSmallNumber(CPlayer->inventory[CPlayer->inv_ptr].count, 201, 182);
+            DrSmallNumberInventory(CPlayer->inventory[CPlayer->inv_ptr].count, 201, 182);
         }
         oldarti = CPlayer->readyArtifact;
         oldartiCount = CPlayer->inventory[CPlayer->inv_ptr].count;
@@ -831,8 +846,8 @@ void DrawInventoryBar(void)
               50 + i * 31, sb_inv_arti_y,
               lumparti[CPlayer->inventory[x + i].type], CR_DEFAULT, VPT_STRETCH
             );
-            DrSmallNumber(CPlayer->inventory[x + i].count,
-                          sb_inv_arti_count_x + i * 31, sb_inv_arti_count_y);
+            DrSmallNumberInventory(CPlayer->inventory[x + i].count,
+                                   sb_inv_arti_count_x + i * 31, sb_inv_arti_count_y);
         }
     }
     V_DrawNumPatch(50 + CPlayer->curpos * 31,  sb_inv_select_y, LumpSELECTBOX, CR_DEFAULT, VPT_STRETCH);
@@ -879,7 +894,7 @@ void DrawInventoryBarTranslucent(int x, int y, int vpt)
             if (CPlayer->inventorySlotNum > j + i && CPlayer->inventory[j + i].type != arti_none)
             {
                 V_DrawNumPatch(artifact_x + i * 31, artifact_y,lumparti[CPlayer->inventory[j + i].type], CR_DEFAULT, vpt);
-                DrSmallNumber(CPlayer->inventory[j + i].count, sml_num_x + i * 31, sml_num_y);
+                DrSmallNumberInventory(CPlayer->inventory[j + i].count, sml_num_x + i * 31, sml_num_y);
             }
         }
         V_DrawNumPatch(select_x + CPlayer->curpos * 31,  select_y, LumpSELECTBOX, CR_DEFAULT, vpt);
@@ -917,7 +932,7 @@ void DrawArtifact(int x, int y, int vpt)
     {
         V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | flags);
         V_DrawNumPatch(x, y, lumparti[inv->type], CR_DEFAULT, vpt);
-        DrSmallNumberVPT(inv->count, x + delta_x, y + delta_y, vpt);
+        DrSmallNumberVPTInventory(inv->count, x + delta_x, y + delta_y, vpt);
     }
   }
 }
@@ -1449,7 +1464,7 @@ static void Hexen_DrawMainBar(void)
                            lumparti[CPlayer->readyArtifact], CR_DEFAULT, VPT_STRETCH);
             if (CPlayer->inventory[CPlayer->inv_ptr].count > 1)
             {
-                DrSmallNumber(CPlayer->inventory[CPlayer->inv_ptr].count, 162, 184);
+                DrSmallNumberInventory(CPlayer->inventory[CPlayer->inv_ptr].count, 162, 184);
             }
         }
         oldarti = CPlayer->readyArtifact;
