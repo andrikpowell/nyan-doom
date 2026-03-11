@@ -162,8 +162,6 @@ int P_RandomHitscanSlope(pr_class_t pr_class, fixed_t spread);
 int P_SubRandom (void);
 
 // nyan
-
-void Nyan_InitRandom (void);
-int Nyan_RealRandom (void);
+int Nyan_Random (void);
 
 #endif

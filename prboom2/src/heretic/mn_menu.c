@@ -649,18 +649,18 @@ void MN_PickRandomClass(void)
     int new_random_class = -1;
     int attempt;
 
-    attempt = Nyan_RealRandom() % 100;
+    attempt = Nyan_Random() % 100;
 
     if (attempt < 70)
     {
       do
       {
-        new_random_class = 1 + Nyan_RealRandom() % 3;
+        new_random_class = 1 + Nyan_Random() % 3;
       } while (new_random_class == last_random_class);
     }
     else
     {
-      new_random_class = 1 + Nyan_RealRandom() % 3;
+      new_random_class = 1 + Nyan_Random() % 3;
     }
 
     PlayerClass[consoleplayer] = new_random_class;

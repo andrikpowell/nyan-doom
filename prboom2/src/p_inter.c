@@ -876,7 +876,7 @@ void P_BuddhaMessage(player_t* player)
 {
   const char* message;
 
-  switch( rand() % 10 ) {
+  switch( Nyan_Random() % 10 ) {
       case 9:
           message = "You shrug off mortal damage.";
           break;
