@@ -25,11 +25,67 @@
 typedef struct {
   dsda_text_t label;
   dsda_text_t component;
+  dsda_text_t dm_stats;
   dboolean include_kills, include_items, include_secrets;
   int stat_format;
 } local_component_t;
 
 static local_component_t* local;
+
+static int dsda_PrintDMStat(char *buffer, size_t size, const char *cm, int result, int others, dboolean separator)
+{
+  return snprintf(
+    buffer, size,
+    "%s%i/%i ",
+    cm, result, others
+  );
+}
+
+static void dsda_DMStats(char* str, size_t max_size) {
+  int i, p;
+  size_t length;
+
+  length = 0;
+
+  for (i = 0; i < g_maxplayers; ++i) {
+      int result = 0, others = 0;
+      const char *color;
+
+      if (!playeringame[i])
+          continue;
+
+      for (p = 0; p < g_maxplayers; ++p)
+      {
+          if (!playeringame[p])
+              continue;
+
+          if (i != p)
+          {
+              result += players[i].frags[p];
+              others -= players[p].frags[i];
+          }
+          else
+          {
+              result -= players[i].frags[p];
+          }
+      }
+
+      color = (i == displayplayer) ? dsda_TextColor(dsda_tc_exhud_totals_max)
+                                   : dsda_TextColor(dsda_tc_exhud_totals_value);
+
+        length += dsda_PrintDMStat(
+          str + length,
+          max_size - length,
+          color,
+          result,
+          others,
+          true
+        );
+
+      if (length >= max_size)
+        break;
+  }
+}
 
 static void dsda_UpdateLabelComponentText(char* str, size_t max_size) {
   size_t length = 0;
@@ -123,6 +179,7 @@ void dsda_InitMapTotalsHC(int x_offset, int y_offset, int vpt, int* args, int ar
   if (!local->include_kills && !local->include_items && !local->include_secrets)
     local->include_kills = local->include_items = local->include_secrets = true;
 
+  dsda_InitBlockyHC(&local->dm_stats, x_offset, y_offset, vpt);
   dsda_InitBlockyHC(&local->label, x_offset, y_offset, vpt);
   dsda_InitBlockyHC(&local->component, x_offset + 12, y_offset, vpt);
 }
@@ -130,15 +187,24 @@ void dsda_InitMapTotalsHC(int x_offset, int y_offset, int vpt, int* args, int ar
 void dsda_UpdateMapTotalsHC(void* data) {
   local = data;
 
-  dsda_UpdateLabelComponentText(local->label.msg, sizeof(local->label.msg));
-  dsda_UpdateComponentText(local->component.msg, sizeof(local->component.msg));
-  dsda_RefreshHudText(&local->label);
-  dsda_RefreshHudText(&local->component);
+  if (deathmatch)
+  {
+    dsda_DMStats(local->dm_stats.msg, sizeof(local->dm_stats.msg));
+    dsda_RefreshHudText(&local->dm_stats);
+  }
+  else 
+  {
+    dsda_UpdateLabelComponentText(local->label.msg, sizeof(local->label.msg));
+    dsda_RefreshHudText(&local->label);
+    dsda_UpdateComponentText(local->component.msg, sizeof(local->component.msg));
+    dsda_RefreshHudText(&local->component);
+  }
 }
 
 void dsda_DrawMapTotalsHC(void* data) {
   local = data;
 
+  dsda_DrawBasicShadowedText(&local->dm_stats);
   dsda_DrawBasicShadowedText(&local->label);
   dsda_DrawBasicShadowedText(&local->component);
 }

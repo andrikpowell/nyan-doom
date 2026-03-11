@@ -33,6 +33,62 @@ typedef struct {
 
 static local_component_t* local;
 
+static int dsda_PrintDMStat(char *buffer, size_t size, const char *cm, int result, int others, dboolean separator)
+{
+  return snprintf(
+    buffer, size,
+    "%s%i/%i%s",
+    cm, result, others,
+    separator ? local->stat_separator : ""
+  );
+}
+
+static void dsda_DMStats(char* str, size_t max_size) {
+  int i, p;
+  size_t length;
+
+  length = 0;
+
+  for (i = 0; i < g_maxplayers; ++i) {
+      int result = 0, others = 0;
+      const char *color;
+
+      if (!playeringame[i])
+          continue;
+
+      for (p = 0; p < g_maxplayers; ++p)
+      {
+          if (!playeringame[p])
+              continue;
+
+          if (i != p)
+          {
+              result += players[i].frags[p];
+              others -= players[p].frags[i];
+          }
+          else
+          {
+              result -= players[i].frags[p];
+          }
+      }
+
+      color = (i == displayplayer) ? dsda_TextColor(dsda_tc_exhud_totals_max)
+                                   : dsda_TextColor(dsda_tc_exhud_totals_value);
+
+        length += dsda_PrintDMStat(
+          str + length,
+          max_size - length,
+          color,
+          result,
+          others,
+          true
+        );
+
+      if (length >= max_size)
+        break;
+  }
+}
+
 int dsda_PrintStats(size_t length, char *buffer, size_t size, int format, const char* label, const char* cm, const int th_count, const int th_total, dboolean separator)
 {
     int stat_config = dsda_IntConfig(dsda_config_stats_format);
@@ -82,7 +138,7 @@ int dsda_PrintStats(size_t length, char *buffer, size_t size, int format, const 
     }
 }
 
-static void dsda_UpdateComponentText(char* str, size_t max_size) {
+static void dsda_LevelStats(char* str, size_t max_size) {
   int i;
   size_t length;
   int fullkillcount, fullitemcount, fullsecretcount;
@@ -128,6 +184,17 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
 
   if (local->include_secrets)
     dsda_PrintStats(length, str + length, max_size - length, local->stat_format, local->label_s, secretcolor, fullsecretcount, totalsecret, false);
+}
+
+static void dsda_UpdateComponentText(char* str, size_t max_size) {
+  if (deathmatch)
+  {
+    dsda_DMStats(str, max_size);
+  }
+  else
+  {
+    dsda_LevelStats(str, max_size);
+  }
 }
 
 void dsda_InitStatTotalsHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
