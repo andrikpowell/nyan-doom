@@ -170,7 +170,7 @@ enum patch_translation_e {
   VPT_TRANSMAP      = (1<<12),
   VPT_ALT_TRANSMAP  = (1<<13),
   VPT_FUZZ          = (1<<14),
-  VPT_SHADOW        = (1<<15),
+  VPT_SHADOW        = (1<<15), // text shadow
   VPT_EX_TRANS      = (1<<16), // exhud translucency
   VPT_SWIRL         = (1<<17), // swirling flat
 };

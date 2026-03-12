@@ -865,7 +865,6 @@ typedef struct {
   dboolean active;
   int trans;          // final translucency
   int trans_base;     // initial translucency
-  int trans_context;  // translucency context
   const byte *colortr;
   const byte *transmap;
   enum patch_translation_e flags;
@@ -878,15 +877,13 @@ static void V_SetTransmap(v_patchinfo_t *p, int shadowtype, dboolean is_shadow, 
   int final_trans;
 
   p->trans_base = 100;
-  p->trans_context = UI_TRANS;
   p->trans = NO_TRANS;
   p->transmap = NULL;
 
   // Add translucency
   if (is_shadow)
   {
-    p->trans_base = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : shadow_filter_pct;
-    p->trans_context = (shadowtype == SHADOW_DEFAULT) ? UI_SHADOW : UI_RAVEN_TINT;
+    p->trans_base = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : shadow_raven_filter_pct;
 
     // Shadow always has translucency
     if (!(p->flags & VPT_TRANSMAP))
@@ -895,40 +892,22 @@ static void V_SetTransmap(v_patchinfo_t *p, int shadowtype, dboolean is_shadow, 
   else
   {
     if (p->flags & VPT_TRANSMAP)
-    {
       p->trans_base = tran_filter_pct;
-      p->trans_context = UI_TRANS;
-    }
     else if (p->flags & VPT_ALT_TRANSMAP)
-    {
-      p->trans_base = alttint_filter_pct;
-      p->trans_context = UI_RAVEN_ALTTINT;
-    }
+      p->trans_base = alt_tran_filter_pct;
   }
 
   // ExHUD translucency logic
   if ((p->flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
   {
     if (is_shadow)
-    {
-      p->trans_base = exhud_shadow_filter_pct;
-      p->trans_context = UI_EXHUD_SHADOW;
-    }
+      p->trans_base = (shadowtype == SHADOW_DEFAULT) ? exhud_shadow_ui_filter_pct : exhud_shadow_raven_filter_pct;
     else if (p->flags & VPT_TRANSMAP)
-    {
-      p->trans_base = exhud_tint_filter_pct;
-      p->trans_context = UI_EXHUD_TRANS;
-    }
-    else if (p->flags & VPT_ALT_TRANSMAP)
-    {
-      p->trans_base = exhud_alttint_filter_pct;
-      p->trans_context = UI_EXHUD_RAVEN_ALTTINT;
-    }
-    else
-    {
       p->trans_base = exhud_tran_filter_pct;
-      p->trans_context = UI_EXHUD;
-    }
+    else if (p->flags & VPT_ALT_TRANSMAP)
+      p->trans_base = exhud_alt_tran_filter_pct;
+    else
+      p->trans_base = exhud_opaque_filter_pct;
 
     // If using ExHUD translucency, make sure translucency is active
     if (!(p->flags & VPT_TRANSMAP))
@@ -975,7 +954,7 @@ static void V_SetTransmap(v_patchinfo_t *p, int shadowtype, dboolean is_shadow, 
   }
 
   if (p->trans > 0 && p->trans != NO_TRANS)
-    p->transmap = dsda_TranMap_Custom(p->trans, p->trans_context);
+    p->transmap = dsda_TranMap_Custom(p->trans);
 }
 
 v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags, int fade_alpha)
@@ -1249,10 +1228,16 @@ static void V_FillRect8(int scrn, int x, int y, int width, int height, byte colo
   }
 }
 
-static void V_FillRectTrans8(int scrn, int x, int y, int width, int height, byte colour, const byte* transmap)
+static void V_FillRectTrans8(int scrn, int x, int y, int width, int height, byte colour, int trans)
 {
+  const byte *transmap;
   byte* dest;
   int pitch = screens[scrn].pitch;
+
+  transmap = dsda_TranMap_Custom(P_ConvertTrans(trans));
+
+  if (!transmap)
+    return;
 
   for (int iy = y; iy < y + height; ++iy)
   {
@@ -1266,12 +1251,12 @@ static void V_FillRectTrans8(int scrn, int x, int y, int width, int height, byte
   }
 }
 
-static void FUNC_V_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, const byte* transmap)
+static void FUNC_V_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, int trans)
 {
-  if (!dsda_MenuTranslucency())
+  if (!dsda_MenuTranslucency() || trans >= 99)
     V_FillRect8(scrn, x, y, width, height, colour);
   else
-    V_FillRectTrans8(scrn, x, y, width, height, colour, transmap);
+    V_FillRectTrans8(scrn, x, y, width, height, colour, trans);
 }
 
 //
@@ -1340,11 +1325,11 @@ static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byt
 {
   gld_FillBlock(x,y,width,height,colour,100);
 }
-static void WRAP_gld_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, const byte* tranmap)
+static void WRAP_gld_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, int trans)
 {
-  int trans = dsda_MenuTranslucency() ? menu_ui_filter_pct : 100;
+  int alpha = dsda_MenuTranslucency() ? trans : 100;
 
-  gld_FillBlock(x,y,width,height,colour,trans);
+  gld_FillBlock(x,y,width,height,colour,alpha);
 }
 static void WRAP_gld_FillRectShaded(int x, int y, int w, int h, int start_shade, int end_shade, int vertical) {
   gld_FillBlockShaded(x,y,w,h,start_shade,end_shade,vertical);
@@ -1416,7 +1401,7 @@ static void NULL_EndAutomapDraw(void) {}
 static void NULL_BeginMenuDraw(void) {}
 static void NULL_EndMenuDraw(void) {}
 static void NULL_FillRect(int scrn, int x, int y, int width, int height, byte colour) {}
-static void NULL_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, const byte* transmap) {}
+static void NULL_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, int trans) {}
 static void NULL_FillRectShaded(int x, int y, int width, int height, int start_shade, int end_shade, int vertical) {}
 static void NULL_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}

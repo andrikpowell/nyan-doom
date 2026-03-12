@@ -43,6 +43,7 @@
 #include "doomdef.h"
 // Needed because we are refering to patches.
 #include "r_data.h"
+#include "dsda/tranmap.h"
 
 //
 // VIDEO
@@ -213,10 +214,10 @@ extern V_FillRectGen_f V_FillRectGen;
 
 // V_FillRectTrans
 typedef void (*V_FillRectTrans_f)(int scrn, int x, int y,
-                             int width, int height, byte colour, const byte* transmap);
+                             int width, int height, byte colour, int trans);
 extern V_FillRectTrans_f V_FillRectTrans;
-#define V_FillRectTransMenu(x,y,w,h,c) V_FillRectTrans(0,x,y,w,h,c,menu_ui_tranmap)
-#define V_FillRectTransMenuBG(x,y,w,h,c) V_FillRectTrans(1,x,y,w,h,c,menu_ui_tranmap)
+#define V_FillRectTransMenu(x,y,w,h,c) V_FillRectTrans(0,x,y,w,h,c,menu_ui_filter_pct)
+#define V_FillRectTransMenuBG(x,y,w,h,c) V_FillRectTrans(1,x,y,w,h,c,menu_ui_filter_pct)
 
 typedef void (*V_FillRectShaded_f)(int x, int y, int width, int height, int start_shade, int end_shade, int vertical);
 extern V_FillRectShaded_f V_FillRectShaded;

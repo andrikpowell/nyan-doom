@@ -20,40 +20,30 @@
 
 #include "doomtype.h"
 
-typedef enum {
-  UI_NONE = 0,
-
-  UI_TRANS,           // normal patches
-  UI_SHADOW,          // menu shadows
-  UI_RAVEN_TINT,      // Raven + Raven shadows
-  UI_RAVEN_ALTTINT,   // Raven
-
-  // Exhud
-  // we must generate all these via percentages
-  UI_EXHUD,
-  UI_EXHUD_TRANS,
-  UI_EXHUD_SHADOW,
-  //UI_EXHUD_RAVEN_TINT, // ^ use EXHUD_SHADOW instead
-  UI_EXHUD_RAVEN_ALTTINT,
-
-  UI_END
-} tranmap_context_e;
-
 const byte* dsda_TranMap(unsigned int alpha);
-const byte* dsda_TranMap_Custom(unsigned int alpha, int context);
+const byte* dsda_TranMap_Custom(unsigned int alpha);
 const byte* dsda_DefaultTranMap(void);
 void dsda_UpdateTranMap(void);
 void dsda_UpdateFadeTranMaps(void);
+
+// main trans
 extern int tran_filter_pct;
-extern int exhud_tran_filter_pct;
-extern int exhud_tint_filter_pct;
-extern int exhud_alttint_filter_pct;
-extern int shadow_filter_pct;
-extern int alttint_filter_pct;
-extern int exhud_shadow_filter_pct;
+extern int alt_tran_filter_pct;
+extern int shadow_raven_filter_pct;
+
+// ui trans
 extern int shadow_ui_filter_pct;
 extern int menu_ui_filter_pct;
-extern int gl_alttint_filter_pct;
-extern int gl_exhud_alttint_filter_pct;
+
+// exhud trans
+extern int exhud_opaque_filter_pct;
+extern int exhud_tran_filter_pct;
+extern int exhud_shadow_ui_filter_pct;
+extern int exhud_shadow_raven_filter_pct;
+extern int exhud_alt_tran_filter_pct;
+
+// gl trans
+extern int gl_alt_tran_filter_pct;
+extern int gl_exhud_alt_tran_filter_pct;
 
 #endif

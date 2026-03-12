@@ -527,23 +527,23 @@ static float gld_GetAlpha(int shadowtype, int fade_alpha, enum patch_translation
 
   // apply translucency
   if (flags & VPT_SHADOW)
-    base_alpha = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : shadow_filter_pct;
+    base_alpha = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : shadow_raven_filter_pct;
   else if (flags & VPT_TRANSMAP)
     base_alpha = tran_filter_pct;
   else if (flags & VPT_ALT_TRANSMAP)
-    base_alpha = gl_alttint_filter_pct;
+    base_alpha = gl_alt_tran_filter_pct;
 
   // apply translucency under exhud
   if ((flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
   {
     if (flags & VPT_SHADOW)
-      base_alpha = exhud_shadow_filter_pct;
+      base_alpha = (shadowtype == SHADOW_DEFAULT) ? exhud_shadow_ui_filter_pct : exhud_shadow_raven_filter_pct;
     else if (flags & VPT_TRANSMAP)
-      base_alpha = exhud_tint_filter_pct;
-    else if (flags & VPT_ALT_TRANSMAP)
-      base_alpha = gl_exhud_alttint_filter_pct;
-    else
       base_alpha = exhud_tran_filter_pct;
+    else if (flags & VPT_ALT_TRANSMAP)
+      base_alpha = gl_exhud_alt_tran_filter_pct;
+    else
+      base_alpha = exhud_opaque_filter_pct;
   }
 
   // if close, just go wtih 100 or 0
@@ -2680,7 +2680,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   else if (sprite.flags & g_mf_translucent)
     sprite.alpha = tran_filter_pct*0.01f;
   else if (sprite.flags & MF_ALTSHADOW)
-    sprite.alpha = alttint_filter_pct*0.01f;
+    sprite.alpha = alt_tran_filter_pct*0.01f;
   else
     sprite.alpha = 1.f;
 

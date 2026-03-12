@@ -37,17 +37,27 @@
 static char* tranmap_base_dir;
 static char* tranmap_palette_dir;
 static dsda_cksum_t playpal_cksum;
+
+// main trans
 int tran_filter_pct;
-int exhud_tran_filter_pct;
-int exhud_tint_filter_pct;
-int exhud_alttint_filter_pct;
-int shadow_filter_pct;
-int alttint_filter_pct;
-int exhud_shadow_filter_pct;
+int alt_tran_filter_pct;
+int shadow_raven_filter_pct;
+
+// ui trans
 int shadow_ui_filter_pct;
 int menu_ui_filter_pct;
-int gl_alttint_filter_pct;
-int gl_exhud_alttint_filter_pct;
+
+// exhud trans
+int exhud_opaque_filter_pct;
+int exhud_tran_filter_pct;
+int exhud_shadow_ui_filter_pct;
+int exhud_shadow_raven_filter_pct;
+int exhud_alt_tran_filter_pct;
+
+// gl trans
+int gl_alt_tran_filter_pct;
+int gl_exhud_alt_tran_filter_pct;
+
 static const int tranmap_length = 256 * 256;
 static const byte* tranmap_data[100];
 
@@ -224,19 +234,16 @@ const byte* dsda_DefaultTranMap(void) {
 //
 //
 
-static byte* custom_tranmap_data[UI_END][100]; // [context][alpha]
+static byte* custom_tranmap[100];
 
-const byte* dsda_TranMap_Custom(unsigned int alpha, int context)
+const byte* dsda_TranMap_Custom(unsigned int alpha)
 {
   byte **slot;
 
   if (alpha < 1 || alpha > 99)
     return NULL;
 
-  if (context <= UI_NONE || context >= UI_END)
-    return NULL;
-
-  slot = &custom_tranmap_data[context][alpha];
+  slot = &custom_tranmap[alpha];
 
   if (!*slot)
     *slot = dsda_GenerateTranMap(alpha);
@@ -254,13 +261,10 @@ int P_ConvertTrans(int val) {
   return CLAMP(val, 1, 99);
 }
 
-static void dsda_PrecacheFadeAlphasForContext(int context, int base_alpha)
+static void dsda_PrecacheFadeAlphas(int base_alpha)
 {
   int step_size;
   int fade;
-
-  if (context <= UI_NONE || context >= UI_END)
-    return;
 
   step_size = 100 / MESSAGE_FADE_STEPS;
 
@@ -276,45 +280,14 @@ static void dsda_PrecacheFadeAlphasForContext(int context, int base_alpha)
 
     alpha = P_ConvertTrans(percent);
 
-    dsda_TranMap_Custom(alpha, context);
+    dsda_TranMap_Custom(alpha);
   }
-}
-
-typedef struct {
-  int steps;
-  int base_alpha;
-} tranmap_cache_t;
-
-static tranmap_cache_t fade_cache[UI_END];
-
-static dboolean dsda_FadeCacheReady(int context, int base_alpha)
-{
-  if (context <= UI_NONE || context >= UI_END)
-    return true;
-
-  return fade_cache[context].steps == MESSAGE_FADE_STEPS &&
-         fade_cache[context].base_alpha == base_alpha;
-}
-
-static void dsda_FadeCacheMarkReady(int context, int base_alpha)
-{
-  fade_cache[context].steps = MESSAGE_FADE_STEPS;
-  fade_cache[context].base_alpha = base_alpha;
 }
 
 void dsda_UpdateFadeTranMaps(void)
 {
-  if (!dsda_FadeCacheReady(UI_TRANS, 100))
-  {
-    dsda_PrecacheFadeAlphasForContext(UI_TRANS, 100);
-    dsda_FadeCacheMarkReady(UI_TRANS, 100);
-  }
-
-  if (!dsda_FadeCacheReady(UI_SHADOW, shadow_ui_filter_pct))
-  {
-    dsda_PrecacheFadeAlphasForContext(UI_SHADOW, shadow_ui_filter_pct);
-    dsda_FadeCacheMarkReady(UI_SHADOW, shadow_ui_filter_pct);
-  }
+  dsda_PrecacheFadeAlphas(100);
+  dsda_PrecacheFadeAlphas(shadow_ui_filter_pct);
 }
 
 //
@@ -336,27 +309,27 @@ void dsda_UpdateTranMap(void) {
 
   // main percentages
   tran_filter_pct       = raven ? tinttable_pct : dsda_TranslucencyPercent(); // Allow translucency customisation only for Doom / Boom
-  alttint_filter_pct    = raven ? alt_tinttable_pct : P_ConvertTrans(100-tran_filter_pct); // reverse translucency
-  shadow_filter_pct     = hexen ? alt_tinttable_pct : tinttable_pct;
+  alt_tran_filter_pct    = raven ? alt_tinttable_pct : P_ConvertTrans(100-tran_filter_pct); // reverse translucency
+  shadow_raven_filter_pct     = hexen ? alt_tinttable_pct : tinttable_pct;
 
   // ui stuff (menu text shadows) - never use tinttable
   shadow_ui_filter_pct  = P_ConvertTrans(dsda_ShadowTranslucencyPercent());
   menu_ui_filter_pct    = P_ConvertTrans(dsda_MenuTranslucencyPercent());
 
   // exhud percentages
-  exhud_tran_filter_pct    = P_ConvertTrans(dsda_ExHudTranslucencyPercent());
-  exhud_shadow_filter_pct  = P_ConvertTrans((int)(((float)shadow_filter_pct/100.0)*((float)exhud_tran_filter_pct/100.0)*100.0));
-  exhud_tint_filter_pct    = P_ConvertTrans((int)(((float)tran_filter_pct/100.0)*((float)exhud_tran_filter_pct/100.0)*100.0));    // normal translucency under translucency o.O
-  exhud_alttint_filter_pct = P_ConvertTrans(100-exhud_tint_filter_pct);                                                           // reverse translucency under translucency o.O
+  exhud_opaque_filter_pct   = P_ConvertTrans(dsda_ExHudTranslucencyPercent());
+  exhud_tran_filter_pct     = P_ConvertTrans((int)(((float)tran_filter_pct/100.0)*((float)exhud_opaque_filter_pct/100.0)*100.0));   // normal translucency under translucency o.O
+  exhud_alt_tran_filter_pct = P_ConvertTrans(100-exhud_tran_filter_pct);                                                            // reverse translucency under translucency o.O
+  exhud_shadow_ui_filter_pct = P_ConvertTrans((int)(((float)shadow_ui_filter_pct/100.0)*((float)exhud_opaque_filter_pct/100.0)*100.0));
+  exhud_shadow_raven_filter_pct   = P_ConvertTrans((int)(((float)shadow_raven_filter_pct/100.0)*((float)exhud_opaque_filter_pct/100.0)*100.0));
 
   // OpenGL special precentages
   // Let's just avoid the reversing part (since we can't access tinttable)
-  gl_alttint_filter_pct       = raven ? P_ConvertTrans(tran_filter_pct + 20) : P_ConvertTrans(tran_filter_pct - 20);              // reverse translucency o.O
-  gl_exhud_alttint_filter_pct = raven ? P_ConvertTrans(exhud_tint_filter_pct + 20) : P_ConvertTrans(exhud_tint_filter_pct - 20);  // reverse translucency under translucency o.O
+  gl_alt_tran_filter_pct       = raven ? P_ConvertTrans(tran_filter_pct + 20) : P_ConvertTrans(tran_filter_pct - 20);               // reverse translucency o.O
+  gl_exhud_alt_tran_filter_pct = raven ? P_ConvertTrans(exhud_tran_filter_pct + 20) : P_ConvertTrans(exhud_tran_filter_pct - 20);   // reverse translucency under translucency o.O
 
   // store main transmaps
   main_tranmap      = dsda_DefaultTranMap();
-  menu_ui_tranmap   = dsda_TranMap_Custom(menu_ui_filter_pct, UI_TRANS); // ui menu translucency
 
   if (dsda_FadeMessages())
     dsda_UpdateFadeTranMaps();
