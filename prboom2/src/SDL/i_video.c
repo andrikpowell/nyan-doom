@@ -644,13 +644,13 @@ void I_FinishUpdate (void)
       }
 
       dest=(byte*)screen->pixels;
-      src=screens[0].data;
+      src=screens[FG].data;
       h=screen->h;
       for (; h>0; h--)
       {
         memcpy(dest,src,SCREENWIDTH); //e6y
         dest+=screen->pitch;
-        src+=screens[0].pitch;
+        src+=screens[FG].pitch;
       }
 
       SDL_UnlockSurface(screen);
@@ -730,7 +730,6 @@ void I_PreInitGraphics(void)
 // e6y: resolution limitation is removed
 void I_InitBuffersRes(void)
 {
-  R_InitMeltRes();
   R_InitSpritesRes();
   R_InitBuffersRes();
   R_InitPlanesRes();
@@ -1115,16 +1114,18 @@ void I_InitScreenResolution(void)
   V_FreeScreens();
 
   // set first three to standard values
-  for (i=0; i<3; i++) {
+
+  // [nyan] we honour this from old prboom
+  // so we exclude the two "wipe" buffers:
+  // WIPE_DST and WIPE_TEMP
+  for (i = FG; i < WIPE_DST; i++) {
     screens[i].width = SCREENWIDTH;
     screens[i].height = SCREENHEIGHT;
     screens[i].pitch = SCREENPITCH;
   }
 
-  // statusbar
-  screens[4].width = SCREENWIDTH;
-  screens[4].height = SCREENHEIGHT;
-  screens[4].pitch = SCREENPITCH;
+  // [nyan] removed stbar screen buffer (4)
+  // since we don't use it anymore
 
   I_InitBuffersRes();
 
@@ -1376,13 +1377,13 @@ void I_UpdateVideoMode(void)
     // Get the info needed to render to the display
     if (!SDL_MUSTLOCK(screen))
     {
-      screens[0].not_on_heap = true;
-      screens[0].data = (unsigned char *) (screen->pixels);
-      screens[0].pitch = screen->pitch;
+      screens[FG].not_on_heap = true;
+      screens[FG].data = (unsigned char *) (screen->pixels);
+      screens[FG].pitch = screen->pitch;
     }
     else
     {
-      screens[0].not_on_heap = false;
+      screens[FG].not_on_heap = false;
     }
 
     V_AllocScreens();

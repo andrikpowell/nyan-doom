@@ -1120,7 +1120,7 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 
   for (iy = y; iy < y + height; ++iy)
   {
-    dest = screens[0].data + screens[0].pitch * iy + x;
+    dest = screens[FG].data + screens[FG].pitch * iy + x;
 
     for (ix = x; ix < x + width; ++ix)
     {
@@ -1270,8 +1270,8 @@ static void FUNC_V_FillRectTrans(int scrn, int x, int y, int width, int height, 
 //
 void FUNC_V_FillRectShaded(int x, int y, int w, int h, int start_shade, int end_shade, int vertical)
 {
-  byte *dest = screens[0].data + y * screens[0].pitch + x;
-  int pitch = screens[0].pitch;
+  byte *dest = screens[FG].data + y * screens[FG].pitch + x;
+  int pitch = screens[FG].pitch;
 
   int blocks = vertical ? h : w;
   if (blocks <= 1) return;

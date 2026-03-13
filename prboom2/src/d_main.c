@@ -289,13 +289,9 @@ static void D_Wipe(void)
   do
   {
     int nowtime, tics;
-    do
-    {
-      I_uSleep(5000); // CPhipps - don't thrash cpu in this loop
-      nowtime = dsda_GetTick();
-      tics = nowtime - wipestart;
-    }
-    while (!tics);
+    I_uSleep(5000); // CPhipps - don't thrash cpu in this loop
+    nowtime = dsda_GetTick();
+    tics = nowtime - wipestart;
 
     // elim - Enable render-to-texture for GL so "melt" is rendered at same resolution as the game scene
     if (V_IsOpenGLMode())
@@ -304,7 +300,6 @@ static void D_Wipe(void)
       dsda_GLStartMeltRenderTexture();
     }
 
-    wipestart = nowtime;
     done = wipe_ScreenWipe(tics);
 
     // elim - Render texture to screen
@@ -321,6 +316,9 @@ static void D_Wipe(void)
     }
 
     I_FinishUpdate();             // page flip or blit buffer
+
+    if (tics > 0)
+      wipestart = nowtime;
   }
   while (!done);
 
@@ -512,15 +510,15 @@ void D_Display (fixed_t frac)
   isborderstate      = isborder;
   oldgamestate = wipegamestate = gamestate;
 
+  // capture wipe end before menu overlay/menu is drawn
+  if (wipe) {
+    wipe_EndScreen();
+  }
+
   // draw pause pic
   if (dsda_Paused() && (menuactive != mnact_full)) {
     D_DrawPause();
   }
-
-  V_BeginMenuDraw();
-  if (M_MenuIsShaded())
-    M_ShadedScreen();
-  V_EndMenuDraw();
 
   // menus go directly to the screen
   M_Drawer();          // menu is drawn even on top of everything
@@ -534,7 +532,6 @@ void D_Display (fixed_t frac)
     I_FinishUpdate ();              // page flip or blit buffer
   else {
     // wipe update
-    wipe_EndScreen();
     D_Wipe();
   }
 

@@ -663,11 +663,11 @@ void R_InitBuffer(int width, int height)
 
   viewwindowy = width == SCREENWIDTH ? 0 : (SCREENHEIGHT - ST_SCALED_HEIGHT - height) >> 1;
 
-  drawvars.topleft = screens[0].data + viewwindowy * screens[0].pitch + viewwindowx;
-  drawvars.pitch = screens[0].pitch;
+  drawvars.topleft = screens[FG].data + viewwindowy * screens[FG].pitch + viewwindowx;
+  drawvars.pitch = screens[FG].pitch;
 
   for (i=0; i<FUZZTABLE; i++)
-    fuzzoffset[i] = fuzzoffset_org[i]*screens[0].pitch;
+    fuzzoffset[i] = fuzzoffset_org[i]*screens[FG].pitch;
   
   if (!tallscreen)
     fuzzcellsize = scaled_fuzzcellsize = (SCREENHEIGHT + 100) / 200;
@@ -882,8 +882,8 @@ void R_FillBackScreen (void)
 static void R_CopyScreenBufferSection(int x, int y, int count)
 {
   if (V_IsSoftwareMode())
-    memcpy(screens[0].data+y*screens[0].pitch+x,
-           screens[1].data+y*screens[1].pitch+x,
+    memcpy(screens[FG].data+y*screens[FG].pitch+x,
+           screens[BG].data+y*screens[BG].pitch+x,
            count);   // LFB copy.
 }
 

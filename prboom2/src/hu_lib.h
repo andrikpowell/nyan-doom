@@ -37,11 +37,6 @@
 
 #include "dsda/font.h"
 
-/* background and foreground screen numbers
- * different from other modules. */
-//e6y #define BG      1
-#define FG      0
-
 #define HU_MAXLINELENGTH  80
 
 // Text Line widget

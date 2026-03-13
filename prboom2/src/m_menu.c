@@ -5422,7 +5422,7 @@ setup_menu_t demos_tas_settings[] =
 {
   { "Strict Mode", S_YESNO, m_conf, DM_X, dsda_config_strict_mode },
   EMPTY_LINE,
-  { "Wipe At Full Speed", S_YESNO, m_conf, DM_X, dsda_config_wipe_at_full_speed, 0, empty_list, DEPEND(dsda_config_render_wipescreen, true) },
+  { "Wipe At Full Speed", S_YESNO, m_conf, DM_X, dsda_config_wipe_at_full_speed },
   { "Show Command Display", S_YESNO, m_conf, DM_X, dsda_config_command_display },
   { "Command History", S_NUM, m_conf, DM_X, dsda_config_command_history_size },
   { "Hide Empty Commands", S_YESNO, m_conf, DM_X, dsda_config_hide_empty_commands },
@@ -8265,6 +8265,11 @@ void M_Drawer (void)
   V_BeginUIDraw();
 
   inhelpscreens = false;
+
+  V_BeginMenuDraw();
+  if (M_MenuIsShaded())
+    M_ShadedScreen();
+  V_EndMenuDraw();
 
   // Horiz. & Vertically center string and print it.
   // killough 9/29/98: simplified code, removed 40-character width limit
