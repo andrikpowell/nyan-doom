@@ -436,6 +436,18 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_exhud", dsda_config_exhud,
     CONF_BOOL(0), NULL, CONF_FEATURE | NOT_STRICT, dsda_InitExHud
   },
+  [dsda_config_doom_full_hud] = {
+    "dsda_doom_full_hud", dsda_config_doom_full_hud,
+    dsda_config_int, 0, 16, { 0 },
+  },
+  [dsda_config_heretic_full_hud] = {
+    "dsda_heretic_full_hud", dsda_config_heretic_full_hud,
+    dsda_config_int, 0, 16, { 0 },
+  },
+  [dsda_config_hexen_full_hud] = {
+    "dsda_hexen_full_hud", dsda_config_hexen_full_hud,
+    dsda_config_int, 0, 16, { 0 },
+  },
   [nyan_config_hud_berserk] = {
     "nyan_berserk_icon", nyan_config_hud_berserk,
     dsda_config_int, BERSERK_ICON_OFF, BERSERK_ICON_ON,

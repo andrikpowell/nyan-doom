@@ -19,6 +19,7 @@
 
 #include "am_map.h"
 #include "doomstat.h"
+#include "g_game.h"
 #include "hu_stuff.h"
 #include "lprintf.h"
 #include "m_file.h"
@@ -33,6 +34,7 @@
 #include "dsda/render_stats.h"
 #include "dsda/settings.h"
 #include "dsda/utility.h"
+#include "dsda/utility/string_view.h"
 
 #include "exhud.h"
 
@@ -382,6 +384,7 @@ typedef struct {
   const char* name;
   dboolean status_bar;
   dboolean allow_offset;
+  const char* hud_string;  // optional full HUD name
   dboolean loaded;
   exhud_component_t components[exhud_component_count];
   int y_offset[VPT_ALIGN_MAX];
@@ -398,13 +401,56 @@ typedef enum {
 static dsda_hud_container_t containers[] = {
   [hud_ex]   = { "ex", true, true },
   [hud_off]  = { "off", true, true },
-  [hud_full] = { "full", false, true },
+  [hud_full] = { "full", false, true }, // legacy hud - 0
   [hud_map] = { "map", true, false },
   [hud_null] = { NULL }
 };
 
 static dsda_hud_container_t* container;
 static exhud_component_t* components;
+
+// full HUD variants: "doom full", "doom full 1", "doom full 2", etc.
+static dsda_hud_container_t *full_containers = NULL;
+static int full_container_count = 0;
+
+static void dsda_InitContainer(dsda_hud_container_t *c, const char *name, dboolean status_bar, dboolean allow_offset)
+{
+  int i;
+  memset(c, 0, sizeof(*c));
+  c->name = name;
+  c->status_bar = status_bar;
+  c->allow_offset = allow_offset;
+  c->hud_string = NULL;
+  for (i = 0; i < VPT_ALIGN_MAX; ++i)
+    c->y_offset[i] = 0;
+}
+
+#define DSDA_MAX_FULLHUD_MAX 16
+
+static dsda_hud_container_t* dsda_GetFullContainer(int index)
+{
+  int old_count;
+
+  if (index < 1 || index > DSDA_MAX_FULLHUD_MAX)
+    I_Error("full hud index %d out of range (1-%d)", index, DSDA_MAX_FULLHUD_MAX);
+
+  // add to hud slots
+  if (index >= full_container_count) {
+    old_count = full_container_count;
+    full_container_count = index + 1;
+
+    if (!full_containers)
+      full_containers = Z_Malloc(sizeof(*full_containers) * full_container_count);
+    else
+      full_containers = Z_Realloc(full_containers, sizeof(*full_containers) * full_container_count);
+
+    // init new added slots
+    for (; old_count < full_container_count; ++old_count)
+      dsda_InitContainer(&full_containers[old_count], "full", false, true);
+  }
+
+  return &full_containers[index];
+}
 
 int dsda_show_render_stats;
 
@@ -543,19 +589,91 @@ static int dsda_ParseHUDConfig(char** hud_config, int line_i) {
   return line_i - 1;
 }
 
+static const char *dsda_ParseHUDName(const char *line)
+{
+  dsda_string_view_t sv;
+  dsda_string_view_t cur;
+  char name[64] = { 0 };
+
+  dsda_InitStringView(&sv, line, strlen(line));
+  cur = sv;
+
+  if (!dsda_SplitStringViewAfterChar(&cur, '"', NULL, &cur) ||
+      !dsda_SplitStringViewBeforeChar(&cur, '"', &cur, NULL))
+    return NULL;
+
+  memcpy(name, cur.string, MIN(sizeof(name) - 1, cur.size));
+  return Z_Strdup(name);
+}
+
 static void dsda_ParseHUDConfigs(char** hud_config) {
   const char* line;
   int line_i;
   const char* target_format;
-  char hud_variant[5];
+  char hud_variant[32];
+  int full_index = 0;
+  int header_count;
 
-  target_format = hexen ? "hexen %s" : heretic ? "heretic %s" : "doom %s";
+  target_format = hexen ? "hexen %31s %d" : heretic ? "heretic %31s %d" : "doom %31s %d";
 
-  for (line_i = 0; hud_config[line_i]; ++line_i) {
+  for (line_i = 0; hud_config[line_i]; ++line_i)
+  {
     line = hud_config[line_i];
 
-    if (sscanf(line, target_format, hud_variant)) {
-      for (container = containers; container->name; container++)
+    // try new hud # format
+    full_index = 0;
+    header_count = sscanf(line, target_format, hud_variant, &full_index);
+
+    // If that failed, try legacy full hud
+    if (header_count < 1)
+    {
+      const char *legacy_format = hexen ? "hexen %31s" : heretic ? "heretic %31s" : "doom %31s";
+      header_count = sscanf(line, legacy_format, hud_variant);
+      full_index = 0;
+    }
+
+    // Behavior for full (up to 16 huds)
+    if (header_count >= 1)
+    {
+      if (!strcmp(hud_variant, "full"))
+      {
+        dsda_hud_container_t *full_container;
+        const char *display_name = NULL;
+
+        // legacy
+        if (header_count == 1)
+        {
+          full_container = &containers[hud_full];
+        }
+        // full #
+        else
+        {
+          display_name = dsda_ParseHUDName(line);
+
+          if (full_index < 1 || full_index > DSDA_MAX_FULLHUD_MAX)
+            I_Error("full hud index %d out of range (1-%d)", full_index, DSDA_MAX_FULLHUD_MAX);
+
+          full_container = dsda_GetFullContainer(full_index);
+        }
+
+        if (full_container->loaded)
+          continue;
+
+        full_container->loaded = true;
+
+        if (display_name)
+          full_container->hud_string = display_name;
+
+        components = full_container->components;
+        memcpy(components, components_template, sizeof(components_template));
+
+        container = full_container;
+        line_i = dsda_ParseHUDConfig(hud_config, line_i);
+        continue;
+      }
+
+      // Behavior for ex/off/map
+      for (container = containers; container->name; container++) {
         if (!strncmp(container->name, hud_variant, sizeof(hud_variant))) {
           if (container->loaded)
             break;
@@ -568,8 +686,83 @@ static void dsda_ParseHUDConfigs(char** hud_config) {
 
           break;
         }
+      }
     }
   }
+}
+
+static int dsda_FullHudIndex(void)
+{
+  int config_full_hud = raven ? hexen ? dsda_config_hexen_full_hud : dsda_config_heretic_full_hud : dsda_config_doom_full_hud;
+  int idx = dsda_IntConfig(config_full_hud);
+
+  idx = CLAMP(idx, 0, DSDA_MAX_FULLHUD_MAX);
+
+  return idx;
+}
+
+static dsda_hud_container_t* dsda_ActiveFullContainer(void)
+{
+  int idx = dsda_FullHudIndex();
+  int i;
+
+  // HUD 0 = legacy
+  if (idx == 0)
+  {
+    if (containers[hud_full].loaded)
+      return &containers[hud_full];
+
+    // no legacy: fall back to first loaded numbered hud
+    for (i = 1; i < full_container_count; ++i)
+      if (full_containers[i].loaded)
+        return &full_containers[i];
+
+    return &containers[hud_full];
+  }
+
+  // HUD 1-16
+  if (idx < full_container_count && full_containers[idx].loaded)
+    return &full_containers[idx];
+
+  // missing numbered hud: fall back to legacy if it exists
+  if (containers[hud_full].loaded)
+    return &containers[hud_full];
+
+  // fallback to first loaded numbered hud
+  for (i = 1; i < full_container_count; ++i)
+    if (full_containers[i].loaded)
+      return &full_containers[i];
+
+  // fallback
+  return &containers[hud_full];
+}
+
+static dboolean dsda_FullHudLoaded(int idx)
+{
+  if (idx == 0)
+    return containers[hud_full].loaded;
+
+  if (idx < 1 || idx >= full_container_count)
+    return false;
+
+  return full_containers[idx].loaded;
+}
+
+static int dsda_FindNextLoadedFullHud(int cur)
+{
+  int i;
+
+  cur = CLAMP(cur, 0, DSDA_MAX_FULLHUD_MAX);
+
+  for (i = 1; i <= DSDA_MAX_FULLHUD_MAX + 1; ++i)
+  {
+    int idx = (cur + i) % (DSDA_MAX_FULLHUD_MAX + 1);  // cycles 0..16
+  
+    if (dsda_FullHudLoaded(idx))
+      return idx;
+  }
+
+  return cur;
 }
 
 static void dsda_LoadHUDConfig(void) {
@@ -582,20 +775,26 @@ static void dsda_LoadHUDConfig(void) {
 
     arg = dsda_Arg(dsda_arg_hud);
     if (arg->found)
+    {
       length = M_ReadFileToString(arg->value.v_string, &hud_config);
+    }
+    else
+    {
+      lump = -1;
+      while ((lump = W_FindNumFromName("NYANHUD", lump)) >= 0) {
+        if (!hud_config) {
+          hud_config = W_ReadLumpToString(lump);
+          length = W_LumpLength(lump);
+        }
+        else {
+          hud_config = Z_Realloc(hud_config, length + W_LumpLength(lump) + 2);
+          hud_config[length++] = '\n'; // in case the file didn't end in a new line
+          W_ReadLump(lump, hud_config + length);
+          length += W_LumpLength(lump);
+          hud_config[length] = '\0';
+        }
 
-    lump = -1;
-    while ((lump = W_FindNumFromName("NYANHUD", lump)) >= 0) {
-      if (!hud_config) {
-        hud_config = W_ReadLumpToString(lump);
-        length = W_LumpLength(lump);
-      }
-      else {
-        hud_config = Z_Realloc(hud_config, length + W_LumpLength(lump) + 2);
-        hud_config[length++] = '\n'; // in case the file didn't end in a new line
-        W_ReadLump(lump, hud_config + length);
-        length += W_LumpLength(lump);
-        hud_config[length] = '\0';
+        break;   // only use the last loaded lump
       }
     }
 
@@ -628,7 +827,7 @@ static void dsda_ResetActiveHUD(void) {
 }
 
 static void dsda_UpdateActiveHUD(void) {
-  container = R_FullView() ? &containers[hud_full] :
+  container = R_FullView() ? dsda_ActiveFullContainer() :
               dsda_IntConfig(dsda_config_exhud) ? &containers[hud_ex] :
               &containers[hud_off];
 
@@ -684,6 +883,33 @@ void dsda_InitExHud(void) {
   dsda_LoadHUDConfig();
   dsda_UpdateActiveHUD();
   dsda_RefreshHUD();
+}
+
+void dsda_CycleFullHud(void)
+{
+  int config_full_hud = raven ? hexen ? dsda_config_hexen_full_hud : dsda_config_heretic_full_hud : dsda_config_doom_full_hud;
+  int cur = dsda_FullHudIndex();
+  int next = dsda_FindNextLoadedFullHud(cur);
+  dsda_hud_container_t *c;
+
+  dsda_UpdateIntConfig(config_full_hud, next, true);
+  dsda_UpdateActiveHUD();
+  dsda_RefreshHUD();
+
+  c = dsda_ActiveFullContainer();
+
+  // Legacy full
+  if (c == &containers[hud_full]) {
+    doom_printf("HUD Legacy");
+  }
+  // full with name
+  else if (c->hud_string && *c->hud_string) {
+    doom_printf("HUD %i: %s", next, c->hud_string);
+  }
+  // full without name
+  else {
+    doom_printf("HUD %i", next);
+  }
 }
 
 static void dsda_UpdateComponents(exhud_component_t* update_components) {

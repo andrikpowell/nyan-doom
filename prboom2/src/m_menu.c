@@ -3462,6 +3462,7 @@ setup_menu_t keys_toggles_settings[] = {
   TITLE("Cycle", MS_X),
   { "Cycle Input Profile",  S_INPUT, m_scrn, KB_X, 0, dsda_input_cycle_profile },
   { "Cycle Palette",        S_INPUT, m_scrn, KB_X, 0, dsda_input_cycle_palette },
+  { "Cycle Fullscreen Hud", S_INPUT, m_scrn, KB_X, 0, dsda_input_cycle_hud },
 
   PREV_PAGE(keys_misc_settings),
   NEXT_PAGE(keys_menus_settings),
@@ -7513,6 +7514,13 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
     M_SizeDisplay(1);                                             //  ^
     S_StartVoidSound(g_sfx_stnmov);                              //  |
     return true;                                                  // phares
+  }
+
+  if (dsda_InputActivated(dsda_input_cycle_hud))
+  {
+    if (R_FullView())
+      dsda_CycleFullHud();
+    return true;
   }
 
   if (dsda_InputActivated(dsda_input_nextlevel))
