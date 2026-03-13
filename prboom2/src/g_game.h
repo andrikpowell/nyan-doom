@@ -57,6 +57,7 @@ void G_BeginRecording(void);
 void G_ExitLevel(int position);
 void G_SecretExitLevel(int position);
 void G_WorldDone(void);
+void G_ForceStartFinale(void);
 void G_Ticker(void);
 void G_ReloadDefaults(void);     // killough 3/1/98: loads game defaults
 void G_RefreshFastMonsters(void); // killough 4/10/98: sets -fast parameters

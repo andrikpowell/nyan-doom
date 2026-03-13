@@ -637,6 +637,12 @@ static dboolean console_GameDescribe(const char* command, const char* args) {
   return true;
 }
 
+static dboolean console_GameFinale(const char* command, const char* args) {
+  G_ForceStartFinale();
+
+  return true;
+}
+
 static dboolean console_TrackerAddLine(const char* command, const char* args) {
   int id;
 
@@ -2506,6 +2512,9 @@ static console_command_entry_t console_commands[] = {
 
   { "game.quit", console_GameQuit, CF_ALWAYS },
   { "game.describe", console_GameDescribe, CF_ALWAYS },
+
+  // debug
+  { "game.finale", console_GameFinale, CF_NEVER},
 
   // cheats
   { "idchoppers", console_BasicCheat, CF_DEMO },

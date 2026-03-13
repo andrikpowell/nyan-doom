@@ -2280,6 +2280,27 @@ void G_DoCompleted (void)
 // G_WorldDone
 //
 
+void G_ForceStartFinale(void)
+{
+  if (gamestate != GS_LEVEL)
+    return;
+
+  gameaction = ga_worlddone;
+
+  if (gamemode != commercial)
+  {
+    gameaction = ga_victory;
+
+    return;
+  }
+  else
+  {
+    F_StartFinale();
+
+    return;
+  }
+}
+
 void G_WorldDone (void)
 {
   int done_behaviour;
