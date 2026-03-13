@@ -120,6 +120,8 @@ set(COMMON_SRC
     dsda/hud_components/big_artifact.h
     dsda/hud_components/big_artifact_bar.c
     dsda/hud_components/big_artifact_bar.h
+    dsda/hud_components/doomguy_face.c
+    dsda/hud_components/doomguy_face.h
     dsda/hud_components/status.c
     dsda/hud_components/status.h
     dsda/hud_components/big_health.c

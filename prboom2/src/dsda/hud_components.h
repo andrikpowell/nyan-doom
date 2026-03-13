@@ -30,6 +30,7 @@
 #include "hud_components/command_display.h"
 #include "hud_components/composite_time.h"
 #include "hud_components/coordinate_display.h"
+#include "hud_components/doomguy_face.h"
 #include "hud_components/event_split.h"
 #include "hud_components/fps.h"
 #include "hud_components/free_text.h"

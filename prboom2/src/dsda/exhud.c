@@ -61,6 +61,7 @@ typedef enum {
   exhud_big_armor_text,
   exhud_big_artifact,
   exhud_big_artifact_bar,
+  exhud_doomguy_face,
   exhud_status_widget,
   exhud_big_health,
   exhud_big_health_text,
@@ -144,6 +145,13 @@ exhud_component_t components_template[exhud_component_count] = {
     dsda_UpdateBigArtifactBarHC,
     dsda_DrawBigArtifactBarHC,
     "big_artifact_bar",
+    .default_vpt = VPT_EX_TEXT | VPT_EX_TRANS,
+  },
+  [exhud_doomguy_face] = {
+    dsda_InitDoomguyFaceHC,
+    dsda_UpdateDoomguyFaceHC,
+    dsda_DrawDoomguyFaceHC,
+    "doomguy_face",
     .default_vpt = VPT_EX_TEXT | VPT_EX_TRANS,
   },
   [exhud_status_widget] = {

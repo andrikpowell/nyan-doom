@@ -114,6 +114,8 @@ extern int st_health;
 extern int st_armor;
 extern int SmoothCount(int smoothval, int realval, int override);
 
+extern void ST_DrawFaceWidget(int x, int y, int vpt);
+
 // [crispy] blinking key or skull in the status bar
 extern int sts_blink_keys;
 #define KEYBLINKMASK 0x8

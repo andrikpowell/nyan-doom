@@ -533,7 +533,7 @@ static int ST_calcPainOffset(void)
 // [crispy] fix status bar face hysteresis
 static int faceindex;
 
-static void ST_updateFaceWidget(void)
+void ST_updateFaceWidget(void)
 {
   int         i;
   angle_t     badguyangle;
@@ -875,6 +875,13 @@ static void ST_updateWidgets(void)
       else
         st_fragscount -= plyr->frags[i];
     }
+}
+
+void ST_DrawFaceWidget(int x, int y, int vpt)
+{
+  if (raven) return;
+
+  V_DrawNumPatch(x, y, faces[st_faceindex].lumpnum, CR_DEFAULT, vpt);
 }
 
 void ST_updateBlinkingKeys(player_t* plyr)
