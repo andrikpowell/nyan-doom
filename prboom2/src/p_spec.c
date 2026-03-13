@@ -1611,12 +1611,44 @@ void P_AddMobjSecret(mobj_t *mobj)
   mobj->flags2 |= MF2_COUNTSECRET;
 }
 
+static const char* dsda_GetSecretMessage(void)
+{
+    int secret_format = dsda_IntConfig(dsda_config_secret_format);
+    dboolean is_default, is_ratio, is_percent;
+    static char secret_message[32] = "";
+    int secretcount = 0;
+
+    is_default = (secret_format == 0);
+    is_ratio   = (secret_format == 1);
+    is_percent = (secret_format == 2);
+
+    if (is_default)
+      return "A secret is revealed!";
+
+    for (int i = 0; i < g_maxplayers; ++i) {
+      if (playeringame[i]) {
+        secretcount += players[i].secretcount;
+      }
+    }
+
+    // TODO: secret milestones
+    //if (is_ratio && secretcount >= totalsecret)
+      //return "All secrets revealed!";
+
+    if (is_ratio)
+      sprintf(secret_message, "Secret %d of %d revealed!", secretcount, totalsecret);
+    else if (is_percent)
+      sprintf(secret_message, "%d%% secrets revealed!", !totalsecret ? 100 : secretcount * 100 / totalsecret);
+    else // fallback
+      sprintf(secret_message, "A secret is revealed!");
+
+    return secret_message;
+}
+
 #define SECRET_MESSAGE_TICS (2.5*TICRATE)
 
-void P_PlayerCollectSecret(player_t *player)
+void P_PlayerAnnounceSecret(player_t *player, const char* message)
 {
-  player->secretcount++;
-
   if (dsda_IntConfig(dsda_config_hudadd_secretarea)!=0)
   {
     int sfx_id = raven ? g_sfx_secret :
@@ -1624,14 +1656,20 @@ void P_PlayerCollectSecret(player_t *player)
 
     if(dsda_IntConfig(dsda_config_hudadd_secretarea)==2)
     {
-      dsda_AddAlert("A secret is revealed!");
+      dsda_AddAlert(message);
       S_StartVoidSound(sfx_id);
     }
     else
     {
-      SetCustomMessage(player - players, "A secret is revealed!", SECRET_MESSAGE_TICS, sfx_id);
+      SetCustomMessage(player - players, message, SECRET_MESSAGE_TICS, sfx_id);
     }
   }
+}
+
+void P_PlayerCollectSecret(player_t *player)
+{
+  player->secretcount++;
+  P_PlayerAnnounceSecret(player, dsda_GetSecretMessage());
 }
 
 static void P_CollectSecretCommon(sector_t *sector, player_t *player)

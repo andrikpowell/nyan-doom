@@ -4571,6 +4571,7 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
 
 static const char* announce_map_list[] = { "Off", "On", "Subtle", NULL };
 static const char* secretarea_list[] = { "Off", "On", "Subtle", NULL };
+static const char* secret_format_list[] = { "Default", "Ratio", "Percent", NULL };
 
 setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
@@ -4582,6 +4583,7 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   EMPTY_LINE,
   { "Announce Map On Entry", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_announce_map, 0, announce_map_list },
   { "Report Revealed Secrets", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
+  { "Secret Msg Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_secret_format, 0, secret_format_list, EXCLUDE(dsda_config_hudadd_secretarea, false) },
   EMPTY_LINE,
   FUNC("Ex-Hud", S_CENTER | S_NYAN, G_X, M_Sub_ExHud),
   FUNC("Status Widget", S_CENTER | S_NYAN, G_X, M_Sub_StatusWidget),

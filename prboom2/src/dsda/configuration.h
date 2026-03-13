@@ -62,6 +62,7 @@ typedef enum {
   dsda_config_colorize_messages,
   dsda_config_fade_messages,
   dsda_config_stats_format,
+  dsda_config_secret_format,
   dsda_config_command_display,
   dsda_config_target_health,
   dsda_config_coordinate_display,
