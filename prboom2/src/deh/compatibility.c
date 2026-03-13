@@ -57,7 +57,7 @@ void deh_changeCompTranslucency(void)
   config_trans_powerup = dsda_IntConfig(dsda_config_translucent_powerups);
 
   // Reset translucency
-  for (i = 0; (size_t)i < sizeof(predefined_translucency) / sizeof(predefined_translucency[0]); i++)
+  for (i = 0; i < arrlen(predefined_translucency); i++)
     if (!edited_mobjinfo_bits[predefined_translucency[i]])
       mobjinfo[predefined_translucency[i]].flags &= ~MF_TRANSLUCENT;
 
@@ -70,7 +70,7 @@ void deh_changeCompTranslucency(void)
       // Set projectiles translucency
       if (config_trans_missile)
       {
-        for (i = 0; (size_t)i < sizeof(missile_transucency) / sizeof(missile_transucency[0]); i++)
+        for (i = 0; i < arrlen(missile_transucency); i++)
           if (!edited_mobjinfo_bits[missile_transucency[i]])
             mobjinfo[missile_transucency[i]].flags |= MF_TRANSLUCENT;
       }
@@ -78,7 +78,7 @@ void deh_changeCompTranslucency(void)
       // Set effects translucency
       if (config_trans_fx)
       {
-        for (i = 0; (size_t)i < sizeof(fx_translucency) / sizeof(fx_translucency[0]); i++)
+        for (i = 0; i < arrlen(fx_translucency); i++)
           if (!edited_mobjinfo_bits[fx_translucency[i]])
             mobjinfo[fx_translucency[i]].flags |= MF_TRANSLUCENT;
       }
@@ -86,7 +86,7 @@ void deh_changeCompTranslucency(void)
       // Set powerups translucency
       if (config_trans_powerup)
       {
-        for (i = 0; (size_t)i < sizeof(powerup_translucency) / sizeof(powerup_translucency[0]); i++)
+        for (i = 0; i < arrlen(powerup_translucency); i++)
           if (!edited_mobjinfo_bits[powerup_translucency[i]])
             mobjinfo[powerup_translucency[i]].flags |= MF_TRANSLUCENT;
       }
