@@ -459,6 +459,10 @@ dboolean dsda_MultipleAreaMaps(void) {
   return dsda_IntConfig(dsda_config_multiple_area_maps) && !dsda_StrictMode() && allow_incompatibility;
 }
 
+dboolean dsda_SimplerPuzzleUse(void) {
+  return dsda_IntConfig(dsda_config_hexen_simpler_puzzle_use) && !dsda_StrictMode() && allow_incompatibility;
+}
+
 static dboolean game_controller_used;
 static dboolean mouse_used;
 

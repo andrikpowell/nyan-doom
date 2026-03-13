@@ -2329,7 +2329,8 @@ static dboolean M_RavenDisabled(const setup_menu_t* s)
   if (heretic)
   {
     static const int options_disable_false[] =
-    { dsda_config_hexen_skip_ethereal_travel
+    { dsda_config_hexen_skip_ethereal_travel,
+      dsda_config_hexen_simpler_puzzle_use
     };
 
     // Disable + set false
@@ -2347,7 +2348,8 @@ static dboolean M_DoomDisabled(const setup_menu_t* s)
   {
     static const int options_disable_false[] =
     { dsda_config_hide_horns, dsda_config_skill_auto_use_health,
-      dsda_config_artifact_descriptions, dsda_config_hexen_skip_ethereal_travel
+      dsda_config_artifact_descriptions, dsda_config_hexen_skip_ethereal_travel,
+      dsda_config_hexen_simpler_puzzle_use
     };
 
     // Disable + set false
@@ -4187,6 +4189,7 @@ setup_menu_t gen_device_settings[] = {
 setup_menu_t gen_gamesim_settings[] = {
   { "Death Use Action", S_CHOICE, m_conf, G2_X, dsda_config_death_use_action, 0, death_use_strings },
   { "Skip Ethereal Travel", S_YESNO | S_NYAN, m_conf, G2_X, dsda_config_hexen_skip_ethereal_travel },
+  { "Simpler Puzzle Piece Use", S_YESNO | S_NYAN, m_conf, G2_X, dsda_config_hexen_simpler_puzzle_use },
   EMPTY_LINE,
   TITLE("Rewind", G2_X),
   { "Enable Rewind", S_YESNO | S_NYAN, m_conf, G2_X, dsda_config_auto_key_frame_active },

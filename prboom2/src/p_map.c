@@ -39,6 +39,7 @@
 #include "p_map.h"
 #include "p_setup.h"
 #include "p_spec.h"
+#include "p_user.h"
 #include "s_sound.h"
 #include "sounds.h"
 #include "p_inter.h"
@@ -61,6 +62,7 @@
 #include "dsda/mapinfo.h"
 
 #include "heretic/def.h"
+#include "hexen/dstrings.h"
 
 static mobj_t    *tmthing;
 static mobj_t    *tsthing; // hexen
@@ -2962,6 +2964,10 @@ void P_UseLines (player_t*  player)
   if (P_PathTraverse ( x1, y1, x2, y2, PT_ADDLINES, PTR_UseTraverse ))
     if (!comp[comp_sound] && !P_PathTraverse ( x1, y1, x2, y2, PT_ADDLINES, PTR_NoWayTraverse ))
       S_StartSound (usething, sfx_noway);
+
+  // allow kex-style puzzle item usage
+  if (hexen && dsda_SimplerPuzzleUse())
+    P_UsePuzzleItemOnThing(player);
 }
 
 
@@ -4352,13 +4358,89 @@ static mobj_t *PuzzleItemUser;
 static int PuzzleItemType;
 static dboolean PuzzleActivated;
 
+// for "use" key
+static dboolean PuzzleUseKeyMode;
+static int PuzzleUseThing;
+
 #include "hexen/p_acs.h"
+
+void dsda_PuzzleFailSound(mobj_t *mo)
+{
+  int sound = hexen_sfx_None;
+  if (mo->player)
+  {
+      switch (mo->player->pclass)
+      {
+          case PCLASS_FIGHTER:
+              sound = hexen_sfx_puzzle_fail_fighter;
+              break;
+          case PCLASS_CLERIC:
+              sound = hexen_sfx_puzzle_fail_cleric;
+              break;
+          case PCLASS_MAGE:
+              sound = hexen_sfx_puzzle_fail_mage;
+              break;
+          default:
+              sound = hexen_sfx_None;
+              break;
+      }
+  }
+  S_StartMobjSound(mo, sound);
+}
+
+void dsda_PuzzleMissingMessage(player_t *player)
+{
+  dsda_PuzzleFailSound(player->mo);
+  P_SetMessage(player, TXT_USEPUZZLEMISSING, false);
+}
+
+void dsda_PuzzleFailMessage(player_t *player)
+{
+  dsda_PuzzleFailSound(player->mo);
+  P_SetYellowMessage(player, TXT_USEPUZZLEFAILED, false);
+}
+
+dboolean PTR_PuzzleItemTraverseThing(intercept_t * in)
+{
+    mobj_t *mobj;
+    byte args[3];
+    int required;
+
+    // Check thing
+    mobj = in->d.thing;
+    if (mobj->special != USE_PUZZLE_ITEM_SPECIAL)
+    {                           // Wrong special
+        return true;
+    }
+
+    required = mobj->special_args[0];
+
+    if (PuzzleUseKeyMode)
+    {
+        PuzzleUseThing = required;
+        return false;
+    }
+
+    if (PuzzleItemType != required)
+    {                           // Item type doesn't match
+        return true;
+    }
+
+    args[0] = mobj->special_args[2];
+    args[1] = mobj->special_args[3];
+    args[2] = mobj->special_args[4];
+
+    P_StartACS(mobj->special_args[1], 0, args, PuzzleItemUser, NULL, 0);
+    mobj->special = 0;
+    PuzzleActivated = true;
+    return false;               // Stop searching
+}
 
 dboolean PTR_PuzzleItemTraverse(intercept_t * in)
 {
     mobj_t *mobj;
     byte args[3];
-    int sound;
+    int required;
 
     if (in->isaline)
     {                           // Check line
@@ -4367,26 +4449,8 @@ dboolean PTR_PuzzleItemTraverse(intercept_t * in)
             P_LineOpening(in->d.line, NULL);
             if (line_opening.range <= 0)
             {
-                sound = hexen_sfx_None;
-                if (PuzzleItemUser->player)
-                {
-                    switch (PuzzleItemUser->player->pclass)
-                    {
-                        case PCLASS_FIGHTER:
-                            sound = hexen_sfx_puzzle_fail_fighter;
-                            break;
-                        case PCLASS_CLERIC:
-                            sound = hexen_sfx_puzzle_fail_cleric;
-                            break;
-                        case PCLASS_MAGE:
-                            sound = hexen_sfx_puzzle_fail_mage;
-                            break;
-                        default:
-                            sound = hexen_sfx_None;
-                            break;
-                    }
-                }
-                S_StartMobjSound(PuzzleItemUser, sound);
+                if (!PuzzleUseKeyMode)
+                  dsda_PuzzleFailSound(PuzzleItemUser);
                 return false;   // can't use through a wall
             }
             return true;        // Continue searching
@@ -4396,7 +4460,16 @@ dboolean PTR_PuzzleItemTraverse(intercept_t * in)
         {                       // Don't use back sides
             return false;
         }
-        if (PuzzleItemType != in->d.line->special_args[0])
+
+        required = in->d.line->special_args[0];
+
+        if (PuzzleUseKeyMode)
+        {
+            PuzzleUseThing = required;
+            return false;
+        }
+
+        if (PuzzleItemType != required)
         {                       // Item type doesn't match
             return false;
         }
@@ -4413,24 +4486,7 @@ dboolean PTR_PuzzleItemTraverse(intercept_t * in)
         return false;           // Stop searching
     }
     // Check thing
-    mobj = in->d.thing;
-    if (mobj->special != USE_PUZZLE_ITEM_SPECIAL)
-    {                           // Wrong special
-        return true;
-    }
-    if (PuzzleItemType != mobj->special_args[0])
-    {                           // Item type doesn't match
-        return true;
-    }
-
-    args[0] = mobj->special_args[2];
-    args[1] = mobj->special_args[3];
-    args[2] = mobj->special_args[4];
-
-    P_StartACS(mobj->special_args[1], 0, args, PuzzleItemUser, NULL, 0);
-    mobj->special = 0;
-    PuzzleActivated = true;
-    return false;               // Stop searching
+    return PTR_PuzzleItemTraverseThing(in);               // Stop searching
 }
 
 dboolean P_UsePuzzleItem(player_t * player, int itemType)
@@ -4441,6 +4497,8 @@ dboolean P_UsePuzzleItem(player_t * player, int itemType)
     PuzzleItemType = itemType;
     PuzzleItemUser = player->mo;
     PuzzleActivated = false;
+    PuzzleUseKeyMode = false;
+    PuzzleUseThing = -1;
     angle = player->mo->angle >> ANGLETOFINESHIFT;
     x1 = player->mo->x;
     y1 = player->mo->y;
@@ -4449,4 +4507,78 @@ dboolean P_UsePuzzleItem(player_t * player, int itemType)
     P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES | PT_ADDTHINGS,
                    PTR_PuzzleItemTraverse);
     return PuzzleActivated;
+}
+
+//
+// Special use artifact functions
+//
+
+int P_FindPuzzleItemType(player_t *player)
+{
+    int angle;
+    fixed_t x1, y1, x2, y2;
+
+    if (!player || !player->mo)
+        return -1;
+
+    PuzzleItemUser = player->mo;
+    PuzzleActivated = false;
+    PuzzleUseKeyMode = true;
+    PuzzleUseThing = -1;
+    angle = player->mo->angle >> ANGLETOFINESHIFT;
+    x1 = player->mo->x;
+    y1 = player->mo->y;
+    x2 = x1 + (USERANGE >> FRACBITS) * finecosine[angle];
+    y2 = y1 + (USERANGE >> FRACBITS) * finesine[angle];
+    P_PathTraverse(x1, y1, x2, y2, PT_ADDTHINGS,
+                   PTR_PuzzleItemTraverseThing);
+    PuzzleUseKeyMode = false;
+    return PuzzleUseThing;
+}
+
+dboolean P_UsePuzzleItemOnThing(player_t *player)
+{
+    int required;
+    int i;
+    int type;
+    artitype_t arti;
+
+    if (!player || !player->mo)
+        return false;
+
+    required = P_FindPuzzleItemType(player);
+    if (required < 0)
+        return false;
+
+    for (i = 0; i < player->artifactCount; i++)
+    {
+        arti = player->inventory[i].type;
+        type = arti - hexen_arti_firstpuzzitem;
+
+        if (type < 0)
+            continue;
+
+        if (type != required)
+            continue;
+
+        if (P_UseArtifact(player, arti))
+        {
+            P_PlayerRemoveArtifact(player, i);
+
+            if (player == &players[consoleplayer])
+            {
+                S_StartVoidSound(hexen_sfx_puzzle_success);
+                ArtifactFlash = 4;
+            }
+            return true;
+        }
+
+        // kex adds this
+        dsda_PuzzleFailMessage(player);
+        return false;
+    }
+
+    // No matching puzzle item exists anywhere in inventory
+    dsda_PuzzleMissingMessage(player);
+    return false;
 }

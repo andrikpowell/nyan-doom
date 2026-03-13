@@ -2262,7 +2262,8 @@ static dboolean Hexen_P_UseArtifact(player_t * player, artitype_t arti)
             }
             else
             {
-                P_SetYellowMessage(player, TXT_USEPUZZLEFAILED, false);
+                // Kex adds extra sfx
+                dsda_PuzzleFailMessage(player);
                 return false;
             }
             break;

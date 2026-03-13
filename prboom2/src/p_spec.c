@@ -77,6 +77,8 @@
 #include "dsda/thing_id.h"
 #include "dsda/utility.h"
 
+#include "hexen/dstrings.h"
+
 //
 //      source animation definition
 //
@@ -5627,6 +5629,9 @@ dboolean EV_LineSearchForPuzzleItem(line_t * line, byte * args, mobj_t * mo)
             }
         }
     }
+
+    // No matching puzzle item exists anywhere in inventory
+    dsda_PuzzleMissingMessage(player);
     return false;
 }
 

@@ -156,6 +156,10 @@ extern mobj_t *BlockingMobj;
 
 void P_BounceWall(mobj_t * mo);
 dboolean P_UsePuzzleItem(player_t * player, int itemType);
+dboolean P_UsePuzzleItemOnThing(player_t *player);
+void dsda_PuzzleFailSound(mobj_t *mo);
+void dsda_PuzzleMissingMessage(player_t *player);
+void dsda_PuzzleFailMessage(player_t *player);
 void PIT_ThrustSpike(mobj_t * actor);
 void P_InitSlideLine(void);
 

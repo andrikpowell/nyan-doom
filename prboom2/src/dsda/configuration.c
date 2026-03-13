@@ -510,6 +510,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
    "dsda_hexen_skip_ethereal_travel", dsda_config_hexen_skip_ethereal_travel,
    CONF_BOOL(1), NULL, STRICT_INT(0)
   },
+  [dsda_config_hexen_simpler_puzzle_use] = {
+   "dsda_hexen_simpler_puzzle_use", dsda_config_hexen_simpler_puzzle_use,
+   CONF_BOOL(1), NULL, STRICT_INT(0)
+  },
   [nyan_config_full_menu_fade] = {
     "nyan_full_menu_fade", nyan_config_full_menu_fade,
     CONF_BOOL(1)

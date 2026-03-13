@@ -85,6 +85,7 @@
 #define TXT_ARTIPUZZMWEAPON    "SIGIL OF THE MAGUS"
 #define TXT_ARTIPUZZGEAR       "CLOCK GEAR"
 #define TXT_USEPUZZLEFAILED    "YOU CANNOT USE THIS HERE"
+#define TXT_USEPUZZLEMISSING   "YOU DO NOT POSSESS THE REQUIRED ITEM"
 
 // Hexen Artifact Descriptions
 #define HEXEN_ARTI_DESC_A "Temporarily Grants Invulnerability" // Icon of the Defender
