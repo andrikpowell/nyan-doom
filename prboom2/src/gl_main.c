@@ -985,6 +985,16 @@ void gld_DrawPoint(int x, int y, int BaseColor)
   glDisableClientState(GL_COLOR_ARRAY);
 }
 
+int gld_Shadow(void)
+{
+  return tran_filter_pct;
+}
+
+int gld_AltShadow(void)
+{
+  return alt_tran_filter_pct;
+}
+
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
 {
   GLTexture *gltexture;
@@ -1020,8 +1030,13 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   }
   else
   {
-    if (viewplayer->mo->flags & g_mf_translucent)
-      gld_StaticLightAlpha(light,tran_filter_pct*0.01f);
+    // we want to use vis->mobjflags and not viewplayer->mo->flags
+    // because the flags are different.
+    // this makes the cleric work correctly with invuln.
+    if (vis->mobjflags & g_mf_translucent)
+      gld_StaticLightAlpha(light, gld_Shadow() * 0.01f);
+    else if (vis->mobjflags & g_mf_alt_translucent)
+      gld_StaticLightAlpha(light, gld_AltShadow() * 0.01f);
     else
       gld_StaticLight(light);
   }
@@ -2266,7 +2281,7 @@ static void gld_DrawSprite(GLSprite *sprite)
 
   if (!(sprite->flags & MF_NO_DEPTH_TEST))
   {
-    if(sprite->flags & g_mf_shadow)
+    if(sprite->flags & g_mf_shadow_fuzz)
     {
       // Fuzz has less aliasing if ratio is an integer
       float ratio = floor((SCREENWIDTH > SCREENHEIGHT ? SCREENHEIGHT : SCREENWIDTH) / 200.0);
@@ -2678,9 +2693,9 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   if (thing->alpha != 1.f)
     sprite.alpha = thing->alpha;
   else if (sprite.flags & g_mf_translucent)
-    sprite.alpha = tran_filter_pct*0.01f;
-  else if (sprite.flags & MF_ALTSHADOW)
-    sprite.alpha = alt_tran_filter_pct*0.01f;
+    sprite.alpha = gld_Shadow()*0.01f;
+  else if (sprite.flags & g_mf_alt_translucent)
+    sprite.alpha = gld_AltShadow()*0.01f;
   else
     sprite.alpha = 1.f;
 

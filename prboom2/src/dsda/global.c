@@ -130,8 +130,9 @@ int g_door_open;
 
 int g_st_height;
 int g_border_offset;
-int g_mf_translucent;
-int g_mf_shadow;
+uint64_t g_mf_translucent;
+uint64_t g_mf_alt_translucent;
+uint64_t g_mf_shadow_fuzz;
 
 const char* g_menu_flat;
 int g_menu_save_page_size;
@@ -219,7 +220,8 @@ static void dsda_InitDoom(void) {
   g_st_height = 32;
   g_border_offset = 8;
   g_mf_translucent = MF_TRANSLUCENT;
-  g_mf_shadow = MF_SHADOW;
+  g_mf_alt_translucent = 0;
+  g_mf_shadow_fuzz = MF_SHADOW;
 
   g_menu_flat = "FLOOR4_6";
   g_menu_save_page_size = 7;
@@ -428,8 +430,9 @@ static void dsda_InitHeretic(void) {
 
   g_st_height = 42;
   g_border_offset = 4;
-  g_mf_translucent = MF_SHADOW;
-  g_mf_shadow = 0; // doesn't exist in heretic
+  g_mf_translucent = MF_SHADOW; // 40%
+  g_mf_alt_translucent = 0;
+  g_mf_shadow_fuzz = 0; // doesn't exist in heretic
 
   g_menu_flat = "FLOOR30";
   g_menu_save_page_size = 5;
@@ -634,11 +637,9 @@ static void dsda_InitHexen(void) {
 
   g_st_height = 39;
   g_border_offset = 4;
-  g_mf_translucent = MF_SHADOW; // hexen_note: SHADOW is actually opposite of normal translucency o.O
-  // g_mf_alt_translucent = MF_ALTSHADOW;
-  // hexen_note: ALTSHADOW is translucency like Boom + Heretic
-  // I'm not using g_mf_alt_translucent because it doesn't update in realtime (which causes issues with the minotaur fade)
-  g_mf_shadow = 0; // doesn't exist in hexen
+  g_mf_translucent = MF_SHADOW;         // hexen_note: SHADOW is actually opposite of Heretic - 60%
+  g_mf_alt_translucent = MF_ALTSHADOW;  // hexen_note: ALTSHADOW is reverse SHADOW - 40%
+  g_mf_shadow_fuzz = 0; // doesn't exist in hexen
 
   g_menu_flat = "F_032";
   g_autopage = s_HERETIC_AUTOPAGE;

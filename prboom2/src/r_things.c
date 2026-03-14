@@ -134,7 +134,8 @@ void R_UpdateVisSpriteTranMap(vissprite_t *vis, mobj_t *thing)
 {
   if (thing && thing->tranmap)
     vis->tranmap = thing->tranmap;
-  else if (vis->mobjflags & g_mf_translucent || vis->mobjflags & MF_ALTSHADOW)
+  else if (vis->mobjflags & g_mf_translucent ||
+           vis->mobjflags & g_mf_alt_translucent)
     vis->tranmap = main_tranmap;
   else
     vis->tranmap = NULL;
@@ -936,7 +937,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   R_SetSpritelights(lightlevel);
 
   // get light level
-  if (thing->flags & g_mf_shadow)
+  if (thing->flags & g_mf_shadow_fuzz)
       vis->colormap = NULL;             // shadow draw
   else if (fixedcolormap && !NYAN_LITEAMP)
     vis->colormap = fixedcolormap;      // fixed map
