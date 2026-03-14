@@ -297,16 +297,35 @@ void SB_Init(void)
 
 //---------------------------------------------------------------------------
 //
+// dsda_HexenArmor
+//
+//---------------------------------------------------------------------------
+
+int dsda_HexenArmor(player_t* player) {
+  int temp = pclass[player->pclass].auto_armor_save
+             + player->armorpoints[ARMOR_ARMOR]
+             + player->armorpoints[ARMOR_SHIELD]
+             + player->armorpoints[ARMOR_HELMET]
+             + player->armorpoints[ARMOR_AMULET];
+  return FixedDiv(temp, 5 * FRACUNIT) >> FRACBITS;
+}
+
+//---------------------------------------------------------------------------
+//
 // PROC SB_Ticker
 //
 //---------------------------------------------------------------------------
 
 void SB_Ticker(void)
 {
+    int armortype;
+
+    CPlayer = &players[consoleplayer];
+    armortype = hexen ? dsda_HexenArmor(CPlayer) : CPlayer->armorpoints[ARMOR_ARMOR];
+
     // Allow for animated health / armor counts
-    // Note that st_armor isn't used for Hexen due to armor types
-    st_health = HealthMarker = SmoothCount(HealthMarker, players[consoleplayer].mo->health, true);
-    st_armor  = SmoothCount(st_armor, players[consoleplayer].armorpoints[ARMOR_ARMOR], false);
+    st_health = HealthMarker = SmoothCount(HealthMarker, CPlayer->mo->health, true);
+    st_armor  = SmoothCount(st_armor, armortype, false);
 
     if (heretic && leveltime & 1 && !dsda_PausedOutsideDemo())
     {
@@ -1675,16 +1694,12 @@ static void Hexen_DrawMainBar(void)
         oldweapon = CPlayer->readyweapon;
     }
     // Armor
-    temp = pclass[CPlayer->pclass].auto_armor_save +
-        CPlayer->armorpoints[ARMOR_ARMOR] +
-        CPlayer->armorpoints[ARMOR_SHIELD] +
-        CPlayer->armorpoints[ARMOR_HELMET] +
-        CPlayer->armorpoints[ARMOR_AMULET];
+    temp = st_armor;
     if (oldarmor != temp)
     {
         oldarmor = temp;
         V_DrawNumPatch(255, 178, LumpARMCLEAR, CR_DEFAULT, VPT_STRETCH);
-        DrINumber(FixedDiv(temp, 5 * FRACUNIT) >> FRACBITS, 250, 176);
+        DrINumber(temp, 250, 176);
     }
     // Weapon Pieces
     if (oldpieces != CPlayer->pieces)

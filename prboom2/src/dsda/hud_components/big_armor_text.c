@@ -33,13 +33,12 @@ static void dsda_DrawComponent(void) {
   int armor;
 
   player = &players[displayplayer];
+  armor = st_armor;
 
   if (hexen) {
-    armor = dsda_HexenArmor(player);
     cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
   }
   else {
-    armor = st_armor;
     if (armor <= 0)
       cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
     else if (player->armortype < 2)

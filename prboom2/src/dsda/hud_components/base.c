@@ -90,15 +90,6 @@ void dsda_InitPatchHC(dsda_patch_component_t* component, int x_offset, int y_off
     med_digit_lump_format = "IN%.1d";
 }
 
-int dsda_HexenArmor(player_t* player) {
-  int temp = pclass[player->pclass].auto_armor_save
-             + player->armorpoints[ARMOR_ARMOR]
-             + player->armorpoints[ARMOR_SHIELD]
-             + player->armorpoints[ARMOR_HELMET]
-             + player->armorpoints[ARMOR_AMULET];
-  return FixedDiv(temp, 5 * FRACUNIT) >> FRACBITS;
-}
-
 int P_ManaPercent(player_t *player, int mana)
 {
   if (!player->ammo[mana])

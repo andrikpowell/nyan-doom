@@ -80,17 +80,16 @@ static void dsda_DrawComponent(void) {
   int flags, numflags;
 
   player = &players[displayplayer];
+  armor = st_armor;
   flags = numflags = local->component.vpt;
   x = local->component.x;
   y = local->component.y;
 
   if (hexen) {
-    armor = dsda_HexenArmor(player);
     cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
     lump = armor_lump_green;
   }
   else {
-    armor = st_armor;
     if (armor <= 0) {
       cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
       lump = armor_lump_green;

@@ -44,7 +44,7 @@ static int dsda_ArmorTextColor(int armor)
 
 static void dsda_DrawBar(player_t* player) {
   extern int idfa_armor;
-  int armor       = hexen ? dsda_HexenArmor(player) : st_armor;
+  int armor       = st_armor;
   int armor_max   = hexen ? (pclass[player->pclass].armor_max / (5 * FRACUNIT)) : idfa_armor / 2;
   int color       = hexen ? dsda_TextCR(dsda_tc_stbar_armor_zero) : dsda_TextCR(dsda_ArmorTextColor(armor));
   int supercolor  = dsda_TextCR(dsda_tc_exhud_armor_two);
@@ -77,17 +77,17 @@ static void dsda_DrawComponent(void)
 }
 
 static void dsda_UpdateComponentText(void) {
+  int armor = st_armor;
+
   if (hexen)
   {
     player_t* player = &players[displayplayer];
-    int armor = dsda_HexenArmor(player);
     const char* cm  = dsda_TextColor(dsda_tc_stbar_armor_zero);
     snprintf(local->label.msg, sizeof(local->label.msg), "%s%s", cm, label);
     snprintf(local->percentage.msg, sizeof(local->percentage.msg), "%s%2d", cm, armor);
   }
   else
   {
-    int armor = st_armor;
     const char* cm  = dsda_TextColor(dsda_ArmorTextColor(armor));
     snprintf(local->label.msg, sizeof(local->label.msg), "%s%s", cm, label);
     snprintf(local->percentage.msg, sizeof(local->percentage.msg), "%s%3d%%", cm, armor);

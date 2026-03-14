@@ -70,7 +70,6 @@ int dsda_HudComponentY(int y_offset, int vpt, double ratio);
 void dsda_InitTextHC(dsda_text_t* component, int x_offset, int y_offset, int vpt);
 void dsda_InitBlockyHC(dsda_text_t* component, int x_offset, int y_offset, int vpt);
 void dsda_InitPatchHC(dsda_patch_component_t* component, int x_offset, int y_offset, int vpt);
-fixed_t dsda_HexenArmor(player_t* player);
 int dsda_AmmoColorBig(player_t* player);
 int dsda_ManaColorBig(player_t* player, int mana);
 void dsda_DrawBigNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int percent);
