@@ -627,6 +627,7 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
     int   col;
     int   w = (patch->width << 16) - 1; // CPhipps - -1 for faster flipping
     int   left, right, top, bottom;
+    int   fuzzheight;
     int   DXI, DYI;
     int   deltay1;
     R_DrawColumn_f colfunc;
@@ -640,7 +641,6 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
     int TL = flags & VPT_TRANSMAP;
     int ALT_TL = flags & VPT_ALT_TRANSMAP;
     int fuzz = flags & VPT_FUZZ;
-    int fuzzheight = bottom - top + 1;
 
     R_SetDefaultDrawColumnVars(&dcvars);
 
@@ -648,12 +648,8 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
     drawvars.pitch = screens[scrn].pitch;
 
     if (fuzz) {
-      if (fuzzheight < 1)
-        fuzzheight = 1;
-      R_ResetFuzzCol(fuzzheight);
-      dcvars.colormap = NULL;
-      dcvars.drawingmasked = 1;
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ, RDRAW_FILTER_NONE);
+      dcvars.colormap = NULL;
     }
     else if (TR && TL) {     // both translucent and color translated
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRTL, RDRAW_FILTER_NONE);
@@ -754,9 +750,18 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
     top    += deltay1;
     bottom += deltay1;
 
+    if (fuzz) {
+      int fuzzheight = dcvars.clip_bottom - dcvars.clip_top + 1;
+
+      if (fuzzheight < 1)
+        fuzzheight = 1;
+
+      R_ResetFuzzCol(fuzzheight);
+    }
+
     dcvars.texheight = patch->height;
     dcvars.iscale = DYI;
-    dcvars.drawingmasked = MAX(patch->width, patch->height) > 8;
+    dcvars.drawingmasked = fuzz ? 1 : (MAX(patch->width, patch->height) > 8);
 
     col = 0;
 
