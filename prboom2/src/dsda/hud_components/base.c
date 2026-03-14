@@ -20,8 +20,9 @@
 #include "base.h"
 
 static char digit_lump[9];
+static char med_digit_lump[9];
 static const char* digit_lump_format;
-static const char* digit_negative_lump_format;
+static const char* med_digit_lump_format;
 
 int dsda_HudComponentY(int y_offset, int vpt, double ratio) {
   int dsda_ExHudVerticalOffset(void);
@@ -83,15 +84,10 @@ void dsda_InitPatchHC(dsda_patch_component_t* component, int x_offset, int y_off
   component->y = y;
   component->vpt = vpt;
 
+  digit_lump_format = raven ? "FONTB%.1d" : "STTNUM%.1d";
+
   if (raven)
-  {
-    digit_lump_format = "IN%.1d";
-    digit_negative_lump_format = "INRED%.1d";
-  }
-  else
-  {
-    digit_lump_format = digit_negative_lump_format = "STTNUM%.1d";
-  }
+    med_digit_lump_format = "IN%.1d";
 }
 
 int dsda_HexenArmor(player_t* player) {
@@ -103,23 +99,85 @@ int dsda_HexenArmor(player_t* player) {
   return FixedDiv(temp, 5 * FRACUNIT) >> FRACBITS;
 }
 
-static void dsda_DrawBigDigit(int x, int y, int cm, int vpt, int digit, int negative) {
-  const char* digit_lump_type = negative && !sts_colored_numbers ? digit_negative_lump_format : digit_lump_format;
+int P_ManaPercent(player_t *player, int mana)
+{
+  if (!player->ammo[mana])
+    return 0;
+
+  return player->ammo[mana] * 100 / MAX_MANA;
+}
+
+int dsda_ManaColorBig(player_t* player, int mana) {
+  int mana_percent;
+
+  mana_percent = P_ManaPercent(player, mana);
+
+  if (mana_percent < hud_ammo_red)
+    return dsda_tc_stbar_ammo_bad;
+  else if (mana_percent < hud_ammo_yellow)
+    return dsda_tc_stbar_ammo_warning;
+  else if (mana_percent < 100)
+    return dsda_tc_stbar_ammo_ok;
+  else
+    return dsda_tc_stbar_ammo_full;
+}
+
+int dsda_AmmoColorBig(player_t* player) {
+  int ammo_percent;
+
+  ammo_percent = P_AmmoPercent(player, player->readyweapon);
+
+  if (ammo_percent < hud_ammo_red)
+    return dsda_tc_stbar_ammo_bad;
+  else if (ammo_percent < hud_ammo_yellow)
+    return dsda_tc_stbar_ammo_warning;
+  else if (ammo_percent < 100)
+    return dsda_tc_stbar_ammo_ok;
+  else
+    return dsda_tc_stbar_ammo_full;
+}
+
+static void dsda_DrawBigPercent(int x, int y, int cm, int vpt) {
+  extern int sts_pct_always_gray;
+  int color = sts_pct_always_gray ? CR_GRAY : cm;
+  int flags = (sts_colored_numbers || sts_pct_always_gray) ? VPT_COLOR : VPT_NONE;
+  const char* percent_lump = heretic ? "FONTB05" : "STTPRCNT";
+
+  if (raven)
+    V_DrawShadowedNamePatch(x, y, percent_lump, color, vpt | flags);
+  else
+    V_DrawNamePatch(x, y, percent_lump, color, vpt | flags);
+}
+
+static void dsda_DrawBigDigit(int x, int y, int delta_x, int cm, int vpt, int digit) {
   int flags = sts_colored_numbers ? VPT_COLOR : VPT_NONE;
 
   if (digit > 9 || digit < 0)
     return;
 
-  snprintf(digit_lump, sizeof(digit_lump), digit_lump_type, digit);
-  V_DrawNamePatch(x, y, digit_lump, cm, vpt | flags);
+  if (raven)
+  {
+    int lump;
+
+    snprintf(digit_lump, sizeof(digit_lump), digit_lump_format, digit + 16);
+    lump = W_GetNumForName(digit_lump);
+    x += delta_x / 2 - R_NumPatchWidth(lump) / 2;
+    V_DrawShadowedNamePatch(x, y, digit_lump, cm, vpt | flags);
+  }
+  else
+  {
+    snprintf(digit_lump, sizeof(digit_lump), digit_lump_format, digit);
+    V_DrawNamePatch(x, y, digit_lump, cm, vpt | flags);
+  }
 }
 
 static int digit_mod[6] = { 1, 10, 100, 1000, 10000, 100000 };
 static int digit_div[6] = { 1,  1,  10,  100,  1000,  10000 };
 
-void dsda_DrawBigNumber(int x, int y, int delta_x, int delta_y, int cm, int vpt, int count, int n, int negative) {
+void dsda_DrawBigNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int percent) {
   int i;
   int digit, any_digit;
+  int delta_x = raven ? 12 : 14;
 
   if (count > 5)
     return;
@@ -131,10 +189,119 @@ void dsda_DrawBigNumber(int x, int y, int delta_x, int delta_y, int cm, int vpt,
     any_digit |= digit;
 
     if (any_digit || i == 1)
-      dsda_DrawBigDigit(x, y, cm, vpt, digit, negative);
-
-    x += delta_x;
+    {
+      dsda_DrawBigDigit(x, y, delta_x, cm, vpt, digit);
+      x += delta_x;
+    }
+    else {
+      if (right_align)
+        x += delta_x;
+    }
   }
+  if (!raven && percent)
+    dsda_DrawBigPercent(x, y, cm, vpt);
+}
+
+int dsda_GetBigNumberWidth(int count, int n, int right_align, int percent)
+{
+  int i;
+  int digit;
+  int any_digit;
+  int width;
+  int delta_x = raven ? 12 : 14;
+
+  if (count > 5)
+    return 0;
+
+  any_digit = 0;
+  width = 0;
+
+  for (i = count; i > 0; --i) {
+    digit = (n % digit_mod[i]) / digit_div[i];
+    any_digit |= digit;
+
+    if (any_digit || i == 1)
+      width += delta_x;
+    else if (right_align)
+      width += delta_x;
+  }
+
+  if (!raven && percent)
+    width += R_NumPatchWidth(W_GetNumForName("STTPRCNT"));
+
+  return width;
+}
+
+static void dsda_DrawMedDigit(int x, int y, int delta_x, int cm, int vpt, int digit) {
+  int flags = sts_colored_numbers ? VPT_COLOR : VPT_NONE;
+
+  if (!raven)
+    return;
+
+  if (digit > 9 || digit < 0)
+    return;
+
+  snprintf(med_digit_lump, sizeof(med_digit_lump), med_digit_lump_format, digit);
+  V_DrawNamePatch(x, y, med_digit_lump, cm, vpt | flags);
+}
+
+void dsda_DrawMedNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int percent) {
+  int i;
+  int digit, any_digit;
+  int delta_x = 8;
+
+  if (!raven)
+    return;
+
+  if (count > 5)
+    return;
+
+  any_digit = 0;
+
+  for (i = count; i > 0; --i) {
+    digit = (n % digit_mod[i]) / digit_div[i];
+    any_digit |= digit;
+
+    if (any_digit || i == 1)
+    {
+      dsda_DrawMedDigit(x, y, delta_x, cm, vpt, digit);
+      x += delta_x;
+    }
+    else {
+      if (right_align)
+        x += delta_x;
+    }
+  }
+}
+
+int dsda_GetMedNumberWidth(int count, int n, int right_align, int percent)
+{
+  int i;
+  int digit;
+  int any_digit;
+  int width;
+  int delta_x = 8;
+
+  if (!raven)
+    return;
+
+  if (count > 5)
+    return 0;
+
+  any_digit = 0;
+  width = 0;
+
+  for (i = count; i > 0; --i) {
+    digit = (n % digit_mod[i]) / digit_div[i];
+    any_digit |= digit;
+
+    if (any_digit || i == 1)
+      width += delta_x;
+    else if (right_align)
+      width += delta_x;
+  }
+
+  return width;
 }
 
 void dsda_DrawBasicText(dsda_text_t* component) {

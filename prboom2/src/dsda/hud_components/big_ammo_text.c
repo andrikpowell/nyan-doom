@@ -12,52 +12,65 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	DSDA Big Health Text HUD Component
+//	DSDA Big Ammo Text HUD Component
 //
 
 #include "base.h"
 
-#include "big_health_text.h"
+#include "big_ammo_text.h"
 
 typedef struct {
   dsda_patch_component_t component;
   dboolean right_align;
-  dboolean percent;
 } local_component_t;
 
 static local_component_t* local;
 
+static int patch_vertical_offset;
+static int patch_spacing;
+
 static void dsda_DrawComponent(void) {
+  player_t* player;
+  ammotype_t ammo_type;
+  int ammo;
+  int flags, numflags;
+  int x, y;
   int cm;
-  int health;
 
-  // Animated health
-  health = st_health;
+  if (hexen)
+    return;
 
-  cm = health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
-       health <= hud_health_yellow ? dsda_TextCR(dsda_tc_stbar_health_warning) :
-       health <= hud_health_green ? dsda_TextCR(dsda_tc_stbar_health_ok) :
-       dsda_TextCR(dsda_tc_stbar_health_super);
+  player = &players[displayplayer];
+  ammo_type = weaponinfo[player->readyweapon].ammo;
 
-  dsda_DrawBigNumber(local->component.x, local->component.y, 0,
-                     cm, local->component.vpt, 3, health, local->right_align, local->percent);
+  flags = numflags = local->component.vpt;
+  x = local->component.x;
+  y = local->component.y;
+
+  if (ammo_type == am_noammo || !player->maxammo[ammo_type])
+    return;
+
+  ammo = player->ammo[ammo_type];
+  cm = dsda_TextCR(dsda_AmmoColorBig(player));
+
+  dsda_DrawBigNumber(x, y, 0,
+                     cm, numflags, 3, ammo, local->right_align, false);
 }
 
-void dsda_InitBigHealthTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
+void dsda_InitBigAmmoTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
 
   local->right_align = (arg_count > 0) ? !!args[0] : false;
-  local->percent = (arg_count > 1) ? !!args[1] : false;
 
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
 }
 
-void dsda_UpdateBigHealthTextHC(void* data) {
+void dsda_UpdateBigAmmoTextHC(void* data) {
   local = data;
 }
 
-void dsda_DrawBigHealthTextHC(void* data) {
+void dsda_DrawBigAmmoTextHC(void* data) {
   local = data;
 
   dsda_DrawComponent();

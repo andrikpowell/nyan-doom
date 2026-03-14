@@ -1,5 +1,5 @@
 //
-// Copyright(C) 2026 by Andrik Powell
+// Copyright(C) 2022 by Ryan Krafnick
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -12,14 +12,14 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	DSDA Big Ammo HUD Component
+//	DSDA Big Ammo Text HUD Component
 //
 
-#ifndef __DSDA_HUD_COMPONENT_BIG_AMMO__
-#define __DSDA_HUD_COMPONENT_BIG_AMMO__
+#ifndef __DSDA_HUD_COMPONENT_BIG_AMMO_TEXT__
+#define __DSDA_HUD_COMPONENT_BIG_AMMO_TEXT__
 
-void dsda_InitBigAmmoHC(int x_offset, int y_offset, int vpt_flags, int* args, int arg_count, void** data);
-void dsda_UpdateBigAmmoHC(void* data);
-void dsda_DrawBigAmmoHC(void* data);
+void dsda_InitBigAmmoTextHC(int x_offset, int y_offset, int vpt_flags, int* args, int arg_count, void** data);
+void dsda_UpdateBigAmmoTextHC(void* data);
+void dsda_DrawBigAmmoTextHC(void* data);
 
 #endif

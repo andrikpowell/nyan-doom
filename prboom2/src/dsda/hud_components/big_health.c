@@ -21,80 +21,123 @@
 
 typedef struct {
   dsda_patch_component_t component;
+  dboolean right_align;
+  dboolean percent;
 } local_component_t;
 
 static local_component_t* local;
 
 static int health_lump;
 static int strength_lump;
-static int patch_delta_x;
-static int patch_vertical_spacing;
+
+static int font_height;
 static int patch_spacing;
+static int patch_spacing_x;
+static int patch_spacing_y;
+
+static void dsda_HealthPatchSpacing(void)
+{
+  int lumps[] = {
+    health_lump,
+    strength_lump,
+  };
+
+  patch_spacing_x = 0;
+  patch_spacing_y = 0;
+
+  for (int i = 0; i < sizeof(lumps) / sizeof(lumps[0]); ++i)
+  {
+    patch_spacing_x = MAX(patch_spacing_x, R_NumPatchWidth(lumps[i]));
+    patch_spacing_y = MAX(patch_spacing_y, R_NumPatchHeight(lumps[i]));
+  }
+}
+
+static void dsda_DrawBigHealthIcon(int x, int y, int lump, int flags) {
+  int w, h;
+
+  if (!lump)
+    return;
+
+  w = R_NumPatchWidth(lump);
+  h = R_NumPatchHeight(lump);
+
+  // center horizontally
+  x += (patch_spacing_x - w) / 2;
+  
+  // center vertically
+  y += (font_height - patch_spacing_y) / 2;
+  y += (patch_spacing_y - h) / 2;
+
+  if (raven)
+    V_DrawShadowedNumPatch(x, y, lump, CR_DEFAULT, flags);
+  else
+    V_DrawMenuNumPatch(x, y, lump, CR_DEFAULT, flags);
+}
 
 static void dsda_DrawComponent(void) {
   player_t* player;
   int health;
+  int lump;
   int x, y;
   int cm;
-  int flags;
-  int negative;
+  int flags, numflags;
 
   player = &players[displayplayer];
-  flags = local->component.vpt;
+  flags = numflags = local->component.vpt;
   x = local->component.x;
   y = local->component.y;
 
   // Animated health
   health = st_health;
-
-  // Add support for Hexen "Red Numbers"
-  negative = hexen && (health <= 24);
-
+  lump = player->powers[pw_strength] ? strength_lump : health_lump;
   cm = health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
        health <= hud_health_yellow ? dsda_TextCR(dsda_tc_stbar_health_warning) :
        health <= hud_health_green ? dsda_TextCR(dsda_tc_stbar_health_ok) :
        dsda_TextCR(dsda_tc_stbar_health_super);
 
-  V_DrawNumPatch(x, y,
-                 player->powers[pw_strength] ? strength_lump : health_lump,
-                 CR_DEFAULT, flags);
-
-  x += patch_spacing;
-  y += patch_vertical_spacing;
+  if (!local->right_align)
+  {
+    dsda_DrawBigHealthIcon(x, y, lump, flags);
+    x += patch_spacing + patch_spacing_x;
+  }
 
   // Numbers need offsets (so 1 doesn't have a big space)
-  flags &= ~VPT_NOOFFSET;
+  numflags &= ~VPT_NOOFFSET;
 
-  dsda_DrawBigNumber(x, y, patch_delta_x, 0,
-                     cm, flags, 3, health, negative);
+  dsda_DrawBigNumber(x, y, 0,
+                     cm, numflags, 3, health, local->right_align, local->percent);
+
+  if (local->right_align)
+  {
+    x += patch_spacing + dsda_GetBigNumberWidth(3, health, local->right_align, local->percent);
+    dsda_DrawBigHealthIcon(x, y, lump, flags);
+  }
 }
 
 void dsda_InitBigHealthHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
 
+  local->right_align = (arg_count > 0) ? !!args[0] : false;
+  local->percent = (arg_count > 1) ? !!args[1] : false;
+
   if (heretic) {
-    health_lump = R_NumPatchForSpriteIndex(HERETIC_SPR_PTN2);
+    health_lump = R_NumPatchForSpriteIndex(HERETIC_SPR_PTN1);
     strength_lump = health_lump;
-    patch_delta_x = 9;
-    patch_vertical_spacing = 6;
-    patch_spacing = 4;
   }
   else if (hexen) {
-    health_lump = R_NumPatchForSpriteIndex(HEXEN_SPR_PTN2);
+    health_lump = R_NumPatchForSpriteIndex(HEXEN_SPR_PTN1);
     strength_lump = health_lump;
-    patch_delta_x = 8;
-    patch_vertical_spacing = 6;
-    patch_spacing = 4;
   }
   else {
     health_lump = R_NumPatchForSpriteIndex(SPR_MEDI);
     strength_lump = (gamemode != shareware) ? R_NumPatchForSpriteIndex(SPR_PSTR) : health_lump; // berserk doesn't exist in shareware
-    patch_delta_x = 14;
-    patch_vertical_spacing = 2;
-    patch_spacing = 2;
   }
-  patch_spacing += R_NumPatchWidth(health_lump);
+
+  patch_spacing = 6;
+  font_height = raven ? 20 : 15;
+
+  dsda_HealthPatchSpacing();
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
 }
 

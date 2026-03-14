@@ -112,6 +112,8 @@ set(COMMON_SRC
     dsda/hud_components/base.h
     dsda/hud_components/big_ammo.c
     dsda/hud_components/big_ammo.h
+    dsda/hud_components/big_ammo_text.c
+    dsda/hud_components/big_ammo_text.h
     dsda/hud_components/big_armor.c
     dsda/hud_components/big_armor.h
     dsda/hud_components/big_armor_text.c
