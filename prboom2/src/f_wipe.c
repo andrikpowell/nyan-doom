@@ -213,8 +213,6 @@ static void wipe_renderMelt(void)
   // Scale up and then down to handle arbitrary dimensions with integer math
   int width = SCREENWIDTH;
   int height = SCREENHEIGHT;
-  int vertblocksize = height * 100 / wipe_rows;
-  int horizblocksize = width * 100 / wipe_columns;
   int currcol;
   int currcolend;
   int currrow;
@@ -228,8 +226,8 @@ static void wipe_renderMelt(void)
 
     if (current < 0)
     {
-      currcol = col * horizblocksize / 100;
-      currcolend = (col + 1) * horizblocksize / 100;
+      currcol = (col * width) / wipe_columns;
+      currcolend = ((col + 1) * width) / wipe_columns;
       for (; currcol < currcolend; ++currcol)
       {
         byte *source = wipe_scr_start.data + currcol;
@@ -238,22 +236,22 @@ static void wipe_renderMelt(void)
         for (int i = 0; i < height; ++i)
         {
           *dest = *source;
-          dest += width;
-          source += width;
+          dest += wipe_scr.pitch;
+          source += wipe_scr_start.pitch;
         }
       }
     }
     else if (current < wipe_rows)
     {
-      currcol = col * horizblocksize / 100;
-      currcolend = (col + 1) * horizblocksize / 100;
+      currcol = (col * width) / wipe_columns;
+      currcolend = ((col + 1) * width) / wipe_columns;
 
-      currrow = current * vertblocksize / 100;
+      currrow = (current * height) / wipe_rows;
 
       for (; currcol < currcolend; ++currcol)
       {
         byte *source = wipe_scr_start.data + currcol;
-        byte *dest   = wipe_scr.data + currcol + (currrow * width);
+        byte *dest   = wipe_scr.data + currcol + (currrow * wipe_scr.pitch);
 
         for (int i = 0; i < height - currrow; ++i)
         {
