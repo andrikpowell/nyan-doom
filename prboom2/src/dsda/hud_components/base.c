@@ -274,7 +274,7 @@ int dsda_GetMedNumberWidth(int count, int n, int right_align, int percent)
   int delta_x = 8;
 
   if (!raven)
-    return;
+    return 0;
 
   if (count > 5)
     return 0;

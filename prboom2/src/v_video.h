@@ -388,7 +388,6 @@ void V_TouchPalette(void);
 void V_SetPalette(int pal);
 void V_SetPlayPal(int playpal_index);
 
-const byte *dynamic_palette;
 void V_SetDynamicPalette(const byte *pal);
 void V_ClearDynamicPalette(void);
 

@@ -26,14 +26,11 @@ typedef struct {
 
 static local_component_t* local;
 
-static int patch_vertical_offset;
-static int patch_spacing;
-
 static void dsda_DrawComponent(void) {
   player_t* player;
   ammotype_t ammo_type;
   int ammo;
-  int flags, numflags;
+  int flags;
   int x, y;
   int cm;
 
@@ -43,7 +40,7 @@ static void dsda_DrawComponent(void) {
   player = &players[displayplayer];
   ammo_type = weaponinfo[player->readyweapon].ammo;
 
-  flags = numflags = local->component.vpt;
+  flags = local->component.vpt;
   x = local->component.x;
   y = local->component.y;
 
@@ -54,7 +51,7 @@ static void dsda_DrawComponent(void) {
   cm = dsda_TextCR(dsda_AmmoColorBig(player));
 
   dsda_DrawBigNumber(x, y, 0,
-                     cm, numflags, 3, ammo, local->right_align, false);
+                     cm, flags, 3, ammo, local->right_align, false);
 }
 
 void dsda_InitBigAmmoTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

@@ -55,7 +55,6 @@ void dsda_DrawBoomBar(boom_bar_t* bar, dsda_patch_component_t local_bar, int val
   int super_fill = 0;
   int count = bar->count;
   int flags = VPT_COLOR | local_bar.vpt;
-  int over_max = value_max * 2;
 
   base_fill = dsda_FillSegments(value, value_max, count);
 

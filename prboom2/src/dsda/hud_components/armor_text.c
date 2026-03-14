@@ -81,7 +81,6 @@ static void dsda_UpdateComponentText(void) {
 
   if (hexen)
   {
-    player_t* player = &players[displayplayer];
     const char* cm  = dsda_TextColor(dsda_tc_stbar_armor_zero);
     snprintf(local->label.msg, sizeof(local->label.msg), "%s%s", cm, label);
     snprintf(local->percentage.msg, sizeof(local->percentage.msg), "%s%2d", cm, armor);

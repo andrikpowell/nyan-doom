@@ -4438,7 +4438,6 @@ dboolean PTR_PuzzleItemTraverseThing(intercept_t * in)
 
 dboolean PTR_PuzzleItemTraverse(intercept_t * in)
 {
-    mobj_t *mobj;
     byte args[3];
     int required;
 

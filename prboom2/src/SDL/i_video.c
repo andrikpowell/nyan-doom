@@ -499,6 +499,8 @@ static void I_InitInputs(void)
   dsda_InitGameController();
 }
 
+extern const byte *dynamic_palette;
+
 static void I_UploadDynamicPalette(int pal)
 {
   int gtlump;

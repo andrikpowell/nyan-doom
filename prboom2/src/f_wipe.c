@@ -208,8 +208,6 @@ static dboolean wipe_updateMelt(int ticks)
 // CPhipps - modified to allocate and deallocate screens[2 to 3] as needed, saving memory
 static void wipe_renderMelt(void)
 {
-  dboolean done = true;
-
   // Scale up and then down to handle arbitrary dimensions with integer math
   int width = SCREENWIDTH;
   int height = SCREENHEIGHT;

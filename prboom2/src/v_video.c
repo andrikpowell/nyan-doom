@@ -627,7 +627,7 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
     int   col;
     int   w = (patch->width << 16) - 1; // CPhipps - -1 for faster flipping
     int   left, right, top, bottom;
-    int   fuzzheight;
+    int   fuzzheight = 1;
     int   DXI, DYI;
     int   deltay1;
     R_DrawColumn_f colfunc;
@@ -751,7 +751,7 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
     bottom += deltay1;
 
     if (fuzz) {
-      int fuzzheight = dcvars.clip_bottom - dcvars.clip_top + 1;
+      fuzzheight = dcvars.clip_bottom - dcvars.clip_top + 1;
 
       if (fuzzheight < 1)
         fuzzheight = 1;
