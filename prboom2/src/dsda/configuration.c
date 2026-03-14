@@ -460,39 +460,39 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [nyan_config_ex_status_widget] = {
     "nyan_ex_status_widget", nyan_config_ex_status_widget,
-    CONF_BOOL(0), NULL, CONF_FEATURE | NOT_STRICT
+    CONF_BOOL(0), NULL,  NOT_STRICT
   },
   [nyan_config_ex_status_armor] = {
     "nyan_ex_status_armor", nyan_config_ex_status_armor,
-    CONF_BOOL(0), NULL, CONF_FEATURE | NOT_STRICT
+    CONF_BOOL(0), NULL, NOT_STRICT
   },
   [nyan_config_ex_status_berserk] = {
     "nyan_ex_status_berserk", nyan_config_ex_status_berserk,
-    CONF_BOOL(0), NULL, CONF_FEATURE | NOT_STRICT
+    CONF_BOOL(0), NULL, NOT_STRICT
   },
   [nyan_config_ex_status_areamap] = {
     "nyan_ex_status_areamap", nyan_config_ex_status_areamap,
-    CONF_BOOL(0), NULL, CONF_FEATURE | NOT_STRICT
+    CONF_BOOL(0), NULL, NOT_STRICT
   },
   [nyan_config_ex_status_backpack] = {
     "nyan_ex_status_backpack", nyan_config_ex_status_backpack,
-    CONF_BOOL(0), NULL, CONF_FEATURE | NOT_STRICT
+    CONF_BOOL(0), NULL, NOT_STRICT
   },
   [nyan_config_ex_status_radsuit] = {
     "nyan_ex_status_radsuit", nyan_config_ex_status_radsuit,
-    CONF_BOOL(1), NULL, CONF_FEATURE | NOT_STRICT
+    CONF_BOOL(1), NULL, NOT_STRICT
   },
   [nyan_config_ex_status_invis] = {
     "nyan_ex_status_invis", nyan_config_ex_status_invis,
-    CONF_BOOL(1), NULL, CONF_FEATURE | NOT_STRICT
+    CONF_BOOL(1), NULL, NOT_STRICT
   },
   [nyan_config_ex_status_liteamp] = {
     "nyan_ex_status_liteamp", nyan_config_ex_status_liteamp,
-    CONF_BOOL(1), NULL, CONF_FEATURE | NOT_STRICT
+    CONF_BOOL(1), NULL, NOT_STRICT
   },
   [nyan_config_ex_status_invuln] = {
     "nyan_ex_status_invuln", nyan_config_ex_status_invuln,
-    CONF_BOOL(1), NULL, CONF_FEATURE | NOT_STRICT
+    CONF_BOOL(1), NULL, NOT_STRICT
   },
   [dsda_config_free_text] = {
     "dsda_free_text", dsda_config_free_text,
