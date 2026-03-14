@@ -2541,7 +2541,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   thing->patch_width = patch->width;
 
   // [crispy] randomly flip corpse, blood and death animation sprites
-  if (dsda_IntConfig(nyan_config_flip_corpses) &&
+  if (dsda_AllowMirroredCorpses() &&
       (thing->flags_extra & MFX_MIRROREDCORPSE) &&
       !(thing->flags & MF_SHOOTABLE) &&
       (thing->intflags & MIF_FLIP))

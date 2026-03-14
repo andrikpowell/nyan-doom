@@ -52,6 +52,7 @@
 #include "dsda/map_format.h"
 #include "dsda/preferences.h"
 #include "dsda/configuration.h"
+#include "dsda/settings.h"
 #include "dsda/animinfo.h"
 #include "dsda/library.h"
 #include "dsda/input.h"
@@ -903,7 +904,7 @@ dboolean F_CastResponder (event_t* ev)
       S_StartVoidSound(F_RandomizeSound(mobjinfo[castorder[castnum].type].deathsound));
 
   // [crispy] flippable death sequence
-  castflip = dsda_IntConfig(nyan_config_flip_corpses) &&
+  castflip = dsda_AllowMirroredCorpses() &&
     castdeath &&
     (mobjinfo[castorder[castnum].type].flags_extra & MFX_MIRROREDCORPSE) &&
     (Nyan_Random() & 1);

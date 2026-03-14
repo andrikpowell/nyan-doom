@@ -408,8 +408,15 @@ int dsda_ExHudTranslucencyPercent(void) {
   return dsda_IntConfig(dsda_config_ex_text_tran_filter_pct);
 }
 
-int dsda_ShowDataDisk(void) {
+dboolean dsda_ShowDataDisk(void) {
   return dsda_IntConfig(nyan_config_loading_disk);
+}
+
+dboolean dsda_AllowMirroredCorpses(void) {
+  if (demorecording)
+    return false;
+
+  return dsda_IntConfig(nyan_config_flip_corpses);
 }
 
 int dsda_reveal_map;
