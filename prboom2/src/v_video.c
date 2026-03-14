@@ -1099,29 +1099,15 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 // a dark faded background under menus.
 //
 
-#define FULLSHADE 20
-byte shademap[FULLSHADE + 1][256];
-static dboolean cacheshade = false;
-
 static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 { 
   byte* dest;
+  const byte *shademap;
   int ix, iy;
 
-  if (shade <= 0 || shade > FULLSHADE) return;
-
-  // Cache shade for performance :)
-  if (!cacheshade)
-  {
-    for (int s = 0; s <= FULLSHADE; s++)
-    {
-      for (int c = 0; c < 256; c++)
-      {
-        shademap[s][c] = colormaps[0][s * 256 + c];
-      }
-    }
-    cacheshade = true;
-  }
+  // 31 is invuln
+  shade = CLAMP(shade, 0, 30);
+  shademap = colormaps[0] + shade * 256;
 
   for (iy = y; iy < y + height; ++iy)
   {
@@ -1129,12 +1115,11 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 
     for (ix = x; ix < x + width; ++ix)
     {
-      dest[0] = shademap[shade][dest[0]];
+      *dest = shademap[*dest];
       dest++;
     }
   }
 }
-
 
 // CPhipps - some simple, useful wrappers for that function, for drawing patches from wads
 
