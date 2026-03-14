@@ -883,16 +883,16 @@ void DrawInventoryBarTranslucent(int x, int y, int vpt)
     if (inventory)
     {
         int i, j, lump;
-        int artibox_x   = heretic ? x+12    : x+12; // same
+        int artibox_x   = heretic ? x       : x;    // same
         int artibox_y   = heretic ? y       : y;    // same
-        int artifact_x  = heretic ? x+12    : x+10;
+        int artifact_x  = heretic ? x       : x-2;
         int artifact_y  = heretic ? y       : y;    // same
-        int sml_num_x   = heretic ? x-22    : x-27;
+        int sml_num_x   = heretic ? x+20    : x+15;
         int sml_num_y   = heretic ? y+22    : y+22; // same
-        int select_x    = heretic ? x+12    : x+11;
+        int select_x    = heretic ? x       : x-1;
         int select_y    = heretic ? y+29    : y;
-        int gem_xl      = heretic ? x       : x+2;
-        int gem_xr      = heretic ? x+231   : x+230;
+        int gem_xl      = heretic ? x-12    : x-10;
+        int gem_xr      = heretic ? x+219   : x+218;
         int gem_y       = heretic ? y-1     : y;
 
         full_exhud_inventory = true;
@@ -904,7 +904,7 @@ void DrawInventoryBarTranslucent(int x, int y, int vpt)
             if (CPlayer->inventorySlotNum > j + i && CPlayer->inventory[j + i].type != arti_none)
             {
                 V_DrawNumPatch(artifact_x + i * 31, artifact_y,lumparti[CPlayer->inventory[j + i].type], CR_DEFAULT, vpt);
-                DrSmallNumberInventory(CPlayer->inventory[j + i].count, sml_num_x + i * 31, sml_num_y);
+                DrSmallNumberVPTInventory(CPlayer->inventory[j + i].count, sml_num_x + i * 31, sml_num_y, vpt);
             }
         }
         V_DrawNumPatch(select_x + CPlayer->curpos * 31,  select_y, LumpSELECTBOX, CR_DEFAULT, vpt);
