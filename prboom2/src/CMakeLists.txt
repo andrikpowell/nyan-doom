@@ -120,10 +120,6 @@ set(COMMON_SRC
     dsda/hud_components/big_artifact.h
     dsda/hud_components/big_artifact_bar.c
     dsda/hud_components/big_artifact_bar.h
-    dsda/hud_components/doomguy_face.c
-    dsda/hud_components/doomguy_face.h
-    dsda/hud_components/status.c
-    dsda/hud_components/status.h
     dsda/hud_components/big_health.c
     dsda/hud_components/big_health.h
     dsda/hud_components/big_health_text.c
@@ -138,6 +134,8 @@ set(COMMON_SRC
     dsda/hud_components/composite_time.h
     dsda/hud_components/coordinate_display.c
     dsda/hud_components/coordinate_display.h
+    dsda/hud_components/doomguy_face.c
+    dsda/hud_components/doomguy_face.h
     dsda/hud_components/event_split.c
     dsda/hud_components/event_split.h
     dsda/hud_components/fps.c
@@ -186,14 +184,16 @@ set(COMMON_SRC
     dsda/hud_components/artifact_desc.h
     dsda/hud_components/secret_message.c
     dsda/hud_components/secret_message.h
-    dsda/hud_components/target_health.c
-    dsda/hud_components/target_health.h
     dsda/hud_components/sector_tracker.c
     dsda/hud_components/sector_tracker.h
     dsda/hud_components/speed_text.c
     dsda/hud_components/speed_text.h
     dsda/hud_components/stat_totals.c
     dsda/hud_components/stat_totals.h
+    dsda/hud_components/status.c
+    dsda/hud_components/status.h
+    dsda/hud_components/target_health.c
+    dsda/hud_components/target_health.h
     dsda/hud_components/tracker.c
     dsda/hud_components/tracker.h
     dsda/hud_components/weapon_text.c
