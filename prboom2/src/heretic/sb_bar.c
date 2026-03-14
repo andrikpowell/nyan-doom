@@ -876,9 +876,13 @@ void DrawInventoryBar(void)
 // This is to hide DrawArtifact() when DrawInventoryBarTranslucent() is active
 int full_exhud_inventory = false;
 
-void DrawInventoryBarTranslucent(int x, int y, int vpt)
+void DrawInventoryBarTranslucent(int x, int y, dboolean center, int vpt)
 {
     enum patch_translation_e flags = hexen ? VPT_ALT_TRANSMAP : VPT_TRANSMAP;
+    int artibox_bar_size = (7 * 31);
+
+    if (center)
+        x -= (artibox_bar_size / 2);
 
     if (inventory)
     {

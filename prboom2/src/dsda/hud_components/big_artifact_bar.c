@@ -21,6 +21,7 @@
 
 typedef struct {
   dsda_patch_component_t component;
+  dboolean center;
 } local_component_t;
 
 static local_component_t* local;
@@ -28,6 +29,8 @@ static local_component_t* local;
 void dsda_InitBigArtifactBarHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
+
+  local->center = arg_count > 0 ? !!args[0] : false;
 
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
 }
@@ -37,9 +40,9 @@ void dsda_UpdateBigArtifactBarHC(void* data) {
 }
 
 void dsda_DrawBigArtifactBarHC(void* data) {
-  extern void DrawInventoryBarTranslucent(int x, int y, int vpt);
+  extern void DrawInventoryBarTranslucent(int x, int y, dboolean center, int vpt);
 
   local = data;
 
-  DrawInventoryBarTranslucent(local->component.x, local->component.y, local->component.vpt);
+  DrawInventoryBarTranslucent(local->component.x, local->component.y, local->center, local->component.vpt);
 }
