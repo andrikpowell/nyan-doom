@@ -512,10 +512,14 @@ static int dsda_AlignmentToVPT(const char* alignment) {
     return VPT_ALIGN_LEFT_BOTTOM;
   else if (!strcmp(alignment, "bottom_right"))
     return VPT_ALIGN_RIGHT_BOTTOM;
+  else if (!strcmp(alignment, "bottom_center"))
+    return VPT_ALIGN_CENTER_BOTTOM;
   else if (!strcmp(alignment, "top_left"))
     return VPT_ALIGN_LEFT_TOP;
   else if (!strcmp(alignment, "top_right"))
     return VPT_ALIGN_RIGHT_TOP;
+  else if (!strcmp(alignment, "top_center"))
+    return VPT_ALIGN_CENTER_TOP;
   else if (!strcmp(alignment, "top"))
     return VPT_ALIGN_TOP;
   else if (!strcmp(alignment, "bottom"))

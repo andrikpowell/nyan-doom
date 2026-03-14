@@ -144,17 +144,22 @@ static void InitExTextParam(stretch_param_t* offsets, enum patch_translation_e f
 
   offsets->video = &video_ex_text;
 
-  if (flags == VPT_ALIGN_LEFT || flags == VPT_ALIGN_LEFT_BOTTOM || flags == VPT_ALIGN_LEFT_TOP) {
+  if (LEFT_ALIGNMENT(flags)) {
     offsets->deltax1 = 0;
     offsets->deltax2 = 0;
   }
 
-  if (flags == VPT_ALIGN_RIGHT || flags == VPT_ALIGN_RIGHT_BOTTOM || flags == VPT_ALIGN_RIGHT_TOP) {
+  else if (CENTER_ALIGNMENT(flags)) {
+    offsets->deltax1 = offset2x / 2;
+    offsets->deltax2 = offset2x / 2;
+  }
+
+  if (RIGHT_ALIGNMENT(flags)) {
     offsets->deltax1 = offset2x;
     offsets->deltax2 = offset2x;
   }
 
-  if (flags == VPT_ALIGN_BOTTOM || flags == VPT_ALIGN_LEFT_BOTTOM || flags == VPT_ALIGN_RIGHT_BOTTOM)
+  if (BOTTOM_ALIGNMENT(flags))
     offsets->deltay1 = offset2y;
 }
 
@@ -199,22 +204,26 @@ static void InitStretchParam(stretch_param_t* offsets, int stretch, enum patch_t
       break;
   }
 
-  if (flags == VPT_ALIGN_LEFT || flags == VPT_ALIGN_LEFT_BOTTOM || flags == VPT_ALIGN_LEFT_TOP) {
+  if (LEFT_ALIGNMENT(flags)) {
     offsets->deltax1 = 0;
     offsets->deltax2 = 0;
   }
 
-  if (flags == VPT_ALIGN_RIGHT || flags == VPT_ALIGN_RIGHT_BOTTOM || flags == VPT_ALIGN_RIGHT_TOP) {
+  if (CENTER_ALIGNMENT(flags)) {
+    // don't touch
+  }
+
+  if (RIGHT_ALIGNMENT(flags)) {
     offsets->deltax1 *= 2;
     offsets->deltax2 *= 2;
   }
 
   offsets->deltay1 = wide_offsety;
 
-  if (flags == VPT_ALIGN_BOTTOM || flags == VPT_ALIGN_LEFT_BOTTOM || flags == VPT_ALIGN_RIGHT_BOTTOM)
+  if (BOTTOM_ALIGNMENT(flags))
     offsets->deltay1 = wide_offset2y;
 
-  if (flags == VPT_ALIGN_TOP || flags == VPT_ALIGN_LEFT_TOP || flags == VPT_ALIGN_RIGHT_TOP)
+  if (TOP_ALIGNMENT(flags))
     offsets->deltay1 = 0;
 
   if (flags == VPT_ALIGN_WIDE && !tallscreen)

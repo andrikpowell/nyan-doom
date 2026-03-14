@@ -148,18 +148,21 @@ typedef int complevel_t;
 #define VPT_STRETCH_MASK 0x1f
 enum patch_translation_e {
   // e6y: wide-res
-  VPT_ALIGN_LEFT         = 1,
-  VPT_ALIGN_RIGHT        = 2,
-  VPT_ALIGN_TOP          = 3,
-  VPT_ALIGN_LEFT_TOP     = 4,
-  VPT_ALIGN_RIGHT_TOP    = 5,
-  VPT_ALIGN_BOTTOM       = 6,
-  VPT_ALIGN_WIDE         = 7,
-  VPT_ALIGN_LEFT_BOTTOM  = 8,
-  VPT_ALIGN_RIGHT_BOTTOM = 9,
-  VPT_ALIGN_MAX          = 10,
-  VPT_STRETCH            = 16, // Stretch to compensate for high-res
-  VPT_EX_TEXT            = 32,
+  VPT_ALIGN_LEFT          = 1,
+  VPT_ALIGN_RIGHT         = 2,
+  VPT_ALIGN_CENTER        = 3,
+  VPT_ALIGN_TOP           = 4,
+  VPT_ALIGN_LEFT_TOP      = 5,
+  VPT_ALIGN_RIGHT_TOP     = 6,
+  VPT_ALIGN_CENTER_TOP    = 7,
+  VPT_ALIGN_BOTTOM        = 8,
+  VPT_ALIGN_WIDE          = 9,
+  VPT_ALIGN_LEFT_BOTTOM   = 10,
+  VPT_ALIGN_RIGHT_BOTTOM  = 11,
+  VPT_ALIGN_CENTER_BOTTOM = 12,
+  VPT_ALIGN_MAX           = 13,
+  VPT_STRETCH             = 16, // Stretch to compensate for high-res
+  VPT_EX_TEXT             = 32,
 
   // bit shift at 128
   VPT_NONE          = (1<<7), // Normal
@@ -179,11 +182,25 @@ extern int global_patch_top_offset;
 
 #define BOTTOM_ALIGNMENT(x) ((x) == VPT_ALIGN_BOTTOM || \
                              (x) == VPT_ALIGN_LEFT_BOTTOM || \
-                             (x) == VPT_ALIGN_RIGHT_BOTTOM)
+                             (x) == VPT_ALIGN_RIGHT_BOTTOM || \
+                             (x) == VPT_ALIGN_CENTER_BOTTOM)
 
 #define TOP_ALIGNMENT(x) ((x) == VPT_ALIGN_TOP || \
                           (x) == VPT_ALIGN_LEFT_TOP || \
-                          (x) == VPT_ALIGN_RIGHT_TOP)
+                          (x) == VPT_ALIGN_RIGHT_TOP || \
+                          (x) == VPT_ALIGN_CENTER_TOP)
+
+#define LEFT_ALIGNMENT(x) ((x) == VPT_ALIGN_LEFT || \
+                           (x) == VPT_ALIGN_LEFT_BOTTOM || \
+                           (x) == VPT_ALIGN_LEFT_TOP)
+
+#define RIGHT_ALIGNMENT(x) ((x) == VPT_ALIGN_RIGHT || \
+                            (x) == VPT_ALIGN_RIGHT_BOTTOM || \
+                            (x) == VPT_ALIGN_RIGHT_TOP)
+
+#define CENTER_ALIGNMENT(x) ((x) == VPT_ALIGN_CENTER || \
+                             (x) == VPT_ALIGN_CENTER_BOTTOM || \
+                             (x) == VPT_ALIGN_CENTER_TOP)
 
 #define arrlen(array) (sizeof(array) / sizeof(*array))
 
