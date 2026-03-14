@@ -42,6 +42,7 @@
 #include "dsda/exhud.h"
 #include "dsda/font.h"
 #include "dsda/global.h"
+#include "dsda/messenger.h"
 #include "dsda/settings.h"
 #include "dsda/text_color.h"
 #include "dsda/utility.h"
