@@ -161,6 +161,9 @@ prboom2/data/graphics/stfarms2.ppm -text
 prboom2/data/graphics/stfarm20.ppm -text
 prboom2/data/graphics/stfarm21.ppm -text
 prboom2/data/graphics/stfarm22.ppm -text
+prboom2/data/graphics/STBR123.ppm -text
+prboom2/data/graphics/STBR124.lmp -text
+prboom2/data/graphics/STBR125.lmp -text
 prboom2/data/graphics/stfpinv.ppm -text
 prboom2/data/graphics/stfpins.ppm -text
 prboom2/data/graphics/stfpvis.ppm -text

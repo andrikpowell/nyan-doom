@@ -98,6 +98,8 @@ void HUlib_setTextXCenter(hu_textline_t* t);
 dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean centered, int max_lines);
 void HUlib_AdjustBottomOffset_MultiLine(hu_textline_t *t, int y_offset, double ratio, int vpt);
 
+int HU_FontStringWidth(const dsda_font_t* f, const char* string);
+
 char HUlib_Color(int cm);
 char HUlib_ColorReset(void);
 char *HU_ColorFromConfig(int config);

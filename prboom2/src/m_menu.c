@@ -4688,6 +4688,7 @@ setup_menu_t display_color_settings[] = {
   {"Ammo Mana1", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_mana1 },
   {"Ammo Mana2", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_mana2 },
   {"Ammo Value", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_value },
+  {"Ammo None", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_none },
   {"Ammo Bad", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_bad },
   {"Ammo Warning", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_warning },
   {"Ammo Ok", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_ammo_ok },

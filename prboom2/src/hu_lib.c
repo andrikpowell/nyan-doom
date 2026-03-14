@@ -96,6 +96,21 @@ char* HU_ColorFromValue(int cm)
 
 ////////////////////////////////////////////////////////
 //
+// Get font string width
+//
+////////////////////////////////////////////////////////
+
+int HU_FontStringWidth(const dsda_font_t* f, const char* string)
+{
+  int i, c, w = 0;
+  for (i = 0; string[i]; i++)
+    w += (c = toupper((unsigned char)string[i]) - HU_FONTSTART) < 0 || c >= HU_FONTSIZE ?
+      f->space_width : f->font[c].width;
+  return w;
+}
+
+////////////////////////////////////////////////////////
+//
 // Text Screen Boundaries
 //
 ////////////////////////////////////////////////////////

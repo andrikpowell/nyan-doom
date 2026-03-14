@@ -256,9 +256,12 @@ set(GRAPHICS
     graphics/cross5.ppm
     graphics/cross6.ppm
     graphics/cross7.ppm
+    graphics/STBR123.ppm
 )
 
 set(RAVEN_GRAPHICS
+    graphics/STBR124.lmp
+    graphics/STBR125.lmp
     graphics/h_palsel.lmp
 )
 

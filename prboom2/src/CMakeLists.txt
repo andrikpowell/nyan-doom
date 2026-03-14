@@ -128,6 +128,8 @@ set(COMMON_SRC
     dsda/hud_components/big_health.h
     dsda/hud_components/big_health_text.c
     dsda/hud_components/big_health_text.h
+    dsda/hud_components/boom_bar.c
+    dsda/hud_components/boom_bar.h
     dsda/hud_components/color_test.c
     dsda/hud_components/color_test.h
     dsda/hud_components/command_display.c
