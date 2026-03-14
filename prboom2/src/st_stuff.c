@@ -1186,19 +1186,20 @@ dboolean drawdisk = false;
 int drawdisktics;
 const int DRAWDISKTICS = (TICRATE / 2);
 
-void ST_DrawDisk(void)
+void ST_DrawDisk(int x, int y, int vpt)
 {
-  if (dsda_ShowDataDisk() && !raven && (stdisk_exists || stcdrom_exists) && drawdisktics)
+  if (drawdisk)
   {
-    dboolean stcdrom = dsda_ShowDataDisk() == 2 && stcdrom_exists;
-    patchnum_t icon = stcdrom ? stcdrom_icon : stdisk_icon;
-    stretch_param_t *params = dsda_StretchParams(VPT_STRETCH);
-    float screenwidth_sml = (SCREENWIDTH - params->deltax1) * 320.0f / params->video->width;
+    if (dsda_ShowDataDisk() && !raven && (stdisk_exists || stcdrom_exists) && drawdisktics)
+    {
+      dboolean stcdrom = dsda_ShowDataDisk() == 2 && stcdrom_exists;
+      patchnum_t icon = stcdrom ? stcdrom_icon : stdisk_icon;
 
-    V_DrawMenuNumPatchPrecise(screenwidth_sml - 10 - icon.width, 5, icon.lumpnum, CR_DEFAULT, VPT_STRETCH);
+      V_DrawMenuNumPatch(x, y, icon.lumpnum, CR_DEFAULT, vpt);
 
-    if (!--drawdisktics)
-      drawdisk = false;
+      if (!--drawdisktics)
+        drawdisk = false;
+    }
   }
 }
 
@@ -1226,9 +1227,6 @@ void ST_Drawer(void)
     ST_refreshBackground(); // draw status bar background to off-screen buff
     ST_drawWidgets(); // draw widgets
   }
-
-  if (drawdisk)
-    ST_DrawDisk();
 
   V_EndUIDraw();
 }
