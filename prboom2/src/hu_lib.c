@@ -264,8 +264,18 @@ static dboolean HU_EscIsColorReset(unsigned char p)
 
 static dboolean HU_EscIsXOffset(unsigned char p)
 {
-  // x-offsets are < HU_COLOR, except HU_COLOR_ORIG
-  return (p < HU_COLOR && !HU_EscIsColorReset(p));
+  // signed for negative X offsets
+  int v = (signed char)p;
+
+  // 0 means "do nothing"
+  if (v == 0)
+    return false;
+
+  // Ignore color reset
+  if (HU_EscIsColorReset(p))
+    return false;
+
+  return (v >= -HU_XOFF_MAX && v <= HU_XOFF_MAX);
 }
 
 ////////////////////////////////////////////////////////
@@ -407,7 +417,7 @@ static void HUlib_GetCharInfo(const hu_textline_t *l, const patchnum_t *font, hu
     if (nextch.type == HU_ESC)
     {
       if (HU_EscIsXOffset(nextch.esc))
-        x += nextch.esc;
+        x += (signed char)nextch.esc;
     }
 
     else if (nextch.type == HU_TAB)
@@ -445,7 +455,7 @@ static void HUlib_GetCharInfo(const hu_textline_t *l, const patchnum_t *font, hu
       {
         if (HU_EscIsXOffset(nextch.esc))
         {
-          x += nextch.esc;
+          x += (signed char)nextch.esc;
           if (x > info->singleline_max_right_px)
             info->singleline_max_right_px = x;
         }
@@ -746,7 +756,7 @@ void HUlib_drawTextLine
       // x-offset
       if (HU_EscIsXOffset(p))
       {
-        x += p;
+        x += (signed char)p;
       }
 
       continue;
@@ -841,7 +851,8 @@ void HUlib_drawOffsetTextLine(hu_textline_t* l, dboolean yellow, dboolean shadow
 //
 ////////////////////////////////////////////////////////
 
-static int HUlib_GetLineWidthRaw(const hu_textline_t *l, const patchnum_t *font, const char *s)
+// Returns 0 if the line has no drawable glyphs
+static dboolean HUlib_GetLineBoundsRaw(const hu_textline_t *l, const patchnum_t *font, const char *s, int *out_minx, int *out_maxx)
 {
   int x = 0;      // advance position
   int minx = 0;   // leftmost covered pixel relative to line start
@@ -911,7 +922,24 @@ static int HUlib_GetLineWidthRaw(const hu_textline_t *l, const patchnum_t *font,
   }
 
   if (!any) return 0;
+
+  *out_minx = minx;
+  *out_maxx = maxx;
+  return true;
+}
+
+static int HUlib_GetLineWidthRaw(const hu_textline_t *l, const patchnum_t *font, const char *s)
+{
+  int minx, maxx;
+  if (!HUlib_GetLineBoundsRaw(l, font, s, &minx, &maxx)) return 0;
   return maxx - minx;
+}
+
+static int HUlib_GetLineRightExtentRaw(const hu_textline_t *l, const patchnum_t *font, const char *s)
+{
+  int minx, maxx;
+  if (!HUlib_GetLineBoundsRaw(l, font, s, &minx, &maxx)) return 0;
+  return maxx;
 }
 
 //
@@ -1023,6 +1051,109 @@ void HUlib_setTextXCenter(hu_textline_t* t)
 
 ////////////////////////////////////////////////////////
 //
+// Right aligned text
+//
+////////////////////////////////////////////////////////
+
+void HUlib_setTextXRightAlign(hu_textline_t *t)
+{
+  char outbuf[sizeof(t->l)];
+  int out = 0;
+
+  int i = 0;
+
+  while (i < t->len && out < (int)sizeof(outbuf) - 1)
+  {
+    int line_start = i;
+
+    // Skip any leading XOFF escapes from previous processing
+    while (line_start + 1 < t->len &&
+           t->l[line_start] == '\x1b' &&
+           HU_EscIsXOffset((unsigned char)t->l[line_start + 1]))
+    {
+      line_start += 2;
+    }
+
+    // Measure this line’s right extent (ignores ESC, tabs handled)
+    {
+      int r = HUlib_GetLineRightExtentRaw(t, t->f, t->l + line_start);
+      int indent = -r;
+
+      while (indent < 0 && out < (int)sizeof(outbuf) - 3)
+      {
+        int chunk = -indent;
+        if (chunk > HU_XOFF_MAX) chunk = HU_XOFF_MAX;
+
+        outbuf[out++] = '\x1b';
+        outbuf[out++] = (char)(signed char)(-chunk); // negative xoff
+        indent += chunk;
+      }
+    }
+
+    // Copy chars for this line, keeping colors, dropping ALL x-offset escapes
+    i = line_start;
+
+    while (i < t->len && out < (int)sizeof(outbuf) - 1)
+    {
+      hu_char_t nextch = HU_GetNextChar(t->l, t->len, &i);
+
+      if (nextch.type == HU_END)
+        break;
+
+      if (nextch.type == HU_NEWLINE)
+      {
+        outbuf[out++] = '\n';
+        break;
+      }
+
+      if (nextch.type == HU_ESC)
+      {
+        // keep colors, drop x-offsets
+        if (!HU_EscIsXOffset(nextch.esc) && out < (int)sizeof(outbuf) - 2)
+        {
+          outbuf[out++] = '\x1b';
+          outbuf[out++] = (char)nextch.esc;
+        }
+        continue;
+      }
+
+      if (nextch.type == HU_TAB)
+      {
+        outbuf[out++] = '\t';
+        continue;
+      }
+
+      outbuf[out++] = (char)nextch.ch;
+    }
+  }
+
+  outbuf[out] = '\0';
+  strncpy(t->l, outbuf, sizeof(t->l));
+  t->l[sizeof(t->l) - 1] = '\0';
+  t->len = (int)strlen(t->l);
+
+  // linelen recount
+  t->linelen = 0;
+  {
+    int j = 0;
+    while (j < t->len)
+    {
+      hu_char_t nextch = HU_GetNextChar(t->l, t->len, &j);
+
+      if (nextch.type == HU_NEWLINE)
+      {
+        t->linelen = 0;
+        continue;
+      }
+
+      if (nextch.type != HU_ESC)
+        t->linelen++;
+    }
+  }
+}
+
+////////////////////////////////////////////////////////
+//
 // Multiple wrapped text lines
 //
 ////////////////////////////////////////////////////////
@@ -1058,7 +1189,7 @@ static int HUlib_wrap_textWidthFromLineStart(const hu_textline_t *l)
     if (nextch.type == HU_ESC)
     {
       if (HU_EscIsXOffset(nextch.esc))
-        cur += nextch.esc;
+        cur += (signed char)nextch.esc;
       continue;
     }
 
@@ -1090,7 +1221,7 @@ static int HUlib_wrap_wordMaxRightEdgePx(const hu_textline_t *l, const patchnum_
     {
       if (HU_EscIsXOffset(nextch.esc))
       {
-        x += nextch.esc;
+        x += (signed char)nextch.esc;
         if (x > max_right) max_right = x;
       }
       continue;
@@ -1228,7 +1359,7 @@ dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean c
         WRAP_ELLIPSIS("add_fail_escape");
 
       if (HU_EscIsXOffset(nextch.esc))
-        cur_px += nextch.esc;
+        cur_px += (signed char)nextch.esc;
 
       continue;
     }
@@ -1339,7 +1470,7 @@ dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean c
               WRAP_ELLIPSIS("add_fail_word_escape");
 
             if (HU_EscIsXOffset(nextch.esc))
-              cur_px += nextch.esc;
+              cur_px += (signed char)nextch.esc;
 
             wi = wi_next;
             continue;
