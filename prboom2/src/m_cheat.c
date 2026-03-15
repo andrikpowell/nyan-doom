@@ -834,6 +834,9 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
 
   // killough 7/20/98: kill friendly monsters only if no others to kill
   uint64_t mask = MF_FRIEND;
+
+  complete_milestones |= MILESTONE_KILLS; // Don't announce
+
   P_MapStart();
   do
     while ((currentthinker = P_NextThinker(currentthinker,th_all)) != NULL)

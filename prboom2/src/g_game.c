@@ -189,6 +189,8 @@ int             totalleveltimes;      // CPhipps - total time for all completed 
 int             levels_completed;
 int             longtics;
 
+milestone_t     complete_milestones; // [Nugget]
+
 dboolean coop_spawns;
 dboolean skill_loadout;
 

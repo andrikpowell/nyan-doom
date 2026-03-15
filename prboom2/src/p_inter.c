@@ -820,7 +820,9 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
   }
 
   if (special->flags & MF_COUNTITEM)
-    player->itemcount++;
+  {
+    P_PlayerCollectItem(player);
+  }
 
   if (special->flags2 & MF2_COUNTSECRET)
     P_PlayerCollectSecret(player);
@@ -1066,6 +1068,8 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
           }
         }
     }
+
+  P_AnnounceKillMilestone();
 
   if (target->player)
   {
@@ -2317,7 +2321,7 @@ static void Heretic_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
     }
     if (special->flags & MF_COUNTITEM)
     {
-        player->itemcount++;
+      P_PlayerCollectItem(player);
     }
     if (deathmatch && !(special->flags & MF_DROPPED))
     {
@@ -2400,7 +2404,7 @@ dboolean P_GiveArtifact(player_t * player, artitype_t arti, mobj_t * mo)
     player->artifactCount++;
     if (mo && (mo->flags & MF_COUNTITEM))
     {
-        player->itemcount++;
+      P_PlayerCollectItem(player);
     }
     return (true);
 }

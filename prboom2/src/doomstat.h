@@ -243,6 +243,14 @@ extern  int leveltime;       // level time in tics
 extern  int totalleveltimes; // sum of intermission times in tics at second resolution
 extern  int levels_completed;
 
+// [Nugget]
+typedef enum {
+  MILESTONE_KILLS   = (1<<0),
+  MILESTONE_ITEMS   = (1<<1),
+  MILESTONE_SECRETS = (1<<2),
+} milestone_t;
+extern milestone_t complete_milestones;
+
 // --------------------------------------
 // DEMO playback/recording related stuff.
 

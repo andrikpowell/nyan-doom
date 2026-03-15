@@ -1637,6 +1637,8 @@ typedef enum {
 
 void P_AddMobjSecret(mobj_t *mobj);
 void P_PlayerCollectSecret(player_t *player);
+void P_PlayerCollectItem(player_t *player);
+dboolean P_AnnounceKillMilestone(void);
 dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy);
 dboolean P_CheckSwitchRange(line_t *line, mobj_t *mo, int sideno);
 int EV_DoZDoomDoor(vldoor_e type, line_t *line, mobj_t *mo, int tag, fixed_t speed, int topwait,

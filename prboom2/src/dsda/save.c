@@ -49,6 +49,7 @@ extern int player_damage_last_tic;
 static void dsda_ArchiveInternal(void) {
   P_SAVE_X(dsda_max_kill_requirement);
   P_SAVE_X(player_damage_last_tic);
+  P_SAVE_X(complete_milestones);
 
   for (int f = 0; f < FEATURE_SLOTS; f++) {
     P_SAVE_X(dsda_UsedFeatures()[f]);
@@ -60,6 +61,7 @@ static void dsda_UnArchiveInternal(void) {
 
   P_LOAD_X(dsda_max_kill_requirement);
   P_LOAD_X(player_damage_last_tic);
+  P_LOAD_X(complete_milestones);
 
   P_LOAD_X(features);
   dsda_MergeFeatures(features);

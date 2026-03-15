@@ -74,6 +74,7 @@
 #include "dsda/mapinfo.h"
 #include "dsda/messenger.h"
 #include "dsda/scroll.h"
+#include "dsda/skill_info.h"
 #include "dsda/thing_id.h"
 #include "dsda/utility.h"
 
@@ -1631,10 +1632,6 @@ static const char* dsda_GetSecretMessage(void)
       }
     }
 
-    // TODO: secret milestones
-    //if (is_ratio && secretcount >= totalsecret)
-      //return "All secrets revealed!";
-
     if (is_ratio)
       sprintf(secret_message, "Secret %d of %d revealed!", secretcount, totalsecret);
     else if (is_percent)
@@ -1666,9 +1663,127 @@ void P_PlayerAnnounceSecret(player_t *player, const char* message)
   }
 }
 
+#define MILESTONE_TICS (2.5*TICRATE)
+
+void P_PlayerAnnounceMilestone(player_t *player, const char* message)
+{
+  if (true)
+  {
+    int sfx_id = raven ? g_sfx_secret : I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+
+    SetCustomMessage(player - players, message, MILESTONE_TICS, sfx_id);
+  }
+}
+
+dboolean P_AnnounceSecretMilestone(void)
+{
+  if (hexen) return false;
+
+  if (!(complete_milestones & MILESTONE_SECRETS))
+  {
+    int secretcount = 0;
+
+    for (int p = 0; p < g_maxplayers; ++p)
+    {
+      if (playeringame[p])
+        secretcount += players[p].secretcount;
+    }
+  
+    if (secretcount >= totalsecret)
+    {
+      complete_milestones |= MILESTONE_SECRETS;
+
+      if (dsda_IntConfig(dsda_config_secrets_milestone))
+      {
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All secrets revealed!");
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+dboolean P_AnnounceItemMilestone(void)
+{
+  if (hexen) return false;
+
+  // [Nugget] Announce milestone completion
+  if (!(complete_milestones & MILESTONE_ITEMS))
+  {
+    int itemcount = 0;
+
+    for (int p = 0;  p < g_maxplayers;  ++p)
+    {
+      if (playeringame[p]) { itemcount += players[p].itemcount; }
+    }
+
+    if (itemcount >= totalitems)
+    {
+      complete_milestones |= MILESTONE_ITEMS;
+
+      if (dsda_IntConfig(dsda_config_items_milestone))
+      {
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All items collected!");
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+dboolean P_AnnounceKillMilestone(void)
+{
+  if (hexen) return false;
+
+  // [Nugget] Announce milestone completion
+  if (!(complete_milestones & MILESTONE_KILLS))
+  {
+    int killcount = 0;
+    int kill_percent_count = 0;
+    int max_kill_requirement = dsda_MaxKillRequirement();
+
+    for (int p = 0;  p < g_maxplayers;  ++p)
+    {
+      killcount += players[p].killcount - players[p].maxkilldiscount;
+      kill_percent_count += players[p].killcount;
+    }
+
+    if (skill_info.respawn_time)
+    {
+      killcount = kill_percent_count;
+      max_kill_requirement = totalkills;
+    }
+
+    if (killcount >= max_kill_requirement)
+    {
+      complete_milestones |= MILESTONE_KILLS;
+
+      if (dsda_IntConfig(dsda_config_kills_milestone))
+      {
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All enemies killed!");
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+void P_PlayerCollectItem(player_t *player)
+{
+  player->itemcount++;
+  P_AnnounceItemMilestone();
+}
+
 void P_PlayerCollectSecret(player_t *player)
 {
   player->secretcount++;
+
+  if (P_AnnounceSecretMilestone())
+    return;
+
   P_PlayerAnnounceSecret(player, dsda_GetSecretMessage());
 }
 

@@ -3662,6 +3662,20 @@ void P_MustRebuildBlockmap(void)
   must_rebuild_blockmap = true;
 }
 
+static void P_ResetMilestones(void)
+{
+  if (hexen) return;
+
+  if (totalkills)  { complete_milestones &= ~MILESTONE_KILLS; }
+  else             { complete_milestones |=  MILESTONE_KILLS; }
+
+  if (totalitems)  { complete_milestones &= ~MILESTONE_ITEMS; }
+  else             { complete_milestones |=  MILESTONE_ITEMS; }
+
+  if (totalsecret) { complete_milestones &= ~MILESTONE_SECRETS; }
+  else             { complete_milestones |=  MILESTONE_SECRETS; }
+}
+
 //
 // P_SetupLevel
 //
@@ -3936,6 +3950,9 @@ void P_SetupLevel(int episode, int map, int playermask, int skill)
 
   // set up world state
   P_SpawnSpecials();
+
+  // [Nugget] Reset milestones
+  P_ResetMilestones();
 
   dsda_WatchAfterLevelSetup();
 

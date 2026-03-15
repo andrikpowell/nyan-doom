@@ -408,6 +408,18 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_secret_format", dsda_config_secret_format,
     dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT
   },
+  [dsda_config_kills_milestone] = {
+    "dsda_kills_milestone", dsda_config_kills_milestone,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [dsda_config_items_milestone] = {
+    "dsda_items_milestone", dsda_config_items_milestone,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [dsda_config_secrets_milestone] = {
+    "dsda_secrets_milestone", dsda_config_secrets_milestone,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
   [dsda_config_target_health] = {
     "dsda_target_health", dsda_config_target_health,
     CONF_BOOL(0), NULL, STRICT_INT(0), dsda_RefreshExHudTargetHealth
