@@ -413,10 +413,7 @@ dboolean dsda_ShowDataDisk(void) {
 }
 
 dboolean dsda_AllowMirroredCorpses(void) {
-  if (demorecording)
-    return false;
-
-  return dsda_IntConfig(nyan_config_flip_corpses);
+  return dsda_IntConfig(nyan_config_flip_corpses) && !demorecording;
 }
 
 dboolean dsda_AllowBlockmapFix(void) {
