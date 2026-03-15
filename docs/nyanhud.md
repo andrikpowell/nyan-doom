@@ -36,6 +36,8 @@ The configuration then consists of a series of components to display: `name x y 
     - component is not centered, it's anchored center
   - `left`
   - `right`
+  - 😸 `center`
+    - component is not centered, it's anchored center
   - `none`
 - The `args` are a series of optional parameters (see specific components for more info)
 - For convenience, bottom-aligned `y` values are the distance from the bottom of the screen (`full`) or top of the status bar (`ex` and `off`)

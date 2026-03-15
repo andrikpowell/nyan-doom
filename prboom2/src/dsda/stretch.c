@@ -149,7 +149,7 @@ static void InitExTextParam(stretch_param_t* offsets, enum patch_translation_e f
     offsets->deltax2 = 0;
   }
 
-  else if (CENTER_ALIGNMENT(flags)) {
+  if (CENTER_ALIGNMENT(flags)) {
     offsets->deltax1 = offset2x / 2;
     offsets->deltax2 = offset2x / 2;
   }
