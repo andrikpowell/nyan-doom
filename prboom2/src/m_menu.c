@@ -199,6 +199,7 @@ static dboolean sub_colored_blood_active = false;
 static dboolean sub_trans_active = false;
 static dboolean sub_statbar_color_active = false;
 static dboolean sub_obituary_active = false;
+static dboolean sub_announce_active = false;
 static dboolean sub_exhud_active = false;
 static dboolean sub_status_widget_active = false;
 static dboolean sub_crosshair_active = false;
@@ -239,7 +240,7 @@ static void M_DrawBackground(const char *flat)
 }
 
 static const char* color_list[] = {
-  "Default",
+  "None",
   "Brick",
   "Tan",
   "Gray",
@@ -411,6 +412,7 @@ static void M_Sub_ColoredBlood(void);
 static void M_Sub_Trans(void);
 static void M_Sub_StatbarColor(void);
 static void M_Sub_Obituary(void);
+static void M_Sub_Announce(void);
 static void M_Sub_ExHud(void);
 static void M_Sub_StatusWidget(void);
 static void M_Sub_Crosshair(void);
@@ -424,6 +426,7 @@ static void M_Sub_DrawColoredBlood(void);
 static void M_Sub_DrawTrans(void);
 static void M_Sub_DrawStatbarColor(void);
 static void M_Sub_DrawObituary(void);
+static void M_Sub_DrawAnnounce(void);
 static void M_Sub_DrawExHud(void);
 static void M_Sub_DrawStatusWidget(void);
 static void M_Sub_DrawCrosshair(void);
@@ -1877,7 +1880,7 @@ static menu_t DisplayDef =                                           // killough
   0
 };
 
-static menu_t SubAdvAudioDef =                                           // killough 10/98
+static menu_t SubAdvAudioDef =
 {
   generic_setup_end,
   &GeneralDef,
@@ -1887,7 +1890,7 @@ static menu_t SubAdvAudioDef =                                           // kill
   0
 };
 
-static menu_t SubMouseDef =                                           // killough 10/98
+static menu_t SubMouseDef =
 {
   generic_setup_end,
   &GeneralDef,
@@ -1897,7 +1900,7 @@ static menu_t SubMouseDef =                                           // killoug
   0
 };
 
-static menu_t SubGamepadDef =                                           // killough 10/98
+static menu_t SubGamepadDef =
 {
   generic_setup_end,
   &GeneralDef,
@@ -1907,7 +1910,7 @@ static menu_t SubGamepadDef =                                           // killo
   0
 };
 
-static menu_t SubColoredBloodDef =                                           // killough 10/98
+static menu_t SubColoredBloodDef =
 {
   generic_setup_end,
   &DisplayDef,
@@ -1917,7 +1920,7 @@ static menu_t SubColoredBloodDef =                                           // 
   0
 };
 
-static menu_t SubTransDef =                                           // killough 10/98
+static menu_t SubTransDef =
 {
   generic_setup_end,
   &DisplayDef,
@@ -1927,7 +1930,7 @@ static menu_t SubTransDef =                                           // killoug
   0
 };
 
-static menu_t SubStatbarColorDef =                                           // killough 10/98
+static menu_t SubStatbarColorDef =
 {
   generic_setup_end,
   &DisplayDef,
@@ -1937,7 +1940,7 @@ static menu_t SubStatbarColorDef =                                           // 
   0
 };
 
-static menu_t SubObituaryDef =                                           // killough 10/98
+static menu_t SubObituaryDef =
 {
   generic_setup_end,
   &DisplayDef,
@@ -1947,7 +1950,17 @@ static menu_t SubObituaryDef =                                           // kill
   0
 };
 
-static menu_t SubExHudDef =                                           // killough 10/98
+static menu_t SubAnnounceDef =
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawAnnounce,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubExHudDef =
 {
   generic_setup_end,
   &DisplayDef,
@@ -1957,7 +1970,7 @@ static menu_t SubExHudDef =                                           // killoug
   0
 };
 
-static menu_t SubStatusWidgetDef =                                           // killough 10/98
+static menu_t SubStatusWidgetDef =
 {
   generic_setup_end,
   &DisplayDef,
@@ -1967,7 +1980,7 @@ static menu_t SubStatusWidgetDef =                                           // 
   0
 };
 
-static menu_t SubCrosshairDef =                                           // killough 10/98
+static menu_t SubCrosshairDef =
 {
   generic_setup_end,
   &DisplayDef,
@@ -1987,7 +2000,7 @@ static menu_t DemosDef =
   0
 };
 
-static menu_t CompatibilityDef =                                           // killough 10/98
+static menu_t CompatibilityDef =
 {
   generic_setup_end,
   &OptionsDef,
@@ -1997,7 +2010,7 @@ static menu_t CompatibilityDef =                                           // ki
   0
 };
 
-static menu_t OverflowsDef =                                           // killough 10/98
+static menu_t OverflowsDef =
 {
   generic_setup_end,
   &CompatibilityDef,
@@ -2007,7 +2020,7 @@ static menu_t OverflowsDef =                                           // killou
   0
 };
 
-static menu_t SkillBuilderDef =                                           // killough 10/98
+static menu_t SkillBuilderDef =
 {
   generic_setup_end,
   &SkillDef,
@@ -2037,7 +2050,7 @@ static menu_t AutoMapDef =
   0
 };
 
-static menu_t SubAutoMapThingsDef =                                           // killough 10/98
+static menu_t SubAutoMapThingsDef =
 {
   generic_setup_end,
   &GeneralDef,
@@ -3438,7 +3451,7 @@ setup_menu_t keys_misc_settings[] =
   { "Start/Stop Skipping",      S_INPUT,        m_scrn, MS_X, 0,  dsda_input_demo_skip },
   { "End Level",                S_INPUT,        m_scrn, MS_X, 0,  dsda_input_demo_endlevel },
   { "Join",                     S_INPUT,        m_scrn, MS_X, 0,  dsda_input_join_demo },
-  { "Camera Mode",              S_INPUT,        m_scrn, MS_X, 0,  dsda_input_walkcamera },
+  { "Demo Camera Mode",         S_INPUT,        m_scrn, MS_X, 0,  dsda_input_walkcamera },
 
   PREV_PAGE(keys_game_settings),
   NEXT_PAGE(keys_toggles_settings),
@@ -4172,9 +4185,12 @@ DEPEND_LIST(freelook_list,
 
 setup_menu_t gen_device_settings[] = {
   { "Enable Mouse", S_YESNO, m_conf, G2_X, dsda_config_use_mouse },
+  { "Vertical Mouse Movement", S_YESNO, m_conf, G2_X, dsda_config_vertmouse, 0, empty_list, DEPEND(dsda_config_use_mouse, true) },
+  { "Dbl-Click As Use", S_YESNO, m_conf, G2_X, dsda_config_mouse_doubleclick_as_use, 0, empty_list, DEPEND(dsda_config_use_mouse, true) },
   FUNC_DEPEND("Mouse Options", S_CENTER, G_X, M_Sub_Mouse, dsda_config_use_mouse, true),
   EMPTY_LINE,
   { "Enable Gamepad", S_YESNO, m_conf, G2_X, dsda_config_use_game_controller },
+  { "Swap Analogs", S_YESNO, m_conf, G2_X, dsda_config_swap_analogs, 0, empty_list, DEPEND(dsda_config_use_game_controller, true) },
   FUNC_DEPEND("Gamepad Options", S_CENTER, G_X, M_Sub_Gamepad, dsda_config_use_game_controller, true),
   EMPTY_LINE,
   { "Enable Freelook", S_YESNO, m_conf, G2_X, dsda_config_freelook },
@@ -4569,10 +4585,7 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   NEXT_PAGE(display_hud_settings),
   FINAL_ENTRY
 };
-
-static const char* announce_map_list[] = { "Off", "On", "Subtle", NULL };
-static const char* secretarea_list[] = { "Off", "On", "Subtle", NULL };
-static const char* secret_format_list[] = { "Default", "Ratio", "Percent", NULL };
+static const char* stat_format_list[] = { "NYANHUD", "ratio", "percent", "count", "remaining", "dsda classic", NULL };
 
 setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
@@ -4580,16 +4593,12 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   { "Show Messages", S_YESNO, m_conf, G_X, dsda_config_show_messages },
   { "Colorize Messages", S_YESNO, m_conf, G_X, dsda_config_colorize_messages, 0, empty_list, DEPEND(dsda_config_show_messages, true) },
   { "Fade Messages", S_YESNO, m_conf, G_X, dsda_config_fade_messages, 0, empty_list, DEPEND(dsda_config_show_messages, true)  },
+  FUNC("Announcements", S_CENTER | S_NYAN, G_X, M_Sub_Announce),
   FUNC("Obituaries", S_CENTER | S_NYAN, G_X, M_Sub_Obituary),
   EMPTY_LINE,
-  { "Announce Map On Entry", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_announce_map, 0, announce_map_list },
-  { "Report Revealed Secrets", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
-  { "Secret Msg Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_secret_format, 0, secret_format_list, EXCLUDE(dsda_config_hudadd_secretarea, false) },
-  EMPTY_LINE,
-  TITLE("Milestones", G_X),
-  { "Report All Kills", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_kills_milestone },
-  { "Report All Items", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_items_milestone },
-  { "Report All Secrets", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_secrets_milestone },
+  { "Ex Hud Free Text", S_NAME | S_NYAN, m_conf, G_X, dsda_config_free_text },
+  { "Level Stat Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_stats_format, 0, stat_format_list },
+  { "Show Target's Health", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_target_health },
   EMPTY_LINE,
   FUNC("Ex-Hud", S_CENTER | S_NYAN, G_X, M_Sub_ExHud),
   FUNC("Status Widget", S_CENTER | S_NYAN, G_X, M_Sub_StatusWidget),
@@ -4962,6 +4971,59 @@ static void M_Sub_DrawObituary(void)
 
 /////////////////////////////
 //
+// Sub Menu - Announcements
+
+static const char *announce_pages[] =
+{
+  "Announcements",
+  NULL
+};
+
+setup_menu_t announce_gen_settings[];
+
+setup_menu_t* announce_settings[] =
+{
+  announce_gen_settings,
+  NULL
+};
+
+static const char* announce_map_list[] = { "Off", "On", "Subtle", NULL };
+static const char* secretarea_list[] = { "Off", "On", "Subtle", NULL };
+static const char* secret_format_list[] = { "Default", "Ratio", "Percent", NULL };
+
+setup_menu_t announce_gen_settings[] = {
+  { "Announce Map On Entry", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_announce_map, 0, announce_map_list },
+  EMPTY_LINE,
+  TITLE("Secrets", G_X),
+  { "Report Revealed Secrets", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
+  { "Secret Msg Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_secret_format, 0, secret_format_list, EXCLUDE(dsda_config_hudadd_secretarea, false) },
+  EMPTY_LINE,
+  TITLE("Milestones", G_X),
+  { "Report All Kills", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_kills_milestone },
+  { "Report All Items", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_items_milestone },
+  { "Report All Secrets", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_secrets_milestone },
+  FINAL_ENTRY
+};
+
+static void M_Sub_Announce(void)
+{
+  M_EnterSubSetup(&SubAnnounceDef, &sub_announce_active, announce_settings[0]);
+}
+
+static void M_Sub_DrawAnnounce(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "Display", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(announce_pages, sizeof(announce_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
 // Sub Menu - Ex-HUD
 
 #define EXHUD_ON           0, empty_list, DEPEND(dsda_config_exhud, true)
@@ -4980,16 +5042,10 @@ setup_menu_t* exhud_settings[] =
   NULL
 };
 
-static const char* stat_format_list[] = { "NYANHUD", "ratio", "percent", "count", "remaining", "dsda classic", NULL };
-
 setup_menu_t exhud_gen_settings[] = {
   { "Use Extended Hud", S_YESNO, m_conf, G_X, dsda_config_exhud },
   { "Ex Hud Scale", S_PERC, m_conf, G_X, dsda_config_ex_text_scale_x, EXHUD_ON },
   { "Ex Hud Ratio", S_PERC, m_conf, G_X, dsda_config_ex_text_ratio_y, EXHUD_ON },
-  EMPTY_LINE,
-  { "Ex Hud Free Text", S_NAME | S_NYAN, m_conf, G_X, dsda_config_free_text, EXHUD_ON },
-  { "Level Stat Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_stats_format, 0, stat_format_list, DEPEND(dsda_config_exhud, true) },
-  { "Show Target's Health", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_target_health },
   FINAL_ENTRY
 };
 
@@ -5037,11 +5093,11 @@ setup_menu_t status_widget_gen_settings[] = {
   EMPTY_LINE,
   { "Armor", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_armor, STATUS_WIDGET_ON },
   { "Berserk", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_berserk, STATUS_WIDGET_ON },
-  { "Computer Area Map", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_areamap, STATUS_WIDGET_ON },
+  { "Area Map", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_areamap, STATUS_WIDGET_ON },
   { "Backpack", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_backpack, STATUS_WIDGET_ON },
   { "Radiation Suit", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_radsuit, STATUS_WIDGET_ON },
-  { "Partial Invisibility", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_invis, STATUS_WIDGET_ON },
-  { "Light Amplification", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_liteamp, STATUS_WIDGET_ON },
+  { "Invisibility", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_invis, STATUS_WIDGET_ON },
+  { "Light Amp", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_liteamp, STATUS_WIDGET_ON },
   { "Invulnerability", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_invuln, STATUS_WIDGET_ON },
   FINAL_ENTRY
 };
@@ -6553,6 +6609,7 @@ void M_LeaveSetupMenu(void)
   sub_trans_active = false;
   sub_statbar_color_active = false;
   sub_obituary_active = false;
+  sub_announce_active = false;
   sub_exhud_active = false;
   sub_status_widget_active = false;
   sub_crosshair_active = false;
