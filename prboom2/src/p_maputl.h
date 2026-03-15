@@ -102,7 +102,7 @@ void    P_UnsetThingPosition(mobj_t *thing);
 void    P_SetThingPosition(mobj_t *thing);
 dboolean P_BlockLinesIterator (int x, int y, dboolean func(line_t *));
 dboolean P_BlockLinesIterator2(int x, int y, dboolean func(line_t *));
-dboolean P_BlockThingsIterator(int x, int y, dboolean func(mobj_t *));
+dboolean P_BlockThingsIterator(int x, int y, dboolean func(mobj_t *), dboolean do_blockmapfix);
 dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
                        int flags, dboolean trav(intercept_t *));
 

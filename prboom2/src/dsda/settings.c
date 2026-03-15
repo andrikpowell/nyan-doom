@@ -419,6 +419,10 @@ dboolean dsda_AllowMirroredCorpses(void) {
   return dsda_IntConfig(nyan_config_flip_corpses);
 }
 
+dboolean dsda_AllowBlockmapFix(void) {
+  return dsda_IntConfig(dsda_config_blockmap_fix) && !dsda_StrictMode() && allow_incompatibility;
+}
+
 int dsda_reveal_map;
 
 int dsda_RevealAutomap(void) {

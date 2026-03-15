@@ -5170,6 +5170,7 @@ setup_menu_t comp_emulation_settings[] = {
   EMPTY_LINE,
   TITLE("Compat Breaking Features", CP_X),
   { "Allow Movement Over/Under Things", S_CHOICE | S_NYAN, m_conf, CP_X, dsda_config_enhanced_doom_over_under, 0, over_under_list },
+  { "Improved Hit Detection", S_YESNO | S_NYAN, m_conf, CP_X, dsda_config_blockmap_fix },
   { "Allow Jumping", S_YESNO, m_conf, CP_X, dsda_config_allow_jumping },
 
   PREV_PAGE(comp_options_settings),

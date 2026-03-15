@@ -47,6 +47,7 @@
 #include "e6y.h"//e6y
 
 #include "dsda/map_format.h"
+#include "dsda/settings.h"
 
 //
 // P_AproxDistance
@@ -607,13 +608,120 @@ dboolean P_BlockLinesIterator2(int x, int y, dboolean func(line_t*))
 //
 // killough 5/3/98: reformatted, cleaned up
 
-dboolean P_BlockThingsIterator(int x, int y, dboolean func(mobj_t*))
+dboolean P_BlockThingsIterator(int x, int y, dboolean func(mobj_t*), dboolean do_blockmapfix)
 {
   mobj_t *mobj;
-  if (!(x<0 || y<0 || x>=bmapwidth || y>=bmapheight))
-    for (mobj = blocklinks[y*bmapwidth+x]; mobj; mobj = mobj->bnext)
+
+  if (x < 0 || y < 0 || x >= bmapwidth || y >= bmapheight)
+      return true;
+
+  for (mobj = blocklinks[y * bmapwidth + x]; mobj; mobj = mobj->bnext)
       if (!func(mobj))
-        return false;
+          return false;
+
+  // Blockmap bug fix by Terry Hearst
+  // https://github.com/fabiangreffrath/crispy-doom/pull/723
+  // Add other mobjs from surrounding blocks that overlap this one
+  if (dsda_AllowBlockmapFix() && do_blockmapfix)
+  {
+    if (demo_compatibility && PROCESS(OVERFLOW_INTERCEPT))
+      return true;
+
+    // Unwrapped for least number of bounding box checks
+    // (-1, -1)
+    if (x > 0 && y > 0)
+    {
+      for (mobj = blocklinks[(y-1)*bmapwidth+(x-1)]; mobj; mobj = mobj->bnext)
+      {
+        const int xx = (mobj->x + mobj->radius - bmaporgx)>>MAPBLOCKSHIFT;
+        const int yy = (mobj->y + mobj->radius - bmaporgy)>>MAPBLOCKSHIFT;
+        if (xx == x && yy == y)
+          if (!func(mobj))
+            return false;
+      }
+    }
+    // (0, -1)
+    if (y > 0)
+    {
+      for (mobj = blocklinks[(y-1)*bmapwidth+x]; mobj; mobj = mobj->bnext)
+      {
+        const int yy = (mobj->y + mobj->radius - bmaporgy)>>MAPBLOCKSHIFT;
+        if (yy == y)
+          if (!func(mobj))
+            return false;
+      }
+    }
+    // (1, -1)
+    if (x < (bmapwidth-1) && y > 0)
+    {
+      for (mobj = blocklinks[(y-1)*bmapwidth+(x+1)]; mobj; mobj = mobj->bnext)
+      {
+        const int xx = (mobj->x - mobj->radius - bmaporgx)>>MAPBLOCKSHIFT;
+        const int yy = (mobj->y + mobj->radius - bmaporgy)>>MAPBLOCKSHIFT;
+        if (xx == x && yy == y)
+          if (!func(mobj))
+            return false;
+      }
+    }
+    // (1, 0)
+    if (x < (bmapwidth-1))
+    {
+      for (mobj = blocklinks[y*bmapwidth+(x+1)]; mobj; mobj = mobj->bnext)
+      {
+        const int xx = (mobj->x - mobj->radius - bmaporgx)>>MAPBLOCKSHIFT;
+        if (xx == x)
+          if (!func(mobj))
+            return false;
+      }
+    }
+    // (1, 1)
+    if (x < (bmapwidth-1) && y < (bmapheight-1))
+    {
+      for (mobj = blocklinks[(y+1)*bmapwidth+(x+1)]; mobj; mobj = mobj->bnext)
+      {
+        const int xx = (mobj->x - mobj->radius - bmaporgx)>>MAPBLOCKSHIFT;
+        const int yy = (mobj->y - mobj->radius - bmaporgy)>>MAPBLOCKSHIFT;
+        if (xx == x && yy == y)
+            if (!func( mobj ) )
+                return false;
+      }
+    }
+    // (0, 1)
+    if (y < (bmapheight-1))
+    {
+      for (mobj = blocklinks[(y+1)*bmapwidth+x]; mobj; mobj = mobj->bnext)
+      {
+        const int yy = (mobj->y - mobj->radius - bmaporgy)>>MAPBLOCKSHIFT;
+        if (yy == y)
+          if (!func(mobj))
+            return false;
+      }
+    }
+    // (-1, 1)
+    if (x > 0 && y < (bmapheight-1))
+    {
+      for (mobj = blocklinks[(y+1)*bmapwidth+(x-1)]; mobj; mobj = mobj->bnext)
+      {
+        const int xx = (mobj->x + mobj->radius - bmaporgx)>>MAPBLOCKSHIFT;
+        const int yy = (mobj->y - mobj->radius - bmaporgy)>>MAPBLOCKSHIFT;
+        if (xx == x && yy == y)
+          if (!func(mobj))
+            return false;
+      }
+    }
+    // (-1, 0)
+    if (x > 0)
+    {
+      for (mobj = blocklinks[y*bmapwidth+(x-1)]; mobj; mobj = mobj->bnext)
+      {
+        const int xx = (mobj->x + mobj->radius - bmaporgx)>>MAPBLOCKSHIFT;
+        if (xx == x)
+          if (!func(mobj))
+            return false;
+      }
+    }
+  }
+
   return true;
 }
 
@@ -905,7 +1013,7 @@ dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
           return false; // early out
 
       if (flags & PT_ADDTHINGS)
-        if (!P_BlockThingsIterator(mapx, mapy,PIT_AddThingIntercepts))
+        if (!P_BlockThingsIterator(mapx, mapy, PIT_AddThingIntercepts, true))
           return false; // early out
 
       if (mapx == xt2 && mapy == yt2)

@@ -444,7 +444,7 @@ dboolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, dboolean boss)
 
   for (bx=xl ; bx<=xh ; bx++)
     for (by=yl ; by<=yh ; by++)
-      if (!P_BlockThingsIterator(bx,by,PIT_StompThing))
+      if (!P_BlockThingsIterator(bx, by, PIT_StompThing, true))
         return false;
 
   // the move is ok,
@@ -1437,7 +1437,7 @@ dboolean P_CheckPosition (mobj_t* thing,fixed_t x,fixed_t y)
 
   for (bx=xl ; bx<=xh ; bx++)
     for (by=yl ; by<=yh ; by++)
-      if (!P_BlockThingsIterator(bx,by,PIT_CheckThing))
+      if (!P_BlockThingsIterator(bx, by, PIT_CheckThing, !(tmthing->flags2 & MF2_RIP)))
         return false;
 
   if (hexen && tmflags & MF_NOCLIP)
@@ -3158,7 +3158,7 @@ void P_RadiusAttack(mobj_t* spot,mobj_t* source, int damage, int distance, int f
 
   for (y=yl ; y<=yh ; y++)
     for (x=xl ; x<=xh ; x++)
-      P_BlockThingsIterator (x, y, PIT_RadiusAttack );
+      P_BlockThingsIterator (x, y, PIT_RadiusAttack, false);
 
   if (map_format.zdoom)
   {
@@ -3299,7 +3299,7 @@ dboolean P_ChangeSector(sector_t* sector, int crunch)
 
   for (x=sector->blockbox[BOXLEFT] ; x<= sector->blockbox[BOXRIGHT] ; x++)
     for (y=sector->blockbox[BOXBOTTOM];y<= sector->blockbox[BOXTOP] ; y++)
-      P_BlockThingsIterator (x, y, PIT_ChangeSector);
+      P_BlockThingsIterator (x, y, PIT_ChangeSector, false);
 
   return nofit;
 }
@@ -3811,7 +3811,7 @@ mobj_t *P_CheckOnmobj(mobj_t * thing)
 
     for (bx = xl; bx <= xh; bx++)
         for (by = yl; by <= yh; by++)
-            if (!P_BlockThingsIterator(bx, by, PIT_CheckOnmobjZ))
+            if (!P_BlockThingsIterator(bx, by, PIT_CheckOnmobjZ, !(tmthing->flags2 & MF2_RIP)))
             {
                 *tmthing = oldmo;
                 return onmobj;
@@ -3975,7 +3975,7 @@ overunder_t P_CheckOverUnderMobj(mobj_t *thing)
 
   for (bx = xl; bx <= xh; bx++)
     for (by = yl; by <= yh; by++)
-      if (!P_BlockThingsIterator(bx, by, PIT_CheckOverUnderMobjZ))
+      if (!P_BlockThingsIterator(bx, by, PIT_CheckOverUnderMobjZ, !(tmthing->flags2 & MF2_RIP)))
       {
         P_SetOverUnderMobjs(tmthing);
         ret = zdir;
@@ -4178,7 +4178,7 @@ void PIT_ThrustSpike(mobj_t * actor)
     // stomp on any things contacted
     for (bx = xl; bx <= xh; bx++)
         for (by = yl; by <= yh; by++)
-            P_BlockThingsIterator(bx, by, PIT_ThrustStompThing);
+            P_BlockThingsIterator(bx, by, PIT_ThrustStompThing, true);
 }
 
 static void CheckForPushSpecial(line_t * line, int side, mobj_t * mobj)

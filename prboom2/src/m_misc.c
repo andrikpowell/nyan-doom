@@ -435,6 +435,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_fuzzmode),
   MIGRATED_SETTING(dsda_config_fuzzscale),
   MIGRATED_SETTING(dsda_config_multiple_area_maps),
+  MIGRATED_SETTING(dsda_config_blockmap_fix),
   MIGRATED_SETTING(dsda_config_organize_failed_demos),
   MIGRATED_SETTING(dsda_config_demo_end_quit),
   MIGRATED_SETTING(dsda_config_artifact_descriptions),
