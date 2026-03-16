@@ -202,6 +202,7 @@ static dboolean sub_obituary_active = false;
 static dboolean sub_announce_active = false;
 static dboolean sub_exhud_active = false;
 static dboolean sub_status_widget_active = false;
+static dboolean sub_powerup_timers_active = false;
 static dboolean sub_crosshair_active = false;
 static dboolean sub_overflows_active = false;
 static dboolean sub_automap_things_active = false;
@@ -415,6 +416,7 @@ static void M_Sub_Obituary(void);
 static void M_Sub_Announce(void);
 static void M_Sub_ExHud(void);
 static void M_Sub_StatusWidget(void);
+static void M_Sub_PowerupTimers(void);
 static void M_Sub_Crosshair(void);
 static void M_Sub_Overflows(void);
 static void M_Sub_AutoMapThings(void);
@@ -429,6 +431,7 @@ static void M_Sub_DrawObituary(void);
 static void M_Sub_DrawAnnounce(void);
 static void M_Sub_DrawExHud(void);
 static void M_Sub_DrawStatusWidget(void);
+static void M_Sub_DrawPowerupTimers(void);
 static void M_Sub_DrawCrosshair(void);
 static void M_Sub_DrawOverflows(void);
 static void M_Sub_DrawAutoMapThings(void);
@@ -1976,6 +1979,16 @@ static menu_t SubStatusWidgetDef =
   &DisplayDef,
   Generic_Setup,
   M_Sub_DrawStatusWidget,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubPowerupTimersDef =
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawPowerupTimers,
   34,5,      // skull drawn here
   0
 };
@@ -4602,6 +4615,7 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   EMPTY_LINE,
   FUNC("Ex-Hud", S_CENTER | S_NYAN, G_X, M_Sub_ExHud),
   FUNC("Status Widget", S_CENTER | S_NYAN, G_X, M_Sub_StatusWidget),
+  FUNC("Powerup Timers", S_CENTER | S_NYAN, G_X, M_Sub_PowerupTimers),
   FUNC("Crosshair", S_CENTER, G_X, M_Sub_Crosshair),
 
   PREV_PAGE(display_statbar_settings),
@@ -4681,6 +4695,24 @@ setup_menu_t display_color_settings[] = {
   {"Free Text", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_free_text },
   {"Local Time", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_local_time },
   {"Attempts", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_attempts },
+  EMPTY_LINE,
+
+  TITLE("Powerup Timers", G_X),
+  {"Armor One", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_armor_one },
+  {"Armor Two", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_armor_two },
+  {"Berserk", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_berserk },
+  {"Area Map", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_allmap },
+  {"Backpack", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_backpack },
+  {"Radition Suit", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_suit },
+  {"Invisibility", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_invis },
+  {"Light Amp / Torch", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_light },
+  {"Invulerability", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_invul },
+  {"Flight", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_flight },
+  {"Tome of Power", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_tome },
+  {"Boots of Speed", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_speed },
+  {"Morph", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_morph },
+  {"Maulator", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_maulator },
+  {"Blink", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_powerup_blink },
   EMPTY_LINE,
 
   TITLE("Small Armor", G_X),
@@ -5118,6 +5150,67 @@ static void M_Sub_DrawStatusWidget(void)
   M_DrawTitle(2, "Display", cr_title);
   M_DrawInstructions();
   M_DrawTabs(status_widget_pages, sizeof(status_widget_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Powerup Timers
+
+static const char *powerup_timers_pages[] =
+{
+  "Powerup Timers",
+  NULL
+};
+
+setup_menu_t powerup_timers_gen_settings[];
+
+setup_menu_t* powerup_timers_settings[] =
+{
+  powerup_timers_gen_settings,
+  NULL
+};
+
+#define POWERUPS_WIDGET_ON   0, empty_list, DEPEND(nyan_config_ex_powerup_widget, true)
+
+setup_menu_t powerup_timers_gen_settings[] = {
+  { "Enable Powerups Timers", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_widget },
+  { "Enable Blinking", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_blinking, POWERUPS_WIDGET_ON },
+  { "Hide Duration", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_hide_duration, POWERUPS_WIDGET_ON },
+  EMPTY_LINE,
+  { "Armor", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_armor, POWERUPS_WIDGET_ON },
+  { "Berserk", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_berserk, POWERUPS_WIDGET_ON },
+  { "Area Map", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_areamap, POWERUPS_WIDGET_ON },
+  { "Backpack", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_backpack, POWERUPS_WIDGET_ON },
+  { "Radiation Suit", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_radsuit, POWERUPS_WIDGET_ON },
+  { "Invisibility", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_invis, POWERUPS_WIDGET_ON },
+  { "Light Amp / Torch", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_liteamp, POWERUPS_WIDGET_ON },
+  { "Invulnerability", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_invuln, POWERUPS_WIDGET_ON },
+  { "Flight", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_flight, POWERUPS_WIDGET_ON },
+  EMPTY_LINE,
+  { "Tome of Power", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_tome, POWERUPS_WIDGET_ON },
+  { "Boots of Speed", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_speed, POWERUPS_WIDGET_ON },
+  { "Morph", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_morph, POWERUPS_WIDGET_ON },
+  { "Maulator", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_powerup_maulator, POWERUPS_WIDGET_ON },
+  FINAL_ENTRY
+};
+
+#undef POWERUPS_WIDGET_ON
+
+static void M_Sub_PowerupTimers(void)
+{
+  M_EnterSubSetup(&SubPowerupTimersDef, &sub_powerup_timers_active, powerup_timers_settings[0]);
+}
+
+static void M_Sub_DrawPowerupTimers(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "Display", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(powerup_timers_pages, sizeof(powerup_timers_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -6612,6 +6705,7 @@ void M_LeaveSetupMenu(void)
   sub_announce_active = false;
   sub_exhud_active = false;
   sub_status_widget_active = false;
+  sub_powerup_timers_active = false;
   sub_crosshair_active = false;
   sub_overflows_active = false;
   sub_automap_things_active = false;

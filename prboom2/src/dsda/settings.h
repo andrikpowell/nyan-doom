@@ -74,6 +74,7 @@ int dsda_EnhancedDoomOverUnder(void);
 int dsda_ShowAliveMonsters(void);
 dboolean dsda_ShowDataDisk(void);
 dboolean dsda_AllowMirroredCorpses(void);
+dboolean dsda_PowerupHideTimes(void);
 dboolean dsda_AllowBlockmapFix(void);
 int dsda_TranslucencyPercent(void);
 int dsda_MenuTranslucency(void);

@@ -47,6 +47,7 @@
 #include "hud_components/map_totals.h"
 #include "hud_components/message.h"
 #include "hud_components/minimap.h"
+#include "hud_components/powerup_timers.h"
 #include "hud_components/ready_ammo_text.h"
 #include "hud_components/render_stats.h"
 #include "hud_components/announce_message.h"

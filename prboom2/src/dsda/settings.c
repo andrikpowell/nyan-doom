@@ -416,6 +416,10 @@ dboolean dsda_AllowMirroredCorpses(void) {
   return dsda_IntConfig(nyan_config_flip_corpses) && !demorecording;
 }
 
+dboolean dsda_PowerupHideTimes(void) {
+  return dsda_IntConfig(nyan_config_ex_powerup_hide_duration) || demorecording || dsda_StrictMode();
+}
+
 dboolean dsda_AllowBlockmapFix(void) {
   return dsda_IntConfig(dsda_config_blockmap_fix) && !dsda_StrictMode() && allow_incompatibility;
 }
