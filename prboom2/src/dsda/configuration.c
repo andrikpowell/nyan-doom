@@ -474,6 +474,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_ex_status_widget", nyan_config_ex_status_widget,
     CONF_BOOL(0), NULL,  NOT_STRICT
   },
+  [nyan_config_ex_status_blinking] = {
+    "nyan_ex_status_blinking", nyan_config_ex_status_blinking,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
   [nyan_config_ex_status_armor] = {
     "nyan_ex_status_armor", nyan_config_ex_status_armor,
     CONF_BOOL(0), NULL, NOT_STRICT
@@ -506,68 +510,88 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_ex_status_invuln", nyan_config_ex_status_invuln,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_widget] = {
-    "nyan_ex_powerup_widget", nyan_config_ex_powerup_widget,
-    CONF_BOOL(0), NULL, NOT_STRICT
-  },
-  [nyan_config_ex_powerup_blinking] = {
-    "nyan_ex_powerup_blinking", nyan_config_ex_powerup_blinking,
+  [nyan_config_ex_status_flight] = {
+    "nyan_ex_status_flight", nyan_config_ex_status_flight,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_hide_duration] = {
-    "nyan_ex_powerup_hide_duration", nyan_config_ex_powerup_hide_duration,
+  [nyan_config_ex_status_tome] = {
+    "nyan_ex_status_tome", nyan_config_ex_status_tome,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_status_morph] = {
+    "nyan_ex_status_morph", nyan_config_ex_status_morph,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_status_speed] = {
+    "nyan_ex_status_speed", nyan_config_ex_status_speed,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_status_maulotaur] = {
+    "nyan_ex_status_maulotaur", nyan_config_ex_status_maulotaur,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_timer_widget] = {
+    "nyan_ex_timer_widget", nyan_config_ex_timer_widget,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_timer_blinking] = {
+    "nyan_ex_timer_blinking", nyan_config_ex_timer_blinking,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_timer_hide_duration] = {
+    "nyan_ex_timer_hide_duration", nyan_config_ex_timer_hide_duration,
     CONF_BOOL(0), NULL, STRICT_INT(1)
   },
-  [nyan_config_ex_powerup_armor] = {
-    "nyan_ex_powerup_armor", nyan_config_ex_powerup_armor,
+  [nyan_config_ex_timer_armor] = {
+    "nyan_ex_timer_armor", nyan_config_ex_timer_armor,
     CONF_BOOL(0), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_berserk] = {
-    "nyan_ex_powerup_berserk", nyan_config_ex_powerup_berserk,
+  [nyan_config_ex_timer_berserk] = {
+    "nyan_ex_timer_berserk", nyan_config_ex_timer_berserk,
     CONF_BOOL(0), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_areamap] = {
-    "nyan_ex_powerup_areamap", nyan_config_ex_powerup_areamap,
+  [nyan_config_ex_timer_areamap] = {
+    "nyan_ex_timer_areamap", nyan_config_ex_timer_areamap,
     CONF_BOOL(0), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_backpack] = {
-    "nyan_ex_powerup_backpack", nyan_config_ex_powerup_backpack,
+  [nyan_config_ex_timer_backpack] = {
+    "nyan_ex_timer_backpack", nyan_config_ex_timer_backpack,
     CONF_BOOL(0), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_radsuit] = {
-    "nyan_ex_powerup_radsuit", nyan_config_ex_powerup_radsuit,
+  [nyan_config_ex_timer_radsuit] = {
+    "nyan_ex_timer_radsuit", nyan_config_ex_timer_radsuit,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_invis] = {
-    "nyan_ex_powerup_invis", nyan_config_ex_powerup_invis,
+  [nyan_config_ex_timer_invis] = {
+    "nyan_ex_timer_invis", nyan_config_ex_timer_invis,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_liteamp] = {
-    "nyan_ex_powerup_liteamp", nyan_config_ex_powerup_liteamp,
+  [nyan_config_ex_timer_liteamp] = {
+    "nyan_ex_timer_liteamp", nyan_config_ex_timer_liteamp,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_invuln] = {
-    "nyan_ex_powerup_invuln", nyan_config_ex_powerup_invuln,
+  [nyan_config_ex_timer_invuln] = {
+    "nyan_ex_timer_invuln", nyan_config_ex_timer_invuln,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_flight] = {
-    "nyan_ex_powerup_flight", nyan_config_ex_powerup_flight,
+  [nyan_config_ex_timer_flight] = {
+    "nyan_ex_timer_flight", nyan_config_ex_timer_flight,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_tome] = {
-    "nyan_ex_powerup_tome", nyan_config_ex_powerup_tome,
+  [nyan_config_ex_timer_tome] = {
+    "nyan_ex_timer_tome", nyan_config_ex_timer_tome,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_speed] = {
-    "nyan_ex_powerup_speed", nyan_config_ex_powerup_speed,
+  [nyan_config_ex_timer_morph] = {
+    "nyan_ex_timer_morph", nyan_config_ex_timer_morph,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_morph] = {
-    "nyan_ex_powerup_morph", nyan_config_ex_powerup_morph,
+  [nyan_config_ex_timer_speed] = {
+    "nyan_ex_timer_speed", nyan_config_ex_timer_speed,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
-  [nyan_config_ex_powerup_maulator] = {
-    "nyan_ex_powerup_maulator", nyan_config_ex_powerup_maulator,
+  [nyan_config_ex_timer_maulotaur] = {
+    "nyan_ex_timer_maulotaur", nyan_config_ex_timer_maulotaur,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
   [dsda_config_free_text] = {

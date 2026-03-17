@@ -1,5 +1,5 @@
 //
-// Copyright(C) 2024 by Andrik Powell
+// Copyright(C) 2026 by Andrik Powell
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -12,14 +12,14 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	DSDA Status HUD Component
+//	DSDA Status Timers HUD Component
 //
 
-#ifndef __DSDA_HUD_COMPONENT_STATUS__
-#define __DSDA_HUD_COMPONENT_STATUS__
+#ifndef __DSDA_HUD_COMPONENT_STATUS_TIMERS__
+#define __DSDA_HUD_COMPONENT_STATUS_TIMERS__
 
-void dsda_InitStatusHC(int x_offset, int y_offset, int vpt_flags, int* args, int arg_count, void** data);
-void dsda_UpdateStatusHC(void* data);
-void dsda_DrawStatusHC(void* data);
+void dsda_InitStatusTimersHC(int x_offset, int y_offset, int vpt_flags, int* args, int arg_count, void** data);
+void dsda_UpdateStatusTimersHC(void* data);
+void dsda_DrawStatusTimersHC(void* data);
 
 #endif

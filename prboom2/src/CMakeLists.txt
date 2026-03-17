@@ -178,8 +178,6 @@ set(COMMON_SRC
     dsda/hud_components/null.h
     dsda/hud_components/player_tracker.c
     dsda/hud_components/player_tracker.h
-    dsda/hud_components/powerup_timers.c
-    dsda/hud_components/powerup_timers.h
     dsda/hud_components/ready_ammo_text.c
     dsda/hud_components/ready_ammo_text.h
     dsda/hud_components/render_stats.c
@@ -196,8 +194,12 @@ set(COMMON_SRC
     dsda/hud_components/speed_text.h
     dsda/hud_components/stat_totals.c
     dsda/hud_components/stat_totals.h
-    dsda/hud_components/status.c
-    dsda/hud_components/status.h
+    dsda/hud_components/powerups.c
+    dsda/hud_components/powerups.h
+    dsda/hud_components/status_icons.c
+    dsda/hud_components/status_icons.h
+    dsda/hud_components/status_timers.c
+    dsda/hud_components/status_timers.h
     dsda/hud_components/target_health.c
     dsda/hud_components/target_health.h
     dsda/hud_components/tracker.c

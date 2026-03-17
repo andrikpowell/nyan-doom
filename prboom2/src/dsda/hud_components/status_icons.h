@@ -1,5 +1,5 @@
 //
-// Copyright(C) 2026 by Andrik Powell
+// Copyright(C) 2024 by Andrik Powell
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -12,14 +12,14 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	DSDA Powerup Timers HUD Component
+//	DSDA Status HUD Component
 //
 
-#ifndef __DSDA_HUD_COMPONENT_POWERUP_TIMERS__
-#define __DSDA_HUD_COMPONENT_POWERUP_TIMERS__
+#ifndef __DSDA_HUD_COMPONENT_STATUS_ICONS__
+#define __DSDA_HUD_COMPONENT_STATUS_ICONS__
 
-void dsda_InitPowerupsHC(int x_offset, int y_offset, int vpt_flags, int* args, int arg_count, void** data);
-void dsda_UpdatePowerupsHC(void* data);
-void dsda_DrawPowerupsHC(void* data);
+void dsda_InitStatusIconsHC(int x_offset, int y_offset, int vpt_flags, int* args, int arg_count, void** data);
+void dsda_UpdateStatusIconsHC(void* data);
+void dsda_DrawStatusIconsHC(void* data);
 
 #endif

@@ -229,7 +229,7 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
   - Supports 2 arguments: `vertical right_align`
     - `vertical`: draws icons vertically top to bottom
     - `reverse`: draws icons from right to left... or if `vertical`, draws bottom to top
-- 😸 `powerup_timers`: shows timers and status for powerups and other statuses (armor type, backpack, etc)
+- 😸 `status_timers`: shows timers and status for powerups and other statuses (armor type, backpack, etc)
   - Works with all games: Doom / Heretic / Hexen.
   - Supports 1 argument: `right_align`
     - `right_align`: aligns text to the right

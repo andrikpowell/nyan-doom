@@ -417,7 +417,7 @@ dboolean dsda_AllowMirroredCorpses(void) {
 }
 
 dboolean dsda_PowerupHideTimes(void) {
-  return dsda_IntConfig(nyan_config_ex_powerup_hide_duration) || demorecording || dsda_StrictMode();
+  return dsda_IntConfig(nyan_config_ex_timer_hide_duration) || demorecording || dsda_StrictMode();
 }
 
 dboolean dsda_AllowBlockmapFix(void) {

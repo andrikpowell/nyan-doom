@@ -232,8 +232,8 @@ set(GRAPHICS
     graphics/stfpsuit.ppm
     graphics/stfpbpak.ppm
     graphics/stfppstr.ppm
-    graphics/stfparm1.ppm
-    graphics/stfparm2.ppm
+    graphics/stfparmr.ppm
+    graphics/stfpfly.ppm
     graphics/chxparm1.ppm
     graphics/chxparm2.ppm
     graphics/chxppstr.ppm
@@ -263,6 +263,11 @@ set(RAVEN_GRAPHICS
     graphics/STBR124.lmp
     graphics/STBR125.lmp
     graphics/h_palsel.lmp
+    graphics/stfrtome.lmp
+    graphics/stfrmor1.lmp
+    graphics/stfrmor2.lmp
+    graphics/stfrsped.lmp
+    graphics/stfrmaul.lmp
 )
 
 set(FLATS

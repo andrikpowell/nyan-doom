@@ -12,38 +12,14 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	DSDA Powerup Timers HUD Component
+//	DSDA Powerups HUD Functions
 //
 
 #include "base.h"
 
-#include "powerup_timers.h"
+#include "powerups.h"
 
-typedef struct {
-    dsda_text_t component;
-    dboolean text_align_right;
-} local_component_t;
-
-dboolean hide_time;
-
-static local_component_t* local;
-
-typedef int (*powerup_tics_f)(player_t *);
-
-typedef enum {
-  POWERUP_BLINK_DEFAULT,
-  POWERUP_BLINK_RAVEN_ICONS,
-  POWERUP_BLINK_INVUL,
-} powerup_blink_t;
-
-typedef struct {
-  int config;
-  powerup_tics_f tics;
-  int max_tics;
-  powerup_blink_t blink_tics;
-  const char *label;
-  int color;
-} powerup_timer_t;
+// order to draw powerups
 
 #define PERMATICS       -4
 #define MULTILEVELTICS  -3
@@ -59,8 +35,7 @@ typedef enum {
     POWERUP_MAX,
 } powerup_type_t;
 
-// order to draw powerups
-static int dsda_PowerupGroup(const powerup_timer_t *p, int tics)
+static int dsda_PowerupGroup(const dsda_powerup_t *p, int tics)
 {
   if (p->max_tics == PERMATICS)       return POWERUP_FOREVER;
   if (p->max_tics == MULTILEVELTICS)  return POWERUP_MULTILEVEL;
@@ -78,7 +53,6 @@ static int dsda_GetSuit(player_t *p)           { return p->powers[pw_ironfeet]; 
 static int dsda_GetBackpack(player_t *p)       { return p->backpack; }
 static int dsda_GetArmor1(player_t *p)         { return !hexen && p->armortype > 0 && p->armortype < 2; }
 static int dsda_GetArmor2(player_t *p)         { return !hexen && p->armortype >= 2; }
-
 static int dsda_GetTome(player_t *p)           { return p->powers[pw_weaponlevel2]; }
 static int dsda_GetSpeed(player_t *p)          { return p->powers[pw_speed]; }
 static int dsda_GetMorph(player_t *p)          { return hexen ? p->morphTics : heretic ? p->chickenTics : 0; }
@@ -113,7 +87,6 @@ static dboolean dsda_FlightLabelState(player_t *p, dboolean active)
     return state;
 }
 
-
 static int dsda_GetFlight(player_t *p) {
     dboolean active;
     int tics;
@@ -141,36 +114,180 @@ static int dsda_GetFlight(player_t *p) {
     return tics;
 }
 
-static const char* dsda_RavenGetFlightLabel(const char* label) {
-  player_t *p = &players[displayplayer];
-
-  if (!raven)
-    return NULL;
-
-  return dsda_FlightLabelState(p, true) ? "FLIGHT ON" : "FLIGHT OFF";
-}
-
-static powerup_timer_t powerups[] = {
-  { nyan_config_ex_powerup_backpack, dsda_GetBackpack,   PERMATICS,      POWERUP_BLINK_DEFAULT,      "BACKPACK",     dsda_tc_exhud_powerup_backpack    },
-  { nyan_config_ex_powerup_armor,    dsda_GetArmor1,     MULTILEVELTICS, POWERUP_BLINK_DEFAULT,      "ARMOR ONE",    dsda_tc_exhud_powerup_armor_one   },
-  { nyan_config_ex_powerup_armor,    dsda_GetArmor2,     MULTILEVELTICS, POWERUP_BLINK_DEFAULT,      "ARMOR TWO",    dsda_tc_exhud_powerup_armor_two   },
-  { nyan_config_ex_powerup_berserk,  dsda_GetStrength,   LEVELTICS,      POWERUP_BLINK_DEFAULT,      "BERSERK",      dsda_tc_exhud_powerup_berserk     },
-  { nyan_config_ex_powerup_areamap,  dsda_GetAllMap,     LEVELTICS,      POWERUP_BLINK_DEFAULT,      "AREAMAP",      dsda_tc_exhud_powerup_allmap      },
-
-  { nyan_config_ex_powerup_invis,    dsda_GetInvis,      INVISTICS,      POWERUP_BLINK_DEFAULT,      "INVIS",        dsda_tc_exhud_powerup_invis       },
-  { nyan_config_ex_powerup_invuln,   dsda_GetInvul,      INVULNTICS,     POWERUP_BLINK_INVUL,        "INVUL",        dsda_tc_exhud_powerup_invul       },
-  { nyan_config_ex_powerup_liteamp,  dsda_GetInfra,      INFRATICS,      POWERUP_BLINK_DEFAULT,      "LIGHT",        dsda_tc_exhud_powerup_light       },
-  { nyan_config_ex_powerup_radsuit,  dsda_GetSuit,       IRONTICS,       POWERUP_BLINK_DEFAULT,      "SUIT",         dsda_tc_exhud_powerup_suit        },
-
-  { nyan_config_ex_powerup_flight,   dsda_GetFlight,     FLIGHTTICS,     POWERUP_BLINK_RAVEN_ICONS,  "FLIGHT",       dsda_tc_exhud_powerup_flight      }, 
-
-  { nyan_config_ex_powerup_tome,     dsda_GetTome,       WPNLEV2TICS,    POWERUP_BLINK_RAVEN_ICONS,  "TOME",         dsda_tc_exhud_powerup_tome        },
-  { nyan_config_ex_powerup_speed,    dsda_GetSpeed,      SPEEDTICS,      POWERUP_BLINK_RAVEN_ICONS,  "SPEED",        dsda_tc_exhud_powerup_speed       },
-  { nyan_config_ex_powerup_morph,    dsda_GetMorph,      MORPHTICS,      POWERUP_BLINK_RAVEN_ICONS,  "MORPH",        dsda_tc_exhud_powerup_morph       },
-  { nyan_config_ex_powerup_maulator, dsda_GetMaulator,   MAULATORTICS,   POWERUP_BLINK_RAVEN_ICONS,  "MAULATOR",     dsda_tc_exhud_powerup_maulator    },
+const dsda_powerup_t powerups[] = {
+  {
+    nyan_config_ex_timer_backpack,
+    nyan_config_ex_status_backpack,
+    dsda_GetBackpack,
+    PERMATICS,
+    POWERUP_BLINK_DEFAULT,
+    "BACKPACK",
+    "STFPBPAK",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_backpack
+  },
+  {
+    nyan_config_ex_timer_armor,
+    nyan_config_ex_status_armor,
+    dsda_GetArmor1,
+    MULTILEVELTICS,
+    POWERUP_BLINK_DEFAULT,
+    "ARMOR ONE",
+    "STFPARMR",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_armor_one
+  },
+  {
+    nyan_config_ex_timer_armor,
+    nyan_config_ex_status_armor,
+    dsda_GetArmor2,
+    MULTILEVELTICS,
+    POWERUP_BLINK_DEFAULT,
+    "ARMOR TWO",
+    "STFPARMR",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_armor_two
+  },
+  {
+    nyan_config_ex_timer_berserk,
+    nyan_config_ex_status_berserk,
+    dsda_GetStrength,
+    LEVELTICS,
+    POWERUP_BLINK_DEFAULT,
+    "BERSERK",
+    "STFPPSTR",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_berserk
+  },
+  {
+    nyan_config_ex_timer_areamap,
+    nyan_config_ex_status_areamap,
+    dsda_GetAllMap,
+    LEVELTICS,
+    POWERUP_BLINK_DEFAULT,
+    "AREAMAP",
+    "STFPMAP",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_allmap
+  },
+  {
+    nyan_config_ex_timer_invis,
+    nyan_config_ex_status_invis,
+    dsda_GetInvis,
+    INVISTICS,
+    POWERUP_BLINK_DEFAULT,
+    "INVIS",
+    "STFPINS",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_invis
+  },
+  {
+    nyan_config_ex_timer_invuln,
+    nyan_config_ex_status_invuln,
+    dsda_GetInvul,
+    INVULNTICS,
+    POWERUP_BLINK_INVUL,
+    "INVUL",
+    "STFPINV",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_invul
+  },
+  {
+    nyan_config_ex_timer_liteamp,
+    nyan_config_ex_status_liteamp,
+    dsda_GetInfra,
+    INFRATICS,
+    POWERUP_BLINK_LIGHT,
+    "LIGHT",
+    "STFPVIS",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_light
+  },
+  {
+    nyan_config_ex_timer_radsuit,
+    nyan_config_ex_status_radsuit,
+    dsda_GetSuit,
+    IRONTICS,
+    POWERUP_BLINK_DEFAULT,
+    "SUIT",
+    "STFPSUIT",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_suit
+  },
+  {
+    nyan_config_ex_timer_flight,
+    nyan_config_ex_status_flight,
+    dsda_GetFlight,
+    FLIGHTTICS,
+    POWERUP_BLINK_RAVEN_ICONS,
+    "FLIGHT",
+    "STFPFLY",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_flight
+  }, 
+  {
+    nyan_config_ex_timer_tome,
+    nyan_config_ex_status_tome,
+    dsda_GetTome,
+    WPNLEV2TICS,
+    POWERUP_BLINK_RAVEN_ICONS,
+    "TOME",
+    "STFRTOME",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_tome
+  },
+  {
+    nyan_config_ex_timer_morph,
+    nyan_config_ex_status_morph,
+    dsda_GetMorph,
+    MORPHTICS,
+    POWERUP_BLINK_RAVEN_ICONS,
+    "MORPH",
+    NULL,
+    "STFRMOR1",
+    "STFRMOR2",
+    dsda_tc_exhud_status_morph
+  },
+  {
+    nyan_config_ex_timer_speed,
+    nyan_config_ex_status_speed,
+    dsda_GetSpeed,
+    SPEEDTICS,
+    POWERUP_BLINK_RAVEN_ICONS,
+    "SPEED",
+    "STFRSPED",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_speed
+  },
+  {
+    nyan_config_ex_timer_maulotaur,
+    nyan_config_ex_status_maulotaur,
+    dsda_GetMaulator,
+    MAULATORTICS,
+    POWERUP_BLINK_RAVEN_ICONS,
+    "MAULATOR",
+    "STFRMAUL",
+    NULL,
+    NULL,
+    dsda_tc_exhud_status_maulotaur
+  },
 };
 
-static int dsda_PowerupBlink(powerup_blink_t blink_type, int tics)
+int dsda_powerup_count = arrlen(powerups);
+
+int dsda_PowerupBlink(powerup_blink_t blink_type, int tics)
 {
   int blink_active;
 
@@ -178,10 +295,15 @@ static int dsda_PowerupBlink(powerup_blink_t blink_type, int tics)
   // Raven animated icons use longer blinks
   // Sync powerups to which effect is shown
   int normal_blink        = (tics & 8);
+  int reverse_blink       = !(tics & 8);
   int raven_icon_blink    = !(tics & 16);
 
   switch (blink_type)
   {
+    case POWERUP_BLINK_LIGHT:
+      blink_active = raven ? reverse_blink : normal_blink;
+      break;
+
     case POWERUP_BLINK_INVUL:
       blink_active = hexen ? raven_icon_blink : normal_blink;
       break;
@@ -199,17 +321,77 @@ static int dsda_PowerupBlink(powerup_blink_t blink_type, int tics)
   return blink_active;
 }
 
-static int dsda_PowerupTimer(char *str, size_t max_size, int tics, int max_tics, powerup_blink_t blink_type, const char *label, const char* color)
+static const char* dsda_RavenGetFlightLabel(void) {
+  player_t *p = &players[displayplayer];
+
+  if (!raven)
+    return NULL;
+
+  return dsda_FlightLabelState(p, true) ? "FLIGHT ON" : "FLIGHT OFF";
+}
+
+dsda_powerup_label_t dsda_PowerupLabel(const dsda_powerup_t *powerup)
+{
+  dsda_powerup_label_t result;
+
+  result.label = powerup->label;
+  result.no_inf_suffix = false;
+
+  if (raven && !strcmp(powerup->label, "FLIGHT"))
+  {
+    result.label = dsda_RavenGetFlightLabel();
+    result.no_inf_suffix = true;
+  }
+
+  return result;
+}
+
+const char *dsda_PowerupIconLump(const dsda_powerup_t *powerup)
+{
+  if (heretic && powerup->heretic_lump)
+    return powerup->heretic_lump;
+
+  if (hexen && powerup->hexen_lump)
+    return powerup->hexen_lump;
+
+  return powerup->lump;
+}
+
+const char *dsda_PowerupTextColor(const dsda_powerup_t *powerup)
+{
+  return dsda_TextColor(powerup->color);
+}
+
+int dsda_PowerupCRColor(const dsda_powerup_t *powerup)
+{
+  return dsda_TextCR(powerup->color);
+}
+
+int dsda_PowerupIcon(const dsda_powerup_t *powerup, int tics)
+{
+    const dboolean always_active = (tics < 0);
+    const dboolean no_blinking = !dsda_IntConfig(nyan_config_ex_status_blinking);
+    int blink_active;
+    dboolean powerup_duration;
+    dboolean powerup_active;
+
+    blink_active = dsda_PowerupBlink(powerup->blink_tics, tics);
+    powerup_duration = ((tics > 0) && (tics > BLINKTHRESHOLD || blink_active));
+    powerup_active = no_blinking || always_active || powerup_duration;
+
+    return powerup_active ? dsda_PowerupCRColor(powerup) : dsda_TextCR(dsda_tc_exhud_status_blink);
+}
+
+int dsda_PowerupTimer(char *str, size_t max_size, int tics, int max_tics, powerup_blink_t blink_type, dsda_powerup_label_t label, const char* color)
 {
   extern dboolean dsda_PowerupHideTimes(void);
-  const char* repl_label = NULL;
 
   if (tics == 0) return 0;
 
   {
     const dboolean specialtics = max_tics < 0;
     const dboolean always_active = (tics < 0);
-    const dboolean no_blinking = !dsda_IntConfig(nyan_config_ex_powerup_blinking);
+    const dboolean no_blinking = !dsda_IntConfig(nyan_config_ex_timer_blinking);
     int blink_active;
     dboolean powerup_duration;
     dboolean powerup_active;
@@ -218,29 +400,21 @@ static int dsda_PowerupTimer(char *str, size_t max_size, int tics, int max_tics,
     blink_active = dsda_PowerupBlink(blink_type, tics);
     powerup_duration = ((tics > 0) && (tics > BLINKTHRESHOLD || blink_active));
     powerup_active = no_blinking || always_active || powerup_duration;
-    cm = powerup_active ? color : dsda_TextColor(dsda_tc_exhud_powerup_blink);
-
-    // Fix Flight label
-    if (raven && !strcmp(label, "FLIGHT"))
-      repl_label = dsda_RavenGetFlightLabel(label);
-
-    if (repl_label)
-      label = repl_label;
+    cm = powerup_active ? color : dsda_TextColor(dsda_tc_exhud_status_blink);
 
     // Just label
     if (dsda_PowerupHideTimes())
-        return snprintf(str, max_size, "%s%s", cm, label);
+        return snprintf(str, max_size, "%s%s", cm, label.label);
 
     // full level duration
     else if (specialtics)
-        return snprintf(str, max_size, "%s%s", cm, label);
+        return snprintf(str, max_size, "%s%s", cm, label.label);
 
     // Infinite duration
     else if (tics < 0)
     {
-        const char* suffix = repl_label ? "": "INF";
-
-        return snprintf(str, max_size, "%s%s %s", cm, label, suffix);
+      const char* suffix = label.no_inf_suffix ? "" : " INF";
+      return snprintf(str, max_size, "%s%s%s", cm, label.label, suffix);
     }
 
     // Normal duration
@@ -249,12 +423,18 @@ static int dsda_PowerupTimer(char *str, size_t max_size, int tics, int max_tics,
         int secs = 1 + (tics / TICRATE);
         int max_secs = max_tics / TICRATE;
         if (secs > max_secs) secs = max_secs;
-        return snprintf(str, max_size, "%s%s %d\"", cm, label, secs);
+        return snprintf(str, max_size, "%s%s %d\"", cm, label.label, secs);
     }
   }
 }
 
-static void dsda_SortPowerups(player_t *player, int *idx, int *n)
+static dboolean dsda_PowerupEnabled(const dsda_powerup_t *pwr, dsda_powerup_view_t view)
+{
+  int config = (view == POWERUP_STATUS_TEXT) ? pwr->config_text : pwr->config_icon;
+  return config && dsda_IntConfig(config);
+}
+
+void dsda_SortPowerups(player_t *player, int *idx, int *n, dsda_powerup_view_t view)
 {
   static int previous_tics[arrlen(powerups)];
   static unsigned int activate_tics[arrlen(powerups)];
@@ -286,7 +466,7 @@ static void dsda_SortPowerups(player_t *player, int *idx, int *n)
   *n = 0;
   for (int i = 0; i < arrlen(powerups); i++)
   {
-    if (!dsda_IntConfig(powerups[i].config))
+    if (!dsda_PowerupEnabled(&powerups[i], view))
       continue;
 
     if (powerups[i].tics(player) != 0)
@@ -374,84 +554,11 @@ static void dsda_SortPowerups(player_t *player, int *idx, int *n)
 }
 
 // Fix "special" powerups from using a countdown when they shouldn't (cheats, flight)
-static int dsda_NormalizePowerupTics(const powerup_timer_t *powerup, int tics)
+int dsda_NormalizePowerupTics(const dsda_powerup_t *powerup, int tics)
 {
     if (tics == 0)                            return 0;
     if (powerup->max_tics == PERMATICS)       return PERMATICS;
     if (powerup->max_tics == MULTILEVELTICS)  return MULTILEVELTICS;
     if (powerup->max_tics == LEVELTICS)       return LEVELTICS;
     return tics;
-}
-
-static void dsda_UpdateComponentText(char *str, size_t max_size)
-{
-  player_t *p = &players[displayplayer];
-
-  int idx[arrlen(powerups)];
-  int n = 0;
-
-  size_t length = 0;
-  dboolean powerup_active = false;
-  int line_len;
-
-  if (max_size > 0)
-    str[0] = '\0';
-
-  dsda_SortPowerups(p, idx, &n);
-
-  for (int i = 0; i < n; i++)
-  {
-    const powerup_timer_t *pwr = &powerups[idx[i]];
-    int tics = dsda_NormalizePowerupTics(pwr, pwr->tics(p));
-    char line[64];
-
-    if (!dsda_PowerupTimer(line, sizeof(line), tics, pwr->max_tics, pwr->blink_tics, pwr->label, dsda_TextColor(pwr->color)))
-      continue;
-
-    powerup_active = true;
-
-    line_len = snprintf(str + length, max_size - length, "%s\n", line);
-
-    if (line_len < 0)
-      line_len = 0;
-  
-    if ((size_t)line_len >= max_size - length)
-      break;
-
-    length += (size_t)line_len;
-  }
-
-  if (!powerup_active && max_size > 0)
-    str[0] = '\0';
-}
-
-void dsda_InitPowerupsHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
-  *data = Z_Calloc(1, sizeof(local_component_t));
-  local = *data;
-
-  local->text_align_right = arg_count > 0 ? !!args[0] : false;
-
-  dsda_InitTextHC(&local->component, x_offset, y_offset, vpt);
-}
-
-void dsda_UpdatePowerupsHC(void* data) {
-    local = data;
-
-    if(!dsda_IntConfig(nyan_config_ex_powerup_widget))
-      return;
-
-    dsda_UpdateComponentText(local->component.msg, sizeof(local->component.msg));
-    dsda_RefreshHudText(&local->component);
-
-    if (local->text_align_right)
-      HUlib_setTextXRightAlign(&local->component.text);
-}
-
-void dsda_DrawPowerupsHC(void* data) {
-    local = data;
-
-    if(!dsda_IntConfig(nyan_config_ex_powerup_widget))
-      return;
-
-    dsda_DrawBasicText(&local->component);
 }

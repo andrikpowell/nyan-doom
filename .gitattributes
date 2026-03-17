@@ -170,9 +170,14 @@ prboom2/data/graphics/stfpvis.ppm -text
 prboom2/data/graphics/stfpmap.ppm -text
 prboom2/data/graphics/stfpsuit.ppm -text
 prboom2/data/graphics/stfpbpak.ppm -text
-prboom2/data/graphics/stfparm1.ppm -text
-prboom2/data/graphics/stfparm2.ppm -text
+prboom2/data/graphics/stfparmr.ppm -text
 prboom2/data/graphics/stfppstr.ppm -text
+prboom2/data/graphics/stfpfly.ppm -text
+prboom2/data/graphics/stfrtome.lmp -text
+prboom2/data/graphics/stfrmor1.lmp -text
+prboom2/data/graphics/stfrmor2.lmp -text
+prboom2/data/graphics/stfrsped.lmp -text
+prboom2/data/graphics/stfrmaul.lmp -text
 prboom2/data/graphics/chxpstr0.ppm -text
 prboom2/data/graphics/chxpstr1.ppm -text
 prboom2/data/graphics/chxarms0.ppm -text
