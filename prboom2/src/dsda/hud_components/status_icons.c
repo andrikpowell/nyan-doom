@@ -40,7 +40,6 @@ static int patch_spacing;
 static void drawPowerupStatusIcon(int *x, int *y, int powerup, const char *lumpname, int color)
 {
     int flags = local->component.vpt;
-    dboolean draw = false;
 
     if (!lumpname)
         return;
