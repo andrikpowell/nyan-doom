@@ -888,7 +888,7 @@ static void V_SetTransmap(v_patchinfo_t *p, int shadowtype, dboolean is_shadow, 
   // Add translucency
   if (is_shadow)
   {
-    p->trans_base = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : shadow_raven_filter_pct;
+    p->trans_base = (shadowtype == SHADOW_RAVEN) ? shadow_raven_filter_pct : shadow_ui_filter_pct;
 
     // Shadow always has translucency
     if (!(p->flags & VPT_TRANSMAP))
@@ -906,7 +906,7 @@ static void V_SetTransmap(v_patchinfo_t *p, int shadowtype, dboolean is_shadow, 
   if ((p->flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
   {
     if (is_shadow)
-      p->trans_base = (shadowtype == SHADOW_DEFAULT) ? exhud_shadow_ui_filter_pct : exhud_shadow_raven_filter_pct;
+      p->trans_base = (shadowtype == SHADOW_RAVEN) ? exhud_shadow_raven_filter_pct : exhud_shadow_ui_filter_pct;
     else if (p->flags & VPT_TRANSMAP)
       p->trans_base = exhud_tran_filter_pct;
     else if (p->flags & VPT_ALT_TRANSMAP)

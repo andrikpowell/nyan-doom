@@ -527,7 +527,7 @@ static float gld_GetAlpha(int shadowtype, int fade_alpha, enum patch_translation
 
   // apply translucency
   if (flags & VPT_SHADOW)
-    base_alpha = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : shadow_raven_filter_pct;
+    base_alpha = (shadowtype == SHADOW_RAVEN) ?  shadow_raven_filter_pct : shadow_ui_filter_pct;
   else if (flags & VPT_TRANSMAP)
     base_alpha = tran_filter_pct;
   else if (flags & VPT_ALT_TRANSMAP)
@@ -537,7 +537,7 @@ static float gld_GetAlpha(int shadowtype, int fade_alpha, enum patch_translation
   if ((flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
   {
     if (flags & VPT_SHADOW)
-      base_alpha = (shadowtype == SHADOW_DEFAULT) ? exhud_shadow_ui_filter_pct : exhud_shadow_raven_filter_pct;
+      base_alpha = (shadowtype == SHADOW_RAVEN) ? exhud_shadow_raven_filter_pct : exhud_shadow_ui_filter_pct;
     else if (flags & VPT_TRANSMAP)
       base_alpha = exhud_tran_filter_pct;
     else if (flags & VPT_ALT_TRANSMAP)
