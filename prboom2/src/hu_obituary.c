@@ -446,7 +446,7 @@ void dsda_Obituary(mobj_t *target, struct mobj_s *inflictor, struct mobj_s *sour
     {
       dsda_string_t obituary_message;
       dsda_ExpandObituary(&obituary_message, ob, target, source);
-      dsda_StringPrintF(&obituary_message, "%s%s", HU_ColorFromConfig(dsda_config_obituaries_color), obituary_message.string);
+      dsda_StringPrintF(&obituary_message, "%s%s", dsda_TextColor(dsda_tc_hud_obituary), obituary_message.string);
       dsda_AddPlayerObituary(obituary_message.string, &players[i]);
       dsda_FreeString(&obituary_message);
     }

@@ -4640,6 +4640,7 @@ setup_menu_t display_color_settings[] = {
   {"Secret Message", S_CRCHOICE, m_conf, G_X, dsda_tc_hud_secret_message },
   {"Announce Map Title", S_CRCHOICE, m_conf, G_X, dsda_tc_hud_announce_message },
   {"Announce Map Author", S_CRCHOICE, m_conf, G_X, dsda_tc_hud_announce_author },
+  {"Obituaries", S_CRCHOICE, m_conf, G_X, dsda_tc_hud_obituary },
   EMPTY_LINE,
 
   TITLE("Automap", G_X),
@@ -4991,7 +4992,6 @@ setup_menu_t obituary_gen_settings[] = {
   { "Show Obituaries", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_obituaries },
   { "Player Name", S_NAME | S_NYAN, m_conf, G_X, dsda_config_player_name, 0, color_list, DEPEND(dsda_config_obituaries, true) },
   { "Player Gender", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_player_gender, 0, gender_list, DEPEND(dsda_config_obituaries, true) },
-  { "Obituaries Color", S_CHOICE | S_CRITEM | S_NYAN, m_conf, G_X, dsda_config_obituaries_color, 0, color_list, DEPEND(dsda_config_obituaries, true) },
   FINAL_ENTRY
 };
 

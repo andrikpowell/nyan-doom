@@ -447,7 +447,6 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_player_name),
   MIGRATED_SETTING(dsda_config_player_gender),
   MIGRATED_SETTING(dsda_config_obituaries),
-  MIGRATED_SETTING(dsda_config_obituaries_color),
   MIGRATED_SETTING(dsda_config_playback_mouse_controls),
 
   SETTING_HEADING("Nyan-Doom settings"),

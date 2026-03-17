@@ -2098,10 +2098,6 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_obituaries", dsda_config_obituaries,
     CONF_BOOL(1), NULL, NOT_STRICT, dsda_InitObituaries
   },
-  [dsda_config_obituaries_color] = {
-    "dsda_obituaries_color", dsda_config_obituaries_color,
-    CONF_CR(3), NULL, NOT_STRICT, dsda_InitObituaries
-  },
   [dsda_config_extra_level_brightness] = {
     "extra_level_brightness", dsda_config_extra_level_brightness,
     dsda_config_int, 0, 4, { 0 },  &extra_brightness, STRICT_INT(0)

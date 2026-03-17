@@ -484,7 +484,6 @@ typedef enum {
   dsda_config_quit_sounds,
   dsda_config_announce_map,
   dsda_config_obituaries,
-  dsda_config_obituaries_color,
   dsda_config_extra_level_brightness,
   dsda_config_demo_end_quit,
   dsda_config_count,
