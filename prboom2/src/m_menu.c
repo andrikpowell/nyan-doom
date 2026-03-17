@@ -206,16 +206,6 @@ static dboolean sub_crosshair_active = false;
 static dboolean sub_overflows_active = false;
 static dboolean sub_automap_things_active = false;
 
-// Stuff for sub setup menus
-static menu_t *prev_menu;
-static menu_t *current_menu;
-static dboolean *prev_setup_flag;
-static dboolean *current_setup_flag;
-static setup_menu_t *prev_setup_menu;
-static setup_menu_t *current_setup_menu;
-static int prev_setup_page;
-static int prev_setup_item;
-
 extern const char* g_menu_flat;
 extern int g_menu_save_page_size;
 extern int g_menu_font_spacing;
@@ -1749,6 +1739,25 @@ static void M_SizeDisplay(int choice)
 
 static int set_menu_itemon; // which setup item is selected?   // phares 3/98
 static setup_menu_t* current_setup_menu; // points to current setup menu table
+static dboolean *current_setup_flag;
+static menu_t *current_menu;
+
+// Stuff for sub setup menus
+static int prev_menu_itemon;
+static setup_menu_t *prev_setup_menu;
+static dboolean *prev_setup_flag;
+static menu_t *prev_menu;
+
+static void M_TrackLastPage(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
+{
+  prev_menu = current_menu;
+  prev_setup_flag = current_setup_flag;
+  prev_setup_menu = current_setup_menu;
+
+  current_menu = menu;
+  current_setup_flag = setup_flag;
+  current_setup_menu = setup_menu;
+}
 
 // save the setup menu's itemon value in the S_END element's x coordinate
 
@@ -3234,16 +3243,126 @@ static const char *empty_list[] = { NULL };
 #define DEP(config, value)   { config, value, false }
 #define EXC(config, value)   { config, value, true }
 
-static void M_SaveSetupPage(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
-{
-  prev_menu = current_menu;
-  prev_setup_flag = current_setup_flag;
-  prev_setup_menu = current_setup_menu;
+//
+// Save / restore what menu tab we are on
+//
 
-  current_menu = menu;
-  current_setup_flag = setup_flag;
-  current_setup_menu = setup_menu;
+static setup_menu_t *M_GetFirstSetupPage(setup_menu_t *menu)
+{
+  setup_menu_t *ptr;
+  setup_menu_t *prev;
+
+  if (!menu)
+    return NULL;
+
+  menu = M_ChooseSetupMenu(menu);
+
+  for (;;)
+  {
+    prev = NULL;
+
+    for (ptr = menu; !(ptr->m_flags & S_END); ptr++)
+    {
+      if (ptr->m_flags & S_PREV)
+      {
+        prev = M_ChooseSetupMenu(ptr->menu);
+        break;
+      }
+    }
+
+    if (prev == NULL)
+      break;
+
+    menu = prev;
+  }
+
+  return menu;
 }
+
+typedef struct
+{
+  setup_menu_t *menu;
+  int page;
+} setup_page_data_t;
+
+static setup_page_data_t setup_page_data[64];
+static int setup_page_count = 0;
+
+static int *M_SetupPageData(setup_menu_t *menu)
+{
+  setup_page_data_t *page_data;
+  int i;
+
+  menu = M_GetFirstSetupPage(menu);
+
+  if (!menu)
+    I_Error("M_SetupPageInfo: No Menu Found");
+
+  for (i = 0; i < setup_page_count; i++)
+    if (setup_page_data[i].menu == menu)
+      return &setup_page_data[i].page;
+
+  if (setup_page_count >= arrlen(setup_page_data))
+    I_Error("M_SetupPageInfo: Page Count Overflow");
+
+  page_data = &setup_page_data[setup_page_count];
+
+  page_data->menu = menu;
+  page_data->page = 0;
+
+  setup_page_count++;
+
+  return &page_data->page;
+}
+
+static int M_LoadSetupPageData(setup_menu_t *menu)
+{
+  return *M_SetupPageData(menu);
+}
+
+static void M_SaveSetupPage(setup_menu_t *menu, int page)
+{
+  *M_SetupPageData(menu) = page;
+}
+
+static void M_LoadSetupPage(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
+{
+  setup_menu_t *ptr;
+  int page;
+
+  // mostly for sub-menus
+  M_TrackLastPage(menu, setup_flag, setup_menu);
+
+  page = M_LoadSetupPageData(setup_menu);
+
+  M_UpdateSetupMenu(M_GetFirstSetupPage(setup_menu));
+  current_page = 0;
+
+  while (page > 0)
+  {
+    ptr = current_setup_menu;
+
+    while (!(ptr->m_flags & S_END))
+    {
+      if (ptr->m_flags & S_NEXT)
+      {
+        M_UpdateSetupMenu(ptr->menu);
+        current_page++;
+        page--;
+        break;
+      }
+
+      ptr++;
+    }
+
+    if (ptr->m_flags & S_END)
+      break;
+  }
+}
+
+//
+// Menu Stuff
+//
 
 static void M_EnterSetupMenu(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
 {
@@ -3255,8 +3374,7 @@ static void M_EnterSetupMenu(menu_t *menu, dboolean *setup_flag, setup_menu_t *s
   colorbox_active = false;
   setup_gather = false;
 
-  M_SaveSetupPage(menu, setup_flag, setup_menu);
-  M_UpdateSetupMenu(setup_menu);
+  M_LoadSetupPage(menu, setup_flag, setup_menu);
 }
 
 static void M_EnterSetup(menu_t *menu, dboolean *setup_flag, setup_menu_t *setup_menu)
@@ -3270,7 +3388,7 @@ static void M_EnterSubSetup(menu_t *menu, dboolean *setup_flag, setup_menu_t *se
 {
   // Set last setup item info
   M_SetSetupMenuItemOn(set_menu_itemon);
-  prev_setup_item = set_menu_itemon;
+  prev_menu_itemon = set_menu_itemon;
 
   // Enter SubSetup Menu
   M_EnterSetupMenu(menu, setup_flag, setup_menu);
@@ -6661,14 +6779,15 @@ void M_BackSecondary(void)
     if (MenuBack())
     {
         M_EnterSetup(prev_menu, prev_setup_flag, prev_setup_menu);
-        M_SetSetupMenuItemOn(prev_setup_item);
-        current_page = prev_setup_page;
+        M_SetSetupMenuItemOn(prev_menu_itemon);
     }
 }
 
 void M_LeaveSetupMenu(void)
 {
   M_SetSetupMenuItemOn(set_menu_itemon);
+  M_SaveSetupPage(current_setup_menu, current_page);
+
   setup_active = false;
 
   // menus
@@ -7402,9 +7521,10 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
         ptr1->m_flags &= ~S_HILITE;
         M_SetSetupMenuItemOn(set_menu_itemon);
         M_UpdateSetupMenu(ptr2->menu);
-        S_StartVoidSound(g_sfx_menu);  // killough 10/98
         previous_page = current_page;
         current_page--;
+        M_SaveSetupPage(current_setup_menu, current_page);
+        S_StartVoidSound(g_sfx_menu);  // killough 10/98
         return true;
       }
     }
@@ -7422,9 +7542,10 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
         ptr1->m_flags &= ~S_HILITE;
         M_SetSetupMenuItemOn(set_menu_itemon);
         M_UpdateSetupMenu(ptr2->menu);
-        S_StartVoidSound(g_sfx_menu);  // killough 10/98
         previous_page = current_page;
         current_page++;
+        M_SaveSetupPage(current_setup_menu, current_page);
+        S_StartVoidSound(g_sfx_menu);  // killough 10/98
         return true;
       }
     }
@@ -8563,10 +8684,6 @@ void M_SetupNextMenu(menu_t *menudef)
 {
   M_ChangeMenu(menudef, mnact_nochange);
   itemOn = currentMenu->lastOn;
-
-  // Save last currentpage
-  if (!setup_active_secondary)
-    prev_setup_page = current_page;
 
   current_page = 0;
   previous_page = 0;
