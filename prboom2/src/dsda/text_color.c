@@ -75,6 +75,7 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_exhud_speed_slow] = { "exhud_speed_slow", CR_GOLD },
   [dsda_tc_exhud_speed_normal] = { "exhud_speed_normal", CR_GREEN },
   [dsda_tc_exhud_speed_fast] = { "exhud_speed_fast", CR_LIGHTBLUE },
+  [dsda_tc_exhud_totals_sts_label] = { "exhud_totals_sts_label", CR_GRAY },
   [dsda_tc_exhud_totals_label] = { "exhud_totals_label", CR_RED },
   [dsda_tc_exhud_totals_value] = { "exhud_totals_value", CR_GOLD },
   [dsda_tc_exhud_totals_max] = { "exhud_totals_max", CR_LIGHTBLUE },

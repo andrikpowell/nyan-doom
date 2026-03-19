@@ -4798,6 +4798,7 @@ setup_menu_t display_color_settings[] = {
   {"Level Time", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_level_time },
   {"Total Time", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_total_time },
   {"Demo Length", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_demo_length },
+  {"Totals STS Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_totals_sts_label },
   {"Totals Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_totals_label },
   {"Totals Value", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_totals_value },
   {"Totals Max", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_totals_max },

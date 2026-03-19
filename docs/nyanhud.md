@@ -219,7 +219,7 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
 
 ### Stats
 - `stat_totals`: shows the kills / secrets / items on the current map
-  - Supports 6 arguments: `show_kills show_items show_secrets vertical show_labels stat_format`
+  - Supports 7 arguments: `show_kills show_items show_secrets vertical show_labels stat_format`
     - `show_kills`: shows kills in the component
     - `show_items`: shows items in the component
     - `show_secrets`: shows secrets in the component
@@ -231,6 +231,7 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
       - 2 - Count `#`
       - 3 - Remaining `#`
       - 4 - DSDA Classic `#/# #%`
+    - 😸 `stat_label`: shows `STS` label in front of stats
 
 ### Status
 - 😸 `status_widget`: shows icons for armor type, backpack, and other powerups
