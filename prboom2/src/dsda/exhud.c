@@ -58,6 +58,7 @@ typedef enum {
   exhud_armor_text,
   exhud_big_ammo,
   exhud_big_ammo_text,
+  exhud_big_mana,
   exhud_big_armor,
   exhud_big_armor_text,
   exhud_big_artifact,
@@ -128,6 +129,13 @@ exhud_component_t components_template[exhud_component_count] = {
     dsda_DrawBigAmmoTextHC,
     "big_ammo_text",
     .default_vpt = VPT_EX_TEXT | VPT_EX_TRANS,
+  },
+  [exhud_big_mana] = {
+    dsda_InitBigManaHC,
+    dsda_UpdateBigManaHC,
+    dsda_DrawBigManaHC,
+    "big_mana",
+    .default_vpt = VPT_EX_TEXT | VPT_NOOFFSET | VPT_EX_TRANS,
   },
   [exhud_big_armor] = {
     dsda_InitBigArmorHC,

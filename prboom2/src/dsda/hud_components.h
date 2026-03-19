@@ -26,6 +26,7 @@
 #include "hud_components/big_artifact_bar.h"
 #include "hud_components/big_health.h"
 #include "hud_components/big_health_text.h"
+#include "hud_components/big_mana.h"
 #include "hud_components/boom_bar.h"
 #include "hud_components/color_test.h"
 #include "hud_components/command_display.h"
