@@ -31,51 +31,12 @@ static int patch_spacing;
 static int patch_spacing_x;
 static int patch_spacing_y;
 
-static int manaLumpBlue;
-static int manaLumpGreen;
-
-static const char* hexen_big_ammo_name[2][2] = {
-  { "MANADIM1", "MANABRT1" }, // Blue
-  { "MANADIM2", "MANABRT2" }, // Green
-};
-
-static void dsda_SetHexenAmmoImage(void) {
-  player_t* player;
-  const char* manaBlue;
-  const char* manaGreen;
-  dboolean hasManaBlue;
-  dboolean hasManaGreen;
-
-  player = &players[displayplayer];
-  hasManaBlue = !!player->ammo[MANA_1];
-  hasManaGreen = !!player->ammo[MANA_2];
-
-  if (player->readyweapon == wp_first)
-  {
-    manaBlue = hexen_big_ammo_name[MANA_1][false];
-    manaGreen = hexen_big_ammo_name[MANA_2][false];
-  }
-  else if (player->readyweapon == wp_second)
-  {
-    manaBlue = hexen_big_ammo_name[MANA_1][hasManaBlue];
-    manaGreen = hexen_big_ammo_name[MANA_2][false];
-  }
-  else if (player->readyweapon == wp_third)
-  {
-    manaBlue = hexen_big_ammo_name[MANA_1][false];
-    manaGreen = hexen_big_ammo_name[MANA_2][hasManaGreen];
-  }
-  else // wp_fourth
-  {
-    manaBlue = hexen_big_ammo_name[MANA_1][hasManaBlue];
-    manaGreen = hexen_big_ammo_name[MANA_2][hasManaGreen];
-  }
-
-  manaLumpBlue = W_GetNumForName(manaBlue);
-  manaLumpGreen = W_GetNumForName(manaGreen);
+static int dsda_GetNumberWidth(void)
+{
+  return dsda_GetBigNumberWidth(3, 999, local->right_align, false);
 }
 
-int dsda_GetAmmoImage(ammotype_t ammo_type) {
+static int dsda_GetAmmoImage(ammotype_t ammo_type) {
   if (heretic)
   {
     if (ammo_type == am_goldwand) return HERETIC_SPR_AMG1;
@@ -167,6 +128,9 @@ static void dsda_DrawComponent(void) {
   int lump;
   int x, y;
   int flags, numflags;
+  int cm;
+
+  if (hexen) return;
 
   player = &players[displayplayer];
   flags = numflags = local->component.vpt;
@@ -176,72 +140,27 @@ static void dsda_DrawComponent(void) {
   // Numbers need offsets (so 1 doesn't have a big space)
   numflags &= ~VPT_NOOFFSET;
 
-  if (hexen)
+  ammo_type = weaponinfo[player->readyweapon].ammo;
+
+  if (ammo_type == am_noammo || !player->maxammo[ammo_type])
+    return;
+
+  ammo = player->ammo[ammo_type];
+  lump = R_NumPatchForSpriteIndex(dsda_GetAmmoImage(ammo_type));
+  cm = heretic ? CR_DEFAULT : dsda_TextCR(dsda_AmmoColorBig(player));
+
+  if (!local->right_align)
   {
-    int cm1, cm2;
-    int mana1, mana2;
-    int mana_y_spacing = 15;
-    int mana_x_spacing = 7 + patch_spacing;
-
-    mana1 = player->ammo[MANA_1];
-    mana2 = player->ammo[MANA_2];
-    cm1 = dsda_TextCR(dsda_ManaColorBig(player, MANA_1));
-    cm2 = dsda_TextCR(dsda_ManaColorBig(player, MANA_2));
-
-    dsda_SetHexenAmmoImage();
-
-    if (!local->right_align)
-    {
-      V_DrawShadowedNumPatch(x, y, manaLumpBlue, CR_DEFAULT, flags);
-      x += R_NumPatchWidth(manaLumpBlue) + patch_spacing;
-      dsda_DrawMedNumber(x, y, 0, cm1, numflags, 3, mana1, local->right_align, false);
-      x -= R_NumPatchWidth(manaLumpBlue) + patch_spacing;
-
-      y += mana_y_spacing;
-      V_DrawShadowedNumPatch(x, y, manaLumpGreen, CR_DEFAULT, flags);
-      x += R_NumPatchWidth(manaLumpGreen) + patch_spacing;
-      dsda_DrawMedNumber(x, y, 0, cm2, numflags, 3, mana2, local->right_align, false);
-    }
-    else
-    {
-      dsda_DrawMedNumber(x, y, 0, cm1, numflags, 3, mana1, local->right_align, false);
-      x += R_NumPatchWidth(manaLumpBlue) + mana_x_spacing;
-      V_DrawShadowedNumPatch(x, y, manaLumpBlue, CR_DEFAULT, flags);
-      x -= R_NumPatchWidth(manaLumpBlue) + mana_x_spacing;
-
-      y += mana_y_spacing;
-      dsda_DrawMedNumber(x, y, 0, cm2, numflags, 3, mana2, local->right_align, false);
-      x += R_NumPatchWidth(manaLumpGreen) + mana_x_spacing;
-      V_DrawShadowedNumPatch(x, y, manaLumpGreen, CR_DEFAULT, flags);
-    }
+    dsda_DrawBigAmmoIcon(x, y, lump, flags);
+    x += patch_spacing + patch_spacing_x;
   }
-  else // Doom and Heretic
+
+  dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, ammo, local->right_align, false);
+
+  if (local->right_align)
   {
-    int cm;
-
-    ammo_type = weaponinfo[player->readyweapon].ammo;
-
-    if (ammo_type == am_noammo || !player->maxammo[ammo_type])
-      return;
-
-    ammo = player->ammo[ammo_type];
-    lump = R_NumPatchForSpriteIndex(dsda_GetAmmoImage(ammo_type));
-    cm = dsda_TextCR(dsda_AmmoColorBig(player));
-
-    if (!local->right_align)
-    {
-      dsda_DrawBigAmmoIcon(x, y, lump, flags);
-      x += patch_spacing + patch_spacing_x;
-    }
-
-    dsda_DrawBigNumber(x, y, 0,
-                      cm, numflags, 3, ammo, local->right_align, false);
-
-    if (local->right_align)
-    {
-      x += patch_spacing + dsda_GetBigNumberWidth(3, ammo, local->right_align, false);
-      dsda_DrawBigAmmoIcon(x, y, lump, flags);
-    }
+    x += patch_spacing + dsda_GetNumberWidth();
+    dsda_DrawBigAmmoIcon(x, y, lump, flags);
   }
 }
 
@@ -249,22 +168,13 @@ void dsda_InitBigAmmoHC(int x_offset, int y_offset, int vpt, int* args, int arg_
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
 
+  if (hexen) return;
+
   local->right_align = (arg_count > 0) ? !!args[0] : false;
 
   // Raven text needs smaller spacing
-  if (hexen)
-  {
-    manaLumpBlue = 0;
-    manaLumpGreen = 0;
-  }
-  else if (heretic)
-  {
-    dsda_HereticAmmoPatchSpacing();
-  }
-  else
-  {
-    dsda_DoomAmmoPatchSpacing();
-  }
+  if (heretic)  dsda_HereticAmmoPatchSpacing();
+  else          dsda_DoomAmmoPatchSpacing();
 
   patch_spacing = 6;
   font_height = raven ? 20 : 15;
@@ -274,10 +184,14 @@ void dsda_InitBigAmmoHC(int x_offset, int y_offset, int vpt, int* args, int arg_
 
 void dsda_UpdateBigAmmoHC(void* data) {
   local = data;
+
+  if (hexen) return;
 }
 
 void dsda_DrawBigAmmoHC(void* data) {
   local = data;
+
+  if (hexen) return;
 
   dsda_DrawComponent();
 }

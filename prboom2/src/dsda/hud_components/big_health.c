@@ -52,6 +52,11 @@ static void dsda_HealthPatchSpacing(void)
   }
 }
 
+static int dsda_GetNumberWidth(void)
+{
+  return dsda_GetBigNumberWidth(3, 999, local->right_align, local->percent);
+}
+
 static void dsda_DrawBigHealthIcon(int x, int y, int lump, int flags) {
   int w, h;
 
@@ -90,7 +95,8 @@ static void dsda_DrawComponent(void) {
   // Animated health
   health = st_health;
   lump = player->powers[pw_strength] ? strength_lump : health_lump;
-  cm = health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
+  cm = raven ? CR_DEFAULT :
+       health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
        health <= hud_health_yellow ? dsda_TextCR(dsda_tc_stbar_health_warning) :
        health <= hud_health_green ? dsda_TextCR(dsda_tc_stbar_health_ok) :
        dsda_TextCR(dsda_tc_stbar_health_super);
@@ -104,12 +110,11 @@ static void dsda_DrawComponent(void) {
   // Numbers need offsets (so 1 doesn't have a big space)
   numflags &= ~VPT_NOOFFSET;
 
-  dsda_DrawBigNumber(x, y, 0,
-                     cm, numflags, 3, health, local->right_align, local->percent);
+  dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, health, local->right_align, local->percent);
 
   if (local->right_align)
   {
-    x += patch_spacing + dsda_GetBigNumberWidth(3, health, local->right_align, local->percent);
+    x += patch_spacing + dsda_GetNumberWidth();
     dsda_DrawBigHealthIcon(x, y, lump, flags);
   }
 }

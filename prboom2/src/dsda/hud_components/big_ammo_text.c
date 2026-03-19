@@ -48,10 +48,9 @@ static void dsda_DrawComponent(void) {
     return;
 
   ammo = player->ammo[ammo_type];
-  cm = dsda_TextCR(dsda_AmmoColorBig(player));
+  cm = raven ? CR_DEFAULT : dsda_TextCR(dsda_AmmoColorBig(player));
 
-  dsda_DrawBigNumber(x, y, 0,
-                     cm, flags, 3, ammo, local->right_align, false);
+  dsda_DrawBigNumber(x, y, 0, cm, flags, 3, ammo, local->right_align, false);
 }
 
 void dsda_InitBigAmmoTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

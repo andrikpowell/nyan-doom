@@ -128,11 +128,15 @@ int dsda_AmmoColorBig(player_t* player) {
     return dsda_tc_stbar_ammo_full;
 }
 
+#define RAVEN_PERCENT_SPACING 4
+
 static void dsda_DrawBigPercent(int x, int y, int cm, int vpt) {
   extern int sts_pct_always_gray;
   int color = sts_pct_always_gray ? CR_GRAY : cm;
   int flags = (sts_colored_numbers || sts_pct_always_gray) ? VPT_COLOR : VPT_NONE;
   const char* percent_lump = heretic ? "FONTB05" : "STTPRCNT";
+
+  if (raven) x += RAVEN_PERCENT_SPACING;
 
   if (raven)
     V_DrawShadowedNamePatch(x, y, percent_lump, color, vpt | flags);
@@ -189,7 +193,7 @@ void dsda_DrawBigNumber(int x, int y, int delta_y, int cm, int vpt, int count, i
         x += delta_x;
     }
   }
-  if (!raven && percent)
+  if (percent)
     dsda_DrawBigPercent(x, y, cm, vpt);
 }
 
@@ -200,6 +204,7 @@ int dsda_GetBigNumberWidth(int count, int n, int right_align, int percent)
   int any_digit;
   int width;
   int delta_x = raven ? 12 : 14;
+  const char* percent_lump = heretic ? "FONTB05" : "STTPRCNT";
 
   if (count > 5)
     return 0;
@@ -217,8 +222,8 @@ int dsda_GetBigNumberWidth(int count, int n, int right_align, int percent)
       width += delta_x;
   }
 
-  if (!raven && percent)
-    width += R_NumPatchWidth(W_GetNumForName("STTPRCNT"));
+  if (percent)
+    width += R_NumPatchWidth(W_GetNumForName(percent_lump)) + RAVEN_PERCENT_SPACING;
 
   return width;
 }
@@ -236,7 +241,7 @@ static void dsda_DrawMedDigit(int x, int y, int delta_x, int cm, int vpt, int di
   V_DrawNamePatch(x, y, med_digit_lump, cm, vpt | flags);
 }
 
-void dsda_DrawMedNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int percent) {
+void dsda_DrawMedNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align) {
   int i;
   int digit, any_digit;
   int delta_x = 8;
@@ -265,7 +270,7 @@ void dsda_DrawMedNumber(int x, int y, int delta_y, int cm, int vpt, int count, i
   }
 }
 
-int dsda_GetMedNumberWidth(int count, int n, int right_align, int percent)
+int dsda_GetMedNumberWidth(int count, int n, int right_align)
 {
   int i;
   int digit;

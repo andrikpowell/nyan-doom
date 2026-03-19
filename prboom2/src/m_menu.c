@@ -4780,6 +4780,7 @@ setup_menu_t display_color_settings[] = {
   {"Armor Zero", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_armor_zero },
   {"Armor One", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_armor_one },
   {"Armor Two", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_armor_two },
+  {"Armor Hexen", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_armor_hexen },
   {"Ammo Bad", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_ammo_bad },
   {"Ammo Warning", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_ammo_warning },
   {"Ammo Ok", S_CRCHOICE, m_conf, G_X, dsda_tc_stbar_ammo_ok },

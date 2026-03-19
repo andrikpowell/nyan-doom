@@ -49,6 +49,11 @@ static void dsda_ArmorPatchSpacing(void)
   }
 }
 
+static int dsda_GetNumberWidth(void)
+{
+  return dsda_GetBigNumberWidth(3, 999, local->right_align, local->percent);
+}
+
 static void dsda_DrawBigArmorIcon(int x, int y, int lump, int flags) {
   int w, h;
 
@@ -85,21 +90,24 @@ static void dsda_DrawComponent(void) {
   x = local->component.x;
   y = local->component.y;
 
+  if (!hexen && players[displayplayer].armorpoints[ARMOR_ARMOR] <= 0)
+    return;
+
   if (hexen) {
-    cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
+    cm = dsda_TextCR(dsda_tc_stbar_armor_hexen);
     lump = armor_lump_green;
   }
   else {
     if (armor <= 0) {
-      cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
+      cm = heretic ? CR_DEFAULT : dsda_TextCR(dsda_tc_stbar_armor_zero);
       lump = armor_lump_green;
     }
     else if (player->armortype < 2) {
-      cm = dsda_TextCR(dsda_tc_stbar_armor_one);
+      cm = heretic ? CR_DEFAULT : dsda_TextCR(dsda_tc_stbar_armor_one);
       lump = armor_lump_green;
     }
     else {
-      cm = dsda_TextCR(dsda_tc_stbar_armor_two);
+      cm = heretic ? CR_DEFAULT : dsda_TextCR(dsda_tc_stbar_armor_two);
       lump = armor_lump_blue;
     }
   }
@@ -113,12 +121,11 @@ static void dsda_DrawComponent(void) {
   // Numbers need offsets (so 1 doesn't have a big space)
   numflags &= ~VPT_NOOFFSET;
 
-  dsda_DrawBigNumber(x, y, 0,
-                     cm, numflags, 3, armor, local->right_align, local->percent);
+  dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, armor, local->right_align, local->percent);
 
   if (local->right_align)
   {
-    x += patch_spacing + dsda_GetBigNumberWidth(3, armor, local->right_align, local->percent);
+    x += patch_spacing + dsda_GetNumberWidth();
     dsda_DrawBigArmorIcon(x, y, lump, flags);
   }
 }

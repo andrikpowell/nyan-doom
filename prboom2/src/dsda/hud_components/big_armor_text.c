@@ -27,28 +27,44 @@ typedef struct {
 
 static local_component_t* local;
 
+static int dsda_GetWidgetWidth(void)
+{
+  return dsda_GetBigNumberWidth(3, 999, local->right_align, local->percent);
+}
+
 static void dsda_DrawComponent(void) {
   player_t* player;
   int cm;
   int armor;
+  int x, y;
 
   player = &players[displayplayer];
   armor = st_armor;
 
+  if (!hexen && armor <= 0)
+    return;
+
   if (hexen) {
-    cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
+    cm = dsda_TextCR(dsda_tc_stbar_armor_hexen);
   }
   else {
-    if (armor <= 0)
-      cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
-    else if (player->armortype < 2)
-      cm = dsda_TextCR(dsda_tc_stbar_armor_one);
-    else
-      cm = dsda_TextCR(dsda_tc_stbar_armor_two);
+    if (heretic)
+      cm = CR_DEFAULT;
+    else // Doom
+    {
+      if (armor <= 0)
+        cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
+      else if (player->armortype < 2)
+        cm = dsda_TextCR(dsda_tc_stbar_armor_one);
+      else
+        cm = dsda_TextCR(dsda_tc_stbar_armor_two);
+    }
   }
 
-  dsda_DrawBigNumber(local->component.x, local->component.y, 0,
-                     cm, local->component.vpt, 3, armor, local->right_align, local->percent);
+  x = local->component.x;
+  y = local->component.y;
+
+  dsda_DrawBigNumber(x, y, 0, cm, local->component.vpt, 3, armor, local->right_align, local->percent);
 }
 
 void dsda_InitBigArmorTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

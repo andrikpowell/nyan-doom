@@ -46,7 +46,7 @@ static void dsda_DrawBar(player_t* player) {
   extern int idfa_armor;
   int armor       = st_armor;
   int armor_max   = hexen ? (pclass[player->pclass].armor_max / (5 * FRACUNIT)) : idfa_armor / 2;
-  int color       = hexen ? dsda_TextCR(dsda_tc_stbar_armor_zero) : dsda_TextCR(dsda_ArmorTextColor(armor));
+  int color       = hexen ? dsda_TextCR(dsda_tc_exhud_armor_hexen) : dsda_TextCR(dsda_ArmorTextColor(armor));
   int supercolor  = dsda_TextCR(dsda_tc_exhud_armor_two);
 
   // draw bar after label
@@ -81,7 +81,7 @@ static void dsda_UpdateComponentText(void) {
 
   if (hexen)
   {
-    const char* cm  = dsda_TextColor(dsda_tc_stbar_armor_zero);
+    const char* cm  = dsda_TextColor(dsda_tc_exhud_armor_hexen);
     snprintf(local->label.msg, sizeof(local->label.msg), "%s%s", cm, label);
     snprintf(local->percentage.msg, sizeof(local->percentage.msg), "%s%2d", cm, armor);
   }

@@ -30,17 +30,21 @@ static local_component_t* local;
 static void dsda_DrawComponent(void) {
   int cm;
   int health;
+  int x, y;
 
   // Animated health
   health = st_health;
 
-  cm = health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
+  cm = raven ? CR_DEFAULT :
+       health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
        health <= hud_health_yellow ? dsda_TextCR(dsda_tc_stbar_health_warning) :
        health <= hud_health_green ? dsda_TextCR(dsda_tc_stbar_health_ok) :
        dsda_TextCR(dsda_tc_stbar_health_super);
 
-  dsda_DrawBigNumber(local->component.x, local->component.y, 0,
-                     cm, local->component.vpt, 3, health, local->right_align, local->percent);
+  x = local->component.x;
+  y = local->component.y;
+
+  dsda_DrawBigNumber(x, y, 0, cm, local->component.vpt, 3, health, local->right_align, local->percent);
 }
 
 void dsda_InitBigHealthTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
