@@ -955,7 +955,7 @@ void DrawArtifact(int x, int y, dboolean always_show, dboolean center, int vpt)
   int box_x, box_y;
   int arti_x, arti_y;
   int delta_x, delta_y;
-  enum patch_translation_e flags;
+  enum patch_translation_e box_flags, fade_flags;
 
   if (center)
     x -= (R_NamePatchWidth("ARTIBOX") / 2);
@@ -967,7 +967,8 @@ void DrawArtifact(int x, int y, dboolean always_show, dboolean center, int vpt)
   arti_y = y + (heretic ? 0 : 0);
   delta_x = heretic ? 20 : 18;
   delta_y = heretic ? 22 : 22;
-  flags = VPT_TRANSMAP; // 40%
+  box_flags = VPT_TRANSMAP; // 40%
+  fade_flags = artifact_bar_active ? VPT_TRANSMAP_REVERSE : 0; // 60%
 
   if (show_box)
   {
@@ -975,11 +976,11 @@ void DrawArtifact(int x, int y, dboolean always_show, dboolean center, int vpt)
 
     if (inv->type > 0 || always_show)
     {
-        V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | flags);
+        V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | box_flags);
 
         if (inv->type > 0)
         {
-            V_DrawNumPatch(arti_x, arti_y, lumparti[inv->type], CR_DEFAULT, vpt);
+            V_DrawNumPatch(arti_x, arti_y, lumparti[inv->type], CR_DEFAULT, vpt | fade_flags);
             if (!artifact_bar_active)
                 DrSmallNumberVPTInventory(inv->count, x + delta_x, y + delta_y, vpt);
         }
