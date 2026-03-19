@@ -893,7 +893,7 @@ void DrawInventoryBar(void)
 }
 
 // This is to hide DrawArtifact() when DrawInventoryBarTranslucent() is active
-int full_exhud_inventory = false;
+int artifact_bar_active = false;
 
 void DrawInventoryBarTranslucent(int x, int y, dboolean center, int vpt)
 {
@@ -918,7 +918,7 @@ void DrawInventoryBarTranslucent(int x, int y, dboolean center, int vpt)
         int gem_xr      = heretic ? x+219   : x+218;
         int gem_y       = heretic ? y-1     : y;
 
-        full_exhud_inventory = true;
+        artifact_bar_active = true;
 
         j = CPlayer->inv_ptr - CPlayer->curpos;
         for (i = 0; i < 7; i++)
@@ -944,7 +944,7 @@ void DrawInventoryBarTranslucent(int x, int y, dboolean center, int vpt)
     }
     else
     {
-        full_exhud_inventory = false;
+        artifact_bar_active = false;
     }
 }
 
@@ -955,21 +955,23 @@ void DrawArtifact(int x, int y, dboolean show_empty_box, int vpt)
   const int box_y = y + (heretic ? 0 : 0);
   const int delta_x = heretic ? 22 : 19;
   const int delta_y = heretic ? 22 : 21;
+  dboolean show_box = !artifact_bar_active || show_empty_box;
   enum patch_translation_e flags = VPT_TRANSMAP; // 40%
 
-  if (!full_exhud_inventory)
+  if (show_box)
   {
     inv = &players[displayplayer].inventory[CPlayer->inv_ptr];
 
-    if (inv->type > 0)
+    if (inv->type > 0 || show_box)
     {
         V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | flags);
-        V_DrawNumPatch(x, y, lumparti[inv->type], CR_DEFAULT, vpt);
-        DrSmallNumberVPTInventory(inv->count, x + delta_x, y + delta_y, vpt);
-    }
-    else if (inv->type == 0 && show_empty_box)
-    {
-        V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | flags);
+
+        if (inv->type > 0)
+        {
+            V_DrawNumPatch(x, y, lumparti[inv->type], CR_DEFAULT, vpt);
+            if (!artifact_bar_active)
+                DrSmallNumberVPTInventory(inv->count, x + delta_x, y + delta_y, vpt);
+        }
     }
   }
 }
