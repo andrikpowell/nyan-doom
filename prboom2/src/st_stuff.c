@@ -881,7 +881,7 @@ void ST_DrawFaceWidget(int x, int y, int vpt)
 {
   if (raven) return;
 
-  V_DrawNumPatch(x, y, faces[st_faceindex].lumpnum, CR_DEFAULT, vpt);
+  V_DrawMenuNumPatch(x, y, faces[st_faceindex].lumpnum, CR_DEFAULT, vpt);
 }
 
 void ST_updateBlinkingKeys(player_t* plyr)
