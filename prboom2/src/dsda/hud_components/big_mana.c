@@ -109,7 +109,7 @@ static void dsda_DrawComponent(void) {
   int flags, numflags;
   int cm1, cm2;
   int mana1, mana2;
-  int width1, width2;
+  int width1;
   dboolean draw_blue = true;
   dboolean draw_green = true;
 
