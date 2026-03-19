@@ -384,7 +384,7 @@ int automap_overlay;
 int automap_rotate;
 int automap_follow;
 int automap_grid;
-int autopage;
+int autopage_active;
 int autopage_fade;
 int autopage_parallax;
 
@@ -3494,8 +3494,17 @@ static void AM_setFrameVariables(void)
 //
 //=============================================================================
 
+typedef enum {
+  AUTOMAP_BG_OFF,
+  AUTOMAP_BG_GAME_DEFAULT,
+  AUTOMAP_BG_FORCED,
+} automap_bg_t;
+
 static void AM_DrawBackground (void)
 {
+  int automap_bg = raven ? (autopage_active != AUTOMAP_BG_OFF)
+                         : (autopage_active == AUTOMAP_BG_FORCED);
+
   if (automap_bg) { // Automap Parallax Background
     V_BeginUIDraw(); // OpenGL doesn't like flats in AutomapDraw()
 

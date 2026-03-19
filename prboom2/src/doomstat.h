@@ -204,16 +204,15 @@ extern int automap_overlay;
 extern int automap_rotate;
 extern int automap_follow;
 extern int automap_grid;
-extern int autopage;
+extern int autopage_active;
 extern int autopage_fade;
 extern int autopage_parallax;
 
-#define automap_on (automap_active && !automap_overlay)
-#define automap_off (!automap_active && automap_overlay > 0)
-#define automap_stbar (automap_active && R_StatusBarVisible())
+#define automap_on    (automap_active && !automap_overlay)
+#define automap_off   (!automap_active || automap_overlay > 0)
+
 #define automap_input (automap_active)
-#define automap_hud (automap_active && !automap_overlay)
-#define automap_bg (raven ? autopage > 0 : autopage == 2)
+#define automap_stbar (automap_active && R_StatusBarVisible())
 
 typedef enum {
   mnact_nochange = -1,
