@@ -4801,6 +4801,7 @@ setup_menu_t display_color_settings[] = {
   {"Totals Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_totals_label },
   {"Totals Value", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_totals_value },
   {"Totals Max", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_totals_max },
+  {"Keys Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_keys_label },
   {"Weapon Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_label },
   {"Weapon Owned", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_owned },
   {"Weapon Berserk", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_berserk },
@@ -4831,6 +4832,7 @@ setup_menu_t display_color_settings[] = {
   {"Armor Zero", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_armor_zero },
   {"Armor One", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_armor_one },
   {"Armor Two", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_armor_two },
+  {"Armor Hexen", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_armor_hexen },
   EMPTY_LINE,
 
   TITLE("Small Health", G_X),

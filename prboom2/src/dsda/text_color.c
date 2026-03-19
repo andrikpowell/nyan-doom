@@ -78,6 +78,7 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_exhud_totals_label] = { "exhud_totals_label", CR_RED },
   [dsda_tc_exhud_totals_value] = { "exhud_totals_value", CR_GOLD },
   [dsda_tc_exhud_totals_max] = { "exhud_totals_max", CR_LIGHTBLUE },
+  [dsda_tc_exhud_keys_label] = { "exhud_keys_label", CR_GRAY },
   [dsda_tc_exhud_weapon_label] = { "exhud_weapon_label", CR_GRAY },
   [dsda_tc_exhud_weapon_owned] = { "exhud_weapon_owned", CR_GREEN },
   [dsda_tc_exhud_weapon_berserk] = { "exhud_weapon_berserk", CR_LIGHTBLUE },

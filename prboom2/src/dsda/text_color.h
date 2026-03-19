@@ -77,6 +77,7 @@ typedef enum {
   dsda_tc_exhud_totals_label,
   dsda_tc_exhud_totals_value,
   dsda_tc_exhud_totals_max,
+  dsda_tc_exhud_keys_label,
   dsda_tc_exhud_weapon_label,
   dsda_tc_exhud_weapon_owned,
   dsda_tc_exhud_weapon_berserk,

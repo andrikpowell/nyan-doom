@@ -93,8 +93,10 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
 - 😸 `doomguy_face`: shows Doomguy's handsome face ;)
 - 😸 `loading_disk`: shows either the `STDISK` or `STCDROM` loading icons
 - `keys`: shows the acquired keys
-  - Supports 1 argument: `horizontal`
+  - Supports 3 arguments: `horizontal spacing classic`
     - `horizontal`: displays the component horizontally rather than vertically
+    - 😸 `spacing`: allows customisation for the spacing between keys (default is 3)
+    - 😸 `classic`: displays the `KEY` label in front of keys (requires `horizontal`) while also separating the skull keys from keycards
 - `big_ammo_text`: shows the ammo for the current weapon in the status bar font
   - Supports 1 argument: `right_align`
     - 😸 `right_align`: aligns the text to the right

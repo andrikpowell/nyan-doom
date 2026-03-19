@@ -20,16 +20,59 @@
 #include "keys.h"
 #include "st_stuff.h"
 
-#define PATCH_DELTA 10
+#define PATCH_DELTA 3
 
 typedef struct {
+  dsda_text_t label;
   dsda_patch_component_t component;
   dboolean horizontal;
+  dboolean classic;
+  dboolean classic_label;
+  int spacing;
 } local_component_t;
 
 static local_component_t* local;
 
 static int key_patch_num[NUMCARDS];
+
+static int font_height;
+static int patch_spacing_x;
+static int patch_spacing_y;
+
+static void dsda_KeyPatchSpacing(void)
+{
+  int i;
+
+  patch_spacing_x = 0;
+  patch_spacing_y = 0;
+
+  if (heretic)
+  {
+    const char* names[] = { "ykeyicon", "gkeyicon", "bkeyicon" };
+
+    for (i = 0; i < 3; ++i)
+    {
+      int lump = W_GetNumForName(names[i]);
+      patch_spacing_x = MAX(patch_spacing_x, R_NumPatchWidth(lump));
+      patch_spacing_y = MAX(patch_spacing_y, R_NumPatchHeight(lump));
+    }
+  }
+  else
+  {
+    const char* names[] = {
+      "STKEYS0", "STKEYS1", "STKEYS2",
+      "STKEYS3", "STKEYS4", "STKEYS5",
+      "STKEYS6", "STKEYS7", "STKEYS8"
+    };
+
+    for (i = 0; i < 9; ++i)
+    {
+      int lump = W_GetNumForName(names[i]);
+      patch_spacing_x = MAX(patch_spacing_x, R_NumPatchWidth(lump));
+      patch_spacing_y = MAX(patch_spacing_y, R_NumPatchHeight(lump));
+    }
+  }
+}
 
 static const char* dsda_Key1Name(player_t* player) {
   // [crispy] blinking key or skull in the status bar
@@ -160,18 +203,126 @@ static const char* dsda_Key3Name(player_t* player) {
   return NULL;
 }
 
+static const char* dsda_SeparateKeyName(player_t* player, int slot)
+{
+  int color;
+  dboolean skull;
+
+  switch (slot)
+  {
+    case 0: color = 0; skull = false; break; // blue keycard
+    case 1: color = 1; skull = false; break; // yellow keycard
+    case 2: color = 2; skull = false; break; // red keycard
+    case 3: color = 0; skull = true;  break; // blue skull
+    case 4: color = 1; skull = true;  break; // yellow skull
+    case 5: color = 2; skull = true;  break; // red skull
+    default: return NULL;
+  }
+
+  if (player->keyblinktics && sts_blink_keys && !dsda_StrictMode())
+  {
+    switch (ST_BlinkKey(player, color))
+    {
+      case KEYBLINK_CARD:
+        return skull ? NULL :
+               (color == 0 ? "STKEYS0" :
+                color == 1 ? "STKEYS1" : "STKEYS2");
+
+      case KEYBLINK_SKULL:
+        return skull ? 
+               (color == 0 ? "STKEYS3" :
+                color == 1 ? "STKEYS4" : "STKEYS5")
+               : NULL;
+
+      case KEYBLINK_BOTH:
+        return skull ?
+               (color == 0 ? "STKEYS3" :
+                color == 1 ? "STKEYS4" : "STKEYS5")
+               :
+               (color == 0 ? "STKEYS0" :
+                color == 1 ? "STKEYS1" : "STKEYS2");
+
+      case KEYBLINK_NONE:
+      default:
+        return NULL;
+    }
+  }
+
+  switch (slot)
+  {
+    case 0: return player->cards[0] ? "STKEYS0" : NULL; // blue keycard
+    case 1: return player->cards[1] ? "STKEYS1" : NULL; // yellow keycard
+    case 2: return player->cards[2] ? "STKEYS2" : NULL; // red keycard
+    case 3: return player->cards[3] ? "STKEYS3" : NULL; // blue skull
+    case 4: return player->cards[4] ? "STKEYS4" : NULL; // yellow skull
+    case 5: return player->cards[5] ? "STKEYS5" : NULL; // red skull
+  }
+
+  return NULL;
+}
+
+void dsda_DrawKeyNamePatch(int x, int y, const char* name) {
+  int lump;
+  int w, h;
+
+  if (!name)
+    return;
+
+  lump = W_GetNumForName(name);
+  w = R_NumPatchWidth(lump);
+  h = R_NumPatchHeight(lump);
+
+  x += (patch_spacing_x - w) / 2;
+  y += (font_height - h) / 2;
+
+  if (raven)
+    V_DrawShadowedNamePatch(x, y, name, CR_DEFAULT, local->component.vpt);
+  else
+    V_DrawMenuNamePatch(x, y, name, CR_DEFAULT, local->component.vpt);
+}
+
 void drawKey(player_t* player, int* x, int* y, const char* (*key)(player_t*)) {
   const char* name;
 
   name = key(player);
 
   if (name)
-    V_DrawNamePatch(*x, *y, name, CR_DEFAULT, local->component.vpt);
+    dsda_DrawKeyNamePatch(*x, *y, name);
 
   if (local->horizontal)
-    *x += PATCH_DELTA;
+    *x += patch_spacing_x + local->spacing;
   else
-    *y += PATCH_DELTA;
+    *y += patch_spacing_y + local->spacing;
+}
+
+static void dsda_DrawSeparateKeys(player_t* player, int x, int y, dboolean compact)
+{
+  int i;
+
+  for (i = 0; i < 6; ++i)
+  {
+    const char* name = dsda_SeparateKeyName(player, i);
+
+    if (name)
+      dsda_DrawKeyNamePatch(x, y, name);
+
+    if (!name && compact)
+      continue;
+
+    if (local->horizontal)
+      x += patch_spacing_x + local->spacing;
+    else
+      y += patch_spacing_y + local->spacing;
+  }
+}
+
+static void dsda_UpdateComponentText(char* str, size_t max_size) {
+  snprintf(
+    str,
+    max_size,
+    "%sKEY ",
+    dsda_TextColor(dsda_tc_exhud_keys_label)
+  );
 }
 
 static void dsda_DrawComponent(void) {
@@ -188,10 +339,22 @@ static void dsda_DrawComponent(void) {
 
     for (i = 0; i < NUMCARDS; ++i)
       if (player->cards[i]) {
-        V_DrawNumPatch(x, y, key_patch_num[i], CR_DEFAULT, local->component.vpt);
+        V_DrawShadowedNumPatch(x, y, key_patch_num[i], CR_DEFAULT, local->component.vpt);
         x += R_NumPatchWidth(key_patch_num[i]) + 4;
       }
 
+    return;
+  }
+
+  if (local->classic_label)
+  {
+    dsda_DrawBasicText(&local->label);
+    x += HU_FontStringWidth(&exhud_font, "KEY "); // draw icons after label
+  }
+
+  if (local->classic)
+  {
+    dsda_DrawSeparateKeys(player, x, y, true);
     return;
   }
 
@@ -204,7 +367,11 @@ void dsda_InitKeysHC(int x_offset, int y_offset, int vpt, int* args, int arg_cou
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
 
-  local->horizontal = arg_count > 0 ? !!args[0] : false;
+  local->horizontal = (arg_count > 0) ? !!args[0] : false;
+  local->spacing    = (arg_count > 1) ?   args[1] : PATCH_DELTA;
+  local->classic    = (arg_count > 2) ? !!args[2] : false;
+
+  local->classic_label     = (local->classic && local->horizontal && !hexen);
 
   if (hexen) {
     int i;
@@ -212,12 +379,26 @@ void dsda_InitKeysHC(int x_offset, int y_offset, int vpt, int* args, int arg_cou
     for (i = 0; i < NUMCARDS; ++i)
       key_patch_num[i] = R_NumPatchForSpriteIndex(HEXEN_SPR_KEY1 + i);
   }
+  else
+  {
+    font_height = 8;
+    dsda_KeyPatchSpacing();
+  }
 
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
+
+  if (local->classic_label)
+    dsda_InitTextHC(&local->label, x_offset, y_offset, vpt);
 }
 
 void dsda_UpdateKeysHC(void* data) {
   local = data;
+
+  if (local->classic_label)
+  {
+    dsda_UpdateComponentText(local->label.msg, sizeof(local->label.msg));
+    dsda_RefreshHudText(&local->label);
+  }
 }
 
 void dsda_DrawKeysHC(void* data) {
