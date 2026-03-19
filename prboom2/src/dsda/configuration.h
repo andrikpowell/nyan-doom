@@ -22,7 +22,7 @@
 
 #include "doomtype.h"
 
-typedef enum {
+enum {
   dsda_config_none,
   dsda_config_game_speed,
   dsda_config_default_complevel,
@@ -487,7 +487,9 @@ typedef enum {
   dsda_config_extra_level_brightness,
   dsda_config_demo_end_quit,
   dsda_config_count,
-} dsda_config_identifier_t;
+};
+
+typedef int dsda_config_identifier_t;
 
 typedef enum {
   dsda_config_int,

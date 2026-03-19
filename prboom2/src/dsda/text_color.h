@@ -24,7 +24,7 @@ typedef struct {
   char color_str[3];
 } dsda_text_color_t;
 
-typedef enum {
+enum {
   dsda_tc_orig,
   dsda_tc_exhud_time_label,
   dsda_tc_exhud_level_time,
@@ -146,7 +146,9 @@ typedef enum {
   dsda_tc_stbar_ammo_warning,
   dsda_tc_stbar_ammo_ok,
   dsda_tc_stbar_ammo_full,
-} dsda_text_color_index_t;
+};
+
+typedef int dsda_text_color_index_t;
 
 extern void dsda_LoadTextColorEntries(const char* def, int parm);
 extern void dsda_SaveTextColorEntries(FILE* f, int maxlen);
