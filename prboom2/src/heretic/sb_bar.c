@@ -953,8 +953,8 @@ void DrawArtifact(int x, int y, dboolean show_empty_box, int vpt)
   inventory_t *inv;
   const int box_x = x + (heretic ? 0 : 3);
   const int box_y = y + (heretic ? 0 : 0);
-  const int delta_x = heretic ? 22 : 19;
-  const int delta_y = heretic ? 22 : 21;
+  const int delta_x = heretic ? 20 : 18;
+  const int delta_y = heretic ? 22 : 22;
   dboolean show_box = !artifact_bar_active || show_empty_box;
   enum patch_translation_e flags = VPT_TRANSMAP; // 40%
 
