@@ -530,8 +530,8 @@ static float gld_GetAlpha(int shadowtype, int fade_alpha, enum patch_translation
     base_alpha = (shadowtype == SHADOW_RAVEN) ?  shadow_raven_filter_pct : shadow_ui_filter_pct;
   else if (flags & VPT_TRANSMAP)
     base_alpha = tran_filter_pct;
-  else if (flags & VPT_ALT_TRANSMAP)
-    base_alpha = gl_alt_tran_filter_pct;
+  else if (flags & VPT_TRANSMAP_REVERSE)
+    base_alpha = gl_tran_reverse_filter_pct;
 
   // apply translucency under exhud
   if ((flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
@@ -540,8 +540,8 @@ static float gld_GetAlpha(int shadowtype, int fade_alpha, enum patch_translation
       base_alpha = (shadowtype == SHADOW_RAVEN) ? exhud_shadow_raven_filter_pct : exhud_shadow_ui_filter_pct;
     else if (flags & VPT_TRANSMAP)
       base_alpha = exhud_tran_filter_pct;
-    else if (flags & VPT_ALT_TRANSMAP)
-      base_alpha = gl_exhud_alt_tran_filter_pct;
+    else if (flags & VPT_TRANSMAP_REVERSE)
+      base_alpha = gl_exhud_tran_reverse_filter_pct;
     else
       base_alpha = exhud_opaque_filter_pct;
   }
@@ -665,7 +665,7 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   // calculate ALT translucency as smaller translucency
   if (alpha < 1.0f)
   {
-    flags &= ~VPT_ALT_TRANSMAP;
+    flags &= ~VPT_TRANSMAP_REVERSE;
     flags |= VPT_TRANSMAP;
   }
 
@@ -992,7 +992,7 @@ int gld_Shadow(void)
 
 int gld_AltShadow(void)
 {
-  return alt_tran_filter_pct;
+  return tran_reverse_filter_pct;
 }
 
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
@@ -1035,7 +1035,7 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
     // this makes the cleric work correctly with invuln.
     if (vis->mobjflags & g_mf_translucent)
       gld_StaticLightAlpha(light, gld_Shadow() * 0.01f);
-    else if (vis->mobjflags & g_mf_alt_translucent)
+    else if (vis->mobjflags & g_mf_translucent_reverse)
       gld_StaticLightAlpha(light, gld_AltShadow() * 0.01f);
     else
       gld_StaticLight(light);
@@ -2694,7 +2694,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
     sprite.alpha = thing->alpha;
   else if (sprite.flags & g_mf_translucent)
     sprite.alpha = gld_Shadow()*0.01f;
-  else if (sprite.flags & g_mf_alt_translucent)
+  else if (sprite.flags & g_mf_translucent_reverse)
     sprite.alpha = gld_AltShadow()*0.01f;
   else
     sprite.alpha = 1.f;

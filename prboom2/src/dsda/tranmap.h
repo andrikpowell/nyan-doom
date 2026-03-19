@@ -29,7 +29,7 @@ int P_ConvertTrans(int val);
 
 // main trans
 extern int tran_filter_pct;
-extern int alt_tran_filter_pct;
+extern int tran_reverse_filter_pct;
 extern int shadow_raven_filter_pct;
 
 // ui trans
@@ -41,10 +41,10 @@ extern int exhud_opaque_filter_pct;
 extern int exhud_tran_filter_pct;
 extern int exhud_shadow_ui_filter_pct;
 extern int exhud_shadow_raven_filter_pct;
-extern int exhud_alt_tran_filter_pct;
+extern int exhud_tran_reverse_filter_pct;
 
 // gl trans
-extern int gl_alt_tran_filter_pct;
-extern int gl_exhud_alt_tran_filter_pct;
+extern int gl_tran_reverse_filter_pct;
+extern int gl_exhud_tran_reverse_filter_pct;
 
 #endif

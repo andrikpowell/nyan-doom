@@ -100,7 +100,7 @@ extern int g_door_open;
 extern int g_st_height;
 extern int g_border_offset;
 extern uint64_t g_mf_translucent;
-extern uint64_t g_mf_alt_translucent;
+extern uint64_t g_mf_translucent_reverse;
 extern uint64_t g_mf_shadow_fuzz;
 
 extern const char* g_menu_flat;

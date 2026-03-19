@@ -970,8 +970,8 @@ void IN_DrawDMStats(void)
             }
             else
             {
-                V_DrawTLNumPatch(40, ypos, patchFaceOkayBase + i);
-                V_DrawTLNumPatch(xpos, 18, patchFaceDeadBase + i);
+                V_DrawTransNumPatch(40, ypos, patchFaceOkayBase + i, CR_DEFAULT, VPT_STRETCH); // translucent 40%
+                V_DrawTransNumPatch(xpos, 18, patchFaceDeadBase + i, CR_DEFAULT, VPT_STRETCH); // translucent 40%
             }
             kpos = 86;
             for (j = 0; j < g_maxplayers; j++)

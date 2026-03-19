@@ -271,6 +271,12 @@ extern V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise;
 #define V_DrawFadeNamePatch(x,y,n,t,a,f) V_DrawNumPatchGen(x,y,FG,W_GetNumForName(n),false,0,0,0,0,t,a,f)
 #define V_DrawFadeNamePatchPrecise(x,y,n,t,a,f) V_DrawNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),false,0,0,0,0,t,a,f)
 
+#define V_DrawTransNumPatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,FG,n,false,0,0,0,0,t,100,f|VPT_TRANSMAP)
+#define V_DrawTransNamePatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,FG,W_GetNumForName(n),false,0,0,0,0,t,100,f|VPT_TRANSMAP)
+
+#define V_DrawReverseTransNumPatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,FG,n,false,0,0,0,0,t,100,f|VPT_TRANSMAP_REVERSE)
+#define V_DrawReverseTransNamePatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,FG,W_GetNumForName(n),false,0,0,0,0,t,100,f|VPT_TRANSMAP_REVERSE)
+
 typedef enum
 {
   SHADOW_OFF,
@@ -464,9 +470,5 @@ int V_FillHeightVPT(int y, int height, byte color, enum patch_translation_e flag
 
 void V_DrawRawScreen(const char *lump_name);
 void V_DrawRawScreenOffset(const char *lump_name, float x_offset, float y_offset, enum patch_translation_e flags);
-void V_DrawTLNumPatch(int x, int y, int lump);
-void V_DrawTLNamePatch(int x, int y, const char* name);
-void V_DrawReverseTLNumPatch(int x, int y, int lump);
-void V_DrawReverseTLNamePatch(int x, int y, const char* lump);
 
 #endif

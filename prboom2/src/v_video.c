@@ -391,7 +391,7 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
 
     int TR = flags & VPT_COLOR;
     int TL = flags & VPT_TRANSMAP;
-    int ALT_TL = flags & VPT_ALT_TRANSMAP;
+    int REVERSE_TL = flags & VPT_TRANSMAP_REVERSE;
 
     if (y<0 || y+patch->height > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT)) {
       // killough 1/19/98: improved error message:
@@ -480,7 +480,7 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
             } while (--count);
         }
      // both reverse translucent and color translated
-        else if (TR && ALT_TL) {
+        else if (TR && REVERSE_TL) {
           if ((count-=4)>=0)
             do {
               register byte s0,s1;
@@ -535,7 +535,7 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
             } while (--count);
         }
     // reverse translucent patch
-        else if (ALT_TL) {
+        else if (REVERSE_TL) {
           if ((count-=4)>=0)
             do {
               register byte s0,s1;
@@ -639,7 +639,7 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
 
     int TR = flags & VPT_COLOR;
     int TL = flags & VPT_TRANSMAP;
-    int ALT_TL = flags & VPT_ALT_TRANSMAP;
+    int REVERSE_TL = flags & VPT_TRANSMAP_REVERSE;
     int fuzz = flags & VPT_FUZZ;
 
     R_SetDefaultDrawColumnVars(&dcvars);
@@ -656,7 +656,7 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
       dcvars.translation = colortr;
       tranmap = transmap;
     }
-    else if (TR && ALT_TL) {     // both translucent and color translated
+    else if (TR && REVERSE_TL) {     // both translucent and color translated
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_ALT_TRTL, RDRAW_FILTER_NONE);
       dcvars.translation = colortr;
       tranmap = transmap;
@@ -665,7 +665,7 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, RDRAW_FILTER_NONE);
       dcvars.translation = colortr;
     }
-    else if (ALT_TL) {     // both translucent and color translated
+    else if (REVERSE_TL) {     // both translucent and color translated
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_ALT_TL, RDRAW_FILTER_NONE);
       tranmap = transmap;
     }
@@ -898,8 +898,8 @@ static void V_SetTransmap(v_patchinfo_t *p, int shadowtype, dboolean is_shadow, 
   {
     if (p->flags & VPT_TRANSMAP)
       p->trans_base = tran_filter_pct;
-    else if (p->flags & VPT_ALT_TRANSMAP)
-      p->trans_base = alt_tran_filter_pct;
+    else if (p->flags & VPT_TRANSMAP_REVERSE)
+      p->trans_base = tran_filter_pct; // software already reverses through render path
   }
 
   // ExHUD translucency logic
@@ -909,8 +909,8 @@ static void V_SetTransmap(v_patchinfo_t *p, int shadowtype, dboolean is_shadow, 
       p->trans_base = (shadowtype == SHADOW_RAVEN) ? exhud_shadow_raven_filter_pct : exhud_shadow_ui_filter_pct;
     else if (p->flags & VPT_TRANSMAP)
       p->trans_base = exhud_tran_filter_pct;
-    else if (p->flags & VPT_ALT_TRANSMAP)
-      p->trans_base = exhud_alt_tran_filter_pct;
+    else if (p->flags & VPT_TRANSMAP_REVERSE)
+      p->trans_base = exhud_tran_reverse_filter_pct;
     else
       p->trans_base = exhud_opaque_filter_pct;
 
@@ -948,7 +948,7 @@ static void V_SetTransmap(v_patchinfo_t *p, int shadowtype, dboolean is_shadow, 
   if (p->trans >= 99)
   {
     p->trans = NO_TRANS;
-    p->flags &= ~(VPT_TRANSMAP | VPT_ALT_TRANSMAP);
+    p->flags &= ~(VPT_TRANSMAP | VPT_TRANSMAP_REVERSE);
     p->transmap = NULL;
   }
   // Invisible
@@ -2495,24 +2495,4 @@ void V_DrawRawScreenOffset(const char *lump_name, float x_offset, float y_offset
     // custom widescreen assets are a different format
     V_DrawNamePatchPreciseFS(x_offset, y_offset, lump_name, CR_DEFAULT, VPT_STRETCH);
   }
-}
-
-void V_DrawTLNumPatch(int x, int y, int lump)
-{
-  V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH | VPT_TRANSMAP);
-}
-
-void V_DrawTLNamePatch(int x, int y, const char* name)
-{
-  V_DrawNamePatch(x, y, name, CR_DEFAULT, VPT_STRETCH | VPT_TRANSMAP);
-}
-
-void V_DrawReverseTLNumPatch(int x, int y, int lump)
-{
-  V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH | VPT_ALT_TRANSMAP);
-}
-
-void V_DrawReverseTLNamePatch(int x, int y, const char* lump)
-{
-  V_DrawNamePatch(x, y, lump, CR_DEFAULT, VPT_STRETCH | VPT_ALT_TRANSMAP);
 }

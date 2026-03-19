@@ -897,7 +897,7 @@ int full_exhud_inventory = false;
 
 void DrawInventoryBarTranslucent(int x, int y, dboolean center, int vpt)
 {
-    enum patch_translation_e flags = hexen ? VPT_ALT_TRANSMAP : VPT_TRANSMAP;
+    enum patch_translation_e flags = VPT_TRANSMAP; // 40%
     int artibox_bar_size = (7 * 31);
 
     if (center)
@@ -955,7 +955,7 @@ void DrawArtifact(int x, int y, dboolean show_empty_box, int vpt)
   const int box_y = y + (heretic ? 0 : 0);
   const int delta_x = heretic ? 22 : 19;
   const int delta_y = heretic ? 22 : 21;
-  enum patch_translation_e flags = hexen ? VPT_ALT_TRANSMAP : VPT_TRANSMAP;
+  enum patch_translation_e flags = VPT_TRANSMAP; // 40%
 
   if (!full_exhud_inventory)
   {
@@ -1481,12 +1481,12 @@ void DrawKeyBar(void)
             // 60% opacity
             if (CPlayer->armorpoints[i] <= (pclass[CPlayer->pclass].armor_increment[i] >> 2))
             {
-                V_DrawReverseTLNumPatch(150 + 31 * i, 164, W_GetNumForName("armslot1") + i);
+                V_DrawReverseTransNumPatch(150 + 31 * i, 164, W_GetNumForName("armslot1") + i, CR_DEFAULT, VPT_STRETCH);
             }
             // 40% opacity
             else if (CPlayer->armorpoints[i] <= (pclass[CPlayer->pclass].armor_increment[i] >> 1))
             {
-                V_DrawTLNumPatch(150 + 31 * i, 164, W_GetNumForName("armslot1") + i);
+                V_DrawTransNumPatch(150 + 31 * i, 164, W_GetNumForName("armslot1") + i, CR_DEFAULT, VPT_STRETCH);
             }
             // 100% opacity
             else

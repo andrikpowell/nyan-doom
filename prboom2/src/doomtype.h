@@ -165,17 +165,17 @@ enum patch_translation_e {
   VPT_EX_TEXT             = 32,
 
   // bit shift at 128
-  VPT_NONE          = (1<<7), // Normal
-  VPT_FLIP          = (1<<8), // Flip image horizontally
-  VPT_COLOR         = (1<<9), // Translate image via a translation table
-  VPT_NOOFFSET      = (1<<10),
-  VPT_STRETCH_REAL  = (1<<11), // [XA] VPT_STRETCH in gld_fillRect means "tile", rather than "stretch"... these flags probably need a rename.
-  VPT_TRANSMAP      = (1<<12),
-  VPT_ALT_TRANSMAP  = (1<<13),
-  VPT_FUZZ          = (1<<14),
-  VPT_SHADOW        = (1<<15), // text shadow
-  VPT_EX_TRANS      = (1<<16), // exhud translucency
-  VPT_SWIRL         = (1<<17), // swirling flat
+  VPT_NONE              = (1<<7), // Normal
+  VPT_FLIP              = (1<<8), // Flip image horizontally
+  VPT_COLOR             = (1<<9), // Translate image via a translation table
+  VPT_NOOFFSET          = (1<<10),
+  VPT_STRETCH_REAL      = (1<<11), // [XA] VPT_STRETCH in gld_fillRect means "tile", rather than "stretch"... these flags probably need a rename.
+  VPT_TRANSMAP          = (1<<12),
+  VPT_TRANSMAP_REVERSE  = (1<<13),
+  VPT_FUZZ              = (1<<14),
+  VPT_SHADOW            = (1<<15), // text shadow
+  VPT_EX_TRANS          = (1<<16), // exhud translucency
+  VPT_SWIRL             = (1<<17), // swirling flat
 };
 
 extern int global_patch_top_offset;

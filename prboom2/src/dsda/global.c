@@ -131,7 +131,7 @@ int g_door_open;
 int g_st_height;
 int g_border_offset;
 uint64_t g_mf_translucent;
-uint64_t g_mf_alt_translucent;
+uint64_t g_mf_translucent_reverse;
 uint64_t g_mf_shadow_fuzz;
 
 const char* g_menu_flat;
@@ -220,7 +220,7 @@ static void dsda_InitDoom(void) {
   g_st_height = 32;
   g_border_offset = 8;
   g_mf_translucent = MF_TRANSLUCENT;
-  g_mf_alt_translucent = 0;
+  g_mf_translucent_reverse = 0;
   g_mf_shadow_fuzz = MF_SHADOW;
 
   g_menu_flat = "FLOOR4_6";
@@ -431,7 +431,7 @@ static void dsda_InitHeretic(void) {
   g_st_height = 42;
   g_border_offset = 4;
   g_mf_translucent = MF_SHADOW; // 40%
-  g_mf_alt_translucent = 0;
+  g_mf_translucent_reverse = 0;
   g_mf_shadow_fuzz = 0; // doesn't exist in heretic
 
   g_menu_flat = "FLOOR30";
@@ -637,8 +637,8 @@ static void dsda_InitHexen(void) {
 
   g_st_height = 39;
   g_border_offset = 4;
-  g_mf_translucent = MF_SHADOW;         // hexen_note: SHADOW is actually opposite of Heretic - 60%
-  g_mf_alt_translucent = MF_ALTSHADOW;  // hexen_note: ALTSHADOW is reverse SHADOW - 40%
+  g_mf_translucent = MF_SHADOW;             // hexen_note: SHADOW is actually opposite of Heretic - 60%
+  g_mf_translucent_reverse = MF_ALTSHADOW;  // hexen_note: ALTSHADOW is reverse SHADOW - 40%
   g_mf_shadow_fuzz = 0; // doesn't exist in hexen
 
   g_menu_flat = "F_032";
