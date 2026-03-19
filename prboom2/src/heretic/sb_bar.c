@@ -26,6 +26,7 @@
 #include "st_stuff.h"
 #include "r_draw.h"
 
+#include "dsda/exhud.h"
 #include "dsda/pause.h"
 #include "dsda/settings.h"
 #include "dsda/stretch.h"
