@@ -25,29 +25,40 @@ typedef struct {
   dsda_text_t component;
   dboolean include_kills, include_items, include_secrets;
   int stat_format;
+  dboolean include_sts_label;
+  const char* label_sts;
   const char* label_k;
   const char* label_i;
   const char* label_s;
   const char* stat_separator;
+  int stats_count;
 } local_component_t;
 
 static local_component_t* local;
 
-static int dsda_PrintDMStat(char *buffer, size_t size, const char *cm, int result, int others, dboolean separator)
+int dsda_PrintDMStat(char *buffer, size_t size, const char *cm, int result, int others, const char* separator)
 {
   return snprintf(
     buffer, size,
     "%s%i/%i%s",
     cm, result, others,
-    separator ? local->stat_separator : ""
+    separator ? separator : ""
   );
 }
 
 static void dsda_DMStats(char* str, size_t max_size) {
   int i, p;
   size_t length;
+  int player_count = 0;
 
   length = 0;
+
+  if (local->include_sts_label)
+    length += snprintf(str + length, max_size - length, "%s%s%s", dsda_TextColor(dsda_tc_exhud_totals_sts_label), local->label_sts, local->stat_separator );
+
+  for (i = 0; i < g_maxplayers; ++i)
+    if (playeringame[i])
+      player_count++;
 
   for (i = 0; i < g_maxplayers; ++i) {
       int result = 0, others = 0;
@@ -75,21 +86,20 @@ static void dsda_DMStats(char* str, size_t max_size) {
       color = (i == displayplayer) ? dsda_TextColor(dsda_tc_exhud_totals_max)
                                    : dsda_TextColor(dsda_tc_exhud_totals_value);
 
-        length += dsda_PrintDMStat(
-          str + length,
-          max_size - length,
-          color,
-          result,
-          others,
-          true
-        );
+      player_count--;
+
+      length += dsda_PrintDMStat(
+        str + length, max_size - length,
+        color, result, others,
+        player_count > 0 ? local->stat_separator : ""
+      );
 
       if (length >= max_size)
         break;
   }
 }
 
-int dsda_PrintStats(size_t length, char *buffer, size_t size, int format, const char* label, const char* cm, const int th_count, const int th_total, dboolean separator)
+int dsda_PrintStats(size_t length, char *buffer, size_t size, int format, const char* label, const char* cm, const int th_count, const int th_total, dboolean allow_dsda, const char *separator)
 {
     int stat_config = dsda_IntConfig(dsda_config_stats_format);
     int ratio, percent, count, remain, dsda;
@@ -127,15 +137,19 @@ int dsda_PrintStats(size_t length, char *buffer, size_t size, int format, const 
                         "%s%s%s%s%s",
                         dsda_TextColor(dsda_tc_exhud_totals_label),
                         label, cm, print_stats,
-                        separator ? local->stat_separator : "" );
+                        separator ? separator : "");
     }
     else
     {
       return snprintf( buffer, size,
                         "%s%s%s",
                         cm, print_stats,
-                        separator ? "\n" : "" );
+                        separator ? separator : "");
     }
+}
+
+static const char* dsda_StatSeparator() {
+  return local->stats_count > 0 ? local->stat_separator : "";
 }
 
 static void dsda_LevelStats(char* str, size_t max_size) {
@@ -154,6 +168,7 @@ static void dsda_LevelStats(char* str, size_t max_size) {
   fullsecretcount = 0;
   kill_percent_count = 0;
   max_kill_requirement = dsda_MaxKillRequirement();
+  local->stats_count = 0;
 
   for (i = 0; i < g_maxplayers; ++i) {
     if (playeringame[i]) {
@@ -176,14 +191,30 @@ static void dsda_LevelStats(char* str, size_t max_size) {
   itemcolor = (fullitemcount >= totalitems ? dsda_TextColor(dsda_tc_exhud_totals_max) :
                                              dsda_TextColor(dsda_tc_exhud_totals_value));
 
+  if (local->include_sts_label)
+    length += snprintf(str + length, max_size - length, "%s%s%s", dsda_TextColor(dsda_tc_exhud_totals_sts_label), local->label_sts, local->stat_separator );
+
+  if (local->include_kills)   local->stats_count++;
+  if (local->include_items)   local->stats_count++;
+  if (local->include_secrets) local->stats_count++;
+
   if (local->include_kills)
-    length += dsda_PrintStats(length, str, max_size, local->stat_format, local->label_k, killcolor, fullkillcount, max_kill_requirement, true);
+  {
+    local->stats_count--;
+    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, local->label_k, killcolor, fullkillcount, max_kill_requirement, true, dsda_StatSeparator());
+  }
 
   if (local->include_items)
-    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, local->label_i, itemcolor, fullitemcount, totalitems, true);
+  {
+    local->stats_count--;
+    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, local->label_i, itemcolor, fullitemcount, totalitems, false, dsda_StatSeparator());
+  }
 
   if (local->include_secrets)
-    dsda_PrintStats(length, str + length, max_size - length, local->stat_format, local->label_s, secretcolor, fullsecretcount, totalsecret, false);
+  {
+    local->stats_count--;
+    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, local->label_s, secretcolor, fullsecretcount, totalsecret, false, dsda_StatSeparator());
+  }
 }
 
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
@@ -219,7 +250,10 @@ void dsda_InitStatTotalsHC(int x_offset, int y_offset, int vpt, int* args, int a
     local->label_s = "";
   }
 
-  local->stat_format = args[5];
+  local->stat_format = (arg_count > 5) ? args[5] : false;
+  local->include_sts_label = (arg_count > 6) ? !!args[6] : false;
+
+  local->label_sts = "STS";
 
   if (!local->include_kills && !local->include_items && !local->include_secrets) {
     local->include_kills = local->include_items = local->include_secrets = true;

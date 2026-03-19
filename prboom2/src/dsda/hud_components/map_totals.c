@@ -28,18 +28,10 @@ typedef struct {
   dsda_text_t dm_stats;
   dboolean include_kills, include_items, include_secrets;
   int stat_format;
+  int stats_count;
 } local_component_t;
 
 static local_component_t* local;
-
-static int dsda_PrintDMStat(char *buffer, size_t size, const char *cm, int result, int others, dboolean separator)
-{
-  return snprintf(
-    buffer, size,
-    "%s%i/%i ",
-    cm, result, others
-  );
-}
 
 static void dsda_DMStats(char* str, size_t max_size) {
   int i, p;
@@ -79,7 +71,7 @@ static void dsda_DMStats(char* str, size_t max_size) {
           color,
           result,
           others,
-          true
+          " "
         );
 
       if (length >= max_size)
@@ -118,6 +110,10 @@ static void dsda_UpdateLabelComponentText(char* str, size_t max_size) {
   }
 }
 
+static const char* dsda_StatSeparator() {
+  return local->stats_count > 0 ? "\n" : "";
+}
+
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
   int i;
   size_t length;
@@ -134,6 +130,7 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   fullsecretcount = 0;
   kill_percent_count = 0;
   max_kill_requirement = dsda_MaxKillRequirement();
+  local->stats_count = 0;
 
   for (i = 0; i < g_maxplayers; ++i) {
     if (playeringame[i]) {
@@ -156,14 +153,27 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   itemcolor = (fullitemcount >= totalitems ? dsda_TextColor(dsda_tc_map_totals_max) :
                                              dsda_TextColor(dsda_tc_map_totals_value));
 
+  if (local->include_kills)   local->stats_count++;
+  if (local->include_items)   local->stats_count++;
+  if (local->include_secrets) local->stats_count++;
+
   if (local->include_kills)
-    length += dsda_PrintStats(length, str, max_size, local->stat_format, NULL, killcolor, fullkillcount, max_kill_requirement, true);
+  {
+    local->stats_count--;
+    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, NULL, killcolor, fullkillcount, max_kill_requirement, true, dsda_StatSeparator());
+  }
 
   if (local->include_items)
-    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, NULL, itemcolor, fullitemcount, totalitems, true);
+  {
+    local->stats_count--;
+    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, NULL, itemcolor, fullitemcount, totalitems, false, dsda_StatSeparator());
+  }
 
   if (local->include_secrets)
-    dsda_PrintStats(length, str + length, max_size - length, local->stat_format, NULL, secretcolor, fullsecretcount, totalsecret, false);
+  {
+    local->stats_count--;
+    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, NULL, secretcolor, fullsecretcount, totalsecret, false, dsda_StatSeparator());
+  }
 }
 
 void dsda_InitMapTotalsHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
@@ -204,7 +214,13 @@ void dsda_UpdateMapTotalsHC(void* data) {
 void dsda_DrawMapTotalsHC(void* data) {
   local = data;
 
-  dsda_DrawBasicShadowedText(&local->dm_stats);
-  dsda_DrawBasicShadowedText(&local->label);
-  dsda_DrawBasicShadowedText(&local->component);
+  if (deathmatch)
+  {
+    dsda_DrawBasicShadowedText(&local->dm_stats);
+  }
+  else
+  {
+    dsda_DrawBasicShadowedText(&local->label);
+    dsda_DrawBasicShadowedText(&local->component);
+  }
 }

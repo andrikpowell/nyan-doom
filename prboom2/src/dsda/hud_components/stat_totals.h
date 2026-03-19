@@ -18,7 +18,8 @@
 #ifndef __DSDA_HUD_COMPONENT_STAT_TOTALS__
 #define __DSDA_HUD_COMPONENT_STAT_TOTALS__
 
-int dsda_PrintStats(size_t length, char *buffer, size_t size, int format, const char* label, const char* cm, const int th_count, const int th_total, dboolean separator);
+int dsda_PrintStats(size_t length, char *buffer, size_t size, int format, const char* label, const char* cm, const int th_count, const int th_total, dboolean allow_dsda, const char *separator);
+int dsda_PrintDMStat(char *buffer, size_t size, const char *cm, int result, int others, const char* separator);
 void dsda_InitStatTotalsHC(int x_offset, int y_offset, int vpt_flags, int* args, int arg_count, void** data);
 void dsda_UpdateStatTotalsHC(void* data);
 void dsda_DrawStatTotalsHC(void* data);
