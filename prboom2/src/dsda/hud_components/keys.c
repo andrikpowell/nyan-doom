@@ -261,6 +261,46 @@ static const char* dsda_SeparateKeyName(player_t* player, int slot)
   return NULL;
 }
 
+static const char* dsda_SeparateKeyNameHeretic(player_t* player, int slot)
+{
+  int color;
+
+  switch (slot)
+  {
+    case 0: color = key_yellow; break;
+    case 1: color = key_green;  break;
+    case 2: color = key_blue;   break;
+    default: return NULL;
+  }
+
+  // Crispy-style blink support
+  if (player->keyblinktics && sts_blink_keys && !dsda_StrictMode())
+  {
+    switch (ST_BlinkKey(player, color))
+    {
+      case KEYBLINK_CARD:
+      case KEYBLINK_BOTH:
+        return (color == key_yellow ? "ykeyicon" :
+                color == key_green  ? "gkeyicon" :
+                                      "bkeyicon");
+
+      case KEYBLINK_NONE:
+      default:
+        return NULL;
+    }
+  }
+
+  // Normal ownership
+  switch (color)
+  {
+    case key_yellow: return player->cards[key_yellow] ? "ykeyicon" : NULL;
+    case key_green:  return player->cards[key_green]  ? "gkeyicon" : NULL;
+    case key_blue:   return player->cards[key_blue]   ? "bkeyicon" : NULL;
+  }
+
+  return NULL;
+}
+
 void dsda_DrawKeyNamePatch(int x, int y, const char* name) {
   int lump;
   int w, h;
@@ -301,7 +341,7 @@ static void dsda_DrawSeparateKeys(player_t* player, int x, int y, dboolean compa
 
   for (i = 0; i < 6; ++i)
   {
-    const char* name = dsda_SeparateKeyName(player, i);
+    const char* name = heretic ? dsda_SeparateKeyNameHeretic(player, i) : dsda_SeparateKeyName(player, i);
 
     if (name)
       dsda_DrawKeyNamePatch(x, y, name);
