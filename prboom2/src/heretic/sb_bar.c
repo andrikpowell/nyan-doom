@@ -948,27 +948,38 @@ void DrawInventoryBarTranslucent(int x, int y, dboolean center, int vpt)
     }
 }
 
-void DrawArtifact(int x, int y, dboolean show_empty_box, int vpt)
+void DrawArtifact(int x, int y, dboolean always_show, dboolean center, int vpt)
 {
   inventory_t *inv;
-  const int box_x = x + (heretic ? 0 : 3);
-  const int box_y = y + (heretic ? 0 : 0);
-  const int delta_x = heretic ? 20 : 18;
-  const int delta_y = heretic ? 22 : 22;
-  dboolean show_box = !artifact_bar_active || show_empty_box;
-  enum patch_translation_e flags = VPT_TRANSMAP; // 40%
+  dboolean show_box;
+  int box_x, box_y;
+  int arti_x, arti_y;
+  int delta_x, delta_y;
+  enum patch_translation_e flags;
+
+  if (center)
+    x -= (R_NamePatchWidth("ARTIBOX") / 2);
+
+  show_box = !artifact_bar_active || always_show;
+  box_x = x + (heretic ? 0 : 3);
+  box_y = y + (heretic ? 0 : 0);
+  arti_x = x + (heretic ? 0 : 1);
+  arti_y = y + (heretic ? 0 : 0);
+  delta_x = heretic ? 20 : 18;
+  delta_y = heretic ? 22 : 22;
+  flags = VPT_TRANSMAP; // 40%
 
   if (show_box)
   {
     inv = &players[displayplayer].inventory[CPlayer->inv_ptr];
 
-    if (inv->type > 0 || show_box)
+    if (inv->type > 0 || always_show)
     {
         V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | flags);
 
         if (inv->type > 0)
         {
-            V_DrawNumPatch(x, y, lumparti[inv->type], CR_DEFAULT, vpt);
+            V_DrawNumPatch(arti_x, arti_y, lumparti[inv->type], CR_DEFAULT, vpt);
             if (!artifact_bar_active)
                 DrSmallNumberVPTInventory(inv->count, x + delta_x, y + delta_y, vpt);
         }
