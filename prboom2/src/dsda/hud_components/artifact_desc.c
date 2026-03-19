@@ -73,7 +73,7 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
 
   dsda_GetInventoryDescription(&ArtiName, &ArtiDesc);
 
-  //if (!str || max_size == 0) return;
+  if (!str || max_size == 0) return;
 
   if (ArtiDesc && *ArtiDesc && ArtiName && *ArtiName)
   {
