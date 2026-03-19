@@ -163,7 +163,8 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
 
 ### Raven Artifacts
 - `big_artifact`: shows the current artifact as seen on the status bar
-  - Supports 2 argument: `always_show center`
+  - Supports 3 arguments: `simple always_show center`
+    - 😸 `simple`: doesn't show the artifact box around artifacts
     - 😸 `always_show`: doesn't hide the artifact box when `big_artifact_bar` is visible (vanilla hides the artifact box)
     - 😸 `center`: centers the component horizontally
 - 😸 `big_artifact_bar`: shows a transparent artifact inventory bar as seen on the status bar

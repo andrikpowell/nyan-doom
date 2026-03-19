@@ -948,7 +948,7 @@ void DrawInventoryBarTranslucent(int x, int y, dboolean center, int vpt)
     }
 }
 
-void DrawArtifact(int x, int y, dboolean always_show, dboolean center, int vpt)
+void DrawArtifact(int x, int y, dboolean always_show, dboolean simple, dboolean center, int vpt)
 {
   inventory_t *inv;
   dboolean show_box;
@@ -959,6 +959,9 @@ void DrawArtifact(int x, int y, dboolean always_show, dboolean center, int vpt)
 
   if (center)
     x -= (R_NamePatchWidth("ARTIBOX") / 2);
+
+  if (!dsda_CheckBigArtifactBar())
+    artifact_bar_active = false;
 
   show_box = !artifact_bar_active || always_show;
   box_x = x + (heretic ? 0 : 3);
@@ -976,7 +979,8 @@ void DrawArtifact(int x, int y, dboolean always_show, dboolean center, int vpt)
 
     if (inv->type > 0 || always_show)
     {
-        V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | box_flags);
+        if (!simple)
+            V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | box_flags);
 
         if (inv->type > 0)
         {
