@@ -87,7 +87,7 @@ static void deh_procCheat(DEHFILE *fpin, char *line) // done
           p = strval;
           while (*p == ' ') ++p;
 
-          // Arsinikk - parse dehacked cheats separately
+          // [AR] parse dehacked cheats separately
           cheat[iy].deh_cheat = Z_Strdup(p);
           deh_log("Assigned new cheat '%s' to cheat '%s'at index %d\n",
                   p, cheat[ix].deh_cheat_desc, iy); // killough 4/18/98

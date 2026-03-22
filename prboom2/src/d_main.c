@@ -680,7 +680,7 @@ static void D_PageDrawer(void)
     return;
   }
 
-  // Arsinikk - allows use of HELP2 screen for PWADs under DOOM 1
+  // [AR] allows use of HELP2 screen for PWADs under DOOM 1
   if (demosequence == 4 && pwad_help2_check)
     pagename = help2;
 

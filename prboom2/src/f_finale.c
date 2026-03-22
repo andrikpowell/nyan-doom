@@ -113,8 +113,7 @@ void F_StartFinale (void)
 
   SkipText = dsda_SkipInterText();
 
-  // Arsinikk
-  // If iwad story text and option, move forward in Doom 2 / Plutonia / TNT
+  // [AR] If iwad story text and option, move forward in Doom 2 / Plutonia / TNT
   if (SkipText && (gamemode == commercial) && !F_ShowCast())
   {
     gameaction = ga_worlddone;
