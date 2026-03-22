@@ -1067,6 +1067,7 @@ static int PSpriteSY[NUMCLASSES][NUMWEAPONS] = {
 static void R_DrawPSprite (pspdef_t *psp)
 {
   int           x1, x2;
+  int           gx1;
   spritedef_t   *sprdef;
   spriteframe_t *sprframe;
   int           lump;
@@ -1176,6 +1177,9 @@ static void R_DrawPSprite (pspdef_t *psp)
     tx -= patch->leftoffset<<FRACBITS;
     x1 = (centerxfrac + FixedMul (tx,pspritexscale))>>FRACBITS;
 
+    // [AR] opengl weapon alignment
+    gx1 = x1;
+
     tx += patch->width<<FRACBITS;
     x2 = ((centerxfrac + FixedMul (tx, pspritexscale) ) >>FRACBITS) - 1;
 
@@ -1184,6 +1188,7 @@ static void R_DrawPSprite (pspdef_t *psp)
   }
 
   // off the side
+  // [AR] this is fine for software, but opengl needs unclipped x1 (gx1) for drawing quad
   if (x2 < 0 || x1 > viewwidth)
     return;
 
@@ -1207,6 +1212,10 @@ static void R_DrawPSprite (pspdef_t *psp)
 
   vis->x1 = x1 < 0 ? 0 : x1;
   vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
+
+  // [AR] opengl weapon alignment
+  vis->gx1 = gx1;
+
 // proff 11/06/98: Added for high-res
   vis->scale = pspriteyscale;
   vis->color = 0;
@@ -1276,6 +1285,8 @@ static void R_DrawPSprite (pspdef_t *psp)
     {
       int x1;
       int x1_prev;
+      int gx1;
+      int gx1_prev;
       int texturemid;
       int texturemid_prev;
       int lump;
@@ -1286,10 +1297,12 @@ static void R_DrawPSprite (pspdef_t *psp)
     if (realframe)
     {
       psp_inter.x1 = psp_inter.x1_prev;
+      psp_inter.gx1 = psp_inter.gx1_prev;
       psp_inter.texturemid = psp_inter.texturemid_prev;
     }
 
     psp_inter.x1_prev = vis->x1;
+    psp_inter.gx1_prev = vis->gx1;
     psp_inter.texturemid_prev = vis->texturemid;
 
     // Do not interpolate on the first tic of the level
@@ -1301,11 +1314,13 @@ static void R_DrawPSprite (pspdef_t *psp)
         int deltax = vis->x2 - vis->x1;
         vis->x1 = psp_inter.x1 + FixedMul (tic_vars.frac, (vis->x1 - psp_inter.x1));
         vis->x2 = vis->x1 + deltax;
+        vis->gx1 = psp_inter.gx1 + FixedMul(tic_vars.frac, (vis->gx1 - psp_inter.gx1));
         vis->texturemid = psp_inter.texturemid + FixedMul (tic_vars.frac, (vis->texturemid - psp_inter.texturemid));
       }
       else
       {
         psp_inter.x1 = vis->x1;
+        psp_inter.gx1 = vis->gx1;
         psp_inter.texturemid = vis->texturemid;
         psp_inter.lump=lump;
       }

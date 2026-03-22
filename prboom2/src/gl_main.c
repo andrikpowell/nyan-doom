@@ -1014,7 +1014,9 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   // More precise weapon drawing:
   // Shotgun from DSV3_War looks correctly now. Especially during movement.
   // There is no more line of graphics under certain weapons.
-  x1 = viewwindowx + vis->x1;
+  //
+  // [AR] fix wide opengl weapons alignment
+  x1 = viewwindowx + vis->gx1;
   x2 = roundf(x1 + gltexture->realtexwidth * pspritexscale_f);
   y1 = roundf(viewwindowy + centery - (int)(((float)vis->texturemid / (float)FRACUNIT) * pspriteyscale_f));
   y2 = roundf(y1 + gltexture->realtexheight * pspriteyscale_f);
