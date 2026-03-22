@@ -208,8 +208,8 @@ extern int autopage_active;
 extern int autopage_fade;
 extern int autopage_parallax;
 
-#define automap_on    (automap_active && !automap_overlay)
-#define automap_off   (!automap_active || automap_overlay > 0)
+#define automap_on    (automap_active)
+#define automap_solid (automap_active && !automap_overlay)
 
 #define automap_input (automap_active)
 #define automap_stbar (automap_active && R_StatusBarVisible())

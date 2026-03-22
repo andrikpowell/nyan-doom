@@ -447,7 +447,7 @@ void D_Display (fixed_t frac)
   }
   else { // In a level
     // Work out if the player view is visible, and if there is a border
-    viewactive = automap_off && !inhelpscreens;
+    viewactive = !inhelpscreens && !automap_solid;
     isborder = viewactive ? R_PartialView() : (!inhelpscreens && automap_active);
 
     if (oldgamestate != GS_LEVEL || must_fill_back_screen) {
@@ -488,7 +488,7 @@ void D_Display (fixed_t frac)
     frame_fixedcolormap = 0;
 
     // Draw statusbar for software with full view and solid automap
-    if (V_IsSoftwareMode() && R_FullView() && automap_on)
+    if (V_IsSoftwareMode() && R_FullView() && automap_solid)
       R_DrawViewBorder();
 
     if (automap_active)
