@@ -488,7 +488,7 @@ void D_Display (fixed_t frac)
     frame_fixedcolormap = 0;
 
     // Draw statusbar for software with full view and solid automap
-    if (V_IsSoftwareMode() && R_FullView() && automap_solid)
+    if (R_FullView() && (automap_solid || dsda_FullAutomapHud()))
       R_DrawViewBorder();
 
     if (automap_active)

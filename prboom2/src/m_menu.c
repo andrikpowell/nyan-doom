@@ -3927,6 +3927,7 @@ setup_menu_t auto_options_settings[] =
   { "Show Secrets only after entering", S_YESNO, m_conf, AU_X, dsda_config_map_secret_after },
   { "Cycle Level Title / Author", S_YESNO | S_NYAN, m_conf, AU_X, dsda_config_map_title_author_cycle },
   { "Show Keys on Automap", S_YESNO | S_NYAN, m_conf, AU_X, dsda_config_map_show_keys },
+  { "Use Automap Hud for Fullscreen", S_YESNO | S_NYAN, m_conf, AU_X, dsda_config_full_automap_exhud },
   EMPTY_LINE,
   { "Grid cell size 8..256, -1 for auto", S_NUM, m_conf, AU_X, dsda_config_map_grid_size },
   { "Pan speed (1..32)", S_NUM, m_conf, AU_X, dsda_config_map_pan_speed },

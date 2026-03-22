@@ -864,6 +864,10 @@ static dboolean dsda_HideHUD(void) {
          (R_FullView() && !dsda_IntConfig(dsda_config_hud_displayed));
 }
 
+dboolean dsda_FullExHudOn(void) {
+  return !dsda_HideHUD() && R_FullView();
+}
+
 static dboolean dsda_HUDActive(void) {
   return container && container->loaded;
 }

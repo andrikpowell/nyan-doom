@@ -179,7 +179,7 @@ dboolean R_PartialView(void)
 
 dboolean R_StatusBarVisible(void)
 {
-  return R_PartialView() || automap_solid;
+  return R_PartialView() || automap_solid || dsda_FullAutomapHud();
 }
 
 //
@@ -822,7 +822,7 @@ static void R_DrawBorder (int x, int y, int w, int h)
 
 void R_FillBackScreen (void)
 {
-  int automap = automap_solid;
+  int automap = automap_solid || dsda_FullAutomapHud();
 
   if (grnrock.lumpnum == 0)
     return;

@@ -475,6 +475,10 @@ dboolean dsda_SimplerPuzzleUse(void) {
   return dsda_IntConfig(dsda_config_hexen_simpler_puzzle_use) && !dsda_StrictMode() && allow_incompatibility;
 }
 
+dboolean dsda_FullAutomapHud(void) {
+  return dsda_IntConfig(dsda_config_full_automap_exhud) && dsda_FullExHudOn() && automap_on;
+}
+
 static dboolean game_controller_used;
 static dboolean mouse_used;
 

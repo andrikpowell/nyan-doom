@@ -19,6 +19,7 @@
 #define __DSDA_EXHUD__
 
 void dsda_InitExHud(void);
+dboolean dsda_FullExHudOn(void);
 void dsda_CycleFullHud(void);
 void dsda_UpdateExHud(void);
 void dsda_DrawExHud(void);
