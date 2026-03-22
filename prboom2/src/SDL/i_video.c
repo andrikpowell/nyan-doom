@@ -1117,7 +1117,7 @@ void I_InitScreenResolution(void)
 
   // set first three to standard values
 
-  // [nyan] we honour this from old prboom
+  // [AR] we honour this from old prboom
   // so we exclude the two "wipe" buffers:
   // WIPE_DST and WIPE_TEMP
   for (i = FG; i < WIPE_DST; i++) {
@@ -1126,7 +1126,7 @@ void I_InitScreenResolution(void)
     screens[i].pitch = SCREENPITCH;
   }
 
-  // [nyan] removed stbar screen buffer (4)
+  // [AR] removed stbar screen buffer (4)
   // since we don't use it anymore
 
   I_InitBuffersRes();

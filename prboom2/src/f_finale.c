@@ -725,7 +725,7 @@ void F_CastTicker (void)
     caststate = &states[st];
     castframes++;
 
-    // [nyan] allow flags to be altered in cast sequence
+    // [AR] allow flags to be altered in cast sequence
     if (caststate->action == A_AddFlags)
     {
       castflags  |= caststate->args[0];
@@ -997,20 +997,20 @@ void F_CastDrawer (void)
   cm = CR_DEFAULT;
   exflags = 0;
 
-  // [nyan] allow colour translation
+  // [AR] allow colour translation
   if (castflags & MF_TRANSLATION)
   {
     cm = CR_LIMIT + ((castflags & MF_TRANSLATION) >> MF_TRANSSHIFT);
     exflags |= VPT_COLOR;
   }
 
-  // [nyan] allow translucency
+  // [AR] allow translucency
   if (castflags & MF_TRANSLUCENT)
   {
     exflags |= VPT_TRANSMAP;
   }
 
-  // [nyan] allow fuzz
+  // [AR] allow fuzz
   if (castflags & MF_SHADOW)
   {
     exflags |= VPT_FUZZ;
