@@ -273,7 +273,7 @@ double dsda_DistancePointToLine(fixed_t line_x1, fixed_t line_y1,
   dy = y2 - y1;
 
   intersect = ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy);
-  intersect = BETWEEN(0, 1, intersect);
+  intersect = CLAMP(intersect, 0, 1);
   intersect_x = x1 + intersect * dx;
   intersect_y = y1 + intersect * dy;
 

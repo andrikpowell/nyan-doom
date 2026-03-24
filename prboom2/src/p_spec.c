@@ -7514,7 +7514,7 @@ dboolean P_ExecuteZDoomLineSpecial(int special, int * args, line_t * line, int s
         mobj_t *spawn_location;
         thing_id_search_t search;
 
-        args[0] = BETWEEN(1, 9, args[0]);
+        args[0] = CLAMP(args[0], 1, 9);
 
         dsda_ResetThingIDSearch(&search);
         while ((spawn_location = dsda_FindMobjFromThingIDOrMobj(args[4], mo, &search)))

@@ -2332,7 +2332,7 @@ void P_PostProcessZDoomLineSpecial(line_t *ld)
       const int *id_p;
 
       alpha = (float) ld->special_args[1] / 256.f;
-      alpha = BETWEEN(0.f, 1.f, alpha);
+      alpha = CLAMP(alpha, 0.f, 1.f);
 
       if (!ld->special_args[0])
       {

@@ -507,7 +507,7 @@ static void R_SetSpritelights(int lightlevel)
   if (NYAN_LITEAMP)
     lightnum += NYAN_LITESCALE;
 
-  spritelights = scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
+  spritelights = scalelight[CLAMP(lightnum, 0, LIGHTLEVELS - 1)];
 }
 
 static void R_UpdateFuzzCellSize(vissprite_t *vis)

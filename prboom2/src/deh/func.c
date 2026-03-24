@@ -133,7 +133,7 @@ int dehfseek(DEHFILE *fp, long offset)
   else
   {
     long total = (fp->inp - fp->lump) + fp->size;
-    offset = BETWEEN(0, total, offset);
+    offset = CLAMP(offset, 0, total);
     fp->inp = fp->lump + offset;
     fp->size = total - offset;
     return 0;

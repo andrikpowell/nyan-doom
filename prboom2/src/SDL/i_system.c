@@ -136,7 +136,7 @@ fixed_t I_GetTimeFrac (void)
     tic_time = dsda_TickElapsedTime();
 
     frac = (fixed_t) (tic_time * FRACUNIT * tics_per_usec);
-    frac = BETWEEN(0, FRACUNIT, frac);
+    frac = CLAMP(frac, 0, FRACUNIT);
 
     if (frac < last_frac && last_gametic == gametic)
     {

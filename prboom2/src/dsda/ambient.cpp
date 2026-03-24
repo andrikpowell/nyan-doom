@@ -157,7 +157,7 @@ static void dsda_ParseAmbient(Scanner &scanner) {
   }
 
   scanner.MustGetFloat();
-  amb_sfx.volume = BETWEEN(0.0, 1.0, scanner.decimal);
+  amb_sfx.volume = CLAMP(scanner.decimal, 0.0, 1.0);
   if (amb_sfx.attenuation < 0)
     amb_sfx.attenuation = 1;
 

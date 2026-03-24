@@ -51,11 +51,8 @@ typedef unsigned char byte;
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
-#ifndef BETWEEN
-#define BETWEEN(l,u,x) ((l)>(x)?(l):(x)>(u)?(u):(x))
-#endif
 #ifndef CLAMP
-#define CLAMP(x,l,u) BETWEEN(l,u,x)
+#define CLAMP(x, min, max) ((min) > (x) ? (min) : (x) > (max) ? (max) : (x))
 #endif
 
 #include <inttypes.h>

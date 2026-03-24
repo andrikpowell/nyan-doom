@@ -2273,13 +2273,13 @@ static void AM_drawPlayers(void)
 #endif
 
   if (map_things_appearance == map_things_appearance_scaled)
-    scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, plr->mo->radius)>>FRACTOMAPBITS);
+    scale = (CLAMP(plr->mo->radius, 4<<FRACBITS, 256<<FRACBITS)>>FRACTOMAPBITS);
   else
     scale = 16<<MAPBITS;
 
   // Needed for hitboxes
   if (map_things_hitboxes && dsda_RevealAutomap() == 2)
-    box_scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, plr->mo->radius)>>FRACTOMAPBITS);
+    box_scale = (CLAMP(plr->mo->radius, 4<<FRACBITS, 256<<FRACBITS)>>FRACTOMAPBITS);
 
   if (!netgame)
   {
@@ -2635,7 +2635,7 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
     }
     g = 0;
     b = 0;
-    radius = BETWEEN(4<<FRACBITS, 256<<FRACBITS, mobj->radius);
+    radius = CLAMP(mobj->radius, 4<<FRACBITS, 256<<FRACBITS);
     rotate = true;
   }
   else
@@ -2843,7 +2843,7 @@ static void AM_DrawNiceThings(void)
 
     // do not want to have too small marks
     radius = MTOF_F(16 << MAPBITS);
-    radius = BETWEEN(8.0f, 128.0f, radius);
+    radius = CLAMP(radius, 8.0f, 128.0f);
 
     for (i = 0; i < markpointnum; i++) // killough 2/22/98: remove automap mark limit
     {
@@ -2940,13 +2940,13 @@ static void AM_drawThings(void)
       }
 
       if (map_things_appearance == map_things_appearance_scaled)
-        scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, t->radius)>>FRACTOMAPBITS);// * 16 / 20;
+        scale = (CLAMP(t->radius, 4<<FRACBITS, 256<<FRACBITS)>>FRACTOMAPBITS);// * 16 / 20;
       else
         scale = 16<<MAPBITS;
 
       // Needed for hitboxes
       if (map_things_hitboxes)
-        box_scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, t->radius)>>FRACTOMAPBITS);// * 16 / 20;
+        box_scale = (CLAMP(t->radius, 4<<FRACBITS, 256<<FRACBITS)>>FRACTOMAPBITS);// * 16 / 20;
 
       AM_GetMobjPosition(t, &p, &angle);
 

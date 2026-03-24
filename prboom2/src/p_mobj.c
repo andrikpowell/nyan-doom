@@ -2703,7 +2703,7 @@ mobj_t* P_SpawnMapThing (const mapthing_t* mthing, int index)
 
   if (!raven && thingtype == 14165 && map_format.hexen)
   {
-    iden_num = BETWEEN(0, 64, mthing->special_args[0]); // Mus change
+    iden_num = CLAMP(mthing->special_args[0], 0, 64); // Mus change
     thingtype = 14164;            // MT_MUSICSOURCE
   }
 

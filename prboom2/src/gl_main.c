@@ -1307,7 +1307,7 @@ void gld_StartDrawScene(void)
   skyXShift = (double) viewangle / (double) ANGLE_MAX;
 
   if (skystretch)
-    skyYShift = BETWEEN(-25 / skyscale, 180, viewPitch) / 360.0;
+    skyYShift = CLAMP(viewPitch, -25 / skyscale, 180) / 360.0;
   else
     skyYShift = viewPitch / 360.0;
 
