@@ -4006,7 +4006,7 @@ static void Hexen_P_SpawnSpecials(void);
 // Parses command line parameters.
 void P_SpawnSpecials (void)
 {
-  if (hexen) return Hexen_P_SpawnSpecials();
+  if (hexen) RETURN(Hexen_P_SpawnSpecials());
 
   P_EvaluateDeathmatchParams();
 
@@ -4021,7 +4021,7 @@ void P_SpawnSpecials (void)
 
   P_SpawnScrollers(); // killough 3/7/98: Add generalized scrollers
 
-  if (demo_compatibility) return P_SpawnVanillaExtras();
+  if (demo_compatibility) RETURN(P_SpawnVanillaExtras());
 
   P_SpawnFriction();  // phares 3/12/98: New friction model using linedefs
   P_SpawnPushers();   // phares 3/20/98: New pusher model using linedefs

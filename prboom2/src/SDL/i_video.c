@@ -539,7 +539,7 @@ static void I_UploadNewPalette(int pal, int force)
     return;
 
   if (dynamic_palette)
-    return I_UploadDynamicPalette(pal);
+    RETURN(I_UploadDynamicPalette(pal));
 
   playpal_data = dsda_PlayPalData();
 

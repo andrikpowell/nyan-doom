@@ -326,7 +326,7 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume, int loop_timeo
   mobj_t *origin;
   mobj_t *listener;
 
-  if (raven) return Raven_S_StartSoundAtVolume(origin_p, sfx_id, volume, loop_timeout);
+  if (raven) RETURN(Raven_S_StartSoundAtVolume(origin_p, sfx_id, volume, loop_timeout));
 
   origin = (mobj_t *) origin_p;
   listener = GetSoundListener();
@@ -495,7 +495,7 @@ void S_StopSound(void *origin)
 {
   int cnum;
 
-  if (raven) return Heretic_S_StopSound(origin);
+  if (raven) RETURN(Heretic_S_StopSound(origin));
 
   //jff 1/22/98 return if sound is not enabled
   if (nosfxparm)

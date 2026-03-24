@@ -481,8 +481,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
   int      idnut;
   fixed_t  delta = special->z - toucher->z;
 
-  if (heretic) return Heretic_P_TouchSpecialThing(special, toucher);
-  if (hexen) return Hexen_P_TouchSpecialThing(special, toucher);
+  if (heretic)  RETURN(Heretic_P_TouchSpecialThing(special, toucher));
+  if (hexen)    RETURN(Hexen_P_TouchSpecialThing(special, toucher));
 
   if (delta > toucher->height || delta < -8*FRACUNIT)
     return;        // out of reach

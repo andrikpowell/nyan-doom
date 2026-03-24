@@ -2432,8 +2432,8 @@ void A_Scream(mobj_t *actor)
 {
   int sound;
 
-  if (heretic) return Heretic_A_Scream(actor);
-  if (hexen) return Hexen_A_Scream(actor);
+  if (heretic)  RETURN(Heretic_A_Scream(actor));
+  if (hexen)    RETURN(Hexen_A_Scream(actor));
 
   switch (actor->info->deathsound)
     {
@@ -2662,7 +2662,7 @@ void A_BossDeath(mobj_t *mo)
   line_t junk;
 
   // heretic_note: probably we can adopt the clean heretic style and merge
-  if (heretic) return Heretic_A_BossDeath(mo);
+  if (heretic) RETURN(Heretic_A_BossDeath(mo));
 
   if (dsda_BossAction(mo))
   {

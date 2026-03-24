@@ -207,7 +207,7 @@ void SB_Init(void)
     int i;
     int startLump;
 
-    if (hexen) return Hexen_SB_Init();
+    if (hexen) RETURN(Hexen_SB_Init());
 
     lumparti = heretic_lumparti;
     sb_ticker_delta_cap = 8;
@@ -347,7 +347,7 @@ static void DrINumber(signed int val, int x, int y)
     int lump;
     int oldval;
 
-    if (hexen) return Hexen_DrINumber(val, x, y);
+    if (hexen) RETURN(Hexen_DrINumber(val, x, y));
 
     oldval = val;
     if (val < 0)
@@ -430,7 +430,7 @@ static void DrSmallNumberVPT(int val, int x, int y, int vpt)
 {
     int lump;
 
-    if (hexen) return Hexen_DrSmallNumberVPT(val, x, y, vpt);
+    if (hexen) RETURN(Hexen_DrSmallNumberVPT(val, x, y, vpt));
 
     if (val == 1)
     {
@@ -747,7 +747,7 @@ void DrawMainBar(void)
     int temp;
     int curArmor;
 
-    if (hexen) return Hexen_DrawMainBar();
+    if (hexen) RETURN(Hexen_DrawMainBar());
 
     // Ready artifact
     if (ArtifactFlash)

@@ -267,7 +267,7 @@ static void IN_DrawGoingThere(int i)
 static void IN_DrawGoingThere2(int i)
 {
   if (W_CheckNumForName("IN_YAH2") == LUMP_NOT_FOUND)
-    return IN_DrawGoingThere(i);
+    RETURN(IN_DrawGoingThere(i));
 
   V_DrawMenuNamePatch(
       YAHspot[gameepisode - 1][i].x, YAHspot[gameepisode - 1][i].y,
@@ -740,7 +740,7 @@ void IN_DrawYAH(void)
     {                           // draw the destination 'X'
         // kex uses different arrow for E5M7
         if (gameepisode == 5 && nextmap == 7)
-            return IN_DrawGoingThere2(nextmap - 1);
+            RETURN(IN_DrawGoingThere2(nextmap - 1));
 
         IN_DrawGoingThere(nextmap - 1);
     }

@@ -575,7 +575,7 @@ menu_t MainDef =
 
 static void M_DrawMainMenu(void)
 {
-  if (raven) return MN_DrawMainMenu();
+  if (raven) RETURN(MN_DrawMainMenu());
   // CPhipps - patch drawing updated
   V_DrawMenuNamePatchAnimate(94, 2, mdoom, CR_DEFAULT, VPT_STRETCH);
 }
@@ -738,7 +738,7 @@ static int chosen_episode;
 
 static void M_DrawEpisode(void)
 {
-  if (raven) return MN_DrawEpisode();
+  if (raven) RETURN(MN_DrawEpisode());
 
   // CPhipps - patch drawing updated
   V_DrawMenuNamePatch(54, EpiDef.y - 25, "M_EPISOD", CR_DEFAULT, VPT_STRETCH);
@@ -785,7 +785,7 @@ menu_t SkillDef =
 
 static void M_DrawSkillMenu(void)
 {
-  if (raven) return MN_DrawSkillMenu();
+  if (raven) RETURN(MN_DrawSkillMenu());
 
   // CPhipps - patch drawing updated
   V_DrawMenuNamePatch(96, 14, "M_NEWG", CR_DEFAULT, VPT_STRETCH);
@@ -952,7 +952,7 @@ static void M_DrawLoad(void)
   current_save_page = current_page;
   current_save_item = itemOn;
 
-  if (raven) return MN_DrawLoad();
+  if (raven) RETURN(MN_DrawLoad());
 
   //jff 3/15/98 use symbolic load position
   // CPhipps - patch drawing updated
@@ -1198,7 +1198,7 @@ static void M_DrawSave(void)
   current_save_page = current_page;
   current_save_item = itemOn;
 
-  if (raven) return MN_DrawSave();
+  if (raven) RETURN(MN_DrawSave());
 
   //jff 3/15/98 use symbolic load position
   // CPhipps - patch drawing updated
@@ -1351,7 +1351,7 @@ menu_t OptionsDef =
 
 static void M_DrawOptions(void)
 {
-  if (raven) return MN_DrawOptions();
+  if (raven) RETURN(MN_DrawOptions());
 
   // CPhipps - patch drawing updated
   // proff/nicolas 09/20/98 -- changed for hi-res
@@ -1486,7 +1486,7 @@ static void M_DrawSound(void)
 {
   char num[4];
 
-  if (raven) return MN_DrawSound();
+  if (raven) RETURN(MN_DrawSound());
 
   // CPhipps - patch drawing updated
   V_DrawMenuNamePatch(60, 38, "M_SVOL", CR_DEFAULT, VPT_STRETCH);
@@ -8710,7 +8710,7 @@ void M_Ticker (void)
   // Nyan Animate Lump counter
   AnimateTicker();
 
-  if (raven) return MN_Ticker();
+  if (raven) RETURN(MN_Ticker());
 }
 
 /////////////////////////////
@@ -8753,7 +8753,7 @@ static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int therm
   int i;
   int dot_offset;
 
-  if (raven) return MN_DrawSlider(x, y, thermWidth, thermRange, thermDot);
+  if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot));
 
   xx = x;
   V_DrawMenuNamePatch(xx, y, "M_THERML", CR_DEFAULT, VPT_STRETCH);
@@ -8876,7 +8876,7 @@ static void M_WriteText (int x,int y, const char* string, int cm)
 
 static void M_DrawTitle(int y, const char *text, int cm)
 {
-  if (raven) return MN_DrawTitle(y, text, cm);
+  if (raven) RETURN(MN_DrawTitle(y, text, cm));
 
   M_WriteText(160 - (M_StringWidth(text) / 2),
               y + 8 - (M_StringHeight(text) / 2), // assumes patch height 16

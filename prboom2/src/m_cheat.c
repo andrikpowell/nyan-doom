@@ -332,10 +332,7 @@ static void cheat_mus(char *buf)
 
   // Check for random
   if (buf[0] == 'r' && buf[1] == 'r')
-  {
-    cheat_musrr();
-    return;
-  }
+    RETURN(cheat_musrr());
 
   //jff 3/20/98 note: this cheat allowed in netgame/demorecord
 
@@ -462,10 +459,7 @@ static void cheat_suicide()
 static void cheat_god()
 {                                    // 'dqd' cheat for toggleable god mode
   if (demorecording)
-  {
-    dsda_QueueExCmdGod();
-    return;
-  }
+    RETURN(dsda_QueueExCmdGod());
 
   M_CheatGod();
 }
@@ -637,10 +631,7 @@ void M_CheatNoClip(void)
 static void cheat_noclip()
 {
   if (demorecording)
-  {
-    dsda_QueueExCmdNoClip();
-    return;
-  }
+    RETURN(dsda_QueueExCmdNoClip());
 
   M_CheatNoClip();
 }
@@ -729,10 +720,10 @@ static void cheat_rate()
 static void cheat_comp()
 {
   if (raven)
-    return doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen");
+    RETURN(doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen"));
 
   if (doom_v11)
-    return doom_printf("Cheat disabled");
+    RETURN(doom_printf("Cheat disabled"));
 
   doom_printf("Complevel: %i - %s", compatibility_level, comp_lev_str[compatibility_level]);
 }
@@ -741,10 +732,10 @@ static void cheat_comp()
 static void cheat_compx(char *buf)
 {
   if (raven)
-    return doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen");
+    RETURN(doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen"));
 
   if (doom_v11)
-    return doom_printf("Cheat disabled");
+    RETURN(doom_printf("Cheat disabled"));
 
   {
     int compinput = (buf[0] - '0') * 10 + buf[1] - '0';
@@ -1182,7 +1173,7 @@ static void cheat_reveal_weaponx(char *buf)
 
     // If weapon outside range, exit
     if (weapon < weapon_low || weapon > weapon_high)
-      return dsda_AddMessage("Invalid weapon number");
+      RETURN(dsda_AddMessage("Invalid weapon number"));
 
     {
       int sprite_num = cheat_get_weapon(weapon);
@@ -1339,7 +1330,7 @@ static void cheat_keyx(char *buf)
     return;
 
   if (!heretic)
-    return dsda_AddMessage("Add key: Card, Skull");
+    RETURN(dsda_AddMessage("Add key: Card, Skull"));
 
   switch (buf[0])
   {
@@ -1850,7 +1841,7 @@ static void cheat_ammox(char *buf)
   int a = *buf - '1';
 
   if (hexen)
-    return cheat_hexen_ammox(buf);
+    RETURN(cheat_hexen_ammox(buf));
 
   if (*buf == 'b')  // Ty 03/27/98 - strings *not* externalized
     if ((plyr->backpack = !plyr->backpack))
@@ -1900,7 +1891,7 @@ static void cheat_notarget()
 static void cheat_camera()
 {
   if (!allow_incompatibility)
-    return dsda_AddMessage("Camera Mode Not Allowed");
+    RETURN(dsda_AddMessage("Camera Mode Not Allowed"));
 
   plyr->cheats ^= CF_CAMERA;
   plyr->cheats ^= CF_GODMODE;
@@ -2331,14 +2322,11 @@ static void cheat_artifactxx(char *buf)
   else if (type > arti_none && type < NUMARTIFACTS && count > 0 && count < 10)
   {
     if (gamemode == shareware && (type == arti_superhealth || type == arti_teleport))
-    {
-      dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTSFAIL);
-      return;
-    }
+      RETURN(dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTSFAIL));
+
     for (i = 0; i < count; i++)
-    {
       P_GiveArtifact(plyr, type, NULL);
-    }
+
     dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTS3);
   }
   else
@@ -2469,10 +2457,7 @@ static void cheat_classx(char *buf)
 
   new_class = 1 + (buf[0] - '0');
   if (new_class > PCLASS_MAGE || new_class < PCLASS_FIGHTER)
-  {
-    P_SetMessage(plyr, HEXEN_TXT_CHEATCLASSFAIL, true);
-    return;
-  }
+    RETURN(P_SetMessage(plyr, HEXEN_TXT_CHEATCLASSFAIL, true));
   plyr->pclass = new_class;
   for (i = 0; i < NUMARMOR; i++)
   {

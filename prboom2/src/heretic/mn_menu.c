@@ -590,7 +590,7 @@ void MN_DrawMainMenu(void)
 {
   int frame;
 
-  if (hexen) return Hexen_MN_DrawMainMenu();
+  if (hexen) RETURN(Hexen_MN_DrawMainMenu());
 
   frame = (MenuTime / 3) % 18;
   V_DrawMenuNamePatch(88, 0, "M_HTIC", CR_DEFAULT, VPT_STRETCH);

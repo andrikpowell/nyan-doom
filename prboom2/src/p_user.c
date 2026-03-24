@@ -372,7 +372,7 @@ void P_MovePlayer (player_t* player)
 
   P_HandleExCmdLook(player);
 
-  if (raven) return Raven_P_MovePlayer(player);
+  if (raven) RETURN(Raven_P_MovePlayer(player));
 
   cmd = &player->cmd;
   mo = player->mo;

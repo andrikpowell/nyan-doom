@@ -1078,7 +1078,7 @@ void M_ChangeApplyPalette(void)
 
 void ST_Ticker(void)
 {
-  if (raven) return SB_Ticker();
+  if (raven) RETURN(SB_Ticker());
 
   st_health = SmoothCount(st_health, plyr->health, false);
   st_armor  = SmoothCount(st_armor, plyr->armorpoints[ARMOR_ARMOR], false);
@@ -1592,7 +1592,7 @@ static void ST_Stop(void)
 
 void ST_Init(void)
 {
-  if (raven) return SB_Init();
+  if (raven) RETURN(SB_Init());
 
   veryfirsttime = 0;
   ST_loadGraphics();

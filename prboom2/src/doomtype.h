@@ -55,6 +55,17 @@ typedef unsigned char byte;
 #define CLAMP(x, min, max) ((min) > (x) ? (min) : (x) > (max) ? (max) : (x))
 #endif
 
+// [AR] supress MSVC void function return warnings
+#ifdef _MSC_VER
+#define RETURN(x) \
+    __pragma(warning(push)) \
+    __pragma(warning(disable:4098)) \
+    return x; \
+    __pragma(warning(pop))
+#else
+#define RETURN(x) return x
+#endif
+
 #include <inttypes.h>
 #include <limits.h>
 

@@ -2902,7 +2902,7 @@ void P_SpawnPuff(fixed_t x,fixed_t y,fixed_t z)
   mobj_t* th;
   int t;
 
-  if (raven) return Raven_P_SpawnPuff(x, y, z);
+  if (raven) RETURN(Raven_P_SpawnPuff(x, y, z));
 
   // killough 5/5/98: remove dependence on order of evaluation:
   t = P_Random(pr_spawnpuff);

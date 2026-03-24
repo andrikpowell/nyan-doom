@@ -2888,10 +2888,7 @@ static void AM_drawThings(void)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
-    {
-      AM_DrawNiceThings();
-      return;
-    }
+      RETURN(AM_DrawNiceThings());
   }
 #endif
 
