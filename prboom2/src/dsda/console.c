@@ -205,6 +205,40 @@ static dboolean console_LevelSecretExit(const char* command, const char* args) {
   return true;
 }
 
+static dboolean console_LevelFinale(const char* command, const char* args) {
+  void G_ExitLevel(int position);
+
+  int position = 0;
+
+  if (hexen)
+    return false;
+
+  skip_intermission = true;
+
+  sscanf(args, "%d", &position);
+
+  G_ExitLevel(position);
+
+  return true;
+}
+
+static dboolean console_LevelSecretFinale(const char* command, const char* args) {
+  void G_SecretExitLevel(int position);
+
+  int position = 0;
+
+  if (hexen)
+    return false;
+
+  skip_intermission = true;
+
+  sscanf(args, "%d", &position);
+
+  G_SecretExitLevel(position);
+
+  return true;
+}
+
 static dboolean console_ActivateLine(mobj_t* mobj, int id, dboolean bossaction) {
   if (!mobj || id < 0 || id >= numlines)
     return false;
@@ -633,12 +667,6 @@ static dboolean console_GameDescribe(const char* command, const char* args) {
   dsda_AddAlert(str.string);
 
   dsda_FreeString(&str);
-
-  return true;
-}
-
-static dboolean console_GameFinale(const char* command, const char* args) {
-  G_ForceStartFinale();
 
   return true;
 }
@@ -2359,8 +2387,11 @@ static console_command_entry_t console_commands[] = {
 
   { "music.restart", console_MusicRestart, CF_ALWAYS },
 
+  // level
   { "level.exit", console_LevelExit, CF_NEVER },
-  { "level.secret_exit", console_LevelSecretExit, CF_NEVER },
+  { "level.exit_secret", console_LevelSecretExit, CF_NEVER },
+  { "level.finale", console_LevelFinale, CF_NEVER},
+  { "level.finale_secret", console_LevelSecretFinale, CF_NEVER},
 
   { "script.run", console_ScriptRun, CF_ALWAYS },
   { "check", console_Check, CF_ALWAYS },
@@ -2512,9 +2543,6 @@ static console_command_entry_t console_commands[] = {
 
   { "game.quit", console_GameQuit, CF_ALWAYS },
   { "game.describe", console_GameDescribe, CF_ALWAYS },
-
-  // debug
-  { "game.finale", console_GameFinale, CF_NEVER},
 
   // cheats
   { "idchoppers", console_BasicCheat, CF_DEMO },

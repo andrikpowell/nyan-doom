@@ -57,7 +57,6 @@ void G_BeginRecording(void);
 void G_ExitLevel(int position);
 void G_SecretExitLevel(int position);
 void G_WorldDone(void);
-void G_ForceStartFinale(void);
 void G_Ticker(void);
 void G_ReloadDefaults(void);     // killough 3/1/98: loads game defaults
 void G_RefreshFastMonsters(void); // killough 4/10/98: sets -fast parameters
@@ -101,6 +100,7 @@ extern int  key_backward;
 
 extern dboolean haswolflevels;  //jff 4/18/98 wolf levels present
 extern dboolean secretexit;
+extern dboolean skip_intermission;
 
 // killough 5/2/98: moved from d_deh.c:
 // Par times (new item with BOOM) - from g_game.c

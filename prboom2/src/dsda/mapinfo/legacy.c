@@ -607,7 +607,12 @@ int dsda_LegacyCheckInterText(void)
     return SkipText;
 }
 
+extern const char* finaletext;
+extern const char* finaleflat;
+
 int dsda_LegacyStartFinale(void) {
+  if (!finaletext) finaletext = "The End";  // this is to avoid a crash
+  if (!finaleflat) finaleflat = "FLOOR4_8"; // use a single fallback for all maps.
   return true;
 }
 

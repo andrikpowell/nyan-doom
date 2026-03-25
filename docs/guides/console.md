@@ -57,8 +57,12 @@ The in-game console offers extra tools for advanced users, including adjusting p
   - restart the current music track
 - `level.exit`
   - exit the current level (go to intermission screen)
-- `level.secret_exit`
+- `level.exit_secret`
   - exit the current level via the secret exit (go to intermission screen)
+- `level.finale`
+  - exit the current level (show finale) [note that vanilla finale matches secret finale]
+- `level.exit_secret`
+  - exit the current level via the secret exit (show secret finale)
 - `game.quit`
   - quit the game immediately (no prompt)
 - `game.describe`

@@ -2178,6 +2178,7 @@ int cpars[34] = {
 };
 
 dboolean secretexit;
+dboolean skip_intermission;
 
 void G_ExitLevel(int position)
 {
@@ -2197,6 +2198,24 @@ void G_SecretExitLevel(int position)
     secretexit = false;
   gameaction = ga_completed;
   dsda_UpdateLeaveData(0, position, 0, 0);
+}
+
+void G_ForceFinale (void)
+{
+  skip_intermission = false;
+
+  if (gamemode != commercial)
+  {
+    gameaction = ga_victory;
+
+    return;
+  }
+  else
+  {
+    F_StartFinale();
+
+    return;
+  }
 }
 
 //
@@ -2268,6 +2287,9 @@ void G_DoCompleted (void)
   if (nodrawers && (demoplayback || timingdemo))
     lprintf(LO_INFO, "FINISHED: %s\n", dsda_MapLumpName(gameepisode, gamemap));
 
+  if (skip_intermission)
+    RETURN(G_ForceFinale());
+
   if (!(map_info.flags & MI_INTERMISSION))
   {
     G_WorldDone();
@@ -2282,26 +2304,6 @@ void G_DoCompleted (void)
 // G_WorldDone
 //
 
-void G_ForceStartFinale(void)
-{
-  if (gamestate != GS_LEVEL)
-    return;
-
-  gameaction = ga_worlddone;
-
-  if (gamemode != commercial)
-  {
-    gameaction = ga_victory;
-
-    return;
-  }
-  else
-  {
-    F_StartFinale();
-
-    return;
-  }
-}
 
 void G_WorldDone (void)
 {
