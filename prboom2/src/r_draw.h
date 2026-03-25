@@ -82,6 +82,7 @@ typedef struct draw_column_vars_s
   int                 edgeslope; // OR'ed RDRAW_EDGESLOPE_*
   // 1 if R_DrawColumn* is currently drawing a masked column, otherwise 0
   int                 drawingmasked;
+  dboolean            isplayersprite; // [AR] mark weapon sprite
   unsigned int        flags; //e6y: for detect patches ind colfunc()
   int clip_top;     // New!
   int clip_bottom;  // New!

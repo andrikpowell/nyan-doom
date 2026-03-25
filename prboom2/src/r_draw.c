@@ -508,6 +508,7 @@ void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars) {
   dcvars->edgeslope = dcvars->drawingmasked = 0;
   dcvars->flags = 0;
   dcvars->clip_top = dcvars->clip_bottom = 0;
+  dcvars->isplayersprite = false;
 
   // heretic
   dcvars->baseclip = -1;
