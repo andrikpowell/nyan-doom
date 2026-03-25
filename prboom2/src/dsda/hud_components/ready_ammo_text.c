@@ -132,9 +132,16 @@ static void dsda_UpdateComponentText(void) {
   // Get ammo text
   {
     if (hexen) {
+      int mana1 = player->ammo[0];
+      int mana2 = player->ammo[2];
+
+      // [AR] Hexen - Fighter Axe can go negative
+      if (mana1 < 0)  mana1 = 0;
+      if (mana2 < 0)  mana2 = 0;
+
       snprintf(local->value.msg, sizeof(local->value.msg), "%s%3d %s%3d",
-              dsda_TextColor(dsda_tc_exhud_ammo_mana1), player->ammo[0],
-              dsda_TextColor(dsda_tc_exhud_ammo_mana2), player->ammo[1]);
+              dsda_TextColor(dsda_tc_exhud_ammo_mana1), mana1,
+              dsda_TextColor(dsda_tc_exhud_ammo_mana2), mana2);
     }
     else {
       ammotype_t ammo_type = dsda_GetAmmoType();

@@ -76,6 +76,10 @@ static void dsda_UpdateComponentText(char* str, size_t max_size, int i) {
   current_ammo = player->ammo[i];
   max_ammo = hexen ? MAX_MANA : player->maxammo[i];
 
+  // [AR] Hexen - Fighter Axe can go negative
+  if (hexen && current_ammo < 0)
+    current_ammo = 0;
+
   if (local->show_names)
     snprintf(
       str,

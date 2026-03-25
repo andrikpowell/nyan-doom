@@ -48,8 +48,8 @@ static void dsda_SetHexenAmmoImage(void) {
   dboolean hasManaGreen;
 
   player = &players[displayplayer];
-  hasManaBlue = !!player->ammo[MANA_1];
-  hasManaGreen = !!player->ammo[MANA_2];
+  hasManaBlue  = player->ammo[MANA_1] > 0;
+  hasManaGreen = player->ammo[MANA_2] > 0;
 
   if (player->readyweapon == wp_first)
   {
@@ -85,6 +85,10 @@ static int dsda_DrawManaPair(int x, int y, int lump, int cm, int mana, int flags
   int lump_width = R_NumPatchWidth(lump);
   int text_width = dsda_GetManaTextWidth();
   int pair_width = lump_width + patch_spacing + text_width;
+
+  // [AR] Hexen - Fighter Axe can go negative
+  if (mana < 0)
+    mana = 0;
 
   if (!local->right_align)
   {
