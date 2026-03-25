@@ -155,7 +155,7 @@ int saved_fastparm;
 int saved_nomonsters;
 int saved_coop_spawns;
 
-void dsda_ArchiveGameModifiers(void)
+void dsda_SaveGameModifiers(void)
 {
   saved_limitremoving = limitremoving;
   saved_pistolstart   = pistolstart;
@@ -163,6 +163,29 @@ void dsda_ArchiveGameModifiers(void)
   saved_fastparm      = fastparm;
   saved_nomonsters    = nomonsters;
   saved_coop_spawns   = coop_spawns;
+}
+
+void dsda_LoadGameModifiers(void)
+{
+  // when playing / recording demos, do not touch configs
+  if (!allow_incompatibility)
+    return;
+
+  dsda_UpdateIntConfig(dsda_config_limit_removing,saved_limitremoving,true);
+
+  // If "Always Pistol Start" is enabled, skip resetting "Pistol Start"
+  if (!dsda_IntConfig(dsda_config_always_pistol_start))
+    dsda_UpdateIntConfig(dsda_config_pistol_start,saved_pistolstart,true);
+
+  dsda_UpdateIntConfig(dsda_config_respawn_monsters,saved_respawnparm,true);
+  dsda_UpdateIntConfig(dsda_config_fast_monsters,saved_fastparm,true);
+  dsda_UpdateIntConfig(dsda_config_no_monsters,saved_nomonsters,true);
+  dsda_UpdateIntConfig(dsda_config_coop_spawns,saved_coop_spawns,true);
+}
+
+void dsda_ArchiveGameModifiers(void)
+{
+  dsda_SaveGameModifiers();
 
   P_SAVE_X(saved_limitremoving);
   P_SAVE_X(saved_pistolstart);
@@ -181,14 +204,7 @@ void dsda_UnArchiveGameModifiers(void)
   P_LOAD_X(saved_nomonsters);
   P_LOAD_X(saved_coop_spawns);
 
-  dsda_UpdateIntConfig(dsda_config_limit_removing,saved_limitremoving,true);
-  // If "Always Pistol Start" is enabled, skip resetting "Pistol Start"
-  if (!dsda_IntConfig(dsda_config_always_pistol_start))
-    dsda_UpdateIntConfig(dsda_config_pistol_start,saved_pistolstart,true);
-  dsda_UpdateIntConfig(dsda_config_respawn_monsters,saved_respawnparm,true);
-  dsda_UpdateIntConfig(dsda_config_fast_monsters,saved_fastparm,true);
-  dsda_UpdateIntConfig(dsda_config_no_monsters,saved_nomonsters,true);
-  dsda_UpdateIntConfig(dsda_config_coop_spawns,saved_coop_spawns,true);
+  dsda_LoadGameModifiers();
 }
 
 void dsda_ArchiveHexenStats(void)
