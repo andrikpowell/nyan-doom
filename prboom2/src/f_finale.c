@@ -142,7 +142,7 @@ void F_StartFinale (void)
     S_ChangeMusic(mnum, true);
   }
 
-  // Arsinikk
+  // [AR]
   // If iwad story text and option, do actions for Doom 1
   // Music change above is needed for Doom 1
   // If Doom 2 cast, skip text and do cast

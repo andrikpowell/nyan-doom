@@ -4,7 +4,7 @@ HUD configurations are stored in the NYANHUD lump. These defaults can be changed
 
 NYANHUD is very similar to DSDAHUD, but does include extra widgets, thus is incompatible with DSDA-Doom.
 
-Options marked with 😸 are Nyan Doom exclusive.
+Options marked with 😸 are Nyan exclusive.
 
 ## Specification
 
