@@ -2312,7 +2312,7 @@ void SetRatio(int width, int height)
   if (tallscreen)
   {
     float ratio_quotient = (float)ratio_multiplier/ratio_scale;
-    float ratio_percentage = (ratio_quotient - 1) * 100.0;
+    float ratio_percentage = (ratio_quotient - 1) * 100.0f;
     psprite_offset = (int)(ratio_percentage*FRACUNIT);
 
     lprintf(LO_DEBUG, "SetRatio: tallscreen aspect recognized; flipping multiplier\n");

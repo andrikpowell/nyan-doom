@@ -2178,7 +2178,7 @@ int dsda_MaxConfigLength(void) {
     conf = &dsda_config[i];
 
     if (strlen(conf->name) > length)
-      length = strlen(conf->name);
+      length = (int)strlen(conf->name);
   }
 
   return length;

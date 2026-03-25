@@ -514,7 +514,7 @@ static void R_UpdateFuzzCellSize(vissprite_t *vis)
 {
     const rpatch_t *patch       = R_PatchByNum(vis->patch + firstspritelump);
     int sprite_height           = LittleShort(patch->height);
-    float sprite_screen_height  = FixedMul(sprite_height << FRACBITS, vis->scale) >> FRACBITS;
+    float sprite_screen_height  = (float)(sprite_height * (vis->scale / FRACUNIT));
     float screen_space_factor;
     float base_fuzzcellsize;
 
@@ -636,7 +636,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 
   if (vis->floorclip && !(vis->mobjflags & MF_PLAYERSPRITE))
   {
-    fixed_t sprbotscreen = sprtopscreen + FixedMul(LittleShort(patch->height) << FRACBITS, spryscale);
+    fixed_t sprbotscreen = (fixed_t)(sprtopscreen + FixedMul(LittleShort(patch->height) << FRACBITS, spryscale));
     dcvars.baseclip = (sprbotscreen - FixedMul(vis->floorclip, spryscale)) >> FRACBITS;
   }
 
@@ -1097,7 +1097,7 @@ static void R_DrawPSprite (pspdef_t *psp)
   sprframe = &sprdef->spriteframes[psp->state->frame & FF_FRAMEMASK];
 
   lump = sprframe->lump[0];
-  flip = sprframe->flip[0];
+  flip = (dboolean) sprframe->flip[0];
 
   {
     int weapon_attack_alignment = dsda_IntConfig(dsda_config_weapon_attack_alignment);

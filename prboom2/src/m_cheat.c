@@ -390,7 +390,7 @@ void M_CheatGod(void)
     P_MapStart();
     mt.x = plyr->mo->x;
     mt.y = plyr->mo->y;
-    mt.angle = (plyr->mo->angle + ANG45/2)*(uint64_t)45/ANG45;
+    mt.angle = (short)((plyr->mo->angle + ANG45/2)*(uint64_t)45/ANG45);
     mt.type = consoleplayer + 1;
     mt.options = 1; // arbitrary non-zero value
     P_SpawnPlayer(consoleplayer, &mt);

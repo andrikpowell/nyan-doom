@@ -103,7 +103,7 @@ static int dsda_WadCompatibilityLevel(void) {
       int num, gamever = false;
       const char *lumps, *limit;
 
-      last_numwadfiles = numwadfiles;
+      last_numwadfiles = (int)numwadfiles;
       num = W_CheckNumForName("COMPLVL");
 
       if (num != LUMP_NOT_FOUND) {

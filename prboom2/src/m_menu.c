@@ -1164,7 +1164,7 @@ static int M_AutoSaveSlot(const char *target_name)
   I_EndGlob(glob);
 
   if (return_slot < 0)
-    return_slot = strnlen(slots, SLOT_SCAN_MAX);
+    return_slot = (int)strnlen(slots, SLOT_SCAN_MAX);
 
   if (slots[return_slot] == 1)
     return_slot = -1;
@@ -1268,7 +1268,7 @@ static void M_SaveSelect(int choice)
     snprintf(savegamestrings[choice], SAVESTRINGSIZE, "%s", dsda_MapLumpName(gameepisode, gamemap));
     savegamestrings[choice][SAVESTRINGSIZE - 1] = 0;
   }
-  saveCharIndex = strlen(savegamestrings[choice]);
+  saveCharIndex = (int)strlen(savegamestrings[choice]);
 }
 
 //
@@ -2797,7 +2797,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
       // start string editing — set cursor to end
       if (!string_edit)
       {
-        entry_index = strlen(entry_string_index);
+        entry_index = (int)strlen(entry_string_index);
         entry_scroll_offset = 0;
         string_edit = true;
       }
@@ -3025,7 +3025,10 @@ static void M_DrawScreenItems(const setup_menu_t* base_src, int base_y)
     // Draw scrollbar if needed
     scrollbar_scale = (185 - DEFAULT_LIST_Y) / (float)max_i;
 
-    xx = 310, yy = base_y + scroll_i * scrollbar_scale, ww = 2, hh = limit_i * scrollbar_scale;
+    xx = 310;
+    yy = (int)(base_y + scroll_i * scrollbar_scale);
+    ww = 2;
+    hh = (int)(limit_i * scrollbar_scale);
     V_GetWideRect(&xx, &yy, &ww, &hh, VPT_STRETCH);
     V_FillRectTransMenu(xx, yy, ww, hh, colrngs[cr_scrollbar][playpal_lightest]);
   }
@@ -6490,7 +6493,7 @@ static int M_GetKeyString(int c,int offset)
 
       if (s) { // cph - Slight code change
   strcpy(&menu_buffer[offset],s); // string to display
-  offset += strlen(s);
+  offset += (int)strlen(s);
       }
     }
   }
@@ -6685,7 +6688,7 @@ static inline int GetButtons(const unsigned int max, int data)
 {
   int i;
 
-  for (i = 0; i < max; ++i)
+  for (i = 0; i < (int)max; ++i)
   {
     if (data & (1 << i))
     {
@@ -7112,7 +7115,7 @@ static dboolean M_StringResponder(int ch, int action, event_t* ev)
 
       else if ((ch >= 32) && (ch <= 126))
       {
-        int len = strlen(entry_string_index);
+        int len = (int)strlen(entry_string_index);
 
         // check room for new char
         if (len + 1 < ENTRY_STRING_BFR_SIZE)
@@ -8422,7 +8425,7 @@ static void M_InitializeEpisodeMenu(void)
 {
   int i;
 
-  EpiDef.numitems = num_episodes;
+  EpiDef.numitems = (short)num_episodes;
   EpiDef.menuitems = Z_Calloc(num_episodes, sizeof(*EpiDef.menuitems));
 
   for (i = 0; i < num_episodes; ++i)

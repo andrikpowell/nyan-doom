@@ -1485,8 +1485,8 @@ dboolean G_Responder (event_t* ev)
     case ev_move_analog:
       dsda_WatchGameControllerEvent();
 
-      left_analog_x = ev->data1.f;
-      left_analog_y = ev->data2.f;
+      left_analog_x = (int)ev->data1.f;
+      left_analog_y = (int)ev->data2.f;
       return true;    // eat events
 
     case ev_look_analog:
@@ -2091,7 +2091,7 @@ static dboolean G_CheckSpot(int playernum, mapthing_t *mthing)
 //
 void G_DeathMatchSpawnPlayer (int playernum)
 {
-  int j, selections = deathmatch_p - deathmatchstarts;
+  int j, selections = (int)(deathmatch_p - deathmatchstarts);
 
   if (selections < g_maxplayers)
     I_Error("G_DeathMatchSpawnPlayer: Only %i deathmatch spots, %d required",

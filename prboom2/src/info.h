@@ -6602,7 +6602,7 @@ typedef struct
   const char *obituary, *obituary_melee, *obituary_self;
 
   // extra
-  int flags_extra;
+  uint64_t flags_extra;
 } mobjinfo_t;
 
 #define NO_ALTSPEED -1

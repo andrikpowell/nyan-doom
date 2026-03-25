@@ -801,7 +801,7 @@ static void dsda_ParseDoomMapInfoIdentifier(Scanner &scanner) {
 doom_mapinfo_t doom_mapinfo;
 
 void dsda_ParseDoomMapInfo(const unsigned char* buffer, size_t length, doom_mapinfo_errorfunc err) {
-  Scanner scanner((const char*) buffer, length);
+  Scanner scanner((const char*) buffer, (int)length);
 
   scanner.SetErrorCallback(err);
 

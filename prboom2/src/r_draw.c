@@ -742,9 +742,13 @@ static void R_DrawStbarBorder (void)
     if (stretch)
     {
       // Apply screen scaling when in stretch mode
-      x = floorf((x - params->deltax1) * 320.0f / params->video->width);
-      y = floorf((y - params->deltay1) * 200.0f / params->video->height);
-      w = ceilf(w * 320.0f / params->video->width) + 1.0f;
+      float fx = floorf((x - params->deltax1) * 320.0f / params->video->width);
+      float fy = floorf((y - params->deltay1) * 200.0f / params->video->height);
+      float fw = ceilf(w * 320.0f / params->video->width) + 1.0f;
+
+      x = (int)fx;
+      y = (int)fy;
+      w = (int)fw;
     }
     else
     {
@@ -780,10 +784,15 @@ static void R_DrawBorder (int x, int y, int w, int h)
     if (stretch)
     {
       // Apply screen scaling when in stretch mode
-      x = floorf((x - params->deltax1) * 320.0f / params->video->width);
-      y = floorf((y - params->deltay1) * 200.0f / params->video->height);
-      w = ceilf(w * 320.0f / params->video->width);
-      h = ceilf(h * 200.0f / params->video->height);
+      float fx = floorf((x - params->deltax1) * 320.0f / params->video->width);
+      float fy = floorf((y - params->deltay1) * 200.0f / params->video->height);
+      float fw = ceilf(w * 320.0f / params->video->width);
+      float fh = ceilf(h * 200.0f / params->video->height);
+
+      x = (int)fx;
+      y = (int)fy;
+      w = (int)fw;
+      h = (int)fh;
 
       // Avoid gaps between viewport and border
       x += 1;

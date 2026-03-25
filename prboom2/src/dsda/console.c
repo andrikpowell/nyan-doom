@@ -131,7 +131,7 @@ static void dsda_UpdateConsoleDisplay(void) {
 }
 
 static void dsda_ResetConsoleEntry(void) {
-  console_entry_index = strlen(console_entry->text);
+  console_entry_index = (int)strlen(console_entry->text);
   dsda_UpdateConsoleDisplay();
 }
 
@@ -2688,7 +2688,7 @@ void dsda_UpdateConsoleText(char* text) {
   int i;
   int length;
 
-  length = strlen(text);
+  length = (int)strlen(text);
 
   for (i = 0; i < length; ++i) {
     char ch = text[i];
@@ -2807,13 +2807,13 @@ void dsda_UpdateConsole(int action) {
   else if (action == MENU_UP) {
     if (console_entry->prev)
       console_entry = console_entry->prev;
-    console_entry_index = strlen(console_entry->text);
+    console_entry_index = (int)strlen(console_entry->text);
     dsda_UpdateConsoleDisplay();
   }
   else if (action == MENU_DOWN) {
     if (console_entry->next)
       console_entry = console_entry->next;
-    console_entry_index = strlen(console_entry->text);
+    console_entry_index = (int)strlen(console_entry->text);
     dsda_UpdateConsoleDisplay();
   }
   else if (action == MENU_RIGHT && console_entry->text[console_entry_index]) {

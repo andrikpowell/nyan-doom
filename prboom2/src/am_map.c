@@ -1724,7 +1724,7 @@ int AM_GetLineWeight(void) {
   // if auto setting
   if (!thickness)
   {
-    thickness = round(SCREENHEIGHT / 640);
+    thickness = SCREENHEIGHT / 640;
     if (thickness < 1) thickness = 1;
     if (thickness > 6) thickness = 6;
   }

@@ -387,7 +387,7 @@ byte dsda_FloatToPercent(float x)
   return (byte) flr;
 }
 
-int dsda_IntToFixed(int x)
+fixed_t dsda_IntToFixed(int x)
 {
   return (fixed_t) (x << FRACBITS);
 }
@@ -395,5 +395,5 @@ int dsda_IntToFixed(int x)
 // ANG1 is off by 256 / 360 due to rounding
 angle_t dsda_DegreesToAngle(float x)
 {
-  return ANG1 * x + 256 * x / 360;
+  return (angle_t)(ANG1 * x + 256 * x / 360);
 }

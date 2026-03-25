@@ -79,10 +79,10 @@ void dsda_GLSetRenderSceneScissor() {
 
 void dsda_GLSetScreenSpaceScissor(int x, int y, int w, int h)
 {
-  glScissor(viewport_rect.x + x * gl_scale_x,
-            viewport_rect.y + (SCREENHEIGHT - (y + h)) * gl_scale_y,
-            w * gl_scale_x,
-            h * gl_scale_y);
+  glScissor((int)(viewport_rect.x + x * gl_scale_x),
+            (int)(viewport_rect.y + (SCREENHEIGHT - (y + h)) * gl_scale_y),
+            (int)(w * gl_scale_x),
+            (int)(h * gl_scale_y));
 }
 
 void dsda_GLUpdateStatusBarVisible() {
@@ -146,7 +146,7 @@ void dsda_GLEndMeltRenderTexture() {
   glBegin(GL_TRIANGLE_STRIP);
   {
     glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, 0.0f);
-    glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, renderer_rect.h);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, (float)renderer_rect.h);
     glTexCoord2f(1.0f, 1.0f); glVertex2f((float)renderer_rect.w, 0.0f);
     glTexCoord2f(1.0f, 0.0f); glVertex2f((float)renderer_rect.w, (float)renderer_rect.h);
   }

@@ -367,7 +367,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   for (i = 0; i < visible_subsectors_count; i++)
   {
     subsector_t *sub = visible_subsectors[i];
-    int ssidx = sub - subsectors;
+    int ssidx = (int)(sub - subsectors);
 
     if (sub->sector->bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
       sub->sector->bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
@@ -1016,9 +1016,9 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   // There is no more line of graphics under certain weapons.
   //
   // [AR] fix wide opengl weapons alignment
-  x1 = viewwindowx + vis->gx1;
+  x1 = (float)(viewwindowx + vis->gx1);
   x2 = roundf(x1 + gltexture->realtexwidth * pspritexscale_f);
-  y1 = roundf(viewwindowy + centery - (int)(((float)vis->texturemid / (float)FRACUNIT) * pspriteyscale_f));
+  y1 = roundf((float)(viewwindowy + centery - (int)(((float)vis->texturemid / (float)FRACUNIT) * pspriteyscale_f)));
   y2 = roundf(y1 + gltexture->realtexheight * pspriteyscale_f);
   // e6y: don't do the gamma table correction on the lighting
   light = (float)lightlevel / 255.0f;
@@ -1304,12 +1304,12 @@ void gld_StartDrawScene(void)
   viewPitch = (pitch > 180 ? pitch - 360 : pitch);
   paperitems_pitch = ((pitch > 87.0f && pitch <= 90.0f) ? 87.0f : pitch);
 
-  skyXShift = (double) viewangle / (double) ANGLE_MAX;
+  skyXShift = (float) viewangle / (float) ANGLE_MAX;
 
   if (skystretch)
-    skyYShift = CLAMP(viewPitch, -25 / skyscale, 180) / 360.0;
+    skyYShift = CLAMP(viewPitch, -25.0f / skyscale, 180.0f) / 360.0f;
   else
-    skyYShift = viewPitch / 360.0;
+    skyYShift = viewPitch / 360.0f;
 
   cos_paperitems_pitch = (float)cos(paperitems_pitch * M_PI / 180.f);
   sin_paperitems_pitch = (float)sin(paperitems_pitch * M_PI / 180.f);
@@ -1381,7 +1381,7 @@ void gld_EndDrawScene(void)
     glBegin(GL_TRIANGLE_STRIP);
     {
       glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, 0.0f);
-      glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, renderer_rect.h);
+      glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, (float)renderer_rect.h);
       glTexCoord2f(1.0f, 1.0f); glVertex2f((float)renderer_rect.w, 0.0f);
       glTexCoord2f(1.0f, 0.0f); glVertex2f((float)renderer_rect.w, (float)renderer_rect.h);
     }
@@ -2286,7 +2286,7 @@ static void gld_DrawSprite(GLSprite *sprite)
     if(sprite->flags & g_mf_shadow_fuzz)
     {
       // Fuzz has less aliasing if ratio is an integer
-      float ratio = floor((SCREENWIDTH > SCREENHEIGHT ? SCREENHEIGHT : SCREENWIDTH) / 200.0);
+      float ratio = (float)floor((SCREENWIDTH > SCREENHEIGHT ? SCREENHEIGHT : SCREENWIDTH) / 200.0);
       glGetIntegerv(GL_BLEND_SRC, &blend_src);
       glGetIntegerv(GL_BLEND_DST, &blend_dst);
       restore = 1;
@@ -2751,19 +2751,19 @@ static int C_DECL dicmp_wall(const void *a, const void *b)
 {
   GLTexture *tx1 = ((const GLDrawItem *)a)->item.wall->gltexture;
   GLTexture *tx2 = ((const GLDrawItem *)b)->item.wall->gltexture;
-  return tx1 - tx2;
+  return (int)(tx1 - tx2);
 }
 static int C_DECL dicmp_flat(const void *a, const void *b)
 {
   GLTexture *tx1 = ((const GLDrawItem *)a)->item.flat->gltexture;
   GLTexture *tx2 = ((const GLDrawItem *)b)->item.flat->gltexture;
-  return tx1 - tx2;
+  return (int)(tx1 - tx2);
 }
 static int C_DECL dicmp_sprite(const void *a, const void *b)
 {
   GLTexture *tx1 = ((const GLDrawItem *)a)->item.sprite->gltexture;
   GLTexture *tx2 = ((const GLDrawItem *)b)->item.sprite->gltexture;
-  return tx1 - tx2;
+  return (int)(tx1 - tx2);
 }
 
 static int C_DECL dicmp_sprite_scale(const void *a, const void *b)
@@ -2777,7 +2777,7 @@ static int C_DECL dicmp_sprite_scale(const void *a, const void *b)
   }
   else
   {
-    return sprite1->gltexture - sprite2->gltexture;
+    return (int)(sprite1->gltexture - sprite2->gltexture);
   }
 }
 

@@ -1642,14 +1642,14 @@ static const char* dsda_GetSecretMessage(void)
     return secret_message;
 }
 
-#define SECRET_MESSAGE_TICS (2.5*TICRATE)
+#define SECRET_MESSAGE_TICS ((int)(2.5*TICRATE))
 
 void P_PlayerAnnounceSecret(player_t *player, const char* message)
 {
   if (dsda_IntConfig(dsda_config_hudadd_secretarea)!=0)
   {
-    int sfx_id = raven ? g_sfx_secret :
-                 I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+    int sfx_id = raven ? g_sfx_secret : I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+    int cur_player = (int)(player - players);
 
     if(dsda_IntConfig(dsda_config_hudadd_secretarea)==2)
     {
@@ -1658,21 +1658,19 @@ void P_PlayerAnnounceSecret(player_t *player, const char* message)
     }
     else
     {
-      SetCustomMessage(player - players, message, SECRET_MESSAGE_TICS, sfx_id);
+      SetCustomMessage(cur_player, message, SECRET_MESSAGE_TICS, sfx_id);
     }
   }
 }
 
-#define MILESTONE_TICS (2.5*TICRATE)
+#define MILESTONE_TICS ((int)(2.5*TICRATE))
 
 void P_PlayerAnnounceMilestone(player_t *player, const char* message)
 {
-  if (true)
-  {
-    int sfx_id = raven ? g_sfx_secret : I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+  int sfx_id = raven ? g_sfx_secret : I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+  int cur_player = (int)(player - players);
 
-    SetCustomMessage(player - players, message, MILESTONE_TICS, sfx_id);
-  }
+  SetCustomMessage(cur_player, message, MILESTONE_TICS, sfx_id);
 }
 
 dboolean P_AnnounceSecretMilestone(void)
@@ -3680,7 +3678,7 @@ void P_SpawnZDoomSectorSpecial(sector_t *sector, int i)
   switch (sector->special)
   {
     case zs_d_scroll_east_lava_damage:
-      dsda_AddFloorScroller(-4, 0, sector - sectors, 0);
+      dsda_AddFloorScroller(-4, 0, (int)(sector - sectors), 0);
       P_SetupSectorDamage(sector, 5, 32, 0, SECF_DMGTERRAINFX | SECF_DMGUNBLOCKABLE);
       break;
     case zs_s_light_strobe_hurt:
@@ -3768,14 +3766,14 @@ void P_SpawnZDoomSectorSpecial(sector_t *sector, int i)
         i = sector->special - zs_scroll_north_slow;
         dx = FixedDiv(hexenScrollies[i][0] << FRACBITS, 2);
         dy = FixedDiv(hexenScrollies[i][1] << FRACBITS, 2);
-        dsda_AddFloorScroller(dx, dy, sector - sectors, 0);
+        dsda_AddFloorScroller(dx, dy, (int)(sector - sectors), 0);
       }
       else if (sector->special >= zs_carry_east5 &&
             sector->special <= zs_carry_east35)
       { // Heretic scroll special
         // Only east scrollers also scroll the texture
         fixed_t dx = FixedDiv((1 << (sector->special - zs_carry_east5)) << FRACBITS, 2);
-        dsda_AddFloorScroller(dx, 0, sector - sectors, 0);
+        dsda_AddFloorScroller(dx, 0, (int)(sector - sectors), 0);
       }
       break;
   }
@@ -7241,8 +7239,8 @@ dboolean P_ExecuteZDoomLineSpecial(int special, int * args, line_t * line, int s
         const int *id_p;
         angle_t floor, ceiling;
 
-        floor = dsda_DegreesToAngle(args[1]);
-        ceiling = dsda_DegreesToAngle(args[2]);
+        floor = dsda_DegreesToAngle((float)args[1]);
+        ceiling = dsda_DegreesToAngle((float)args[2]);
 
         FIND_SECTORS(id_p, args[0])
         {

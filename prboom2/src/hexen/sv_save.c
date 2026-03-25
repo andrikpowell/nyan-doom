@@ -521,7 +521,7 @@ static void StreamOut_mobj_t(mobj_t *str)
 
     // state_t *state;
     // Save as index into the states table.
-    SV_WriteLong(str->state - states);
+    SV_WriteLong((unsigned int)(str->state - states));
 
     // int damage;
     SV_WriteLong(str->damage);
@@ -569,7 +569,7 @@ static void StreamOut_mobj_t(mobj_t *str)
     // Stored as index into players[] array, if there is a player pointer.
     if (str->player != NULL)
     {
-        SV_WriteLong(str->player - players + 1);
+        SV_WriteLong((unsigned int)(str->player - players + 1));
     }
     else
     {
@@ -659,7 +659,7 @@ static void StreamIn_floormove_t(floormove_t *str)
 static void StreamOut_floormove_t(floormove_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // floor_e type;
     SV_WriteLong(str->type);
@@ -753,7 +753,7 @@ static void StreamIn_plat_t(plat_t *str)
 static void StreamOut_plat_t(plat_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // fixed_t speed;
     SV_WriteLong(str->speed);
@@ -820,7 +820,7 @@ static void StreamIn_ceiling_t(ceiling_t *str)
 static void StreamOut_ceiling_t(ceiling_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // ceiling_e type;
     SV_WriteLong(str->type);
@@ -875,7 +875,7 @@ static void StreamIn_light_t(light_t *str)
 static void StreamOut_light_t(light_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // lighttype_t type;
     SV_WriteLong(str->type);
@@ -926,7 +926,7 @@ static void StreamIn_vldoor_t(vldoor_t *str)
 static void StreamOut_vldoor_t(vldoor_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // vldoor_e type;
     SV_WriteLong(str->type);
@@ -965,7 +965,7 @@ static void StreamIn_phase_t(phase_t *str)
 static void StreamOut_phase_t(phase_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // int index;
     SV_WriteLong(str->index);
@@ -1034,7 +1034,7 @@ static void StreamOut_acs_t(acs_t *str)
     // line_t *line;
     if (str->line != NULL)
     {
-        SV_WriteLong(str->line - lines);
+        SV_WriteLong((unsigned int)(str->line - lines));
     }
     else
     {
@@ -1144,7 +1144,7 @@ static void StreamIn_pillar_t(pillar_t *str)
 static void StreamOut_pillar_t(pillar_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // int ceilingSpeed;
     SV_WriteLong(str->ceilingSpeed);
@@ -1269,7 +1269,7 @@ static void StreamIn_planeWaggle_t(planeWaggle_t *str)
 static void StreamOut_planeWaggle_t(planeWaggle_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // fixed_t originalHeight;
     SV_WriteLong(str->originalHeight);
@@ -1334,7 +1334,7 @@ static void ArchiveWorld(void)
     {
         SV_WriteLong(li->flags);
         // TODO: how does this work? it's a short
-        SV_WriteByte(li->special);
+        SV_WriteByte((byte)li->special);
         SV_WriteLong(li->special_args[0]);
         SV_WriteLong(li->special_args[1]);
         SV_WriteLong(li->special_args[2]);

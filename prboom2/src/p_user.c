@@ -1182,8 +1182,8 @@ dboolean P_UndoPlayerChicken(player_t * player)
     angle_t angle;
     int playerNum;
     weapontype_t weapon;
-    int oldFlags;
-    int oldFlags2;
+    uint64_t oldFlags;
+    uint64_t oldFlags2;
 
     pmo = player->mo;
     x = pmo->x;
@@ -1244,7 +1244,7 @@ void P_ArtiTele(player_t * player)
 
     if (deathmatch)
     {
-        selections = deathmatch_p - deathmatchstarts;
+        selections = (int)(deathmatch_p - deathmatchstarts);
         i = P_Random(pr_heretic) % selections;
         destX = deathmatchstarts[i].x;
         destY = deathmatchstarts[i].y;
@@ -1861,8 +1861,8 @@ dboolean P_UndoPlayerMorph(player_t * player)
     angle_t angle;
     int playerNum;
     weapontype_t weapon;
-    int oldFlags;
-    int oldFlags2;
+    uint64_t oldFlags;
+    uint64_t oldFlags2;
     int oldBeast;
 
     pmo = player->mo;
@@ -1980,7 +1980,7 @@ void P_TeleportToDeathmatchStarts(mobj_t * victim)
     fixed_t destX, destY;
     angle_t destAngle;
 
-    selections = deathmatch_p - deathmatchstarts;
+    selections = (int)(deathmatch_p - deathmatchstarts);
     if (selections)
     {
         i = P_Random(pr_hexen) % selections;

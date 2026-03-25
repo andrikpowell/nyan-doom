@@ -94,7 +94,7 @@ const char * deh_getBitsDelims(void)
 char *dehfgets(char *buf, size_t n, DEHFILE *fp)
 {
   if (!fp->lump)                                     // If this is a real file,
-    return (fgets)(buf, n, fp->f);                   // return regular fgets
+    return (fgets)(buf, (int)n, fp->f);                   // return regular fgets
   if (!n || !*fp->inp || fp->size <= 0)                // If no more characters
     return NULL;
   if (n == 1)
@@ -123,7 +123,7 @@ int dehfgetc(DEHFILE *fp)
 
 long dehftell(DEHFILE *fp)
 {
-  return !fp->lump ? ftell(fp->f) : (fp->inp - fp->lump);
+  return (long)(!fp->lump ? ftell(fp->f) : (fp->inp - fp->lump));
 }
 
 int dehfseek(DEHFILE *fp, long offset)
@@ -132,7 +132,7 @@ int dehfseek(DEHFILE *fp, long offset)
     return fseek(fp->f, offset, SEEK_SET);
   else
   {
-    long total = (fp->inp - fp->lump) + fp->size;
+    long total = (long)((fp->inp - fp->lump) + fp->size);
     offset = CLAMP(offset, 0, total);
     fp->inp = fp->lump + offset;
     fp->size = total - offset;

@@ -355,6 +355,7 @@ void HU_AnnounceMap(void)
     if (gamemap != last_gamemap || gameepisode != last_gameepisode)
     {
       int announce_config = dsda_IntConfig(dsda_config_announce_map);
+      int cur_player = (int)(plr - players);
 
       last_gamemap = gamemap;
       last_gameepisode = gameepisode;
@@ -370,8 +371,8 @@ void HU_AnnounceMap(void)
         }
         else
         {
-          SetTitleMessage(plr - players, hud_title.string, ANNOUNCE_TICS, 0);
-          SetAuthorMessage(plr - players, hud_author.string, ANNOUNCE_TICS, 0);
+          SetTitleMessage(cur_player, hud_title.string, ANNOUNCE_TICS, 0);
+          SetAuthorMessage(cur_player, hud_author.string, ANNOUNCE_TICS, 0);
         }
       }
       else
@@ -379,7 +380,7 @@ void HU_AnnounceMap(void)
         if (announce_config==2)
           dsda_AddAlert(hud_title.string);
         else
-          SetTitleMessage(plr - players, hud_title.string, ANNOUNCE_TICS, 0);
+          SetTitleMessage(cur_player, hud_title.string, ANNOUNCE_TICS, 0);
       }
     }
   }

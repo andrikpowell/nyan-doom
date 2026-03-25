@@ -1024,7 +1024,7 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
             else
             {
               unsigned int player;
-              for (player = 0; player < g_maxplayers; player++)
+              for (player = 0; player < (unsigned int)g_maxplayers; player++)
               {
                 if (playeringame[player])
                 {
@@ -1051,14 +1051,14 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
             //  and do it uniformly between the active players
             unsigned int activeplayers = 0, player, i;
 
-            for (player = 0; player < g_maxplayers; player++)
+            for (player = 0; player < (unsigned int)g_maxplayers; player++)
               if (playeringame[player])
                 activeplayers++;
 
             if (activeplayers) {
               player = P_Random(pr_friends) % activeplayers;
 
-              for (i = 0; i < g_maxplayers; i++)
+              for (i = 0; i < (unsigned int)g_maxplayers; i++)
                 if (playeringame[i])
                   if (!player--)
                   {
@@ -2556,7 +2556,7 @@ dboolean P_ChickenMorphPlayer(player_t * player)
     fixed_t y;
     fixed_t z;
     angle_t angle;
-    int oldFlags2;
+    uint64_t oldFlags2;
 
     if (player->chickenTics)
     {
@@ -3626,7 +3626,7 @@ dboolean P_MorphPlayer(player_t * player)
     fixed_t y;
     fixed_t z;
     angle_t angle;
-    int oldFlags2;
+    uint64_t oldFlags2;
 
     if (player->powers[pw_invulnerability])
     {                           // Immune when invulnerable

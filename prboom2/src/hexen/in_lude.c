@@ -153,7 +153,7 @@ static void InitStats(void)
                 memcpy(ClusterMessage, W_LumpByNum(msgLump), msgSize);
                 ClusterMessage[msgSize] = '\0';    // Append terminator
                 HubText = ClusterMessage;
-                HubCount = strlen(HubText) * TEXTSPEED + TEXTWAIT;
+                HubCount = (int)strlen(HubText) * TEXTSPEED + TEXTWAIT;
                 S_StartSongName("hub", true);
             }
         }

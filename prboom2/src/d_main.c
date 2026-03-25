@@ -352,7 +352,7 @@ static void D_DrawPause(void)
     return;
 
   params = dsda_StretchParams(VPT_STRETCH);
-  viewwindowy_scaled = (viewwindowy - params->deltay1) * 200.0f / params->video->height;
+  viewwindowy_scaled = (viewwindowy - params->deltay1) * 200 / params->video->height;
 
   V_BeginUIDraw();
 
@@ -894,7 +894,7 @@ void D_AddFile (const char *file, wad_source_t source)
   wadfiles[numwadfiles].handle = 0;
 
   // No Rest For The Living
-  len=strlen(wadfiles[numwadfiles].name);
+  len=(int)strlen(wadfiles[numwadfiles].name);
   if (len>=9 && !strnicmp(wadfiles[numwadfiles].name+len-9,"nerve.wad",9))
     gamemission = pack_nerve;
 
@@ -1206,12 +1206,12 @@ static dboolean FileMatchesIWAD(const char *name)
   int i;
   int name_length;
 
-  name_length = strlen(name);
+  name_length = (int)strlen(name);
   for (i = 0; i < nstandard_iwads; ++i)
   {
     int iwad_length;
 
-    iwad_length = strlen(standard_iwads[i]);
+    iwad_length = (int)strlen(standard_iwads[i]);
     if (
       name_length >= iwad_length &&
       !stricmp(name + name_length - iwad_length, standard_iwads[i])
@@ -1535,7 +1535,7 @@ static void D_AutoloadPWadDir()
 {
   int i;
 
-  autoload_deh_pwad_count = numwadfiles;
+  autoload_deh_pwad_count = (int)numwadfiles;
   autoload_deh_pwad_queue = Z_Calloc(autoload_deh_pwad_count, sizeof(*autoload_deh_pwad_queue));
 
   for (i = 0; i < numwadfiles; ++i)

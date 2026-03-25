@@ -79,7 +79,7 @@ static void dsda_InitTranMapBaseDir(void) {
 
   data_root = dsda_DataRoot();
 
-  length = strlen(data_root) + 10; // "/tranmaps\0"
+  length = (int)(strlen(data_root) + 10); // "/tranmaps\0"
   tranmap_base_dir = Z_Malloc(length);
   snprintf(tranmap_base_dir, length, "%s/tranmaps", data_root);
 
@@ -95,7 +95,7 @@ static void dsda_InitTranMapPaletteDir(void) {
   if (!playpal_cksum.string[0])
     dsda_CalculatePlaypalCksum();
 
-  length = strlen(tranmap_base_dir) + 34; // "/<cksum (32)>\0"
+  length = (int)(strlen(tranmap_base_dir) + 34); // "/<cksum (32)>\0"
   tranmap_palette_dir = Z_Malloc(length);
   snprintf(tranmap_palette_dir, length, "%s/%s", tranmap_base_dir, playpal_cksum.string);
 
@@ -193,7 +193,7 @@ const byte* dsda_TranMap(unsigned int alpha) {
     if (!tranmap_palette_dir)
       dsda_InitTranMapPaletteDir();
 
-    length = strlen(tranmap_palette_dir) + 16; // "/tranmap_99.dat\0"
+    length = (int)(strlen(tranmap_palette_dir) + 16); // "/tranmap_99.dat\0"
     filename = Z_Malloc(length);
     snprintf(filename, length, "%s/tranmap_%02d.dat", tranmap_palette_dir, alpha);
 
@@ -318,10 +318,10 @@ void dsda_UpdateTranMap(void) {
 
   // exhud percentages
   exhud_opaque_filter_pct   = P_ConvertTrans(dsda_ExHudTranslucencyPercent());
-  exhud_tran_filter_pct     = P_ConvertTrans((tran_filter_pct/100.0)*(exhud_opaque_filter_pct/100.0)*100.0);   // normal translucency under translucency o.O
+  exhud_tran_filter_pct     = P_ConvertTrans((tran_filter_pct/100)*(exhud_opaque_filter_pct/100)*100);   // normal translucency under translucency o.O
   exhud_tran_reverse_filter_pct = P_ConvertTrans(100 - (((100 - tran_filter_pct) * exhud_opaque_filter_pct + 50) / 100));   // reverse translucency under translucency o.O
-  exhud_shadow_ui_filter_pct = P_ConvertTrans((shadow_ui_filter_pct/100.0)*(exhud_opaque_filter_pct/100.0)*100.0);
-  exhud_shadow_raven_filter_pct   = P_ConvertTrans((shadow_raven_filter_pct/100.0)*(exhud_opaque_filter_pct/100.0)*100.0);
+  exhud_shadow_ui_filter_pct = P_ConvertTrans((shadow_ui_filter_pct/100)*(exhud_opaque_filter_pct/100)*100);
+  exhud_shadow_raven_filter_pct   = P_ConvertTrans((shadow_raven_filter_pct/100)*(exhud_opaque_filter_pct/100)*100);
 
   // OpenGL special precentages
   // Let's just avoid the reversing part (since we can't access tinttable)
