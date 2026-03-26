@@ -19,10 +19,15 @@
 
 #include "base.h"
 
-static char digit_lump[9];
+static char big_digit_lump[9];
 static char med_digit_lump[9];
-static const char* digit_lump_format;
+static const char* big_digit_lump_format;
 static const char* med_digit_lump_format;
+static const char* big_digit_percent_lump;
+static int big_digit_spacing;
+static int med_digit_spacing;
+static int big_digit_percent_spacing;
+static int big_digit_percent_width;
 
 int dsda_HudComponentY(int y_offset, int vpt, double ratio) {
   int dsda_ExHudVerticalOffset(void);
@@ -84,10 +89,18 @@ void dsda_InitPatchHC(dsda_patch_component_t* component, int x_offset, int y_off
   component->y = y;
   component->vpt = vpt;
 
-  digit_lump_format = raven ? "FONTB%.1d" : "STTNUM%.1d";
+  // Big numbers
+  big_digit_lump_format = raven ? "FONTB%.1d" : "STTNUM%.1d";
+  big_digit_spacing     = raven ? 12 : R_NumPatchWidth(W_GetNumForName("STTNUM0"));
 
-  if (raven)
-    med_digit_lump_format = "IN%.1d";
+  // Percent
+  big_digit_percent_lump    = raven ? "FONTB05" : "STTPRCNT";
+  big_digit_percent_width   = R_NumPatchWidth(W_GetNumForName(big_digit_percent_lump));
+  big_digit_percent_spacing = raven ? 4 : 0;
+
+  // Med numbers (raven)
+  med_digit_lump_format = raven ? "IN%.1d" : "STTNUM%.1d";
+  med_digit_spacing     = raven ? 8 : 0;
 }
 
 int P_ManaPercent(player_t *player, int mana)
@@ -128,20 +141,18 @@ int dsda_AmmoColorBig(player_t* player) {
     return dsda_tc_stbar_ammo_full;
 }
 
-#define RAVEN_PERCENT_SPACING 4
-
 static void dsda_DrawBigPercent(int x, int y, int cm, int vpt) {
   extern int sts_pct_always_gray;
   int color = sts_pct_always_gray ? CR_GRAY : cm;
   int flags = (sts_colored_numbers || sts_pct_always_gray) ? VPT_COLOR : VPT_NONE;
-  const char* percent_lump = heretic ? "FONTB05" : "STTPRCNT";
 
-  if (raven) x += RAVEN_PERCENT_SPACING;
+  // Add extra space for raven
+  x += big_digit_percent_spacing;
 
   if (raven)
-    V_DrawShadowedNamePatch(x, y, percent_lump, color, vpt | flags);
+    V_DrawShadowedNamePatch(x, y, big_digit_percent_lump, color, vpt | flags);
   else
-    V_DrawNamePatch(x, y, percent_lump, color, vpt | flags);
+    V_DrawNamePatch(x, y, big_digit_percent_lump, color, vpt | flags);
 }
 
 static void dsda_DrawBigDigit(int x, int y, int delta_x, int cm, int vpt, int digit) {
@@ -154,15 +165,15 @@ static void dsda_DrawBigDigit(int x, int y, int delta_x, int cm, int vpt, int di
   {
     int lump;
 
-    snprintf(digit_lump, sizeof(digit_lump), digit_lump_format, digit + 16);
-    lump = W_GetNumForName(digit_lump);
+    snprintf(big_digit_lump, sizeof(big_digit_lump), big_digit_lump_format, digit + 16);
+    lump = W_GetNumForName(big_digit_lump);
     x += delta_x / 2 - R_NumPatchWidth(lump) / 2;
-    V_DrawShadowedNamePatch(x, y, digit_lump, cm, vpt | flags);
+    V_DrawShadowedNamePatch(x, y, big_digit_lump, cm, vpt | flags);
   }
   else
   {
-    snprintf(digit_lump, sizeof(digit_lump), digit_lump_format, digit);
-    V_DrawNamePatch(x, y, digit_lump, cm, vpt | flags);
+    snprintf(big_digit_lump, sizeof(big_digit_lump), big_digit_lump_format, digit);
+    V_DrawNamePatch(x, y, big_digit_lump, cm, vpt | flags);
   }
 }
 
@@ -172,7 +183,7 @@ static int digit_div[6] = { 1,  1,  10,  100,  1000,  10000 };
 void dsda_DrawBigNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int percent) {
   int i;
   int digit, any_digit;
-  int delta_x = raven ? 12 : 14;
+  int delta_x = big_digit_spacing;
 
   if (count > 5)
     return;
@@ -203,8 +214,7 @@ int dsda_GetBigNumberWidth(int count, int n, int right_align, int percent)
   int digit;
   int any_digit;
   int width;
-  int delta_x = raven ? 12 : 14;
-  const char* percent_lump = heretic ? "FONTB05" : "STTPRCNT";
+  int delta_x = big_digit_spacing;
 
   if (count > 5)
     return 0;
@@ -223,7 +233,10 @@ int dsda_GetBigNumberWidth(int count, int n, int right_align, int percent)
   }
 
   if (percent)
-    width += R_NumPatchWidth(W_GetNumForName(percent_lump)) + RAVEN_PERCENT_SPACING;
+  {
+    // Add extra space for raven
+    width += big_digit_percent_width + big_digit_percent_spacing;
+  }
 
   return width;
 }
@@ -244,7 +257,7 @@ static void dsda_DrawMedDigit(int x, int y, int delta_x, int cm, int vpt, int di
 void dsda_DrawMedNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align) {
   int i;
   int digit, any_digit;
-  int delta_x = 8;
+  int delta_x = med_digit_spacing;
 
   if (!raven)
     return;
@@ -276,7 +289,7 @@ int dsda_GetMedNumberWidth(int count, int n, int right_align)
   int digit;
   int any_digit;
   int width;
-  int delta_x = 8;
+  int delta_x = med_digit_spacing;
 
   if (!raven)
     return 0;
