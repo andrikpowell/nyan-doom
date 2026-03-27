@@ -234,9 +234,6 @@ set(GRAPHICS
     graphics/stfppstr.ppm
     graphics/stfparmr.ppm
     graphics/stfpfly.ppm
-    graphics/chxparm1.ppm
-    graphics/chxparm2.ppm
-    graphics/chxppstr.ppm
     graphics/chxpstr0.ppm
     graphics/chxpstr1.ppm
     graphics/chxarms0.ppm

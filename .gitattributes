@@ -183,9 +183,6 @@ prboom2/data/graphics/chxpstr1.ppm -text
 prboom2/data/graphics/chxarms0.ppm -text
 prboom2/data/graphics/chxarms1.ppm -text
 prboom2/data/graphics/chxarms2.ppm -text
-prboom2/data/graphics/chxparm1.ppm -text
-prboom2/data/graphics/chxparm2.ppm -text
-prboom2/data/graphics/chxppstr.ppm -text
 prboom2/data/graphics/sml_bln2.ppm -text
 prboom2/data/lumps/animated.lmp -text
 prboom2/data/lumps/b_end.lmp -text svneol=unset#application/octet-stream
