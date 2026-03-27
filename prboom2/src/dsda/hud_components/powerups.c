@@ -134,7 +134,7 @@ const dsda_powerup_t powerups[] = {
     MULTILEVELTICS,
     POWERUP_BLINK_DEFAULT,
     "ARMOR ONE",
-    "STFPARMR",
+    "STFPARM1",
     NULL,
     NULL,
     dsda_tc_exhud_status_armor_one
@@ -146,7 +146,7 @@ const dsda_powerup_t powerups[] = {
     MULTILEVELTICS,
     POWERUP_BLINK_DEFAULT,
     "ARMOR TWO",
-    "STFPARMR",
+    "STFPARM2",
     NULL,
     NULL,
     dsda_tc_exhud_status_armor_two

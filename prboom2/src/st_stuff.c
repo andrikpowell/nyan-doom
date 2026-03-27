@@ -161,10 +161,13 @@ static dboolean stbar_exists;
 //#define ST_HEALTHX              90
 //#define ST_HEALTHY              171
 
-#define ST_BERSERKX             (chex ? ST_X+164 : ST_X+171)
-#define ST_BERSERKY             (chex ? ST_Y+1 : ST_Y+25)
-#define ST_ARMORICONX           (chex ? ST_X+168 : ST_X+171)
-#define ST_ARMORICONY           (chex ? ST_Y+1 : ST_Y+2)
+#define ST_ICONX               (ST_X+143)
+#define ST_ICONY               (ST_Y)
+
+#define ST_BERSERKX             (ST_ICONX+28)
+#define ST_BERSERKY             (ST_ICONY+25)
+#define ST_ARMORICONX           (ST_ICONX+28)
+#define ST_ARMORICONY           (ST_ICONY+2)
 
 // Weapon pos.
 // proff 08/18/98: Changed for high-res
@@ -877,11 +880,56 @@ static void ST_updateWidgets(void)
     }
 }
 
-void ST_DrawFaceWidget(int x, int y, int vpt)
+static void ST_DrawFaceBack(int x, int y, int vpt)
 {
   if (raven) return;
 
-  V_DrawMenuNumPatch(x, y, faces[st_faceindex].lumpnum, CR_DEFAULT, vpt);
+  // killough 3/7/98: make face background change with displayplayer
+  if (netgame)
+  {
+    V_DrawMenuNumPatch(x, y, faceback.lumpnum,
+        displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT,
+        displayplayer ? (VPT_COLOR | VPT_ALIGN_BOTTOM) : vpt);
+  }
+}
+
+static void ST_DrawFaceNyanEx(int x, int y, int vpt)
+{
+  int arm_x, arm_y;
+  int berserk_x, berserk_y;
+  int shadow;
+
+  if (raven) return;
+
+  arm_x     = x + 28;
+  arm_y     = y + 2;
+  berserk_x = x + 28;
+  berserk_y = y + 25;
+
+  shadow = !netgame ? SHADOW_EXTRA : SHADOW_OFF;
+
+  if (armor_icon)
+    V_DrawShadowedNumPatchAdv(x, y, armorpatch[st_armorindex].lumpnum, shadow, CR_DEFAULT, vpt);
+
+  if (berserk_icon)
+    V_DrawShadowedNumPatchAdv(x, y, berserkpatch[st_berserkindex].lumpnum, shadow, CR_DEFAULT, vpt);
+}
+
+void ST_DrawFaceWidget(int x, int y, int vpt)
+{
+  int shadow;
+
+  if (raven) return;
+
+  shadow = netgame ? SHADOW_EXTRA : SHADOW_OFF;
+
+  if (netgame)
+  {
+    ST_DrawFaceBack(x, y, vpt);
+  }
+
+  // Singleplayer
+  V_DrawShadowedNumPatchAdv(x, y, faces[st_faceindex].lumpnum, shadow, CR_DEFAULT, vpt);
 }
 
 void ST_updateBlinkingKeys(player_t* plyr)
