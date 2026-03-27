@@ -909,10 +909,10 @@ static void ST_DrawFaceNyanEx(int x, int y, int vpt)
   shadow = !netgame ? SHADOW_EXTRA : SHADOW_OFF;
 
   if (armor_icon)
-    V_DrawShadowedNumPatchAdv(x, y, armorpatch[st_armorindex].lumpnum, shadow, CR_DEFAULT, vpt);
+    V_DrawShadowedNumPatchAdv(arm_x, arm_y, armorpatch[st_armorindex].lumpnum, shadow, CR_DEFAULT, vpt);
 
   if (berserk_icon)
-    V_DrawShadowedNumPatchAdv(x, y, berserkpatch[st_berserkindex].lumpnum, shadow, CR_DEFAULT, vpt);
+    V_DrawShadowedNumPatchAdv(berserk_x, berserk_y, berserkpatch[st_berserkindex].lumpnum, shadow, CR_DEFAULT, vpt);
 }
 
 void ST_DrawFaceWidget(int x, int y, int vpt)
