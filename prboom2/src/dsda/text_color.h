@@ -82,6 +82,7 @@ enum {
   dsda_tc_exhud_keys_label,
   dsda_tc_exhud_weapon_label,
   dsda_tc_exhud_weapon_owned,
+  dsda_tc_exhud_weapon_not_owned,
   dsda_tc_exhud_weapon_berserk,
   dsda_tc_exhud_attempts,
   dsda_tc_exhud_event_split,

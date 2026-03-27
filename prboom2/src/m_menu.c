@@ -4810,6 +4810,7 @@ setup_menu_t display_color_settings[] = {
   {"Keys Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_keys_label },
   {"Weapon Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_label },
   {"Weapon Owned", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_owned },
+  {"Weapon Not Owned", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_not_owned },
   {"Weapon Berserk", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_berserk },
   {"Free Text", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_free_text },
   {"Local Time", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_local_time },
