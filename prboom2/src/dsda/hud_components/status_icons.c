@@ -39,12 +39,16 @@ static int patch_spacing;
 
 static void drawPowerupStatusIcon(int *x, int *y, int powerup, const char *lumpname, int color)
 {
+    dboolean from_pwad = false;
     int flags = local->component.vpt;
 
     if (!lumpname)
         return;
 
-    if (color != CR_DEFAULT)
+    if (W_PWADLumpNameExists2(lumpname))
+        from_pwad++;
+
+    if (!from_pwad && color != CR_DEFAULT)
         flags |= VPT_COLOR;
 
     V_DrawNamePatch(*x, *y, lumpname, color, flags);
