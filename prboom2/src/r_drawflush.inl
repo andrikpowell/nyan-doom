@@ -62,10 +62,22 @@ static void R_FLUSHWHOLE_FUNCNAME(void)
    if (BLOCKY_FUZZ || REFRACTION_FUZZ)
    {
       int yl, yh, count;
+      int fuzz_end, fuzz_fill;
 
-      if ((temp_x + startx) % FUZZCELLSIZE)
+      fuzz_end = temp_x + startx;
+
+      // Partly fill fuzz block to right edge
+      if (fuzz_end % FUZZCELLSIZE)
       {
-         return;
+         if (fuzz_end != SCREENWIDTH)
+            return;
+
+         fuzz_fill = fuzz_end % FUZZCELLSIZE;
+      }
+      // Fuzz fill normally
+      else
+      {
+         fuzz_fill = FUZZCELLSIZE;
       }
 
       yl = tempyl[temp_x - 1];
@@ -85,7 +97,7 @@ static void R_FLUSHWHOLE_FUNCNAME(void)
       }
    #endif
       {
-         byte *dest = drawvars.topleft + yl * drawvars.pitch + startx + temp_x - FUZZCELLSIZE;
+         byte *dest = drawvars.topleft + yl * drawvars.pitch + (fuzz_end - fuzz_fill);
 
          int lines = FUZZCELLSIZE - (yl % FUZZCELLSIZE);
          static int dark, offset;
@@ -118,7 +130,7 @@ static void R_FLUSHWHOLE_FUNCNAME(void)
 
             do
             {
-                  memset(dest, fuzz, FUZZCELLSIZE);
+                  memset(dest, fuzz, fuzz_fill);
                   dest += drawvars.pitch;
             } while (--lines);
 
@@ -143,7 +155,7 @@ static void R_FLUSHWHOLE_FUNCNAME(void)
             const byte fuzz = REFRACTION_FUZZ ?
                fullcolormap[dark + dest[(offset - drawvars.pitch) / 2]] :
                fullcolormap[6 * 256 + dest[(fuzzoffset[FUZZPOS] - drawvars.pitch) / 2]];
-            memset(dest, fuzz, FUZZCELLSIZE);
+            memset(dest, fuzz, fuzz_fill);
          }
       }
    }
