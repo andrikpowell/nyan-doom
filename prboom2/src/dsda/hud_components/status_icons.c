@@ -78,14 +78,14 @@ static void dsda_DrawComponent(void) {
 
     for (int i = 0; i < n; ++i)
     {
-    const dsda_powerup_t *pwr = &powerups[idx[i]];
-    int tics = dsda_NormalizePowerupTics(pwr, pwr->tics(player));
-    const char *lump = dsda_PowerupIconLump(pwr);
+        const dsda_powerup_t *pwr = &powerups[idx[i]];
+        int tics = dsda_NormalizePowerupTics(pwr, pwr->tics(player));
+        const char *lump = dsda_PowerupIconLump(pwr);
 
-    if (!lump || tics == 0)
-        continue;
+        if (!lump || tics == 0)
+            continue;
 
-    drawPowerupStatusIcon(&x, &y, tics, lump, dsda_PowerupIcon(pwr, tics));
+        drawPowerupStatusIcon(&x, &y, tics, lump, dsda_PowerupIcon(pwr, tics));
     }
 }
 
