@@ -305,31 +305,32 @@ int tinttable_pct        = 40;    // Heretic MF_SHADOW + Hexen MF_ALTSHADOW
 int tinttable_reverse_pct    = 60;    // Hexen MF_SHADOW
 
 void dsda_UpdateTranMap(void) {
+  int rounding = 50;
   // Heretic + Hexen have forced percentages due to use of tinttable
 
   // main percentages
-  tran_filter_pct       = raven ? tinttable_pct : dsda_TranslucencyPercent(); // Allow translucency customisation only for Doom / Boom
-  tran_reverse_filter_pct    = raven ? tinttable_reverse_pct : P_ConvertTrans(100-tran_filter_pct); // reverse translucency
-  shadow_raven_filter_pct     = hexen ? tinttable_reverse_pct : tinttable_pct;
+  tran_filter_pct           = raven ? tinttable_pct : dsda_TranslucencyPercent(); // Allow translucency customisation only for Doom / Boom
+  tran_reverse_filter_pct   = raven ? tinttable_reverse_pct : P_ConvertTrans(100 - tran_filter_pct); // reverse translucency
+  shadow_raven_filter_pct   = hexen ? tinttable_reverse_pct : tinttable_pct;
 
   // ui stuff (menu text shadows) - never use tinttable
   shadow_ui_filter_pct  = P_ConvertTrans(dsda_ShadowTranslucencyPercent());
   menu_ui_filter_pct    = P_ConvertTrans(dsda_MenuTranslucencyPercent());
 
   // exhud percentages
-  exhud_opaque_filter_pct   = P_ConvertTrans(dsda_ExHudTranslucencyPercent());
-  exhud_tran_filter_pct     = P_ConvertTrans((tran_filter_pct/100)*(exhud_opaque_filter_pct/100)*100);   // normal translucency under translucency o.O
-  exhud_tran_reverse_filter_pct = P_ConvertTrans(100 - (((100 - tran_filter_pct) * exhud_opaque_filter_pct + 50) / 100));   // reverse translucency under translucency o.O
-  exhud_shadow_ui_filter_pct = P_ConvertTrans((shadow_ui_filter_pct/100)*(exhud_opaque_filter_pct/100)*100);
-  exhud_shadow_raven_filter_pct   = P_ConvertTrans((shadow_raven_filter_pct/100)*(exhud_opaque_filter_pct/100)*100);
+  exhud_opaque_filter_pct       = P_ConvertTrans(dsda_ExHudTranslucencyPercent());
+  exhud_tran_filter_pct         = P_ConvertTrans((tran_filter_pct * exhud_opaque_filter_pct + rounding) / 100);                   // normal translucency under translucency
+  exhud_tran_reverse_filter_pct = P_ConvertTrans(100 - (((100 - tran_filter_pct) * exhud_opaque_filter_pct + rounding) / 100));   // reverse translucency under translucency
+  exhud_shadow_ui_filter_pct    = P_ConvertTrans((shadow_ui_filter_pct * exhud_opaque_filter_pct + rounding) / 100);              // shadow translucency under translucency
+  exhud_shadow_raven_filter_pct = P_ConvertTrans((shadow_raven_filter_pct * exhud_opaque_filter_pct + rounding) / 100);           // shadow translucency under translucency
 
   // OpenGL special precentages
   // Let's just avoid the reversing part (since we can't access tinttable)
-  gl_tran_reverse_filter_pct       = raven ? P_ConvertTrans(tran_filter_pct + 20) : P_ConvertTrans(tran_filter_pct - 20);               // reverse translucency o.O
-  gl_exhud_tran_reverse_filter_pct = raven ? P_ConvertTrans(exhud_tran_filter_pct + 20) : P_ConvertTrans(exhud_tran_filter_pct - 20);   // reverse translucency under translucency o.O
+  gl_tran_reverse_filter_pct       = raven ? P_ConvertTrans(tran_filter_pct + 20)       : P_ConvertTrans(tran_filter_pct - 20);         // GL reverse translucency
+  gl_exhud_tran_reverse_filter_pct = raven ? P_ConvertTrans(exhud_tran_filter_pct + 20) : P_ConvertTrans(exhud_tran_filter_pct - 20);   // GL reverse translucency under translucency
 
   // store main transmaps
-  main_tranmap      = dsda_DefaultTranMap();
+  main_tranmap = dsda_DefaultTranMap();
 
   if (dsda_FadeMessages())
     dsda_UpdateFadeTranMaps();
