@@ -304,6 +304,7 @@ static const char* dsda_SeparateKeyNameHeretic(player_t* player, int slot)
 void dsda_DrawKeyNamePatch(int x, int y, const char* name) {
   int lump;
   int w, h;
+  int shadow = raven ? SHADOW_ALWAYS_RAVEN : SHADOW_EXTRA;
 
   if (!name)
     return;
@@ -315,10 +316,7 @@ void dsda_DrawKeyNamePatch(int x, int y, const char* name) {
   x += (patch_spacing_x - w) / 2;
   y += (font_height - h) / 2;
 
-  if (raven)
-    V_DrawShadowedNamePatch(x, y, name, CR_DEFAULT, local->component.vpt);
-  else
-    V_DrawMenuNamePatch(x, y, name, CR_DEFAULT, local->component.vpt);
+  V_DrawShadowedNamePatchAdv(x, y, name, shadow, CR_DEFAULT, local->component.vpt);
 }
 
 void drawKey(player_t* player, int* x, int* y, const char* (*key)(player_t*)) {

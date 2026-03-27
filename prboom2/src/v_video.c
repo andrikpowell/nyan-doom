@@ -870,6 +870,7 @@ typedef struct {
   dboolean active;
   int trans;          // final translucency
   int trans_base;     // initial translucency
+  int shadow_offset;
   const byte *colortr;
   const byte *transmap;
   enum patch_translation_e flags;
@@ -888,7 +889,7 @@ static void V_SetTransmap(v_patchinfo_t *p, int shadowtype, dboolean is_shadow, 
   // Add translucency
   if (is_shadow)
   {
-    p->trans_base = (shadowtype == SHADOW_RAVEN) ? shadow_raven_filter_pct : shadow_ui_filter_pct;
+    p->trans_base = (shadowtype == SHADOW_ALWAYS_RAVEN) ? shadow_raven_filter_pct : shadow_ui_filter_pct;
 
     // Shadow always has translucency
     if (!(p->flags & VPT_TRANSMAP))
@@ -906,7 +907,7 @@ static void V_SetTransmap(v_patchinfo_t *p, int shadowtype, dboolean is_shadow, 
   if ((p->flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
   {
     if (is_shadow)
-      p->trans_base = (shadowtype == SHADOW_RAVEN) ? exhud_shadow_raven_filter_pct : exhud_shadow_ui_filter_pct;
+      p->trans_base = (shadowtype == SHADOW_ALWAYS_RAVEN) ? exhud_shadow_raven_filter_pct : exhud_shadow_ui_filter_pct;
     else if (p->flags & VPT_TRANSMAP)
       p->trans_base = exhud_tran_filter_pct;
     else if (p->flags & VPT_TRANSMAP_REVERSE)
@@ -989,13 +990,25 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags, int fade
   return patch;
 }
 
+static int V_GetShadowOffset(int shadowtype)
+{
+  if (shadowtype == SHADOW_ALWAYS_RAVEN)
+    return 2;
+  else if ((shadowtype == SHADOW_ALWAYS_DEFAULT) ||
+           (shadowtype == SHADOW_EXTRA && !dsda_ShadowTranslucency()))
+    return 1;
+
+  return 0;
+}
+
 v_patchinfo_t V_GetShadowDrawInfo(int shadowtype, enum patch_translation_e flags, int fade_alpha) {
   v_patchinfo_t shadow = { 0 };
-  if ((shadowtype == SHADOW_DEFAULT && !dsda_ShadowTranslucency()))
-    shadowtype = 0;
+
+  shadow.shadow_offset = V_GetShadowOffset(shadowtype);
 
   if (!shadowtype)
   {
+    shadow.shadow_offset = 0;
     shadow.active = false;
     return shadow;
   }
@@ -1065,8 +1078,8 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   // Clamp shadow so it doesn't exceed screen bounds,
   // Stops V_DrawPatch vertical overflow error.
   {
-    shadow_x = x + shadowtype;
-    shadow_y = y + shadowtype;
+    shadow_x = x + shadowinfo.shadow_offset;
+    shadow_y = y + shadowinfo.shadow_offset;
 
     // DO NOT clamp shadow_x: V_DrawPatch/V_DrawPatchStretch clip horizontally already.
 
@@ -1351,20 +1364,20 @@ static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, d
 {
   gld_DrawNumPatch_f(x,y,lump,center,false,clip_top,clip_bottom,clip_left,clip_right,cm,fade_alpha,flags);
 }
-static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int offset, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, int fade_alpha, enum patch_translation_e flags)
+static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadowtype, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, int fade_alpha, enum patch_translation_e flags)
 {
-  int shadow = (offset == SHADOW_DEFAULT && dsda_ShadowTranslucency()) || (offset == SHADOW_RAVEN);
+  int offset = V_GetShadowOffset(shadowtype);
 
-  if (shadow)
+  if (offset > 0)
     gld_DrawNumPatch(x+offset,y+offset,lump,center,offset,0,0,0,0,cm,fade_alpha,flags|VPT_SHADOW); // draw offset shadow
 
   gld_DrawNumPatch(x,y,lump,center,false,0,0,0,0,cm,fade_alpha,flags);
 }
-static void WRAP_gld_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int offset, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, int fade_alpha, enum patch_translation_e flags)
+static void WRAP_gld_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadowtype, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, int fade_alpha, enum patch_translation_e flags)
 {
-  int shadow = (offset == SHADOW_DEFAULT && dsda_ShadowTranslucency()) || (offset == SHADOW_RAVEN);
+  int offset = V_GetShadowOffset(shadowtype);
 
-  if (shadow)
+  if (offset > 0)
     gld_DrawNumPatch_f(x+offset,y+offset,lump,center,offset,0,0,0,0,cm,fade_alpha,flags|VPT_SHADOW); // draw offset shadow
 
   gld_DrawNumPatch_f(x,y,lump,center,false,0,0,0,0,cm,fade_alpha,flags);

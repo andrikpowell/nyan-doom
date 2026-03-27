@@ -145,14 +145,12 @@ static void dsda_DrawBigPercent(int x, int y, int cm, int vpt) {
   extern int sts_pct_always_gray;
   int color = sts_pct_always_gray ? CR_GRAY : cm;
   int flags = (sts_colored_numbers || sts_pct_always_gray) ? VPT_COLOR : VPT_NONE;
+  int shadow = raven ? SHADOW_ALWAYS_RAVEN : SHADOW_OFF;
 
   // Add extra space for raven
   x += big_digit_percent_spacing;
 
-  if (raven)
-    V_DrawShadowedNamePatch(x, y, big_digit_percent_lump, color, vpt | flags);
-  else
-    V_DrawNamePatch(x, y, big_digit_percent_lump, color, vpt | flags);
+  V_DrawShadowedNamePatchAdv(x, y, big_digit_percent_lump, shadow, color, vpt | flags);
 }
 
 static void dsda_DrawBigDigit(int x, int y, int delta_x, int cm, int vpt, int digit) {

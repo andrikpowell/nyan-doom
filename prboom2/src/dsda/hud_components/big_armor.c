@@ -56,6 +56,7 @@ static int dsda_GetNumberWidth(void)
 
 static void dsda_DrawBigArmorIcon(int x, int y, int lump, int flags) {
   int w, h;
+  int shadow = raven ? SHADOW_ALWAYS_RAVEN : SHADOW_EXTRA;
 
   if (!lump)
     return;
@@ -70,10 +71,7 @@ static void dsda_DrawBigArmorIcon(int x, int y, int lump, int flags) {
   y += (font_height - patch_spacing_y) / 2;
   y += (patch_spacing_y - h) / 2;
 
-  if (raven)
-    V_DrawShadowedNumPatch(x, y, lump, CR_DEFAULT, flags);
-  else
-    V_DrawMenuNumPatch(x, y, lump, CR_DEFAULT, flags);
+  V_DrawShadowedNumPatchAdv(x, y, lump, shadow, CR_DEFAULT, flags);
 }
 
 static void dsda_DrawComponent(void) {
