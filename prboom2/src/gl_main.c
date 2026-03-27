@@ -999,6 +999,7 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
+  float fy1, fy2;
   float x1,y1,x2,y2;
   float light;
 
@@ -1018,8 +1019,10 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   // [AR] fix wide opengl weapons alignment
   x1 = (float)(viewwindowx + vis->gx1);
   x2 = roundf(x1 + gltexture->realtexwidth * pspritexscale_f);
-  y1 = roundf((float)(viewwindowy + centery - (int)(((float)vis->texturemid / (float)FRACUNIT) * pspriteyscale_f)));
-  y2 = roundf(y1 + gltexture->realtexheight * pspriteyscale_f);
+  fy1 = (float)(viewwindowy + centery) - ((float)vis->texturemid / (float)FRACUNIT) * pspriteyscale_f;
+  fy2 = fy1 + gltexture->realtexheight * pspriteyscale_f;
+  y1 = roundf(fy1);
+  y2 = roundf(fy2);
   // e6y: don't do the gamma table correction on the lighting
   light = (float)lightlevel / 255.0f;
 
