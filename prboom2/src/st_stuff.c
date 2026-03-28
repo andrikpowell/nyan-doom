@@ -797,7 +797,7 @@ static void ST_DrawFaceBack(int x, int y, int vpt, dboolean exhud)
 
   if (raven) return;
 
-  shadow = (exhud && netgame) ? SHADOW_EXTRA : SHADOW_OFF;
+  shadow = exhud ? SHADOW_EXTRA : SHADOW_OFF;
 
   // killough 3/7/98: make face background change with displayplayer
   if (netgame)
@@ -849,7 +849,7 @@ void ST_DrawFaceWidget(int x, int y, int vpt, dboolean exhud)
 
   if (raven) return;
 
-  shadow = (exhud && netgame) ? SHADOW_EXTRA : SHADOW_OFF;
+  shadow = (exhud && !netgame) ? SHADOW_EXTRA : SHADOW_OFF;
 
   if (netgame)
     ST_DrawFaceBack(x, y, vpt, exhud);
