@@ -424,6 +424,10 @@ dboolean dsda_AllowBlockmapFix(void) {
   return dsda_IntConfig(dsda_config_blockmap_fix) && !dsda_StrictMode() && allow_incompatibility;
 }
 
+dboolean dsda_PlayQuitSounds(void) {
+  return dsda_IntConfig(dsda_config_quit_sounds) && !raven;
+}
+
 int dsda_reveal_map;
 
 int dsda_RevealAutomap(void) {

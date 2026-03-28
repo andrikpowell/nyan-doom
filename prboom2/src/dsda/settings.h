@@ -76,6 +76,7 @@ dboolean dsda_ShowDataDisk(void);
 dboolean dsda_AllowMirroredCorpses(void);
 dboolean dsda_PowerupHideTimes(void);
 dboolean dsda_AllowBlockmapFix(void);
+dboolean dsda_PlayQuitSounds(void);
 int dsda_TranslucencyPercent(void);
 int dsda_MenuTranslucency(void);
 int dsda_MenuTranslucencyPercent(void);

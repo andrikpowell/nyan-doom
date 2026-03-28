@@ -1398,7 +1398,7 @@ static void M_QuitResponse(dboolean affirmative)
 
   if (!netgame // killough 12/98
       && !nosfxparm
-      && dsda_IntConfig(dsda_config_quit_sounds))
+      && dsda_PlayQuitSounds())
   {
     int i;
 
@@ -2251,6 +2251,7 @@ static dboolean M_RavenDisabled(const setup_menu_t* s)
         nyan_config_loading_disk, dsda_config_fuzzmode, dsda_config_fuzzscale, dsda_config_enhanced_liteamp,
         nyan_config_item_bonus_flash, nyan_config_colored_blood, dsda_config_sts_traditional_keys,
         nyan_config_hud_berserk, nyan_config_hud_armoricon, dsda_config_enhanced_doom_over_under,
+        dsda_config_quit_sounds,
       };
 
       if (M_DisableAndSetConfig(s, options_disable_false, arrlen(options_disable_false), false))
