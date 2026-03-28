@@ -995,7 +995,7 @@ static int V_GetShadowOffset(int shadowtype)
   if (shadowtype == SHADOW_ALWAYS_RAVEN)
     return 2;
   else if ((shadowtype == SHADOW_ALWAYS_DEFAULT) ||
-           (shadowtype == SHADOW_EXTRA && !dsda_ShadowTranslucency()))
+           (shadowtype == SHADOW_EXTRA && dsda_ShadowTranslucency()))
     return 1;
 
   return 0;
