@@ -132,9 +132,10 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
   - Supports 1 argument: `show_names`
     - `show_names`: shows ammo names in the component
 - `weapon_text`: shows the acquired weapons (color-coded for berserk).
-  - Supports 2 argument: `grid show_label`
+  - Supports 3 arguments: `grid show_label color_ammo`
     - `grid`: displays the weapons in a 3x3 grid rather than horizontally
     - `show_label`: shows the "wpn" label
+    - `color_ammo`: colors the weapons based on thir ammo percentage
 - `armor_text`: shows the player armor (color-coded)
   - Supports 1 argument: `draw_boom_bar`
     - 😸 `draw_boom_bar`: draws a boom style bar with text
