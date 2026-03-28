@@ -133,7 +133,7 @@ static void dsda_UpdateComponentText(void) {
   {
     if (hexen) {
       int mana1 = player->ammo[0];
-      int mana2 = player->ammo[2];
+      int mana2 = player->ammo[1];
 
       // [AR] Hexen - Fighter Axe can go negative
       if (mana1 < 0)  mana1 = 0;
