@@ -74,135 +74,6 @@ static void dsda_KeyPatchSpacing(void)
   }
 }
 
-static const char* dsda_Key1Name(player_t* player) {
-  // [crispy] blinking key or skull in the status bar
-  if (player->keyblinktics && sts_blink_keys && !dsda_StrictMode())
-  {
-      switch (ST_BlinkKey(player, !heretic ? 0 : key_yellow))
-      {
-          case KEYBLINK_NONE:
-            return NULL;
-            break;
-
-          case KEYBLINK_CARD:
-            return !heretic ? "STKEYS0" : "ykeyicon";
-            break;
-
-          case KEYBLINK_SKULL:
-            return "STKEYS3";
-            break;
-
-          case KEYBLINK_BOTH:
-            return "STKEYS6";
-            break;
-
-          default:
-            break;
-      }
-  }
-
-  if (heretic) {
-    if (player->cards[key_yellow])
-      return "ykeyicon";
-  }
-  else {
-    if (player->cards[0] && player->cards[3])
-      return "STKEYS6";
-    else if (player->cards[0])
-      return "STKEYS0";
-    else if (player->cards[3])
-      return "STKEYS3";
-  }
-
-  return NULL;
-}
-
-static const char* dsda_Key2Name(player_t* player) {
-  // [crispy] blinking key or skull in the status bar
-  if (player->keyblinktics && sts_blink_keys && !dsda_StrictMode())
-  {
-      switch (ST_BlinkKey(player, !heretic ? 1 : key_green))
-      {
-          case KEYBLINK_NONE:
-            return NULL;
-            break;
-
-          case KEYBLINK_CARD:
-            return !heretic ? "STKEYS1" : "gkeyicon";
-            break;
-
-          case KEYBLINK_SKULL:
-            return "STKEYS4";
-            break;
-
-          case KEYBLINK_BOTH:
-            return "STKEYS7";
-            break;
-
-          default:
-            break;
-      }
-  }
-
-  if (heretic) {
-    if (player->cards[key_green])
-      return "gkeyicon";
-  }
-  else {
-    if (player->cards[1] && player->cards[4])
-      return "STKEYS7";
-    else if (player->cards[1])
-      return "STKEYS1";
-    else if (player->cards[4])
-      return "STKEYS4";
-  }
-
-  return NULL;
-}
-
-static const char* dsda_Key3Name(player_t* player) {
-  // [crispy] blinking key or skull in the status bar
-  if (player->keyblinktics && sts_blink_keys && !dsda_StrictMode())
-  {
-      switch (ST_BlinkKey(player, !heretic ? 2 : key_blue))
-      {
-          case KEYBLINK_NONE:
-            return NULL;
-            break;
-
-          case KEYBLINK_CARD:
-            return !heretic ? "STKEYS2" : "bkeyicon";
-            break;
-
-          case KEYBLINK_SKULL:
-            return "STKEYS5";
-            break;
-
-          case KEYBLINK_BOTH:
-            return "STKEYS8";
-            break;
-
-          default:
-            break;
-      }
-  }
-
-  if (heretic) {
-    if (player->cards[key_blue])
-      return "bkeyicon";
-  }
-  else {
-    if (player->cards[2] && player->cards[5])
-      return "STKEYS8";
-    else if (player->cards[2])
-      return "STKEYS2";
-    else if (player->cards[5])
-      return "STKEYS5";
-  }
-
-  return NULL;
-}
-
 static const char* dsda_SeparateKeyName(player_t* player, int slot)
 {
   int color;
@@ -319,18 +190,22 @@ void dsda_DrawKeyNamePatch(int x, int y, const char* name) {
   V_DrawShadowedNamePatchAdv(x, y, name, shadow, CR_DEFAULT, local->component.vpt);
 }
 
-void drawKey(player_t* player, int* x, int* y, const char* (*key)(player_t*)) {
-  const char* name;
+static void dsda_DrawKeysEx(player_t* player, int x, int y, int vpt, dboolean horizontal, int spacing)
+{
+  int i;
 
-  name = key(player);
+  for (i = 0; i < 3; i++)
+  {
+    const char* keyname = ST_GetKeyName(player, i);
 
-  if (name)
-    dsda_DrawKeyNamePatch(*x, *y, name);
+    if (keyname)
+      dsda_DrawKeyNamePatch(x, y, keyname);
 
-  if (local->horizontal)
-    *x += patch_spacing_x + local->spacing;
-  else
-    *y += patch_spacing_y + local->spacing;
+    if (horizontal)
+      x += patch_spacing_x + spacing;
+    else
+      y += patch_spacing_y + spacing;
+  }
 }
 
 static void dsda_DrawSeparateKeys(player_t* player, int x, int y, dboolean compact)
@@ -396,9 +271,7 @@ static void dsda_DrawComponent(void) {
     return;
   }
 
-  drawKey(player, &x, &y, dsda_Key1Name);
-  drawKey(player, &x, &y, dsda_Key2Name);
-  drawKey(player, &x, &y, dsda_Key3Name);
+  dsda_DrawKeysEx(player, x, y, local->component.vpt, local->horizontal, local->spacing);
 }
 
 void dsda_InitKeysHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

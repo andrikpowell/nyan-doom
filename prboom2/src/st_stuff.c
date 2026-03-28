@@ -41,7 +41,7 @@
 #include "w_wad.h"
 #include "st_stuff.h"
 #include "hu_stuff.h"
-#include "st_lib.h"
+#include "st_font.h"
 #include "r_main.h"
 #include "am_map.h"
 #include "m_cheat.h"
@@ -60,6 +60,7 @@
 #include "dsda/library.h"
 #include "dsda/exhud.h"
 #include "dsda/pause.h"
+#include "dsda/hud_components/base.h"
 
 #include "heretic/sb_bar.h"
 
@@ -99,7 +100,7 @@ static dboolean stbar_exists;
 
 // Should be set to patch width
 //  for tall numbers later on
-#define ST_TALLNUMWIDTH         (tallnum[0]->width)
+//#define ST_TALLNUMWIDTH         (tallnum[0]->width)
 
 // Number of status faces.
 #define ST_NUMPAINFACES         5
@@ -290,52 +291,13 @@ static unsigned int st_clock;
 // whether left-side main status bar is active
 static dboolean st_statusbaron;
 
-// !deathmatch
-static dboolean st_notdeathmatch;
-
-// !deathmatch && st_statusbaron
-static dboolean st_armson;
-
-// !deathmatch
-static dboolean st_fragson;
-
-// armor / berserk icons on?
-static dboolean st_berserkicon_on;
-static dboolean st_armoricon_on;
-
-// 0-9, tall numbers
-static patchnum_t tallnum[10];
-
-// tall % sign
-static patchnum_t tallpercent;
-
-// 0-9, short, yellow (,different!) numbers
-static patchnum_t shortnum[10];
-
-// 3 key-cards, 3 skulls, 3 card/skull combos
-// jff 2/24/98 extend number of patches by three skull/card combos
-static patchnum_t keys[DOOM_NUMCARDS+3];
-
 // Armor icon types
-typedef enum {
-  armornone,
-  armortype1,
-  armortype2,
-  DOOM_ARMORICON
-} armoricon_t;
-
-static patchnum_t armorpatch[DOOM_ARMORICON];
-static patchnum_t armorstyle1[DOOM_ARMORICON];
-static patchnum_t armorstyle2[DOOM_ARMORICON];
+static patchnum_t armorpatch[ARMOR_ICON_END];
+static patchnum_t armorstyle1[ARMOR_ICON_END];
+static patchnum_t armorstyle2[ARMOR_ICON_END];
 
 // Berserk icon types
-typedef enum {
-  berserkoff,
-  berserkon,
-  DOOM_BERSERKICON
-} berserk_t;
-
-static patchnum_t berserkpatch[DOOM_BERSERKICON];
+static patchnum_t berserkpatch[BERSERK_ICON_END];
 
 // face status patches
 static patchnum_t faces[ST_NUMFACES];
@@ -361,49 +323,10 @@ static patchnum_t armsbg;
 // weapon ownership patches
 static patchnum_t arms[6][2];
 
-// ready-weapon widget
-static st_number_t w_ready;
-
 // smooth health / armor values
 int sts_animated_count;
 int st_health = 0;
 int st_armor = 0;
-
- // in deathmatch only, summary of frags stats
-static st_number_t w_frags;
-
-// health widget
-static st_percent_t w_health;
-
-// weapon ownership widgets
-static st_multicon_t w_arms[6];
-
-// SSG on ARMS config
-dboolean ssg_arms_config;
-
-// [crispy] show SSG availability in the Shotgun slot of the arms widget
-static int st_shotguns;
-
-// face status widget
-static st_multicon_t w_faces;
-
-// keycard widgets
-static st_multicon_t w_keyboxes[3];
-
-// armor icon widget
-static st_multicon_t w_armoricon;
-
-// berserk icon widget
-static st_multicon_t w_berserkicon;
-
-// armor widget
-static st_percent_t  w_armor;
-
-// ammo widgets
-static st_number_t   w_ammo[4];
-
-// max ammo widgets
-static st_number_t   w_maxammo[4];
 
  // number of frags so far in deathmatch
 static int      st_fragscount;
@@ -420,16 +343,9 @@ static int      st_facecount = 0;
 // current face index, used by w_faces
 static int      st_faceindex = 0;
 
-// holds key-type for each key box on bar
-static int      keyboxes[3];
-
 // [crispy] blinking key or skull in the status bar
 int             st_keyorskull[3];
 int             st_keytype[6];
-
-// decides when to show icons or not
-static int      st_armorindex;
-static int      st_berserkindex;
 
 // a random number per tick
 static int      st_randomnumber;
@@ -469,6 +385,8 @@ void ST_LoadTextColors(void)
   cr_ammo_full = dsda_TextCR(dsda_tc_stbar_ammo_full);
 }
 
+int sts_solid_bg_color;
+
 static void ST_refreshBackground(void)
 {
   int y = ST_Y;
@@ -492,14 +410,6 @@ static void ST_refreshBackground(void)
       if (!deathmatch)
       {
         V_DrawNamePatchAnimate(ST_ARMSBGX, y, starms, CR_DEFAULT, flags);
-      }
-
-      // killough 3/7/98: make face background change with displayplayer
-      if (netgame)
-      {
-        V_DrawNumPatch(ST_FX, y, faceback.lumpnum,
-           displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT,
-           displayplayer ? (VPT_COLOR | VPT_ALIGN_BOTTOM) : flags);
       }
     }
 }
@@ -726,9 +636,31 @@ void ST_updateFaceWidget(void)
   st_faceindex = painoffset + faceindex;
 }
 
+static void ST_updateNyanIcons(void)
+{
+  int i;
+
+  for (i = 0; i < ARMOR_ICON_END; i++)
+  {
+    int pwad_icon = W_PWADLumpNumExists2(armorstyle1[i].lumpnum);
+
+    if (pwad_icon)
+      armorpatch[i] = armorstyle1[i];
+    else
+    {
+      if (armor_icon == ARMOR_ICON_1)
+        armorpatch[i] = armorstyle1[i];
+      else if (armor_icon == ARMOR_ICON_2)
+        armorpatch[i] = armorstyle2[i];
+    }
+  }
+
+  // nothing here for now....
+  // for (i = 0; i < BERSERK_ICON_END; i++) { }
+}
+
 int sts_traditional_keys; // killough 2/28/98: traditional status bar keys
 int sts_blink_keys; // [crispy] blinking key or skull in the status bar
-int sts_solid_bg_color;
 
 void ST_SetKeyBlink(player_t* player, int blue, int yellow, int red)
 {
@@ -790,148 +722,6 @@ int ST_BlinkKey(player_t* player, int index)
   return -1;
 }
 
-static void ST_updateWidgets(void)
-{
-  static int  largeammo = 1994; // means "n/a"
-  int         i;
-
-  // must redirect the pointer if the ready weapon has changed.
-  //  if (w_ready.data != plyr->readyweapon)
-  //  {
-  if (weaponinfo[plyr->readyweapon].ammo == am_noammo)
-    w_ready.num = &largeammo;
-  else
-    w_ready.num = &plyr->ammo[weaponinfo[plyr->readyweapon].ammo];
-  //{
-  // static int tic=0;
-  // static int dir=-1;
-  // if (!(tic&15))
-  //   plyr->ammo[weaponinfo[plyr->readyweapon].ammo]+=dir;
-  // if (plyr->ammo[weaponinfo[plyr->readyweapon].ammo] == -100)
-  //   dir = 1;
-  // tic++;
-  // }
-  w_ready.data = plyr->readyweapon;
-
-  // if (*w_ready.on)
-  //  STlib_updateNum(&w_ready, true);
-  // refresh weapon change
-  //  }
-
-  // update keycard multiple widgets
-  for (i=0;i<3;i++)
-    {
-      keyboxes[i] = plyr->cards[i] ? i : -1;
-
-      //jff 2/24/98 select double key
-      //killough 2/28/98: preserve traditional keys by config option
-
-      if (plyr->cards[i+3])
-        keyboxes[i] = keyboxes[i]==-1 || sts_traditional_keys ? i+3 : i+6;
-    }
-
-  ST_updateBlinkingKeys(plyr);
-
-  // update armor icon
-  st_armorindex = plyr->armortype;
-  if (plyr->armortype > 2)
-    st_armorindex = 2;
-
-  for (i=0;i<3;i++)
-  {
-    int pwad_lumps = W_PWADLumpNameExists2("STFARMS1") || W_PWADLumpNameExists2("STFARMS2");
-  
-    if (armor_icon==1 || pwad_lumps)
-      armorpatch[i] = armorstyle1[i];
-    else if (armor_icon==2)
-      armorpatch[i] = armorstyle2[i];
-
-  }
-
-  // update berserk icon
-  if (plyr->powers[pw_strength])
-    st_berserkindex = 1;
-  else
-    st_berserkindex = 0;
-
-  // refresh everything if this is him coming back to life
-  ST_updateFaceWidget();
-
-  // used by icon widgets
-  st_berserkicon_on = berserk_icon && st_statusbaron;
-  st_armoricon_on = armor_icon && st_statusbaron;
-
-  // used by the w_armsbg widget
-  st_notdeathmatch = !deathmatch;
-
-  // used by w_arms[] widgets
-  st_armson = st_statusbaron && !deathmatch;
-
-  // used by w_frags widget
-  st_fragson = deathmatch && st_statusbaron;
-  st_fragscount = 0;
-
-  for (i = 0; i < g_maxplayers; i++)
-    {
-      if (i != displayplayer)            // killough 3/7/98
-        st_fragscount += plyr->frags[i];
-      else
-        st_fragscount -= plyr->frags[i];
-    }
-}
-
-static void ST_DrawFaceBack(int x, int y, int vpt)
-{
-  if (raven) return;
-
-  // killough 3/7/98: make face background change with displayplayer
-  if (netgame)
-  {
-    V_DrawMenuNumPatch(x, y, faceback.lumpnum,
-        displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT,
-        displayplayer ? (VPT_COLOR | VPT_ALIGN_BOTTOM) : vpt);
-  }
-}
-
-static void ST_DrawFaceNyanEx(int x, int y, int vpt)
-{
-  int arm_x, arm_y;
-  int berserk_x, berserk_y;
-  int shadow;
-
-  if (raven) return;
-
-  arm_x     = x + 28;
-  arm_y     = y + 2;
-  berserk_x = x + 28;
-  berserk_y = y + 25;
-
-  shadow = !netgame ? SHADOW_EXTRA : SHADOW_OFF;
-
-  if (armor_icon)
-    V_DrawShadowedNumPatchAdv(arm_x, arm_y, armorpatch[st_armorindex].lumpnum, shadow, CR_DEFAULT, vpt);
-
-  if (berserk_icon)
-    V_DrawShadowedNumPatchAdv(berserk_x, berserk_y, berserkpatch[st_berserkindex].lumpnum, shadow, CR_DEFAULT, vpt);
-}
-
-void ST_DrawFaceWidget(int x, int y, int vpt)
-{
-  int shadow;
-
-  if (raven) return;
-
-  shadow = netgame ? SHADOW_EXTRA : SHADOW_OFF;
-
-  if (netgame)
-  {
-    ST_DrawFaceBack(x, y, vpt);
-  }
-
-  // Singleplayer
-  V_DrawShadowedNumPatchAdv(x, y, faces[st_faceindex].lumpnum, shadow, CR_DEFAULT, vpt);
-}
-
 void ST_updateBlinkingKeys(player_t* plyr)
 {
   if (hexen) return;
@@ -962,43 +752,141 @@ void ST_updateBlinkingKeys(player_t* plyr)
     if (!do_blink) return;
 
     // Always render key blinks (fixes Heretic key blinking)
-    for (i = 0; i < 3; i++)
+    // Always render key blinks directly for Heretic
+    if (heretic && R_StatusBarVisible())
     {
-      switch (ST_BlinkKey(plyr, i))
+      for (i = 0; i < 3; i++)
       {
-        case KEYBLINK_NONE:
-          continue;
+        switch (ST_BlinkKey(plyr, i))
+        {
+          case KEYBLINK_CARD:
+            if (i == 0)
+              V_DrawNamePatch(153, 180, "bkeyicon", CR_DEFAULT, VPT_STRETCH);
+            else if (i == 1)
+              V_DrawNamePatch(153, 164, "ykeyicon", CR_DEFAULT, VPT_STRETCH);
+            else if (i == 2)
+              V_DrawNamePatch(153, 172, "gkeyicon", CR_DEFAULT, VPT_STRETCH);
+            break;
 
-        case KEYBLINK_CARD:
-          if (heretic)
-          {
-            if (R_StatusBarVisible())
-            {
-              if (i == 0)
-                  V_DrawNamePatch(153, 180, "bkeyicon", CR_DEFAULT, VPT_STRETCH);
-              else if (i == 1)
-                  V_DrawNamePatch(153, 164, "ykeyicon", CR_DEFAULT, VPT_STRETCH);
-              else if (i == 2)
-                  V_DrawNamePatch(153, 172, "gkeyicon", CR_DEFAULT, VPT_STRETCH);
-            }
-          }
-          else
-            keyboxes[i] = i;
-          break;
-
-        case KEYBLINK_SKULL:
-          keyboxes[i] = i + 3;
-          break;
-
-        case KEYBLINK_BOTH:
-          keyboxes[i] = i + 6;
-          break;
-
-        default:
-          keyboxes[i] = -1;
-          break;
+          case KEYBLINK_NONE:
+          case KEYBLINK_SKULL:
+          case KEYBLINK_BOTH:
+          default:
+            break;
+        }
       }
     }
+  }
+}
+
+static void ST_updateWidgets(void)
+{
+  // refresh nyan icons
+  ST_updateNyanIcons();
+
+  // refresh everything if this is him coming back to life
+  ST_updateFaceWidget();
+
+  // refresh blinking keys
+  ST_updateBlinkingKeys(plyr);  
+}
+
+static void ST_DrawFaceBack(int x, int y, int vpt, dboolean exhud)
+{
+  int shadow;
+
+  if (raven) return;
+
+  shadow = (exhud && netgame) ? SHADOW_EXTRA : SHADOW_OFF;
+
+  // killough 3/7/98: make face background change with displayplayer
+  if (netgame)
+  {
+    V_DrawShadowedNumPatchAdv(x, y, faceback.lumpnum,
+        shadow,
+        displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT,
+        displayplayer ? (VPT_COLOR | VPT_ALIGN_BOTTOM) : vpt);
+  }
+}
+
+static void ST_DrawFaceNyanExt(int x, int y, int vpt, dboolean exhud)
+{
+  int shadow;
+
+  if (raven || exhud)
+    return;
+
+  shadow = (netgame || exhud) ? SHADOW_OFF : SHADOW_EXTRA;
+
+  if (armor_icon)
+  {
+    int arm_x = x + 28;
+    int arm_y = y + 2;
+    int armor_type = CLAMP(plyr->armortype, 0, 2);
+    int color = CR_DEFAULT;
+
+    V_DrawShadowedNumPatchAdv(arm_x, arm_y, armorpatch[armor_type].lumpnum, shadow, color, vpt);
+  }
+
+  if (berserk_icon)
+  {
+    int berserk_x = x + 28;
+    int berserk_y = y + 25;
+    dboolean berserk_on = !!plyr->powers[pw_strength];
+    int color = berserk_on ? unityedition ? CR_GREEN : CR_RED : CR_DEFAULT;
+
+    // PWAD lumps found - disable colouring
+    if (W_PWADLumpNumExists2(berserkpatch[berserk_on].lumpnum) || W_PWADLumpNumExists2(berserkpatch[!berserk_on].lumpnum))
+      color = CR_DEFAULT;
+
+    V_DrawShadowedNumPatchAdv(berserk_x, berserk_y, berserkpatch[berserk_on].lumpnum, shadow, color, vpt);
+  }
+}
+
+void ST_DrawFaceWidget(int x, int y, int vpt, dboolean exhud)
+{
+  int shadow;
+
+  if (raven) return;
+
+  shadow = (exhud && netgame) ? SHADOW_EXTRA : SHADOW_OFF;
+
+  if (netgame)
+    ST_DrawFaceBack(x, y, vpt, exhud);
+
+  // Singleplayer
+  V_DrawShadowedNumPatchAdv(x, y, faces[st_faceindex].lumpnum, shadow, CR_DEFAULT, vpt);
+  ST_DrawFaceNyanExt(x, y, vpt, exhud);
+}
+
+static void ST_DrawArmsNum(int x, int y, int vpt, dboolean exhud)
+{
+  int i;
+  dboolean ssg_arms_config;
+  int st_shotguns;
+
+  if (deathmatch)
+    return;
+
+  // SSG on ARMS config
+  ssg_arms_config = dsda_IntConfig(dsda_config_ssg_on_arms) && (gamemode == commercial);
+
+  // [crispy] show SSG availability in the Shotgun slot of the arms widget (only if config)
+  st_shotguns = ssg_arms_config ? (plyr->weaponowned[wp_shotgun] || plyr->weaponowned[wp_supershotgun]) :
+                                  (plyr->weaponowned[wp_shotgun]);
+
+  // weapons owned
+  for(i=0;i<6;i++)
+  {
+      int arm_x = x+(i%3)*ST_ARMSXSPACE;
+      int arm_y = y+(i/3)*ST_ARMSYSPACE;
+      dboolean owned = plyr->weaponowned[i+1];
+
+      // [crispy] show SSG availability in the Shotgun slot of the arms widget
+      if (i == wp_shotgun-1)
+        owned = st_shotguns;
+
+      V_DrawNumPatch(arm_x, arm_y, arms[i][owned].lumpnum, CR_DEFAULT, vpt);
   }
 }
 
@@ -1149,80 +1037,206 @@ int ST_HealthColor(int health)
     return cr_health_super;
 }
 
-static void ST_drawWidgets(void)
+int ST_ArmorColor(void)
+{
+  // armor color dictated by type (Status Bar)
+  if (plyr->armortype >= 2)
+    return cr_armor_two;
+  else if (plyr->armortype == 1)
+    return cr_armor_one;
+  else
+    return cr_armor_zero;
+}
+
+static const char* doom_keynames[9] = {
+  "STKEYS0", "STKEYS1", "STKEYS2",
+  "STKEYS3", "STKEYS4", "STKEYS5",
+  "STKEYS6", "STKEYS7", "STKEYS8"
+};
+
+const char* ST_GetKeyName(player_t* player, int slot)
+{
+  int card, skull, combo;
+
+  if (heretic)
+  {
+    int color;
+    
+    color = (slot == 0 ? key_yellow :
+             slot == 1 ? key_green  :
+                         key_blue);
+
+    if (player->keyblinktics && sts_blink_keys && !dsda_StrictMode())
+    {
+      switch (ST_BlinkKey(player, color))
+      {
+        case KEYBLINK_NONE: return NULL;
+        case KEYBLINK_CARD:
+        case KEYBLINK_BOTH:
+          return color == key_yellow ? "ykeyicon" :
+                 color == key_green  ? "gkeyicon" :
+                                       "bkeyicon";
+        default: return NULL;
+          break;
+      }
+    }
+
+    return player->cards[color] ? (color == key_yellow ? "ykeyicon" :
+                                   color == key_green  ? "gkeyicon" :
+                                                         "bkeyicon") :
+                                                         NULL;
+  }
+
+  card  = slot;
+  skull = slot + 3;
+  combo = slot + 6;
+
+  if (player->keyblinktics && sts_blink_keys && !dsda_StrictMode())
+  {
+    switch (ST_BlinkKey(player, slot))
+    {
+      case KEYBLINK_NONE:
+        return NULL;
+
+      case KEYBLINK_CARD:
+        return doom_keynames[card];
+
+      case KEYBLINK_SKULL:
+        return doom_keynames[skull];
+
+      case KEYBLINK_BOTH:
+        return doom_keynames[sts_traditional_keys ? skull : combo];
+
+      default:
+        return NULL;
+    }
+  }
+
+  if (player->cards[skull])
+    return doom_keynames[(!player->cards[card] || sts_traditional_keys) ? skull : combo];
+
+  if (player->cards[card])
+    return doom_keynames[card];
+
+  return NULL;
+}
+
+static void ST_DrawKeys(int x, int y, int spacing, int vpt)
+{
+  int i;
+  const char* keyname;
+
+  for (i = 0; i < 3; i++)
+  {
+    keyname = ST_GetKeyName(plyr, i);
+
+    if (keyname)
+      V_DrawNamePatch(x, y, keyname, CR_DEFAULT, vpt);
+
+    y += spacing;
+  }
+}
+
+static void ST_DrawReadyWeaponText(int x, int y, int count, int vpt)
+{
+  //jff 2/16/98 make color of ammo depend on amount
+  int cm = dsda_TextCR(dsda_AmmoColorBig(plyr));
+  ammotype_t ammo_type = weaponinfo[plyr->readyweapon].ammo;
+  int ammo;
+
+  if (ammo_type == am_noammo || !plyr->maxammo[ammo_type])
+    return;
+
+  ammo = plyr->ammo[ammo_type];
+
+  dsda_DrawBigNumber(x, y, 0, cm, vpt, count, ammo, true, true, false, false);
+}
+
+static void ST_DrawFullAmmoNum(int x, int y, int vpt)
+{
+  int i;
+  static const int row_y[4] = { 0, 6, 18, 12 };
+  static const int max_indent = 26;
+
+  // Full Ammo
+  for (i = 0; i < 4; i++)
+  {
+    int current_ammo = plyr->ammo[i];
+    int max_ammo = plyr->maxammo[i];
+
+    // ammo count (all four kinds)
+    dsda_DrawSmallNumber(x, y + row_y[i], 0, CR_DEFAULT, vpt, ST_AMMO0WIDTH, current_ammo, true, true);   //jff 2/16/98 no xlation
+
+    // max ammo count (all four kinds)
+    dsda_DrawSmallNumber(x + max_indent, y + row_y[i], 0, CR_DEFAULT, vpt, ST_MAXAMMO0WIDTH, max_ammo, true, true);
+  }
+}
+
+static void ST_DrawFragsText(int x, int y, int count, int vpt)
 {
   int i;
 
-  // used by w_arms[] widgets
-  st_armson = st_statusbaron && !deathmatch;
+  if (!deathmatch)
+    return;
 
-  // used by w_frags widget
-  st_fragson = deathmatch && st_statusbaron;
+  st_fragscount = 0;
 
-  // used by icon widgets
-  st_berserkicon_on = berserk_icon && st_statusbaron;
-  st_armoricon_on = armor_icon && st_statusbaron;
-
-  //jff 2/16/98 make color of ammo depend on amount
-  if (*w_ready.num == plyr->maxammo[weaponinfo[w_ready.data].ammo])
-    STlib_updateNum(&w_ready, cr_ammo_full);
-  else {
-    int ammopct = P_AmmoPercent(plyr, w_ready.data);
-
-    if (ammopct < hud_ammo_red)
-      STlib_updateNum(&w_ready, cr_ammo_bad);
-    else if (ammopct < hud_ammo_yellow)
-      STlib_updateNum(&w_ready, cr_ammo_warning);
+  for (i = 0; i < g_maxplayers; i++)
+  {
+    if (i != displayplayer)            // killough 3/7/98
+      st_fragscount += plyr->frags[i];
     else
-      STlib_updateNum(&w_ready, cr_ammo_ok);
+      st_fragscount -= plyr->frags[i];
   }
 
-  for (i = 0; i < 4; i++)
-  {
-    STlib_updateNum(&w_ammo[i], CR_DEFAULT);   //jff 2/16/98 no xlation
-    STlib_updateNum(&w_maxammo[i], CR_DEFAULT);
-  }
+  dsda_DrawBigNumber(x, y, 0, CR_DEFAULT, vpt, count, st_fragscount, true, true, false, false);
+}
 
-  //jff 2/16/98 make color of health depend on amount
-  STlib_updatePercent(&w_health, ST_HealthColor(plyr->health));
+static void ST_DrawHealthPercent(int x, int y, int count, int vpt)
+{
+  int health = st_health; // Animated health
+  int cm = ST_HealthColor(health); //jff 2/16/98 make color of health depend on amount
 
-  // armor color dictated by type (Status Bar)
-  if (plyr->armortype >= 2)
-    STlib_updatePercent(&w_armor, cr_armor_two);
-  else if (plyr->armortype == 1)
-    STlib_updatePercent(&w_armor, cr_armor_one);
-  else if (plyr->armortype == 0)
-    STlib_updatePercent(&w_armor, cr_armor_zero);
+  dsda_DrawBigNumber(x, y, 0, cm, vpt, count, health, true, true, true, true);
+}
 
-  // SSG on ARMS config
-  ssg_arms_config = dsda_IntConfig(dsda_config_ssg_on_arms) && (gamemode == commercial);
+static void ST_DrawArmorPercent(int x, int y, int count, int vpt)
+{
+  int armor = st_armor; // Animated armor
+  int cm = ST_ArmorColor();
 
-  // [crispy] show SSG availability in the Shotgun slot of the arms widget (only if config)
-  st_shotguns = ssg_arms_config ? (plyr->weaponowned[wp_shotgun] || plyr->weaponowned[wp_supershotgun]) : (plyr->weaponowned[wp_shotgun]);
+  dsda_DrawBigNumber(x, y, 0, cm, vpt, count, armor, true, true, true, true);
+}
 
-  for (i=0;i<6;i++)
-    STlib_updateMultIcon(&w_arms[i]);
+static void ST_drawWidgets(void)
+{
+  enum patch_translation_e flags = VPT_ALIGN_BOTTOM;
 
-  STlib_updateMultIcon(&w_faces);
+  // ready weapon ammo
+  ST_DrawReadyWeaponText(ST_AMMOX, ST_AMMOY, ST_AMMOWIDTH, flags);
 
-  if(armor_icon)
-  {
-    //int color = (plyr->armortype >= 2) ? CR_BLUE : (plyr->armortype == 1) ? CR_GREEN : CR_DEFAULT;
-    int color = CR_DEFAULT;
-    STlib_updateColorIcon(&w_armoricon, color);
-  }
+  // Health Percent
+  ST_DrawHealthPercent(ST_HEALTHX, ST_HEALTHY, ST_HEALTHWIDTH, flags);
 
-  if(berserk_icon)
-  {
-    int color = plyr->powers[pw_strength] ? unityedition ? CR_GREEN : CR_RED : CR_DEFAULT;
-    STlib_updateColorIcon(&w_berserkicon, color);
-  }
+  // in deathmatch only, summary of frags stats
+  if (deathmatch)
+    ST_DrawFragsText(ST_FRAGSX, ST_FRAGSY, ST_FRAGSWIDTH, flags);
 
-  for (i=0;i<3;i++)
-    STlib_updateMultIcon(&w_keyboxes[i]);
+  // arms numbers
+  if (!deathmatch)
+    ST_DrawArmsNum(ST_ARMSX, ST_ARMSY, flags, false);
 
-  STlib_updateNum(&w_frags, CR_DEFAULT);
+  // Doomguy Face
+  ST_DrawFaceWidget(ST_FACESX, ST_FACESY, flags, false);
 
+  // Armor Percent
+  ST_DrawArmorPercent(ST_ARMORX, ST_ARMORY, ST_ARMORWIDTH, flags);
+
+  // Keys
+  ST_DrawKeys(ST_KEY0X, ST_KEY0Y, 10, flags);
+
+  // Full Ammo
+  ST_DrawFullAmmoNum(ST_AMMO0X, ST_AMMO0Y, flags);
 }
 
 void ST_SetResolution(void)
@@ -1316,27 +1330,8 @@ static void ST_loadGraphics(void)
   // cph - macro that either acquires a pointer and lock for a lump, or
   // unlocks it. var is referenced exactly once in either case, so ++ in arg works
 
-  // Load the numbers, tall and short
-  for (i=0;i<10;i++)
-    {
-      snprintf(namebuf, sizeof(namebuf), "STTNUM%d", i);
-      R_SetPatchNum(&tallnum[i],namebuf);
-      snprintf(namebuf, sizeof(namebuf), "STYSNUM%d", i);
-      R_SetPatchNum(&shortnum[i],namebuf);
-    }
-
-  // Load percent key.
-  R_SetPatchNum(&tallpercent,"STTPRCNT");
-
-  // key cards
-  for (i=0;i<DOOM_NUMCARDS+3;i++)  //jff 2/23/98 show both keys too
-    {
-      snprintf(namebuf, sizeof(namebuf), "STKEYS%d", i);
-      R_SetPatchNum(&keys[i], namebuf);
-    }
-
   // Armor Icon
-  for (i=0;i<DOOM_ARMORICON;i++)
+  for (i=0;i<ARMOR_ICON_END;i++)
     {
       if (chex)
       {
@@ -1354,7 +1349,7 @@ static void ST_loadGraphics(void)
     }
 
   // Berserk Icon
-  for (i=0;i<DOOM_BERSERKICON;i++)
+  for (i=0;i<BERSERK_ICON_END;i++)
     {
       if (chex)
         snprintf(namebuf, sizeof(namebuf), "CHXPSTR%d", i);
@@ -1383,13 +1378,13 @@ static void ST_loadGraphics(void)
   // arms ownership widgets
   for (i=0;i<6;i++)
     {
-      snprintf(namebuf, sizeof(namebuf), "STGNUM%d", i+2);
-
       // gray #
+      snprintf(namebuf, sizeof(namebuf), "STGNUM%d", i+2);
       R_SetPatchNum(&arms[i][0], namebuf);
 
       // yellow #
-      arms[i][1] = shortnum[i+2];
+      snprintf(namebuf, sizeof(namebuf), "STYSNUM%d", i + 2);
+      R_SetPatchNum(&arms[i][1], namebuf);
     }
 
   // face backgrounds for different color players
@@ -1443,178 +1438,7 @@ static void ST_initData(void)
   for (i=0;i<NUMWEAPONS;i++)
     oldweaponsowned[i] = plyr->weaponowned[i];
 
-  for (i=0;i<3;i++)
-    keyboxes[i] = -1;
-
-  STlib_init();
-}
-
-static void ST_createWidgets(void)
-{
-  int i;
-
-  // ready weapon ammo
-  STlib_initNum(&w_ready,
-                ST_AMMOX,
-                ST_AMMOY,
-                tallnum,
-                &plyr->ammo[weaponinfo[plyr->readyweapon].ammo],
-                &st_statusbaron,
-                ST_AMMOWIDTH );
-
-  // the last weapon type
-  w_ready.data = plyr->readyweapon;
-
-  // health percentage
-  STlib_initPercent(&w_health,
-                    ST_HEALTHX,
-                    ST_HEALTHY,
-                    tallnum,
-                    &st_health,
-                    &st_statusbaron,
-                    &tallpercent);
-
-  // weapons owned
-  for(i=0;i<6;i++)
-    {
-      STlib_initMultIcon(&w_arms[i],
-                         ST_ARMSX+(i%3)*ST_ARMSXSPACE,
-                         ST_ARMSY+(i/3)*ST_ARMSYSPACE,
-                         arms[i], (int *) &plyr->weaponowned[i+1],
-                         &st_armson);
-    }
-
-  // [crispy] show SSG availability in the Shotgun slot of the arms widget
-  w_arms[1].inum = &st_shotguns;
-
-  // frags sum
-  STlib_initNum(&w_frags,
-                ST_FRAGSX,
-                ST_FRAGSY,
-                tallnum,
-                &st_fragscount,
-                &st_fragson,
-                ST_FRAGSWIDTH);
-
-  // faces
-  STlib_initMultIcon(&w_faces,
-                     ST_FACESX,
-                     ST_FACESY,
-                     faces,
-                     &st_faceindex,
-                     &st_statusbaron);
-
-  // armor percentage - should be colored later
-  STlib_initPercent(&w_armor,
-                    ST_ARMORX,
-                    ST_ARMORY,
-                    tallnum,
-                    &st_armor,
-                    &st_statusbaron, &tallpercent);
-
-  // Armor Icon
-  STlib_initMultIcon(&w_armoricon,
-                     ST_ARMORICONX,
-                     ST_ARMORICONY,
-                     armorpatch,
-                     &st_armorindex,
-                     &st_armoricon_on);
-
-  // Berserk Icon
-  STlib_initMultIcon(&w_berserkicon,
-                     ST_BERSERKX,
-                     ST_BERSERKY,
-                     berserkpatch,
-                     &st_berserkindex,
-                     &st_berserkicon_on);
-
-  // keyboxes 0-2
-  STlib_initMultIcon(&w_keyboxes[0],
-                     ST_KEY0X,
-                     ST_KEY0Y,
-                     keys,
-                     &keyboxes[0],
-                     &st_statusbaron);
-
-  STlib_initMultIcon(&w_keyboxes[1],
-                     ST_KEY1X,
-                     ST_KEY1Y,
-                     keys,
-                     &keyboxes[1],
-                     &st_statusbaron);
-
-  STlib_initMultIcon(&w_keyboxes[2],
-                     ST_KEY2X,
-                     ST_KEY2Y,
-                     keys,
-                     &keyboxes[2],
-                     &st_statusbaron);
-
-  // ammo count (all four kinds)
-  STlib_initNum(&w_ammo[0],
-                ST_AMMO0X,
-                ST_AMMO0Y,
-                shortnum,
-                &plyr->ammo[0],
-                &st_statusbaron,
-                ST_AMMO0WIDTH);
-
-  STlib_initNum(&w_ammo[1],
-                ST_AMMO1X,
-                ST_AMMO1Y,
-                shortnum,
-                &plyr->ammo[1],
-                &st_statusbaron,
-                ST_AMMO1WIDTH);
-
-  STlib_initNum(&w_ammo[2],
-                ST_AMMO2X,
-                ST_AMMO2Y,
-                shortnum,
-                &plyr->ammo[2],
-                &st_statusbaron,
-                ST_AMMO2WIDTH);
-
-  STlib_initNum(&w_ammo[3],
-                ST_AMMO3X,
-                ST_AMMO3Y,
-                shortnum,
-                &plyr->ammo[3],
-                &st_statusbaron,
-                ST_AMMO3WIDTH);
-
-  // max ammo count (all four kinds)
-  STlib_initNum(&w_maxammo[0],
-                ST_MAXAMMO0X,
-                ST_MAXAMMO0Y,
-                shortnum,
-                &plyr->maxammo[0],
-                &st_statusbaron,
-                ST_MAXAMMO0WIDTH);
-
-  STlib_initNum(&w_maxammo[1],
-                ST_MAXAMMO1X,
-                ST_MAXAMMO1Y,
-                shortnum,
-                &plyr->maxammo[1],
-                &st_statusbaron,
-                ST_MAXAMMO1WIDTH);
-
-  STlib_initNum(&w_maxammo[2],
-                ST_MAXAMMO2X,
-                ST_MAXAMMO2Y,
-                shortnum,
-                &plyr->maxammo[2],
-                &st_statusbaron,
-                ST_MAXAMMO2WIDTH);
-
-  STlib_initNum(&w_maxammo[3],
-                ST_MAXAMMO3X,
-                ST_MAXAMMO3Y,
-                shortnum,
-                &plyr->maxammo[3],
-                &st_statusbaron,
-                ST_MAXAMMO3WIDTH);
+  dsda_InitPatchNumbers();
 }
 
 static dboolean st_stopped = true;
@@ -1626,7 +1450,6 @@ void ST_Start(void)
   if (!st_stopped)
     ST_Stop();
   ST_initData();
-  ST_createWidgets();
   st_stopped = false;
 }
 

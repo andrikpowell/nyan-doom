@@ -497,8 +497,8 @@ set(COMMON_SRC
     smooth.h
     sounds.c
     sounds.h
-    st_lib.c
-    st_lib.h
+    st_font.c
+    st_font.h
     st_stuff.c
     st_stuff.h
     s_advsound.c

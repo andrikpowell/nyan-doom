@@ -37,9 +37,9 @@ void dsda_UpdateDoomguyFaceHC(void* data) {
 }
 
 void dsda_DrawDoomguyFaceHC(void* data) {
-  extern void ST_DrawFaceWidget(int x, int y, int vpt);
+  extern void ST_DrawFaceWidget(int x, int y, int vpt, dboolean exhud);
 
   local = data;
 
-  ST_DrawFaceWidget(local->component.x, local->component.y, local->component.vpt);
+  ST_DrawFaceWidget(local->component.x, local->component.y, local->component.vpt, true);
 }

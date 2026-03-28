@@ -44,7 +44,7 @@ static void dsda_DrawComponent(void) {
   x = local->component.x;
   y = local->component.y;
 
-  dsda_DrawBigNumber(x, y, 0, cm, local->component.vpt, 3, health, local->right_align, local->percent);
+  dsda_DrawBigNumber(x, y, 0, cm, local->component.vpt, 3, health, local->right_align, false, local->percent, false);
 }
 
 void dsda_InitBigHealthTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

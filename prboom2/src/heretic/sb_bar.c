@@ -24,6 +24,7 @@
 #include "r_main.h"
 #include "w_wad.h"
 #include "st_stuff.h"
+#include "st_font.h"
 #include "r_draw.h"
 
 #include "dsda/exhud.h"
@@ -293,6 +294,7 @@ void SB_Init(void)
     spinbooklump = W_GetNumForName("SPINBK0");
     spinflylump = W_GetNumForName("SPFLY0");
 
+    dsda_InitPatchNumbers();
     ST_LoadTextColors();
 }
 
@@ -1199,6 +1201,7 @@ static void Hexen_SB_Init(void)
     }
     SB_SetClassData();
 
+    dsda_InitPatchNumbers();
     ST_LoadTextColors();
 }
 

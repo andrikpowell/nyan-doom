@@ -51,7 +51,7 @@ static void dsda_ArmorPatchSpacing(void)
 
 static int dsda_GetNumberWidth(void)
 {
-  return dsda_GetBigNumberWidth(3, 999, local->right_align, local->percent);
+  return dsda_GetBigNumberWidth(3, 999, local->right_align, local->percent, false);
 }
 
 static void dsda_DrawBigArmorIcon(int x, int y, int lump, int flags) {
@@ -119,7 +119,7 @@ static void dsda_DrawComponent(void) {
   // Numbers need offsets (so 1 doesn't have a big space)
   numflags &= ~VPT_NOOFFSET;
 
-  dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, armor, local->right_align, local->percent);
+  dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, armor, local->right_align, false, local->percent, false);
 
   if (local->right_align)
   {

@@ -29,7 +29,7 @@ static local_component_t* local;
 
 static int dsda_GetWidgetWidth(void)
 {
-  return dsda_GetBigNumberWidth(3, 999, local->right_align, local->percent);
+  return dsda_GetBigNumberWidth(3, 999, local->right_align, local->percent, false);
 }
 
 static void dsda_DrawComponent(void) {
@@ -64,7 +64,7 @@ static void dsda_DrawComponent(void) {
   x = local->component.x;
   y = local->component.y;
 
-  dsda_DrawBigNumber(x, y, 0, cm, local->component.vpt, 3, armor, local->right_align, local->percent);
+  dsda_DrawBigNumber(x, y, 0, cm, local->component.vpt, 3, armor, local->right_align, false, local->percent, false);
 }
 
 void dsda_InitBigArmorTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {

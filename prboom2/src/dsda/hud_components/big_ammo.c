@@ -33,7 +33,7 @@ static int patch_spacing_y;
 
 static int dsda_GetNumberWidth(void)
 {
-  return dsda_GetBigNumberWidth(3, 999, local->right_align, false);
+  return dsda_GetBigNumberWidth(3, 999, local->right_align, false, false);
 }
 
 static int dsda_GetAmmoImage(ammotype_t ammo_type) {
@@ -153,7 +153,7 @@ static void dsda_DrawComponent(void) {
     x += patch_spacing + patch_spacing_x;
   }
 
-  dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, ammo, local->right_align, false);
+  dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, ammo, local->right_align, false, false, false);
 
   if (local->right_align)
   {
