@@ -158,6 +158,31 @@ doomguy_face 18 36 bottom
 big_health_text 53 26 bottom
 big_armor 108 26 bottom
 big_ammo 302 26 bottom_right 1 1
+status_timers 318 64 top_right 1
+status_widget 310 44 bottom_right 0 1
+tracker 2 64 bottom_left
+free_text 2 48 bottom_left
+keys 310 30 bottom_right
+render_stats 98 8 top_right
+coordinate_display 2 8 top_left
+line_display 98 8 top_left
+command_display 198 48 bottom_right
+event_split 10 16 top_left
+level_splits 2 2 top
+fps 298 0 top_right
+minimap 264 8 top_right 48 48 1024
+message 0 0 top_left
+announce_message 0 18 none
+secret_message 0 76 none
+target_health 0 10 top 1
+add_offset 1 top_left
+
+doom full 3 "modern - with stats"
+loading_disk 292 8 top_right
+doomguy_face 18 36 bottom
+big_health_text 53 26 bottom
+big_armor 108 26 bottom
+big_ammo 302 26 bottom_right 1 1
 stat_totals 2 48 bottom_left
 status_timers 318 64 top_right 1
 status_widget 310 44 bottom_right 0 1
@@ -178,7 +203,7 @@ secret_message 0 76 none
 target_health 0 10 top 1
 add_offset 1 top_left
 
-doom full 3 "boom modern"
+doom full 4 "boom modern"
 loading_disk 292 8 top_right
 ready_ammo_text 2 24 bottom_left 1
 health_text 2 16 bottom_left 1
@@ -206,7 +231,7 @@ secret_message 0 76 none
 target_health 0 10 top 1
 add_offset 1 top_left
 
-doom full 4 "boom classic"
+doom full 5 "boom classic"
 loading_disk 292 8 top_right
 free_text 2 64 bottom_left
 speed_text 2 56 bottom_left
