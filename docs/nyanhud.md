@@ -184,8 +184,8 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
   - Uses the message font
 - `map_title`: shows the current map's title
   - Uses the message font
-  - Supports 1 argument: `cycle_author`
-    - 😸 `cycle_author`: cycles between map title and author on automap
+  - Supports 1 argument: `no_author`
+    - 😸 `no_author`: Forces the map title to never cycle to the author
 - `map_totals`: shows the kills / secrets / items on the current map
   - Uses the message font with word labels
   - Supports 4 arguments: `show_kills show_items show_secrets stat_format`

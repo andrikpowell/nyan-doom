@@ -25,7 +25,7 @@ extern dsda_string_t hud_author;
 
 typedef struct {
   dsda_text_t component;
-  dboolean cycle_author;
+  dboolean no_author;
 } local_component_t;
 
 static local_component_t* local;
@@ -69,8 +69,8 @@ static void dsda_UpdateMapTitleFade(void)
 {
   const int fade_tics = MESSAGE_FADE_TICS;
   dboolean first_phase;
-  dboolean cycle_title_active = (hud_author.string != NULL) &&
-                                (local->cycle_author || dsda_IntConfig(dsda_config_map_title_author_cycle));
+  dboolean cycle_title_active = (hud_author.string != NULL || local->no_author) &&
+                                (dsda_IntConfig(dsda_config_map_title_author_cycle));
 
   local->component.text.fade_alpha = 100;
 
@@ -98,8 +98,8 @@ static void dsda_UpdateMapTitleFade(void)
 }
 
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
-  dboolean cycle_title_active = (hud_author.string != NULL) &&
-                                (local->cycle_author || dsda_IntConfig(dsda_config_map_title_author_cycle));
+  dboolean cycle_title_active = (hud_author.string != NULL || local->no_author) &&
+                                (dsda_IntConfig(dsda_config_map_title_author_cycle));
 
   if (cycle_title_active)
     dsda_UpdateTitleSwap();
@@ -117,7 +117,7 @@ void dsda_InitMapTitleHC(int x_offset, int y_offset, int vpt, int* args, int arg
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
 
-  local->cycle_author = arg_count > 0 ? !!args[0] : false;
+  local->no_author = arg_count > 0 ? !!args[0] : false;
 
   dsda_InitBlockyHC(&local->component, x_offset, y_offset, vpt);
 }
