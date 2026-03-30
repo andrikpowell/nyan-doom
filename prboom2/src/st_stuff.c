@@ -1151,7 +1151,7 @@ static void ST_DrawReadyWeaponText(int x, int y, int count, int vpt)
 
   ammo = plyr->ammo[ammo_type];
 
-  dsda_DrawBigNumber(x, y, 0, cm, vpt, count, ammo, true, true, false, false);
+  dsda_DrawBigNumber(x, y, 0, cm, vpt, count, ammo, true, ANCHOR_RIGHT, false);
 }
 
 static void ST_DrawFullAmmoNum(int x, int y, int vpt)
@@ -1167,10 +1167,10 @@ static void ST_DrawFullAmmoNum(int x, int y, int vpt)
     int max_ammo = plyr->maxammo[i];
 
     // ammo count (all four kinds)
-    dsda_DrawSmallNumber(x, y + row_y[i], 0, CR_DEFAULT, vpt, ST_AMMO0WIDTH, current_ammo, true, true);   //jff 2/16/98 no xlation
+    dsda_DrawSmallNumber(x, y + row_y[i], 0, CR_DEFAULT, vpt, ST_AMMO0WIDTH, current_ammo, true, ANCHOR_RIGHT);   //jff 2/16/98 no xlation
 
     // max ammo count (all four kinds)
-    dsda_DrawSmallNumber(x + max_indent, y + row_y[i], 0, CR_DEFAULT, vpt, ST_MAXAMMO0WIDTH, max_ammo, true, true);
+    dsda_DrawSmallNumber(x + max_indent, y + row_y[i], 0, CR_DEFAULT, vpt, ST_MAXAMMO0WIDTH, max_ammo, true, ANCHOR_RIGHT);
   }
 }
 
@@ -1191,7 +1191,7 @@ static void ST_DrawFragsText(int x, int y, int count, int vpt)
       st_fragscount -= plyr->frags[i];
   }
 
-  dsda_DrawBigNumber(x, y, 0, CR_DEFAULT, vpt, count, st_fragscount, true, true, false, false);
+  dsda_DrawBigNumber(x, y, 0, CR_DEFAULT, vpt, count, st_fragscount, true, ANCHOR_RIGHT, false);
 }
 
 static void ST_DrawHealthPercent(int x, int y, int count, int vpt)
@@ -1199,7 +1199,7 @@ static void ST_DrawHealthPercent(int x, int y, int count, int vpt)
   int health = st_health; // Animated health
   int cm = ST_HealthColor(health); //jff 2/16/98 make color of health depend on amount
 
-  dsda_DrawBigNumber(x, y, 0, cm, vpt, count, health, true, true, true, true);
+  dsda_DrawBigNumber(x, y, 0, cm, vpt, count, health, true, ANCHOR_PERCENT, true);
 }
 
 static void ST_DrawArmorPercent(int x, int y, int count, int vpt)
@@ -1207,7 +1207,7 @@ static void ST_DrawArmorPercent(int x, int y, int count, int vpt)
   int armor = st_armor; // Animated armor
   int cm = ST_ArmorColor();
 
-  dsda_DrawBigNumber(x, y, 0, cm, vpt, count, armor, true, true, true, true);
+  dsda_DrawBigNumber(x, y, 0, cm, vpt, count, armor, true, ANCHOR_PERCENT, true);
 }
 
 static void ST_drawWidgets(void)

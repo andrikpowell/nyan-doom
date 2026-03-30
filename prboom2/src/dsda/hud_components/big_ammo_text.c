@@ -22,7 +22,7 @@
 typedef struct {
   dsda_patch_component_t component;
   dboolean right_align;
-  dboolean right_anchor;
+  int anchor;
 } local_component_t;
 
 static local_component_t* local;
@@ -51,7 +51,7 @@ static void dsda_DrawComponent(void) {
   ammo = player->ammo[ammo_type];
   cm = raven ? CR_DEFAULT : dsda_TextCR(dsda_AmmoColorBig(player));
 
-  dsda_DrawBigNumber(x, y, 0, cm, flags, 3, ammo, local->right_align, local->right_anchor, false, false);
+  dsda_DrawBigNumber(x, y, 0, cm, flags, 3, ammo, local->right_align, local->anchor, false);
 }
 
 void dsda_InitBigAmmoTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
@@ -59,7 +59,7 @@ void dsda_InitBigAmmoTextHC(int x_offset, int y_offset, int vpt, int* args, int 
   local = *data;
 
   local->right_align = (arg_count > 0) ? !!args[0] : false;
-  local->right_anchor = (arg_count > 1) ? !!args[1] : false;
+  local->anchor = (arg_count > 1) ? args[1] : false;
 
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
 }

@@ -131,7 +131,7 @@ static void dsda_DrawBigDigit(int x, int y, int delta_x, int cm, int vpt, int di
   }
 }
 
-void dsda_DrawBigNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int anchor_right, int percent, int percent_anchor) {
+void dsda_DrawBigNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int anchor, int percent) {
   int i;
   int digit, any_digit;
   int delta_x = big_digit_spacing;
@@ -149,8 +149,15 @@ void dsda_DrawBigNumber(int x, int y, int delta_y, int cm, int vpt, int count, i
     n = -n;
   }
 
-  if (anchor_right)
-    x -= dsda_GetBigNumberWidth(count, neg ? -n : n, right_align, percent, percent_anchor);
+  if (anchor)
+  {
+    int total_width = dsda_GetBigNumberWidth(count, neg ? -n : n, right_align, anchor, percent);
+
+    if (anchor >= ANCHOR_RIGHT)
+      x -= total_width;
+    else if (anchor == ANCHOR_CENTER)
+      x -= total_width / 2;
+  }
 
   if (neg)
   {
@@ -177,12 +184,12 @@ void dsda_DrawBigNumber(int x, int y, int delta_y, int cm, int vpt, int count, i
 
   if (percent)
   {
-    int px = percent_anchor ? percent_x : x;
+    int px = (anchor == ANCHOR_PERCENT) ? percent_x : x;
     dsda_DrawBigPercent(px, y, cm, vpt);
   }
 }
 
-int dsda_GetBigNumberWidth(int count, int n, int right_align, int percent, int percent_anchor)
+int dsda_GetBigNumberWidth(int count, int n, int right_align, int anchor, int percent)
 {
   int i;
   int digit;
@@ -190,6 +197,7 @@ int dsda_GetBigNumberWidth(int count, int n, int right_align, int percent, int p
   int width;
   int delta_x = big_digit_spacing;
   dboolean neg = false;
+  int percent_anchor = (anchor == ANCHOR_PERCENT);
 
   if (count > 5)
     return 0;
@@ -276,7 +284,7 @@ int dsda_GetSmallNumberWidth(int count, int n, int right_align)
   return width;
 }
 
-void dsda_DrawSmallNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int anchor_right) {
+void dsda_DrawSmallNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int anchor) {
   int i;
   int digit, any_digit;
   int delta_x = sml_digit_spacing;
@@ -293,8 +301,15 @@ void dsda_DrawSmallNumber(int x, int y, int delta_y, int cm, int vpt, int count,
     n = -n;
   }
 
-  if (anchor_right)
-    x -= dsda_GetSmallNumberWidth(count, neg ? -n : n, right_align);
+  if (anchor)
+  {
+    int total_width = dsda_GetSmallNumberWidth(count, neg ? -n : n, right_align);
+
+    if (anchor >= ANCHOR_RIGHT)
+      x -= total_width;
+    else if (anchor == ANCHOR_CENTER)
+      x -= total_width / 2;
+  }
 
   if (neg)
   {

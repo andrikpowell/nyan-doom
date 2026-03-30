@@ -24,16 +24,25 @@
 
 extern void dsda_InitPatchNumbers(void);
 
+typedef enum
+{
+  ANCHOR_NONE,
+  ANCHOR_LEFT = ANCHOR_NONE,
+  ANCHOR_CENTER,
+  ANCHOR_RIGHT,
+  ANCHOR_PERCENT,
+} anchor_mode_t;
+
 // Big Numbers
-extern void dsda_DrawBigNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int right_anchor, int percent, int percent_anchor);
-extern int dsda_GetBigNumberWidth(int count, int n, int right_align, int percent, int percent_anchor);
+extern void dsda_DrawBigNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int anchor, int percent);
+extern int dsda_GetBigNumberWidth(int count, int n, int right_align, int anchor, int percent);
 
 // Med Numbers (Raven)
 extern void dsda_DrawMedNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align);
 extern int dsda_GetMedNumberWidth(int count, int n, int right_align);
 
 // Small Numbers
-extern void dsda_DrawSmallNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int right_anchor);
+extern void dsda_DrawSmallNumber(int x, int y, int delta_y, int cm, int vpt, int count, int n, int right_align, int anchor);
 extern int dsda_GetSmallNumberWidth(int count, int n, int right_align);
 
 #endif

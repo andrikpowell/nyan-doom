@@ -22,7 +22,7 @@
 typedef struct {
   dsda_patch_component_t component;
   dboolean right_align;
-  dboolean right_anchor;
+  int anchor;
 } local_component_t;
 
 static local_component_t* local;
@@ -34,7 +34,7 @@ static int patch_spacing_y;
 
 static int dsda_GetNumberWidth(void)
 {
-  return dsda_GetBigNumberWidth(3, 999, local->right_align, false, false);
+  return dsda_GetBigNumberWidth(3, 999, local->right_align, ANCHOR_NONE, false);
 }
 
 static int dsda_GetAmmoImage(ammotype_t ammo_type) {
@@ -155,8 +155,13 @@ static void dsda_DrawComponent(void) {
   text_width = dsda_GetNumberWidth();
   total_width = lump_width + patch_spacing + text_width;
 
-  if (local->right_anchor)
-    x -= total_width;
+  if (local->anchor)
+  {
+    if (local->anchor >= ANCHOR_RIGHT)
+      x -= total_width;
+    else if (local->anchor == ANCHOR_CENTER)
+      x -= total_width / 2;
+  }
 
   if (!local->right_align)
   {
@@ -164,7 +169,7 @@ static void dsda_DrawComponent(void) {
     x += patch_spacing + lump_width;
   }
 
-  dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, ammo, local->right_align, false, false, false);
+  dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, ammo, local->right_align, ANCHOR_NONE, false);
 
   if (local->right_align)
   {
@@ -180,7 +185,7 @@ void dsda_InitBigAmmoHC(int x_offset, int y_offset, int vpt, int* args, int arg_
   if (hexen) return;
 
   local->right_align = (arg_count > 0) ? !!args[0] : false;
-  local->right_anchor = (arg_count > 1) ? !!args[1] : false;
+  local->anchor = (arg_count > 1) ? args[1] : false;
 
   // Raven text needs smaller spacing
   if (heretic)  dsda_HereticAmmoPatchSpacing();

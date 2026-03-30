@@ -22,7 +22,7 @@
 typedef struct {
   dsda_patch_component_t component;
   dboolean right_align;
-  dboolean right_anchor;
+  int anchor;
   dboolean percent;
 } local_component_t;
 
@@ -55,7 +55,7 @@ static void dsda_HealthPatchSpacing(void)
 
 static int dsda_GetNumberWidth(void)
 {
-  return dsda_GetBigNumberWidth(3, 999, local->right_align, local->percent, false);
+  return dsda_GetBigNumberWidth(3, 999, local->right_align, ANCHOR_NONE, local->percent);
 }
 
 static void dsda_DrawBigHealthIcon(int x, int y, int lump, int flags) {
@@ -107,8 +107,13 @@ static void dsda_DrawComponent(void) {
   text_width = dsda_GetNumberWidth();
   total_width = lump_width + patch_spacing + text_width;
 
-  if (local->right_anchor)
-    x -= total_width;
+  if (local->anchor)
+  {
+    if (local->anchor >= ANCHOR_RIGHT)
+      x -= total_width;
+    else if (local->anchor == ANCHOR_CENTER)
+      x -= total_width / 2;
+  }
 
   if (!local->right_align)
   {
@@ -119,7 +124,7 @@ static void dsda_DrawComponent(void) {
   // Numbers need offsets (so 1 doesn't have a big space)
   numflags &= ~VPT_NOOFFSET;
 
-  dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, health, local->right_align, false, local->percent, false);
+  dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, health, local->right_align, ANCHOR_NONE, local->percent);
 
   if (local->right_align)
   {
@@ -133,7 +138,7 @@ void dsda_InitBigHealthHC(int x_offset, int y_offset, int vpt, int* args, int ar
   local = *data;
 
   local->right_align = (arg_count > 0) ? !!args[0] : false;
-  local->right_anchor = (arg_count > 1) ? !!args[1] : false;
+  local->anchor = (arg_count > 1) ? args[1] : false;
   local->percent = (arg_count > 2) ? !!args[2] : false;
 
   if (heretic) {

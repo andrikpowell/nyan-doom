@@ -22,7 +22,7 @@
 typedef struct {
   dsda_patch_component_t component;
   dboolean right_align;
-  dboolean right_anchor;
+  int anchor;
   dboolean percent;
 } local_component_t;
 
@@ -30,7 +30,7 @@ static local_component_t* local;
 
 static int dsda_GetWidgetWidth(void)
 {
-  return dsda_GetBigNumberWidth(3, 999, local->right_align, local->percent, false);
+  return dsda_GetBigNumberWidth(3, 999, local->right_align, local->anchor, local->percent);
 }
 
 static void dsda_DrawComponent(void) {
@@ -65,7 +65,7 @@ static void dsda_DrawComponent(void) {
   x = local->component.x;
   y = local->component.y;
 
-  dsda_DrawBigNumber(x, y, 0, cm, local->component.vpt, 3, armor, local->right_align, local->right_anchor, local->percent, false);
+  dsda_DrawBigNumber(x, y, 0, cm, local->component.vpt, 3, armor, local->right_align, local->anchor, local->percent);
 }
 
 void dsda_InitBigArmorTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
@@ -73,7 +73,7 @@ void dsda_InitBigArmorTextHC(int x_offset, int y_offset, int vpt, int* args, int
   local = *data;
 
   local->right_align = (arg_count > 0) ? !!args[0] : false;
-  local->right_anchor = (arg_count > 1) ? !!args[1] : false;
+  local->anchor = (arg_count > 1) ? args[1] : false;
   local->percent = (arg_count > 2) ? !!args[2] : false;
 
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);

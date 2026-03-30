@@ -98,13 +98,13 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
     - 😸 `spacing`: allows customisation for the spacing between keys (default is 3)
     - 😸 `boom_classic`: displays the `KEY` label in front of keys (requires `horizontal`) while also separating the skull keys from keycards
 - 😸 `big_ammo_text`: shows the ammo for the current weapon in the status bar font
-  - Supports 2 arguments: `right_align right_anchor`
+  - Supports 2 arguments: `right_align x_anchor`
     - `right_align`: aligns the text to the right (x is still anchored left)
-    - `right_anchor`: draws element to the right
+    - `x_anchor`: draws element to the left (0), center (1), or right (2)
 - 😸 `big_ammo`: shows the ammo for the current weapon in the status bar font with the ammo sprite
-  - Supports 2 arguments: `right_align right_anchor`
+  - Supports 2 arguments: `right_align x_anchor`
     - `right_align`: moves the sprite to the right of the text and aligns the text to the right (x is still anchored left)
-    - `right_anchor`: draws element to the right
+    - `x_anchor`: draws element to the left (0), center (1), or right (2)
 - 😸 `big_mana`: shows the mana (blue, green, or both) for the current weapon with mana icons and medium font
   - Only works in Hexen
   - Default draws blue above green, each with icons (vertical)
@@ -113,24 +113,24 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
     - `horizontal`: displays the component horizontally rather than vertically
     - `show_active`: only draws the current mana type for the selected weapon
 - `big_armor`: shows the player armor (color-coded) in the status bar font with the armor sprite
-  - Supports 3 arguments: `right_align right_anchor percent`
+  - Supports 3 arguments: `right_align x_anchor percent`
     - 😸 `right_align`: moves the sprite to the right of the text and aligns the text to the right  (x is still anchored left)
-    - 😸 `right_anchor`: draws element to the right
+    - 😸 `x_anchor`: draws element to the left (0), center (1), right (2), or percent (3)
     - 😸 `percent`: draws a percent at the end
 - `big_armor_text`: shows the player armor (color-coded) in the status bar font
-  - Supports 3 arguments: `right_align right_anchor percent`
+  - Supports 3 arguments: `right_align x_anchor percent`
     - 😸 `right_align`: aligns the text to the right  (x is still anchored left)
-    - 😸 `right_anchor`: draws element to the right
+    - 😸 `x_anchor`: draws element to the left (0), center (1), right (2), or percent (3)
     - 😸 `percent`: draws a percent at the end
 - `big_health`: shows the player health (color-coded) in the status bar font with the health sprite
-  - Supports 3 arguments: `right_align right_anchor percent`
+  - Supports 3 arguments: `right_align x_anchor percent`
     - 😸 `right_align`: moves the sprite to the right of the text and aligns the text to the right  (x is still anchored left)
-    - 😸 `right_anchor`: draws element to the right
+    - 😸 `x_anchor`: draws element to the left (0), center (1), right (2), or percent (3)
     - 😸 `percent`: draws a percent at the end
 - `big_health_text`: shows the player health (color-coded) in the status bar font
-  - Supports 3 arguments: `right_align right_anchor percent`
+  - Supports 3 arguments: `right_align x_anchor percent`
     - 😸 `right_align`: aligns the text to the right  (x is still anchored left)
-    - 😸 `right_anchor`: draws element to the right
+    - 😸 `x_anchor`: draws element to the left (0), center (1), right (2), or percent (3)
     - 😸 `percent`: draws a percent at the end
 
 ### Small Widgets
@@ -232,7 +232,7 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
 ### Status
 - 😸 `status_widget`: shows icons for armor type, backpack, and other powerups
   - Only available for Doom (not Heretic / Hexen)
-  - Supports 2 arguments: `vertical right_align`
+  - Supports 2 arguments: `vertical reverse`
     - `vertical`: draws icons vertically top to bottom
     - `reverse`: draws icons from right to left... or if `vertical`, draws bottom to top
 - 😸 `status_timers`: shows timers and status for powerups and other statuses (armor type, backpack, etc)
