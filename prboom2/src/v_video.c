@@ -2433,10 +2433,7 @@ void V_ChangeScreenResolution(void)
   }
 
   // Refresh Minimap Coordinates
-  if (dsda_ShowMinimap())
-  {
-    dsda_RefreshExHudMinimap();
-  }
+  AM_RefreshMinimap();
 }
 
 void V_FillRectVPT(int x, int y, int width, int height, byte color, enum patch_translation_e flags)

@@ -800,12 +800,6 @@ static void AM_SetPosition(void)
       f_h = SCREENHEIGHT-ST_SCALED_HEIGHT;// to allow runtime setting of width/height
     }
   }
-  else if (dsda_ShowMinimap())
-  {
-    void dsda_CopyMinimapCoordinates(int* f_x, int* f_y, int* f_w, int* f_h);
-
-    dsda_CopyMinimapCoordinates(&f_x, &f_y, &f_w, &f_h);
-  }
 }
 
 void AM_initPlayerTrail(void)
@@ -916,6 +910,37 @@ static void AM_ResetTagHighlight(void)
   highlight.y = INT_MIN;
 }
 
+void AM_UpdateMinimapCoordinates(void)
+{
+  if (dsda_ShowMinimap())
+  {
+    void dsda_CopyMinimapCoordinates(int* f_x, int* f_y, int* f_w, int* f_h);
+
+    dsda_CopyMinimapCoordinates(&f_x, &f_y, &f_w, &f_h);
+  }
+}
+
+static void AM_SetMinimapScale(void)
+{
+  int dsda_MinimapScale(void);
+
+  min_scale_mtof =
+  max_scale_mtof =
+  scale_mtof = FixedDiv(f_w << FRACBITS, dsda_MinimapScale() << MAPBITS);
+  scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+}
+
+void AM_RefreshMinimap(void)
+{
+  if (!dsda_ShowMinimap())
+    return;
+
+  // Refresh Minimap Coordinates / scale / center
+  AM_UpdateMinimapCoordinates();
+  AM_SetMinimapScale();
+  AM_initVariables();
+}
+
 //
 // AM_clearMarks()
 //
@@ -964,17 +989,10 @@ static void AM_ExchangeScales(int full_automap, int *last_full_automap)
 
   if (*last_full_automap && !full_automap)
   {
-    int dsda_MinimapScale(void);
-
     full_min_scale_mtof = min_scale_mtof;
     full_max_scale_mtof = max_scale_mtof;
     full_scale_mtof = scale_mtof;
     full_scale_ftom = scale_ftom;
-
-    min_scale_mtof =
-    max_scale_mtof =
-    scale_mtof = FixedDiv(f_w << FRACBITS, dsda_MinimapScale() << MAPBITS);
-    scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
   }
   else if (!*last_full_automap && full_automap)
   {
@@ -1033,6 +1051,9 @@ void AM_Start(dboolean full_automap)
   }
 
   AM_ExchangeScales(full_automap, &last_full_automap);
+
+  if (dsda_ShowMinimap() && !full_automap)
+    AM_RefreshMinimap();
 
   AM_initVariables();
 }

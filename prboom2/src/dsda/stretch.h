@@ -64,6 +64,7 @@ extern int patches_scaley;
 stretch_param_t* dsda_StretchParams(int flags);
 void dsda_SetupStretchParams(void);
 void dsda_EvaluatePatchScale(void);
+void dsda_UpdateStretchParams(void);
 double dsda_MinimapYCorrection(void);
 
 #endif
