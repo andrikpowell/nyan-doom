@@ -27,7 +27,6 @@ typedef struct {
   dsda_text_t component;
   dsda_text_t dm_stats;
   dboolean include_kills, include_items, include_secrets;
-  int stat_format;
   int stats_count;
 } local_component_t;
 
@@ -160,19 +159,19 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   if (local->include_kills)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, NULL, killcolor, fullkillcount, max_kill_requirement, true, dsda_StatSeparator());
+    length += dsda_PrintStats(length, str + length, max_size - length, NULL, killcolor, fullkillcount, max_kill_requirement, true, true, dsda_StatSeparator());
   }
 
   if (local->include_items)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, NULL, itemcolor, fullitemcount, totalitems, false, dsda_StatSeparator());
+    length += dsda_PrintStats(length, str + length, max_size - length, NULL, itemcolor, fullitemcount, totalitems, false, true, dsda_StatSeparator());
   }
 
   if (local->include_secrets)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, local->stat_format, NULL, secretcolor, fullsecretcount, totalsecret, false, dsda_StatSeparator());
+    length += dsda_PrintStats(length, str + length, max_size - length, NULL, secretcolor, fullsecretcount, totalsecret, false, true, dsda_StatSeparator());
   }
 }
 
@@ -183,8 +182,6 @@ void dsda_InitMapTotalsHC(int x_offset, int y_offset, int vpt, int* args, int ar
   local->include_kills = args[0];
   local->include_items = args[1];
   local->include_secrets = args[2];
-
-  local->stat_format = args[3];
 
   if (!local->include_kills && !local->include_items && !local->include_secrets)
     local->include_kills = local->include_items = local->include_secrets = true;

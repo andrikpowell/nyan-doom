@@ -192,12 +192,6 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
     - `show_kills`: shows kills in the component
     - `show_items`: shows items in the component
     - `show_secrets`: shows secrets in the component
-    - 😸 `stat_format`: shows stats in a particular format:
-      - 0 - Ratio `#/#`
-      - 1 - Percent `#%`
-      - 2 - Count `#`
-      - 3 - Remaining `#`
-      - 4 - DSDA Classic `#/# #%`
 - `minimap`: shows the minimap
   - Supports 3 arguments: `width height scale`
     - `width`: width of the component
@@ -227,12 +221,6 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
     - `show_secrets`: shows secrets in the component
     - `vertical`: displays the stats vertically rather than horizontally
     - `show_labels`: shows the "K" "I" "S" labels
-    - 😸 `stat_format`: shows stats in a particular format:
-      - 0 - Ratio `#/#`
-      - 1 - Percent `#%`
-      - 2 - Count `#`
-      - 3 - Remaining `#`
-      - 4 - DSDA Classic `#/# #%`
     - 😸 `stat_label`: shows `STS` label in front of stats
 
 ### Status

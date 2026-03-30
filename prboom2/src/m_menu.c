@@ -4736,7 +4736,8 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   NEXT_PAGE(display_hud_settings),
   FINAL_ENTRY
 };
-static const char* stat_format_list[] = { "NYANHUD", "ratio", "percent", "count", "remaining", "dsda classic", NULL };
+static const char* stat_format_list[] = { "ratio", "percent", "count", "remaining", "boolean", "dsda classic", NULL };
+static const char* automap_stat_format_list[] = { "Match Hud", "ratio", "percent", "count", "remaining", "boolean", "dsda classic", NULL };
 
 setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
@@ -4749,7 +4750,8 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   EMPTY_LINE,
   { "Ex Hud Free Text", S_NAME | S_NYAN, m_conf, G_X, dsda_config_free_text },
   { "Show Free Text", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_free_text_active },
-  { "Level Stat Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_stats_format, 0, stat_format_list },
+  { "Level Stat Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_exhud_stats_format, 0, stat_format_list },
+  { "Automap Level Stat Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_automap_stats_format, 0, automap_stat_format_list },
   { "Show Target's Health", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_target_health },
   EMPTY_LINE,
   FUNC("Ex-Hud", S_CENTER | S_NYAN, G_X, M_Sub_ExHud),

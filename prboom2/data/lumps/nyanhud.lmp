@@ -184,7 +184,7 @@ ready_ammo_text 2 24 bottom_left 1
 health_text 2 16 bottom_left 1
 armor_text 2 8 bottom_left 1
 weapon_text 2 32 bottom_left
-stat_totals 2 40 bottom_left 1 1 1 0 1 0 1
+stat_totals 2 40 bottom_left 1 1 1 0 1 1
 status_timers 318 64 top_right 1
 status_widget 310 44 bottom_right 0 1
 composite_time 2 48 bottom_left
@@ -210,7 +210,7 @@ doom full 4 "boom classic"
 loading_disk 292 8 top_right
 free_text 2 64 bottom_left
 speed_text 2 56 bottom_left
-stat_totals 2 48 bottom_left 1 1 1 0 1 0 1
+stat_totals 2 48 bottom_left 1 1 1 0 1 1
 keys 2 40 bottom_left 1 7 1
 weapon_text 2 32 bottom_left
 ready_ammo_text 2 24 bottom_left 1
@@ -295,7 +295,7 @@ ready_ammo_text 2 24 bottom_left 1
 health_text 2 16 bottom_left 1
 armor_text 2 8 bottom_left 1
 weapon_text 2 32 bottom_left
-stat_totals 2 40 bottom_left 1 1 1 0 1 0 1
+stat_totals 2 40 bottom_left 1 1 1 0 1 1
 status_timers 318 64 top_right 1
 status_widget 310 56 bottom_right 0 1
 composite_time 2 48 bottom_left
@@ -322,7 +322,7 @@ add_offset 1 top_left
 heretic full 4 "boom classic"
 free_text 2 64 bottom_left
 speed_text 2 56 bottom_left
-stat_totals 2 48 bottom_left 1 1 1 0 1 0 1
+stat_totals 2 48 bottom_left 1 1 1 0 1 1
 keys 2 40 bottom_left 1 7 1
 big_artifact 286 32 bottom_right
 weapon_text 2 32 bottom_left
@@ -430,7 +430,7 @@ ready_ammo_text 2 24 bottom_left 1
 health_text 2 16 bottom_left 1
 armor_text 2 8 bottom_left 1
 weapon_text 2 32 bottom_left
-stat_totals 2 40 bottom_left 1 0 0 0 1 0 1
+stat_totals 2 40 bottom_left 1 0 0 0 1 1
 status_timers 318 64 top_right 1
 status_widget 310 42 bottom_right 0 1
 composite_time 2 48 bottom_left
@@ -457,7 +457,7 @@ add_offset 1 top_left
 hexen full 4 "boom classic"
 free_text 2 56 bottom_left
 speed_text 2 48 bottom_left
-stat_totals 2 40 bottom_left 1 0 0 0 1 0 1
+stat_totals 2 40 bottom_left 1 0 0 0 1 1
 big_artifact 284 32 bottom_right
 big_artifact_bar 160 32 bottom_center 1
 weapon_text 2 32 bottom_left
