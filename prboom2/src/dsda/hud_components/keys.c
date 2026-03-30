@@ -214,12 +214,12 @@ static void dsda_DrawSeparateKeys(player_t* player, int x, int y, dboolean compa
 
   for (i = 0; i < 6; ++i)
   {
-    const char* name = heretic ? dsda_SeparateKeyNameHeretic(player, i) : dsda_SeparateKeyName(player, i);
+    const char* keyname = heretic ? dsda_SeparateKeyNameHeretic(player, i) : dsda_SeparateKeyName(player, i);
 
-    if (name)
-      dsda_DrawKeyNamePatch(x, y, name);
+    if (keyname)
+      dsda_DrawKeyNamePatch(x, y, keyname);
 
-    if (!name && compact)
+    if (!keyname && compact)
       continue;
 
     if (local->horizontal)
@@ -297,19 +297,14 @@ void dsda_InitKeysHC(int x_offset, int y_offset, int vpt, int* args, int arg_cou
   }
 
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
-
-  if (local->boom_label)
-    dsda_InitTextHC(&local->label, x_offset, y_offset, vpt);
+  dsda_InitTextHC(&local->label, x_offset, y_offset, vpt);
 }
 
 void dsda_UpdateKeysHC(void* data) {
   local = data;
 
-  if (local->boom_label)
-  {
-    dsda_UpdateComponentText(local->label.msg, sizeof(local->label.msg));
-    dsda_RefreshHudText(&local->label);
-  }
+  dsda_UpdateComponentText(local->label.msg, sizeof(local->label.msg));
+  dsda_RefreshHudText(&local->label);
 }
 
 void dsda_DrawKeysHC(void* data) {
