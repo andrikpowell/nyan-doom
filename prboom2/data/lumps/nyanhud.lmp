@@ -157,7 +157,7 @@ loading_disk 292 8 top_right
 doomguy_face 18 36 bottom
 big_health_text 53 26 bottom
 big_armor 108 26 bottom
-big_ammo 236 26 bottom_right 1
+big_ammo 302 26 bottom_right 1 1
 stat_totals 2 48 bottom_left
 status_timers 318 64 top_right 1
 status_widget 310 44 bottom_right 0 1
@@ -266,7 +266,7 @@ add_offset 1 top_left
 heretic full 2 "modern"
 big_health 4 26 bottom_left 1
 big_armor 66 26 bottom_left 1
-big_ammo 208 26 bottom_right 1
+big_ammo 280 26 bottom_right 1 1
 stat_totals 2 40 bottom_left
 status_timers 318 64 top_right 1
 status_widget 310 50 bottom_right 0 1

@@ -22,6 +22,7 @@
 typedef struct {
   dsda_patch_component_t component;
   dboolean right_align;
+  dboolean right_anchor;
   dboolean percent;
 } local_component_t;
 
@@ -81,6 +82,9 @@ static void dsda_DrawComponent(void) {
   int lump;
   int armor;
   int flags, numflags;
+  int lump_width;
+  int text_width;
+  int total_width;
 
   player = &players[displayplayer];
   armor = st_armor;
@@ -110,10 +114,17 @@ static void dsda_DrawComponent(void) {
     }
   }
 
+  lump_width = patch_spacing_x;
+  text_width = dsda_GetNumberWidth();
+  total_width = lump_width + patch_spacing + text_width;
+
+  if (local->right_anchor)
+    x -= total_width;
+
   if (!local->right_align)
   {
     dsda_DrawBigArmorIcon(x, y, lump, flags);
-    x += patch_spacing + patch_spacing_x;
+    x += patch_spacing + lump_width;
   }
 
   // Numbers need offsets (so 1 doesn't have a big space)
@@ -123,7 +134,7 @@ static void dsda_DrawComponent(void) {
 
   if (local->right_align)
   {
-    x += patch_spacing + dsda_GetNumberWidth();
+    x += patch_spacing + text_width;
     dsda_DrawBigArmorIcon(x, y, lump, flags);
   }
 }
@@ -133,7 +144,8 @@ void dsda_InitBigArmorHC(int x_offset, int y_offset, int vpt, int* args, int arg
   local = *data;
 
   local->right_align = (arg_count > 0) ? !!args[0] : false;
-  local->percent = (arg_count > 1) ? !!args[1] : false;
+  local->right_anchor = (arg_count > 1) ? !!args[1] : false;
+  local->percent = (arg_count > 2) ? !!args[2] : false;
 
   if (heretic) {
     armor_lump_green = R_NumPatchForSpriteIndex(HERETIC_SPR_SHLD);

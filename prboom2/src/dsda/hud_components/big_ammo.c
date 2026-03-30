@@ -22,6 +22,7 @@
 typedef struct {
   dsda_patch_component_t component;
   dboolean right_align;
+  dboolean right_anchor;
 } local_component_t;
 
 static local_component_t* local;
@@ -127,6 +128,9 @@ static void dsda_DrawComponent(void) {
   int x, y;
   int flags, numflags;
   int cm;
+  int lump_width;
+  int text_width;
+  int total_width;
 
   if (hexen) return;
 
@@ -147,17 +151,24 @@ static void dsda_DrawComponent(void) {
   lump = R_NumPatchForSpriteIndex(dsda_GetAmmoImage(ammo_type));
   cm = heretic ? CR_DEFAULT : dsda_TextCR(dsda_AmmoColorBig(player));
 
+  lump_width = patch_spacing_x;
+  text_width = dsda_GetNumberWidth();
+  total_width = lump_width + patch_spacing + text_width;
+
+  if (local->right_anchor)
+    x -= total_width;
+
   if (!local->right_align)
   {
     dsda_DrawBigAmmoIcon(x, y, lump, flags);
-    x += patch_spacing + patch_spacing_x;
+    x += patch_spacing + lump_width;
   }
 
   dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, ammo, local->right_align, false, false, false);
 
   if (local->right_align)
   {
-    x += patch_spacing + dsda_GetNumberWidth();
+    x += patch_spacing + text_width;
     dsda_DrawBigAmmoIcon(x, y, lump, flags);
   }
 }
@@ -169,6 +180,7 @@ void dsda_InitBigAmmoHC(int x_offset, int y_offset, int vpt, int* args, int arg_
   if (hexen) return;
 
   local->right_align = (arg_count > 0) ? !!args[0] : false;
+  local->right_anchor = (arg_count > 1) ? !!args[1] : false;
 
   // Raven text needs smaller spacing
   if (heretic)  dsda_HereticAmmoPatchSpacing();

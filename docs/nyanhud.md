@@ -97,12 +97,14 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
     - `horizontal`: displays the component horizontally rather than vertically
     - 😸 `spacing`: allows customisation for the spacing between keys (default is 3)
     - 😸 `classic`: displays the `KEY` label in front of keys (requires `horizontal`) while also separating the skull keys from keycards
-- `big_ammo_text`: shows the ammo for the current weapon in the status bar font
-  - Supports 1 argument: `right_align`
-    - 😸 `right_align`: aligns the text to the right
+- 😸 `big_ammo_text`: shows the ammo for the current weapon in the status bar font
+  - Supports 2 arguments: `right_align right_anchor`
+    - `right_align`: aligns the text to the right (x is still anchored left)
+    - `right_anchor`: draws element to the right
 - 😸 `big_ammo`: shows the ammo for the current weapon in the status bar font with the ammo sprite
-  - Supports 1 argument: `right_align`
-    - 😸 `right_align`: moves the sprite to the right of the text and aligns the text to the right
+  - Supports 2 arguments: `right_align right_anchor`
+    - `right_align`: moves the sprite to the right of the text and aligns the text to the right (x is still anchored left)
+    - `right_anchor`: draws element to the right
 - 😸 `big_mana`: shows the mana (blue, green, or both) for the current weapon with mana icons and medium font
   - Only works in Hexen
   - Default draws blue above green, each with icons (vertical)
@@ -111,20 +113,24 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
     - `horizontal`: displays the component horizontally rather than vertically
     - `show_active`: only draws the current mana type for the selected weapon
 - `big_armor`: shows the player armor (color-coded) in the status bar font with the armor sprite
-  - Supports 2 arguments: `right_align percent`
-    - 😸 `right_align`: moves the sprite to the right of the text and aligns the text to the right
+  - Supports 3 arguments: `right_align right_anchor percent`
+    - 😸 `right_align`: moves the sprite to the right of the text and aligns the text to the right  (x is still anchored left)
+    - 😸 `right_anchor`: draws element to the right
     - 😸 `percent`: draws a percent at the end
 - `big_armor_text`: shows the player armor (color-coded) in the status bar font
-  - Supports 2 arguments: `right_align percent`
-    - 😸 `right_align`: aligns the text to the right
+  - Supports 3 arguments: `right_align right_anchor percent`
+    - 😸 `right_align`: aligns the text to the right  (x is still anchored left)
+    - 😸 `right_anchor`: draws element to the right
     - 😸 `percent`: draws a percent at the end
 - `big_health`: shows the player health (color-coded) in the status bar font with the health sprite
-  - Supports 2 arguments: `right_align percent`
-    - 😸 `right_align`: moves the sprite to the right of the text and aligns the text to the right
+  - Supports 3 arguments: `right_align right_anchor percent`
+    - 😸 `right_align`: moves the sprite to the right of the text and aligns the text to the right  (x is still anchored left)
+    - 😸 `right_anchor`: draws element to the right
     - 😸 `percent`: draws a percent at the end
 - `big_health_text`: shows the player health (color-coded) in the status bar font
-  - Supports 2 arguments: `right_align percent`
-    - 😸 `right_align`: aligns the text to the right
+  - Supports 3 arguments: `right_align right_anchor percent`
+    - 😸 `right_align`: aligns the text to the right  (x is still anchored left)
+    - 😸 `right_anchor`: draws element to the right
     - 😸 `percent`: draws a percent at the end
 
 ### Small Widgets

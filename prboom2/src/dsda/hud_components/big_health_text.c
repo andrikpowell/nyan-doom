@@ -22,6 +22,7 @@
 typedef struct {
   dsda_patch_component_t component;
   dboolean right_align;
+  dboolean right_anchor;
   dboolean percent;
 } local_component_t;
 
@@ -44,7 +45,7 @@ static void dsda_DrawComponent(void) {
   x = local->component.x;
   y = local->component.y;
 
-  dsda_DrawBigNumber(x, y, 0, cm, local->component.vpt, 3, health, local->right_align, false, local->percent, false);
+  dsda_DrawBigNumber(x, y, 0, cm, local->component.vpt, 3, health, local->right_align, local->right_anchor, local->percent, false);
 }
 
 void dsda_InitBigHealthTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
@@ -52,7 +53,8 @@ void dsda_InitBigHealthTextHC(int x_offset, int y_offset, int vpt, int* args, in
   local = *data;
 
   local->right_align = (arg_count > 0) ? !!args[0] : false;
-  local->percent = (arg_count > 1) ? !!args[1] : false;
+  local->right_anchor = (arg_count > 1) ? !!args[1] : false;
+  local->percent = (arg_count > 2) ? !!args[2] : false;
 
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
 }
