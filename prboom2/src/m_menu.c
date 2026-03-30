@@ -5069,7 +5069,7 @@ setup_menu_t trans_gen_settings[] = {
   TITLE("UI and Menus", G_X),
   { "Enable Translucency", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_menu_tran_filter },
   { "Percentage", S_PERC | S_NYAN, m_conf, G_X, dsda_config_menu_tran_filter_pct, 0, empty_list, DEPEND(dsda_config_menu_tran_filter, true) },
-  { "Enable Text Shadows", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_shadow_tran_filter },
+  { "Enable Extra/Text Shadows", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_shadow_tran_filter },
   { "Percentage", S_PERC | S_NYAN, m_conf, G_X, dsda_config_shadow_tran_filter_pct, 0, empty_list, DEPEND(dsda_config_shadow_tran_filter, true) },
   { "Ex Hud Translucency", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_ex_text_tran_filter, 0, empty_list, DEPEND(dsda_config_exhud, true) },
   { "Percentage", S_PERC | S_NYAN, m_conf, G_X, dsda_config_ex_text_tran_filter_pct, 0, empty_list, DEPEND_MULTI(exhud_percentage_list) },
@@ -5274,7 +5274,7 @@ setup_menu_t* status_widgets_settings[] =
 #define STATUS_WIDGET_ON   0, empty_list, DEPEND(nyan_config_ex_status_widget, true)
 
 setup_menu_t status_icons_gen_settings[] = {
-  { "Use Status Widget", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_widget },
+  { "Enable Status Widget", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_widget },
   { "Enable Blinking", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_blinking, STATUS_WIDGET_ON },
   EMPTY_LINE,
   { "Armor", S_YESNO | S_NYAN, m_conf, G_X, nyan_config_ex_status_armor, STATUS_WIDGET_ON },
