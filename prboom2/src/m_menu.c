@@ -4736,8 +4736,6 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   NEXT_PAGE(display_hud_settings),
   FINAL_ENTRY
 };
-static const char* stat_format_list[] = { "ratio", "percent", "count", "remaining", "boolean", "dsda classic", NULL };
-static const char* automap_stat_format_list[] = { "Match Hud", "ratio", "percent", "count", "remaining", "boolean", "dsda classic", NULL };
 
 setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
@@ -4747,12 +4745,6 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   { "Fade Messages", S_YESNO, m_conf, G_X, dsda_config_fade_messages, 0, empty_list, DEPEND(dsda_config_show_messages, true)  },
   FUNC("Announcements", S_CENTER | S_NYAN, G_X, M_Sub_Announce),
   FUNC("Obituaries", S_CENTER | S_NYAN, G_X, M_Sub_Obituary),
-  EMPTY_LINE,
-  { "Ex Hud Free Text", S_NAME | S_NYAN, m_conf, G_X, dsda_config_free_text },
-  { "Show Free Text", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_free_text_active },
-  { "Level Stat Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_exhud_stats_format, 0, stat_format_list },
-  { "Automap Level Stat Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_automap_stats_format, 0, automap_stat_format_list },
-  { "Show Target's Health", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_target_health },
   EMPTY_LINE,
   FUNC("Ex-Hud", S_CENTER | S_NYAN, G_X, M_Sub_ExHud),
   FUNC("Status Widgets", S_CENTER | S_NYAN, G_X, M_Sub_StatusWidgets),
@@ -4870,7 +4862,6 @@ setup_menu_t display_color_settings[] = {
   {"Weapon Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_label },
   {"Weapon Owned", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_owned },
   {"Weapon Berserk", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_berserk },
-  {"Weapon Value", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_value },
   {"Weapon Out", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_out },
   {"Weapon Bad", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_bad },
   {"Weapon Warning", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_warning },
@@ -5226,10 +5217,20 @@ setup_menu_t* exhud_settings[] =
   NULL
 };
 
+static const char* stat_format_list[] = { "ratio", "percent", "count", "remaining", "boolean", "dsda classic", NULL };
+static const char* automap_stat_format_list[] = { "Match Hud", "ratio", "percent", "count", "remaining", "boolean", "dsda classic", NULL };
+
 setup_menu_t exhud_gen_settings[] = {
   { "Use Extended Hud", S_YESNO, m_conf, G_X, dsda_config_exhud },
   { "Ex Hud Scale", S_PERC, m_conf, G_X, dsda_config_ex_text_scale_x },
   { "Ex Hud Ratio", S_PERC, m_conf, G_X, dsda_config_ex_text_ratio_y },
+  EMPTY_LINE,
+  { "Ex Hud Free Text", S_NAME | S_NYAN, m_conf, G_X, dsda_config_free_text },
+  { "Show Free Text", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_free_text_active },
+  { "Show Target's Health", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_target_health },
+  EMPTY_LINE,
+  { "Level Stat Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_exhud_stats_format, 0, stat_format_list },
+  { "Automap Level Stat Format", S_CHOICE | S_NYAN, m_conf, G_X, dsda_config_automap_stats_format, 0, automap_stat_format_list },
   FINAL_ENTRY
 };
 
