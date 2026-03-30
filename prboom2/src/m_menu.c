@@ -4862,6 +4862,7 @@ setup_menu_t display_color_settings[] = {
   {"Weapon Label", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_label },
   {"Weapon Owned", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_owned },
   {"Weapon Berserk", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_berserk },
+  {"Weapon Value", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_value },
   {"Weapon Out", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_out },
   {"Weapon Bad", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_bad },
   {"Weapon Warning", S_CRCHOICE, m_conf, G_X, dsda_tc_exhud_weapon_warning },
