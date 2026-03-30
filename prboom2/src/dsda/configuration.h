@@ -109,6 +109,7 @@ enum {
   nyan_config_ex_timer_morph,
   nyan_config_ex_timer_speed,
   nyan_config_ex_timer_maulotaur,
+  dsda_config_free_text_active,
   dsda_config_free_text,
   dsda_config_mute_sfx,
   dsda_config_mute_music,

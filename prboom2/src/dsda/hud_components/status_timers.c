@@ -84,9 +84,6 @@ void dsda_InitStatusTimersHC(int x_offset, int y_offset, int vpt, int* args, int
 void dsda_UpdateStatusTimersHC(void* data) {
     local = data;
 
-    if(!dsda_IntConfig(nyan_config_ex_timer_widget))
-      return;
-
     dsda_UpdateComponentText(local->component.msg, sizeof(local->component.msg));
     dsda_RefreshHudText(&local->component);
 
@@ -96,9 +93,6 @@ void dsda_UpdateStatusTimersHC(void* data) {
 
 void dsda_DrawStatusTimersHC(void* data) {
     local = data;
-
-    if(!dsda_IntConfig(nyan_config_ex_timer_widget))
-      return;
 
     dsda_DrawBasicText(&local->component);
 }

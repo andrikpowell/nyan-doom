@@ -75,9 +75,6 @@ static void dsda_DrawComponent(void) {
     y = local->component.y;
     idx = powerup_index;
 
-    if(!dsda_IntConfig(nyan_config_ex_status_widget))
-        return;
-
     dsda_SortPowerups(player, idx, &n, POWERUP_STATUS_ICON);
 
     for (int i = 0; i < n; ++i)

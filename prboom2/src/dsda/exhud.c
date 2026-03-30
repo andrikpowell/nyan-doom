@@ -916,6 +916,9 @@ static void dsda_RefreshHUD(void) {
   dsda_RefreshExHudTargetHealth();
   dsda_RefreshExHudCoordinateDisplay();
   dsda_RefreshExHudCommandDisplay();
+  dsda_RefreshExHudFreeText();
+  dsda_RefreshExHudStatusWidget();
+  dsda_RefreshExHudTimerWidget();
   dsda_RefreshMapCoordinates();
   dsda_RefreshMapTotals();
   dsda_RefreshMapTime();
@@ -1126,6 +1129,18 @@ void dsda_RefreshExHudTargetHealth(void) {
 
 void dsda_RefreshExHudCommandDisplay(void) {
   dsda_BasicRefresh(dsda_CommandDisplay, exhud_command_display);
+}
+
+void dsda_RefreshExHudFreeText(void) {
+  dsda_BasicRefresh(dsda_FreeTextShown, exhud_free_text);
+}
+
+void dsda_RefreshExHudStatusWidget(void) {
+  dsda_BasicRefresh(dsda_StatusWidget, exhud_status_widget);
+}
+
+void dsda_RefreshExHudTimerWidget(void) {
+  dsda_BasicRefresh(dsda_TimerWidget, exhud_status_timers);
 }
 
 void dsda_RefreshMapCoordinates(void) {

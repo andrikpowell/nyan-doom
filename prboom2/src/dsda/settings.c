@@ -275,6 +275,18 @@ dboolean dsda_CommandDisplay(void) {
   return dsda_IntConfig(dsda_config_command_display) || dsda_BuildMode();
 }
 
+dboolean dsda_FreeTextShown(void) {
+  return dsda_IntConfig(dsda_config_free_text_active);
+}
+
+dboolean dsda_StatusWidget(void) {
+  return dsda_IntConfig(nyan_config_ex_status_widget);
+}
+
+dboolean dsda_TimerWidget(void) {
+  return dsda_IntConfig(nyan_config_ex_timer_widget);
+}
+
 dboolean dsda_TargetHealth() {
   return dsda_IntConfig(dsda_config_target_health) && !demorecording;
 }

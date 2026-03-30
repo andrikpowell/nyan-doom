@@ -472,7 +472,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [nyan_config_ex_status_widget] = {
     "nyan_ex_status_widget", nyan_config_ex_status_widget,
-    CONF_BOOL(0), NULL,  NOT_STRICT
+    CONF_BOOL(0), NULL,  NOT_STRICT, dsda_RefreshExHudStatusWidget
   },
   [nyan_config_ex_status_blinking] = {
     "nyan_ex_status_blinking", nyan_config_ex_status_blinking,
@@ -532,7 +532,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [nyan_config_ex_timer_widget] = {
     "nyan_ex_timer_widget", nyan_config_ex_timer_widget,
-    CONF_BOOL(0), NULL, NOT_STRICT
+    CONF_BOOL(0), NULL, NOT_STRICT, dsda_RefreshExHudTimerWidget
   },
   [nyan_config_ex_timer_blinking] = {
     "nyan_ex_timer_blinking", nyan_config_ex_timer_blinking,
@@ -593,6 +593,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [nyan_config_ex_timer_maulotaur] = {
     "nyan_ex_timer_maulotaur", nyan_config_ex_timer_maulotaur,
     CONF_BOOL(1), NULL, NOT_STRICT
+  },
+  [dsda_config_free_text_active] = {
+    "dsda_free_text_active", dsda_config_free_text_active,
+    CONF_BOOL(1), NULL, NOT_STRICT, dsda_RefreshExHudFreeText
   },
   [dsda_config_free_text] = {
     "dsda_free_text", dsda_config_free_text,
