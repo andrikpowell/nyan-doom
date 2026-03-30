@@ -51,7 +51,7 @@ static void drawPowerupStatusIcon(int *x, int *y, int powerup, const char *lumpn
     if (!from_pwad && color != CR_DEFAULT)
         flags |= VPT_COLOR;
 
-    V_DrawNamePatch(*x, *y, lumpname, color, flags);
+    V_DrawMenuNamePatch(*x, *y, lumpname, color, flags);
 
     if (local->vertical)
         *y += local->reverse ? -(patch_vertical_spacing + PATCH_SIZE)
