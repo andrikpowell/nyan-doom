@@ -126,16 +126,24 @@ dboolean dsda_OutOfAmmo(player_t* player, ammotype_t ammo_type) {
 }
 
 int dsda_AmmoColorBig(player_t* player) {
-  int ammo_percent;
+  ammotype_t ammo_type = dsda_GetReadyAmmo(player);
 
-  ammo_percent = P_AmmoPercent(player, player->readyweapon);
+  // Weapon ran out of ammo
+  if (dsda_OutOfAmmo(player, ammo_type))
+    return dsda_tc_stbar_ammo_out;
 
-  if (ammo_percent < hud_ammo_red)
-    return dsda_tc_stbar_ammo_bad;
-  else if (ammo_percent < hud_ammo_yellow)
-    return dsda_tc_stbar_ammo_warning;
-  else if (ammo_percent < 100)
-    return dsda_tc_stbar_ammo_ok;
+  // draw normal ammo
   else
-    return dsda_tc_stbar_ammo_full;
+  {
+    int ammo_percent = P_AmmoPercent(player, player->readyweapon);
+
+    if (ammo_percent < hud_ammo_red)
+      return dsda_tc_stbar_ammo_bad;
+    else if (ammo_percent < hud_ammo_yellow)
+      return dsda_tc_stbar_ammo_warning;
+    else if (ammo_percent < 100)
+      return dsda_tc_stbar_ammo_ok;
+    else
+      return dsda_tc_stbar_ammo_full;
+  }
 }

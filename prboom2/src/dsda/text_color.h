@@ -148,6 +148,7 @@ enum {
   dsda_tc_stbar_armor_one,
   dsda_tc_stbar_armor_two,
   dsda_tc_stbar_armor_hexen,
+  dsda_tc_stbar_ammo_out,
   dsda_tc_stbar_ammo_bad,
   dsda_tc_stbar_ammo_warning,
   dsda_tc_stbar_ammo_ok,

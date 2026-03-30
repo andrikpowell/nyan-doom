@@ -359,6 +359,7 @@ static int cr_health_super;
 static int cr_armor_zero;
 static int cr_armor_one;
 static int cr_armor_two;
+static int cr_ammo_out;
 static int cr_ammo_bad;
 static int cr_ammo_warning;
 static int cr_ammo_ok;
@@ -379,6 +380,7 @@ void ST_LoadTextColors(void)
   cr_armor_zero = dsda_TextCR(dsda_tc_stbar_armor_zero);
   cr_armor_one = dsda_TextCR(dsda_tc_stbar_armor_one);
   cr_armor_two = dsda_TextCR(dsda_tc_stbar_armor_two);
+  cr_ammo_out = dsda_TextCR(dsda_tc_stbar_ammo_out);
   cr_ammo_bad = dsda_TextCR(dsda_tc_stbar_ammo_bad);
   cr_ammo_warning = dsda_TextCR(dsda_tc_stbar_ammo_warning);
   cr_ammo_ok = dsda_TextCR(dsda_tc_stbar_ammo_ok);
