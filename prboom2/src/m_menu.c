@@ -5212,8 +5212,6 @@ static void M_Sub_DrawAnnounce(void)
 //
 // Sub Menu - Ex-HUD
 
-#define EXHUD_ON           0, empty_list, DEPEND(dsda_config_exhud, true)
-
 static const char *exhud_pages[] =
 {
   "Ex-Hud",
@@ -5230,12 +5228,10 @@ setup_menu_t* exhud_settings[] =
 
 setup_menu_t exhud_gen_settings[] = {
   { "Use Extended Hud", S_YESNO, m_conf, G_X, dsda_config_exhud },
-  { "Ex Hud Scale", S_PERC, m_conf, G_X, dsda_config_ex_text_scale_x, EXHUD_ON },
-  { "Ex Hud Ratio", S_PERC, m_conf, G_X, dsda_config_ex_text_ratio_y, EXHUD_ON },
+  { "Ex Hud Scale", S_PERC, m_conf, G_X, dsda_config_ex_text_scale_x },
+  { "Ex Hud Ratio", S_PERC, m_conf, G_X, dsda_config_ex_text_ratio_y },
   FINAL_ENTRY
 };
-
-#undef EXHUD_ON
 
 static void M_Sub_ExHud(void)
 {
