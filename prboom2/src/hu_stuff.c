@@ -282,7 +282,7 @@ void HU_DrawCrosshair(void)
   if (
     !crosshair_nam[hudadd_crosshair] ||
     crosshair.lump == -1 ||
-    automap_active ||
+    automap_full ||
     menuactive ||
     dsda_Paused()
   )
@@ -561,7 +561,7 @@ void HU_Ticker(void)
   }
 
   // Reset map/author cycle when leaving automap
-  if (hud_title_cycle.string && !automap_active)
+  if (hud_title_cycle.string && !automap_full)
     dsda_FreeString(&hud_title_cycle);
 
   dsda_UpdateExHud();

@@ -1096,7 +1096,7 @@ void dsda_RefreshExHudMinimap(void) {
       components[exhud_minimap].update(components[exhud_minimap].data);
 
     if (in_game && gamestate == GS_LEVEL)
-      AM_Start(false);
+      AM_Start(AM_OPEN_MINIMAP);
   }
   else
     dsda_TurnComponentOff(exhud_minimap);

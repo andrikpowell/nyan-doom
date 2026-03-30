@@ -360,7 +360,7 @@ static void D_DrawPause(void)
   pause_space = raven ? 5 : 4;
 
   pause_x = raven ? 160 : (320 - V_NamePatchWidth(pause_lump)) / 2;
-  pause_y = automap_active ? pause_space : viewwindowy_scaled + pause_space;
+  pause_y = automap_full ? pause_space : viewwindowy_scaled + pause_space;
 
   if (raven && netgame)
     pause_y = 70;
@@ -448,7 +448,7 @@ void D_Display (fixed_t frac)
   else { // In a level
     // Work out if the player view is visible, and if there is a border
     viewactive = !inhelpscreens && !automap_solid;
-    isborder = viewactive ? R_PartialView() : (!inhelpscreens && automap_active);
+    isborder = viewactive ? R_PartialView() : (!inhelpscreens && automap_full);
 
     if (oldgamestate != GS_LEVEL || must_fill_back_screen) {
       must_fill_back_screen = false;
@@ -491,7 +491,7 @@ void D_Display (fixed_t frac)
     if (R_FullView() && (automap_solid || dsda_FullAutomapHud()))
       R_DrawViewBorder();
 
-    if (automap_active)
+    if (automap_full)
     {
       AM_Drawer(false);
     }

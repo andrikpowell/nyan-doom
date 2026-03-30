@@ -2241,7 +2241,7 @@ void G_DoCompleted (void)
     if (playeringame[i])
       G_PlayerFinishLevel(i);        // take away cards and stuff
 
-  AM_Stop(false);
+  AM_Stop(AM_CLOSE_ALL);
 
   e6y_G_DoCompleted();
   dsda_WatchLevelCompletion();
@@ -2280,7 +2280,7 @@ void G_DoCompleted (void)
   wminfo.totaltimes = totalleveltimes;
 
   gamestate = GS_INTERMISSION;
-  automap_active = false;
+  automap_full = false;
 
   // lmpwatch.pl engine-side demo testing support
   // print "FINISHED: <mapname>" when the player exits the current map
@@ -2725,7 +2725,7 @@ void G_RestartWithLoadout(int skill)
   G_PlayerFinishLevel(consoleplayer);
   dsda_UpdateGameSkill(skill);
 
-  automap_active = false;
+  automap_full = false;
   AM_clearMarks();
 
   skill_loadout = true;
@@ -3208,7 +3208,7 @@ void G_InitNew(int skill, int episode, int map, dboolean prepare)
 
   dsda_ResetPauseMode();
   dsda_ResetCommandHistory();
-  automap_active = false;
+  automap_full = false;
   dsda_UpdateGameSkill(skill);
   dsda_UpdateGameMap(episode, map);
 

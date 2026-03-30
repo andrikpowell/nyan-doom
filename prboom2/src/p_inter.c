@@ -1140,8 +1140,8 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
       }
     }
 
-    if (target->player == &players[consoleplayer] && automap_active)
-      AM_Stop(true);    // don't die in auto map; switch view prior to dying
+    if (target->player == &players[consoleplayer] && automap_full)
+      AM_Stop(AM_RESTORE_MINIMAP);    // don't die in auto map; switch view prior to dying
   }
 
   if (hexen)

@@ -83,7 +83,7 @@ void Hexen_IN_Start(wbstartstruct_t* wbstartstruct)
     interstate = 0;
     skipintermission = false;
     intertime = 0;
-    AM_Stop(false);
+    AM_Stop(AM_CLOSE_ALL);
     SN_StopAllSequences();
 }
 

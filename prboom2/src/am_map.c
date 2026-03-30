@@ -379,7 +379,7 @@ const int am_digit_lines[] =
 #undef SEG_7_Slant
 #undef R
 
-int automap_active;
+int automap_full;
 int automap_overlay;
 int automap_rotate;
 int automap_follow;
@@ -642,7 +642,7 @@ void AM_SetMapCenter(fixed_t x, fixed_t y)
 
 static void AM_UpdateParallax(void)
 {
-    dboolean minimap = !automap_active;
+    dboolean minimap = !automap_full;
 
     int dmapx;
     int dmapy;
@@ -672,7 +672,7 @@ static void AM_UpdateParallax(void)
 
 static void AM_ParallaxPan(fixed_t incx, fixed_t incy)
 {
-  dboolean minimap = !automap_active;
+  dboolean minimap = !automap_full;
 
   // [crispy] Disable map background scroll in non-follow + rotate mode.
   // The combination of the two effects is unappealing and slightly
@@ -783,7 +783,7 @@ static void AM_SetScale(void)
 //
 static void AM_SetPosition(void)
 {
-  if (automap_active)
+  if (automap_full)
   {
     if (!R_StatusBarVisible())
     {
@@ -1014,10 +1014,10 @@ static void AM_ExchangeScales(int full_automap, int *last_full_automap)
 //
 void AM_Stop (dboolean minimap)
 {
-  automap_active = false;
+  automap_full = false;
 
   if (minimap && dsda_ShowMinimap())
-    AM_Start(false);
+    AM_Start(AM_OPEN_MINIMAP);
 }
 
 //
@@ -1030,14 +1030,14 @@ void AM_Stop (dboolean minimap)
 //
 // Passed nothing, returns nothing
 //
-void AM_Start(dboolean full_automap)
+void AM_Start(dboolean open_full_automap)
 {
   static int lastlevel = -1, lastepisode = -1;
   static int last_full_automap;
 
   AM_InitParams();
 
-  automap_active = full_automap;
+  automap_full = open_full_automap;
 
   AM_SetPosition();
 
@@ -1050,9 +1050,9 @@ void AM_Start(dboolean full_automap)
     last_full_automap = true;
   }
 
-  AM_ExchangeScales(full_automap, &last_full_automap);
+  AM_ExchangeScales(open_full_automap, &last_full_automap);
 
-  if (dsda_ShowMinimap() && !full_automap)
+  if (dsda_ShowMinimap() && !open_full_automap)
     AM_RefreshMinimap();
 
   AM_initVariables();
@@ -1259,14 +1259,14 @@ dboolean AM_Responder
   {
     if (dsda_InputActivated(dsda_input_map))
     {
-      AM_Start(true);
+      AM_Start(AM_OPEN_FULLAUTOMAP);
       return true;
     }
   }
   else if (dsda_InputActivated(dsda_input_map))
   {
     bigstate = 0;
-    AM_Stop(true);
+    AM_Stop(AM_RESTORE_MINIMAP);
 
     return true;
   }
@@ -1751,7 +1751,7 @@ int AM_GetLineWeight(void) {
   }
 
   // Minimap should be just 1px
-  if (!automap_active)
+  if (!automap_full)
     thickness = 1;
 
   // else return the linesize
@@ -3556,10 +3556,12 @@ static void AM_DrawBackground (void)
 
 void AM_Drawer (dboolean minimap)
 {
-  if (!automap_active && !minimap)
+  // if no automap
+  if (!automap_full && !minimap)
     return;
 
-  if (automap_active && automap_overlay == 2 && minimap)
+  // if minimap + overlay + no fade
+  if (automap_full && automap_overlay == 2 && minimap)
     return;
 
   V_BeginAutomapDraw();

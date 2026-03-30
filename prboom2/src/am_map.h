@@ -109,11 +109,23 @@ void AM_Drawer (dboolean minimap);
 
 // Called to force the automap to quit
 // if the level is completed while it is up.
+typedef enum
+{
+  AM_CLOSE_ALL,
+  AM_RESTORE_MINIMAP,
+} am_stop_t;
+
 void AM_Stop (dboolean minimap);
 
 // killough 2/22/98: for saving automap information in savegame:
 
-void AM_Start(dboolean full_automap);
+typedef enum
+{
+  AM_OPEN_MINIMAP,
+  AM_OPEN_FULLAUTOMAP
+} am_start_t;
+
+void AM_Start(dboolean open_full_automap);
 
 //jff 4/16/98 make externally available
 

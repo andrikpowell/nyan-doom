@@ -3995,7 +3995,7 @@ void P_SetupLevel(int episode, int map, int playermask, int skill)
 
   if (dsda_ShowMinimap())
   {
-    AM_Start(false);
+    AM_Start(AM_OPEN_MINIMAP);
   }
 }
 

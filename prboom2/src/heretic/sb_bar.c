@@ -521,7 +521,7 @@ static int keybarstarttic = 0;
 
 void SB_Drawer(dboolean statusbaron)
 {
-    dboolean keybarvisible = hexen && !inventory && automap_active;
+    dboolean keybarvisible = hexen && !inventory && automap_full;
 
     if (keybarvisible && !oldkeybarvisible)
         keybarstarttic = leveltime;
@@ -567,7 +567,7 @@ void SB_Drawer(dboolean statusbaron)
         }
         else
         {
-            if (!automap_active)
+            if (!automap_full)
             {
                 V_DrawNumPatch(38, 162, LumpSTATBAR, CR_DEFAULT, VPT_STRETCH);
             }
@@ -586,7 +586,7 @@ void SB_Drawer(dboolean statusbaron)
         oldfrags = -9999;       //can't use -1, 'cuz of negative frags
         oldlife = -1;
         oldkeys = -1;
-        if (heretic || !automap_active)
+        if (heretic || !automap_full)
         {
             DrawMainBar();
         }

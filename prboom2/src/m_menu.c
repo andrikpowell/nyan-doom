@@ -7774,7 +7774,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
 
   if (dsda_InputActivated(dsda_input_zoomout))
   {
-    if (automap_active)
+    if (automap_full)
       return false;
     M_SizeDisplay(0);
     S_StartVoidSound(g_sfx_stnmov);
@@ -7783,7 +7783,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
 
   if (dsda_InputActivated(dsda_input_zoomin))
   {                                   // jff 2/23/98
-    if (automap_active)               // allow
+    if (automap_full)                 // allow
       return false;                   // key_hud==key_zoomin
     M_SizeDisplay(1);                                             //  ^
     S_StartVoidSound(g_sfx_stnmov);                              //  |
@@ -7898,7 +7898,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
 
   if (dsda_InputActivated(dsda_input_hud))   // heads-up mode
   {
-    if (automap_active)              // jff 2/22/98
+    if (automap_full)                // jff 2/22/98
       return false;                  // HUD mode control
     M_SizeDisplay(2);
     return true;
@@ -8494,7 +8494,7 @@ dboolean M_MenuIsShaded(void)
   int skillmenu = (currentMenu == &SkillDef);
   int console   = (currentMenu == &dsda_ConsoleDef);
   int Options   = (setup_active || currentMenu == &OptionsDef);
-  int All       = WhichMenuFade && (Options || messages || skillmenu) && !(console && automap_active);
+  int All       = WhichMenuFade && (Options || messages || skillmenu) && !(console && automap_full);
   return (Options || All) && fadeBG();
 }
 
@@ -8527,7 +8527,7 @@ static void M_GradualShade(void)
 void M_ShadedScreen(void)
 {
   int gradualShade = dsda_IntConfig(nyan_config_gradual_menu_fade);
-  int automapShade = automap_overlay == 2 && automap_active;
+  int automapShade = automap_overlay == 2 && automap_full;
 
   // Disables shade when automap overlay or gradual shade is turned off
   if (!gradualShade || automapShade)
