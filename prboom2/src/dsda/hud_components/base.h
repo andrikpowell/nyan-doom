@@ -85,6 +85,5 @@ ammotype_t dsda_GetWeaponAmmo(player_t* player, int weapon);
 dboolean dsda_WeaponNoAmmo(player_t* player, ammotype_t ammo_type);
 dboolean dsda_OutOfAmmo(player_t* player, ammotype_t ammo_type);
 int dsda_AmmoColorBig(player_t* player);
-int dsda_ManaColorBig(player_t* player, int mana);
 
 #endif

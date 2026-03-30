@@ -151,26 +151,3 @@ int dsda_AmmoColorBig(player_t* player) {
   else
     return dsda_tc_stbar_ammo_full;
 }
-
-int P_ManaPercent(player_t *player, int mana)
-{
-  if (!player->ammo[mana])
-    return 0;
-
-  return player->ammo[mana] * 100 / MAX_MANA;
-}
-
-int dsda_ManaColorBig(player_t* player, int mana) {
-  int mana_percent;
-
-  mana_percent = P_ManaPercent(player, mana);
-
-  if (mana_percent < hud_ammo_red)
-    return dsda_tc_stbar_ammo_bad;
-  else if (mana_percent < hud_ammo_yellow)
-    return dsda_tc_stbar_ammo_warning;
-  else if (mana_percent < 100)
-    return dsda_tc_stbar_ammo_ok;
-  else
-    return dsda_tc_stbar_ammo_full;
-}
