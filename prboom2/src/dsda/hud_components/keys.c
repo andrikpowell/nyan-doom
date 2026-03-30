@@ -26,8 +26,8 @@ typedef struct {
   dsda_text_t label;
   dsda_patch_component_t component;
   dboolean horizontal;
-  dboolean classic;
-  dboolean classic_label;
+  dboolean boom_classic;
+  dboolean boom_label;
   int spacing;
 } local_component_t;
 
@@ -259,13 +259,13 @@ static void dsda_DrawComponent(void) {
     return;
   }
 
-  if (local->classic_label)
+  if (local->boom_label)
   {
     dsda_DrawBasicText(&local->label);
     x += HU_FontStringWidth(&exhud_font, "KEY "); // draw icons after label
   }
 
-  if (local->classic)
+  if (local->boom_classic)
   {
     dsda_DrawSeparateKeys(player, x, y, true);
     return;
@@ -278,11 +278,11 @@ void dsda_InitKeysHC(int x_offset, int y_offset, int vpt, int* args, int arg_cou
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
 
-  local->horizontal = (arg_count > 0) ? !!args[0] : false;
-  local->spacing    = (arg_count > 1) ?   args[1] : PATCH_DELTA;
-  local->classic    = (arg_count > 2) ? !!args[2] : false;
+  local->horizontal     = (arg_count > 0) ? !!args[0] : false;
+  local->spacing        = (arg_count > 1) ?   args[1] : PATCH_DELTA;
+  local->boom_classic   = (arg_count > 2) ? !!args[2] : false;
 
-  local->classic_label     = (local->classic && local->horizontal && !hexen);
+  local->boom_label     = (local->boom_classic && local->horizontal && !hexen);
 
   if (hexen) {
     int i;
@@ -298,14 +298,14 @@ void dsda_InitKeysHC(int x_offset, int y_offset, int vpt, int* args, int arg_cou
 
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
 
-  if (local->classic_label)
+  if (local->boom_label)
     dsda_InitTextHC(&local->label, x_offset, y_offset, vpt);
 }
 
 void dsda_UpdateKeysHC(void* data) {
   local = data;
 
-  if (local->classic_label)
+  if (local->boom_label)
   {
     dsda_UpdateComponentText(local->label.msg, sizeof(local->label.msg));
     dsda_RefreshHudText(&local->label);
