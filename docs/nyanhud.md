@@ -108,8 +108,9 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
 - 😸 `big_mana`: shows the mana (blue, green, or both) for the current weapon with mana icons and medium font
   - Only works in Hexen
   - Default draws blue above green, each with icons (vertical)
-  - Supports 3 arguments: `right_align horizontal show_active`
+  - Supports 4 arguments: `right_align x_anchor horizontal show_active`
     - `right_align`: moves the sprite to the right of the text and aligns the text to the right
+    - `x_anchor`: draws element to the left (0), center (1), or right (2)
     - `horizontal`: displays the component horizontally rather than vertically
     - `show_active`: only draws the current mana type for the selected weapon
 - `big_armor`: shows the player armor (color-coded) in the status bar font with the armor sprite

@@ -22,6 +22,7 @@
 typedef struct {
   dsda_patch_component_t component;
   dboolean right_align;
+  int anchor;
   dboolean horizontal;
   dboolean show_active;
 } local_component_t;
@@ -134,9 +135,12 @@ static void dsda_DrawComponent(void) {
   int flags, numflags;
   int cm1, cm2;
   int mana1, mana2;
-  int width1;
   dboolean draw_blue = true;
   dboolean draw_green = true;
+  int text_width;
+  int blue_width;
+  int green_width;
+  int total_width;
 
   player = &players[displayplayer];
   flags = numflags = local->component.vpt;
@@ -183,6 +187,32 @@ static void dsda_DrawComponent(void) {
   if (!draw_blue && !draw_green)
     return;
 
+  // anchor
+  text_width = dsda_GetManaTextWidth();
+  blue_width = draw_blue ? R_NumPatchWidth(manaLumpBlue) + patch_spacing + text_width : 0;
+  green_width = draw_green ? R_NumPatchWidth(manaLumpGreen) + patch_spacing + text_width : 0;
+
+  // anchor
+  if (local->anchor)
+  {
+    if (!local->horizontal)
+    {
+      total_width = MAX(blue_width, green_width);
+    }
+    else
+    {
+      if (draw_blue && draw_green)
+        total_width = blue_width + pair_spacing_x + green_width;
+      else
+        total_width = blue_width + green_width;
+    }
+
+    if (local->anchor >= ANCHOR_RIGHT)
+      x -= total_width;
+    else if (local->anchor == ANCHOR_CENTER)
+      x -= total_width / 2;
+  }
+
   if (!local->horizontal)
   {
     if (draw_blue)
@@ -200,14 +230,12 @@ static void dsda_DrawComponent(void) {
   }
   else
   {
-    width1 = draw_blue  ? R_NumPatchWidth(manaLumpBlue)  + patch_spacing + dsda_GetManaTextWidth() : 0;
-
     if (draw_blue)
     {
       dsda_DrawManaPair(x, y, manaLumpBlue, cm1, mana1, flags, numflags);
 
       if (draw_green)
-        x += width1 + pair_spacing_x;
+        x += blue_width + pair_spacing_x;
     }
 
     if (draw_green)
@@ -221,9 +249,10 @@ void dsda_InitBigManaHC(int x_offset, int y_offset, int vpt, int* args, int arg_
 
   if (!hexen) return;
 
-  local->right_align = (arg_count > 0) ? !!args[0] : false;
-  local->horizontal  = (arg_count > 1) ? !!args[1] : false;
-  local->show_active = (arg_count > 2) ? !!args[2] : false;
+  local->right_align  = (arg_count > 0) ? !!args[0] : false;
+  local->anchor = (arg_count > 1) ? args[1] : false;
+  local->horizontal   = (arg_count > 2) ? !!args[2] : false;
+  local->show_active  = (arg_count > 3) ? !!args[3] : false;
 
   manaLumpBlue = 0;
   manaLumpGreen = 0;
