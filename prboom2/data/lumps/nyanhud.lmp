@@ -183,7 +183,7 @@ loading_disk 292 8 top_right
 ready_ammo_text 2 24 bottom_left 1
 health_text 2 16 bottom_left 1
 armor_text 2 8 bottom_left 1
-weapon_text 2 32 bottom_left
+weapon_text 2 32 bottom_left 0 1 1
 stat_totals 2 40 bottom_left 1 1 1 0 1 1
 status_timers 318 64 top_right 1
 status_widget 310 44 bottom_right 0 1
@@ -212,7 +212,7 @@ free_text 2 64 bottom_left
 speed_text 2 56 bottom_left
 stat_totals 2 48 bottom_left 1 1 1 0 1 1
 keys 2 40 bottom_left 1 7 1
-weapon_text 2 32 bottom_left
+weapon_text 2 32 bottom_left 0 1 1
 ready_ammo_text 2 24 bottom_left 1
 health_text 2 16 bottom_left 1
 armor_text 2 8 bottom_left 1
@@ -294,7 +294,7 @@ heretic full 3 "boom modern"
 ready_ammo_text 2 24 bottom_left 1
 health_text 2 16 bottom_left 1
 armor_text 2 8 bottom_left 1
-weapon_text 2 32 bottom_left
+weapon_text 2 32 bottom_left 0 1 1
 stat_totals 2 40 bottom_left 1 1 1 0 1 1
 status_timers 318 64 top_right 1
 status_widget 310 56 bottom_right 0 1
@@ -327,7 +327,7 @@ stat_totals 2 48 bottom_left 1 1 1 0 1 1
 keys 2 40 bottom_left 1 7 1
 big_artifact 286 32 bottom_right
 big_artifact_bar 160 32 bottom_center 1
-weapon_text 2 32 bottom_left
+weapon_text 2 32 bottom_left 0 1 1
 ready_ammo_text 2 24 bottom_left 1
 health_text 2 16 bottom_left 1
 armor_text 2 8 bottom_left 1
