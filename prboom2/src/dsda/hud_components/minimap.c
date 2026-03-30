@@ -30,6 +30,12 @@ typedef struct {
 
 static local_component_t* local;
 
+static int dsda_HeightRatio(int height)
+{
+  extern double dsda_MinimapYCorrection(void);
+  double correction = dsda_MinimapYCorrection();
+  return (int)(height * correction);
+}
 
 static void dsda_UpdateMinimapCoordinates(void) {
 
@@ -40,7 +46,7 @@ static void dsda_UpdateMinimapCoordinates(void) {
   local->x      = local->xx;
   local->y      = local->yy;
   local->width  = local->ww;
-  local->height = local->hh;
+  local->height = dsda_HeightRatio(local->hh);
 
   if (local->x < 0)
     local->x = 0;

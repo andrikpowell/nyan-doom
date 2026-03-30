@@ -93,6 +93,37 @@ static void GenLookup(short* lookup1, short* lookup2, int size, int max, int ste
   }
 }
 
+static void dsda_GetPatchScaling(int* base_width, int *base_height)
+{
+  switch (render_stretch_hud)
+  {
+    case patch_stretch_not_adjusted:
+    default:
+      *base_width = 320 * patches_scalex;
+      *base_height = 200 * patches_scaley;
+      break;
+
+    case patch_stretch_doom_format:
+      *base_width = WIDE_SCREENWIDTH;
+      *base_height = WIDE_SCREENHEIGHT;
+      break;
+
+    case patch_stretch_fit_to_width:
+      *base_width = SCREENWIDTH;
+      *base_height = SCREENHEIGHT;
+      break;
+  }
+}
+
+double dsda_MinimapYCorrection(void)
+{
+  int base_width;
+  int base_height;
+
+  dsda_GetPatchScaling(&base_width, &base_height);
+  return ((double) base_width / 320.0) / ((double) base_height / 200.0);
+}
+
 static void EvaluateExTextScale(void) {
   double scale = dsda_IntConfig(dsda_config_ex_text_scale_x) / 100.0;
   double ratio_y = dsda_IntConfig(dsda_config_ex_text_ratio_y) / 100.0;
@@ -102,23 +133,7 @@ static void EvaluateExTextScale(void) {
   if (!scale) scale = 1.0;
   if (!ratio_y) ratio_y = 1.0;
 
-  switch (render_stretch_hud) {
-    case patch_stretch_not_adjusted:
-    default:
-      base_width = 320 * patches_scalex;
-      base_height = 200 * patches_scaley;
-      break;
-
-    case patch_stretch_doom_format:
-      base_width = WIDE_SCREENWIDTH;
-      base_height = WIDE_SCREENHEIGHT;
-      break;
-
-    case patch_stretch_fit_to_width:
-      base_width = SCREENWIDTH;
-      base_height = SCREENHEIGHT;
-      break;
-  }
+  dsda_GetPatchScaling(&base_width, &base_height);
 
   ex_text_scale_x = (double)base_width / 320.0 * scale;
   ex_text_scale_y = (double)base_height / 200.0 * scale * ratio_y;
