@@ -807,7 +807,7 @@ static void ST_DrawFaceBack(int x, int y, int vpt, dboolean exhud)
     V_DrawShadowedNumPatchAdv(x, y, faceback.lumpnum,
         shadow,
         displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT,
-        displayplayer ? (VPT_COLOR | VPT_ALIGN_BOTTOM) : vpt);
+        displayplayer ? (VPT_COLOR | vpt) : vpt);
   }
 }
 
