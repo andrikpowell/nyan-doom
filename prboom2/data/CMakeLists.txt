@@ -245,8 +245,8 @@ set(GRAPHICS
 )
 
 set(RAVEN_LUMPS
-    lumps/STBR124.lmp
-    lumps/STBR125.lmp
+    lumps/stbr124.lmp
+    lumps/stbr125.lmp
     lumps/h_palsel.lmp
     lumps/stfrtome.lmp
     lumps/stfrmor1.lmp

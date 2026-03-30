@@ -165,8 +165,8 @@ prboom2/data/graphics/stfparm2.ppm -text
 prboom2/data/graphics/stfppstr.ppm -text
 prboom2/data/graphics/stfpfly.ppm -text
 prboom2/data/lumps/h_palsel.lmp -text
-prboom2/data/lumps/STBR124.lmp -text
-prboom2/data/lumps/STBR125.lmp -text
+prboom2/data/lumps/stbr124.lmp -text
+prboom2/data/lumps/stbr125.lmp -text
 prboom2/data/lumps/stfrtome.lmp -text
 prboom2/data/lumps/stfrmor1.lmp -text
 prboom2/data/lumps/stfrmor2.lmp -text
