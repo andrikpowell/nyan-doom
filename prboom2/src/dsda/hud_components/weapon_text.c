@@ -36,11 +36,11 @@ int dsda_GetWeaponAmmoColor(player_t* player, int weapon) {
 
   // Weapon has no ammo
   if (dsda_WeaponNoAmmo(player, ammo_type))
-    return dsda_tc_exhud_ammo_value;
+    return dsda_tc_exhud_weapon_value;
 
   // Weapon ran out of ammo
   else if (dsda_OutOfAmmo(player, ammo_type))
-    return dsda_tc_exhud_ammo_none;
+    return dsda_tc_exhud_weapon_out;
 
   // draw normal ammo
   else
@@ -48,13 +48,13 @@ int dsda_GetWeaponAmmoColor(player_t* player, int weapon) {
     int ammo_percent = P_AmmoPercent(player, weapon);
 
     if (ammo_percent < hud_ammo_red)
-      return dsda_tc_exhud_ammo_bad;
+      return dsda_tc_exhud_weapon_bad;
     else if (ammo_percent < hud_ammo_yellow)
-      return dsda_tc_exhud_ammo_warning;
+      return dsda_tc_exhud_weapon_warning;
     else if (ammo_percent < 100)
-      return dsda_tc_exhud_ammo_ok;
+      return dsda_tc_exhud_weapon_ok;
     else
-      return dsda_tc_exhud_ammo_full;
+      return dsda_tc_exhud_weapon_full;
   }
 }
 
