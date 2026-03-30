@@ -31,29 +31,21 @@ typedef struct {
 
 static local_component_t* local;
 
-static dboolean dsda_WeaponNoAmmo(player_t* player, int ammo_i) {
-  return ammo_i == am_noammo || !player->maxammo[ammo_i];
-}
-
-static dboolean dsda_OutOfAmmo(player_t* player, int ammo_i) {
-  return ammo_i != am_noammo && player->ammo[ammo_i] <= 0;
-}
-
-int dsda_GetWeaponAmmoColor(player_t* player, int num) {
-  int ammo_i = weaponinfo[num].ammo;
+int dsda_GetWeaponAmmoColor(player_t* player, int weapon) {
+  ammotype_t ammo_type = dsda_GetWeaponAmmo(player, weapon);
 
   // Weapon has no ammo
-  if (dsda_WeaponNoAmmo(player, ammo_i))
+  if (dsda_WeaponNoAmmo(player, ammo_type))
     return dsda_tc_exhud_ammo_value;
 
   // Weapon ran out of ammo
-  else if (dsda_OutOfAmmo(player, ammo_i))
+  else if (dsda_OutOfAmmo(player, ammo_type))
     return dsda_tc_exhud_ammo_none;
 
   // draw normal ammo
   else
   {
-    int ammo_percent = P_AmmoPercent(player, num);
+    int ammo_percent = P_AmmoPercent(player, weapon);
 
     if (ammo_percent < hud_ammo_red)
       return dsda_tc_exhud_ammo_bad;
@@ -149,7 +141,7 @@ void dsda_InitWeaponTextHC(int x_offset, int y_offset, int vpt, int* args, int a
     local->label_wpn = "";
   }
 
-  local->color_ammo = arg_count > 3 ? !!args[2] : false;
+  local->color_ammo = arg_count > 2 ? !!args[2] : false;
 
   dsda_InitTextHC(&local->component, x_offset, y_offset, vpt);
 }

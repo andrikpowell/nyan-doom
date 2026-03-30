@@ -33,30 +33,15 @@ static const char* label;
 static boom_bar_t boom_bar;
 static int label_width;
 
-static ammotype_t dsda_GetAmmoType(void) {
-  player_t* player = &players[displayplayer];
-  return weaponinfo[player->readyweapon].ammo;
-}
+static int dsda_ReadyAmmoColor(player_t* player) {
+  ammotype_t ammo_type = dsda_GetReadyAmmo(player);
 
-static dboolean dsda_WeaponNoAmmo(void) {
-  player_t* player = &players[displayplayer];
-  ammotype_t ammo_type = dsda_GetAmmoType();
-  return ammo_type == am_noammo || !player->maxammo[ammo_type];
-}
-
-static dboolean dsda_OutOfAmmo(void) {
-  player_t* player = &players[displayplayer];
-  ammotype_t ammo_type = dsda_GetAmmoType();
-  return ammo_type != am_noammo && player->ammo[ammo_type] <= 0;
-}
-
-int dsda_AmmoColor(player_t* player) {
   // Weapon has no ammo
-  if (dsda_WeaponNoAmmo())
+  if (dsda_WeaponNoAmmo(player, ammo_type))
     return dsda_tc_exhud_ammo_value;
 
   // Weapon ran out of ammo
-  else if (dsda_OutOfAmmo())
+  else if (dsda_OutOfAmmo(player, ammo_type))
     return dsda_tc_exhud_ammo_none;
 
   // draw normal ammo
@@ -80,7 +65,7 @@ static void dsda_DrawBar(player_t* player) {
 
   // setup bar
   {
-    ammotype_t ammo_type = dsda_GetAmmoType();
+    ammotype_t ammo_type = dsda_GetReadyAmmo(player);
     dboolean has_ammo = ammo_type != am_noammo && player->ammo[ammo_type] > 0;
 
     // if weapon uses ammo and has ammo, else blank bar
@@ -89,7 +74,7 @@ static void dsda_DrawBar(player_t* player) {
   }
 
   // color
-  cm = dsda_TextCR(dsda_AmmoColor(player));
+  cm = dsda_TextCR(dsda_ReadyAmmoColor(player));
 
   // draw bar after label
   local->ammo_bar.x = local->label.text.x + label_width;
@@ -124,7 +109,7 @@ static void dsda_UpdateComponentText(void) {
 
   player = &players[displayplayer];
   
-  label_cm = (local->draw_boom_bar) ? dsda_TextColor(dsda_AmmoColor(player)) :
+  label_cm = (local->draw_boom_bar) ? dsda_TextColor(dsda_ReadyAmmoColor(player)) :
                                       dsda_TextColor(dsda_tc_exhud_ammo_label);
   // Get label text
   snprintf(local->label.msg, sizeof(local->label.msg), "%s%s", label_cm, label);
@@ -144,10 +129,10 @@ static void dsda_UpdateComponentText(void) {
               dsda_TextColor(dsda_tc_exhud_ammo_mana2), mana2);
     }
     else {
-      ammotype_t ammo_type = dsda_GetAmmoType();
-      ammo_cm = dsda_TextColor(dsda_AmmoColor(player));
+      ammotype_t ammo_type = dsda_GetReadyAmmo(player);
+      ammo_cm = dsda_TextColor(dsda_ReadyAmmoColor(player));
 
-      if (dsda_WeaponNoAmmo())
+      if (dsda_WeaponNoAmmo(player, ammo_type))
         snprintf(local->value.msg, sizeof(local->value.msg), "%s N/A", ammo_cm);
       else
         snprintf(local->value.msg, sizeof(local->value.msg), "%s%d/%d", ammo_cm, player->ammo[ammo_type], player->maxammo[ammo_type]);

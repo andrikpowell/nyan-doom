@@ -138,7 +138,7 @@ static void dsda_DrawComponent(void) {
   // Numbers need offsets (so 1 doesn't have a big space)
   numflags &= ~VPT_NOOFFSET;
 
-  ammo_type = weaponinfo[player->readyweapon].ammo;
+  ammo_type = dsda_GetReadyAmmo(player);
 
   if (ammo_type == am_noammo || !player->maxammo[ammo_type])
     return;

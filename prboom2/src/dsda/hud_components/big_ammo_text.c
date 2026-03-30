@@ -38,7 +38,7 @@ static void dsda_DrawComponent(void) {
     return;
 
   player = &players[displayplayer];
-  ammo_type = weaponinfo[player->readyweapon].ammo;
+  ammo_type = dsda_GetReadyAmmo(player);
 
   flags = local->component.vpt;
   x = local->component.x;

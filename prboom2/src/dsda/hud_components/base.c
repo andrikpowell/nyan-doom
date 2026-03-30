@@ -80,44 +80,6 @@ void dsda_InitPatchHC(dsda_patch_component_t* component, int x_offset, int y_off
   component->vpt = vpt;
 }
 
-int P_ManaPercent(player_t *player, int mana)
-{
-  if (!player->ammo[mana])
-    return 0;
-
-  return player->ammo[mana] * 100 / MAX_MANA;
-}
-
-int dsda_ManaColorBig(player_t* player, int mana) {
-  int mana_percent;
-
-  mana_percent = P_ManaPercent(player, mana);
-
-  if (mana_percent < hud_ammo_red)
-    return dsda_tc_stbar_ammo_bad;
-  else if (mana_percent < hud_ammo_yellow)
-    return dsda_tc_stbar_ammo_warning;
-  else if (mana_percent < 100)
-    return dsda_tc_stbar_ammo_ok;
-  else
-    return dsda_tc_stbar_ammo_full;
-}
-
-int dsda_AmmoColorBig(player_t* player) {
-  int ammo_percent;
-
-  ammo_percent = P_AmmoPercent(player, player->readyweapon);
-
-  if (ammo_percent < hud_ammo_red)
-    return dsda_tc_stbar_ammo_bad;
-  else if (ammo_percent < hud_ammo_yellow)
-    return dsda_tc_stbar_ammo_warning;
-  else if (ammo_percent < 100)
-    return dsda_tc_stbar_ammo_ok;
-  else
-    return dsda_tc_stbar_ammo_full;
-}
-
 void dsda_DrawBasicText(dsda_text_t* component) {
   HUlib_drawTextLine(&component->text, false, false, false);
 }
@@ -151,4 +113,64 @@ void dsda_RefreshHudTextWrapped(dsda_text_t* component, int centered, int max_li
 
   s = component->msg;
   HUlib_WrapStringToTextLines(&component->text, s, centered, max_lines);
+}
+
+//
+//
+// ammo stuff
+//
+//
+
+ammotype_t dsda_GetReadyAmmo(player_t* player) {
+  return weaponinfo[player->readyweapon].ammo;
+}
+
+ammotype_t dsda_GetWeaponAmmo(player_t* player, int weapon) {
+  return weaponinfo[weapon].ammo;
+}
+
+dboolean dsda_WeaponNoAmmo(player_t* player, ammotype_t ammo_type) {
+  return ammo_type == am_noammo || !player->maxammo[ammo_type];
+}
+
+dboolean dsda_OutOfAmmo(player_t* player, ammotype_t ammo_type) {
+  return ammo_type != am_noammo && player->ammo[ammo_type] <= 0;
+}
+
+int dsda_AmmoColorBig(player_t* player) {
+  int ammo_percent;
+
+  ammo_percent = P_AmmoPercent(player, player->readyweapon);
+
+  if (ammo_percent < hud_ammo_red)
+    return dsda_tc_stbar_ammo_bad;
+  else if (ammo_percent < hud_ammo_yellow)
+    return dsda_tc_stbar_ammo_warning;
+  else if (ammo_percent < 100)
+    return dsda_tc_stbar_ammo_ok;
+  else
+    return dsda_tc_stbar_ammo_full;
+}
+
+int P_ManaPercent(player_t *player, int mana)
+{
+  if (!player->ammo[mana])
+    return 0;
+
+  return player->ammo[mana] * 100 / MAX_MANA;
+}
+
+int dsda_ManaColorBig(player_t* player, int mana) {
+  int mana_percent;
+
+  mana_percent = P_ManaPercent(player, mana);
+
+  if (mana_percent < hud_ammo_red)
+    return dsda_tc_stbar_ammo_bad;
+  else if (mana_percent < hud_ammo_yellow)
+    return dsda_tc_stbar_ammo_warning;
+  else if (mana_percent < 100)
+    return dsda_tc_stbar_ammo_ok;
+  else
+    return dsda_tc_stbar_ammo_full;
 }
