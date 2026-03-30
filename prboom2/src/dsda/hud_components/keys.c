@@ -194,6 +194,10 @@ static void dsda_DrawKeysEx(player_t* player, int x, int y, int vpt, dboolean ho
 {
   int i;
 
+  // If vertical, align keys offset by patch width
+  if (!horizontal)
+    x -= patch_spacing_x / 2;
+
   for (i = 0; i < 3; i++)
   {
     const char* keyname = ST_GetKeyName(player, i);
