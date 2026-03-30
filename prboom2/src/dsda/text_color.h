@@ -60,7 +60,7 @@ enum {
   dsda_tc_exhud_ammo_mana1,
   dsda_tc_exhud_ammo_mana2,
   dsda_tc_exhud_ammo_value,
-  dsda_tc_exhud_ammo_none,
+  dsda_tc_exhud_ammo_out,
   dsda_tc_exhud_ammo_bad,
   dsda_tc_exhud_ammo_warning,
   dsda_tc_exhud_ammo_ok,

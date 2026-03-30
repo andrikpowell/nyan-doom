@@ -42,7 +42,7 @@ static int dsda_ReadyAmmoColor(player_t* player) {
 
   // Weapon ran out of ammo
   else if (dsda_OutOfAmmo(player, ammo_type))
-    return dsda_tc_exhud_ammo_none;
+    return dsda_tc_exhud_ammo_out;
 
   // draw normal ammo
   else
