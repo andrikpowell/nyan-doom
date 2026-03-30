@@ -80,20 +80,8 @@ void dsda_InitPatchHC(dsda_patch_component_t* component, int x_offset, int y_off
   component->vpt = vpt;
 }
 
-void dsda_DrawBasicText(dsda_text_t* component) {
-  HUlib_drawTextLine(&component->text, false, false, false);
-}
-
-void dsda_DrawYellowText(dsda_text_t* component, dboolean yellow) {
-  HUlib_drawTextLine(&component->text, yellow, false, false);
-}
-
-void dsda_DrawBasicShadowedText(dsda_text_t* component) {
-  HUlib_drawTextLine(&component->text, false, true, false);
-}
-
-void dsda_DrawYellowShadowedText(dsda_text_t* component, dboolean yellow) {
-  HUlib_drawTextLine(&component->text, yellow, true, false);
+void dsda_DrawBasicText_Adv(dsda_text_t* component, dboolean yellow, dboolean shadow) {
+  HUlib_drawTextLine(&component->text, yellow, shadow, false);
 }
 
 void dsda_RefreshHudText(dsda_text_t* component) {

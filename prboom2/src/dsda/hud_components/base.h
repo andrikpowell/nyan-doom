@@ -72,10 +72,10 @@ void dsda_InitTextHC(dsda_text_t* component, int x_offset, int y_offset, int vpt
 void dsda_InitBlockyHC(dsda_text_t* component, int x_offset, int y_offset, int vpt);
 void dsda_InitPatchHC(dsda_patch_component_t* component, int x_offset, int y_offset, int vpt);
 
-void dsda_DrawBasicText(dsda_text_t* component);
-void dsda_DrawBasicShadowedText(dsda_text_t* component);
-void dsda_DrawYellowText(dsda_text_t* component, dboolean yellow);
-void dsda_DrawYellowShadowedText(dsda_text_t* component, dboolean yellow);
+void dsda_DrawBasicText_Adv(dsda_text_t* component, dboolean yellow, dboolean shadow);
+#define dsda_DrawBasicText(component)                   dsda_DrawBasicText_Adv((component), false,    false)
+#define dsda_DrawBasicShadowedText(component)           dsda_DrawBasicText_Adv((component), false,    true)
+#define dsda_DrawYellowShadowedText(component, yellow)  dsda_DrawBasicText_Adv((component), (yellow), true)
 
 void dsda_RefreshHudText(dsda_text_t* component);
 void dsda_RefreshHudTextWrapped(dsda_text_t* component, int centered, int max_lines);
