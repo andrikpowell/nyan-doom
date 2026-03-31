@@ -1639,6 +1639,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_switch_weapon_on_pickup", dsda_config_switch_weapon_on_pickup,
     CONF_BOOL(1), NULL, STRICT_INT(1)
   },
+  [dsda_config_switch_berserk_preferred] = {
+    "dsda_switch_berserk_preferred", dsda_config_switch_berserk_preferred,
+    CONF_BOOL(0), NULL, STRICT_INT(0)
+  },
   [dsda_config_ssg_on_arms] = {
     "dsda_ssg_on_arms", dsda_config_ssg_on_arms,
     CONF_BOOL(1)

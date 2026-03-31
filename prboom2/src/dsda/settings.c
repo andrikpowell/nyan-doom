@@ -250,6 +250,10 @@ dboolean dsda_SwitchWhenAmmoRunsOut(void) {
   return dsda_IntConfig(dsda_config_switch_when_ammo_runs_out);
 }
 
+dboolean dsda_BerserkPreferred(void) {
+  return allow_incompatibility && dsda_IntConfig(dsda_config_switch_berserk_preferred);
+}
+
 dboolean dsda_SkipQuitPrompt(void) {
   return dsda_IntConfig(dsda_config_skip_quit_prompt) || dsda_SkipMode();
 }

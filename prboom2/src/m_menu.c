@@ -2251,7 +2251,7 @@ static dboolean M_RavenDisabled(const setup_menu_t* s)
         nyan_config_loading_disk, dsda_config_fuzzmode, dsda_config_fuzzscale, dsda_config_enhanced_liteamp,
         nyan_config_item_bonus_flash, nyan_config_colored_blood, dsda_config_sts_traditional_keys,
         nyan_config_hud_berserk, nyan_config_hud_armoricon, dsda_config_enhanced_doom_over_under,
-        dsda_config_quit_sounds,
+        dsda_config_quit_sounds, dsda_config_switch_berserk_preferred,
       };
 
       if (M_DisableAndSetConfig(s, options_disable_false, arrlen(options_disable_false), false))
@@ -3844,6 +3844,7 @@ setup_menu_t weap_pref_settings[] =  // Weapons Settings screen
   TITLE("Gameplay", WP_X),
   { "Boom Weapon Auto Switch", S_YESNO, m_conf, WP_X, dsda_config_switch_when_ammo_runs_out },
   { "Auto Switch on Pickup", S_YESNO, m_conf, WP_X, dsda_config_switch_weapon_on_pickup },
+  { "Berserk Fist Over Chainsaw", S_YESNO, m_conf, WP_X, dsda_config_switch_berserk_preferred },
   { "Direct Vertical Aiming", S_YESNO | S_NYAN, m_conf, WP_X, dsda_config_disable_horiz_autoaim },
   EMPTY_LINE,
   TITLE("Cosmetic", WP_X),

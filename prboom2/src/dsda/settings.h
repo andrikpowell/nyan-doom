@@ -42,6 +42,7 @@ dboolean dsda_AlwaysSR50(void);
 dboolean dsda_HideHorns(void);
 dboolean dsda_HideWeapon(void);
 dboolean dsda_SwitchWhenAmmoRunsOut(void);
+dboolean dsda_BerserkPreferred(void);
 dboolean dsda_SkipQuitPrompt(void);
 dboolean dsda_PlayQuicksaveSFX(void);
 dboolean dsda_FadeMessages(void);

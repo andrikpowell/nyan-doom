@@ -894,14 +894,29 @@ void P_PlayerThink (player_t* player)
 
       if (!hexen)
       {
-        if (
-          newweapon == g_wp_fist && player->weaponowned[g_wp_chainsaw]
-          && (
-            player->readyweapon != g_wp_chainsaw ||
-            (!heretic && !player->powers[pw_strength])
-          )
-        )
-          newweapon = g_wp_chainsaw;
+        if (newweapon == g_wp_fist &&
+            player->weaponowned[g_wp_chainsaw])
+        {
+          // Heretic - always just direct to gauntlets
+          if (heretic)
+          {
+            if (player->readyweapon != g_wp_chainsaw)
+              newweapon = g_wp_chainsaw;
+          }
+          else
+          // Doom - force chainsaw if not currently on chainsaw
+          // + don't allow switch to fist if no berserk
+          //
+          // if "prefer berserk" active, switch to berserk first
+          {
+            dboolean berserk = player->powers[pw_strength];
+            dboolean prefer_berserk = dsda_BerserkPreferred() && berserk;
+
+            if (player->readyweapon != g_wp_chainsaw || !berserk)
+              if (player->readyweapon == g_wp_fist || !prefer_berserk)
+                newweapon = g_wp_chainsaw;
+          }
+        }
 
         if (!heretic &&
             gamemode == commercial &&

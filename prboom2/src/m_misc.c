@@ -432,6 +432,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_quicksave_sfx),
   MIGRATED_SETTING(dsda_config_switch_when_ammo_runs_out),
   MIGRATED_SETTING(dsda_config_switch_weapon_on_pickup),
+  MIGRATED_SETTING(dsda_config_switch_berserk_preferred),
   MIGRATED_SETTING(dsda_config_ssg_on_arms),
   MIGRATED_SETTING(dsda_config_viewbob),
   MIGRATED_SETTING(dsda_config_weaponbob),

@@ -382,6 +382,7 @@ enum {
   dsda_config_quicksave_sfx,
   dsda_config_switch_when_ammo_runs_out,
   dsda_config_switch_weapon_on_pickup,
+  dsda_config_switch_berserk_preferred,
   dsda_config_ssg_on_arms,
   dsda_config_viewbob,
   dsda_config_weaponbob,

@@ -961,12 +961,18 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         // the fist is already in use, or the player does not
         // have the berserker strength.
 
+        // [AR] Add beserk priority option
         if (newweapon==wp_fist && player->weaponowned[wp_chainsaw] &&
-            player->readyweapon!=wp_chainsaw &&
-            (player->readyweapon==wp_fist ||
-             !player->powers[pw_strength] ||
-             P_WeaponPreferred(wp_chainsaw, wp_fist)))
-          newweapon = wp_chainsaw;
+            player->readyweapon!=wp_chainsaw)
+        {
+          dboolean prefer_berserk = dsda_BerserkPreferred() && player->powers[pw_strength];
+          dboolean prefer_chainsaw = !prefer_berserk && P_WeaponPreferred(wp_chainsaw, wp_fist);
+
+          if (player->readyweapon==wp_fist ||
+              !player->powers[pw_strength] ||
+              prefer_chainsaw)
+            newweapon = wp_chainsaw;
+        }
 
         // Select SSG from '3' only if it's owned and the player
         // does not have a shotgun, or if the shotgun is already
