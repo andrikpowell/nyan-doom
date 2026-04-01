@@ -607,15 +607,17 @@ void R_DrawSpan(draw_span_vars_t *dsvars) {
   const fixed_t ystep = dsvars->ystep;
   const byte *source = dsvars->source;
   const byte *colormap = dsvars->colormap;
-  byte *dest = drawvars.topleft + dsvars->y*drawvars.pitch + dsvars->x1;
+  byte *dest = drawvars.topleft + dsvars->y + dsvars->x1 * drawvars.pitch;
 
   while (count) {
     const fixed_t xtemp = (xfrac >> 16) & 63;
     const fixed_t ytemp = (yfrac >> 10) & 4032;
     const fixed_t spot = xtemp | ytemp;
+    *dest = colormap[source[spot]];
+
     xfrac += xstep;
     yfrac += ystep;
-    *dest++ = colormap[source[spot]];
+    dest += drawvars.pitch;
     count--;
   }
 }
@@ -664,11 +666,11 @@ void R_InitBuffer(int width, int height)
 
   viewwindowy = width == SCREENWIDTH ? 0 : (SCREENHEIGHT - ST_SCALED_HEIGHT - height) >> 1;
 
-  drawvars.topleft = screens[FG].data + viewwindowy * screens[FG].pitch + viewwindowx;
+  drawvars.topleft = screens[FG].data + viewwindowy + viewwindowx * screens[FG].pitch;
   drawvars.pitch = screens[FG].pitch;
 
   for (i=0; i<FUZZTABLE; i++)
-    fuzzoffset[i] = fuzzoffset_org[i]*screens[FG].pitch;
+    fuzzoffset[i] = fuzzoffset_org[i];
   
   if (!tallscreen)
     fuzzcellsize = scaled_fuzzcellsize = (SCREENHEIGHT + 100) / 200;
@@ -892,9 +894,21 @@ void R_FillBackScreen (void)
 static void R_CopyScreenBufferSection(int x, int y, int count)
 {
   if (V_IsSoftwareMode())
-    memcpy(screens[FG].data+y*screens[FG].pitch+x,
-           screens[BG].data+y*screens[BG].pitch+x,
-           count);   // LFB copy.
+  {
+    byte *dest;
+    byte *src;
+    int i;
+
+    dest = screens[FG].data + y + x * screens[FG].pitch;
+    src  = screens[BG].data + y + x * screens[BG].pitch;
+
+    for (i = 0; i < count; ++i)
+    {
+      *dest = *src;
+      dest += screens[FG].pitch;
+      src  += screens[BG].pitch;
+    }
+  }
 }
 
 //
