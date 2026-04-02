@@ -241,7 +241,7 @@ set(GRAPHICS
     graphics/cross5.ppm
     graphics/cross6.ppm
     graphics/cross7.ppm
-    graphics/STBR123.ppm
+    graphics/stbr123.ppm
 )
 
 set(RAVEN_LUMPS
