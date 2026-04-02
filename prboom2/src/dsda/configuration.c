@@ -1663,6 +1663,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_swirling_flats", dsda_config_swirling_flats,
     dsda_config_int, 0, 2, { 0 }
   },
+  [dsda_config_draw_nearby_sprites] = {
+    "dsda_draw_nearby_sprites", dsda_config_draw_nearby_sprites,
+    CONF_BOOL(1), NULL, STRICT_INT(0)
+  },
   [dsda_config_fuzzmode] = {
     "dsda_fuzzmode", dsda_config_fuzzmode,
     dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0)

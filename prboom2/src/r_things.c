@@ -979,6 +979,32 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   R_UpdateVisSpriteTranMap(vis, thing);
 }
 
+// [AR] Nearby Sprites Array Stuff
+static mobj_t **nearby_sprites = NULL;
+static int num_nearby_sprites = 0;
+static int nearby_sprites_alloc = 0;
+
+static void R_ClearNearbySprites(void)
+{
+  num_nearby_sprites = 0;
+}
+
+static void R_AddNearbySprite(mobj_t *thing)
+{
+  if (num_nearby_sprites >= nearby_sprites_alloc)
+  {
+    size_t num_nearby_sprite_alloc_prev = nearby_sprites_alloc;
+
+    nearby_sprites_alloc = nearby_sprites_alloc ? nearby_sprites_alloc * 2 : 128;
+    nearby_sprites = Z_Realloc(nearby_sprites, nearby_sprites_alloc * sizeof(*nearby_sprites));
+
+    memset(nearby_sprites + num_nearby_sprite_alloc_prev, 0,
+      (nearby_sprites_alloc - num_nearby_sprite_alloc_prev) * sizeof(*nearby_sprites));
+  }
+
+  nearby_sprites[num_nearby_sprites++] = thing;
+}
+
 //
 // R_AddSprites
 // During BSP traversal, this adds sprites by sector.
@@ -1012,6 +1038,43 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
       R_ProjectSprite(thing, lightlevel);
     }
   }
+
+  if (dsda_DrawNearbySprites())
+  {
+    if (V_IsOpenGLMode())
+      return;
+
+    for (msecnode_t *n = sec->touching_thinglist; n; n = n->m_snext)
+    {
+      thing = n->m_thing;
+
+      // [FG] sprites in sector have already been projected
+      if (thing->subsector->sector->validcount != validcount)
+      {
+        R_AddNearbySprite(thing);
+      }
+    }
+  }
+}
+
+void R_NearbySprites(void)
+{
+  if (V_IsOpenGLMode())
+    return;
+
+  for (int i = 0; i < num_nearby_sprites; i++)
+  {
+    mobj_t *thing = nearby_sprites[i];
+    sector_t *sec = thing->subsector->sector;
+
+    // [FG] sprites in sector have already been projected
+    if (sec->validcount != validcount)
+    {
+      R_ProjectSprite(thing, sec->lightlevel);
+    }
+  }
+
+  R_ClearNearbySprites();
 }
 
 //

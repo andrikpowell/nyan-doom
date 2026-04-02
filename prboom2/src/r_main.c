@@ -1181,6 +1181,8 @@ void R_RenderPlayerView (player_t* player)
   R_RenderBSPNodes();
   DSDA_REMOVE_CONTEXT(sf_bsp_nodes);
 
+  R_NearbySprites();
+
   FakeNetUpdate();
 
   if (V_IsSoftwareMode())

@@ -375,6 +375,10 @@ dboolean dsda_WipeAtFullSpeed(void) {
   return dsda_IntConfig(dsda_config_wipe_at_full_speed);
 }
 
+dboolean dsda_DrawNearbySprites(void) {
+  return allow_incompatibility && dsda_IntConfig(dsda_config_draw_nearby_sprites);
+}
+
 int dsda_ShowAliveMonsters(void) {
   return dsda_IntConfig(dsda_config_show_alive_monsters);
 }

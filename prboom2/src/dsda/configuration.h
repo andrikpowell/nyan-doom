@@ -388,6 +388,7 @@ enum {
   dsda_config_weaponbob,
   dsda_config_quake_intensity,
   dsda_config_swirling_flats,
+  dsda_config_draw_nearby_sprites,
   dsda_config_fuzzmode,
   dsda_config_fuzzscale,
   dsda_config_multiple_area_maps,
