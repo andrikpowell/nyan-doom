@@ -186,6 +186,16 @@ enum patch_translation_e {
   VPT_SWIRL             = (1<<17), // swirling flat
 };
 
+typedef struct patch_crop_s
+{
+  int top, bottom, left, right;
+} patch_crop_t;
+
+typedef struct patch_cropf_s
+{
+  float top, bottom, left, right;
+} patch_cropf_t;
+
 extern int global_patch_top_offset;
 
 #define BOTTOM_ALIGNMENT(x) ((x) == VPT_ALIGN_BOTTOM || \

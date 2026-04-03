@@ -551,9 +551,12 @@ void SB_Drawer(dboolean statusbaron)
     }
     else
     {
-        int crop = (R_NumPatchWidth(LumpH2BAR) / 2) - 70;
-        V_DrawNumPatchCrop(0, 134, LumpH2BAR, 0, 29, crop, crop, CR_DEFAULT, VPT_STRETCH);  // cut off sides
-        V_DrawNumPatchCrop(0, 134, LumpH2BAR, 26, 0, 0, 0, CR_DEFAULT, VPT_STRETCH);        // keep middle
+        int stbar_wing = (R_NumPatchWidth(LumpH2BAR) / 2) - 70;
+        patch_crop_t top_wings_crop = {0, 29, stbar_wing, stbar_wing};
+        patch_crop_t mainbar_crop   = {26, 0, 0, 0};
+
+        V_DrawNumPatchCrop(0, 134, LumpH2BAR, top_wings_crop, CR_DEFAULT, VPT_STRETCH);  // cut off sides
+        V_DrawNumPatchCrop(0, 134, LumpH2BAR, mainbar_crop, CR_DEFAULT, VPT_STRETCH);    // keep middle
     }
 
     oldhealth = -1;

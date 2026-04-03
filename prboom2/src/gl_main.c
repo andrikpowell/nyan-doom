@@ -635,7 +635,7 @@ void gld_EndFuzz()
   glsl_PopFuzzShader();
 }
 
-void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, int fade_alpha, enum patch_translation_e flags)
+void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
@@ -677,18 +677,18 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
     return;
 
   // Clamp crop values if they exceed patch size
-  if (clip_left + clip_right >= gltexture->width)
-    clip_left = clip_right = 0;
+  if (crop.left + crop.right >= gltexture->width)
+    crop.left = crop.right = 0;
 
-  if (clip_top + clip_bottom >= gltexture->height)
-    clip_top = clip_bottom = 0;
+  if (crop.top + crop.bottom >= gltexture->height)
+    crop.top = crop.bottom = 0;
 
   // Calculate crop factors
   {
-    crop_u1 = ((float)clip_left / gltexture->realtexwidth) * gltexture->scalexfac;
-    crop_u2 = ((float)(gltexture->realtexwidth - clip_right) / gltexture->realtexwidth) * gltexture->scalexfac;
-    crop_v1 = ((float)clip_top / gltexture->realtexheight) * gltexture->scaleyfac;
-    crop_v2 = ((float)(gltexture->realtexheight - clip_bottom) / gltexture->realtexheight) * gltexture->scaleyfac;
+    crop_u1 = ((float)crop.left / gltexture->realtexwidth) * gltexture->scalexfac;
+    crop_u2 = ((float)(gltexture->realtexwidth - crop.right) / gltexture->realtexwidth) * gltexture->scalexfac;
+    crop_v1 = ((float)crop.top / gltexture->realtexheight) * gltexture->scaleyfac;
+    crop_v2 = ((float)(gltexture->realtexheight - crop.bottom) / gltexture->realtexheight) * gltexture->scaleyfac;
 
     crop_width  = gltexture->realtexwidth  * (crop_u2 - crop_u1);
     crop_height = gltexture->realtexheight * (crop_v2 - crop_v1);
@@ -772,9 +772,9 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   }
 }
 
-void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, int alpha, enum patch_translation_e flags)
+void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, patch_crop_t crop, int cm, int alpha, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, (float)clip_top, (float)clip_bottom, (float)clip_left, (float)clip_right, cm, alpha, flags);
+  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, V_PatchCropToFloat(crop), cm, alpha, flags);
 }
 
 void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags)
@@ -856,6 +856,7 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
 {
   int sx, sy, w, h;
   int scaled_x, scaled_y;
+  patch_crop_t crop = {0};
 
   w = R_NumPatchWidth(lump);
   h = R_NumPatchHeight(lump);
@@ -870,13 +871,13 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
       int remaining_width = (x + width) - sx;
       int patch_draw_width = MIN(w, remaining_width);
 
-      int clip_right  = w - patch_draw_width;
-      int clip_bottom = h - patch_draw_height;
+      crop.right  = w - patch_draw_width;
+      crop.bottom = h - patch_draw_height;
 
       scaled_x = sx;
       scaled_y = sy;
 
-      gld_DrawNumPatch(scaled_x, scaled_y, lump, false, false, 0, clip_bottom, 0, clip_right, CR_DEFAULT, 100, flags);
+      gld_DrawNumPatch(scaled_x, scaled_y, lump, false, false, crop, CR_DEFAULT, 100, flags);
     }
   }
 }

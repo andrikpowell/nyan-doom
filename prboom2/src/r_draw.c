@@ -506,8 +506,8 @@ void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars) {
   dcvars->colormap = colormaps[0];
   dcvars->translation = NULL;
   dcvars->edgeslope = dcvars->drawingmasked = 0;
+  dcvars->crop = (patch_crop_t){0};
   dcvars->flags = 0;
-  dcvars->clip_top = dcvars->clip_bottom = 0;
   dcvars->isplayersprite = false;
 
   // heretic
