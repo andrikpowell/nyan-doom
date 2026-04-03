@@ -254,8 +254,8 @@ static void wipe_renderMelt(void)
         for (int i = 0; i < height - currrow; ++i)
         {
           *dest = *source;
-          dest += width;
-          source += width;
+          dest += wipe_scr.pitch;
+          source += wipe_scr_start.pitch;
         }
       }
     }
