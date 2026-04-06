@@ -416,6 +416,10 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   const rpatch_t *patch;
   R_DrawColumn_f colfunc;
   draw_column_vars_t dcvars;
+  int64_t masked_scalerem;
+  int64_t masked_scaleerr;
+  int64_t masked_scalespan64;
+  int masked_scalespan;
 
   R_SetDefaultDrawColumnVars(&dcvars);
 
@@ -454,10 +458,10 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
   // [PN] Sub-pixel stable DDA for masked pass (transparent upper/mid).
   // Keeps masked columns aligned with solid-pass scale stepping.
-  int64_t masked_scalerem = 0;
-  int64_t masked_scaleerr = 0;
-  int64_t masked_scalespan64 = 0;
-  const int masked_scalespan = ds->x2 - ds->x1;
+  masked_scalerem = 0;
+  masked_scaleerr = 0;
+  masked_scalespan64 = 0;
+  masked_scalespan = ds->x2 - ds->x1;
 
   if (masked_scalespan > 0)
   {
