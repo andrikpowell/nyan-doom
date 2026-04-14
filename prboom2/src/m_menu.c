@@ -4433,7 +4433,7 @@ setup_menu_t* audio_settings[] =
 setup_menu_t audio_adv_settings[] = {
   { "Number of Sound Channels", S_THERMO, m_conf, G_X, dsda_config_snd_channels },
   EMPTY_LINE,
-  { "Pitch-Shifiting", S_YESNO, m_conf, G_X, dsda_config_pitched_sounds },
+  { "Pitch-Shifting", S_YESNO, m_conf, G_X, dsda_config_pitched_sounds },
   { "Disable Sound Cutoffs", S_YESNO, m_conf, G_X, dsda_config_full_sounds },
   EMPTY_LINE,
   { "Limit Overlapping for Same-Sound", S_YESNO, m_conf, G_X, dsda_config_parallel_sfx_active },
