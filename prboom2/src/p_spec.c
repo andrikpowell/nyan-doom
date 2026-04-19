@@ -1244,6 +1244,9 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
   player_t *player;
   const char *message = NULL;
   int sfx = sfx_None;
+  int blink_blue = KEYBLINK_NONE;
+  int blink_yellow = KEYBLINK_NONE;
+  int blink_red = KEYBLINK_NONE;
   dboolean successful = true;
 
   if (!mo || !mo->player)
@@ -1260,6 +1263,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_REDC : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_red = KEYBLINK_CARD;
         successful = false;
       }
       break;
@@ -1268,6 +1272,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_BLUEC : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_CARD;
         successful = false;
       }
       break;
@@ -1276,6 +1281,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_YELLOWC : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_yellow = KEYBLINK_CARD;
         successful = false;
       }
       break;
@@ -1284,6 +1290,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_REDS : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_red = KEYBLINK_SKULL;
         successful = false;
       }
       break;
@@ -1292,6 +1299,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_BLUES : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_SKULL;
         successful = false;
       }
       break;
@@ -1300,6 +1308,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_YELLOWS : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_yellow = KEYBLINK_SKULL;
         successful = false;
       }
       break;
@@ -1315,6 +1324,9 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_ANY : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_EITHER;
+        blink_yellow = KEYBLINK_EITHER;
+        blink_red = KEYBLINK_EITHER;
         successful = false;
       }
       break;
@@ -1330,6 +1342,9 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_ALL6 : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_BOTH;
+        blink_yellow = KEYBLINK_BOTH;
+        blink_red = KEYBLINK_BOTH;
         successful = false;
       }
       break;
@@ -1339,6 +1354,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_REDK : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_red = KEYBLINK_BOTH;
         successful = false;
       }
       break;
@@ -1348,6 +1364,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_BLUEK : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_BOTH;
         successful = false;
       }
       break;
@@ -1357,6 +1374,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_YELLOWK : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_yellow = KEYBLINK_BOTH;
         successful = false;
       }
       break;
@@ -1369,6 +1387,9 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_ALL3 : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_red = KEYBLINK_EITHER;
+        blink_yellow = KEYBLINK_EITHER;
+        blink_blue = KEYBLINK_EITHER;
         successful = false;
       }
     default:
@@ -1378,6 +1399,11 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
   if (message)
   {
     dsda_AddPlayerColoredMessage(message, player);
+  }
+
+  if (legacy)
+  {
+    ST_SetKeyBlink(player, blink_blue, blink_yellow, blink_red);
   }
 
   if (sfx != sfx_None)
