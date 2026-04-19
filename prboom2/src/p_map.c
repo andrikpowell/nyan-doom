@@ -1560,7 +1560,7 @@ void P_CheckHereticImpact(mobj_t *thing)
 
   for (i = numspechit - 1; i >= 0; i--)
   {
-    map_format.shoot_special_line(thing->target, spechit[i]);
+    map_format.shoot_special_line(thing->target, spechit[i], 0);
   }
 }
 
@@ -2463,7 +2463,10 @@ dboolean PTR_ShootTraverse (intercept_t* in)
     line_t *li = in->d.line;
 
     if (li->special)
-      map_format.shoot_special_line(shootthing, li);
+    {
+	    int side = P_PointOnLineSide(shootthing->x, shootthing->y, li);
+      map_format.shoot_special_line(shootthing, li, side);
+    }
 
     if (li->flags & ML_TWOSIDED &&
         !(li->flags & (ML_BLOCKEVERYTHING | ML_BLOCKHITSCAN)))
