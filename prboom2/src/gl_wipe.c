@@ -37,6 +37,7 @@
 
 #include "gl_opengl.h"
 
+#include "f_wipe.h"
 #include "v_video.h"
 #include "i_video.h"
 #include "gl_intern.h"
@@ -72,14 +73,19 @@ GLuint CaptureScreenAsTexID(void)
   return id;
 }
 
-int gld_wipe_doMelt(int ticks, int *y_lookup)
+int gld_wipe_renderMelt(int wipe_columns, int wipe_rows)
 {
-  int i, scaled_i, scaled_i2;
+  int i;
   int total_w, total_h;
   float fU1, fU2, fV1, fV2;
-  int yoffs;
+  float yoffs;
   float tx, tx2;
-  int dx = MAX(1, (SCREENWIDTH > SCREENHEIGHT) ? SCREENHEIGHT / 200 : SCREENWIDTH / 200);
+
+  if (wipe_scr_start_tex == 0 || wipe_scr_end_tex == 0)
+    return 0;
+
+  if (wipe_columns <= 0 || wipe_rows <= 0)
+    return 0;
 
   total_w = gld_GetTexDimension(viewport_rect.w);
   total_h = gld_GetTexDimension(viewport_rect.h);
@@ -105,25 +111,34 @@ int gld_wipe_doMelt(int ticks, int *y_lookup)
   glBindTexture(GL_TEXTURE_2D, wipe_scr_start_tex);
   glColor3f(1.0f, 1.0f, 1.0f);
 
-  glBegin(GL_TRIANGLE_STRIP);
-  for (i = 0; i < SCREENWIDTH; i += dx)
+  glBegin(GL_QUADS);
+  for (i = 0; i < wipe_columns; i++)
   {
-    int i2 = (i + dx > SCREENWIDTH ? SCREENWIDTH : i + dx);
-    yoffs = MAX(0, y_lookup[i]);
+    int current = wipe_MeltCurrentPosition(i);
+    int currcol = (i * SCREENWIDTH) / wipe_columns;
+    int currcolend = ((i + 1) * SCREENWIDTH) / wipe_columns;
+    int currrow;
 
-    // elim - melt texture is the pixel size of the GL viewport, not the game scene texture size
-    scaled_i = MIN(viewport_rect.w, (int)((float)i * gl_scale_x));
-    scaled_i2 = MIN(viewport_rect.w, (int)((float)i2 * gl_scale_x));
+    if (currcol >= currcolend)
+      continue;
 
-    // elim - texel coordinates don't necessarily match texture buffer dimensions, since textures
-    //        have to be stored in dimensions that are power-of-2
-    tx = (float) MIN(fU2, (float)scaled_i / (float)total_w);
-    tx2 = (float) MIN(fU2, (float)scaled_i2 / (float)total_w);
+    if (current < 0)
+      currrow = 0;
+    else if (current < wipe_rows)
+      currrow = (current * SCREENHEIGHT) / wipe_rows;
+    else
+      continue;
 
-    glTexCoord2f(tx, fV1); glVertex2f(i, yoffs);
-    glTexCoord2f(tx, fV2); glVertex2f(i, yoffs + SCREENHEIGHT);
-    glTexCoord2f(tx2, fV1); glVertex2f(i2, yoffs);
-    glTexCoord2f(tx2, fV2); glVertex2f(i2, yoffs + SCREENHEIGHT);
+    yoffs = (float)MAX(0, currrow);
+
+    // Map logical wipe columns directly to the used portion of the captured texture.
+    tx = fU2 * (float)currcol / (float)SCREENWIDTH;
+    tx2 = fU2 * (float)currcolend / (float)SCREENWIDTH;
+
+    glTexCoord2f(tx, fV1); glVertex2f((float)currcol, yoffs);
+    glTexCoord2f(tx, fV2); glVertex2f((float)currcol, yoffs + SCREENHEIGHT);
+    glTexCoord2f(tx2, fV2); glVertex2f((float)currcolend, yoffs + SCREENHEIGHT);
+    glTexCoord2f(tx2, fV1); glVertex2f((float)currcolend, yoffs);
   }
   glEnd();
 

@@ -26,6 +26,7 @@
 int dsda_LegacyNameToMap(int* found, const char* name, int* episode, int* map);
 int dsda_LegacyFirstMap(int* episode, int* map);
 int dsda_LegacyNewGameMap(int* episode, int* map);
+int dsda_LegacyMapToWarp(int* episode, int* map);
 int dsda_LegacyResolveWarp(int* args, int arg_count, int* episode, int* map);
 int dsda_LegacyNextMap(int* episode, int* map);
 int dsda_LegacyPrevMap(int* episode, int* map);

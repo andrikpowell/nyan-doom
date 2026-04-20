@@ -83,7 +83,7 @@
 #include "gl_struct.h"
 #include "gl_intern.h"
 #include "g_game.h"
-#include "d_deh.h"
+#include "deh/compatibility.h"
 #include "e6y.h"
 #include "m_file.h"
 #include "v_video.h"
@@ -222,7 +222,11 @@ int G_ReloadLevel(void)
       allow_incompatibility &&
       !menuactive)
   {
-    G_DeferedInitNew(gameskill, gameepisode, gamemap);
+    int epsd = gameepisode;
+    int map = gamemap;
+
+    dsda_MapToWarp(&epsd, &map);
+    G_DeferedInitNew(gameskill, epsd, map);
     result = true;
   }
 
@@ -581,7 +585,7 @@ void e6y_WriteStats(void)
 
   for(i=0; i<TT_MAX; i++) {
     snprintf(str, sizeof(str), "%d", max.stat[i]);
-    max.stat[i] = strlen(str);
+    max.stat[i] = (int)strlen(str);
   }
 
   for (level=0;level<numlevels;level++)
@@ -640,7 +644,7 @@ int AccelerateMouse(int val)
 int AccelerateAnalog(float val)
 {
   if (!analog_accelfactor)
-    return val;
+    return (int)val;
 
   if (val < 0)
     return -AccelerateAnalog(-val);
@@ -863,7 +867,7 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
       break;
     }
 
-    Result = SearchPath(dir,FileName,ext,BufferLength,Buffer,&p);
+    Result = SearchPath(dir,FileName,ext,(DWORD)BufferLength,Buffer,&p);
     if (Result)
       return Result;
   }

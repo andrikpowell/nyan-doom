@@ -33,7 +33,7 @@
  */
 
 #include "dstrings.h"
-#include "d_deh.h"
+#include "deh/strings.h"
 
 static const char* debug_quit_msg = "THIS IS NO MESSAGE!\nPage intentionally left blank.";
 

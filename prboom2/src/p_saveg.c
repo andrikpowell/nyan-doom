@@ -249,6 +249,10 @@ void P_ArchiveWorld (void)
     P_SAVE_X(li->health);
     P_SAVE_X(li->alpha);
 
+    // ID24
+    P_SAVE_X(li->frontmusic);
+    P_SAVE_X(li->backmusic);
+
     for (j = 0; j < 2; j++)
       if (li->sidenum[j] != NO_INDEX)
       {
@@ -348,6 +352,10 @@ void P_UnArchiveWorld (void)
     P_LOAD_X(li->health);
     P_LOAD_X(li->alpha);
 
+    // ID24
+    P_LOAD_X(li->frontmusic);
+    P_LOAD_X(li->backmusic);
+
     if (li->alpha < 1.f)
       li->tranmap = dsda_TranMap(dsda_FloatToPercent(li->alpha));
 
@@ -437,7 +445,7 @@ int P_GetMobj(mobj_t* mi, size_t s)
   size_t i = (size_t)mi;
   if (i >= s)
     I_Error("Corrupt savegame");
-  return i;
+  return (int)i;
 }
 
 static void P_ReplaceIndexWithMobj(mobj_t **mobj, mobj_t **mobj_p, int mobj_count)
@@ -495,7 +503,7 @@ void P_ArchiveMap(void)
 {
   int i;
 
-  P_SAVE_X(automap_active);
+  P_SAVE_X(automap_full);
   P_SAVE_X(markpointnum);
 
   for (i = 0; i < markpointnum; i++)
@@ -507,10 +515,10 @@ void P_ArchiveMap(void)
 
 void P_UnArchiveMap(void)
 {
-  P_LOAD_X(automap_active);
+  P_LOAD_X(automap_full);
 
-  if (automap_active)
-    AM_Start(true);
+  if (automap_full)
+    AM_Start(AM_OPEN_FULLAUTOMAP);
 
   P_LOAD_X(markpointnum);
 
@@ -1143,6 +1151,10 @@ void P_ArchiveThinkers(void) {
 
       // killough 2/14/98: end changes
 
+      // [Nugget] Over/Under
+      P_ReplaceMobjWithIndex(&mobj->above_thing);
+      P_ReplaceMobjWithIndex(&mobj->below_thing);
+
       if (raven)
       {
         P_ReplaceMobjWithIndex(&mobj->special1.m);
@@ -1750,6 +1762,10 @@ void P_UnArchiveThinkers(void) {
       P_ReplaceIndexWithMobj(&((mobj_t *) th)->tracer, mobj_p, mobj_count);
       P_ReplaceIndexWithMobj(&((mobj_t *) th)->lastenemy, mobj_p, mobj_count);
 
+      // [Nugget] Over/Under
+      P_ReplaceIndexWithMobj(&((mobj_t *) th)->above_thing, mobj_p, mobj_count);
+      P_ReplaceIndexWithMobj(&((mobj_t *) th)->below_thing, mobj_p, mobj_count);
+
       if (raven)
       {
         P_ReplaceIndexWithMobj(&((mobj_t *) th)->special1.m, mobj_p, mobj_count);
@@ -2095,6 +2111,37 @@ void P_UnArchiveAmbientSound(void)
   }
 }
 
+void P_ArchiveLightning(void)
+{
+  P_SAVE_X(LightningLightLevelCount);
+
+  if (LightningLightLevelCount > 0)
+    P_SAVE_SIZE(LightningLightLevels, LightningLightLevelCount * sizeof(*LightningLightLevels));
+
+  P_SAVE_X(NextLightningFlash);
+  P_SAVE_X(LightningFlash);
+}
+
+void P_UnArchiveLightning(void)
+{
+  P_LOAD_X(LightningLightLevelCount);
+
+  if (LightningLightLevelCount)
+  {
+    if (LightningLightLevelCount > 0)
+    {
+      int size = LightningLightLevelCount * sizeof(*LightningLightLevels);
+      LightningLightLevels = Z_MallocLevel(size);
+      P_LOAD_SIZE(LightningLightLevels, size);
+    }
+    else
+      LightningLightLevels = NULL;
+  }
+
+  P_LOAD_X(NextLightningFlash);
+  P_LOAD_X(LightningFlash);
+}
+
 void P_ArchiveMisc(void)
 {
   size_t size;
@@ -2113,8 +2160,7 @@ void P_ArchiveMisc(void)
   if (!hexen) return;
 
   P_SAVE_ARRAY(PlayerClass);
-  P_SAVE_X(NextLightningFlash);
-  P_SAVE_X(LightningFlash);
+  P_ArchiveLightning();
 
   SV_StoreMapArchive();
 }
@@ -2137,8 +2183,7 @@ void P_UnArchiveMisc(void)
   if (!hexen) return;
 
   P_LOAD_ARRAY(PlayerClass);
-  P_LOAD_X(NextLightningFlash);
-  P_LOAD_X(LightningFlash);
+  P_UnArchiveLightning();
 
   SV_RestoreMapArchive();
 }

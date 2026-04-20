@@ -26,9 +26,17 @@ void dsda_AddPlayerYellowMessage(const char* str, player_t* player, dboolean ult
 void dsda_AddYellowMessage(const char* str, dboolean ultmsg);
 void dsda_AddPlayerMessage(const char* str, player_t* player);
 void dsda_AddMessage(const char* str);
+void dsda_AddPlayerColoredMessage(const char* str, player_t* player);
 void dsda_AddUnblockableMessage(const char* str);
 void dsda_UpdateMessenger(void);
 void dsda_InitMessenger(void);
 void dsda_ReplayMessage(void);
+
+#define MESSAGE_FADE_TICS 9
+#define MESSAGE_FADE_STEPS 10
+
+extern int dsda_MessageFadeOut(int tics, dboolean forced);
+extern int dsda_MessageFadeIn(int tics, dboolean forced);
+extern int dsda_MessageTics(void);
 
 #endif

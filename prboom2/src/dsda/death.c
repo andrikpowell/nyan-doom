@@ -28,8 +28,6 @@
 
 #include "death.h"
 
-extern int inv_ptr;
-extern int curpos;
 extern int newtorch;
 extern int newtorchdelta;
 
@@ -39,39 +37,35 @@ typedef enum {
   death_use_reload,
 } death_use_action_t;
 
-int dsda_SkipDeathUseAction(void)
+int dsda_DeathUseNothingInDemo(void)
 {
-  // if demo playback, don't skip
-  if (demoplayback)
-    return false;
-
-  // if demo recording and death_use_nothing is set, skip DeathUseAction
+  // if demorecording and death_use_nothing is set, allow
   if (demorecording)
-    if (players[consoleplayer].playerstate == PST_DEAD && dsda_IntConfig(dsda_config_death_use_action) == death_use_nothing)
+    if (players[consoleplayer].playerstate == PST_DEAD &&
+        dsda_IntConfig(dsda_config_death_use_action) == death_use_nothing)
       return true;
 
-  // Avoid other keys triggering the DeathUseAction when typing cheats (ex: "e" in "quicken")
-  if (allow_incompatibility && cheat_in_progress)
-    return true;
-
+  // if demoplayback / casual play, ignore
   return false;
 }
 
 static int dsda_DeathUseAction(void)
 {
-  if (demorecording ||
-      demoplayback ||
-      map_info.flags & MI_ALLOW_RESPAWN ||
-      skill_info.flags & SI_PLAYER_RESPAWN)
+  dboolean force_death_use = demorecording && !dsda_DeathUseNothingInDemo();
+  dboolean mapinfo_respawn = map_info.flags & MI_ALLOW_RESPAWN || skill_info.flags & SI_PLAYER_RESPAWN;
+  dboolean typing_cheat    = allow_incompatibility && cheat_in_progress;
+
+  // Avoid other keys triggering when typing cheats (ex: "e" in "quicken")
+  if (typing_cheat)
+    return death_use_nothing;
+
+  if (demoplayback || force_death_use || mapinfo_respawn)
     return death_use_default;
 
   return dsda_IntConfig(dsda_config_death_use_action);
 }
 
 void dsda_DeathUse(player_t* player) {
-  if (dsda_SkipDeathUseAction())
-    return;
-
   switch (dsda_DeathUseAction())
   {
     case death_use_default:
@@ -81,8 +75,8 @@ void dsda_DeathUse(player_t* player) {
         if (player == &players[consoleplayer])
         {
           V_SetPalette(0);
-          inv_ptr = 0;
-          curpos = 0;
+          player->inv_ptr = 0;
+          player->curpos = 0;
           newtorch = 0;
           newtorchdelta = 0;
         }

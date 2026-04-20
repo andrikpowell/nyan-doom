@@ -34,6 +34,7 @@
 #include "r_data.h"
 #include "r_main.h"
 #include "r_state.h"
+#include "st_font.h"
 #include "v_video.h"
 #include "w_wad.h"
 
@@ -42,6 +43,7 @@
 #include "dsda/exhud.h"
 #include "dsda/font.h"
 #include "dsda/global.h"
+#include "dsda/messenger.h"
 #include "dsda/settings.h"
 #include "dsda/text_color.h"
 #include "dsda/utility.h"
@@ -69,13 +71,19 @@ int dsda_HudComponentY(int y_offset, int vpt, double ratio);
 void dsda_InitTextHC(dsda_text_t* component, int x_offset, int y_offset, int vpt);
 void dsda_InitBlockyHC(dsda_text_t* component, int x_offset, int y_offset, int vpt);
 void dsda_InitPatchHC(dsda_patch_component_t* component, int x_offset, int y_offset, int vpt);
-fixed_t dsda_HexenArmor(player_t* player);
-void dsda_DrawBigNumber(int x, int y, int delta_x, int delta_y, int cm, int vpt, int count, int n, int negative);
-void dsda_DrawBasicText(dsda_text_t* component);
-void dsda_DrawBasicShadowedText(dsda_text_t* component);
-void dsda_DrawYellowText(dsda_text_t* component, dboolean yellow);
-void dsda_DrawYellowShadowedText(dsda_text_t* component, dboolean yellow);
+
+void dsda_DrawBasicText_Adv(dsda_text_t* component, dboolean yellow, dboolean shadow);
+#define dsda_DrawBasicText(component)                   dsda_DrawBasicText_Adv((component), false,    false)
+#define dsda_DrawBasicShadowedText(component)           dsda_DrawBasicText_Adv((component), false,    true)
+#define dsda_DrawYellowShadowedText(component, yellow)  dsda_DrawBasicText_Adv((component), (yellow), true)
+
 void dsda_RefreshHudText(dsda_text_t* component);
 void dsda_RefreshHudTextWrapped(dsda_text_t* component, int centered, int max_lines);
+
+ammotype_t dsda_GetReadyAmmo(player_t* player);
+ammotype_t dsda_GetWeaponAmmo(player_t* player, int weapon);
+dboolean dsda_WeaponNoAmmo(player_t* player, ammotype_t ammo_type);
+dboolean dsda_OutOfAmmo(player_t* player, ammotype_t ammo_type);
+int dsda_AmmoColorBig(player_t* player);
 
 #endif

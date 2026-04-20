@@ -66,6 +66,7 @@ void dsda_WatchMorph(mobj_t* morphed);
 void dsda_WatchUnMorph(mobj_t* morphed);
 void dsda_WatchSpawn(mobj_t* spawned);
 void dsda_WatchIconSpawn(mobj_t* spawned);
+void dsda_WatchDSparilSpawn(mobj_t* spawned);
 void dsda_WatchCommand(void);
 void dsda_WatchLedgeImpact(mobj_t* thing, int target_z);
 void dsda_WatchBeforeLevelSetup(void);
@@ -79,12 +80,14 @@ void dsda_WatchNewGame(void);
 void dsda_WatchLevelReload(int* reloaded);
 void dsda_WatchLineActivation(line_t* line, mobj_t* mo);
 void dsda_WatchPTickCompleted(void);
+dboolean dsda_IsCountedKill(mobj_t* mo);
 
 dboolean dsda_ILComplete(void);
 dboolean dsda_MovieComplete(void);
 void dsda_DecomposeILTime(dsda_level_time_t* level_time);
 void dsda_DecomposeMovieTime(dsda_movie_time_t* total_time);
 int dsda_MaxKillRequirement(void);
+void dsda_SetMaxKillRequirement(int max_kills);
 int* dsda_PlayerActivatedLines(void);
 
 int dsda_TurboScale(void);

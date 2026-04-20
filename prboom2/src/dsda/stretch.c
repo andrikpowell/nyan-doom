@@ -15,6 +15,7 @@
 //	DSDA Stretch
 //
 
+#include "am_map.h"
 #include "doomdef.h"
 #include "doomtype.h"
 #include "hu_stuff.h"
@@ -93,21 +94,54 @@ static void GenLookup(short* lookup1, short* lookup2, int size, int max, int ste
   }
 }
 
+static void dsda_GetPatchScaling(int* base_width, int *base_height)
+{
+  switch (render_stretch_hud)
+  {
+    case patch_stretch_not_adjusted:
+    default:
+      *base_width = 320 * patches_scalex;
+      *base_height = 200 * patches_scaley;
+      break;
+
+    case patch_stretch_doom_format:
+      *base_width = WIDE_SCREENWIDTH;
+      *base_height = WIDE_SCREENHEIGHT;
+      break;
+
+    case patch_stretch_fit_to_width:
+      *base_width = SCREENWIDTH;
+      *base_height = SCREENHEIGHT;
+      break;
+  }
+}
+
+double dsda_MinimapYCorrection(void)
+{
+  int base_width;
+  int base_height;
+
+  dsda_GetPatchScaling(&base_width, &base_height);
+  return ((double) base_width / 320.0) / ((double) base_height / 200.0);
+}
+
 static void EvaluateExTextScale(void) {
-  ex_text_scale_x = dsda_IntConfig(dsda_config_ex_text_scale_x) / 100.0;
-  ex_text_scale_y = dsda_IntConfig(dsda_config_ex_text_ratio_y) / 100.0;
+  double scale = dsda_IntConfig(dsda_config_ex_text_scale) / 100.0;
+  double ratio_y = dsda_IntConfig(dsda_config_ex_text_ratio_height) / 100.0;
+  int base_width;
+  int base_height;
 
-  if (!ex_text_scale_x)
-    ex_text_scale_x = (double) WIDE_SCREENWIDTH / 320;
+  if (!scale) scale = 1.0;
+  if (!ratio_y) ratio_y = 1.0;
 
-  if (!ex_text_scale_y)
-    ex_text_scale_y = 1.0;
+  dsda_GetPatchScaling(&base_width, &base_height);
 
-  ex_text_scale_y *= ex_text_scale_x;
+  ex_text_scale_x = (double)base_width / 320.0 * scale;
+  ex_text_scale_y = (double)base_height / 200.0 * scale * ratio_y;
 
-  ex_text_screenwidth = 320 * ex_text_scale_x;
-  ex_text_screenheight = 200 * ex_text_scale_y;
-  ex_text_st_scaled_height = g_st_height * ex_text_scale_y;
+  ex_text_screenwidth      = (int)(320 * ex_text_scale_x);
+  ex_text_screenheight     = (int)(200 * ex_text_scale_y);
+  ex_text_st_scaled_height = (int)(g_st_height * ex_text_scale_y);
 }
 
 stretch_param_t* dsda_StretchParams(int flags) {
@@ -128,24 +162,29 @@ static void InitExTextParam(stretch_param_t* offsets, enum patch_translation_e f
 
   offsets->video = &video_ex_text;
 
-  if (flags == VPT_ALIGN_LEFT || flags == VPT_ALIGN_LEFT_BOTTOM || flags == VPT_ALIGN_LEFT_TOP) {
+  if (LEFT_ALIGNMENT(flags)) {
     offsets->deltax1 = 0;
     offsets->deltax2 = 0;
   }
 
-  if (flags == VPT_ALIGN_RIGHT || flags == VPT_ALIGN_RIGHT_BOTTOM || flags == VPT_ALIGN_RIGHT_TOP) {
+  if (CENTER_ALIGNMENT(flags)) {
+    offsets->deltax1 = offset2x / 2;
+    offsets->deltax2 = offset2x / 2;
+  }
+
+  if (RIGHT_ALIGNMENT(flags)) {
     offsets->deltax1 = offset2x;
     offsets->deltax2 = offset2x;
   }
 
-  if (flags == VPT_ALIGN_BOTTOM || flags == VPT_ALIGN_LEFT_BOTTOM || flags == VPT_ALIGN_RIGHT_BOTTOM)
+  if (BOTTOM_ALIGNMENT(flags))
     offsets->deltay1 = offset2y;
 }
 
 void dsda_UpdateExTextOffset(enum patch_translation_e flags, int offset) {
   stretch_params_table[patch_stretch_ex_text][flags].deltay1 +=
-    (ST_SCALED_HEIGHT - ex_text_st_scaled_height) * offset * hud_font.line_height / g_st_height +
-    (hud_font.line_height - exhud_font.line_height) * ex_text_scale_y * (offset > 0 ? 1 : -1);
+    (int)((ST_SCALED_HEIGHT - ex_text_st_scaled_height) * offset * hud_font.line_height / g_st_height +
+    (hud_font.line_height - exhud_font.line_height) * ex_text_scale_y * (offset > 0 ? 1 : -1));
 }
 
 void dsda_ResetExTextOffsets(void) {
@@ -183,22 +222,26 @@ static void InitStretchParam(stretch_param_t* offsets, int stretch, enum patch_t
       break;
   }
 
-  if (flags == VPT_ALIGN_LEFT || flags == VPT_ALIGN_LEFT_BOTTOM || flags == VPT_ALIGN_LEFT_TOP) {
+  if (LEFT_ALIGNMENT(flags)) {
     offsets->deltax1 = 0;
     offsets->deltax2 = 0;
   }
 
-  if (flags == VPT_ALIGN_RIGHT || flags == VPT_ALIGN_RIGHT_BOTTOM || flags == VPT_ALIGN_RIGHT_TOP) {
+  if (CENTER_ALIGNMENT(flags)) {
+    // don't touch
+  }
+
+  if (RIGHT_ALIGNMENT(flags)) {
     offsets->deltax1 *= 2;
     offsets->deltax2 *= 2;
   }
 
   offsets->deltay1 = wide_offsety;
 
-  if (flags == VPT_ALIGN_BOTTOM || flags == VPT_ALIGN_LEFT_BOTTOM || flags == VPT_ALIGN_RIGHT_BOTTOM)
+  if (BOTTOM_ALIGNMENT(flags))
     offsets->deltay1 = wide_offset2y;
 
-  if (flags == VPT_ALIGN_TOP || flags == VPT_ALIGN_LEFT_TOP || flags == VPT_ALIGN_RIGHT_TOP)
+  if (TOP_ALIGNMENT(flags))
     offsets->deltay1 = 0;
 
   if (flags == VPT_ALIGN_WIDE && !tallscreen)
@@ -246,6 +289,11 @@ void dsda_SetupStretchParams(void) {
   video_ex_text.height = ex_text_screenheight;
   GenLookup(video_ex_text.x1lookup, video_ex_text.x2lookup, video_ex_text.width, 320, video_ex_text.xstep);
   GenLookup(video_ex_text.y1lookup, video_ex_text.y2lookup, video_ex_text.height, 200, video_ex_text.ystep);
+}
+
+void dsda_UpdateStretchParams(void) {
+  dsda_SetupStretchParams();
+  AM_RefreshMinimap();
 }
 
 void dsda_EvaluatePatchScale(void) {

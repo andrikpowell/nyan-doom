@@ -1231,6 +1231,9 @@ int EV_DoGenDoor
 int EV_DoGenLockedDoor
 ( line_t* line );
 
+// ID24
+void EV_ChangeMusic(line_t* line, int side);
+
 ////////////////////////////////////////////////////////////////
 //
 // Linedef and sector special thinker spawning
@@ -1240,6 +1243,10 @@ int EV_DoGenLockedDoor
 // at game start
 void P_InitPicAnims
 ( void );
+
+int P_FlatIndexFromLump(int lumpnum);
+dboolean P_IsSwirlingFlat(int flat_index);
+dboolean P_IsSmartSwirlFlat(int flat_index);
 
 void P_InitSwitchList
 ( void );
@@ -1633,6 +1640,8 @@ typedef enum {
 
 void P_AddMobjSecret(mobj_t *mobj);
 void P_PlayerCollectSecret(player_t *player);
+void P_PlayerCollectItem(player_t *player);
+dboolean P_AnnounceKillMilestone(void);
 dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy);
 dboolean P_CheckSwitchRange(line_t *line, mobj_t *mo, int sideno);
 int EV_DoZDoomDoor(vldoor_e type, line_t *line, mobj_t *mo, int tag, fixed_t speed, int topwait,

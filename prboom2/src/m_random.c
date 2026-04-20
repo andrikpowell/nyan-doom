@@ -218,7 +218,7 @@ void P_UseHexenRNG(void)
 // Nyan Random (From International Doom)
 
 // Initialized once at Nyan_InitRandom() and used only by Nyan_RealRandom().
-static uint32_t nyan_rand_seed = 1;
+static uint32_t nyan_rand_seed = -1;
 
 void Nyan_InitRandom (void)
 {
@@ -236,7 +236,10 @@ void Nyan_InitRandom (void)
 //  Returns [0...32767]. May return [0...255] as well by using >> 23 shift.
 // -----------------------------------------------------------------------------
 
-int Nyan_RealRandom (void)
+int Nyan_Random (void)
 {
-    return (nyan_rand_seed = nyan_rand_seed * 214013u + 2531011u) >> 17;
+  if (nyan_rand_seed == -1)
+    Nyan_InitRandom();
+
+  return (nyan_rand_seed = nyan_rand_seed * 214013u + 2531011u) >> 17;
 }

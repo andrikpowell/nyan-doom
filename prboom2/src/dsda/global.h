@@ -99,11 +99,19 @@ extern int g_door_open;
 
 extern int g_st_height;
 extern int g_border_offset;
-extern int g_mf_translucent;
-extern int g_mf_shadow;
+extern uint64_t g_mf_translucent;
+extern uint64_t g_mf_translucent_reverse;
+extern uint64_t g_mf_shadow_fuzz;
 
 extern const char* g_menu_flat;
 extern const char* g_skyflatname;
+
+extern const char* g_am_followon;
+extern const char* g_am_followoff;
+extern const char* g_am_gridon;
+extern const char* g_am_gridoff;
+extern const char* g_msgoff;
+extern const char* g_msgon;
 
 extern dboolean heretic;
 extern dboolean uvplus;

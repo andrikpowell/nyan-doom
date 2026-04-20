@@ -79,13 +79,18 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 #endif
 
 #if (R_DRAWCOLUMN_FUZZ)
+  fuzz_cutoff = false;
+
   // Adjust borders. Low...
   if (!dcvars->yl)
     dcvars->yl = 1;
 
   // .. and high.
   if (dcvars->yh == viewheight-1)
+  {
     dcvars->yh = viewheight - 2;
+    fuzz_cutoff = true;
+  }
 #endif
 
   // leban 1/17/99:
@@ -121,23 +126,23 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
   // Crop to custom region
   if (dcvars->flags & DRAW_COLUMN_ISPATCH)
   {
-    if (dcvars->clip_top != 0 || dcvars->clip_bottom != 0)
+    if (dcvars->crop.top != 0 || dcvars->crop.bottom != 0)
     {
-      if (dcvars->clip_top > dcvars->yl)
+      if (dcvars->crop.top > dcvars->yl)
       {
     #if (!(R_DRAWCOLUMN_FUZZ))
-        int delta = dcvars->clip_top - dcvars->yl;
+        int delta = dcvars->crop.top - dcvars->yl;
     #endif
 
-        dcvars->yl = dcvars->clip_top;
+        dcvars->yl = dcvars->crop.top;
 
     #if (!(R_DRAWCOLUMN_FUZZ))
           frac += fracstep * delta;
     #endif
       }
 
-      if (dcvars->clip_bottom < dcvars->yh)
-        dcvars->yh = dcvars->clip_bottom;
+      if (dcvars->crop.bottom < dcvars->yh)
+        dcvars->yh = dcvars->crop.bottom;
 
       count = dcvars->yh - dcvars->yl;
 

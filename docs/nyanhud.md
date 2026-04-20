@@ -4,15 +4,19 @@ HUD configurations are stored in the NYANHUD lump. These defaults can be changed
 
 NYANHUD is very similar to DSDAHUD, but does include extra widgets, thus is incompatible with DSDA-Doom.
 
-### Specification
+Options marked with 😸 are Nyan exclusive.
+
+## Specification
 
 A HUD configuration starts with the environment: `game variant`
 - The `game` is `doom`, `heretic`, or `hexen`
 - The `variant` options are:
   - `ex` (with status bar and extended hud on)
   - `off` (with status bar and extended hud off)
-  - `full` (without status bar)
+  - `full` (without status bar)*
   - `map` (on top of the automap)
+
+> *😸 `full` variant supports 16 huds. [Learn more](#full-variant-specification)
 
 The configuration then consists of a series of components to display: `name x y alignment [args]`
 - The `name` specifies which component to display
@@ -23,11 +27,17 @@ The configuration then consists of a series of components to display: `name x y 
   - `top_left`
     - This alignment accounts for the size of the message area
   - `top_right`
+  - 😸 `top_center`
+    - component is not centered, it's anchored center
   - `bottom`
   - `bottom_left`
   - `bottom_right`
+  - 😸 `bottom_center`
+    - component is not centered, it's anchored center
   - `left`
   - `right`
+  - 😸 `center`
+    - component is not centered, it's anchored center
   - `none`
 - The `args` are a series of optional parameters (see specific components for more info)
 - For convenience, bottom-aligned `y` values are the distance from the bottom of the screen (`full`) or top of the status bar (`ex` and `off`)
@@ -45,99 +55,192 @@ Finally, there is a positioning helper: `add_offset y alignment`
 
 You can find the current default configuration [here](../prboom2/data/lumps/nyanhud.lmp).
 
-### DSDA Components
+## `Full` Variant Specification
+
+😸 The `full` variant (without status bar) has been expanded to **16 slots**: `game full # "name"`
+- The `game` is `doom`, `heretic`, or `hexen`
+- The `#` is the hud number (0-16)
+- The `name` (in quotes) is an optional name for the hud that shows in-game when cycling through huds
+> Note that the legacy `game full` structure is still supported, it's just not possible to name the hud.
+
+Here's an example of a `full` customisable hud:
+```
+doom full 5 "boom classic"
+health_text 2 8 bottom_left 1
+```
+
+## NYANHUD Components
 
 Unless otherwise specified, argument values are integers. For toggles, a 1 means on and a 0 means off. For example, `stat_totals 2 8 bottom_left 1 0 1` would turn off items but keep kills and secrets enabled.
 
+### Basic Ex-Hud Stuff
+
 - `composite_time`: shows the current level time and the total time
   - Supports 1 argument: `show_label`
-  - `show_label`: shows the "time" label
+    - `show_label`: shows the "time" label
+- `local_time`: shows the local time
+  - Supports 2 arguments: `hide_seconds am_pm`
+    - 😸 `hide_seconds`: hides the seconds on the time
+    - 😸 `am_pm`: converts the time to AM / PM format
+- `free_text`: shows arbitrary text
+  - Update the text via the "exhud free text" option
+  - ...or from the console `free_text.update <text>` / `free_text.clear`
+  - Use `\n` to create a new line
+  - Use `\cXY` to change to color `XY`
+
+### Big Widgets
+
+- 😸 `doomguy_face`: shows Doomguy's handsome face ;)
+- 😸 `loading_disk`: shows either the `STDISK` or `STCDROM` loading icons
 - `keys`: shows the acquired keys
-  - Supports 1 argument: `horizontal`
-  - `horizontal`: displays the component horizontally rather than vertically
+  - Supports 3 arguments: `horizontal spacing boom_classic`
+    - `horizontal`: displays the component horizontally rather than vertically
+    - 😸 `spacing`: allows customisation for the spacing between keys (default is 3)
+    - 😸 `boom_classic`: displays the `KEY` label in front of keys (requires `horizontal`) while also separating the skull keys from keycards
+- 😸 `big_ammo_text`: shows the ammo for the current weapon in the status bar font
+  - Supports 2 arguments: `right_align x_anchor`
+    - `right_align`: aligns the text to the right (x is still anchored left)
+    - `x_anchor`: draws element to the left (0), center (1), or right (2)
+- 😸 `big_ammo`: shows the ammo for the current weapon in the status bar font with the ammo sprite
+  - Supports 2 arguments: `right_align x_anchor`
+    - `right_align`: moves the sprite to the right of the text and aligns the text to the right (x is still anchored left)
+    - `x_anchor`: draws element to the left (0), center (1), or right (2)
+- 😸 `big_mana`: shows the mana (blue, green, or both) for the current weapon with mana icons and medium font
+  - Only works in Hexen
+  - Default draws blue above green, each with icons (vertical)
+  - Supports 4 arguments: `right_align x_anchor horizontal show_active`
+    - `right_align`: moves the sprite to the right of the text and aligns the text to the right
+    - `x_anchor`: draws element to the left (0), center (1), or right (2)
+    - `horizontal`: displays the component horizontally rather than vertically
+    - `show_active`: only draws the current mana type for the selected weapon
+- `big_armor`: shows the player armor (color-coded) in the status bar font with the armor sprite
+  - Supports 3 arguments: `right_align x_anchor percent`
+    - 😸 `right_align`: moves the sprite to the right of the text and aligns the text to the right  (x is still anchored left)
+    - 😸 `x_anchor`: draws element to the left (0), center (1), right (2), or percent (3)
+    - 😸 `percent`: draws a percent at the end
+- `big_armor_text`: shows the player armor (color-coded) in the status bar font
+  - Supports 3 arguments: `right_align x_anchor percent`
+    - 😸 `right_align`: aligns the text to the right  (x is still anchored left)
+    - 😸 `x_anchor`: draws element to the left (0), center (1), right (2), or percent (3)
+    - 😸 `percent`: draws a percent at the end
+- `big_health`: shows the player health (color-coded) in the status bar font with the health sprite
+  - Supports 3 arguments: `right_align x_anchor percent`
+    - 😸 `right_align`: moves the sprite to the right of the text and aligns the text to the right  (x is still anchored left)
+    - 😸 `x_anchor`: draws element to the left (0), center (1), right (2), or percent (3)
+    - 😸 `percent`: draws a percent at the end
+- `big_health_text`: shows the player health (color-coded) in the status bar font
+  - Supports 3 arguments: `right_align x_anchor percent`
+    - 😸 `right_align`: aligns the text to the right  (x is still anchored left)
+    - 😸 `x_anchor`: draws element to the left (0), center (1), right (2), or percent (3)
+    - 😸 `percent`: draws a percent at the end
+
+### Small Widgets
 - `ammo_text`: shows the weapons and ammo as the status bar does
   - Supports 1 argument: `show_names`
-  - `show_names`: shows ammo names in the component
+    - `show_names`: shows ammo names in the component
 - `weapon_text`: shows the acquired weapons (color-coded for berserk).
-  - Supports 2 argument: `grid show_label`
-  - `grid`: displays the weapons in a 3x3 grid rather than horizontally
-  - `show_label`: shows the "wpn" label
-- `ready_ammo_text`: shows the ammo for the current weapon
-- `big_ammo`: shows the ammo for the current weapon in the status bar font
+  - Supports 3 arguments: `grid show_label color_ammo`
+    - `grid`: displays the weapons in a 3x3 grid rather than horizontally
+    - `show_label`: shows the "wpn" label
+    - `color_ammo`: colors the weapons based on thir ammo percentage
 - `armor_text`: shows the player armor (color-coded)
-- `big_armor`: shows the player armor (color-coded) in the status bar font with the armor sprite
-- `big_armor_text`: shows the player armor (color-coded) in the status bar font
+  - Supports 1 argument: `draw_boom_bar`
+    - 😸 `draw_boom_bar`: draws a boom style bar with text
 - `health_text`: shows the player health (color-coded)
-- `big_health`: shows the player health (color-coded) in the status bar font with the health sprite
-- `big_health_text`: shows the player health (color-coded) in the status bar font
-- `big_artifact`: shows the current artifact as seen on the status bar
-  - works in combination with `big_artifact_bar` (disappears when `big_artifact_bar` is visible)
+  - Supports 1 argument: `draw_boom_bar`
+    - 😸 `draw_boom_bar`: draws a boom style bar with text
+- `ready_ammo_text`: shows the ammo for the current weapon (color-coded)
+  - Supports 1 argument: `draw_boom_bar`
+    - 😸 `draw_boom_bar`: draws a boom style bar with text (not supported in Hexen)
+
+### Demo / Test Stuff
 - `fps`: shows the current fps
 - `attempts`: shows the current and total demo attempts
 - `render_stats`: shows various render stats (`idrate`)
 - `speed_text`: shows the game clock rate
   - Supports 1 argument: `show_label`
-  - `show_label`: shows the "speed" label
+    - `show_label`: shows the "speed" label
 - `command_display`: shows the history of player commands (demo or otherwise)
 - `coordinate_display`: shows various coordinate and velocity data
 - `event_split`: shows the time of an event tracked by the `-time_*` arguments
 - `level_splits`: shows the splits for the level time and the total time (intermission screen)
 - `line_display`: shows the last lines the player activated
+  - requires menu option "Show loading disk" to be set
 - `tracker`: shows the active trackers (they stack *vertically*)
-- `local_time`: shows the local time
-- `minimap`: shows the minimap
-  - Supports 3 arguments: `width height scale`
-  - `width`: width of the component
-  - `height`: height of the component
-  - `scale`: width of the component in map units
 - `color_test`: shows the hud fonts in different color modes
-- `free_text`: shows arbitrary text
-  - Update the text in the console with `free_text.update <text>`
-  - Clear the text in the console with `free_text.clear`
-  - Use `\n` to create a new line
-  - Use `\cXY` to change to color `XY`
+
+### Raven Artifacts
+- `big_artifact`: shows the current artifact as seen on the status bar
+  - Supports 3 arguments: `simple always_show center`
+    - 😸 `simple`: doesn't show the artifact box around artifacts
+    - 😸 `always_show`: doesn't hide the artifact box when `big_artifact_bar` is visible (vanilla hides the artifact box)
+    - 😸 `center`: centers the component horizontally
+- 😸 `big_artifact_bar`: shows a transparent artifact inventory bar as seen on the status bar
+  - disappears when `big_artifact` is visible
+  - Supports 1 argument: `center`
+    - `center`: centers the component horizontally
+- 😸 `artifact_desc`: shows heretic/hexen inventory names and/or descriptions above the inventory (based on KEX)
+  - Uses the message font
+  - Supports 1 argument: `center`
+    - `center`: centers the component horizontally
+
+### Automap
 - `map_time`: shows the level / total time
   - Uses the message font
 - `map_coordinates`: shows the player's position
   - Uses the message font
-- `message`: shows the current player message
+- `map_title`: shows the current map's title
   - Uses the message font
-  - Supports 1 argument: `center`
-  - `center`: centers the component horizontally
-- `secret_message`: shows the secret revealed message
-  - Uses the message font
-  - Supports 1 argument: `center`
-  - `center`: centers the component horizontally
-
-### Nyan-specific Components
-- `stat_totals`: shows the kills / secrets / items on the current map
-  - Supports 6 arguments: `show_kills show_items show_secrets vertical show_labels stat_format`
-  - `show_kills`: shows kills in the component
-  - `show_items`: shows items in the component
-  - `show_secrets`: shows secrets in the component
-  - `vertical`: displays the stats vertically rather than horizontally
-  - `show_labels`: shows the "K" "I" "S" labels
-  - `stat_format`: shows stats in a particular format (0 - Ratio, 1 - Percent, 2 - Count, 3 - Remaining, 4 - DSDA Classic)
+  - Supports 1 argument: `no_author`
+    - 😸 `no_author`: Forces the map title to never cycle to the author
 - `map_totals`: shows the kills / secrets / items on the current map
   - Uses the message font with word labels
   - Supports 4 arguments: `show_kills show_items show_secrets stat_format`
-  - `show_kills`: shows kills in the component
-  - `show_items`: shows items in the component
-  - `show_secrets`: shows secrets in the component
-  - `stat_format`: shows stats in a particular format (0 - Ratio, 1 - Percent, 2 - Count, 3 - Remaining, 4 - DSDA Classic)
-- `status_widget`: shows icons for armor type, backpack, and other powerups
-  - Supports 1 argument: `vertical`
-- `sml_armor`: shows the player armor type with a small sprite
-  - Sprite is hidden when armor is 0%
-- `sml_berserk`: shows the player berserk status with a small sprite
-  - Sprite is hidden when berserk is inactive
-- `map_title`: shows the current map's title
-  - Uses the message font
-  - Supports 1 argument: `cycle_author`
-  - `cycle_author`: cycles between map title and author on automap
-- `announce_message`: shows the announce map message with author on next line
+    - `show_kills`: shows kills in the component
+    - `show_items`: shows items in the component
+    - `show_secrets`: shows secrets in the component
+- `minimap`: shows the minimap
+  - Supports 3 arguments: `width height scale`
+    - `width`: width of the component
+    - `height`: height of the component
+    - `scale`: width of the component in map units
+
+### Messages
+- `message`: shows the current player message
   - Uses the message font
   - Supports 1 argument: `center`
-  - `center`: centers the component horizontally
-- `big_artifact_bar`: shows a transparent artifact inventory bar as seen on the status bar
-  - works in combination with `big_artifact` (disappears when `big_artifact_bar` is visible)
+    - `center`: centers the component horizontally
+- `secret_message`: shows the secret revealed message
+  - Uses the message font
+  - Supports 1 argument: `center`
+    - `center`: centers the component horizontally
+- 😸 `announce_message`: shows the announce map message with author on next line
+  - Uses the message font
+  - Requires menu option "announce message" to be set to "on"
+  - Supports 1 argument: `center`
+    - `center`: centers the component horizontally
+
+### Stats
+- `stat_totals`: shows the kills / secrets / items on the current map
+  - Supports 7 arguments: `show_kills show_items show_secrets vertical show_labels stat_format`
+    - `show_kills`: shows kills in the component
+    - `show_items`: shows items in the component
+    - `show_secrets`: shows secrets in the component
+    - `vertical`: displays the stats vertically rather than horizontally
+    - `show_labels`: shows the "K" "I" "S" labels
+    - 😸 `stat_label`: shows `STS` label in front of stats
+
+### Status
+- 😸 `status_widget`: shows icons for armor type, backpack, and other powerups
+  - Only available for Doom (not Heretic / Hexen)
+  - Supports 2 arguments: `vertical reverse`
+    - `vertical`: draws icons vertically top to bottom
+    - `reverse`: draws icons from right to left... or if `vertical`, draws bottom to top
+- 😸 `status_timers`: shows timers and status for powerups and other statuses (armor type, backpack, etc)
+  - Works with all games: Doom / Heretic / Hexen.
+  - Supports 1 argument: `right_align`
+    - `right_align`: aligns text to the right
+- 😸 `target_health`: displays the current health of enemies (based on CRL)
+  - Uses the message font (coloured)
+  - Supports 1 argument: `center`
+    - `center`: centers the component horizontally

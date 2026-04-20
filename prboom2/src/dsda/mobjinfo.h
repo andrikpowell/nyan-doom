@@ -29,6 +29,7 @@ typedef struct {
 
 int dsda_FindDehMobjIndex(int index);
 int dsda_TranslateDehMobjIndex(int index);
+int dsda_TranslateHereticMobjIndex(int index);
 int dsda_GetDehMobjIndex(int index);
 dsda_deh_mobjinfo_t dsda_GetDehMobjInfo(int index);
 void dsda_InitializeMobjInfo(int zero, int max, int count);

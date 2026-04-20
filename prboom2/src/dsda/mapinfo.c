@@ -76,6 +76,19 @@ void dsda_NewGameMap(int* episode, int* map) {
   dsda_LegacyNewGameMap(episode, map);
 }
 
+void dsda_MapToWarp(int* episode, int* map) {
+  if (dsda_DoomMapToWarp(episode, map))
+    return;
+
+  if (dsda_HexenMapToWarp(episode, map))
+    return;
+
+  if (dsda_UMapToWarp(episode, map))
+    return;
+
+  dsda_LegacyMapToWarp(episode, map);
+}
+
 void dsda_ResolveWarp(int* args, int arg_count, int* episode, int* map) {
   if (dsda_DoomResolveWarp(args, arg_count, episode, map))
     return;

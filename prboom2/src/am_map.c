@@ -49,7 +49,7 @@
 #include "v_video.h"
 #include "p_spec.h"
 #include "am_map.h"
-#include "d_deh.h"    // Ty 03/27/98 - externalizations
+#include "deh/strings.h"    // Ty 03/27/98 - externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "g_game.h"
 #include "r_fps.h"
@@ -379,12 +379,12 @@ const int am_digit_lines[] =
 #undef SEG_7_Slant
 #undef R
 
-int automap_active;
+int automap_full;
 int automap_overlay;
 int automap_rotate;
 int automap_follow;
 int automap_grid;
-int autopage;
+int autopage_active;
 int autopage_fade;
 int autopage_parallax;
 
@@ -642,7 +642,7 @@ void AM_SetMapCenter(fixed_t x, fixed_t y)
 
 static void AM_UpdateParallax(void)
 {
-    dboolean minimap = !automap_active;
+    dboolean minimap = !automap_full;
 
     int dmapx;
     int dmapy;
@@ -672,7 +672,7 @@ static void AM_UpdateParallax(void)
 
 static void AM_ParallaxPan(fixed_t incx, fixed_t incy)
 {
-  dboolean minimap = !automap_active;
+  dboolean minimap = !automap_full;
 
   // [crispy] Disable map background scroll in non-follow + rotate mode.
   // The combination of the two effects is unappealing and slightly
@@ -783,7 +783,7 @@ static void AM_SetScale(void)
 //
 static void AM_SetPosition(void)
 {
-  if (automap_active)
+  if (automap_full)
   {
     if (!R_StatusBarVisible())
     {
@@ -799,12 +799,6 @@ static void AM_SetPosition(void)
       f_w = SCREENWIDTH;           // killough 2/7/98: get rid of finit_ vars
       f_h = SCREENHEIGHT-ST_SCALED_HEIGHT;// to allow runtime setting of width/height
     }
-  }
-  else if (dsda_ShowMinimap())
-  {
-    void dsda_CopyMinimapCoordinates(int* f_x, int* f_y, int* f_w, int* f_h);
-
-    dsda_CopyMinimapCoordinates(&f_x, &f_y, &f_w, &f_h);
   }
 }
 
@@ -916,6 +910,37 @@ static void AM_ResetTagHighlight(void)
   highlight.y = INT_MIN;
 }
 
+void AM_UpdateMinimapCoordinates(void)
+{
+  if (dsda_ShowMinimap())
+  {
+    void dsda_CopyMinimapCoordinates(int* f_x, int* f_y, int* f_w, int* f_h);
+
+    dsda_CopyMinimapCoordinates(&f_x, &f_y, &f_w, &f_h);
+  }
+}
+
+static void AM_SetMinimapScale(void)
+{
+  int dsda_MinimapScale(void);
+
+  min_scale_mtof =
+  max_scale_mtof =
+  scale_mtof = FixedDiv(f_w << FRACBITS, dsda_MinimapScale() << MAPBITS);
+  scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+}
+
+void AM_RefreshMinimap(void)
+{
+  if (!dsda_ShowMinimap())
+    return;
+
+  // Refresh Minimap Coordinates / scale / center
+  AM_UpdateMinimapCoordinates();
+  AM_SetMinimapScale();
+  AM_initVariables();
+}
+
 //
 // AM_clearMarks()
 //
@@ -964,17 +989,10 @@ static void AM_ExchangeScales(int full_automap, int *last_full_automap)
 
   if (*last_full_automap && !full_automap)
   {
-    int dsda_MinimapScale(void);
-
     full_min_scale_mtof = min_scale_mtof;
     full_max_scale_mtof = max_scale_mtof;
     full_scale_mtof = scale_mtof;
     full_scale_ftom = scale_ftom;
-
-    min_scale_mtof =
-    max_scale_mtof =
-    scale_mtof = FixedDiv(f_w << FRACBITS, dsda_MinimapScale() << MAPBITS);
-    scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
   }
   else if (!*last_full_automap && full_automap)
   {
@@ -996,10 +1014,10 @@ static void AM_ExchangeScales(int full_automap, int *last_full_automap)
 //
 void AM_Stop (dboolean minimap)
 {
-  automap_active = false;
+  automap_full = false;
 
   if (minimap && dsda_ShowMinimap())
-    AM_Start(false);
+    AM_Start(AM_OPEN_MINIMAP);
 }
 
 //
@@ -1012,14 +1030,14 @@ void AM_Stop (dboolean minimap)
 //
 // Passed nothing, returns nothing
 //
-void AM_Start(dboolean full_automap)
+void AM_Start(dboolean open_full_automap)
 {
   static int lastlevel = -1, lastepisode = -1;
   static int last_full_automap;
 
   AM_InitParams();
 
-  automap_active = full_automap;
+  automap_full = open_full_automap;
 
   AM_SetPosition();
 
@@ -1032,7 +1050,10 @@ void AM_Start(dboolean full_automap)
     last_full_automap = true;
   }
 
-  AM_ExchangeScales(full_automap, &last_full_automap);
+  AM_ExchangeScales(open_full_automap, &last_full_automap);
+
+  if (dsda_ShowMinimap() && !open_full_automap)
+    AM_RefreshMinimap();
 
   AM_initVariables();
 }
@@ -1221,31 +1242,41 @@ dboolean AM_Responder
 {
   static int bigstate=0;
 
-  // Extract overlay toggle to allow when minimap is visible
-  if (dsda_InputActivated(dsda_input_map_overlay) && (automap_input || dsda_ShowMinimap()))
+  // Allow AM commands if minimap is visible
+  if (automap_input || dsda_ShowMinimap())
   {
-    dsda_CycleConfig(dsda_config_automap_overlay, true);
-    dsda_AddMessage(automap_overlay == 0 ? s_AMSTR_OVERLAYOFF :
-                    automap_overlay == 1 ? s_AMSTR_OVERLAYON :
-                    "Overlay Mode Dark");
-    AM_SetPosition();
-    AM_activateNewScale();
+    if (dsda_InputActivated(dsda_input_map_overlay))
+    {
+      dsda_CycleConfig(dsda_config_automap_overlay, true);
+      dsda_AddMessage(automap_overlay == 0 ? s_AMSTR_OVERLAYOFF :
+                      automap_overlay == 1 ? s_AMSTR_OVERLAYON :
+                      "Overlay Mode Dark");
+      AM_SetPosition();
+      AM_activateNewScale();
 
-    return true;
+      return true;
+    }
+    else if (dsda_InputActivated(dsda_input_map_rotate))
+    {
+      dsda_ToggleConfig(dsda_config_automap_rotate, true);
+      dsda_AddMessage(automap_rotate ? s_AMSTR_ROTATEON : s_AMSTR_ROTATEOFF);
+
+      return true;
+    }
   }
 
   if (!automap_input)
   {
     if (dsda_InputActivated(dsda_input_map))
     {
-      AM_Start(true);
+      AM_Start(AM_OPEN_FULLAUTOMAP);
       return true;
     }
   }
   else if (dsda_InputActivated(dsda_input_map))
   {
     bigstate = 0;
-    AM_Stop(true);
+    AM_Stop(AM_RESTORE_MINIMAP);
 
     return true;
   }
@@ -1341,14 +1372,14 @@ dboolean AM_Responder
   else if (dsda_InputActivated(dsda_input_map_follow))
   {
     dsda_ToggleConfig(dsda_config_automap_follow, true);
-    dsda_AddMessage(automap_follow ? s_AMSTR_FOLLOWON : s_AMSTR_FOLLOWOFF);
+    dsda_AddMessage(automap_follow ? g_am_followon : g_am_followoff);
 
     return true;
   }
   else if (dsda_InputActivated(dsda_input_map_grid))
   {
     dsda_ToggleConfig(dsda_config_automap_grid, true);
-    dsda_AddMessage(automap_grid ? s_AMSTR_GRIDON : s_AMSTR_GRIDOFF);
+    dsda_AddMessage(automap_grid ? g_am_gridon : g_am_gridoff);
 
     return true;
   }
@@ -1371,13 +1402,6 @@ dboolean AM_Responder
       doom_printf("Cleared spot %d", markpointnum);
     else
       dsda_AddMessage(s_AMSTR_MARKSCLEARED);
-
-    return true;
-  }
-  else if (dsda_InputActivated(dsda_input_map_rotate))
-  {
-    dsda_ToggleConfig(dsda_config_automap_rotate, true);
-    dsda_AddMessage(automap_rotate ? s_AMSTR_ROTATEON : s_AMSTR_ROTATEOFF);
 
     return true;
   }
@@ -1405,7 +1429,7 @@ dboolean AM_Responder
   else if (dsda_InputActivated(dsda_input_map_highlight_by_tag))
   {
     if (!dsda_RevealAutomap())
-      doom_printf("Highlight requires iddt");
+      doom_printf("Highlight requires map cheat");
     else
       AM_HighlightByTag();
 
@@ -1724,13 +1748,13 @@ int AM_GetLineWeight(void) {
   // if auto setting
   if (!thickness)
   {
-    thickness = round(SCREENHEIGHT / 640);
+    thickness = SCREENHEIGHT / 640;
     if (thickness < 1) thickness = 1;
-    if (thickness > 4) thickness = 4;
+    if (thickness > 6) thickness = 6;
   }
 
   // Minimap should be just 1px
-  if (!automap_active)
+  if (!automap_full)
     thickness = 1;
 
   // else return the linesize
@@ -2180,7 +2204,7 @@ static void AM_drawLineCharacter
   int   i;
   mline_t l;
 
-  if (box_scale)
+  if (box_scale && dsda_RevealAutomap() == 2)
     AM_drawLineCharacter(thingbox_guy, NUMTHINGBOXGUYLINES, box_scale, 0, 0x40000000, mapcolor_p->hitbox, x, y);
 
   if (automap_rotate) angle -= viewangle - ANG90; // cph
@@ -2273,13 +2297,13 @@ static void AM_drawPlayers(void)
 #endif
 
   if (map_things_appearance == map_things_appearance_scaled)
-    scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, plr->mo->radius)>>FRACTOMAPBITS);
+    scale = (CLAMP(plr->mo->radius, 4<<FRACBITS, 256<<FRACBITS)>>FRACTOMAPBITS);
   else
     scale = 16<<MAPBITS;
 
   // Needed for hitboxes
   if (map_things_hitboxes && dsda_RevealAutomap() == 2)
-    box_scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, plr->mo->radius)>>FRACTOMAPBITS);
+    box_scale = (CLAMP(plr->mo->radius, 4<<FRACBITS, 256<<FRACBITS)>>FRACTOMAPBITS);
 
   if (!netgame)
   {
@@ -2635,7 +2659,7 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
     }
     g = 0;
     b = 0;
-    radius = BETWEEN(4<<FRACBITS, 256<<FRACBITS, mobj->radius);
+    radius = CLAMP(mobj->radius, 4<<FRACBITS, 256<<FRACBITS);
     rotate = true;
   }
   else
@@ -2810,7 +2834,9 @@ static void AM_DrawNiceThings(void)
       t = sectors[i].thinglist;
       while (t) // for all things in that sector
       {
-        if (!t->player)
+        // Avoid drawing the main player again
+        // But draw voodoo dolls!
+        if (!(t->player && t == t->player->mo))
         {
           AM_GetMobjPosition(t, &p, &angle);
           if (automap_rotate)
@@ -2841,7 +2867,7 @@ static void AM_DrawNiceThings(void)
 
     // do not want to have too small marks
     radius = MTOF_F(16 << MAPBITS);
-    radius = BETWEEN(8.0f, 128.0f, radius);
+    radius = CLAMP(radius, 8.0f, 128.0f);
 
     for (i = 0; i < markpointnum; i++) // killough 2/22/98: remove automap mark limit
     {
@@ -2886,10 +2912,7 @@ static void AM_drawThings(void)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
-    {
-      AM_DrawNiceThings();
-      return;
-    }
+      RETURN(AM_DrawNiceThings());
   }
 #endif
 
@@ -2938,13 +2961,13 @@ static void AM_drawThings(void)
       }
 
       if (map_things_appearance == map_things_appearance_scaled)
-        scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, t->radius)>>FRACTOMAPBITS);// * 16 / 20;
+        scale = (CLAMP(t->radius, 4<<FRACBITS, 256<<FRACBITS)>>FRACTOMAPBITS);// * 16 / 20;
       else
         scale = 16<<MAPBITS;
 
       // Needed for hitboxes
       if (map_things_hitboxes)
-        box_scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, t->radius)>>FRACTOMAPBITS);// * 16 / 20;
+        box_scale = (CLAMP(t->radius, 4<<FRACBITS, 256<<FRACBITS)>>FRACTOMAPBITS);// * 16 / 20;
 
       AM_GetMobjPosition(t, &p, &angle);
 
@@ -3282,7 +3305,7 @@ static void AM_drawMarks(void)
             if ((unsigned)d <= 9)
             {
               AM_drawLineCharacter(am_digits[d], am_digit_lines[d],
-                                  digit_scale, 0, digit_angle, mapcolor_p->trail_1,
+                                  digit_scale, 0, digit_angle, mapcolor_p->marker,
                                   bx, by);
             }
             bx += digit_spacing;
@@ -3492,8 +3515,17 @@ static void AM_setFrameVariables(void)
 //
 //=============================================================================
 
+typedef enum {
+  AUTOMAP_BG_OFF,
+  AUTOMAP_BG_GAME_DEFAULT,
+  AUTOMAP_BG_FORCED,
+} automap_bg_t;
+
 static void AM_DrawBackground (void)
 {
+  int automap_bg = raven ? (autopage_active != AUTOMAP_BG_OFF)
+                         : (autopage_active == AUTOMAP_BG_FORCED);
+
   if (automap_bg) { // Automap Parallax Background
     V_BeginUIDraw(); // OpenGL doesn't like flats in AutomapDraw()
 
@@ -3527,10 +3559,12 @@ static void AM_DrawBackground (void)
 
 void AM_Drawer (dboolean minimap)
 {
-  if (!automap_active && !minimap)
+  // if no automap
+  if (!automap_full && !minimap)
     return;
 
-  if (automap_active && automap_overlay == 2 && minimap)
+  // if minimap + overlay + no fade
+  if (automap_full && automap_overlay == 2 && minimap)
     return;
 
   V_BeginAutomapDraw();

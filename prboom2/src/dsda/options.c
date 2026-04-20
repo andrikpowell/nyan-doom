@@ -228,6 +228,7 @@ static dsda_option_t doom_color_list[] = {
   { "mapcolor_enemy", NULL, 0, 255, dsda_config_mapcolor_enemy },
   { "mapcolor_frnd", NULL, 0, 255, dsda_config_mapcolor_frnd },
   { "mapcolor_hair", NULL, 0, 255, dsda_config_mapcolor_hair },
+  { "mapcolor_marker", NULL, 0, 255, dsda_config_mapcolor_marker },
   { "mapcolor_sngl", NULL, 0, 255, dsda_config_mapcolor_sngl },
   { "mapcolor_me", NULL, 0, 255, dsda_config_mapcolor_me },
   { "mapcolor_hitbox", NULL, 0, 255, dsda_config_mapcolor_hitbox },
@@ -261,6 +262,7 @@ static dsda_option_t heretic_color_list[] = {
   { "mapcolor_enemy", NULL, 0, 255, dsda_config_mapcolor_heretic_enemy },
   { "mapcolor_frnd", NULL, 0, 255, dsda_config_mapcolor_heretic_frnd },
   { "mapcolor_hair", NULL, 0, 255, dsda_config_mapcolor_heretic_hair },
+  { "mapcolor_marker", NULL, 0, 255, dsda_config_mapcolor_heretic_marker },
   { "mapcolor_sngl", NULL, 0, 255, dsda_config_mapcolor_heretic_sngl },
   { "mapcolor_me", NULL, 0, 255, dsda_config_mapcolor_heretic_me },
   { "mapcolor_hitbox", NULL, 0, 255, dsda_config_mapcolor_heretic_hitbox },
@@ -288,6 +290,7 @@ static dsda_option_t hexen_color_list[] = {
   { "mapcolor_enemy", NULL, 0, 255, dsda_config_mapcolor_hexen_enemy },
   { "mapcolor_frnd", NULL, 0, 255, dsda_config_mapcolor_hexen_frnd },
   { "mapcolor_hair", NULL, 0, 255, dsda_config_mapcolor_hexen_hair },
+  { "mapcolor_marker", NULL, 0, 255, dsda_config_mapcolor_hexen_marker },
   { "mapcolor_sngl", NULL, 0, 255, dsda_config_mapcolor_hexen_sngl },
   { "mapcolor_me", NULL, 0, 255, dsda_config_mapcolor_hexen_me },
   { "mapcolor_hitbox", NULL, 0, 255, dsda_config_mapcolor_hexen_hitbox },
@@ -359,7 +362,7 @@ void dsda_ParseOptionsLump(void) {
       if (!strncmp(key, option_list[i].key, OPTIONS_LINE_LENGTH)) {
         if (option_list[i].value) {
           parsed_option_list[i].found = true;
-          parsed_option_list[i].value = BETWEEN(option_list[i].min, option_list[i].max, value);
+          parsed_option_list[i].value = CLAMP(value, option_list[i].min, option_list[i].max);
         }
         else
           dsda_UpdateIntConfig(option_list[i].config_key, value, false);
@@ -385,7 +388,7 @@ void dsda_ParseOptionsLump(void) {
       if (!strncmp(key, colors[i].key, OPTIONS_LINE_LENGTH)) {
         if (colors[i].value) {
           parsed_colors[i].found = true;
-          parsed_colors[i].value = BETWEEN(colors[i].min, colors[i].max, value);
+          parsed_colors[i].value = CLAMP(value, colors[i].min, colors[i].max);
         }
         else
           dsda_UpdateIntConfig(colors[i].config_key, value, false);

@@ -32,6 +32,7 @@
 #include "hu_stuff.h"
 #include "lprintf.h"
 
+#include "dsda.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
 
@@ -46,6 +47,21 @@
 #define MOBJ_NULL -1
 #define MOBJ_XX_PLAYER -2
 #define MAX_MAPS 99
+
+typedef struct
+{
+  dboolean visited; // whether to reset stats
+  int killcount[MAX_MAXPLAYERS];
+  int maxkilldiscount[MAX_MAXPLAYERS];  // Hexen currently doesn't use this...
+  int itemcount[MAX_MAXPLAYERS];        // Hexen doesn't have counted items
+  int secretcount[MAX_MAXPLAYERS];      // Hexen doesn't have secrets
+
+  // per-map globals
+  int totalkills;           // original map spawn kill count
+  int maxkillrequirement;   // dsda "dynamic" kill count
+} hub_mapstats_t;
+
+static hub_mapstats_t hub_mapstats[MAX_MAPS];
 
 typedef enum
 {
@@ -93,9 +109,6 @@ static int MobjCount;
 static mobj_t **MobjList;
 static mobj_t ***TargetPlayerAddrs;
 static int TargetPlayerCount;
-
-extern int inv_ptr;
-extern int curpos;
 
 typedef struct
 {
@@ -381,6 +394,9 @@ static void StreamIn_mobj_t(mobj_t *str)
     // int flags2;
     str->flags2 = SV_ReadFlags();
 
+    // int flags_extra;
+    str->flags_extra = SV_ReadFlags();
+
     // specialval_t special1;
     // specialval_t special2;
     // Read in special values: there are special cases to deal with with
@@ -505,7 +521,7 @@ static void StreamOut_mobj_t(mobj_t *str)
 
     // state_t *state;
     // Save as index into the states table.
-    SV_WriteLong(str->state - states);
+    SV_WriteLong((unsigned int)(str->state - states));
 
     // int damage;
     SV_WriteLong(str->damage);
@@ -515,6 +531,9 @@ static void StreamOut_mobj_t(mobj_t *str)
 
     // int flags2;
     SV_WriteFlags(str->flags2);
+
+    // int flags_extra;
+    SV_WriteFlags(str->flags_extra);
 
     // specialval_t special1;
     // specialval_t special2;
@@ -550,7 +569,7 @@ static void StreamOut_mobj_t(mobj_t *str)
     // Stored as index into players[] array, if there is a player pointer.
     if (str->player != NULL)
     {
-        SV_WriteLong(str->player - players + 1);
+        SV_WriteLong((unsigned int)(str->player - players + 1));
     }
     else
     {
@@ -640,7 +659,7 @@ static void StreamIn_floormove_t(floormove_t *str)
 static void StreamOut_floormove_t(floormove_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // floor_e type;
     SV_WriteLong(str->type);
@@ -734,7 +753,7 @@ static void StreamIn_plat_t(plat_t *str)
 static void StreamOut_plat_t(plat_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // fixed_t speed;
     SV_WriteLong(str->speed);
@@ -801,7 +820,7 @@ static void StreamIn_ceiling_t(ceiling_t *str)
 static void StreamOut_ceiling_t(ceiling_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // ceiling_e type;
     SV_WriteLong(str->type);
@@ -856,7 +875,7 @@ static void StreamIn_light_t(light_t *str)
 static void StreamOut_light_t(light_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // lighttype_t type;
     SV_WriteLong(str->type);
@@ -907,7 +926,7 @@ static void StreamIn_vldoor_t(vldoor_t *str)
 static void StreamOut_vldoor_t(vldoor_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // vldoor_e type;
     SV_WriteLong(str->type);
@@ -946,7 +965,7 @@ static void StreamIn_phase_t(phase_t *str)
 static void StreamOut_phase_t(phase_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // int index;
     SV_WriteLong(str->index);
@@ -1015,7 +1034,7 @@ static void StreamOut_acs_t(acs_t *str)
     // line_t *line;
     if (str->line != NULL)
     {
-        SV_WriteLong(str->line - lines);
+        SV_WriteLong((unsigned int)(str->line - lines));
     }
     else
     {
@@ -1125,7 +1144,7 @@ static void StreamIn_pillar_t(pillar_t *str)
 static void StreamOut_pillar_t(pillar_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // int ceilingSpeed;
     SV_WriteLong(str->ceilingSpeed);
@@ -1250,7 +1269,7 @@ static void StreamIn_planeWaggle_t(planeWaggle_t *str)
 static void StreamOut_planeWaggle_t(planeWaggle_t *str)
 {
     // sector_t *sector;
-    SV_WriteLong(str->sector - sectors);
+    SV_WriteLong((unsigned int)(str->sector - sectors));
 
     // fixed_t originalHeight;
     SV_WriteLong(str->originalHeight);
@@ -1315,7 +1334,7 @@ static void ArchiveWorld(void)
     {
         SV_WriteLong(li->flags);
         // TODO: how does this work? it's a short
-        SV_WriteByte(li->special);
+        SV_WriteByte((byte)li->special);
         SV_WriteLong(li->special_args[0]);
         SV_WriteLong(li->special_args[1]);
         SV_WriteLong(li->special_args[2]);
@@ -1878,6 +1897,26 @@ static void UnarchivePolyobjs(void)
     }
 }
 
+static void ArchiveStats(void)
+{
+    SV_Write(&hub_mapstats[gamemap], sizeof(hub_mapstats[gamemap]));
+}
+
+static void UnarchiveStats(void)
+{
+    SV_Read(&hub_mapstats[gamemap], sizeof(hub_mapstats[gamemap]));
+}
+
+static void dsda_ArchiveExtra(void)
+{
+    ArchiveStats(); // save stats per map
+}
+
+static void dsda_UnarchiveExtra(void)
+{
+    UnarchiveStats(); // load stats per map
+}
+
 void SV_SaveMap(void)
 {
     // Initialize the output buffer
@@ -1902,6 +1941,9 @@ void SV_SaveMap(void)
 
     // Place a termination marker
     SV_WriteLong(ASEG_END);
+
+    // DSDA Extra
+    dsda_ArchiveExtra();
 }
 
 void SV_LoadMap(void)
@@ -1930,8 +1972,78 @@ void SV_LoadMap(void)
 
     AssertSegment(ASEG_END);
 
+    // DSDA Extra
+    dsda_UnarchiveExtra();
+
     // Free mobj list and save buffer
     Z_Free(MobjList);
+}
+
+static void SV_SaveCurrentMapStats(void)
+{
+  if (gamemap < MAX_MAPS)
+  {
+    hub_mapstats_t *hub_stats = &hub_mapstats[gamemap];
+    hub_stats->visited = true;
+
+    // store global per-map data
+    hub_stats->totalkills = totalkills;
+    hub_stats->maxkillrequirement = dsda_MaxKillRequirement();
+
+    // store kill count
+    for (int i = 0; i < g_maxplayers; ++i)
+    {
+        if (!playeringame[i]) continue;
+        hub_stats->killcount[i] = players[i].killcount;
+        hub_stats->maxkilldiscount[i] = players[i].maxkilldiscount;
+    }
+  }
+}
+
+static void SV_LoadCurrentMapStats(void)
+{
+  if (gamemap < MAX_MAPS)
+  {
+    hub_mapstats_t *hub_stats = &hub_mapstats[gamemap];
+
+    if (hub_stats->visited)
+    {
+        // restore global per-map data
+        totalkills = hub_stats->totalkills;
+        dsda_SetMaxKillRequirement(hub_stats->maxkillrequirement);
+
+        // restore kill count
+        for (int i = 0; i < g_maxplayers; ++i)
+        {
+            if (!playeringame[i]) continue;
+            players[i].killcount        = hub_stats->killcount[i];
+            players[i].maxkilldiscount  = hub_stats->maxkilldiscount[i];
+        }
+    }
+    else
+    {
+        for (int i = 0; i < g_maxplayers; ++i)
+        {
+            // First visit: reset
+            if (!playeringame[i]) continue;
+            players[i].killcount        = 0;
+            players[i].maxkilldiscount  = 0;
+            players[i].itemcount        = 0;
+            players[i].secretcount      = 0;
+        }
+    }
+  }
+}
+
+void SV_StoreHexenMapStats(void)
+{
+  SV_SaveCurrentMapStats();
+  P_SAVE_SIZE(hub_mapstats, sizeof(hub_mapstats));
+}
+
+void SV_RestoreHexenMapStats(void)
+{
+  P_LOAD_SIZE(hub_mapstats, sizeof(hub_mapstats));
 }
 
 void SV_MapTeleport(int map, int position)
@@ -1942,8 +2054,8 @@ void SV_MapTeleport(int map, int position)
     player_t playerBackup[MAX_MAXPLAYERS];
     mobj_t *targetPlayerMobj;
     mobj_t *mobj;
-    int inventoryPtr;
-    int currentInvPos;
+    int inventoryPtr = 0;
+    int currentInvPos = 0;
     dboolean rClass;
     dboolean playerWasReborn;
     dboolean oldWeaponowned[HEXEN_NUMWEAPONS];
@@ -1954,6 +2066,9 @@ void SV_MapTeleport(int map, int position)
     memset(oldKeys, 0, sizeof(oldKeys));
     memset(oldWeaponowned, 0, sizeof(oldWeaponowned));
 
+    // Save map stats (ex: kills)
+    SV_SaveCurrentMapStats();
+
     if (!deathmatch)
     {
         if (dsda_MapCluster(gamemap) == dsda_MapCluster(map))
@@ -1963,6 +2078,7 @@ void SV_MapTeleport(int map, int position)
         else
         {                       // Entering new cluster - clear map archive
             SV_Init();
+            memset(hub_mapstats, 0, sizeof(hub_mapstats)); // reset stats
         }
     }
 
@@ -1974,9 +2090,12 @@ void SV_MapTeleport(int map, int position)
         playerBackup[i] = players[i];
     }
 
-    // Save some globals that get trashed during the load
-    inventoryPtr = inv_ptr;
-    currentInvPos = curpos;
+    // Save trashed player 1 globals
+    if (playeringame[consoleplayer])
+    {
+        inventoryPtr  = players[consoleplayer].inv_ptr;
+        currentInvPos = players[consoleplayer].curpos;
+    }
 
     // Only SV_LoadMap() uses TargetPlayerAddrs, so it's NULLed here
     // for the following check (player mobj redirection)
@@ -2078,6 +2197,9 @@ void SV_MapTeleport(int map, int position)
     }
     randomclass = rClass;
 
+    // Load map stats (ex: kills)
+    SV_LoadCurrentMapStats();
+
     // Redirect anything targeting a player mobj
     if (TargetPlayerAddrs)
     {
@@ -2097,9 +2219,12 @@ void SV_MapTeleport(int map, int position)
         }
     }
 
-    // Restore trashed globals
-    inv_ptr = inventoryPtr;
-    curpos = currentInvPos;
+    // Restore trashed player 1 globals
+    if (playeringame[consoleplayer])
+    {
+        players[consoleplayer].inv_ptr = inventoryPtr;
+        players[consoleplayer].curpos  = currentInvPos;
+    }
 
     // Launch waiting scripts
     if (!deathmatch)

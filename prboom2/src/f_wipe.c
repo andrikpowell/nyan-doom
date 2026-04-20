@@ -42,11 +42,14 @@
 #include "i_video.h"
 #include "v_video.h"
 #include "m_random.h"
+#include "r_fps.h"
 #include "f_wipe.h"
 #include "gl_struct.h"
 #include "e6y.h"//e6y
 
 #include "dsda/settings.h"
+#include "dsda/stretch.h"
+#include "dsda/time.h"
 
 //
 // SCREEN WIPE PACKAGE
@@ -55,109 +58,211 @@
 // Parts re-written to support true-color video modes. Column-major
 // formatting removed. - POPE
 
-// CPhipps - macros for the source and destination screens
-#define SRC_SCR 2
-#define DEST_SCR 3
-
 static screeninfo_t wipe_scr_start;
 static screeninfo_t wipe_scr_end;
 static screeninfo_t wipe_scr;
 
-// e6y: resolution limitation is removed
-static int *y_lookup = NULL;
+#define WIPE_ROWS 200
+static int wipe_columns;
+static int wipe_rows;
 
-// e6y: resolution limitation is removed
-void R_InitMeltRes(void)
+static fixed_t wipe_frac;
+
+static int *ybuff1;
+static int *ybuff2;
+static int *curry;
+static int *prevy;
+
+static void wipe_BindScreens(void)
 {
-  if (y_lookup) Z_Free(y_lookup);
+  screens[WIPE_SRC]  = wipe_scr_start;
+  screens[WIPE_DST]  = wipe_scr_end;
+  screens[WIPE_TEMP] = wipe_scr;
+}
 
-  y_lookup = Z_Calloc(1, SCREENWIDTH * sizeof(*y_lookup));
+static fixed_t wipe_GetFrac(void)
+{
+  unsigned long long fractic;
+  unsigned long long frac64;
+
+  if (!R_ViewInterpolation())
+    return FRACUNIT;
+
+  fractic = dsda_TickElapsedTime();
+
+  frac64 = fractic * TICRATE * FRACUNIT / 1000000ULL;
+
+  if (frac64 > FRACUNIT)
+    frac64 = FRACUNIT;
+
+  return (fixed_t) frac64;
+}
+
+static void wipe_EnsureBuffer(screeninfo_t *scr)
+{
+  int pitch = screens[FG].pitch;
+
+  //e6y: fixed slowdown at 1024x768 on some systems
+  if (!(pitch % 1024))
+    pitch += 32;
+
+  if (scr->data &&
+      scr->width == SCREENWIDTH &&
+      scr->height == SCREENHEIGHT &&
+      scr->pitch == pitch)
+    return;
+
+  if (scr->data)
+    V_FreeScreen(scr);
+
+  scr->width = SCREENWIDTH;
+  scr->height = SCREENHEIGHT;
+  scr->pitch = pitch;
+  scr->not_on_heap = false;
+  V_AllocScreen(scr);
 }
 
 static int wipe_initMelt(int ticks)
 {
   int i;
+  stretch_param_t *params = dsda_StretchParams(VPT_STRETCH);
 
-  if (V_IsSoftwareMode())
+  wipe_columns = MAX(1, (SCREENWIDTH * 320 + params->video->width - 1) / params->video->width / 2);
+  wipe_rows = WIPE_ROWS;
+
+  ybuff1 = Z_Malloc(wipe_columns * sizeof(*ybuff1));
+  ybuff2 = Z_Malloc(wipe_columns * sizeof(*ybuff2));
+
+  curry = ybuff1;
+  prevy = ybuff2;
+
+  // setup initial column positions (curry < 0 => not ready to scroll yet)
+  curry[0] = -(M_Random() % 16);
+  for (i = 1; i < wipe_columns; i++)
   {
-    // copy start screen to main screen
-    for(i=0;i<SCREENHEIGHT;i++)
-    memcpy(wipe_scr.data+i*wipe_scr.pitch,
-           wipe_scr_start.data+i*wipe_scr_start.pitch,
-           SCREENWIDTH);
+    int r = (M_Random() % 3) - 1;
+    curry[i] = curry[i - 1] + r;
+    if (curry[i] > 0)
+      curry[i] = 0;
+    else
+      if (curry[i] == -16)
+        curry[i] = -15;
   }
 
-  // setup initial column positions (y<0 => not ready to scroll yet)
-  y_lookup[0] = -(M_Random()%16);
-  for (i=1;i<SCREENWIDTH;i++)
-    {
-      int r = (M_Random()%3) - 1;
-      y_lookup[i] = y_lookup[i-1] + r;
-      if (y_lookup[i] > 0)
-        y_lookup[i] = 0;
-      else
-        if (y_lookup[i] == -16)
-          y_lookup[i] = -15;
-    }
+  memcpy(prevy, curry, wipe_columns * sizeof(*prevy));
   return 0;
 }
 
-static int wipe_doMelt(int ticks)
+int wipe_MeltCurrentPosition(int col)
+{
+  if (col < 0 || col >= wipe_columns)
+    return wipe_rows;
+
+  if (R_ViewInterpolation())
+    return prevy[col] + FixedMul(curry[col] - prevy[col], wipe_frac);
+
+  return curry[col];
+}
+
+static dboolean wipe_updateMelt(int ticks)
 {
   dboolean done = true;
-  int i;
 
-  while (ticks--) {
-    for (i=0;i<(SCREENWIDTH);i++) {
-      if (y_lookup[i]<0) {
-        y_lookup[i]++;
-        done = false;
-        continue;
-      }
-      if (y_lookup[i] < SCREENHEIGHT) {
-        byte *s, *d;
-        int j, dy;
+  if (ticks > 0)
+  {
+    while (ticks--)
+    {
+      int *temp = prevy;
+      prevy = curry;
+      curry = temp;
 
-        /* cph 2001/07/29 -
-          *  The original melt rate was 8 pixels/sec, i.e. 25 frames to melt
-          *  the whole screen, so make the melt rate depend on SCREENHEIGHT
-          *  so it takes no longer in high res
-          */
-        dy = (y_lookup[i] < 16) ? y_lookup[i]+1 : SCREENHEIGHT/25;
-        if (y_lookup[i]+dy >= SCREENHEIGHT)
-          dy = SCREENHEIGHT - y_lookup[i];
-
-       if (V_IsSoftwareMode()) {
-        s = wipe_scr_end.data    + (y_lookup[i]*wipe_scr_end.pitch+i);
-        d = wipe_scr.data        + (y_lookup[i]*wipe_scr.pitch+i);
-        for (j=dy;j;j--) {
-          d[0] = s[0];
-          d += wipe_scr.pitch;
-          s += wipe_scr_end.pitch;
+      for (int col = 0; col < wipe_columns; ++col)
+      {
+        if (prevy[col] < 0)
+        {
+          curry[col] = prevy[col] + 1;
+          done = false;
         }
-       }
-        y_lookup[i] += dy;
-       if (V_IsSoftwareMode()) {
-        s = wipe_scr_start.data  + i;
-        d = wipe_scr.data        + (y_lookup[i]*wipe_scr.pitch+i);
-        for (j=SCREENHEIGHT-y_lookup[i];j;j--) {
-          d[0] = s[0];
-          d += wipe_scr.pitch;
-          s += wipe_scr_end.pitch;
+        else if (prevy[col] < wipe_rows) {
+          int dy = (prevy[col] < 16) ? prevy[col] + 1 : 8;
+          curry[col] = MIN(prevy[col] + dy, wipe_rows);
+          done = false;
         }
-       }
-        done = false;
+        else
+        {
+          curry[col] = wipe_rows;
+        }
       }
     }
   }
-  if (V_IsOpenGLMode())
+  else
   {
-    gld_wipe_doMelt(ticks, y_lookup);
+    for (int col = 0; col < wipe_columns; ++col)
+    {
+      done &= curry[col] >= wipe_rows;
+    }
   }
   return done;
 }
 
 // CPhipps - modified to allocate and deallocate screens[2 to 3] as needed, saving memory
+static void wipe_renderMelt(void)
+{
+  // Scale up and then down to handle arbitrary dimensions with integer math
+  int width = SCREENWIDTH;
+  int height = SCREENHEIGHT;
+  int currcol;
+  int currcolend;
+  int currrow;
+
+  wipe_BindScreens();
+  V_CopyScreen(WIPE_DST, WIPE_TEMP);
+
+  for (int col = 0; col < wipe_columns; ++col)
+  {
+    int current = wipe_MeltCurrentPosition(col);
+
+    if (current < 0)
+    {
+      currcol = (col * width) / wipe_columns;
+      currcolend = ((col + 1) * width) / wipe_columns;
+      for (; currcol < currcolend; ++currcol)
+      {
+        byte *source = wipe_scr_start.data + currcol;
+        byte *dest   = wipe_scr.data + currcol;
+
+        for (int i = 0; i < height; ++i)
+        {
+          *dest = *source;
+          dest += wipe_scr.pitch;
+          source += wipe_scr_start.pitch;
+        }
+      }
+    }
+    else if (current < wipe_rows)
+    {
+      currcol = (col * width) / wipe_columns;
+      currcolend = ((col + 1) * width) / wipe_columns;
+
+      currrow = (current * height) / wipe_rows;
+
+      for (; currcol < currcolend; ++currcol)
+      {
+        byte *source = wipe_scr_start.data + currcol;
+        byte *dest   = wipe_scr.data + currcol + (currrow * wipe_scr.pitch);
+
+        for (int i = 0; i < height - currrow; ++i)
+        {
+          *dest = *source;
+          dest += wipe_scr.pitch;
+          source += wipe_scr_start.pitch;
+        }
+      }
+    }
+  }
+
+  V_CopyScreen(WIPE_TEMP, FG);
+}
 
 static int wipe_exitMelt(int ticks)
 {
@@ -167,15 +272,28 @@ static int wipe_exitMelt(int ticks)
     return 0;
   }
 
+  Z_Free(ybuff1);
+  Z_Free(ybuff2);
+
   V_FreeScreen(&wipe_scr_start);
   wipe_scr_start.width = 0;
   wipe_scr_start.height = 0;
+  wipe_scr_start.pitch = 0;
+
   V_FreeScreen(&wipe_scr_end);
   wipe_scr_end.width = 0;
   wipe_scr_end.height = 0;
+  wipe_scr_end.pitch = 0;
+
+  V_FreeScreen(&wipe_scr);
+  wipe_scr.width = 0;
+  wipe_scr.height = 0;
+  wipe_scr.pitch = 0;
+
   // Paranoia
-  screens[SRC_SCR] = wipe_scr_start;
-  screens[DEST_SCR] = wipe_scr_end;
+  screens[WIPE_SRC]  = wipe_scr_start;
+  screens[WIPE_DST]  = wipe_scr_end;
+  screens[WIPE_TEMP] = wipe_scr;
   return 0;
 }
 
@@ -190,18 +308,10 @@ int wipe_StartScreen(void)
     return 0;
   }
 
-  wipe_scr_start.width = SCREENWIDTH;
-  wipe_scr_start.height = SCREENHEIGHT;
-  wipe_scr_start.pitch = screens[0].pitch;
+  wipe_EnsureBuffer(&wipe_scr_start);
+  wipe_BindScreens();
 
-  //e6y: fixed slowdown at 1024x768 on some systems
-  if (!(wipe_scr_start.pitch % 1024))
-    wipe_scr_start.pitch += 32;
-
-  wipe_scr_start.not_on_heap = false;
-  V_AllocScreen(&wipe_scr_start);
-  screens[SRC_SCR] = wipe_scr_start;
-  V_CopyScreen(0, SRC_SCR); // Copy start screen to buffer
+  V_CopyScreen(FG, WIPE_SRC); // Copy start screen to buffer
   return 0;
 }
 
@@ -216,20 +326,28 @@ int wipe_EndScreen(void)
     return 0;
   }
 
-  wipe_scr_end.width = SCREENWIDTH;
-  wipe_scr_end.height = SCREENHEIGHT;
-  wipe_scr_end.pitch = screens[0].pitch;
+  wipe_EnsureBuffer(&wipe_scr_end);
+  wipe_EnsureBuffer(&wipe_scr);
+  wipe_BindScreens();
 
-  //e6y: fixed slowdown at 1024x768 on some systems
-  if (!(wipe_scr_end.pitch % 1024))
-    wipe_scr_end.pitch += 32;
-
-  wipe_scr_end.not_on_heap = false;
-  V_AllocScreen(&wipe_scr_end);
-  screens[DEST_SCR] = wipe_scr_end;
-  V_CopyScreen(0, DEST_SCR); // Copy end screen to buffer
-  V_CopyScreen(SRC_SCR, 0); // restore start screen
+  V_CopyScreen(FG, WIPE_DST); // Copy end screen to buffer
+  V_CopyScreen(WIPE_SRC, FG); // restore start screen
   return 0;
+}
+
+static dboolean wipe_doMelt(int ticks)
+{
+  dboolean done;
+
+  wipe_frac = wipe_GetFrac();
+  done = wipe_updateMelt(ticks);
+
+  if (V_IsOpenGLMode())
+    gld_wipe_renderMelt(wipe_columns, wipe_rows);
+  else
+    wipe_renderMelt();
+
+  return done;
 }
 
 // killough 3/5/98: reformatted and cleaned up
@@ -243,7 +361,6 @@ int wipe_ScreenWipe(int ticks)
   if (!go)                                         // initial stuff
   {
     go = 1;
-    wipe_scr = screens[0];
     wipe_initMelt(ticks);
   }
 

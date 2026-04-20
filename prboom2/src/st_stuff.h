@@ -94,14 +94,16 @@ extern int st_palette;    // cph 2006/04/06 - make palette visible
 typedef enum
 {
   BERSERK_ICON_OFF,
-  BERSERK_ICON_ON
+  BERSERK_ICON_ON,
+  BERSERK_ICON_END,
 } berserk_icon_t;
 
 typedef enum
 {
   ARMOR_ICON_OFF,
   ARMOR_ICON_1,
-  ARMOR_ICON_2
+  ARMOR_ICON_2,
+  ARMOR_ICON_END,
 } armor_icon_t;
 
 extern berserk_icon_t berserk_icon;
@@ -114,10 +116,13 @@ extern int st_health;
 extern int st_armor;
 extern int SmoothCount(int smoothval, int realval, int override);
 
+extern void ST_DrawFaceWidget(int x, int y, int vpt, dboolean exhud);
+
 // [crispy] blinking key or skull in the status bar
 extern int sts_blink_keys;
 #define KEYBLINKMASK 0x8
 #define KEYBLINKTICS (7*KEYBLINKMASK)
+extern const char* ST_GetKeyName(player_t* player, int slot);
 extern void ST_updateBlinkingKeys(player_t* plyr);
 extern void ST_SetKeyBlink(player_t* player, int blue, int yellow, int red);
 extern int  ST_BlinkKey(player_t* player, int index);

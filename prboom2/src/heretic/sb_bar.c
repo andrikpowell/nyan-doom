@@ -24,20 +24,22 @@
 #include "r_main.h"
 #include "w_wad.h"
 #include "st_stuff.h"
+#include "st_font.h"
 #include "r_draw.h"
 
+#include "dsda/exhud.h"
 #include "dsda/pause.h"
 #include "dsda/settings.h"
 #include "dsda/stretch.h"
 
 #include "heretic/def.h"
-#include "heretic/dstrings.h"
+#include "heretic/hhe/strings.h"
+#include "hexen/dstrings.h"
 
 #include "sb_bar.h"
 
 // Private Functions
 
-static void ShadeLine(int x, int y, int height, int shade);
 static void ShadeChain(void);
 static void DrINumber(signed int val, int x, int y);
 static void DrBNumber(signed int val, int x, int y);
@@ -57,8 +59,6 @@ static void Hexen_DrawMainBar(void);
 // Public Data
 
 dboolean inventory;
-int curpos;
-int inv_ptr;
 int ArtifactFlash;
 
 // Private Data
@@ -208,7 +208,7 @@ void SB_Init(void)
     int i;
     int startLump;
 
-    if (hexen) return Hexen_SB_Init();
+    if (hexen) RETURN(Hexen_SB_Init());
 
     lumparti = heretic_lumparti;
     sb_ticker_delta_cap = 8;
@@ -294,7 +294,23 @@ void SB_Init(void)
     spinbooklump = W_GetNumForName("SPINBK0");
     spinflylump = W_GetNumForName("SPFLY0");
 
+    dsda_InitPatchNumbers();
     ST_LoadTextColors();
+}
+
+//---------------------------------------------------------------------------
+//
+// dsda_HexenArmor
+//
+//---------------------------------------------------------------------------
+
+int dsda_HexenArmor(player_t* player) {
+  int temp = pclass[player->pclass].auto_armor_save
+             + player->armorpoints[ARMOR_ARMOR]
+             + player->armorpoints[ARMOR_SHIELD]
+             + player->armorpoints[ARMOR_HELMET]
+             + player->armorpoints[ARMOR_AMULET];
+  return FixedDiv(temp, 5 * FRACUNIT) >> FRACBITS;
 }
 
 //---------------------------------------------------------------------------
@@ -305,10 +321,14 @@ void SB_Init(void)
 
 void SB_Ticker(void)
 {
+    int armortype;
+
+    CPlayer = &players[consoleplayer];
+    armortype = hexen ? dsda_HexenArmor(CPlayer) : CPlayer->armorpoints[ARMOR_ARMOR];
+
     // Allow for animated health / armor counts
-    // Note that st_armor isn't used for Hexen due to armor types
-    st_health = HealthMarker = SmoothCount(HealthMarker, players[consoleplayer].mo->health, true);
-    st_armor  = SmoothCount(st_armor, players[consoleplayer].armorpoints[ARMOR_ARMOR], false);
+    st_health = HealthMarker = SmoothCount(HealthMarker, CPlayer->mo->health, true);
+    st_armor  = SmoothCount(st_armor, armortype, false);
 
     if (heretic && leveltime & 1 && !dsda_PausedOutsideDemo())
     {
@@ -329,7 +349,7 @@ static void DrINumber(signed int val, int x, int y)
     int lump;
     int oldval;
 
-    if (hexen) return Hexen_DrINumber(val, x, y);
+    if (hexen) RETURN(Hexen_DrINumber(val, x, y));
 
     oldval = val;
     if (val < 0)
@@ -412,7 +432,7 @@ static void DrSmallNumberVPT(int val, int x, int y, int vpt)
 {
     int lump;
 
-    if (hexen) return Hexen_DrSmallNumberVPT(val, x, y, vpt);
+    if (hexen) RETURN(Hexen_DrSmallNumberVPT(val, x, y, vpt));
 
     if (val == 1)
     {
@@ -433,6 +453,21 @@ static void DrSmallNumber(int val, int x, int y)
     DrSmallNumberVPT(val, x, y, VPT_STRETCH);
 }
 
+static void DrSmallNumberVPTInventory(int val, int x, int y, int vpt)
+{
+    if (val == 1)
+        return;
+
+    DrSmallNumberVPT(val, x, y, vpt);
+}
+
+static void DrSmallNumberInventory(int val, int x, int y)
+{
+    if (val == 1)
+        return;
+
+    DrSmallNumber(val, x, y);
+}
 
 //---------------------------------------------------------------------------
 //
@@ -481,8 +516,18 @@ static int oldmana1 = -1;
 static int oldmana2 = -1;
 static int oldpieces = -1;
 
+static dboolean oldkeybarvisible = false;
+static int keybarstarttic = 0;
+
 void SB_Drawer(dboolean statusbaron)
 {
+    dboolean keybarvisible = hexen && !inventory && automap_full;
+
+    if (keybarvisible && !oldkeybarvisible)
+        keybarstarttic = leveltime;
+
+    oldkeybarvisible = keybarvisible;
+
     if (!statusbaron)
     {
         SB_PaletteFlash(false);
@@ -506,9 +551,12 @@ void SB_Drawer(dboolean statusbaron)
     }
     else
     {
-        int crop = (R_NumPatchWidth(LumpH2BAR) / 2) - 70;
-        V_DrawNumPatchCrop(0, 134, LumpH2BAR, 0, 29, crop, crop, CR_DEFAULT, VPT_STRETCH);  // cut off sides
-        V_DrawNumPatchCrop(0, 134, LumpH2BAR, 26, 0, 0, 0, CR_DEFAULT, VPT_STRETCH);        // keep middle
+        int stbar_wing = (R_NumPatchWidth(LumpH2BAR) / 2) - 70;
+        patch_crop_t top_wings_crop = {0, 29, stbar_wing, stbar_wing};
+        patch_crop_t mainbar_crop   = {26, 0, 0, 0};
+
+        V_DrawNumPatchCrop(0, 134, LumpH2BAR, top_wings_crop, CR_DEFAULT, VPT_STRETCH);  // cut off sides
+        V_DrawNumPatchCrop(0, 134, LumpH2BAR, mainbar_crop, CR_DEFAULT, VPT_STRETCH);    // keep middle
     }
 
     oldhealth = -1;
@@ -522,7 +570,7 @@ void SB_Drawer(dboolean statusbaron)
         }
         else
         {
-            if (!automap_active)
+            if (!automap_full)
             {
                 V_DrawNumPatch(38, 162, LumpSTATBAR, CR_DEFAULT, VPT_STRETCH);
             }
@@ -541,7 +589,7 @@ void SB_Drawer(dboolean statusbaron)
         oldfrags = -9999;       //can't use -1, 'cuz of negative frags
         oldlife = -1;
         oldkeys = -1;
-        if (heretic || !automap_active)
+        if (heretic || !automap_full)
         {
             DrawMainBar();
         }
@@ -704,7 +752,7 @@ void DrawMainBar(void)
     int temp;
     int curArmor;
 
-    if (hexen) return Hexen_DrawMainBar();
+    if (hexen) RETURN(Hexen_DrawMainBar());
 
     // Ready artifact
     if (ArtifactFlash)
@@ -718,7 +766,7 @@ void DrawMainBar(void)
         oldarti = -1;           // so that the correct artifact fills in after the flash
     }
     else if (oldarti != CPlayer->readyArtifact
-             || oldartiCount != CPlayer->inventory[inv_ptr].count)
+             || oldartiCount != CPlayer->inventory[CPlayer->inv_ptr].count)
     {
         V_DrawNumPatch(180,  161, LumpBLACKSQ, CR_DEFAULT, VPT_STRETCH);
         if (CPlayer->readyArtifact > 0)
@@ -727,10 +775,10 @@ void DrawMainBar(void)
               179, 160, lumparti[CPlayer->readyArtifact], CR_DEFAULT, VPT_STRETCH
             );
 
-            DrSmallNumber(CPlayer->inventory[inv_ptr].count, 201, 182);
+            DrSmallNumberInventory(CPlayer->inventory[CPlayer->inv_ptr].count, 201, 182);
         }
         oldarti = CPlayer->readyArtifact;
-        oldartiCount = CPlayer->inventory[inv_ptr].count;
+        oldartiCount = CPlayer->inventory[CPlayer->inv_ptr].count;
     }
 
     // Frags
@@ -822,7 +870,7 @@ void DrawInventoryBar(void)
     int x;
     int lump;
 
-    x = inv_ptr - curpos;
+    x = CPlayer->inv_ptr - CPlayer->curpos;
     V_DrawNumPatch(sb_inv_bar_x, sb_inv_bar_y, LumpINVBAR, CR_DEFAULT, VPT_STRETCH);
     for (i = 0; i < 7; i++)
     {
@@ -833,11 +881,11 @@ void DrawInventoryBar(void)
               50 + i * 31, sb_inv_arti_y,
               lumparti[CPlayer->inventory[x + i].type], CR_DEFAULT, VPT_STRETCH
             );
-            DrSmallNumber(CPlayer->inventory[x + i].count,
-                          sb_inv_arti_count_x + i * 31, sb_inv_arti_count_y);
+            DrSmallNumberInventory(CPlayer->inventory[x + i].count,
+                                   sb_inv_arti_count_x + i * 31, sb_inv_arti_count_y);
         }
     }
-    V_DrawNumPatch(50 + curpos * 31,  sb_inv_select_y, LumpSELECTBOX, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNumPatch(50 + CPlayer->curpos * 31,  sb_inv_select_y, LumpSELECTBOX, CR_DEFAULT, VPT_STRETCH);
     if (x != 0)
     {
         lump = !(leveltime & 4) ? LumpINVLFGEM1 : LumpINVLFGEM2;
@@ -850,42 +898,45 @@ void DrawInventoryBar(void)
     }
 }
 
-int fullscreen_inventory = false;
-int inventory_open = false;
+// This is to hide DrawArtifact() when DrawInventoryBarTranslucent() is active
+int artifact_bar_active = false;
 
-void DrawInventoryBarTranslucent(int x, int y, int vpt)
+void DrawInventoryBarTranslucent(int x, int y, dboolean center, int vpt)
 {
-    enum patch_translation_e flags = hexen ? VPT_ALT_TRANSMAP : VPT_TRANSMAP;
+    enum patch_translation_e flags = VPT_TRANSMAP; // 40%
+    int artibox_bar_size = (7 * 31);
+
+    if (center)
+        x -= (artibox_bar_size / 2);
 
     if (inventory)
     {
         int i, j, lump;
-        int artibox_x   = heretic ? x+12    : x+12; // same
+        int artibox_x   = heretic ? x       : x;    // same
         int artibox_y   = heretic ? y       : y;    // same
-        int artifact_x  = heretic ? x+12    : x+10;
+        int artifact_x  = heretic ? x       : x-2;
         int artifact_y  = heretic ? y       : y;    // same
-        int sml_num_x   = heretic ? x-22    : x-27;
+        int sml_num_x   = heretic ? x+20    : x+15;
         int sml_num_y   = heretic ? y+22    : y+22; // same
-        int select_x    = heretic ? x+12    : x+11;
+        int select_x    = heretic ? x       : x-1;
         int select_y    = heretic ? y+29    : y;
-        int gem_xl      = heretic ? x       : x+2;
-        int gem_xr      = heretic ? x+231   : x+230;
+        int gem_xl      = heretic ? x-12    : x-10;
+        int gem_xr      = heretic ? x+219   : x+218;
         int gem_y       = heretic ? y-1     : y;
 
-        fullscreen_inventory = true;
-        inventory_open = true;
+        artifact_bar_active = true;
 
-        j = inv_ptr - curpos;
+        j = CPlayer->inv_ptr - CPlayer->curpos;
         for (i = 0; i < 7; i++)
         {
             V_DrawNamePatch(artibox_x + i * 31, artibox_y, "ARTIBOX", CR_DEFAULT, vpt | flags);  
             if (CPlayer->inventorySlotNum > j + i && CPlayer->inventory[j + i].type != arti_none)
             {
                 V_DrawNumPatch(artifact_x + i * 31, artifact_y,lumparti[CPlayer->inventory[j + i].type], CR_DEFAULT, vpt);
-                DrSmallNumber(CPlayer->inventory[j + i].count, sml_num_x + i * 31, sml_num_y);
+                DrSmallNumberVPTInventory(CPlayer->inventory[j + i].count, sml_num_x + i * 31, sml_num_y, vpt);
             }
         }
-        V_DrawNumPatch(select_x + curpos * 31,  select_y, LumpSELECTBOX, CR_DEFAULT, vpt);
+        V_DrawNumPatch(select_x + CPlayer->curpos * 31,  select_y, LumpSELECTBOX, CR_DEFAULT, vpt);
         if (j != 0)
         {
             lump = !(leveltime & 4) ? LumpINVLFGEM1 : LumpINVLFGEM2;
@@ -899,30 +950,166 @@ void DrawInventoryBarTranslucent(int x, int y, int vpt)
     }
     else
     {
-        inventory_open = false;
+        artifact_bar_active = false;
     }
 }
 
-void DrawArtifact(int x, int y, int vpt)
+void DrawArtifact(int x, int y, dboolean always_show, dboolean simple, dboolean center, int vpt)
 {
   inventory_t *inv;
-  const int box_x = x + (heretic ? 0 : 3);
-  const int box_y = y + (heretic ? 0 : 0);
-  const int delta_x = heretic ? 22 : 19;
-  const int delta_y = heretic ? 22 : 21;
-  enum patch_translation_e flags = hexen ? VPT_ALT_TRANSMAP : VPT_TRANSMAP;
+  dboolean show_box;
+  int box_x, box_y;
+  int arti_x, arti_y;
+  int delta_x, delta_y;
+  enum patch_translation_e box_flags, fade_flags;
 
-  if (!inventory_open)
+  if (center)
+    x -= (R_NamePatchWidth("ARTIBOX") / 2);
+
+  if (!dsda_CheckBigArtifactBar())
+    artifact_bar_active = false;
+
+  show_box = !artifact_bar_active || always_show;
+  box_x = x + (heretic ? 0 : 3);
+  box_y = y + (heretic ? 0 : 0);
+  arti_x = x + (heretic ? 0 : 1);
+  arti_y = y + (heretic ? 0 : 0);
+  delta_x = heretic ? 20 : 18;
+  delta_y = heretic ? 22 : 22;
+  box_flags = VPT_TRANSMAP; // 40%
+  fade_flags = artifact_bar_active ? VPT_TRANSMAP_REVERSE : 0; // 60%
+
+  if (show_box)
   {
-    inv = &players[displayplayer].inventory[inv_ptr];
+    inv = &players[displayplayer].inventory[CPlayer->inv_ptr];
 
-    if (inv->type > 0)
+    if (inv->type > 0 || always_show)
     {
-        V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | flags);
-        V_DrawNumPatch(x, y, lumparti[inv->type], CR_DEFAULT, vpt);
-        DrSmallNumberVPT(inv->count, x + delta_x, y + delta_y, vpt);
+        if (!simple)
+            V_DrawNamePatch(box_x, box_y, "ARTIBOX", CR_DEFAULT, vpt | box_flags);
+
+        if (inv->type > 0)
+        {
+            V_DrawNumPatch(arti_x, arti_y, lumparti[inv->type], CR_DEFAULT, vpt | fade_flags);
+            if (!artifact_bar_active)
+                DrSmallNumberVPTInventory(inv->count, x + delta_x, y + delta_y, vpt);
+        }
     }
   }
+}
+
+//---------------------------------------------------------------------------
+//
+// Set Inventory Descriptions
+//
+//---------------------------------------------------------------------------
+
+typedef struct {
+    const char* const* name;  // points to a const char* variable
+    const char* desc;
+} raven_namearti_t;
+
+const char* s_blank = "";
+
+static raven_namearti_t heretic_namearti_help[11] = {
+    {&s_blank, ""},                                              // none
+    {&s_HERETIC_TXT_ARTIINVULNERABILITY,   HERETIC_ARTI_DESC_A}, // invulnerability
+    {&s_HERETIC_TXT_ARTIINVISIBILITY,      HERETIC_ARTI_DESC_B}, // invisibility
+    {&s_HERETIC_TXT_ARTIHEALTH,            HERETIC_ARTI_DESC_C}, // health
+    {&s_HERETIC_TXT_ARTISUPERHEALTH,       HERETIC_ARTI_DESC_D}, // superhealth
+    {&s_HERETIC_TXT_ARTITOMEOFPOWER,       HERETIC_ARTI_DESC_E}, // tomeofpower
+    {&s_HERETIC_TXT_ARTITORCH,             HERETIC_ARTI_DESC_F}, // torch
+    {&s_HERETIC_TXT_ARTIFIREBOMB,          HERETIC_ARTI_DESC_G}, // timebomb
+    {&s_HERETIC_TXT_ARTIEGG,               HERETIC_ARTI_DESC_H}, // charm
+    {&s_HERETIC_TXT_ARTIFLY,               HERETIC_ARTI_DESC_I}, // fly
+    {&s_HERETIC_TXT_ARTITELEPORT,          HERETIC_ARTI_DESC_J}, // teleport
+};
+
+static raven_namearti_t hexen_namearti_help[33] = {
+    {&s_blank, ""},                                    // none
+    {&s_TXT_ARTIINVULNERABILITY,   HEXEN_ARTI_DESC_A}, // invulnerability
+    {&s_TXT_ARTIHEALTH,            HEXEN_ARTI_DESC_B}, // health
+    {&s_TXT_ARTISUPERHEALTH,       HEXEN_ARTI_DESC_C}, // superhealth
+    {&s_TXT_ARTIHEALINGRADIUS,     HEXEN_ARTI_DESC_D}, // healing radius
+    {&s_TXT_ARTISUMMON,            HEXEN_ARTI_DESC_E}, // summon maulator
+    {&s_TXT_ARTITORCH,             HEXEN_ARTI_DESC_F}, // torch
+    {&s_TXT_ARTIEGG,               HEXEN_ARTI_DESC_G}, // egg
+    {&s_TXT_ARTIFLY,               HEXEN_ARTI_DESC_H}, // fly
+    {&s_TXT_ARTIBLASTRADIUS,       HEXEN_ARTI_DESC_I}, // blast radius
+    {&s_TXT_ARTIPOISONBAG,         HEXEN_ARTI_DESC_J}, // poison bag
+    {&s_TXT_ARTITELEPORTOTHER,     HEXEN_ARTI_DESC_K}, // teleport other
+    {&s_TXT_ARTISPEED,             HEXEN_ARTI_DESC_L}, // speed
+    {&s_TXT_ARTIBOOSTMANA,         HEXEN_ARTI_DESC_M}, // boost mana
+    {&s_TXT_ARTIBOOSTARMOR,        HEXEN_ARTI_DESC_N}, // boost armor
+    {&s_TXT_ARTITELEPORT,          HEXEN_ARTI_DESC_O}, // teleport
+
+    // Puzzle Items
+    {&s_TXT_ARTIPUZZSKULL,         HEXEN_ARTI_DESC_PUZZLE}, // Yorik's Skull
+    {&s_TXT_ARTIPUZZGEMBIG,        HEXEN_ARTI_DESC_PUZZLE}, // Heart of D'Sparil
+    {&s_TXT_ARTIPUZZGEMRED,        HEXEN_ARTI_DESC_PUZZLE}, // Red Planet
+    {&s_TXT_ARTIPUZZGEMGREEN1,     HEXEN_ARTI_DESC_PUZZLE}, // Green Planet
+    {&s_TXT_ARTIPUZZGEMGREEN2,     HEXEN_ARTI_DESC_PUZZLE}, // Green Planet 2
+    {&s_TXT_ARTIPUZZGEMBLUE1,      HEXEN_ARTI_DESC_PUZZLE}, // Blue Planet
+    {&s_TXT_ARTIPUZZGEMBLUE2,      HEXEN_ARTI_DESC_PUZZLE}, // Blue Planet 2
+    {&s_TXT_ARTIPUZZBOOK1,         HEXEN_ARTI_DESC_PUZZLE}, // "Daemon Codex" Book
+    {&s_TXT_ARTIPUZZBOOK2,         HEXEN_ARTI_DESC_PUZZLE}, // "Liber Oscura" Book
+    {&s_TXT_ARTIPUZZSKULL2,        HEXEN_ARTI_DESC_PUZZLE}, // Flame Mask
+    {&s_TXT_ARTIPUZZFWEAPON,       HEXEN_ARTI_DESC_PUZZLE}, // Glaive Seal
+    {&s_TXT_ARTIPUZZCWEAPON,       HEXEN_ARTI_DESC_PUZZLE}, // Holy Relic
+    {&s_TXT_ARTIPUZZMWEAPON,       HEXEN_ARTI_DESC_PUZZLE}, // Sigil of the Magus
+    {&s_TXT_ARTIPUZZGEAR,          HEXEN_ARTI_DESC_PUZZLE}, // Clock Gear
+    {&s_TXT_ARTIPUZZGEAR,          HEXEN_ARTI_DESC_PUZZLE}, // Clock Gear 2
+    {&s_TXT_ARTIPUZZGEAR,          HEXEN_ARTI_DESC_PUZZLE}, // Clock Gear 3
+    {&s_TXT_ARTIPUZZGEAR,          HEXEN_ARTI_DESC_PUZZLE}, // Clock Gear 4
+};
+
+typedef enum
+{
+  artifact_name,
+  artifact_desc,
+
+  artifact_end
+} raven_namearti_type_t;
+
+const char* dsda_InventoryString(raven_namearti_type_t type)
+{
+    inventory_t* inv;
+    static raven_namearti_t* namearti_help;
+    int artifact_shown = false;
+    int config;
+
+    // If Doom, return empty string
+    if (!raven) return "";
+
+    // Check config
+    config = dsda_IntConfig(dsda_config_artifact_descriptions);
+    artifact_shown =
+        (config == 1) ||                           // Show Both
+        (config == 2 && type == artifact_name) ||  // Show Name
+        (config == 3 && type == artifact_desc) ;   // Show Description
+
+    // Set artifact list
+    if (hexen) namearti_help = hexen_namearti_help;
+    else namearti_help = heretic_namearti_help;
+
+    // Get Description
+    if (inventory && artifact_shown)
+    {
+        inv = &players[displayplayer].inventory[CPlayer->inv_ptr];
+        if (inv->type > 0)
+        {
+            if (type == artifact_name) return *namearti_help[inv->type].name; // Name
+            if (type == artifact_desc) return  namearti_help[inv->type].desc; // Description
+        }
+    }
+    
+    return "";
+}
+
+void dsda_GetInventoryDescription(const char** name, const char** desc)
+{
+    *name = dsda_InventoryString(artifact_name);
+    *desc = dsda_InventoryString(artifact_desc);
 }
 
 // hexen
@@ -1017,6 +1204,7 @@ static void Hexen_SB_Init(void)
     }
     SB_SetClassData();
 
+    dsda_InitPatchNumbers();
     ST_LoadTextColors();
 }
 
@@ -1224,24 +1412,82 @@ static void DrawAnimatedIcons(void)
     }
 }
 
+void DrawHexenKeysCycle(void)
+{
+    const int KEYBAR_NUM = 5;
+    const int KEYBAR_TICS = (4 * TICRATE);
+
+    int i;
+    int xPosition;
+    int owned[NUMCARDS];
+    int count = 0;
+    int start, end;
+    int page = 0;
+    int pages = 1;
+
+
+    xPosition = 46;
+
+    // Get keys
+    for (i = 0; i < NUMCARDS; i++)
+    {
+        if (CPlayer->ravenkeys & (1 << i))
+            owned[count++] = i;
+    }
+
+    if (count > KEYBAR_NUM)
+    {
+        pages = (count + KEYBAR_NUM - 1) / KEYBAR_NUM;
+        page = ((leveltime - keybarstarttic) / KEYBAR_TICS) % pages;
+    }
+
+    if (count <= KEYBAR_NUM)
+    {
+        start = 0;
+        end = count;
+    }
+    else if (page == pages - 1)
+    {
+        // Last page: show the final 5 keys, using keys from previous page if needed
+        start = count - KEYBAR_NUM;
+        end = count;
+    }
+    else
+    {
+        start = page * KEYBAR_NUM;
+        end = start + KEYBAR_NUM;
+    }
+
+    // Draw keys
+    for (i = start; i < end && xPosition <= 126; i++)
+    {
+        V_DrawNumPatch(xPosition, 164,
+                        W_GetNumForName("keyslot1") + owned[i],
+                        CR_DEFAULT, VPT_STRETCH);
+        xPosition += 20;
+    }
+
+    // left arrow (not first page)
+    if (page > 0)
+    {
+        V_DrawNumPatch(40, 172, LumpINVLFGEM2, CR_DEFAULT, VPT_STRETCH);
+    }
+
+    // right arrow (not last page)
+    if (page < pages - 1)
+    {
+        V_DrawNumPatch(142, 172, LumpINVRTGEM2, CR_DEFAULT, VPT_STRETCH);
+    }
+}
+
 void DrawKeyBar(void)
 {
     int i;
-    int xPosition;
     int temp;
 
     if (oldkeys != CPlayer->ravenkeys)
     {
-        xPosition = 46;
-        for (i = 0; i < NUMCARDS && xPosition <= 126; i++)
-        {
-            if (CPlayer->ravenkeys & (1 << i))
-            {
-                V_DrawNumPatch(xPosition, 164,
-                               W_GetNumForName("keyslot1") + i, CR_DEFAULT, VPT_STRETCH);
-                xPosition += 20;
-            }
-        }
+        DrawHexenKeysCycle();
         oldkeys = CPlayer->ravenkeys;
     }
     temp = pclass[CPlayer->pclass].auto_armor_save +
@@ -1260,12 +1506,12 @@ void DrawKeyBar(void)
             // 60% opacity
             if (CPlayer->armorpoints[i] <= (pclass[CPlayer->pclass].armor_increment[i] >> 2))
             {
-                V_DrawReverseTLNumPatch(150 + 31 * i, 164, W_GetNumForName("armslot1") + i);
+                V_DrawReverseTransNumPatch(150 + 31 * i, 164, W_GetNumForName("armslot1") + i, CR_DEFAULT, VPT_STRETCH);
             }
             // 40% opacity
             else if (CPlayer->armorpoints[i] <= (pclass[CPlayer->pclass].armor_increment[i] >> 1))
             {
-                V_DrawTLNumPatch(150 + 31 * i, 164, W_GetNumForName("armslot1") + i);
+                V_DrawTransNumPatch(150 + 31 * i, 164, W_GetNumForName("armslot1") + i, CR_DEFAULT, VPT_STRETCH);
             }
             // 100% opacity
             else
@@ -1329,20 +1575,20 @@ static void Hexen_DrawMainBar(void)
         oldarti = -1;           // so that the correct artifact fills in after the flash
     }
     else if (oldarti != CPlayer->readyArtifact
-             || oldartiCount != CPlayer->inventory[inv_ptr].count)
+             || oldartiCount != CPlayer->inventory[CPlayer->inv_ptr].count)
     {
         V_DrawNumPatch(144, 160, LumpARTICLEAR, CR_DEFAULT, VPT_STRETCH);
         if (CPlayer->readyArtifact > 0)
         {
             V_DrawNumPatch(143, 163,
                            lumparti[CPlayer->readyArtifact], CR_DEFAULT, VPT_STRETCH);
-            if (CPlayer->inventory[inv_ptr].count > 1)
+            if (CPlayer->inventory[CPlayer->inv_ptr].count > 1)
             {
-                DrSmallNumber(CPlayer->inventory[inv_ptr].count, 162, 184);
+                DrSmallNumberInventory(CPlayer->inventory[CPlayer->inv_ptr].count, 162, 184);
             }
         }
         oldarti = CPlayer->readyArtifact;
-        oldartiCount = CPlayer->inventory[inv_ptr].count;
+        oldartiCount = CPlayer->inventory[CPlayer->inv_ptr].count;
     }
 
     // Frags
@@ -1473,16 +1719,12 @@ static void Hexen_DrawMainBar(void)
         oldweapon = CPlayer->readyweapon;
     }
     // Armor
-    temp = pclass[CPlayer->pclass].auto_armor_save +
-        CPlayer->armorpoints[ARMOR_ARMOR] +
-        CPlayer->armorpoints[ARMOR_SHIELD] +
-        CPlayer->armorpoints[ARMOR_HELMET] +
-        CPlayer->armorpoints[ARMOR_AMULET];
+    temp = st_armor;
     if (oldarmor != temp)
     {
         oldarmor = temp;
         V_DrawNumPatch(255, 178, LumpARMCLEAR, CR_DEFAULT, VPT_STRETCH);
-        DrINumber(FixedDiv(temp, 5 * FRACUNIT) >> FRACBITS, 250, 176);
+        DrINumber(temp, 250, 176);
     }
     // Weapon Pieces
     if (oldpieces != CPlayer->pieces)

@@ -42,7 +42,7 @@ int S_RandomMusic(void)
 
   while (!found_map)
   {
-    random_map = Nyan_RealRandom() % 99;
+    random_map = Nyan_Random() % 99;
     epsd = (random_map / 10) % 10;
     map = (gamemode == commercial) ? random_map : random_map % 10;
     mapname = VANILLA_MAP_LUMP_NAME(epsd, map);

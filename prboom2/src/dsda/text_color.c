@@ -25,13 +25,8 @@
 
 #include "text_color.h"
 
-typedef struct {
-  const char* key;
-  int color_range;
-  char color_str[3];
-} dsda_text_color_t;
-
 dsda_text_color_t dsda_text_colors[] = {
+  [dsda_tc_orig] = { "orig", 0 }, // placeholder
   [dsda_tc_exhud_time_label] = { "exhud_time_label", CR_GRAY },
   [dsda_tc_exhud_level_time] = { "exhud_level_time", CR_GREEN },
   [dsda_tc_exhud_total_time] = { "exhud_total_time", CR_GOLD },
@@ -39,6 +34,7 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_exhud_armor_zero] = { "exhud_armor_zero", CR_GRAY },
   [dsda_tc_exhud_armor_one] = { "exhud_armor_one", CR_GREEN },
   [dsda_tc_exhud_armor_two] = { "exhud_armor_two", CR_LIGHTBLUE },
+  [dsda_tc_exhud_armor_hexen] = { "exhud_armor_hexen", CR_GRAY },
   [dsda_tc_exhud_command_entry] = { "exhud_command_entry", CR_GRAY },
   [dsda_tc_exhud_command_queue] = { "exhud_command_queue", CR_GOLD },
   [dsda_tc_exhud_coords_base] = { "exhud_coords_base", CR_GREEN },
@@ -52,6 +48,7 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_exhud_health_warning] = { "exhud_health_warning", CR_GOLD },
   [dsda_tc_exhud_health_ok] = { "exhud_health_ok", CR_GREEN },
   [dsda_tc_exhud_health_super] = { "exhud_health_super", CR_LIGHTBLUE },
+  [dsda_tc_exhud_health_super_dark] = { "exhud_health_super_dark", CR_BLUE },
   [dsda_tc_exhud_line_close] = { "exhud_line_close", CR_GREEN },
   [dsda_tc_exhud_line_far] = { "exhud_line_far", CR_GRAY },
   [dsda_tc_exhud_line_special] = { "exhud_line_special", CR_GREEN },
@@ -64,6 +61,7 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_exhud_ammo_mana1] = { "exhud_ammo_mana1", CR_LIGHTBLUE },
   [dsda_tc_exhud_ammo_mana2] = { "exhud_ammo_mana2", CR_GREEN },
   [dsda_tc_exhud_ammo_value] = { "exhud_ammo_value", CR_GRAY },
+  [dsda_tc_exhud_ammo_out] = { "exhud_ammo_out", CR_TAN },
   [dsda_tc_exhud_ammo_bad] = { "exhud_ammo_bad", CR_RED },
   [dsda_tc_exhud_ammo_warning] = { "exhud_ammo_warning", CR_GOLD },
   [dsda_tc_exhud_ammo_ok] = { "exhud_ammo_ok", CR_GREEN },
@@ -78,26 +76,50 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_exhud_speed_slow] = { "exhud_speed_slow", CR_GOLD },
   [dsda_tc_exhud_speed_normal] = { "exhud_speed_normal", CR_GREEN },
   [dsda_tc_exhud_speed_fast] = { "exhud_speed_fast", CR_LIGHTBLUE },
+  [dsda_tc_exhud_totals_sts_label] = { "exhud_totals_sts_label", CR_GRAY },
   [dsda_tc_exhud_totals_label] = { "exhud_totals_label", CR_RED },
   [dsda_tc_exhud_totals_value] = { "exhud_totals_value", CR_GOLD },
   [dsda_tc_exhud_totals_max] = { "exhud_totals_max", CR_LIGHTBLUE },
+  [dsda_tc_exhud_keys_label] = { "exhud_keys_label", CR_GRAY },
   [dsda_tc_exhud_weapon_label] = { "exhud_weapon_label", CR_GRAY },
   [dsda_tc_exhud_weapon_owned] = { "exhud_weapon_owned", CR_GREEN },
   [dsda_tc_exhud_weapon_berserk] = { "exhud_weapon_berserk", CR_LIGHTBLUE },
+  [dsda_tc_exhud_weapon_value] = { "exhud_weapon_value", CR_GRAY },
+  [dsda_tc_exhud_weapon_out] = { "exhud_weapon_out", CR_TAN },
+  [dsda_tc_exhud_weapon_bad] = { "exhud_weapon_bad", CR_RED },
+  [dsda_tc_exhud_weapon_warning] = { "exhud_weapon_warning", CR_GOLD },
+  [dsda_tc_exhud_weapon_ok] = { "exhud_weapon_ok", CR_GREEN },
+  [dsda_tc_exhud_weapon_full] = { "exhud_weapon_full", CR_LIGHTBLUE },
   [dsda_tc_exhud_attempts] = { "exhud_attempts", CR_GRAY },
   [dsda_tc_exhud_event_split] = { "exhud_event_split", CR_GRAY },
   [dsda_tc_exhud_line_activation] = { "exhud_line_activation", CR_GRAY },
   [dsda_tc_exhud_local_time] = { "exhud_local_time", CR_GRAY },
   [dsda_tc_exhud_free_text] = { "exhud_free_text", CR_GRAY },
+  [dsda_tc_exhud_status_invul] = { "exhud_powerup_invul", CR_GREEN },
+  [dsda_tc_exhud_status_invis] = { "exhud_powerup_invis", CR_LIGHTBLUE },
+  [dsda_tc_exhud_status_suit] = { "exhud_powerup_suit", CR_GRAY },
+  [dsda_tc_exhud_status_light] = { "exhud_powerup_light", CR_GOLD },
+  [dsda_tc_exhud_status_berserk] = { "exhud_powerup_berserk", CR_RED },
+  [dsda_tc_exhud_status_allmap] = { "exhud_powerup_allmap", CR_BRICK },
+  [dsda_tc_exhud_status_backpack] = { "exhud_powerup_backpack", CR_BROWN },
+  [dsda_tc_exhud_status_armor_one] = { "exhud_powerup_armor_one", CR_GREEN },
+  [dsda_tc_exhud_status_armor_two] = { "exhud_powerup_armor_two", CR_BLUE },
+  [dsda_tc_exhud_status_flight] = { "exhud_powerup_flight", CR_GOLD },
+  [dsda_tc_exhud_status_tome] = { "exhud_powerup_tome", CR_GRAY },
+  [dsda_tc_exhud_status_morph] = { "exhud_powerup_morph", CR_BRICK },
+  [dsda_tc_exhud_status_speed] = { "exhud_powerup_speed", CR_BLUE },
+  [dsda_tc_exhud_status_maulotaur] = { "exhud_powerup_maulotaur", CR_RED },
+  [dsda_tc_exhud_status_blink] = { "exhud_powerup_blink", CR_BLACK },
   [dsda_tc_hud_message] = { "hud_message", CR_DEFAULT },
-  [dsda_tc_hud_yellow_message] = { "hud_yellow_message", CR_DEFAULT },
   [dsda_tc_hud_announce_message] = { "hud_announce_message", CR_GOLD },
   [dsda_tc_hud_announce_author] = { "hud_announce_author", CR_DEFAULT },
   [dsda_tc_hud_secret_message] = { "hud_secret_message", CR_GOLD },
+  [dsda_tc_hud_obituary] = { "hud_obituary", CR_BRICK },
   [dsda_tc_map_coords] = { "map_coords", CR_GREEN },
   [dsda_tc_map_time_level] = { "map_time_level", CR_GRAY },
   [dsda_tc_map_time_total] = { "map_time_total", CR_GRAY },
   [dsda_tc_map_title] = { "map_title", CR_GOLD },
+  [dsda_tc_map_author] = { "map_author", CR_GOLD },
   [dsda_tc_map_totals_label] = { "map_totals_label", CR_RED },
   [dsda_tc_map_totals_value] = { "map_totals_value", CR_GRAY },
   [dsda_tc_map_totals_max] = { "map_totals_max", CR_LIGHTBLUE },
@@ -126,12 +148,16 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_stbar_armor_zero] = { "stbar_armor_zero", CR_GRAY },
   [dsda_tc_stbar_armor_one] = { "stbar_armor_one", CR_GREEN },
   [dsda_tc_stbar_armor_two] = { "stbar_armor_two", CR_BLUE },
+  [dsda_tc_stbar_armor_hexen] = { "stbar_armor_hexen", CR_GRAY },
+  [dsda_tc_stbar_ammo_out] = { "stbar_ammo_out", CR_GRAY },
   [dsda_tc_stbar_ammo_bad] = { "stbar_ammo_bad", CR_RED },
   [dsda_tc_stbar_ammo_warning] = { "stbar_ammo_warning", CR_GOLD },
   [dsda_tc_stbar_ammo_ok] = { "stbar_ammo_ok", CR_GREEN },
   [dsda_tc_stbar_ammo_full] = { "stbar_ammo_full", CR_BLUE },
   { NULL },
 };
+
+static int textcolor_def_count = (sizeof(dsda_text_colors) / sizeof(dsda_text_colors[0])) - 1;
 
 const char* dsda_TextColor(dsda_text_color_index_t i) {
   return dsda_text_colors[i].color_str;
@@ -141,45 +167,85 @@ int dsda_TextCR(dsda_text_color_index_t i) {
   return dsda_text_colors[i].color_range;
 }
 
-void dsda_LoadTextColor(void) {
-  char* lump;
-  char** lines;
-  const char* line;
-  int line_i;
-  int color_range;
-  char key[33] = { 0 };
+void dsda_RefreshTextColors(void) {
   dsda_text_color_t* p;
-
-  lump = W_ReadLumpToString(W_GetNumForName("NYANTC"));
-
-  lines = dsda_SplitString(lump, "\n\r");
-
-  for (line_i = 0; lines[line_i]; ++line_i) {
-    line = lines[line_i];
-
-    if (!line[0] || line[0] == '/')
-      continue;
-
-    if (sscanf(line, "%32s %d", key, &color_range) != 2)
-      I_Error("NYANTC lump has unknown format! (%s)", line);
-
-    for (p = dsda_text_colors; p->key; p++)
-      if (!strcasecmp(key, p->key)) {
-        p->color_range = color_range;
-        break;
-      }
-
-    if (!p->key)
-      I_Error("NYANTC lump has unknown key %s!", key);
-  }
 
   for (p = dsda_text_colors; p->key; p++) {
     p->color_str[0] = '\x1b';
     p->color_str[1] = HUlib_Color(p->color_range);
+    p->color_str[2] = '\0';
   }
 
-  Z_Free(lines);
-  Z_Free(lump);
+  // Force ORIG/reset escape (not a real CR color)
+  dsda_text_colors[dsda_tc_orig].color_str[0] = '\x1b';
+  dsda_text_colors[dsda_tc_orig].color_str[1] = HUlib_ColorReset();
+  dsda_text_colors[dsda_tc_orig].color_str[2] = '\0';
+}
+
+static int dsda_ClampCR(int cr)
+{
+  if (cr < CR_DEFAULT) return CR_DEFAULT;
+  if (cr >= CR_HUD_LIMIT) return CR_DEFAULT;
+  return cr;
+}
+
+int dsda_TextColorConfig(int config_id)
+{
+  const int i = config_id;
+
+  if (i <= dsda_tc_orig || i >= textcolor_def_count)
+    return CR_DEFAULT;
+
+  return dsda_text_colors[i].color_range;
+}
+
+void dsda_UpdateTextColorCR(dsda_text_color_index_t i, int cr)
+{
+  if (i <= dsda_tc_orig || i >= textcolor_def_count)
+    return;
+
+  cr = dsda_ClampCR(cr);
+
+  if (dsda_text_colors[i].color_range == cr)
+    return;
+
+  dsda_text_colors[i].color_range = cr;
+  dsda_RefreshTextColors();
+}
+
+void dsda_UpdateTextColorConfig(int config_id, int cr)
+{
+  dsda_UpdateTextColorCR(config_id, cr);
+}
+
+void dsda_LoadTextColorEntries(const char* def, int parm) {
+  int i;
+  char name[128];
+
+  for (i = dsda_tc_orig + 1; i < textcolor_def_count; ++i)
+  {
+    snprintf(name, sizeof(name), "dsda_tc_%s", dsda_text_colors[i].key);
+
+    if (!strcmp(def, name))
+    {
+      parm = dsda_ClampCR(parm);
+
+      dsda_text_colors[i].color_range = parm;
+    }
+  }
+}
+
+void dsda_SaveTextColorEntries(FILE* f, int maxlen) {
+  int i;
+  char name[128];
+
+  fprintf(f, "\n# Text colors\n");
+
+  for (i = dsda_tc_orig + 1; i < textcolor_def_count; ++i)
+  {
+    snprintf(name, sizeof(name), "dsda_tc_%s", dsda_text_colors[i].key);
+    fprintf(f, "%-*s %d\n", maxlen, name, dsda_text_colors[i].color_range);
+  }
 }
 
 static const char* color_name_to_index[CR_HUD_LIMIT] = {

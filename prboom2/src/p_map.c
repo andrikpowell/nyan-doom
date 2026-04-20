@@ -39,6 +39,7 @@
 #include "p_map.h"
 #include "p_setup.h"
 #include "p_spec.h"
+#include "p_user.h"
 #include "s_sound.h"
 #include "sounds.h"
 #include "p_inter.h"
@@ -49,6 +50,7 @@
 #include "p_tick.h"
 #include "g_overflow.h"
 #include "am_map.h"
+#include "w_wad.h"
 
 #include "e6y.h"//e6y
 
@@ -60,6 +62,7 @@
 #include "dsda/mapinfo.h"
 
 #include "heretic/def.h"
+#include "hexen/dstrings.h"
 
 static mobj_t    *tmthing;
 static mobj_t    *tsthing; // hexen
@@ -104,7 +107,7 @@ fixed_t   tmceilingz; // ceiling of sector you're in
 fixed_t   tmdropoffz; // dropoff on other side of line you're crossing
 
 // heretic
-int tmflags;
+uint64_t tmflags;
 
 // hexen
 int tmfloorpic;
@@ -441,7 +444,7 @@ dboolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, dboolean boss)
 
   for (bx=xl ; bx<=xh ; bx++)
     for (by=yl ; by<=yh ; by++)
-      if (!P_BlockThingsIterator(bx,by,PIT_StompThing))
+      if (!P_BlockThingsIterator(bx, by, PIT_StompThing, true))
         return false;
 
   // the move is ok,
@@ -703,6 +706,121 @@ static dboolean P_ProjectileImmune(mobj_t *target, mobj_t *source)
     );
 }
 
+// [Nugget] Over/Under /------------------------------------------------------
+
+int P_EnableOverUnderForThing()
+{
+  if (raven)
+    return false; // needs work to get it working
+
+  // Doom
+  return dsda_EnhancedDoomOverUnder(); // note: can be 0/1/2 (off/player/all things)
+}
+
+// Potential over/under mobjs
+mobj_t *p_below_tmthing, *p_above_tmthing, // For tmthing
+       *p_below_thing_s, *p_above_thing_s, // For thing    ("setter")
+       *p_below_thing_g, *p_above_thing_g; // thing itself ("getter")
+
+static void P_SetOverUnderMobjs(mobj_t *thing)
+{
+  if (P_EnableOverUnderForThing())
+  {
+    mobj_t *pbtg = p_below_thing_g ? p_below_thing_g->below_thing : NULL,
+           *pbts = p_below_thing_s,
+           *patg = p_above_thing_g ? p_above_thing_g->above_thing : NULL,
+           *pats = p_above_thing_s;
+
+    thing->below_thing = p_below_tmthing;
+    thing->above_thing = p_above_tmthing;
+
+    if (p_below_thing_g
+        && (!pbtg || (pbtg->z + pbtg->height) < (pbts->z + pbts->height)))
+    {
+      p_below_thing_g->below_thing = p_below_thing_s;
+    }
+
+    if (p_above_thing_g
+        && (!patg || pats->z < patg->z))
+    {
+      p_above_thing_g->above_thing = p_above_thing_s;
+    }
+  }
+}
+
+static dboolean P_CheckAndUpdateOverUnderMobjs(mobj_t *thing)
+{
+  const fixed_t thing_top = thing->z + thing->height;
+  const fixed_t tmthing_top    = tmthing->z + tmthing->height;
+
+  if (thing->z + thing->height <= tmthing->z)
+  {
+    // Over
+
+    if ((!p_below_tmthing)
+        || ((p_below_tmthing->z + p_below_tmthing->height) < thing_top))
+    {
+      p_below_tmthing = thing;
+    }
+
+    if ((!p_above_thing_s)
+        || (tmthing->z < p_above_thing_s->z))
+    {
+      p_above_thing_s = tmthing;
+      p_above_thing_g = thing;
+    }
+
+    return true;
+  }
+  else if (tmthing_top <= thing->z)
+  {
+    // Under
+
+    if ((!p_above_tmthing)
+        || (thing->z < p_above_tmthing->z))
+    {
+      p_above_tmthing = thing;
+    }
+
+    if ((!p_below_thing_s)
+        || ((p_below_thing_s->z + p_below_thing_s->height) < tmthing_top))
+    {
+      p_below_thing_s = tmthing;
+      p_below_thing_g = thing;
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+// Factored out from `PIT_CheckThing()`
+dboolean P_SkullSlam(mobj_t **skull, mobj_t *hitthing)
+{
+  // [Nugget] Note: `skull` is a double pointer because the original code in
+  // `PIT_CheckThing()` uses `tmthing`, which may potentially change midway
+  // through the slamming code, and passing it as a simple pointer wouldn't be
+  // able to reflect that
+
+  // A flying skull is smacking something.
+  // Determine damage amount, and the skull comes to a dead stop.
+
+  int damage = ((P_Random(pr_skullfly) % 8) + 1) * (*skull)->info->damage;
+
+  P_DamageMobj (hitthing, *skull, *skull, damage);
+
+  (*skull)->flags &= ~MF_SKULLFLY;
+  (*skull)->momx = (*skull)->momy = (*skull)->momz = 0;
+
+  if (raven)
+    P_SetMobjState (*skull, (*skull)->info->seestate);
+  else
+    P_SetMobjState (*skull, (*skull)->info->spawnstate);
+
+  return false;   // stop moving
+}
+
 static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 {
   fixed_t blockdist;
@@ -756,6 +874,19 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
       return true;
     }
 
+  // [Nugget] check if a mobj passed over/under another object
+  if (!raven)
+  {
+    const int ou_tm = P_EnableOverUnderForThing();
+
+    if (ou_tm && (tmthing->flags & MF_SOLID) && !(thing->flags & MF_SPECIAL)
+        && (ou_tm == 2 || tmthing->player || thing->player))
+    {
+      if (P_CheckAndUpdateOverUnderMobjs(thing))
+        return true;
+    }
+  }
+
   if (tmthing->flags2 & MF2_PASSMOBJ)
   {                           // check if a mobj passed over/under another object
     if (raven)
@@ -795,9 +926,6 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   {
     // A flying skull is smacking something.
     // Determine damage amount, and the skull comes to a dead stop.
-
-    int new_state;
-    int damage;
 
     if (hexen)
     {
@@ -865,21 +993,7 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
       }
     }
 
-    damage = ((P_Random(pr_skullfly) % 8) + 1) * tmthing->info->damage;
-
-    P_DamageMobj (thing, tmthing, tmthing, damage);
-
-    tmthing->flags &= ~MF_SKULLFLY;
-    tmthing->momx = tmthing->momy = tmthing->momz = 0;
-
-    if (raven)
-      new_state = tmthing->info->seestate;
-    else
-      new_state = tmthing->info->spawnstate;
-
-    P_SetMobjState (tmthing, new_state);
-
-    return false;   // stop moving
+    return P_SkullSlam(&tmthing, thing);
   }
 
   // Check for blasted thing running into another
@@ -1317,9 +1431,13 @@ dboolean P_CheckPosition (mobj_t* thing,fixed_t x,fixed_t y)
 
   BlockingMobj = NULL;
 
+  // [Nugget] Over/Under
+  p_below_tmthing = p_below_thing_s = p_below_thing_g =
+  p_above_tmthing = p_above_thing_s = p_above_thing_g = NULL;
+
   for (bx=xl ; bx<=xh ; bx++)
     for (by=yl ; by<=yh ; by++)
-      if (!P_BlockThingsIterator(bx,by,PIT_CheckThing))
+      if (!P_BlockThingsIterator(bx, by, PIT_CheckThing, !(tmthing->flags2 & MF2_RIP)))
         return false;
 
   if (hexen && tmflags & MF_NOCLIP)
@@ -1442,7 +1560,7 @@ void P_CheckHereticImpact(mobj_t *thing)
 
   for (i = numspechit - 1; i >= 0; i--)
   {
-    map_format.shoot_special_line(thing->target, spechit[i]);
+    map_format.shoot_special_line(thing->target, spechit[i], 0);
   }
 }
 
@@ -1517,6 +1635,20 @@ dboolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
     if (heretic || !BlockingMobj || BlockingMobj->player || !thing->player)
       map_format.check_impact(thing);
     return false;
+  }
+
+  // [Nugget] Over/Under
+  if (!raven)
+  {
+    if (P_EnableOverUnderForThing())
+    {
+      // `tmfloorz` may have changed, so make sure the thing fits
+      if (p_above_tmthing && p_above_tmthing->z < (tmfloorz + thing->height))
+        return false;
+
+      // If move was valid, set new over/under mobjs
+      P_SetOverUnderMobjs(thing);
+    }
   }
 
   if (!(thing->flags & MF_NOCLIP))
@@ -1844,6 +1976,8 @@ dboolean P_ThingHeightClip (mobj_t* thing)
   onfloor = (thing->z == thing->floorz);
 
   P_CheckPosition (thing, thing->x, thing->y);
+
+  P_SetOverUnderMobjs(tmthing); // [Nugget] Over/Under
 
   /* what about stranding a monster partially off an edge?
    * killough 11/98: Answer: see below (upset balance if hanging off ledge)
@@ -2329,7 +2463,10 @@ dboolean PTR_ShootTraverse (intercept_t* in)
     line_t *li = in->d.line;
 
     if (li->special)
-      map_format.shoot_special_line(shootthing, li);
+    {
+	    int side = P_PointOnLineSide(shootthing->x, shootthing->y, li);
+      map_format.shoot_special_line(shootthing, li, side);
+    }
 
     if (li->flags & ML_TWOSIDED &&
         !(li->flags & (ML_BLOCKEVERYTHING | ML_BLOCKHITSCAN)))
@@ -2365,9 +2502,9 @@ dboolean PTR_ShootTraverse (intercept_t* in)
       sector_t *sec = side ? li->backsector : li->frontsector;
 
       real_z = (int64_t) shootz + FixedMul64(aimslope, FixedMul(in->frac, attackrange));
-      z = real_z > INT_MAX ? INT_MAX :
-          real_z < INT_MIN ? INT_MIN :
-          real_z;
+      z = (fixed_t)(real_z > INT_MAX ? INT_MAX :
+                    real_z < INT_MIN ? INT_MIN :
+                    real_z);
 
       if (sec && sec->floorheight > z)
       {
@@ -2621,6 +2758,63 @@ void P_LineAttack(mobj_t* t1, angle_t angle, fixed_t distance, fixed_t slope,
 
 mobj_t*   usething;
 
+static int P_LineLength(line_t *line)
+{
+    fixed_t dx = line->v2->x - line->v1->x;
+    fixed_t dy = line->v2->y - line->v1->y;
+
+    double fx = (double)dx / FRACUNIT;
+    double fy = (double)dy / FRACUNIT;
+
+    return (int)(sqrt(fx * fx + fy * fy) + 0.5);
+}
+
+void P_UseXboxEasterEgg(intercept_t* in)
+{
+  int linenum;
+  int linelen;
+  int frontside;
+
+  if (raven || bfgedition || !allow_incompatibility)
+    return;
+
+  if (gamemission == doom2)
+  {
+    if (gamemap != 2 || W_PWADLumpNameExists2("MAP02"))
+      return;
+  } else if (gamemission == doom)
+  {
+    if (gamemap != 1 || W_PWADLumpNameExists2("E1M1"))
+      return;
+  } else
+  {
+    return;
+  }
+
+  linenum = (int)(in->d.line - lines);
+  linelen = P_LineLength(in->d.line);
+  frontside = P_PointOnLineSide (usething->x, usething->y, in->d.line) == 0;   // front side only
+
+  if (usething->player && frontside)
+  {
+    if (gamemission == doom2 &&
+        linelen == 32 &&
+        (linenum = 302 ||   // 1.666
+        linenum == 283))    // 1.9
+    {
+      doom_printf("You have been betrayed.");
+    }
+    else if (gamemission == doom &&
+        linelen == 191 &&
+        (linenum == 268 ||  // Ultimate
+        linenum == 272 ||   // 1.666
+        linenum == 273))    // 1.1
+    {
+      doom_printf("The sewers are closed for maintenance.");
+    }
+  }
+}
+
 dboolean PTR_UseTraverse (intercept_t* in)
 {
   int side;
@@ -2664,6 +2858,7 @@ dboolean PTR_UseTraverse (intercept_t* in)
       }
       else if (!heretic)
       {
+        P_UseXboxEasterEgg (in);
         S_StartSound (usething, sfx_noway);
       }
 
@@ -2772,6 +2967,10 @@ void P_UseLines (player_t*  player)
   if (P_PathTraverse ( x1, y1, x2, y2, PT_ADDLINES, PTR_UseTraverse ))
     if (!comp[comp_sound] && !P_PathTraverse ( x1, y1, x2, y2, PT_ADDLINES, PTR_NoWayTraverse ))
       S_StartSound (usething, sfx_noway);
+
+  // allow kex-style puzzle item usage
+  if (hexen && dsda_SimplerPuzzleUse())
+    P_UsePuzzleItemOnThing(player);
 }
 
 
@@ -2962,7 +3161,7 @@ void P_RadiusAttack(mobj_t* spot,mobj_t* source, int damage, int distance, int f
 
   for (y=yl ; y<=yh ; y++)
     for (x=xl ; x<=xh ; x++)
-      P_BlockThingsIterator (x, y, PIT_RadiusAttack );
+      P_BlockThingsIterator (x, y, PIT_RadiusAttack, false);
 
   if (map_format.zdoom)
   {
@@ -3103,7 +3302,7 @@ dboolean P_ChangeSector(sector_t* sector, int crunch)
 
   for (x=sector->blockbox[BOXLEFT] ; x<= sector->blockbox[BOXRIGHT] ; x++)
     for (y=sector->blockbox[BOXBOTTOM];y<= sector->blockbox[BOXTOP] ; y++)
-      P_BlockThingsIterator (x, y, PIT_ChangeSector);
+      P_BlockThingsIterator (x, y, PIT_ChangeSector, false);
 
   return nofit;
 }
@@ -3511,7 +3710,7 @@ mobj_t *onmobj; // generic global onmobj...used for landing on pods/players
 
 dboolean P_TestMobjLocation(mobj_t * mobj)
 {
-    int flags;
+    uint64_t flags;
 
     flags = mobj->flags;
     mobj->flags &= ~MF_PICKUP;
@@ -3615,7 +3814,7 @@ mobj_t *P_CheckOnmobj(mobj_t * thing)
 
     for (bx = xl; bx <= xh; bx++)
         for (by = yl; by <= yh; by++)
-            if (!P_BlockThingsIterator(bx, by, PIT_CheckOnmobjZ))
+            if (!P_BlockThingsIterator(bx, by, PIT_CheckOnmobjZ, !(tmthing->flags2 & MF2_RIP)))
             {
                 *tmthing = oldmo;
                 return onmobj;
@@ -3624,10 +3823,13 @@ mobj_t *P_CheckOnmobj(mobj_t * thing)
     return NULL;
 }
 
+static overunder_t zdir = OU_NONE;
+
 void P_FakeZMovement(mobj_t * mo)
 {
     int dist;
     int delta;
+    const fixed_t oldz = mo->z;
 //
 // adjust height
 //
@@ -3699,6 +3901,91 @@ void P_FakeZMovement(mobj_t * mo)
             mo->momz = -mo->momz;
         }
     }
+    zdir = (oldz < mo->z) ? OU_OVER : OU_UNDER;
+}
+
+static dboolean PIT_CheckOverUnderMobjZ(mobj_t *thing)
+{
+  fixed_t blockdist;
+
+  if (!(thing->flags & (MF_SOLID|MF_SPECIAL|MF_SHOOTABLE)))
+    return true; // Can't hit thing
+
+  blockdist = thing->radius + tmthing->radius;
+  
+  if (D_abs(thing->x - tmx) >= blockdist || D_abs(thing->y - tmy) >= blockdist)
+    return true; // Didn't hit thing
+
+  if (thing == tmthing)
+    return true; // Don't clip against self
+
+  if (P_CheckAndUpdateOverUnderMobjs(thing))
+    return true;
+
+  return !((thing->flags & MF_SOLID && !(thing->flags & MF_NOCLIP))
+           && (tmthing->flags & MF_SOLID || demo_compatibility));
+}
+
+// Checks if the new Z position is legal
+overunder_t P_CheckOverUnderMobj(mobj_t *thing)
+{
+  int xl, xh, yl, yh, bx, by;
+  subsector_t *newsubsec;
+  const mobj_t oldmo = *thing; // Save the old mobj before the fake movement
+  overunder_t ret = OU_NONE;
+
+  if (!P_EnableOverUnderForThing()) { return ret; }
+
+  tmx = thing->x;
+  tmy = thing->y;
+  tmthing = thing;
+  tmflags = thing->flags;
+
+  tmbbox[BOXTOP]    = tmy + tmthing->radius;
+  tmbbox[BOXBOTTOM] = tmy - tmthing->radius;
+  tmbbox[BOXRIGHT]  = tmx + tmthing->radius;
+  tmbbox[BOXLEFT]   = tmx - tmthing->radius;
+
+  newsubsec = R_PointInSubsector(tmx, tmy);
+  floorline = blockline = ceilingline = NULL;
+
+  // The base floor / ceiling is from the subsector that contains the
+  // point.  Any contacted lines the step closer together will adjust them
+  tmfloorz = tmdropoffz = newsubsec->sector->floorheight;
+  tmceilingz = newsubsec->sector->ceilingheight;
+
+  validcount++;
+  numspechit = 0;
+
+  if (tmflags & MF_NOCLIP) { return ret; }
+
+  // Check things first, possibly picking things up
+  // the bounding box is extended by MAXRADIUS because mobj_ts are grouped
+  // into mapblocks based on their origin point, and can overlap into adjacent
+  // blocks by up to MAXRADIUS units
+  xl = P_GetSafeBlockX(tmbbox[BOXLEFT]  - bmaporgx - MAXRADIUS);
+  xh = P_GetSafeBlockX(tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS);
+  yl = P_GetSafeBlockY(tmbbox[BOXBOTTOM]- bmaporgy - MAXRADIUS);
+  yh = P_GetSafeBlockY(tmbbox[BOXTOP]   - bmaporgy + MAXRADIUS);
+
+  p_below_tmthing = p_below_thing_s = p_below_thing_g =
+  p_above_tmthing = p_above_thing_s = p_above_thing_g = NULL;
+
+  //DBG_LogOU(tmthing, "start", ret);
+
+  zdir = OU_NONE;
+  P_FakeZMovement(tmthing);
+
+  for (bx = xl; bx <= xh; bx++)
+    for (by = yl; by <= yh; by++)
+      if (!P_BlockThingsIterator(bx, by, PIT_CheckOverUnderMobjZ, !(tmthing->flags2 & MF2_RIP)))
+      {
+        P_SetOverUnderMobjs(tmthing);
+        ret = zdir;
+      }
+
+  *tmthing = oldmo;
+  return ret;
 }
 
 void P_AppendSpecHit(line_t * ld)
@@ -3845,7 +4132,7 @@ void P_BounceWall(mobj_t * mo)
     deltaangle >>= ANGLETOFINESHIFT;
 
     movelen = P_AproxDistance(mo->momx, mo->momy);
-    movelen = FixedMul(movelen, 0.75 * FRACUNIT);       // friction
+    movelen = FixedMul(movelen, (fixed_t)(0.75 * FRACUNIT));       // friction
     if (movelen < FRACUNIT)
         movelen = 2 * FRACUNIT;
     mo->momx = FixedMul(movelen, finecosine[deltaangle]);
@@ -3894,7 +4181,7 @@ void PIT_ThrustSpike(mobj_t * actor)
     // stomp on any things contacted
     for (bx = xl; bx <= xh; bx++)
         for (by = yl; by <= yh; by++)
-            P_BlockThingsIterator(bx, by, PIT_ThrustStompThing);
+            P_BlockThingsIterator(bx, by, PIT_ThrustStompThing, true);
 }
 
 static void CheckForPushSpecial(line_t * line, int side, mobj_t * mobj)
@@ -3945,6 +4232,7 @@ static dboolean Hexen_P_TryMove(mobj_t* thing, fixed_t x, fixed_t y)
             goto pushline;
         }
     }
+
     if (!(thing->flags & MF_NOCLIP))
     {
         if (tmceilingz - tmfloorz < thing->height)
@@ -4073,13 +4361,88 @@ static mobj_t *PuzzleItemUser;
 static int PuzzleItemType;
 static dboolean PuzzleActivated;
 
+// for "use" key
+static dboolean PuzzleUseKeyMode;
+static int PuzzleUseThing;
+
 #include "hexen/p_acs.h"
 
-dboolean PTR_PuzzleItemTraverse(intercept_t * in)
+void dsda_PuzzleFailSound(mobj_t *mo)
+{
+  int sound = hexen_sfx_None;
+  if (mo->player)
+  {
+      switch (mo->player->pclass)
+      {
+          case PCLASS_FIGHTER:
+              sound = hexen_sfx_puzzle_fail_fighter;
+              break;
+          case PCLASS_CLERIC:
+              sound = hexen_sfx_puzzle_fail_cleric;
+              break;
+          case PCLASS_MAGE:
+              sound = hexen_sfx_puzzle_fail_mage;
+              break;
+          default:
+              sound = hexen_sfx_None;
+              break;
+      }
+  }
+  S_StartMobjSound(mo, sound);
+}
+
+void dsda_PuzzleMissingMessage(player_t *player)
+{
+  dsda_PuzzleFailSound(player->mo);
+  P_SetMessage(player, TXT_USEPUZZLEMISSING, false);
+}
+
+void dsda_PuzzleFailMessage(player_t *player)
+{
+  dsda_PuzzleFailSound(player->mo);
+  P_SetYellowMessage(player, TXT_USEPUZZLEFAILED, false);
+}
+
+dboolean PTR_PuzzleItemTraverseThing(intercept_t * in)
 {
     mobj_t *mobj;
     byte args[3];
-    int sound;
+    int required;
+
+    // Check thing
+    mobj = in->d.thing;
+    if (mobj->special != USE_PUZZLE_ITEM_SPECIAL)
+    {                           // Wrong special
+        return true;
+    }
+
+    required = mobj->special_args[0];
+
+    if (PuzzleUseKeyMode)
+    {
+        PuzzleUseThing = required;
+        return false;
+    }
+
+    if (PuzzleItemType != required)
+    {                           // Item type doesn't match
+        return true;
+    }
+
+    args[0] = mobj->special_args[2];
+    args[1] = mobj->special_args[3];
+    args[2] = mobj->special_args[4];
+
+    P_StartACS(mobj->special_args[1], 0, args, PuzzleItemUser, NULL, 0);
+    mobj->special = 0;
+    PuzzleActivated = true;
+    return false;               // Stop searching
+}
+
+dboolean PTR_PuzzleItemTraverse(intercept_t * in)
+{
+    byte args[3];
+    int required;
 
     if (in->isaline)
     {                           // Check line
@@ -4088,26 +4451,8 @@ dboolean PTR_PuzzleItemTraverse(intercept_t * in)
             P_LineOpening(in->d.line, NULL);
             if (line_opening.range <= 0)
             {
-                sound = hexen_sfx_None;
-                if (PuzzleItemUser->player)
-                {
-                    switch (PuzzleItemUser->player->pclass)
-                    {
-                        case PCLASS_FIGHTER:
-                            sound = hexen_sfx_puzzle_fail_fighter;
-                            break;
-                        case PCLASS_CLERIC:
-                            sound = hexen_sfx_puzzle_fail_cleric;
-                            break;
-                        case PCLASS_MAGE:
-                            sound = hexen_sfx_puzzle_fail_mage;
-                            break;
-                        default:
-                            sound = hexen_sfx_None;
-                            break;
-                    }
-                }
-                S_StartMobjSound(PuzzleItemUser, sound);
+                if (!PuzzleUseKeyMode)
+                  dsda_PuzzleFailSound(PuzzleItemUser);
                 return false;   // can't use through a wall
             }
             return true;        // Continue searching
@@ -4117,7 +4462,16 @@ dboolean PTR_PuzzleItemTraverse(intercept_t * in)
         {                       // Don't use back sides
             return false;
         }
-        if (PuzzleItemType != in->d.line->special_args[0])
+
+        required = in->d.line->special_args[0];
+
+        if (PuzzleUseKeyMode)
+        {
+            PuzzleUseThing = required;
+            return false;
+        }
+
+        if (PuzzleItemType != required)
         {                       // Item type doesn't match
             return false;
         }
@@ -4134,24 +4488,7 @@ dboolean PTR_PuzzleItemTraverse(intercept_t * in)
         return false;           // Stop searching
     }
     // Check thing
-    mobj = in->d.thing;
-    if (mobj->special != USE_PUZZLE_ITEM_SPECIAL)
-    {                           // Wrong special
-        return true;
-    }
-    if (PuzzleItemType != mobj->special_args[0])
-    {                           // Item type doesn't match
-        return true;
-    }
-
-    args[0] = mobj->special_args[2];
-    args[1] = mobj->special_args[3];
-    args[2] = mobj->special_args[4];
-
-    P_StartACS(mobj->special_args[1], 0, args, PuzzleItemUser, NULL, 0);
-    mobj->special = 0;
-    PuzzleActivated = true;
-    return false;               // Stop searching
+    return PTR_PuzzleItemTraverseThing(in);               // Stop searching
 }
 
 dboolean P_UsePuzzleItem(player_t * player, int itemType)
@@ -4162,6 +4499,8 @@ dboolean P_UsePuzzleItem(player_t * player, int itemType)
     PuzzleItemType = itemType;
     PuzzleItemUser = player->mo;
     PuzzleActivated = false;
+    PuzzleUseKeyMode = false;
+    PuzzleUseThing = -1;
     angle = player->mo->angle >> ANGLETOFINESHIFT;
     x1 = player->mo->x;
     y1 = player->mo->y;
@@ -4170,4 +4509,78 @@ dboolean P_UsePuzzleItem(player_t * player, int itemType)
     P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES | PT_ADDTHINGS,
                    PTR_PuzzleItemTraverse);
     return PuzzleActivated;
+}
+
+//
+// Special use artifact functions
+//
+
+int P_FindPuzzleItemType(player_t *player)
+{
+    int angle;
+    fixed_t x1, y1, x2, y2;
+
+    if (!player || !player->mo)
+        return -1;
+
+    PuzzleItemUser = player->mo;
+    PuzzleActivated = false;
+    PuzzleUseKeyMode = true;
+    PuzzleUseThing = -1;
+    angle = player->mo->angle >> ANGLETOFINESHIFT;
+    x1 = player->mo->x;
+    y1 = player->mo->y;
+    x2 = x1 + (USERANGE >> FRACBITS) * finecosine[angle];
+    y2 = y1 + (USERANGE >> FRACBITS) * finesine[angle];
+    P_PathTraverse(x1, y1, x2, y2, PT_ADDTHINGS,
+                   PTR_PuzzleItemTraverseThing);
+    PuzzleUseKeyMode = false;
+    return PuzzleUseThing;
+}
+
+dboolean P_UsePuzzleItemOnThing(player_t *player)
+{
+    int required;
+    int i;
+    int type;
+    artitype_t arti;
+
+    if (!player || !player->mo)
+        return false;
+
+    required = P_FindPuzzleItemType(player);
+    if (required < 0)
+        return false;
+
+    for (i = 0; i < player->artifactCount; i++)
+    {
+        arti = player->inventory[i].type;
+        type = arti - hexen_arti_firstpuzzitem;
+
+        if (type < 0)
+            continue;
+
+        if (type != required)
+            continue;
+
+        if (P_UseArtifact(player, arti))
+        {
+            P_PlayerRemoveArtifact(player, i);
+
+            if (player == &players[consoleplayer])
+            {
+                S_StartVoidSound(hexen_sfx_puzzle_success);
+                ArtifactFlash = 4;
+            }
+            return true;
+        }
+
+        // kex adds this
+        dsda_PuzzleFailMessage(player);
+        return false;
+    }
+
+    // No matching puzzle item exists anywhere in inventory
+    dsda_PuzzleMissingMessage(player);
+    return false;
 }

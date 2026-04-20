@@ -54,10 +54,11 @@
 #include "p_inter.h"
 #include "p_enemy.h"
 #include "s_sound.h"
+#include "s_advsound.h"
 #include "sounds.h"
 #include "i_sound.h"
 #include "m_bbox.h"                                         // phares 3/20/98
-#include "d_deh.h"
+#include "deh/strings.h"
 #include "st_stuff.h"
 #include "r_plane.h"
 #include "hu_stuff.h"
@@ -74,8 +75,11 @@
 #include "dsda/mapinfo.h"
 #include "dsda/messenger.h"
 #include "dsda/scroll.h"
+#include "dsda/skill_info.h"
 #include "dsda/thing_id.h"
 #include "dsda/utility.h"
+
+#include "hexen/dstrings.h"
 
 //
 //      source animation definition
@@ -196,6 +200,75 @@ static void P_ApplyDamageMethods(int i, const animdef_t *animdefs)
   }
 }
 
+static void P_ApplySmartSwirl(int i, const animdef_t *animdefs)
+{
+  if (hexen)
+    return;
+
+  if (lastanim->picnum >= lastanim->basepic)
+  {
+    char *startname ;
+    dboolean markSmartSwirl = false;
+    int j;
+
+    startname = Z_Strdup(animdefs[i].startname);
+    dsda_UppercaseString(startname);
+    
+    if (!raven) // Doom
+    {
+      markSmartSwirl =
+        strstr(startname, "WATER") ||
+        strstr(startname, "BLOOD") ||
+        strstr(startname, "NUKAGE") ||
+        strstr(startname, "LAVA")  ||
+        !strncasecmp(startname, "SLIME01", 7) || // Slime animation 1
+        !strncasecmp(startname, "SLIME02", 7) || // SLIME01-04
+        !strncasecmp(startname, "SLIME03", 7) ||
+        !strncasecmp(startname, "SLIME04", 7) ||
+        !strncasecmp(startname, "SLIME05", 7) || // Slime animation 2
+        !strncasecmp(startname, "SLIME06", 7) || // SLIME05-08
+        !strncasecmp(startname, "SLIME07", 7) ||
+        !strncasecmp(startname, "SLIME08", 7);
+    }
+    else // Heretic
+    {
+      markSmartSwirl =
+        strstr(startname, "FLTWAWA") ||
+        strstr(startname, "FLTFLWW") ||
+        strstr(startname, "FLATHUH") ||
+        strstr(startname, "FLTSLUD");
+    }
+
+    if (markSmartSwirl)
+    {
+    for (j = lastanim->basepic; j <= lastanim->picnum; j++)
+        flatsmartswirl[j] = true;
+    }
+
+    Z_Free(startname);
+  }
+}
+
+int P_FlatIndexFromLump(int lumpnum)
+{
+  // already an index, return it back
+  if (lumpnum >= 0 && lumpnum < numflats)
+    return lumpnum;
+
+  // convert lumpnum -> index
+  if (lumpnum >= firstflat && lumpnum < firstflat + numflats)
+    return lumpnum - firstflat;
+
+  I_Error("P_FlatIndexFromLump: %d not a flat lump/index", lumpnum);
+
+  return false; // prob will never reach this, but eh
+}
+
+dboolean P_IsSwirlingFlat(int flat_index)
+{
+  return flattranslation[flat_index] == -1;
+}
+
 //
 // P_InitPicAnims
 //
@@ -235,7 +308,7 @@ void P_InitPicAnims (void)
   {
     lump = W_CheckNumForName("ANIMATED");
 
-    if (lump != LUMP_NOT_FOUND && lumpinfo[lump].source != source_auto_load)
+    if (lump != LUMP_NOT_FOUND && lumpinfo[lump].source != source_port_wad)
       animdefs = (const animdef_t *) W_LumpByNum(lump);
     else
       animdefs = heretic_animdefs;
@@ -278,13 +351,14 @@ void P_InitPicAnims (void)
 
       // Apply damage to flats for obituaries
       P_ApplyDamageMethods(i, animdefs);
+      P_ApplySmartSwirl(i, animdefs);
     }
 
     lastanim->istexture = animdefs[i].istexture;
     lastanim->numpics = lastanim->picnum - lastanim->basepic + 1;
-    lastanim->speed = LittleLong(animdefs[i].speed);
+    lastanim->speed = LittleLong(animdefs[i].speed); // killough 5/5/98: add LONG()
 
-    // [crispy] skip reading SMMU swirling flats
+    // [crispy] add support for SMMU swirling flats
     if (lastanim->speed < 65536 && lastanim->numpics != 1)
     {
       if (lastanim->numpics < 2)
@@ -302,6 +376,35 @@ void P_InitPicAnims (void)
   }
 
   MarkAnimatedTextures();//e6y
+}
+
+static dboolean P_IsSmartSwirlFlatHexen(int flat_index)
+{
+  const char *flat_name = lumpinfo[firstflat + flat_index].name;
+
+  return
+    !strncasecmp(flat_name, "X_001", 5) ||
+    !strncasecmp(flat_name, "X_005", 5) ||
+    !strncasecmp(flat_name, "X_009", 5);
+}
+
+dboolean P_IsSmartSwirlFlat(int flat_index)
+{
+  if (flat_index < 0 || flat_index >= numflats)
+    return false;
+
+  if (dsda_IntConfig(dsda_config_swirling_flats) == 2)
+    return true;
+
+  if (dsda_IntConfig(dsda_config_swirling_flats) > 0)
+  {
+    if (hexen)
+      return P_IsSmartSwirlFlatHexen(flat_index);
+    else
+      return flatsmartswirl[flat_index] == true;
+  }
+
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////
@@ -1008,7 +1111,7 @@ dboolean P_CanUnlockGenDoor
         (!skulliscard || !player->cards[it_redskull])
       )
       {
-        dsda_AddPlayerMessage(skulliscard ? s_PD_REDK : s_PD_REDC, player);
+        dsda_AddPlayerColoredMessage(skulliscard ? s_PD_REDK : s_PD_REDC, player);
         S_StartMobjSound(player->mo,sfx_oof);             // killough 3/20/98
         ST_SetKeyBlink(player, KEYBLINK_NONE, KEYBLINK_NONE, skulliscard ? KEYBLINK_EITHER : KEYBLINK_CARD);
         return false;
@@ -1021,7 +1124,7 @@ dboolean P_CanUnlockGenDoor
         (!skulliscard || !player->cards[it_blueskull])
       )
       {
-        dsda_AddPlayerMessage(skulliscard ? s_PD_BLUEK : s_PD_BLUEC, player);
+        dsda_AddPlayerColoredMessage(skulliscard ? s_PD_BLUEK : s_PD_BLUEC, player);
         S_StartMobjSound(player->mo,sfx_oof);             // killough 3/20/98
         ST_SetKeyBlink(player, skulliscard ? KEYBLINK_EITHER : KEYBLINK_CARD, KEYBLINK_NONE, KEYBLINK_NONE);
         return false;
@@ -1034,7 +1137,7 @@ dboolean P_CanUnlockGenDoor
         (!skulliscard || !player->cards[it_yellowskull])
       )
       {
-        dsda_AddPlayerMessage(skulliscard ? s_PD_YELLOWK : s_PD_YELLOWC, player);
+        dsda_AddPlayerColoredMessage(skulliscard ? s_PD_YELLOWK : s_PD_YELLOWC, player);
         S_StartMobjSound(player->mo,sfx_oof);             // killough 3/20/98
         ST_SetKeyBlink(player, KEYBLINK_NONE, skulliscard ? KEYBLINK_EITHER : KEYBLINK_CARD, KEYBLINK_NONE);
         return false;
@@ -1047,7 +1150,7 @@ dboolean P_CanUnlockGenDoor
         (!skulliscard || !player->cards[it_redcard])
       )
       {
-        dsda_AddPlayerMessage(skulliscard ? s_PD_REDK : s_PD_REDS, player);
+        dsda_AddPlayerColoredMessage(skulliscard ? s_PD_REDK : s_PD_REDS, player);
         S_StartMobjSound(player->mo,sfx_oof);             // killough 3/20/98
         ST_SetKeyBlink(player, KEYBLINK_NONE, KEYBLINK_NONE, skulliscard ? KEYBLINK_EITHER : KEYBLINK_SKULL);
         return false;
@@ -1060,7 +1163,7 @@ dboolean P_CanUnlockGenDoor
         (!skulliscard || !player->cards[it_bluecard])
       )
       {
-        dsda_AddPlayerMessage(skulliscard ? s_PD_BLUEK : s_PD_BLUES, player);
+        dsda_AddPlayerColoredMessage(skulliscard ? s_PD_BLUEK : s_PD_BLUES, player);
         S_StartMobjSound(player->mo,sfx_oof);             // killough 3/20/98
         ST_SetKeyBlink(player, skulliscard ? KEYBLINK_EITHER : KEYBLINK_SKULL, KEYBLINK_NONE, KEYBLINK_NONE);
         return false;
@@ -1073,7 +1176,7 @@ dboolean P_CanUnlockGenDoor
         (!skulliscard || !player->cards[it_yellowcard])
       )
       {
-        dsda_AddPlayerMessage(skulliscard ? s_PD_YELLOWK : s_PD_YELLOWS, player);
+        dsda_AddPlayerColoredMessage(skulliscard ? s_PD_YELLOWK : s_PD_YELLOWS, player);
         S_StartMobjSound(player->mo,sfx_oof);             // killough 3/20/98
         ST_SetKeyBlink(player, KEYBLINK_NONE, skulliscard ? KEYBLINK_EITHER : KEYBLINK_SKULL, KEYBLINK_NONE);
         return false;
@@ -1141,6 +1244,9 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
   player_t *player;
   const char *message = NULL;
   int sfx = sfx_None;
+  int blink_blue = KEYBLINK_NONE;
+  int blink_yellow = KEYBLINK_NONE;
+  int blink_red = KEYBLINK_NONE;
   dboolean successful = true;
 
   if (!mo || !mo->player)
@@ -1157,6 +1263,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_REDC : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_red = KEYBLINK_CARD;
         successful = false;
       }
       break;
@@ -1165,6 +1272,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_BLUEC : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_CARD;
         successful = false;
       }
       break;
@@ -1173,6 +1281,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_YELLOWC : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_yellow = KEYBLINK_CARD;
         successful = false;
       }
       break;
@@ -1181,6 +1290,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_REDS : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_red = KEYBLINK_SKULL;
         successful = false;
       }
       break;
@@ -1189,6 +1299,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_BLUES : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_SKULL;
         successful = false;
       }
       break;
@@ -1197,6 +1308,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_YELLOWS : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_yellow = KEYBLINK_SKULL;
         successful = false;
       }
       break;
@@ -1212,6 +1324,9 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_ANY : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_EITHER;
+        blink_yellow = KEYBLINK_EITHER;
+        blink_red = KEYBLINK_EITHER;
         successful = false;
       }
       break;
@@ -1227,6 +1342,9 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_ALL6 : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_BOTH;
+        blink_yellow = KEYBLINK_BOTH;
+        blink_red = KEYBLINK_BOTH;
         successful = false;
       }
       break;
@@ -1236,6 +1354,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_REDK : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_red = KEYBLINK_BOTH;
         successful = false;
       }
       break;
@@ -1245,6 +1364,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_BLUEK : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_BOTH;
         successful = false;
       }
       break;
@@ -1254,6 +1374,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_YELLOWK : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_yellow = KEYBLINK_BOTH;
         successful = false;
       }
       break;
@@ -1266,6 +1387,9 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_ALL3 : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_red = KEYBLINK_EITHER;
+        blink_yellow = KEYBLINK_EITHER;
+        blink_blue = KEYBLINK_EITHER;
         successful = false;
       }
     default:
@@ -1274,7 +1398,12 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
 
   if (message)
   {
-    dsda_AddPlayerMessage(message, player);
+    dsda_AddPlayerColoredMessage(message, player);
+  }
+
+  if (legacy)
+  {
+    ST_SetKeyBlink(player, blink_blue, blink_yellow, blink_red);
   }
 
   if (sfx != sfx_None)
@@ -1431,6 +1560,30 @@ int P_CheckTag(line_t *line)
 
     case 48:                // Scrolling walls
     case 85:
+    case 2057:              // ID24 Music changers
+    case 2058:
+    case 2059:
+    case 2060:
+    case 2061:
+    case 2062:
+    case 2063:
+    case 2064:
+    case 2065:
+    case 2066:
+    case 2067:
+    case 2068:
+    case 2087:
+    case 2088:
+    case 2089:
+    case 2090:
+    case 2091:
+    case 2092:
+    case 2093:
+    case 2094:
+    case 2095:
+    case 2096:
+    case 2097:
+    case 2098:
       return 1;   // zero tag allowed
 
     default:
@@ -1510,25 +1663,177 @@ void P_AddMobjSecret(mobj_t *mobj)
   mobj->flags2 |= MF2_COUNTSECRET;
 }
 
-void P_PlayerCollectSecret(player_t *player)
+static const char* dsda_GetSecretMessage(void)
 {
-  player->secretcount++;
+    int secret_format = dsda_IntConfig(dsda_config_secret_format);
+    dboolean is_default, is_ratio, is_percent;
+    static char secret_message[32] = "";
+    int secretcount = 0;
 
+    is_default = (secret_format == 0);
+    is_ratio   = (secret_format == 1);
+    is_percent = (secret_format == 2);
+
+    if (is_default)
+      return "A secret is revealed!";
+
+    for (int i = 0; i < g_maxplayers; ++i) {
+      if (playeringame[i]) {
+        secretcount += players[i].secretcount;
+      }
+    }
+
+    if (is_ratio)
+      sprintf(secret_message, "Secret %d of %d revealed!", secretcount, totalsecret);
+    else if (is_percent)
+      sprintf(secret_message, "%d%% secrets revealed!", !totalsecret ? 100 : secretcount * 100 / totalsecret);
+    else // fallback
+      sprintf(secret_message, "A secret is revealed!");
+
+    return secret_message;
+}
+
+#define SECRET_MESSAGE_TICS ((int)(2.5*TICRATE))
+
+void P_PlayerAnnounceSecret(player_t *player, const char* message)
+{
   if (dsda_IntConfig(dsda_config_hudadd_secretarea)!=0)
   {
-    int sfx_id = raven ? g_sfx_secret :
-                 I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+    int sfx_id = raven ? g_sfx_secret : I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+    int cur_player = (int)(player - players);
 
     if(dsda_IntConfig(dsda_config_hudadd_secretarea)==2)
     {
-      dsda_AddAlert("A secret is revealed!");
+      dsda_AddAlert(message);
       S_StartVoidSound(sfx_id);
     }
     else
     {
-      SetCustomMessage(player - players, "A secret is revealed!", 2 * TICRATE, sfx_id);
+      SetCustomMessage(cur_player, message, SECRET_MESSAGE_TICS, sfx_id);
     }
   }
+}
+
+#define MILESTONE_TICS ((int)(2.5*TICRATE))
+
+void P_PlayerAnnounceMilestone(player_t *player, const char* message)
+{
+  int sfx_id = raven ? g_sfx_secret : I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+  int cur_player = (int)(player - players);
+
+  SetCustomMessage(cur_player, message, MILESTONE_TICS, sfx_id);
+}
+
+dboolean P_AnnounceSecretMilestone(void)
+{
+  if (hexen) return false;
+
+  if (!(complete_milestones & MILESTONE_SECRETS))
+  {
+    int secretcount = 0;
+
+    for (int p = 0; p < g_maxplayers; ++p)
+    {
+      if (playeringame[p])
+        secretcount += players[p].secretcount;
+    }
+  
+    if (secretcount >= totalsecret)
+    {
+      complete_milestones |= MILESTONE_SECRETS;
+
+      if (dsda_IntConfig(dsda_config_secrets_milestone))
+      {
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All secrets revealed!");
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+dboolean P_AnnounceItemMilestone(void)
+{
+  if (hexen) return false;
+
+  // [Nugget] Announce milestone completion
+  if (!(complete_milestones & MILESTONE_ITEMS))
+  {
+    int itemcount = 0;
+
+    for (int p = 0;  p < g_maxplayers;  ++p)
+    {
+      if (playeringame[p]) { itemcount += players[p].itemcount; }
+    }
+
+    if (itemcount >= totalitems)
+    {
+      complete_milestones |= MILESTONE_ITEMS;
+
+      if (dsda_IntConfig(dsda_config_items_milestone))
+      {
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All items collected!");
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+dboolean P_AnnounceKillMilestone(void)
+{
+  if (hexen) return false;
+
+  // [Nugget] Announce milestone completion
+  if (!(complete_milestones & MILESTONE_KILLS))
+  {
+    int killcount = 0;
+    int kill_percent_count = 0;
+    int max_kill_requirement = dsda_MaxKillRequirement();
+
+    for (int p = 0;  p < g_maxplayers;  ++p)
+    {
+      killcount += players[p].killcount - players[p].maxkilldiscount;
+      kill_percent_count += players[p].killcount;
+    }
+
+    if (skill_info.respawn_time)
+    {
+      killcount = kill_percent_count;
+      max_kill_requirement = totalkills;
+    }
+
+    if (killcount >= max_kill_requirement)
+    {
+      complete_milestones |= MILESTONE_KILLS;
+
+      if (dsda_IntConfig(dsda_config_kills_milestone))
+      {
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All enemies killed!");
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+void P_PlayerCollectItem(player_t *player)
+{
+  player->itemcount++;
+  P_AnnounceItemMilestone();
+}
+
+void P_PlayerCollectSecret(player_t *player)
+{
+  player->secretcount++;
+
+  if (P_AnnounceSecretMilestone())
+    return;
+
+  P_PlayerAnnounceSecret(player, dsda_GetSecretMessage());
 }
 
 static void P_CollectSecretCommon(sector_t *sector, player_t *player)
@@ -1629,6 +1934,71 @@ void P_CrossHexenSpecialLine(line_t *line, int side, mobj_t *thing, dboolean bos
   {
     P_ActivateLine(line, thing, side, SPAC_PCROSS);
   }
+}
+
+//
+// EV_ChangeMusic() -- ID24 Music Changers
+//
+// Generic solution for changing the currently playing music during play time.
+// There are four type of music changing behavior, all of them available in all
+// six major activation triggers (W1, WR, S1, SR, G1, GR) totalling 24 lines.
+// All specials can be triggered from either side of the line being activated.
+// Of the four categories, there are two conditions:
+//
+//  1. If the given music lump will loop or not
+//  2. If it will reset to the map's default when no music lump is defined
+//
+// Giving the four resulting categories:
+// * Change music and make it loop only if a track is defined.
+// * Change music and make it play only once and stop all music after.
+// * Change music and make it loop, reset to looping default if no track
+//    defined.
+// * Change music and make it play only once, reset to looping default if no
+//    track defined.
+//
+
+void EV_ChangeMusic(line_t *line, int side)
+{
+  dboolean once = false;
+  dboolean loops = false;
+  dboolean resets = false;
+
+  int music = side ? line->backmusic : line->frontmusic;
+
+  switch (line->special)
+  {
+    case 2057: case 2059: case 2061: case 2063:
+    case 2065: case 2067: case 2087: case 2089:
+    case 2091: case 2093: case 2095: case 2097:
+      once = true;
+      break;
+  }
+
+  switch (line->special)
+  {
+    case 2057: case 2058: case 2059: case 2060:
+    case 2061: case 2062: case 2087: case 2088:
+    case 2089: case 2090: case 2091: case 2092:
+      loops = true;
+      break;
+  }
+
+  switch (line->special)
+  {
+    case 2087: case 2088: case 2089: case 2090:
+    case 2091: case 2092: case 2093: case 2094:
+    case 2095: case 2096: case 2097: case 2098:
+      resets = true;
+      break;
+  }
+
+  if (music)
+    S_ChangeMusInfoMusic(music, loops);
+  else if (resets)
+    S_ChangeMusInfoMusic(musinfo.items[0], true); // Always loops when defaulting
+
+  if (once)
+    line->special = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2252,6 +2622,12 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       EV_DoFloor(line,raiseFloorTurbo);
       break;
 
+    case 2057: case 2063: case 2087: case 2093:
+    case 2058: case 2064: case 2088: case 2094:
+      // ID24 Music Changers
+      EV_ChangeMusic(line, side);
+      break;
+
       // Extended walk triggers
 
       // jff 1/29/98 added new linedef types to fill all functions out so that
@@ -2599,7 +2975,7 @@ void P_CrossZDoomSpecialLine(line_t *line, int side, mobj_t *thing, dboolean bos
 // impacted. Change is qualified by demo_compatibility.
 //
 
-void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line)
+void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
 {
   //jff 02/04/98 add check here for generalized linedef
   if (!demo_compatibility)
@@ -2741,6 +3117,17 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line)
         P_ChangeSwitchTexture(line,0);
       break;
 
+    // ID24 Music Changers
+    case 2061: case 2067: case 2091: case 2097:
+      P_ChangeSwitchTexture(line,0);
+      EV_ChangeMusic(line, side);
+      break;
+
+    case 2062: case 2068: case 2092: case 2098:
+      P_ChangeSwitchTexture(line,1);
+      EV_ChangeMusic(line, side);
+      break;
+
     //jff 1/30/98 added new gun linedefs here
     // killough 1/31/98: added demo_compatibility check, added inner switch
 
@@ -2771,9 +3158,9 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line)
   }
 }
 
-void P_ShootHexenSpecialLine(mobj_t *thing, line_t *line)
+void P_ShootHexenSpecialLine(mobj_t *thing, line_t *line, int side)
 {
-  P_ActivateLine(line, thing, 0, SPAC_IMPACT);
+  P_ActivateLine(line, thing, 0, SPAC_IMPACT); // Ignore side for now
 }
 
 int disable_nuke;  // killough 12/98: nukage disabling cheat
@@ -3132,6 +3519,7 @@ static dboolean  levelTimer;
 static int      levelTimeCount;
 dboolean         levelFragLimit;      // Ty 03/18/98 Added -frags support
 int             levelFragLimitCount; // Ty 03/18/98 Added -frags support
+int             r_swirl;
 
 void P_UpdateSpecials (void)
 {
@@ -3185,7 +3573,12 @@ void P_UpdateSpecials (void)
         if (anim->istexture)
           texturetranslation[anim->basepic + i] = pic;
         else
+        {
           flattranslation[anim->basepic + i] = pic;
+          // [crispy] add support for SMMU swirling flats
+          if (anim->speed > 65535 || anim->numpics == 1 || P_IsSmartSwirlFlat(anim->basepic + i))
+            flattranslation[anim->basepic + i] = -1;
+        }
       }
     }
   }
@@ -3418,7 +3811,7 @@ void P_SpawnZDoomSectorSpecial(sector_t *sector, int i)
   switch (sector->special)
   {
     case zs_d_scroll_east_lava_damage:
-      dsda_AddFloorScroller(-4, 0, sector - sectors, 0);
+      dsda_AddFloorScroller(-4, 0, (int)(sector - sectors), 0);
       P_SetupSectorDamage(sector, 5, 32, 0, SECF_DMGTERRAINFX | SECF_DMGUNBLOCKABLE);
       break;
     case zs_s_light_strobe_hurt:
@@ -3506,14 +3899,14 @@ void P_SpawnZDoomSectorSpecial(sector_t *sector, int i)
         i = sector->special - zs_scroll_north_slow;
         dx = FixedDiv(hexenScrollies[i][0] << FRACBITS, 2);
         dy = FixedDiv(hexenScrollies[i][1] << FRACBITS, 2);
-        dsda_AddFloorScroller(dx, dy, sector - sectors, 0);
+        dsda_AddFloorScroller(dx, dy, (int)(sector - sectors), 0);
       }
       else if (sector->special >= zs_carry_east5 &&
             sector->special <= zs_carry_east35)
       { // Heretic scroll special
         // Only east scrollers also scroll the texture
         fixed_t dx = FixedDiv((1 << (sector->special - zs_carry_east5)) << FRACBITS, 2);
-        dsda_AddFloorScroller(dx, 0, sector - sectors, 0);
+        dsda_AddFloorScroller(dx, 0, (int)(sector - sectors), 0);
       }
       break;
   }
@@ -3744,7 +4137,7 @@ static void Hexen_P_SpawnSpecials(void);
 // Parses command line parameters.
 void P_SpawnSpecials (void)
 {
-  if (hexen) return Hexen_P_SpawnSpecials();
+  if (hexen) RETURN(Hexen_P_SpawnSpecials());
 
   P_EvaluateDeathmatchParams();
 
@@ -3759,7 +4152,7 @@ void P_SpawnSpecials (void)
 
   P_SpawnScrollers(); // killough 3/7/98: Add generalized scrollers
 
-  if (demo_compatibility) return P_SpawnVanillaExtras();
+  if (demo_compatibility) RETURN(P_SpawnVanillaExtras());
 
   P_SpawnFriction();  // phares 3/12/98: New friction model using linedefs
   P_SpawnPushers();   // phares 3/20/98: New pusher model using linedefs
@@ -4537,7 +4930,7 @@ void T_Pusher(pusher_t *p)
         yh = P_GetSafeBlockY(tmbbox[BOXTOP] - bmaporgy + MAXRADIUS);
         for (bx=xl ; bx<=xh ; bx++)
             for (by=yl ; by<=yh ; by++)
-                P_BlockThingsIterator(bx,by,PIT_PushThing);
+                P_BlockThingsIterator(bx, by, PIT_PushThing, true);
         return;
         }
 
@@ -5261,6 +5654,11 @@ void P_CrossHereticSpecialLine(line_t * line, int side, mobj_t * thing, dboolean
         case 98:               // Lower Floor (TURBO)
             EV_DoFloor(line, turboLower);
             break;
+        case 2057: case 2063: case 2087: case 2093:
+        case 2058: case 2064: case 2088: case 2094:
+            // ID24 Music Changers
+            EV_ChangeMusic(line, side);
+            break;
     }
 }
 
@@ -5456,7 +5854,7 @@ char LockedBuffer[80];
 
 static dboolean CheckedLockedDoor(mobj_t * mo, byte lock)
 {
-    extern char *TextLockedDoorMessages[11];
+    extern char **TextLockedDoorMessages[11];
 
     if (!mo->player)
     {
@@ -5469,8 +5867,8 @@ static dboolean CheckedLockedDoor(mobj_t * mo, byte lock)
     if (!mo->player->cards[lock - 1])
     {
         snprintf(LockedBuffer, sizeof(LockedBuffer),
-                 "%s\n", TextLockedDoorMessages[lock - 1]);
-        P_SetMessage(mo->player, LockedBuffer, true);
+                 "%s\n", *TextLockedDoorMessages[lock - 1]);
+        P_SetColoredMessage(mo->player, LockedBuffer, true);
         S_StartMobjSound(mo, hexen_sfx_door_locked);
         return false;
     }
@@ -5520,6 +5918,9 @@ dboolean EV_LineSearchForPuzzleItem(line_t * line, byte * args, mobj_t * mo)
             }
         }
     }
+
+    // No matching puzzle item exists anywhere in inventory
+    dsda_PuzzleMissingMessage(player);
     return false;
 }
 
@@ -6976,8 +7377,8 @@ dboolean P_ExecuteZDoomLineSpecial(int special, int * args, line_t * line, int s
         const int *id_p;
         angle_t floor, ceiling;
 
-        floor = dsda_DegreesToAngle(args[1]);
-        ceiling = dsda_DegreesToAngle(args[2]);
+        floor = dsda_DegreesToAngle((float)args[1]);
+        ceiling = dsda_DegreesToAngle((float)args[2]);
 
         FIND_SECTORS(id_p, args[0])
         {
@@ -7249,7 +7650,7 @@ dboolean P_ExecuteZDoomLineSpecial(int special, int * args, line_t * line, int s
         mobj_t *spawn_location;
         thing_id_search_t search;
 
-        args[0] = BETWEEN(1, 9, args[0]);
+        args[0] = CLAMP(args[0], 1, 9);
 
         dsda_ResetThingIDSearch(&search);
         while ((spawn_location = dsda_FindMobjFromThingIDOrMobj(args[4], mo, &search)))

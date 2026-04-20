@@ -491,21 +491,9 @@ int N_GetPatchAnimateNum(const char* lump, int animation)
 
 static void N_CombinePrefixedLump(char out[9], const char *prefix, const char *name)
 {
-    size_t i = 0, j = 0;
-
     if (!prefix) prefix = "W_";
 
-    while (prefix[i] && i < 8) {
-        out[i] = prefix[i];
-        i++;
-    }
-
-    while (name[j] && i < 8) {
-        out[i] = name[j];
-        i++; j++;
-    }
-
-    out[i] = '\0';
+    snprintf(out, 9, "%s%s", prefix, name);
     M_Strupr(out);
 }
 
@@ -580,17 +568,28 @@ const int N_CheckWide(const char* lump)
 //
 //
 
-void V_DrawBackgroundAnimate(const char* lump)
+void V_DrawBackgroundAnimate(const char* lump, int forced_swirl)
 {
     int lumpNum = R_FlatNumForName(g_menu_flat);
     int SLump = W_CheckNumForName2(lump, ns_flats);
 
     if ((SLump != LUMP_NOT_FOUND))
     {
-        anim_t* anim = anim_flats[SLump - firstflat].anim;
+        int flat_index = P_FlatIndexFromLump(SLump);
+        int swirl_flat = P_IsSwirlingFlat(flat_index);
+
+        // do swirl instead
+        if (swirl_flat || forced_swirl)
+        {
+            V_DrawBackgroundSwirlNum(flat_index);
+            return;
+        }
+
+        // Normal Animate Logic
+        anim_t* anim = anim_flats[flat_index].anim;
         if (anim)
         {
-            int frame = (AnimateTime / anim->speed) % (anim->picnum - anim->basepic + 1);
+            int frame = (AnimateTime / anim->speed) % anim->numpics;
             lumpNum = anim->basepic + frame;
         }
     }

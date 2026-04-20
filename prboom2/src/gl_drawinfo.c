@@ -118,8 +118,6 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
   static int itemsizes[GLDIT_TYPES] = {
     0,
     SIZEOF8(GLWall), SIZEOF8(GLWall), SIZEOF8(GLWall), SIZEOF8(GLWall), SIZEOF8(GLWall),
-    SIZEOF8(GLWall), SIZEOF8(GLWall),
-    SIZEOF8(GLFlat), SIZEOF8(GLFlat),
     SIZEOF8(GLFlat), SIZEOF8(GLFlat),
     SIZEOF8(GLSprite), SIZEOF8(GLSprite), SIZEOF8(GLSprite),
     SIZEOF8(GLShadow),

@@ -21,47 +21,60 @@
 
 typedef struct {
   dsda_patch_component_t component;
+  dboolean right_align;
+  int anchor;
+  dboolean percent;
 } local_component_t;
 
 static local_component_t* local;
 
-static int patch_delta_x;
+static int dsda_GetWidgetWidth(void)
+{
+  return dsda_GetBigNumberWidth(3, 999, local->right_align, local->anchor, local->percent);
+}
 
 static void dsda_DrawComponent(void) {
   player_t* player;
   int cm;
   int armor;
+  int x, y;
 
   player = &players[displayplayer];
+  armor = st_armor;
+
+  if (!hexen && armor <= 0)
+    return;
 
   if (hexen) {
-    armor = dsda_HexenArmor(player);
-    cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
+    cm = dsda_TextCR(dsda_tc_stbar_armor_hexen);
   }
   else {
-    armor = st_armor;
-    if (armor <= 0)
-      cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
-    else if (player->armortype < 2)
-      cm = dsda_TextCR(dsda_tc_stbar_armor_one);
-    else
-      cm = dsda_TextCR(dsda_tc_stbar_armor_two);
+    if (heretic)
+      cm = CR_DEFAULT;
+    else // Doom
+    {
+      if (armor <= 0)
+        cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
+      else if (player->armortype < 2)
+        cm = dsda_TextCR(dsda_tc_stbar_armor_one);
+      else
+        cm = dsda_TextCR(dsda_tc_stbar_armor_two);
+    }
   }
 
-  dsda_DrawBigNumber(local->component.x, local->component.y, patch_delta_x, 0,
-                     cm, local->component.vpt, 3, armor, false);
+  x = local->component.x;
+  y = local->component.y;
+
+  dsda_DrawBigNumber(x, y, 0, cm, local->component.vpt, 3, armor, local->right_align, local->anchor, local->percent);
 }
 
 void dsda_InitBigArmorTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
 
-  if (heretic)
-    patch_delta_x = 9;
-  else if (hexen)
-    patch_delta_x = 8;
-  else
-    patch_delta_x = 14;
+  local->right_align = (arg_count > 0) ? !!args[0] : false;
+  local->anchor = (arg_count > 1) ? args[1] : false;
+  local->percent = (arg_count > 2) ? !!args[2] : false;
 
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
 }

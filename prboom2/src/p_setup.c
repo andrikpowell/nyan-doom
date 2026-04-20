@@ -397,7 +397,7 @@ static void P_LoadUDMFVertexes(int lump)
 {
   int i;
 
-  numvertexes = udmf.num_vertices;
+  numvertexes = (int)udmf.num_vertices;
   vertexes = calloc_IfSameLevel(vertexes, numvertexes, sizeof(vertex_t));
 
   for (i = 0; i < numvertexes; ++i)
@@ -833,7 +833,7 @@ static void P_LoadUDMFSectors(int lump)
 {
   int i;
 
-  numsectors = udmf.num_sectors;
+  numsectors = (int)udmf.num_sectors;
   sectors = calloc_IfSameLevel(sectors, numsectors, sizeof(sector_t));
 
   dsda_ResetSectorIDList(numsectors);
@@ -1092,7 +1092,7 @@ static byte *P_DecompressData(const byte **data, int *len)
 
   // first estimate for compression rate:
   // output buffer size == 2.5 * input size
-  outlen = 2.5 * *len;
+  outlen = (int)(2.5 * *len);
   output = Z_Malloc(outlen);
 
   // initialize stream state for decompression
@@ -1398,7 +1398,7 @@ static void P_LoadZNodes(int lump, int glnodes)
       Z_Free(vertexes);
       vertexes = newvertarray;
 
-      if (orgVerts + newVerts < numvertexes)
+      if (orgVerts + newVerts < (unsigned int)numvertexes)
       {
         lprintf(LO_WARN, "Warning: inconsistent nodes detected\n");
         inconsistent_nodes = true;
@@ -1470,7 +1470,7 @@ static void P_LoadZNodes(int lump, int glnodes)
 
     seg_size = (glnodes < 2 ? sizeof(mapseg_znod_t) : sizeof(mapseg_znod2_t));
 
-    CheckZNodesOverflow(&len, numsegs * seg_size);
+    CheckZNodesOverflow(&len, (int)(numsegs * seg_size));
     P_LoadGLZSegs(data, glnodes);
     data += numsegs * seg_size;
   }
@@ -1484,7 +1484,7 @@ static void P_LoadZNodes(int lump, int glnodes)
   nodes = calloc_IfSameLevel(nodes, numNodes, sizeof(node_t));
 
   node_size = (glnodes < 3 ? sizeof(mapnode_znod_t) : sizeof(mapnode_znod2_t));
-  CheckZNodesOverflow(&len, numNodes * node_size);
+  CheckZNodesOverflow(&len, (int)(numNodes * node_size));
   for (i = 0; i < numNodes; i++)
   {
     int j, k;
@@ -1630,7 +1630,7 @@ static void P_LoadThings(int lump)
   const hexen_mapthing_t *hexen_data;
   const doom_mapthing_t *doom_data;
 
-  numthings = W_LumpLength (lump) / map_format.mapthing_size;
+  numthings = (int)(W_LumpLength (lump) / map_format.mapthing_size);
   data = W_LumpByNum(lump);
   hexen_data = (const hexen_mapthing_t*) data;
   doom_data = (const doom_mapthing_t*) data;
@@ -1708,7 +1708,7 @@ static void P_LoadUDMFThings(int lump)
   int mobjcount;
   mobj_t **mobjlist;
 
-  numthings = udmf.num_things;
+  numthings = (int)udmf.num_things;
   mobjcount = 0;
   mobjlist = Z_Malloc(numthings * sizeof(mobjlist[0]));
 
@@ -2030,7 +2030,7 @@ static void P_LoadLineDefs (int lump)
   const byte *data; // cph - const*
   int  i;
 
-  numlines = W_LumpLength (lump) / map_format.maplinedef_size;
+  numlines = (int)(W_LumpLength (lump) / map_format.maplinedef_size);
   lines = calloc_IfSameLevel(lines, numlines, sizeof(line_t));
   data = W_LumpByNum (lump); // cph - wad lump handling updated
 
@@ -2091,7 +2091,7 @@ static void P_LoadUDMFLineDefs(int lump)
 {
   int i;
 
-  numlines = udmf.num_lines;
+  numlines = (int)udmf.num_lines;
   lines = calloc_IfSameLevel(lines, numlines, sizeof(line_t));
 
   dsda_ResetLineIDList(numlines);
@@ -2332,7 +2332,7 @@ void P_PostProcessZDoomLineSpecial(line_t *ld)
       const int *id_p;
 
       alpha = (float) ld->special_args[1] / 256.f;
-      alpha = BETWEEN(0.f, 1.f, alpha);
+      alpha = CLAMP(alpha, 0.f, 1.f);
 
       if (!ld->special_args[0])
       {
@@ -2384,12 +2384,71 @@ static void P_AllocateSideDefs (int lump)
 
 static void P_AllocateUDMFSideDefs(int lump)
 {
-  numsides = udmf.num_sides;
+  numsides = (int)udmf.num_sides;
   sides = calloc_IfSameLevel(sides, numsides, sizeof(side_t));
+}
+
+dboolean P_PostProcessID24MusicSidedefSpecial(side_t *sd, const mapsidedef_t *msd, sector_t *sec, int i)
+{
+  dboolean found = false;
+
+  switch (sd->special)
+  {
+    case 2057: case 2058: case 2059: case 2060: case 2061: case 2062:
+    case 2063: case 2064: case 2065: case 2066: case 2067: case 2068:
+    case 2087: case 2088: case 2089: case 2090: case 2091: case 2092:
+    case 2093: case 2094: case 2095: case 2096: case 2097: case 2098:
+    {
+      // All of the W1, WR, S1, SR, G1, GR activations can be triggered from
+      // the back sidedef (reading the front bottom texture) and triggered
+      // from the front sidedef (reading the front upper texture).
+      for (int j = 0; j < numlines; j++)
+      {
+        if (lines[j].sidenum[0] == i)
+        {
+          // Back triggered
+          if ((lines[j].backmusic = W_CheckNumForName(msd->bottomtexture)) < 0)
+          {
+            lines[j].backmusic = 0;
+            sd->bottomtexture = R_TextureNumForName(msd->bottomtexture);
+          }
+          else
+          {
+            sd->bottomtexture = 0;
+          }
+
+          // Front triggered
+          if ((lines[j].frontmusic = W_CheckNumForName(msd->toptexture)) < 0)
+          {
+            lines[j].frontmusic = 0;
+            sd->toptexture = R_TextureNumForName(msd->toptexture);
+          }
+          else
+          {
+            sd->toptexture = 0;
+          }
+        }
+      }
+
+      // Allow midtextures
+      sd->midtexture = R_SafeTextureNumForName(msd->midtexture, i);
+
+      found = true;
+      break;
+    }
+
+    default:
+      break;
+  }
+
+  return found;
 }
 
 void P_PostProcessCompatibleSidedefSpecial(side_t *sd, const mapsidedef_t *msd, sector_t *sec, int i)
 {
+  if (P_PostProcessID24MusicSidedefSpecial(sd, msd, sec, i))
+    return;
+
   // killough 4/4/98: allow sidedef texture names to be overloaded
   // killough 4/11/98: refined to allow colormaps to work as wall
   // textures if invalid as colormaps but valid as textures.
@@ -2427,6 +2486,9 @@ void P_PostProcessCompatibleSidedefSpecial(side_t *sd, const mapsidedef_t *msd, 
 
 void P_PostProcessHereticSidedefSpecial(side_t *sd, const mapsidedef_t *msd, sector_t *sec, int i)
 {
+  if (P_PostProcessID24MusicSidedefSpecial(sd, msd, sec, i))
+    return;
+
   sd->midtexture = R_SafeTextureNumForName(msd->midtexture, i);
   sd->toptexture = R_SafeTextureNumForName(msd->toptexture, i);
   sd->bottomtexture = R_SafeTextureNumForName(msd->bottomtexture, i);
@@ -2496,12 +2558,12 @@ static void P_LoadUDMFSideDefs(int lump)
     sd->textureoffset = dsda_IntToFixed(msd->offsetx);
     sd->rowoffset = dsda_IntToFixed(msd->offsety);
 
-    sd->textureoffset_top = dsda_IntToFixed(msd->offsetx_top);
-    sd->textureoffset_mid = dsda_IntToFixed(msd->offsetx_mid);
-    sd->textureoffset_bottom = dsda_IntToFixed(msd->offsetx_bottom);
-    sd->rowoffset_top = dsda_IntToFixed(msd->offsety_top);
-    sd->rowoffset_mid = dsda_IntToFixed(msd->offsety_mid);
-    sd->rowoffset_bottom = dsda_IntToFixed(msd->offsety_bottom);
+    sd->textureoffset_top = dsda_FloatToFixed(msd->offsetx_top);
+    sd->textureoffset_mid = dsda_FloatToFixed(msd->offsetx_mid);
+    sd->textureoffset_bottom = dsda_FloatToFixed(msd->offsetx_bottom);
+    sd->rowoffset_top = dsda_FloatToFixed(msd->offsety_top);
+    sd->rowoffset_mid = dsda_FloatToFixed(msd->offsety_mid);
+    sd->rowoffset_bottom = dsda_FloatToFixed(msd->offsety_bottom);
 
     sd->scalex_top = dsda_FloatToFixed(msd->scalex_top);
     sd->scaley_top = dsda_FloatToFixed(msd->scaley_top);
@@ -3662,49 +3724,18 @@ void P_MustRebuildBlockmap(void)
   must_rebuild_blockmap = true;
 }
 
-int P_ConvertTrans(int val) {
-  if (val <= 0)
-    val = 1;
-  else if (val >= 100)
-    val = 99;
-  
-  return val;
-}
+static void P_ResetMilestones(void)
+{
+  if (hexen) return;
 
-// Following values from https://zdoom.org/wiki/ZScript_constants
-// 40% - MF_SHADOW (Heretic) + MF_ALTSHADOW (Hexen)
-// 60% - MF_SHADOW (Hexen)
+  if (totalkills)  { complete_milestones &= ~MILESTONE_KILLS; }
+  else             { complete_milestones |=  MILESTONE_KILLS; }
 
-//int tranmap_pct        = 66;    // Doom + Boom Transmap
-int tinttable_pct        = 40;    // Heretic MF_SHADOW + Hexen MF_ALTSHADOW
-int alt_tinttable_pct    = 60;    // Hexen MF_SHADOW
+  if (totalitems)  { complete_milestones &= ~MILESTONE_ITEMS; }
+  else             { complete_milestones |=  MILESTONE_ITEMS; }
 
-void P_UpdateTranMap(void) {
-  // Heretic + Hexen have forced percentages due to use of tinttable
-
-  // main percentages
-  tran_filter_pct       = raven ? tinttable_pct : dsda_TranslucencyPercent(); // Allow translucency customisation only for Doom / Boom
-  alttint_filter_pct    = raven ? alt_tinttable_pct : P_ConvertTrans(100-tran_filter_pct); // reverse translucency
-  shadow_filter_pct     = hexen ? alt_tinttable_pct : tinttable_pct;
-
-  // ui stuff (menu text shadows) - never use tinttable
-  shadow_ui_filter_pct  = P_ConvertTrans(dsda_ShadowTranslucencyPercent());
-  menu_ui_filter_pct    = P_ConvertTrans(dsda_MenuTranslucencyPercent());
-
-  // exhud percentages
-  exhud_tran_filter_pct    = P_ConvertTrans(dsda_ExHudTranslucencyPercent());
-  exhud_shadow_filter_pct  = P_ConvertTrans((int)(((float)shadow_filter_pct/100.0)*((float)exhud_tran_filter_pct/100.0)*100.0));
-  exhud_tint_filter_pct    = P_ConvertTrans((int)(((float)tran_filter_pct/100.0)*((float)exhud_tran_filter_pct/100.0)*100.0));    // normal translucency under translucency o.O
-  exhud_alttint_filter_pct = P_ConvertTrans(100-exhud_tint_filter_pct);                                                           // reverse translucency under translucency o.O
-
-  // OpenGL special precentages
-  // Let's just avoid the reversing part (since we can't access tinttable)
-  gl_alttint_filter_pct       = raven ? P_ConvertTrans(tran_filter_pct + 20) : P_ConvertTrans(tran_filter_pct - 20);              // reverse translucency o.O
-  gl_exhud_alttint_filter_pct = raven ? P_ConvertTrans(exhud_tint_filter_pct + 20) : P_ConvertTrans(exhud_tint_filter_pct - 20);  // reverse translucency under translucency o.O
-
-  // store main transmaps
-  main_tranmap      = dsda_DefaultTranMap();
-  menu_ui_tranmap   = dsda_TranMap_Custom(menu_ui_filter_pct, TMC_UI_MAIN); // ui menu translucency
+  if (totalsecret) { complete_milestones &= ~MILESTONE_SECRETS; }
+  else             { complete_milestones |=  MILESTONE_SECRETS; }
 }
 
 //
@@ -3721,7 +3752,7 @@ void P_SetupLevel(int episode, int map, int playermask, int skill)
   //e6y
   totallive = 0;
 
-  P_UpdateTranMap();
+  dsda_UpdateTranMap();
 
   dsda_WatchBeforeLevelSetup();
 
@@ -3982,6 +4013,9 @@ void P_SetupLevel(int episode, int map, int playermask, int skill)
   // set up world state
   P_SpawnSpecials();
 
+  // [Nugget] Reset milestones
+  P_ResetMilestones();
+
   dsda_WatchAfterLevelSetup();
 
   P_MapEnd();
@@ -4023,7 +4057,7 @@ void P_SetupLevel(int episode, int map, int playermask, int skill)
 
   if (dsda_ShowMinimap())
   {
-    AM_Start(false);
+    AM_Start(AM_OPEN_MINIMAP);
   }
 }
 

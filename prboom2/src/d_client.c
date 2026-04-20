@@ -125,7 +125,7 @@ void TryRunTics (void)
           I_uSleep(ms_to_next_tick*1000);
       }
       if (dsda_GetTick() - entertime > 10) {
-        M_Ticker(); return;
+        RETURN(M_Ticker());
       }
 
       if (gametic > 0)

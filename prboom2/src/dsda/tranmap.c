@@ -22,10 +22,14 @@
 #include "md5.h"
 #include "lprintf.h"
 #include "m_file.h"
+#include "r_data.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include "dsda/configuration.h"
 #include "dsda/data_organizer.h"
+#include "dsda/messenger.h"
+#include "dsda/settings.h"
 #include "dsda/utility.h"
 
 #include "tranmap.h"
@@ -33,17 +37,27 @@
 static char* tranmap_base_dir;
 static char* tranmap_palette_dir;
 static dsda_cksum_t playpal_cksum;
+
+// main trans
 int tran_filter_pct;
-int exhud_tran_filter_pct;
-int exhud_tint_filter_pct;
-int exhud_alttint_filter_pct;
-int shadow_filter_pct;
-int alttint_filter_pct;
-int exhud_shadow_filter_pct;
+int tran_reverse_filter_pct;
+int shadow_raven_filter_pct;
+
+// ui trans
 int shadow_ui_filter_pct;
 int menu_ui_filter_pct;
-int gl_alttint_filter_pct;
-int gl_exhud_alttint_filter_pct;
+
+// exhud trans
+int exhud_opaque_filter_pct;
+int exhud_tran_filter_pct;
+int exhud_shadow_ui_filter_pct;
+int exhud_shadow_raven_filter_pct;
+int exhud_tran_reverse_filter_pct;
+
+// gl trans
+int gl_tran_reverse_filter_pct;
+int gl_exhud_tran_reverse_filter_pct;
+
 static const int tranmap_length = 256 * 256;
 static const byte* tranmap_data[100];
 
@@ -65,7 +79,7 @@ static void dsda_InitTranMapBaseDir(void) {
 
   data_root = dsda_DataRoot();
 
-  length = strlen(data_root) + 10; // "/tranmaps\0"
+  length = (int)(strlen(data_root) + 10); // "/tranmaps\0"
   tranmap_base_dir = Z_Malloc(length);
   snprintf(tranmap_base_dir, length, "%s/tranmaps", data_root);
 
@@ -81,7 +95,7 @@ static void dsda_InitTranMapPaletteDir(void) {
   if (!playpal_cksum.string[0])
     dsda_CalculatePlaypalCksum();
 
-  length = strlen(tranmap_base_dir) + 34; // "/<cksum (32)>\0"
+  length = (int)(strlen(tranmap_base_dir) + 34); // "/<cksum (32)>\0"
   tranmap_palette_dir = Z_Malloc(length);
   snprintf(tranmap_palette_dir, length, "%s/%s", tranmap_base_dir, playpal_cksum.string);
 
@@ -179,7 +193,7 @@ const byte* dsda_TranMap(unsigned int alpha) {
     if (!tranmap_palette_dir)
       dsda_InitTranMapPaletteDir();
 
-    length = strlen(tranmap_palette_dir) + 16; // "/tranmap_99.dat\0"
+    length = (int)(strlen(tranmap_palette_dir) + 16); // "/tranmap_99.dat\0"
     filename = Z_Malloc(length);
     snprintf(filename, length, "%s/tranmap_%02d.dat", tranmap_palette_dir, alpha);
 
@@ -214,67 +228,110 @@ const byte* dsda_DefaultTranMap(void) {
   return dsda_TranMap(tran_filter_pct);
 }
 
-static byte* custom_tranmap_data[TMC_END];
-static unsigned char custom_tranmap_alpha[TMC_END];
+//
+//
+// Add custom tranmaps to memory
+//
+//
 
-// Initialize this to 255 for all contexts at startup somewhere
-void dsda_InitTranmapCache(void) {
-  for (int i = 0; i < TMC_END; i++) {
-    custom_tranmap_alpha[i] = 255; // invalid alpha
-    custom_tranmap_data[i] = NULL;
-  }
-}
+static byte* custom_tranmap[100];
 
-const char* tranmap_context_name(tranmap_context_e context) {
-  if (context > TMC_MAIN && context < TMC_END)
-    return tranmap_contexts[context].name;
-  return "unknown";
-}
-
-const byte* dsda_TranMap_Custom(unsigned int alpha, int context)
+const byte* dsda_TranMap_Custom(unsigned int alpha)
 {
-  int length;
-  byte *buffer = NULL;
-  const char* context_name;
+  byte **slot;
 
-  if (alpha > 99)
+  if (alpha < 1 || alpha > 99)
     return NULL;
 
-  if (context == TMC_MAIN)
-    return dsda_TranMap(alpha);
+  slot = &custom_tranmap[alpha];
 
-  context_name = tranmap_context_name(context);
+  if (!*slot)
+    *slot = dsda_GenerateTranMap(alpha);
 
-  if (context <= TMC_MAIN || context >= TMC_END)
-    return NULL;
+  return *slot;
+}
 
-  if (custom_tranmap_alpha[context] != alpha || !custom_tranmap_data[context])
+//
+//
+// Precache custom transmaps for fading messages
+//
+//
+
+int P_ConvertTrans(int val) {
+  return CLAMP(val, 1, 99);
+}
+
+static void dsda_PrecacheFadeAlphas(int base_alpha)
+{
+  int step_size;
+  int fade;
+
+  step_size = 100 / MESSAGE_FADE_STEPS;
+
+  for (fade = step_size; fade < 100; fade += step_size)
   {
-    // Alpha changed or no cache, regenerate
+    int percent;
+    int alpha;
 
-    char* filename;
+    percent = (base_alpha * fade + 50) / 100;
 
-    if (!tranmap_palette_dir)
-      dsda_InitTranMapPaletteDir();
+    if (percent <= 0 || percent >= 100)
+      continue;
 
-    length = strlen(tranmap_palette_dir) + strlen(context_name) + 32;
-    filename = Z_Malloc(length);
-    snprintf(filename, length, "%s/tranmap_%s.dat", tranmap_palette_dir, context_name); // "/tranmap_ui_shadow.dat\0"
+    alpha = P_ConvertTrans(percent);
 
-    // Free old buffer if exists
-    if (custom_tranmap_data[context]) {
-      Z_Free((void*)custom_tranmap_data[context]);
-      custom_tranmap_data[context] = NULL;
-    }
-
-    buffer = dsda_GenerateTranMap(alpha);
-    M_WriteFile(filename, buffer, tranmap_length);
-
-    custom_tranmap_data[context] = buffer;
-    custom_tranmap_alpha[context] = alpha;
-
-    Z_Free(filename);
+    dsda_TranMap_Custom(alpha);
   }
+}
 
-  return custom_tranmap_data[context];
+void dsda_UpdateFadeTranMaps(void)
+{
+  dsda_PrecacheFadeAlphas(100);
+  dsda_PrecacheFadeAlphas(shadow_ui_filter_pct);
+}
+
+//
+//
+// Set tranmap percentages for OpenGL
+//
+//
+
+// Following values from https://zdoom.org/wiki/ZScript_constants
+// 40% - MF_SHADOW (Heretic) + MF_ALTSHADOW (Hexen)
+// 60% - MF_SHADOW (Hexen)
+
+//int tranmap_pct        = 66;    // Doom + Boom Transmap
+int tinttable_pct        = 40;    // Heretic MF_SHADOW + Hexen MF_ALTSHADOW
+int tinttable_reverse_pct    = 60;    // Hexen MF_SHADOW
+
+void dsda_UpdateTranMap(void) {
+  int rounding = 50;
+  // Heretic + Hexen have forced percentages due to use of tinttable
+
+  // main percentages
+  tran_filter_pct           = raven ? tinttable_pct : dsda_TranslucencyPercent(); // Allow translucency customisation only for Doom / Boom
+  tran_reverse_filter_pct   = raven ? tinttable_reverse_pct : P_ConvertTrans(100 - tran_filter_pct); // reverse translucency
+  shadow_raven_filter_pct   = hexen ? tinttable_reverse_pct : tinttable_pct;
+
+  // ui stuff (menu text shadows) - never use tinttable
+  shadow_ui_filter_pct  = P_ConvertTrans(dsda_ShadowTranslucencyPercent());
+  menu_ui_filter_pct    = P_ConvertTrans(dsda_MenuTranslucencyPercent());
+
+  // exhud percentages
+  exhud_opaque_filter_pct       = P_ConvertTrans(dsda_ExHudTranslucencyPercent());
+  exhud_tran_filter_pct         = P_ConvertTrans((tran_filter_pct * exhud_opaque_filter_pct + rounding) / 100);                   // normal translucency under translucency
+  exhud_tran_reverse_filter_pct = P_ConvertTrans(100 - (((100 - tran_filter_pct) * exhud_opaque_filter_pct + rounding) / 100));   // reverse translucency under translucency
+  exhud_shadow_ui_filter_pct    = P_ConvertTrans((shadow_ui_filter_pct * exhud_opaque_filter_pct + rounding) / 100);              // shadow translucency under translucency
+  exhud_shadow_raven_filter_pct = P_ConvertTrans((shadow_raven_filter_pct * exhud_opaque_filter_pct + rounding) / 100);           // shadow translucency under translucency
+
+  // OpenGL special precentages
+  // Let's just avoid the reversing part (since we can't access tinttable)
+  gl_tran_reverse_filter_pct       = raven ? P_ConvertTrans(tran_filter_pct + 20)       : P_ConvertTrans(tran_filter_pct - 20);         // GL reverse translucency
+  gl_exhud_tran_reverse_filter_pct = raven ? P_ConvertTrans(exhud_tran_filter_pct + 20) : P_ConvertTrans(exhud_tran_filter_pct - 20);   // GL reverse translucency under translucency
+
+  // store main transmaps
+  main_tranmap = dsda_DefaultTranMap();
+
+  if (dsda_FadeMessages())
+    dsda_UpdateFadeTranMaps();
 }

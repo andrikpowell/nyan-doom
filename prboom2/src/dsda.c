@@ -222,9 +222,11 @@ void dsda_DisplayNotifications(void) {
 }
 
 void dsda_DecomposeILTime(dsda_level_time_t* level_time) {
+  double t = round(100.f * (dsda_last_leveltime % 35) / 35);
+
   level_time->m = dsda_last_leveltime / 35 / 60;
   level_time->s = (dsda_last_leveltime % (60 * 35)) / 35;
-  level_time->t = round(100.f * (dsda_last_leveltime % 35) / 35);
+  level_time->t = (int)t;
 }
 
 void dsda_DecomposeMovieTime(dsda_movie_time_t* total_time) {
@@ -262,6 +264,20 @@ void dsda_WatchCard(card_t card) {
       default:
         break;
     }
+}
+
+static dboolean dsda_IsIconSpawn(mobj_t* mo) {
+  return mo->intflags & MIF_SPAWNED_BY_ICON;
+}
+
+static dboolean dsda_IsDSparilSpawn(mobj_t* mo) {
+  return mo->intflags & MIF_SPAWNED_BY_DSPARIL;
+}
+
+// killough 7/20/98: exclude friends
+// Translated: countkill and not friend
+dboolean dsda_IsCountedKill(mobj_t* mo) {
+  return !((mo->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL));
 }
 
 static int player_damage_leveltime;
@@ -307,22 +323,19 @@ void dsda_WatchDeath(mobj_t* thing) {
 
 void dsda_WatchKill(player_t* player, mobj_t* target) {
   player->killcount++;
-  if (target->intflags & MIF_SPAWNED_BY_ICON) player->maxkilldiscount++;
+  if (dsda_IsIconSpawn(target) || dsda_IsDSparilSpawn(target))
+    player->maxkilldiscount++;
   dsda_WadStatsKill();
 }
 
 void dsda_WatchResurrection(mobj_t* target, mobj_t* raiser) {
   int i;
 
-  if (raiser && raiser->intflags & MIF_SPAWNED_BY_ICON)
+  if (raiser && dsda_IsIconSpawn(raiser))
     target->intflags |= MIF_SPAWNED_BY_ICON;
 
-  if (
-    (
-      (target->flags ^ MF_COUNTKILL) &
-      (MF_FRIEND | MF_COUNTKILL)
-    ) || target->intflags & MIF_SPAWNED_BY_ICON
-  ) return;
+  if (!dsda_IsCountedKill(target) || dsda_IsIconSpawn(target))
+    return;
 
   for (i = 0; i < g_maxplayers; ++i) {
     if (!playeringame[i] || players[i].killcount == 0) continue;
@@ -358,25 +371,25 @@ void dsda_WatchSpawn(mobj_t* spawned) {
 
   if (!dsda_any_weapons) dsda_any_weapons = dsda_IsWeapon(spawned);
 
-  if (!((spawned->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
+  if (dsda_IsCountedKill(spawned))
     ++dsda_max_kill_requirement;
 }
 
 void dsda_WatchFailedSpawn(mobj_t* spawned) {
   // Fix count from dsda_WatchSpawn
-  if (!((spawned->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
+  if (dsda_IsCountedKill(spawned))
     --dsda_max_kill_requirement;
 }
 
 void dsda_WatchMorph(mobj_t* morphed) {
   // Fix count from dsda_WatchSpawn
-  if (!((morphed->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
+  if (dsda_IsCountedKill(morphed))
     --dsda_max_kill_requirement;
 }
 
 void dsda_WatchUnMorph(mobj_t* morphed) {
   // Fix count from dsda_WatchSpawn
-  if (!((morphed->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
+  if (dsda_IsCountedKill(morphed))
     --dsda_max_kill_requirement;
 }
 
@@ -386,12 +399,26 @@ void dsda_WatchIconSpawn(mobj_t* spawned) {
   // Fix count from dsda_WatchSpawn
   // We can't know inside P_SpawnMobj what the source is
   // This is less invasive than introducing a spawn source concept
-  if (!((spawned->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
+  if (dsda_IsCountedKill(spawned))
+    --dsda_max_kill_requirement;
+}
+
+void dsda_WatchDSparilSpawn(mobj_t* spawned) {
+  spawned->intflags |= MIF_SPAWNED_BY_DSPARIL;
+
+  // Fix count from dsda_WatchSpawn
+  // We can't know inside P_SpawnMobj what the source is
+  // This is less invasive than introducing a spawn source concept
+  if (dsda_IsCountedKill(spawned))
     --dsda_max_kill_requirement;
 }
 
 int dsda_MaxKillRequirement() {
   return dsda_max_kill_requirement;
+}
+
+void dsda_SetMaxKillRequirement(int max_kills) {
+  dsda_max_kill_requirement = max_kills;
 }
 
 void dsda_WatchPTickCompleted(void) {
@@ -481,8 +508,9 @@ void dsda_WatchLevelCompletion(void) {
 
     // max rules: everything dead that affects kill counter except icon spawns
     if (
-      !((mobj->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)) \
-      && !(mobj->intflags & MIF_SPAWNED_BY_ICON) \
+      dsda_IsCountedKill(mobj) \
+      && !dsda_IsIconSpawn(mobj) \
+      && !dsda_IsDSparilSpawn(mobj) \
       && mobj->health > 0
     ) {
       ++missed_monsters;

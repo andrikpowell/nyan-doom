@@ -23,6 +23,8 @@
 
 typedef struct {
   dsda_text_t component;
+  dboolean hide_seconds;
+  dboolean am_pm;
 } local_component_t;
 
 static local_component_t* local;
@@ -31,18 +33,27 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   size_t length;
   time_t now;
   struct tm* local_tm;
+  const char* format;
 
   length = snprintf(str, max_size, "%s", dsda_TextColor(dsda_tc_exhud_local_time));
 
   now = time(NULL);
   local_tm = localtime(&now);
 
-  strftime(str + length, max_size - length, "%H:%M:%S", local_tm);
+  if (local->am_pm)
+    format = local->hide_seconds ? "%I:%M %p" : "%I:%M:%S %p";
+  else
+    format = local->hide_seconds ? "%H:%M" : "%H:%M:%S";
+
+  strftime(str + length, max_size - length, format, local_tm);
 }
 
 void dsda_InitLocalTimeHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
+
+  local->am_pm = args[0];
+  local->hide_seconds = args[1];
 
   dsda_InitTextHC(&local->component, x_offset, y_offset, vpt);
 }

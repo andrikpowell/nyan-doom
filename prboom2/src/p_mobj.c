@@ -409,7 +409,7 @@ static void P_XYMovement (mobj_t* mo)
               angle = R_PointToAngle2(BlockingMobj->x, BlockingMobj->y, mo->x, mo->y) +
                       ANG1 * ((P_Random(pr_hexen) % 16) - 8);
               speed = P_AproxDistance(mo->momx, mo->momy);
-              speed = FixedMul(speed, 0.75 * FRACUNIT);
+              speed = FixedMul(speed, (fixed_t)(0.75 * FRACUNIT));
               mo->angle = angle;
               angle >>= ANGLETOFINESHIFT;
               mo->momx = FixedMul(speed, finecosine[angle]);
@@ -1059,7 +1059,7 @@ floater:
       return;
     }
   }
-  else if (mo->flags2 & MF2_LOGRAV)
+  else if (mo->flags2 & MF2_LOGRAV || (!raven && mo->type == g_skullpop_mt))
   {
     if (mo->momz == 0)
       mo->momz = -(gravity >> 3) * 2;
@@ -1300,6 +1300,8 @@ void P_MobjThinker (mobj_t* mobj)
   // removed old code which looked at target references
   // (we use pointer reference counting now)
 
+  dboolean did_over_under_check = false; // [Nugget] Over/Under
+
   // Basilisk (instant-kill) cheat
   // If monster sees the player, it dies
   if (players[consoleplayer].cheats & CF_BASILISK)
@@ -1324,6 +1326,8 @@ void P_MobjThinker (mobj_t* mobj)
     mobj->intflags &= ~MIF_SCROLLING;
     if (mobj->thinker.function != P_MobjThinker) // cph - Must've been removed
       return;       // killough - mobj was removed
+
+    did_over_under_check = true; // [Nugget] Over/Under
   }
   else if (mobj->flags2 & MF2_BLASTED)
   {                           // Reset to not blasted when momentums are gone
@@ -1337,7 +1341,36 @@ void P_MobjThinker (mobj_t* mobj)
   }
   else if (mobj->z != mobj->floorz || mobj->momz || BlockingMobj)
   {
-    if (mobj->flags2 & MF2_PASSMOBJ)
+    const dboolean overunder_enabled = P_EnableOverUnderForThing();
+    const dboolean do_over_under = overunder_enabled && (mobj->flags & MF_SOLID);
+
+    // [Nugget]
+    if (do_over_under)
+    {
+      overunder_t zdir = P_CheckOverUnderMobj(mobj);
+
+      if (zdir == OU_NONE)
+      {
+        P_ZMovement(mobj);
+      }
+      else
+      {
+        mobj_t *oumobj;
+
+        mobj->momz = 0;
+
+        if ((oumobj = mobj->below_thing) && zdir == OU_UNDER)
+          mobj->z = oumobj->z + oumobj->height;
+        else if ((oumobj = mobj->above_thing)) // zdir == OU_OVER
+          mobj->z = oumobj->z - mobj->height;
+
+        // Nyan - honestly not sure if this is needed
+        if (!raven)
+          if (oumobj && mobj->flags & MF_SKULLFLY)
+            P_SkullSlam(&mobj, oumobj);
+      }
+    }
+    else if (!overunder_enabled && (mobj->flags2 & MF2_PASSMOBJ))
     {
       mobj_t *onmo;
 
@@ -1419,6 +1452,7 @@ void P_MobjThinker (mobj_t* mobj)
     }
     else
       P_ZMovement(mobj);
+    did_over_under_check = true;
     if (mobj->thinker.function != P_MobjThinker) // cph - Must've been removed
       return;       // killough - mobj was removed
   }
@@ -1436,6 +1470,37 @@ void P_MobjThinker (mobj_t* mobj)
       P_ApplyTorque(mobj);               // Apply torque
     else
       mobj->intflags &= ~MIF_FALLING, mobj->gear = 0;  // Reset torque
+  }
+
+  // [Nugget] Over/Under: if we didn't check for over/under mobjs already,
+  // it means that this mobj is immobile, and its over/under mobjs, if any,
+  // were set by other mobj(s); check if they're still valid
+  if (P_EnableOverUnderForThing() && !did_over_under_check)
+  {
+    const mobj_t *oumobj;
+    fixed_t blockdist;
+
+    if ((oumobj = mobj->below_thing))
+    {
+      blockdist = mobj->radius + oumobj->radius;
+
+      if (   (D_abs(mobj->x - oumobj->x) >= blockdist)
+          || (D_abs(mobj->y - oumobj->y) >= blockdist))
+      {
+        mobj->below_thing = NULL;
+      }
+    }
+
+    if ((oumobj = mobj->above_thing))
+    {
+      blockdist = mobj->radius + oumobj->radius;
+
+      if (   (D_abs(mobj->x - oumobj->x) >= blockdist)
+          || (D_abs(mobj->y - oumobj->y) >= blockdist))
+      {
+        mobj->above_thing = NULL;
+      }
+    }
   }
 
   if (map_format.mobj_in_special_sector(mobj))
@@ -1733,6 +1798,73 @@ int P_MobjSpawnHealth(const mobj_t* mobj)
   return mobj->info->spawnhealth;
 }
 
+// [crispy] blinking key or skull in the status bar
+void P_MarkBlinkingKeys(mobj_t* mobj)
+{
+  if (hexen)
+    return;
+
+  if (heretic)
+  {
+    switch (mobj->sprite)
+    {
+      case HERETIC_SPR_AKYY:
+        st_keyorskull[key_green] |= KEYBLINK_CARD;
+        break;
+
+      case HERETIC_SPR_BKYY:
+        st_keyorskull[key_blue] |= KEYBLINK_CARD;
+        break;
+
+      case HERETIC_SPR_CKYY:
+        st_keyorskull[key_yellow] |= KEYBLINK_CARD;
+        break;
+
+      default:
+        break;
+    }
+
+    return;
+  }
+
+  // Doom (Default)
+  switch (mobj->sprite)
+  {
+    case SPR_BKEY:
+      st_keyorskull[it_bluecard] |= KEYBLINK_CARD;
+      st_keytype[it_bluecard] = true;
+      break;
+
+    case SPR_BSKU:
+      st_keyorskull[it_bluecard] |= KEYBLINK_SKULL;
+      st_keytype[it_blueskull] = true;
+      break;
+
+    case SPR_RKEY:
+      st_keyorskull[it_redcard] |= KEYBLINK_CARD;
+      st_keytype[it_redcard] = true;
+      break;
+
+    case SPR_RSKU:
+      st_keyorskull[it_redcard] |= KEYBLINK_SKULL;
+      st_keytype[it_redskull] = true;
+      break;
+
+    case SPR_YKEY:
+      st_keyorskull[it_yellowcard] |= KEYBLINK_CARD;
+      st_keytype[it_yellowcard] = true;
+      break;
+
+    case SPR_YSKU:
+      st_keyorskull[it_yellowcard] |= KEYBLINK_SKULL;
+      st_keytype[it_yellowskull] = true;
+      break;
+
+    default:
+      break;
+  }
+}
+
 //
 // P_SpawnMobj
 //
@@ -1753,6 +1885,7 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   mobj->height = info->height;                                      // phares
   mobj->flags  = info->flags;
   mobj->flags2 = info->flags2;
+  mobj->flags_extra = info->flags_extra;
   if (raven) mobj->damage = info->damage;
 
   /* killough 8/23/98: no friends, bouncers, or touchy things in old demos */
@@ -1784,66 +1917,8 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   mobj->frame  = st->frame;
   mobj->touching_sectorlist = NULL; // NULL head of sector list // phares 3/13/98
 
-  if (!raven)
-  {
-    // [crispy] blinking key or skull in the status bar
-    switch (mobj->sprite)
-    {
-      case SPR_BKEY:
-        st_keyorskull[it_bluecard] |= KEYBLINK_CARD;
-        st_keytype[it_bluecard] = true;
-        break;
-
-      case SPR_BSKU:
-        st_keyorskull[it_bluecard] |= KEYBLINK_SKULL;
-        st_keytype[it_blueskull] = true;
-        break;
-
-      case SPR_RKEY:
-        st_keyorskull[it_redcard] |= KEYBLINK_CARD;
-        st_keytype[it_redcard] = true;
-        break;
-
-      case SPR_RSKU:
-        st_keyorskull[it_redcard] |= KEYBLINK_SKULL;
-        st_keytype[it_redskull] = true;
-        break;
-
-      case SPR_YKEY:
-        st_keyorskull[it_yellowcard] |= KEYBLINK_CARD;
-        st_keytype[it_yellowcard] = true;
-        break;
-
-      case SPR_YSKU:
-        st_keyorskull[it_yellowcard] |= KEYBLINK_SKULL;
-        st_keytype[it_yellowskull] = true;
-        break;
-
-      default:
-        break;
-    }
-  }
-  else if (heretic)
-  {
-    // [crispy] blinking key or skull in the status bar
-    switch (mobj->sprite)
-    {
-      case HERETIC_SPR_AKYY:
-        st_keyorskull[key_green] |= KEYBLINK_CARD;
-        break;
-
-      case HERETIC_SPR_BKYY:
-        st_keyorskull[key_blue] |= KEYBLINK_CARD;
-        break;
-
-      case HERETIC_SPR_CKYY:
-        st_keyorskull[key_yellow] |= KEYBLINK_CARD;
-        break;
-
-      default:
-        break;
-    }
-  }
+  // [crispy] blinking key or skull in the status bar
+  P_MarkBlinkingKeys (mobj);
 
   // set subsector and/or block links
 
@@ -1884,6 +1959,15 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   else
   {
     mobj->z = z;
+  }
+
+  // [crispy] randomly flip corpse, blood and death animation sprites
+  if (mobj->flags_extra & MFX_MIRROREDCORPSE && !(mobj->flags & MF_SHOOTABLE))
+  {
+    if (Nyan_Random() & 1)
+      mobj->intflags |= MIF_FLIP;
+    else
+      mobj->intflags &= ~MIF_FLIP;
   }
 
   if (hexen)
@@ -1927,7 +2011,7 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
 
   mobj->target = mobj->tracer = mobj->lastenemy = NULL;
   P_AddThinker(&mobj->thinker);
-  if (!((mobj->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
+  if (dsda_IsCountedKill(mobj))
     totallive++;
 
   dsda_WatchSpawn(mobj);
@@ -2619,7 +2703,7 @@ mobj_t* P_SpawnMapThing (const mapthing_t* mthing, int index)
 
   if (!raven && thingtype == 14165 && map_format.hexen)
   {
-    iden_num = BETWEEN(0, 64, mthing->special_args[0]); // Mus change
+    iden_num = CLAMP(mthing->special_args[0], 0, 64); // Mus change
     thingtype = 14164;            // MT_MUSICSOURCE
   }
 
@@ -2760,7 +2844,7 @@ spawnit:
   }
 
   /* killough 7/20/98: exclude friends */
-  if (!((mobj->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
+  if (dsda_IsCountedKill(mobj))
     totalkills++;
 
   if (mobj->flags & MF_COUNTITEM)
@@ -2818,7 +2902,7 @@ void P_SpawnPuff(fixed_t x,fixed_t y,fixed_t z)
   mobj_t* th;
   int t;
 
-  if (raven) return Raven_P_SpawnPuff(x, y, z);
+  if (raven) RETURN(Raven_P_SpawnPuff(x, y, z));
 
   // killough 5/5/98: remove dependence on order of evaluation:
   t = P_Random(pr_spawnpuff);
@@ -3542,7 +3626,7 @@ void P_FloorBounceMissile(mobj_t * mo)
             case HEXEN_MT_SGSHARD8:
             case HEXEN_MT_SGSHARD9:
             case HEXEN_MT_SGSHARD0:
-                mo->momz = FixedMul(mo->momz, -0.3 * FRACUNIT);
+                mo->momz = FixedMul(mo->momz, (fixed_t)(-0.3 * FRACUNIT));
                 if (abs(mo->momz) < (FRACUNIT / 2))
                 {
                     P_SetMobjState(mo, HEXEN_S_NULL);
@@ -3550,7 +3634,7 @@ void P_FloorBounceMissile(mobj_t * mo)
                 }
                 break;
             default:
-                mo->momz = FixedMul(mo->momz, -0.7 * FRACUNIT);
+                mo->momz = FixedMul(mo->momz, (fixed_t)(-0.7 * FRACUNIT));
                 break;
         }
         mo->momx = 2 * mo->momx / 3;

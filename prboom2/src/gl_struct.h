@@ -75,8 +75,8 @@ void gld_EndAutomapDraw(void);
 void gld_BeginMenuDraw(void);
 void gld_EndMenuDraw(void);
 
-void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags);
-void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags);
+void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, patch_crop_t crop, int cm, int alpha, enum patch_translation_e flags);
+void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, patch_cropf_t crop, int cm, int alpha, enum patch_translation_e flags);
 
 void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags);
 void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags);
@@ -116,14 +116,14 @@ void gld_DrawScene(player_t *player);
 void gld_EndDrawScene(void);
 void gld_Finish();
 
-//blend animation from zdoomgl
-extern int gl_blend_animations;
-
 // wipe
-int gld_wipe_doMelt(int ticks, int *y_lookup);
+int gld_wipe_renderMelt(int wipe_columns, int wipe_rows);
 int gld_wipe_exitMelt(int ticks);
 int gld_wipe_StartScreen(void);
 int gld_wipe_EndScreen(void);
+
+// fuzz
+dboolean gld_FuzzTextureExist(void);
 
 //clipper
 dboolean gld_clipper_SafeCheckRange(angle_t startAngle, angle_t endAngle);

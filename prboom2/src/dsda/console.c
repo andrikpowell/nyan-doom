@@ -15,7 +15,8 @@
 //	DSDA Console
 //
 
-#include "d_deh.h"
+#include "deh/strings.h"
+#include "deh/thing.h"
 #include "doomstat.h"
 #include "g_game.h"
 #include "hu_lib.h"
@@ -38,6 +39,9 @@
 #include "s_sound.h"
 #include "smooth.h"
 #include "v_video.h"
+
+#include "heretic/hhe/strings.h"
+#include "heretic/hhe/thing.h"
 
 #include "dsda.h"
 #include "dsda/build.h"
@@ -127,7 +131,7 @@ static void dsda_UpdateConsoleDisplay(void) {
 }
 
 static void dsda_ResetConsoleEntry(void) {
-  console_entry_index = strlen(console_entry->text);
+  console_entry_index = (int)strlen(console_entry->text);
   dsda_UpdateConsoleDisplay();
 }
 
@@ -201,26 +205,72 @@ static dboolean console_LevelSecretExit(const char* command, const char* args) {
   return true;
 }
 
-static dboolean console_ActivateLine(mobj_t* mobj, int id, dboolean bossaction) {
+static dboolean console_LevelFinale(const char* command, const char* args) {
+  void G_ExitLevel(int position);
+
+  int position = 0;
+
+  if (hexen)
+    return false;
+
+  skip_intermission = true;
+
+  sscanf(args, "%d", &position);
+
+  G_ExitLevel(position);
+
+  return true;
+}
+
+static dboolean console_LevelSecretFinale(const char* command, const char* args) {
+  void G_SecretExitLevel(int position);
+
+  int position = 0;
+
+  if (hexen)
+    return false;
+
+  skip_intermission = true;
+
+  sscanf(args, "%d", &position);
+
+  G_SecretExitLevel(position);
+
+  return true;
+}
+
+static dboolean console_ActivateLine(mobj_t* mobj, int id, int side, dboolean bossaction) {
   if (!mobj || id < 0 || id >= numlines)
     return false;
 
   P_MapStart();
-  P_UseSpecialLine(mobj, &lines[id], 0, bossaction);
-  map_format.cross_special_line(&lines[id], 0, mobj, bossaction);
-  map_format.shoot_special_line(mobj, &lines[id]);
+  P_UseSpecialLine(mobj, &lines[id], side, bossaction);
+  map_format.cross_special_line(&lines[id], side, mobj, bossaction);
+  map_format.shoot_special_line(mobj, &lines[id], side);
   P_MapEnd();
 
   return true;
 }
 
 static dboolean console_PlayerActivateLine(const char* command, const char* args) {
+  int arg_count;
   int id;
+  int side;
 
-  if (sscanf(args, "%i", &id) != 1)
-    return false;
+  arg_count = sscanf(args, "%i %i", &id, &side);
 
-  return console_ActivateLine(target_player.mo, id, false);
+  if (arg_count == 1 || arg_count == 2)
+  {
+    // No side provided, use front side (0) by default
+    if (arg_count != 2)
+      side = 0;
+
+    side = CLAMP(side, 0, 1);
+
+    return console_ActivateLine(target_player.mo, id, side, false);
+  }
+
+  return false;
 }
 
 static dboolean console_PlayerSetHealth(const char* command, const char* args) {
@@ -1442,15 +1492,27 @@ static dboolean console_TargetTargetPlayer(const char* command, const char* args
 }
 
 static dboolean console_TargetActivateLine(const char* command, const char* args) {
+  int arg_count;
   int id;
+  int side;
   mobj_t* target;
 
-  if (sscanf(args, "%i", &id) != 1)
-    return false;
+  arg_count = sscanf(args, "%i %i", &id, &side);
 
-  target = HU_Target();
+  if (arg_count == 1 || arg_count == 2)
+  {
+    // No side provided, use front side (0) by default
+    if (arg_count != 2)
+      side = 0;
 
-  return console_ActivateLine(target, id, false);
+    side = CLAMP(side, 0, 1);
+
+    target = HU_Target();
+
+    return console_ActivateLine(target, id, side, false);
+  }
+
+  return false;
 }
 
 static dboolean console_TargetAddFlags(const char* command, const char* args) {
@@ -1466,8 +1528,16 @@ static dboolean console_TargetAddFlags(const char* command, const char* args) {
   if (!target)
     return false;
 
-  flags = target->flags | deh_stringToMobjFlags(flag_str);
-  flags2 = target->flags2 | deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    flags = target->flags | hhe_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 | hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    flags = target->flags | deh_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 | deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   console_SetMobjFlags(target, flags, flags2);
 
@@ -1487,8 +1557,16 @@ static dboolean console_TargetRemoveFlags(const char* command, const char* args)
   if (!target)
     return false;
 
-  flags = target->flags & ~deh_stringToMobjFlags(flag_str);
-  flags2 = target->flags2 & ~deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    flags = target->flags & ~hhe_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 & ~hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    flags = target->flags & ~deh_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 & ~deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   console_SetMobjFlags(target, flags, flags2);
 
@@ -1508,8 +1586,16 @@ static dboolean console_TargetSetFlags(const char* command, const char* args) {
   if (!target)
     return false;
 
-  flags = deh_stringToMobjFlags(flag_str);
-  flags2 = deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    flags = hhe_stringToMobjFlags(flag_str);
+    flags2 = hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    flags = deh_stringToMobjFlags(flag_str);
+    flags2 = deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   console_SetMobjFlags(target, flags, flags2);
 
@@ -1689,16 +1775,27 @@ static dboolean console_MobjTargetPlayer(const char* command, const char* args) 
 }
 
 static dboolean console_MobjActivateLine(const char* command, const char* args) {
+  int arg_count;
   int id;
+  int side;
   int index;
   mobj_t* target;
 
-  if (sscanf(args, "%d %i", &index, &id) != 2)
-    return false;
+  arg_count = sscanf(args, "%d %i %i", &index, &id, &side);
 
-  target = dsda_FindMobj(index);
+  if (arg_count == 2 || arg_count == 3)
+  {
+    // No side provided, use front side (0) by default
+    if (arg_count != 3)
+      side = 0;
 
-  return console_ActivateLine(target, id, false);
+    side = CLAMP(side, 0, 1);
+
+    target = dsda_FindMobj(index);
+    return console_ActivateLine(target, id, side, false);
+  }
+
+  return false;
 }
 
 static dboolean console_MobjAddFlags(const char* command, const char* args) {
@@ -1715,8 +1812,16 @@ static dboolean console_MobjAddFlags(const char* command, const char* args) {
   if (!target)
     return false;
 
-  flags = target->flags | deh_stringToMobjFlags(flag_str);
-  flags2 = target->flags2 | deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    flags = target->flags | hhe_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 | hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    flags = target->flags | deh_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 | deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   console_SetMobjFlags(target, flags, flags2);
 
@@ -1737,8 +1842,16 @@ static dboolean console_MobjRemoveFlags(const char* command, const char* args) {
   if (!target)
     return false;
 
-  flags = target->flags & ~deh_stringToMobjFlags(flag_str);
-  flags2 = target->flags2 & ~deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    flags = target->flags & ~hhe_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 & ~hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    flags = target->flags & ~deh_stringToMobjFlags(flag_str);
+    flags2 = target->flags2 & ~deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   console_SetMobjFlags(target, flags, flags2);
 
@@ -1759,8 +1872,16 @@ static dboolean console_MobjSetFlags(const char* command, const char* args) {
   if (!target)
     return false;
 
-  flags = deh_stringToMobjFlags(flag_str);
-  flags2 = deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    flags = hhe_stringToMobjFlags(flag_str);
+    flags2 = hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    flags = deh_stringToMobjFlags(flag_str);
+    flags2 = deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   console_SetMobjFlags(target, flags, flags2);
 
@@ -1768,16 +1889,27 @@ static dboolean console_MobjSetFlags(const char* command, const char* args) {
 }
 
 static dboolean console_BossActivateLine(const char* command, const char* args) {
+  int arg_count;
   int id;
+  int side;
   int index;
   mobj_t* target;
 
-  if (sscanf(args, "%d %i", &index, &id) != 2)
-    return false;
+  arg_count = sscanf(args, "%d %i %i", &index, &id, &side);
 
-  target = dsda_FindMobj(index);
+  if (arg_count == 1 || arg_count == 2)
+  {
+    // No side provided, use front side (0) by default
+    if (arg_count != 2)
+      side = 0;
 
-  return console_ActivateLine(target, id, true);
+    side = CLAMP(side, 0, 1);
+
+    target = dsda_FindMobj(index);
+    return console_ActivateLine(target, id, side, true);
+  }
+
+  return false;
 }
 
 static dboolean console_Spawn(const char* command, const char* args) {
@@ -2185,8 +2317,16 @@ static dboolean console_MobjInfoAddFlags(const char* command, const char* args) 
   if (type == DEH_INDEX_NOT_FOUND)
     return false;
 
-  mobjinfo[type].flags |= deh_stringToMobjFlags(flag_str);
-  mobjinfo[type].flags2 |= deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    mobjinfo[type].flags |= hhe_stringToMobjFlags(flag_str);
+    mobjinfo[type].flags2 |= hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    mobjinfo[type].flags |= deh_stringToMobjFlags(flag_str);
+    mobjinfo[type].flags2 |= deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   return true;
 }
@@ -2203,8 +2343,16 @@ static dboolean console_MobjInfoRemoveFlags(const char* command, const char* arg
   if (type == DEH_INDEX_NOT_FOUND)
     return false;
 
-  mobjinfo[type].flags &= ~deh_stringToMobjFlags(flag_str);
-  mobjinfo[type].flags2 &= ~deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    mobjinfo[type].flags &= ~hhe_stringToMobjFlags(flag_str);
+    mobjinfo[type].flags2 &= ~hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    mobjinfo[type].flags &= ~deh_stringToMobjFlags(flag_str);
+    mobjinfo[type].flags2 &= ~deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   return true;
 }
@@ -2221,8 +2369,16 @@ static dboolean console_MobjInfoSetFlags(const char* command, const char* args) 
   if (type == DEH_INDEX_NOT_FOUND)
     return false;
 
-  mobjinfo[type].flags = deh_stringToMobjFlags(flag_str);
-  mobjinfo[type].flags2 = deh_stringToMBF21MobjFlags(flag_str);
+  if (heretic)
+  {
+    mobjinfo[type].flags = hhe_stringToMobjFlags(flag_str);
+    mobjinfo[type].flags2 = hhe_stringToMobjFlags2(flag_str);
+  }
+  else
+  {
+    mobjinfo[type].flags = deh_stringToMobjFlags(flag_str);
+    mobjinfo[type].flags2 = deh_stringToMBF21MobjFlags(flag_str);
+  }
 
   return true;
 }
@@ -2277,8 +2433,11 @@ static console_command_entry_t console_commands[] = {
 
   { "music.restart", console_MusicRestart, CF_ALWAYS },
 
+  // level
   { "level.exit", console_LevelExit, CF_NEVER },
-  { "level.secret_exit", console_LevelSecretExit, CF_NEVER },
+  { "level.exit_secret", console_LevelSecretExit, CF_NEVER },
+  { "level.finale", console_LevelFinale, CF_NEVER},
+  { "level.finale_secret", console_LevelSecretFinale, CF_NEVER},
 
   { "script.run", console_ScriptRun, CF_ALWAYS },
   { "check", console_Check, CF_ALWAYS },
@@ -2603,7 +2762,7 @@ void dsda_UpdateConsoleText(char* text) {
   int i;
   int length;
 
-  length = strlen(text);
+  length = (int)strlen(text);
 
   for (i = 0; i < length; ++i) {
     char ch = text[i];
@@ -2722,13 +2881,13 @@ void dsda_UpdateConsole(int action) {
   else if (action == MENU_UP) {
     if (console_entry->prev)
       console_entry = console_entry->prev;
-    console_entry_index = strlen(console_entry->text);
+    console_entry_index = (int)strlen(console_entry->text);
     dsda_UpdateConsoleDisplay();
   }
   else if (action == MENU_DOWN) {
     if (console_entry->next)
       console_entry = console_entry->next;
-    console_entry_index = strlen(console_entry->text);
+    console_entry_index = (int)strlen(console_entry->text);
     dsda_UpdateConsoleDisplay();
   }
   else if (action == MENU_RIGHT && console_entry->text[console_entry_index]) {

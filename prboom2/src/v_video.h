@@ -43,6 +43,7 @@
 #include "doomdef.h"
 // Needed because we are refering to patches.
 #include "r_data.h"
+#include "dsda/tranmap.h"
 
 //
 // VIDEO
@@ -124,7 +125,16 @@ typedef struct {
   int pitch;      // tha actual width of one line, used when mallocing
 } screeninfo_t;
 
-#define NUM_SCREENS 6
+typedef enum
+{
+  FG, // main
+  BG,
+  WIPE_SRC,
+  WIPE_DST,
+  WIPE_TEMP,
+  NUM_SCREENS,
+} screenbuffer_t;
+
 extern screeninfo_t screens[NUM_SCREENS];
 extern int          usegamma;
 extern int          extra_brightness;
@@ -208,15 +218,15 @@ void V_CopyScreen(int srcscrn, int destscrn);
 typedef void (*V_FillRectGen_f)(int scrn, int x, int y,
                              int width, int height, byte colour);
 extern V_FillRectGen_f V_FillRectGen;
-#define V_FillRect(x,y,w,h,c) V_FillRectGen(0,x,y,w,h,c)
-#define V_FillRectBG(x,y,w,h,c) V_FillRectGen(1,x,y,w,h,c)
+#define V_FillRect(x,y,w,h,c) V_FillRectGen(FG,x,y,w,h,c)
+#define V_FillRectBG(x,y,w,h,c) V_FillRectGen(BG,x,y,w,h,c)
 
 // V_FillRectTrans
 typedef void (*V_FillRectTrans_f)(int scrn, int x, int y,
-                             int width, int height, byte colour, const byte* transmap);
+                             int width, int height, byte colour, int trans);
 extern V_FillRectTrans_f V_FillRectTrans;
-#define V_FillRectTransMenu(x,y,w,h,c) V_FillRectTrans(0,x,y,w,h,c,menu_ui_tranmap)
-#define V_FillRectTransMenuBG(x,y,w,h,c) V_FillRectTrans(1,x,y,w,h,c,menu_ui_tranmap)
+#define V_FillRectTransMenu(x,y,w,h,c) V_FillRectTrans(FG,x,y,w,h,c,menu_ui_filter_pct)
+#define V_FillRectTransMenuBG(x,y,w,h,c) V_FillRectTrans(BG,x,y,w,h,c,menu_ui_filter_pct)
 
 typedef void (*V_FillRectShaded_f)(int x, int y, int width, int height, int start_shade, int end_shade, int vertical);
 extern V_FillRectShaded_f V_FillRectShaded;
@@ -224,74 +234,105 @@ extern V_FillRectShaded_f V_FillRectShaded;
 // CPhipps - patch drawing
 // Consolidated into the 3 really useful functions:
 
+typedef enum
+{
+  PATCH_NORMAL,
+  PATCH_FULLSCREEN,
+} patch_fullscreen_t;
+
+#define CROP_NULL ((patch_crop_t){0})
+#define CROP_NULL_FLOAT ((patch_cropf_t){0.f})
+
+extern patch_cropf_t V_PatchCropToFloat(patch_crop_t crop);
+extern patch_crop_t V_PatchCropToInt(patch_cropf_t crop);
+
 // V_DrawNumPatchGen - Draws the patch from lump num
 typedef void (*V_DrawNumPatchGen_f)(int x, int y, int scrn,
-                                 int lump, dboolean center,
-                                 int clip_top, int clip_bottom, int clip_left, int clip_right,
-                                 int cm, enum patch_translation_e flags);
+                                 int lump, dboolean center, patch_crop_t crop,
+                                 int cm, int fade_alpha, enum patch_translation_e flags);
 extern V_DrawNumPatchGen_f V_DrawNumPatchGen;
 
 typedef void (*V_DrawNumPatchGenPrecise_f)(float x, float y, int scrn,
-                                 int lump, dboolean center,
-                                 float clip_top, float clip_bottom, float clip_left, float clip_right,
-                                 int cm, enum patch_translation_e flags);
+                                 int lump, dboolean center, patch_cropf_t crop,
+                                 int cm, int fade_alpha, enum patch_translation_e flags);
 extern V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise;
 
 // V_DrawNumPatch - Draws the patch from lump "num"
-#define V_DrawNumPatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,0,n,false,0,0,0,0,t,f)
-#define V_DrawNumPatchPrecise(x,y,n,t,f) V_DrawNumPatchGenPrecise(x,y,0,n,false,0,0,0,0,t,f)
-#define V_DrawNumPatchBG(x,y,n,t,f) V_DrawNumPatchGen(x,y,1,n,false,0,0,0,0,t,f)
+#define V_DrawNumPatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,FG,n,PATCH_NORMAL,CROP_NULL,t,100,f)
+#define V_DrawNumPatchPrecise(x,y,n,t,f) V_DrawNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,CROP_NULL_FLOAT,t,100,f)
+#define V_DrawNumPatchBG(x,y,n,t,f) V_DrawNumPatchGen(x,y,BG,n,PATCH_NORMAL,CROP_NULL,t,100,f)
 
 // V_DrawNamePatch - Draws the patch from lump "name"
-#define V_DrawNamePatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,0,W_GetNumForName(n),false,0,0,0,0,t,f)
-#define V_DrawNamePatchPrecise(x,y,n,t,f) V_DrawNumPatchGenPrecise(x,y,0,W_GetNumForName(n),false,0,0,0,0,t,f)
-#define V_DrawNamePatchBG(x,y,n,t,f) V_DrawNumPatchGen(x,y,1,W_GetNumForName(n),false,0,0,0,0,t,f)
+#define V_DrawNamePatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,CROP_NULL,t,100,f)
+#define V_DrawNamePatchPrecise(x,y,n,t,f) V_DrawNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,CROP_NULL_FLOAT,t,100,f)
+#define V_DrawNamePatchBG(x,y,n,t,f) V_DrawNumPatchGen(x,y,BG,W_GetNumForName(n),PATCH_NORMAL,CROP_NULL,t,100,f)
 
 // These functions center patches if width > 320 :
-#define V_DrawNumPatchFS(x,y,n,t,f) V_DrawNumPatchGen(x,y,0,n,true,0,0,0,0,t,f)
-#define V_DrawNumPatchPreciseFS(x,y,n,t,f) V_DrawNumPatchGenPrecise(x,y,0,n,true,0,0,0,0,t,f)
-#define V_DrawNamePatchFS(x,y,n,t,f) V_DrawNumPatchGen(x,y,0,W_GetNumForName(n),true,0,0,0,0,t,f)
-#define V_DrawNamePatchPreciseFS(x,y,n,t,f) V_DrawNumPatchGenPrecise(x,y,0,W_GetNumForName(n),true,0,0,0,0,t,f)
+#define V_DrawNumPatchFS(x,y,n,t,f) V_DrawNumPatchGen(x,y,FG,n,PATCH_FULLSCREEN,CROP_NULL,t,100,f)
+#define V_DrawNumPatchPreciseFS(x,y,n,t,f) V_DrawNumPatchGenPrecise(x,y,FG,n,PATCH_FULLSCREEN,CROP_NULL_FLOAT,t,100,f)
+#define V_DrawNamePatchFS(x,y,n,t,f) V_DrawNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_FULLSCREEN,CROP_NULL,t,100,f)
+#define V_DrawNamePatchPreciseFS(x,y,n,t,f) V_DrawNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_FULLSCREEN,CROP_NULL_FLOAT,t,100,f)
 
-#define V_DrawNumPatchCrop(x,y,n,tc,bc,lc,rc,t,f)V_DrawNumPatchGen(x, y, 0, n, false, tc, bc, lc, rc, t, f);
-#define V_DrawNumPatchCropBG(x,y,n,tc,bc,lc,rc,t,f)V_DrawNumPatchGen(x, y, 1, n, false, tc, bc, lc, rc, t, f);
+#define V_DrawNumPatchCrop(x,y,n,c,t,f)V_DrawNumPatchGen(x, y, FG, n, PATCH_NORMAL, c, t, 100, f);
+#define V_DrawNumPatchCropBG(x,y,n,c,t,f)V_DrawNumPatchGen(x, y, BG, n, PATCH_NORMAL, c, t, 100, f);
+
+#define V_DrawFadeNumPatch(x,y,n,t,a,f) V_DrawNumPatchGen(x,y,FG,n,PATCH_NORMAL,CROP_NULL,t,a,f)
+#define V_DrawFadeNumPatchPrecise(x,y,n,t,a,f) V_DrawNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,CROP_NULL_FLOAT,t,a,f)
+#define V_DrawFadeNamePatch(x,y,n,t,a,f) V_DrawNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,CROP_NULL,t,a,f)
+#define V_DrawFadeNamePatchPrecise(x,y,n,t,a,f) V_DrawNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,CROP_NULL_FLOAT,t,a,f)
+
+#define V_DrawTransNumPatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,FG,n,PATCH_NORMAL,CROP_NULL,t,100,f|VPT_TRANSMAP)
+#define V_DrawTransNamePatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,CROP_NULL,t,100,f|VPT_TRANSMAP)
+
+#define V_DrawReverseTransNumPatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,FG,n,PATCH_NORMAL,CROP_NULL,t,100,f|VPT_TRANSMAP_REVERSE)
+#define V_DrawReverseTransNamePatch(x,y,n,t,f) V_DrawNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,CROP_NULL,t,100,f|VPT_TRANSMAP_REVERSE)
 
 typedef enum
 {
   SHADOW_OFF,
-  SHADOW_DEFAULT,
-  SHADOW_RAVEN,
+  SHADOW_ALWAYS_DEFAULT,
+  SHADOW_ALWAYS_RAVEN,
+  SHADOW_EXTRA,
 } patch_shadow_t;
 
 // V_DrawNumPatchGen - Draws the patch from lump num
 typedef void (*V_DrawShadowedNumPatchGen_f)(int x, int y, int scrn,
                                  int lump, dboolean center, int shadowtype,
-                                 int clip_top, int clip_bottom, int clip_left, int clip_right,
-                                 int cm, enum patch_translation_e flags);
+                                 patch_crop_t crop, int cm, int fade_alpha, enum patch_translation_e flags);
 extern V_DrawShadowedNumPatchGen_f V_DrawShadowedNumPatchGen;
 
 typedef void (*V_DrawShadowedNumPatchGenPrecise_f)(float x, float y, int scrn,
                                  int lump, dboolean center, int shadowtype,
-                                 float clip_top, float clip_bottom, float clip_left, float clip_right,
-                                 int cm, enum patch_translation_e flags);
+                                 patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags);
 extern V_DrawShadowedNumPatchGenPrecise_f V_DrawShadowedNumPatchGenPrecise;
 
 // V_DrawShadowedNumPatch
-#define V_DrawShadowedNumPatch(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,0,n,false,SHADOW_RAVEN,0,0,0,0,t,f)
-#define V_DrawShadowedNumPatchPrecise(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,0,n,false,SHADOW_RAVEN,0,0,0,0,t,f)
-#define V_DrawShadowedNamePatch(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,0,W_GetNumForName(n),false,SHADOW_RAVEN,0,0,0,0,t,f)
-#define V_DrawShadowedNamePatchPrecise(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,0,W_GetNumForName(n),false,SHADOW_RAVEN,0,0,0,0,t,f)
+#define V_DrawShadowedNumPatch(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,FG,n,PATCH_NORMAL,SHADOW_ALWAYS_RAVEN,CROP_NULL,t,100,f)
+#define V_DrawShadowedNumPatchPrecise(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,SHADOW_ALWAYS_RAVEN,CROP_NULL_FLOAT,t,100,f)
+#define V_DrawShadowedNamePatch(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,SHADOW_ALWAYS_RAVEN,CROP_NULL,t,100,f)
+#define V_DrawShadowedNamePatchPrecise(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,SHADOW_ALWAYS_RAVEN,CROP_NULL_FLOAT,t,100,f)
+
+// V_DrawShadowedNumPatchAdv
+#define V_DrawShadowedNumPatchAdv(x,y,n,s,t,f) V_DrawShadowedNumPatchGen(x,y,FG,n,PATCH_NORMAL,s,CROP_NULL,t,100,f)
+#define V_DrawShadowedNumPatchPreciseAdv(x,y,n,s,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,s,CROP_NULL_FLOAT,t,100,f)
+#define V_DrawShadowedNamePatchAdv(x,y,n,s,t,f) V_DrawShadowedNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,s,CROP_NULL,t,100,f)
+#define V_DrawShadowedNamePatchPreciseAdv(x,y,n,s,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,s,CROP_NULL_FLOAT,t,100,f)
 
 // V_DrawMenuNumPatch
-#define V_DrawMenuNumPatch(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,0,n,false,SHADOW_DEFAULT,0,0,0,0,t,f)
-#define V_DrawMenuNumPatchPrecise(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,0,n,false,SHADOW_DEFAULT,0,0,0,0,t,f)
-#define V_DrawMenuNamePatch(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,0,W_GetNumForName(n),false,SHADOW_DEFAULT,0,0,0,0,t,f)
-#define V_DrawMenuNamePatchPrecise(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,0,W_GetNumForName(n),false,SHADOW_DEFAULT,0,0,0,0,t,f)
+#define V_DrawMenuNumPatch(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,FG,n,PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL,t,100,f)
+#define V_DrawMenuNumPatchPrecise(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL_FLOAT,t,100,f)
+#define V_DrawMenuNamePatch(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL,t,100,f)
+#define V_DrawMenuNamePatchPrecise(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL_FLOAT,t,100,f)
 
-#define V_DrawMenuNumPatchFS(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,0,n,true,SHADOW_DEFAULT,0,0,0,0,t,f)
-#define V_DrawMenuNamePatchFS(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,0,W_GetNumForName(n),true,SHADOW_DEFAULT,0,0,0,0,t,f)
-#define V_DrawMenuNumPatchPreciseFS(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,0,n,true,SHADOW_DEFAULT,0,0,0,0,t,f)
-#define V_DrawMenuNamePatchPreciseFS(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,0,W_GetNumForName(n),true,SHADOW_DEFAULT,0,0,0,0,t,f)
+#define V_DrawMenuNumPatchFS(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,FG,n,PATCH_FULLSCREEN,SHADOW_EXTRA,CROP_NULL,t,100,f)
+#define V_DrawMenuNamePatchFS(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_FULLSCREEN,SHADOW_EXTRA,CROP_NULL,t,100,f)
+#define V_DrawMenuNumPatchPreciseFS(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,n,PATCH_FULLSCREEN,SHADOW_EXTRA,CROP_NULL_FLOAT,t,100,f)
+#define V_DrawMenuNamePatchPreciseFS(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_FULLSCREEN,SHADOW_EXTRA,CROP_NULL_FLOAT,t,100,f)
+
+#define V_DrawMenuFadeNumPatch(x,y,n,t,a,f) V_DrawShadowedNumPatchGen(x,y,FG,n,PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL,t,a,f)
+#define V_DrawMenuFadeNumPatchPrecise(x,y,n,t,a,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL_FLOAT,t,a,f)
+#define V_DrawMenuFadeNamePatch(x,y,n,t,a,f) V_DrawShadowedNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL,t,a,f)
+#define V_DrawMenuFadeNamePatchPrecise(x,y,n,t,a,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL_FLOAT,t,a,f)
 
 /* cph -
  * Functions to return width & height of a patch.
@@ -305,48 +346,48 @@ extern V_DrawShadowedNumPatchGenPrecise_f V_DrawShadowedNumPatchGenPrecise;
 typedef void (*V_FillFlat_f)(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags);
 extern V_FillFlat_f V_FillFlat;
 #define V_FillNameFlat(flatname, x, y, width, height, flags) \
-  V_FillFlat(R_FlatNumForName(flatname), 0, (x), (y), (width), (height), (flags))
+  V_FillFlat(R_FlatNumForName(flatname), FG, (x), (y), (width), (height), (flags))
 #define V_FillNumFlat(lump, x, y, width, height, flags) \
-  V_FillFlat((lump), 0, (x), (y), (width), (height), (flags))
+  V_FillFlat((lump), FG, (x), (y), (width), (height), (flags))
 #define V_FillNumFlatBG(lump, x, y, width, height, flags) \
-  V_FillFlat((lump), 1, (x), (y), (width), (height), (flags))
+  V_FillFlat((lump), BG, (x), (y), (width), (height), (flags))
 
 // FillFlat (with offsets)
 #define V_FillNameFlatAdv(flatname, x, y, width, height, x_offset, y_offset, flags) \
-  V_FillRaw((firstflat+R_FlatNumForName(flatname)), 0, (x), (y), 64, 64, (width), (height), (x_offset), (y_offset), (flags))
+  V_FillRaw((firstflat+R_FlatNumForName(flatname)), FG, (x), (y), 64, 64, (width), (height), (x_offset), (y_offset), (flags))
 #define V_FillNumFlatAdv(flatname, x, y, width, height, x_offset, y_offset, flags) \
-  V_FillRaw((firstflat+flatname), 0, (x), (y), 64, 64, (width), (height), (x_offset), (y_offset), (flags))
+  V_FillRaw((firstflat+flatname), FG, (x), (y), 64, 64, (width), (height), (x_offset), (y_offset), (flags))
 
 // FillRaw
 typedef void (*V_FillRaw_f)(int lump, int scrn, int x, int y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags);
 extern V_FillRaw_f V_FillRaw;
 #define V_FillNameRaw(name, x, y, lumpwidth, lumpheight, width, height, flags) \
-  V_FillRaw(W_GetNumForName(name), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
+  V_FillRaw(W_GetNumForName(name), FG, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
 #define V_FillNumRaw(lump, x, y, lumpwidth, lumpheight, width, height, flags) \
-  V_FillRaw((lump), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
+  V_FillRaw((lump), FG, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
 
 // FillRawPrecise
 typedef void (*V_FillRawPrecise_f)(int lump, int scrn, float x, float y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags);
 extern V_FillRawPrecise_f V_FillRawPrecise;
 #define V_FillNameRawPrecise(name, x, y, lumpwidth, lumpheight, width, height, flags) \
-  V_FillRawPrecise(W_GetNumForName(name), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
+  V_FillRawPrecise(W_GetNumForName(name), FG, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
 #define V_FillNumRawPrecise(lump, x, y, lumpwidth, lumpheight, width, height, flags) \
-  V_FillRawPrecise((lump), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
+  V_FillRawPrecise((lump), FG, (x), (y), (lumpwidth), (lumpheight), (width), (height), 0, 0, (flags))
 
 // FillRaw (with offsets)
 #define V_FillNameRawAdv(name, x, y, lumpwidth, lumpheight, width, height, x_offset, y_offset, flags) \
-  V_FillRaw(W_GetNumForName(name), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), (x_offset), (y_offset), (flags))
+  V_FillRaw(W_GetNumForName(name), FG, (x), (y), (lumpwidth), (lumpheight), (width), (height), (x_offset), (y_offset), (flags))
 #define V_FillNumRawAdv(lump, x, y, lumpwidth, lumpheight, width, height, x_offset, y_offset, flags) \
-  V_FillRaw((lump), 0, (x), (y), (lumpwidth), (lumpheight), (width), (height), (x_offset), (y_offset), (flags))
+  V_FillRaw((lump), FG, (x), (y), (lumpwidth), (lumpheight), (width), (height), (x_offset), (y_offset), (flags))
 
 typedef void (*V_FillPatch_f)(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags);
 extern V_FillPatch_f V_FillPatch;
 #define V_FillNamePatch(name, x, y, width, height, flags) \
-  V_FillPatch(W_GetNumForName(name), 0, (x), (y), (width), (height), (flags))
+  V_FillPatch(W_GetNumForName(name), FG, (x), (y), (width), (height), (flags))
 #define V_FillNumPatch(lump, x, y, width, height, flags) \
-  V_FillPatch((lump), 0, (x), (y), (width), (height), (flags))
+  V_FillPatch((lump), FG, (x), (y), (width), (height), (flags))
 #define V_FillNumPatchBG(lump, x, y, width, height, flags) \
-  V_FillPatch((lump), 1, (x), (y), (width), (height), (flags))
+  V_FillPatch((lump), BG, (x), (y), (width), (height), (flags))
 
 
 /* cphipps 10/99: function to tile a flat over the screen */
@@ -354,6 +395,11 @@ extern V_FillPatch_f V_FillPatch;
   V_FillNameFlat((flatname), 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH)
 #define V_DrawBackgroundNum(lump) \
   V_FillNumFlat((lump), 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_STRETCH)
+  
+#define V_DrawBackgroundSwirlName(flatname) \
+  V_FillNameFlat((flatname), 0, 0, SCREENWIDTH, SCREENHEIGHT, (enum patch_translation_e)(VPT_STRETCH | VPT_SWIRL))
+#define V_DrawBackgroundSwirlNum(lump) \
+  V_FillNumFlat((lump), 0, 0, SCREENWIDTH, SCREENHEIGHT, (enum patch_translation_e)(VPT_STRETCH | VPT_SWIRL))
 
 typedef void (*V_DrawShaded_f)(int x, int y, int width, int height, int shade);
 extern V_DrawShaded_f V_DrawShaded;
@@ -362,6 +408,9 @@ extern V_DrawShaded_f V_DrawShaded;
 void V_TouchPalette(void);
 void V_SetPalette(int pal);
 void V_SetPlayPal(int playpal_index);
+
+void V_SetDynamicPalette(const byte *pal);
+void V_ClearDynamicPalette(void);
 
 // Alt-Enter: fullscreen <-> windowed
 void V_ToggleFullscreen(void);
@@ -436,9 +485,5 @@ int V_FillHeightVPT(int y, int height, byte color, enum patch_translation_e flag
 
 void V_DrawRawScreen(const char *lump_name);
 void V_DrawRawScreenOffset(const char *lump_name, float x_offset, float y_offset, enum patch_translation_e flags);
-void V_DrawTLNumPatch(int x, int y, int lump);
-void V_DrawTLNamePatch(int x, int y, const char* name);
-void V_DrawReverseTLNumPatch(int x, int y, int lump);
-void V_DrawReverseTLNamePatch(int x, int y, const char* lump);
 
 #endif

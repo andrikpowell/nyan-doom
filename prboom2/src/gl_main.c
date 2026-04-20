@@ -84,8 +84,6 @@ int gl_preprocessed = false;
 int gl_spriteindex;
 int scene_has_overlapped_sprites;
 
-int gl_blend_animations;
-
 float gldepthmin, gldepthmax;
 
 dboolean invul_cm;
@@ -147,7 +145,7 @@ void gld_MultisamplingSet(void)
   {
     extern int map_use_multisampling;
 
-    int use_multisampling = map_use_multisampling || automap_off;
+    int use_multisampling = map_use_multisampling || !automap_solid;
 
     gld_EnableMultisample(use_multisampling);
   }
@@ -283,6 +281,9 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   float alpha;
   float coord_scale;
   GLTexture *gltexture;
+  
+  dboolean swirling_flat;
+  int gl_flat_index;
 
   alpha = (float)((automap_overlay > 0) ? map_textured_overlay_trans : map_textured_trans) / 100.0f;
   if (alpha == 0)
@@ -367,7 +368,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   for (i = 0; i < visible_subsectors_count; i++)
   {
     subsector_t *sub = visible_subsectors[i];
-    int ssidx = sub - subsectors;
+    int ssidx = (int)(sub - subsectors);
 
     if (sub->sector->bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
       sub->sector->bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
@@ -377,8 +378,11 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
     {
       continue;
     }
+    
+    swirling_flat = P_IsSwirlingFlat(sub->sector->floorpic);
+    gl_flat_index = swirling_flat ? P_FlatIndexFromLump(sub->sector->floorpic) : flattranslation[sub->sector->floorpic];
 
-    gltexture = gld_RegisterFlat(flattranslation[sub->sector->floorpic], true, V_IsUILightmodeIndexed());
+    gltexture = gld_RegisterFlat(gl_flat_index, true, V_IsUILightmodeIndexed());
     if (gltexture)
     {
       sector_t tempsec;
@@ -390,7 +394,10 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
       // For lighting and texture determination
       sector_t *sec = R_FakeFlat(sub->sector, &tempsec, &floorlight, NULL, false);
 
-      gld_BindFlat(gltexture, 0);
+      if (swirling_flat)
+        gld_BindSwirlFlat(gltexture, false, 0);
+      else
+        gld_BindFlat(gltexture, 0);
 
       light = gld_Calc2DLightLevel(floorlight);
       gld_StaticLightAlpha(light, alpha);
@@ -506,52 +513,130 @@ void gld_EndMenuDraw(void)
   glsl_PopNullShader();
 }
 
-#define NO_TRANS -1
-
-float gld_GetTranslucency(int shadowtype, enum patch_translation_e flags)
+static float gld_GetAlpha(int shadowtype, int fade_alpha, enum patch_translation_e flags)
 {
-  int trans_percent = NO_TRANS;
+  int base_alpha;
+  int final_alpha;
   extern int dsda_ExHudTranslucency(void);
+
+  fade_alpha = CLAMP(fade_alpha, 0, 100);
+  if (fade_alpha <= 0)
+    return 0.0f;
+
+  // default
+  base_alpha = 100;
 
   // apply translucency
   if (flags & VPT_SHADOW)
-  {
-    trans_percent = (shadowtype == SHADOW_DEFAULT) ? shadow_ui_filter_pct : shadow_filter_pct;
-  }
-  else
-  {
-    if (flags & VPT_TRANSMAP)
-      trans_percent = tran_filter_pct;
-    else if (flags & VPT_ALT_TRANSMAP)
-      trans_percent = gl_alttint_filter_pct;
-  }
+    base_alpha = (shadowtype == SHADOW_ALWAYS_RAVEN) ?  shadow_raven_filter_pct : shadow_ui_filter_pct;
+  else if (flags & VPT_TRANSMAP)
+    base_alpha = tran_filter_pct;
+  else if (flags & VPT_TRANSMAP_REVERSE)
+    base_alpha = gl_tran_reverse_filter_pct;
 
   // apply translucency under exhud
-  if (flags & VPT_EX_TRANS && dsda_ExHudTranslucency())
+  if ((flags & VPT_EX_TRANS) && dsda_ExHudTranslucency())
   {
     if (flags & VPT_SHADOW)
-      trans_percent = exhud_shadow_filter_pct;
+      base_alpha = (shadowtype == SHADOW_ALWAYS_RAVEN) ? exhud_shadow_raven_filter_pct : exhud_shadow_ui_filter_pct;
     else if (flags & VPT_TRANSMAP)
-      trans_percent = exhud_tint_filter_pct;
-    else if (flags & VPT_ALT_TRANSMAP)
-      trans_percent = gl_exhud_alttint_filter_pct;
+      base_alpha = exhud_tran_filter_pct;
+    else if (flags & VPT_TRANSMAP_REVERSE)
+      base_alpha = gl_exhud_tran_reverse_filter_pct;
     else
-      trans_percent = exhud_tran_filter_pct;
+      base_alpha = exhud_opaque_filter_pct;
   }
 
   // if close, just go wtih 100 or 0
-  if (trans_percent == 99)
-    trans_percent = NO_TRANS;
-  else if (trans_percent == 1)
-    trans_percent = 0.0f;
+  if (base_alpha >= 99) base_alpha = 100;
+  if (base_alpha <= 1)  base_alpha = 0;
 
-  if (trans_percent != NO_TRANS)
-    return trans_percent * 0.01f;
+  // Apply fade
+  if (fade_alpha < 100)
+    final_alpha = (base_alpha * fade_alpha + 50) / 100;
   else
-    return 1.0f;
+    final_alpha = base_alpha;
+
+  if (final_alpha <= 0)   return 0.0f;
+  if (final_alpha >= 100) return 1.0f;
+
+  return (float)final_alpha / 100.0f;
 }
 
-void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, enum patch_translation_e flags)
+// [XA] some UI functions may run before fullcolormap has
+// been initialized, since that's is done in SetupFrame;
+// use colormaps[0] as a fallback in such a case.
+const lighttable_t *gld_GetActiveColormap()
+{
+  if (V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed())
+    return colormaps[0];
+  else if (fixedcolormap)
+    return fixedcolormap;
+  else if (fullcolormap)
+    return fullcolormap;
+  else
+    return colormaps[0];
+}
+
+// [XA] quicky indexed color-lookup function for a couple
+// of things that aren't done in the shader for the indexed
+// lightmode. ideally this will go away in the future.
+color_rgb_t gld_LookupIndexedColor(int index, dboolean usecolormap)
+{
+  color_rgb_t color;
+  const unsigned char *playpal;
+
+  if (usecolormap)
+  {
+    int gtlump = W_CheckNumForName2("GAMMATBL", ns_prboom);
+    const byte * gtable = (const byte*)W_LumpByNum(gtlump) + 256 * usegamma;
+    const lighttable_t *colormap = gld_GetActiveColormap();
+
+    playpal = V_GetPlaypal() + (gld_paletteIndex*PALETTE_SIZE);
+
+    color.r = gtable[playpal[colormap[index] * 3 + 0]];
+    color.g = gtable[playpal[colormap[index] * 3 + 1]];
+    color.b = gtable[playpal[colormap[index] * 3 + 2]];
+  }
+  else
+  {
+    playpal = V_GetPlaypal();
+
+    color.r = playpal[3 * index + 0];
+    color.g = playpal[3 * index + 1];
+    color.b = playpal[3 * index + 2];
+  }
+
+  return color;
+}
+
+void gld_StartFuzz(int sprite, float ratio)
+{
+  color_rgb_t color;
+
+  // Required for fuzz menu patches to work
+  if (!gld_FuzzTextureExist())
+    gld_InitFuzzTexture();
+
+  // shader init
+  glsl_PushFuzzShader(gametic, sprite, ratio);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  // for indexed lightmode, the fuzz color needs to take
+  // pain/item fades and gamma into account, so do a color
+  // lookup based on the closest-to-black color index.
+  color = gld_LookupIndexedColor(invul_cm ? playpal_lightest : playpal_darkest, true);
+  glColor3f((float)color.r/255.0f,
+            (float)color.g/255.0f,
+            (float)color.b/255.0f);
+}
+
+void gld_EndFuzz()
+{
+  glsl_PopFuzzShader();
+}
+
+void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
@@ -562,6 +647,7 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   float alpha;
   int cmap;
   int leftoffset, topoffset;
+  dboolean fuzz = (flags & VPT_FUZZ);
 
   // Add shadow properties
   if (flags & VPT_SHADOW)
@@ -570,7 +656,20 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
     cm = CR_SHADOW;
   }
 
-  alpha = 1.0f;
+  // Add translucency
+  alpha = gld_GetAlpha(shadowtype, fade_alpha, flags);
+
+  // if invisible, return
+  if (alpha <= 0.0f)
+    return;
+
+  // calculate ALT translucency as smaller translucency
+  if (alpha < 1.0f)
+  {
+    flags &= ~VPT_TRANSMAP_REVERSE;
+    flags |= VPT_TRANSMAP;
+  }
+
   cmap = ((flags & VPT_COLOR) ? cm : CR_DEFAULT);
   gltexture=gld_RegisterPatch(lump, cmap, false, V_IsUILightmodeIndexed());
   gld_BindPatch(gltexture, cmap);
@@ -579,18 +678,18 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
     return;
 
   // Clamp crop values if they exceed patch size
-  if (clip_left + clip_right >= gltexture->width)
-    clip_left = clip_right = 0;
+  if (crop.left + crop.right >= gltexture->width)
+    crop.left = crop.right = 0;
 
-  if (clip_top + clip_bottom >= gltexture->height)
-    clip_top = clip_bottom = 0;
+  if (crop.top + crop.bottom >= gltexture->height)
+    crop.top = crop.bottom = 0;
 
   // Calculate crop factors
   {
-    crop_u1 = ((float)clip_left / gltexture->realtexwidth) * gltexture->scalexfac;
-    crop_u2 = ((float)(gltexture->realtexwidth - clip_right) / gltexture->realtexwidth) * gltexture->scalexfac;
-    crop_v1 = ((float)clip_top / gltexture->realtexheight) * gltexture->scaleyfac;
-    crop_v2 = ((float)(gltexture->realtexheight - clip_bottom) / gltexture->realtexheight) * gltexture->scaleyfac;
+    crop_u1 = ((float)crop.left / gltexture->realtexwidth) * gltexture->scalexfac;
+    crop_u2 = ((float)(gltexture->realtexwidth - crop.right) / gltexture->realtexwidth) * gltexture->scalexfac;
+    crop_v1 = ((float)crop.top / gltexture->realtexheight) * gltexture->scaleyfac;
+    crop_v2 = ((float)(gltexture->realtexheight - crop.bottom) / gltexture->realtexheight) * gltexture->scaleyfac;
 
     crop_width  = gltexture->realtexwidth  * (crop_u2 - crop_u1);
     crop_height = gltexture->realtexheight * (crop_v2 - crop_v1);
@@ -630,21 +729,6 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
       x -= (float)(gltexture->width - 320) / 2;
   }
 
-  // Add translucency
-  if (flags & VPT_SHADOW || flags & VPT_EX_TRANS || flags & VPT_TRANSMAP || flags & VPT_ALT_TRANSMAP)
-  {
-    alpha = gld_GetTranslucency(shadowtype, flags);
-
-    // If translucent
-    if (alpha != 1.0f)
-    {
-      // calculate ALT translucency as smaller translucency
-      flags &= ~VPT_ALT_TRANSMAP;
-      if (!(flags & VPT_TRANSMAP))
-        flags |= VPT_TRANSMAP;
-    }
-  }
-
   if (flags & VPT_STRETCH_MASK)
   {
     stretch_param_t *params = dsda_StretchParams(flags);
@@ -665,10 +749,14 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
     height = crop_height;
   }
 
+  if (fuzz)
+    gld_StartFuzz(-1, 0);
+
   // e6y
   // This is a workaround for some on-board Intel video cards.
   // Do you know more elegant solution?
-  glColor4f(1.0f, 1.0f, 1.0f, alpha);
+  if (!fuzz)
+    glColor4f(1.0f, 1.0f, 1.0f, alpha);
 
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(fU1, fV1); glVertex2f((xpos),(ypos));
@@ -676,11 +764,18 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
     glTexCoord2f(fU2, fV1); glVertex2f((xpos+width),(ypos));
     glTexCoord2f(fU2, fV2); glVertex2f((xpos+width),(ypos+height));
   glEnd();
+
+  if (fuzz)
+  {
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    gld_EndFuzz();
+  }
 }
 
-void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, enum patch_translation_e flags)
+void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, patch_crop_t crop, int cm, int alpha, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, (float)clip_top, (float)clip_bottom, (float)clip_left, (float)clip_right, cm, flags);
+  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, V_PatchCropToFloat(crop), cm, alpha, flags);
 }
 
 void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags)
@@ -688,13 +783,19 @@ void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, in
   GLTexture *gltexture;
   float fU1, fU2, fV1, fV2;
   float uOffset, vOffset;
+  dboolean swirling_flat = flags & VPT_SWIRL;
 
   //e6y: Boom colormap should not be applied for background
   int saved_boom_cm = boom_cm;
   boom_cm = 0;
 
   gltexture = gld_RegisterRaw(lump, src_width, src_height, false, V_IsUILightmodeIndexed());
-  gld_BindRaw(gltexture, 0);
+
+  // Swirl?
+  if (swirling_flat)
+    gld_BindSwirlFlat(gltexture, true, 0);
+  else
+    gld_BindRaw(gltexture, 0);
 
   //e6y
   boom_cm = saved_boom_cm;
@@ -756,6 +857,7 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
 {
   int sx, sy, w, h;
   int scaled_x, scaled_y;
+  patch_crop_t crop = {0};
 
   w = R_NumPatchWidth(lump);
   h = R_NumPatchHeight(lump);
@@ -770,62 +872,15 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
       int remaining_width = (x + width) - sx;
       int patch_draw_width = MIN(w, remaining_width);
 
-      int clip_right  = w - patch_draw_width;
-      int clip_bottom = h - patch_draw_height;
+      crop.right  = w - patch_draw_width;
+      crop.bottom = h - patch_draw_height;
 
       scaled_x = sx;
       scaled_y = sy;
 
-      gld_DrawNumPatch(scaled_x, scaled_y, lump, false, false, 0, clip_bottom, 0, clip_right, CR_DEFAULT, flags);
+      gld_DrawNumPatch(scaled_x, scaled_y, lump, false, false, crop, CR_DEFAULT, 100, flags);
     }
   }
-}
-
-// [XA] some UI functions may run before fullcolormap has
-// been initialized, since that's is done in SetupFrame;
-// use colormaps[0] as a fallback in such a case.
-const lighttable_t *gld_GetActiveColormap()
-{
-  if (V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed())
-    return colormaps[0];
-  else if (fixedcolormap)
-    return fixedcolormap;
-  else if (fullcolormap)
-    return fullcolormap;
-  else
-    return colormaps[0];
-}
-
-// [XA] quicky indexed color-lookup function for a couple
-// of things that aren't done in the shader for the indexed
-// lightmode. ideally this will go away in the future.
-color_rgb_t gld_LookupIndexedColor(int index, dboolean usecolormap)
-{
-  color_rgb_t color;
-  const unsigned char *playpal;
-
-  if (usecolormap)
-  {
-    int gtlump = W_CheckNumForName2("GAMMATBL", ns_prboom);
-    const byte * gtable = (const byte*)W_LumpByNum(gtlump) + 256 * usegamma;
-    const lighttable_t *colormap = gld_GetActiveColormap();
-
-    playpal = V_GetPlaypal() + (gld_paletteIndex*PALETTE_SIZE);
-
-    color.r = gtable[playpal[colormap[index] * 3 + 0]];
-    color.g = gtable[playpal[colormap[index] * 3 + 1]];
-    color.b = gtable[playpal[colormap[index] * 3 + 2]];
-  }
-  else
-  {
-    playpal = V_GetPlaypal();
-
-    color.r = playpal[3 * index + 0];
-    color.g = playpal[3 * index + 1];
-    color.b = playpal[3 * index + 2];
-  }
-
-  return color;
 }
 
 void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
@@ -932,33 +987,21 @@ void gld_DrawPoint(int x, int y, int BaseColor)
   glDisableClientState(GL_COLOR_ARRAY);
 }
 
-
-void gld_StartFuzz(int sprite, float ratio)
+int gld_Shadow(void)
 {
-  color_rgb_t color;
-
-  // shader init
-  glsl_PushFuzzShader(gametic, sprite, ratio);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  // for indexed lightmode, the fuzz color needs to take
-  // pain/item fades and gamma into account, so do a color
-  // lookup based on the closest-to-black color index.
-  color = gld_LookupIndexedColor(invul_cm ? playpal_lightest : playpal_darkest, true);
-  glColor3f((float)color.r/255.0f,
-            (float)color.g/255.0f,
-            (float)color.b/255.0f);
+  return tran_filter_pct;
 }
 
-void gld_EndFuzz()
+int gld_AltShadow(void)
 {
-  glsl_PopFuzzShader();
+  return tran_reverse_filter_pct;
 }
 
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
+  float fy1, fy2;
   float x1,y1,x2,y2;
   float light;
 
@@ -974,10 +1017,14 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   // More precise weapon drawing:
   // Shotgun from DSV3_War looks correctly now. Especially during movement.
   // There is no more line of graphics under certain weapons.
-  x1 = viewwindowx + vis->x1;
+  //
+  // [AR] fix wide opengl weapons alignment
+  x1 = (float)(viewwindowx + vis->gx1);
   x2 = roundf(x1 + gltexture->realtexwidth * pspritexscale_f);
-  y1 = roundf(viewwindowy + centery - (int)(((float)vis->texturemid / (float)FRACUNIT) * pspriteyscale_f));
-  y2 = roundf(y1 + gltexture->realtexheight * pspriteyscale_f);
+  fy1 = (float)(viewwindowy + centery) - ((float)vis->texturemid / (float)FRACUNIT) * pspriteyscale_f;
+  fy2 = fy1 + gltexture->realtexheight * pspriteyscale_f;
+  y1 = roundf(fy1);
+  y2 = roundf(fy2);
   // e6y: don't do the gamma table correction on the lighting
   light = (float)lightlevel / 255.0f;
 
@@ -990,8 +1037,13 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   }
   else
   {
-    if (viewplayer->mo->flags & g_mf_translucent)
-      gld_StaticLightAlpha(light,tran_filter_pct*0.01f);
+    // we want to use vis->mobjflags and not viewplayer->mo->flags
+    // because the flags are different.
+    // this makes the cleric work correctly with invuln.
+    if (vis->mobjflags & g_mf_translucent)
+      gld_StaticLightAlpha(light, gld_Shadow() * 0.01f);
+    else if (vis->mobjflags & g_mf_translucent_reverse)
+      gld_StaticLightAlpha(light, gld_AltShadow() * 0.01f);
     else
       gld_StaticLight(light);
   }
@@ -1257,12 +1309,12 @@ void gld_StartDrawScene(void)
   viewPitch = (pitch > 180 ? pitch - 360 : pitch);
   paperitems_pitch = ((pitch > 87.0f && pitch <= 90.0f) ? 87.0f : pitch);
 
-  skyXShift = (double) viewangle / (double) ANGLE_MAX;
+  skyXShift = (float) viewangle / (float) ANGLE_MAX;
 
   if (skystretch)
-    skyYShift = BETWEEN(-25 / skyscale, 180, viewPitch) / 360.0;
+    skyYShift = CLAMP(viewPitch, -25.0f / skyscale, 180.0f) / 360.0f;
   else
-    skyYShift = viewPitch / 360.0;
+    skyYShift = viewPitch / 360.0f;
 
   cos_paperitems_pitch = (float)cos(paperitems_pitch * M_PI / 180.f);
   sin_paperitems_pitch = (float)sin(paperitems_pitch * M_PI / 180.f);
@@ -1334,7 +1386,7 @@ void gld_EndDrawScene(void)
     glBegin(GL_TRIANGLE_STRIP);
     {
       glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, 0.0f);
-      glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, renderer_rect.h);
+      glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, (float)renderer_rect.h);
       glTexCoord2f(1.0f, 1.0f); glVertex2f((float)renderer_rect.w, 0.0f);
       glTexCoord2f(1.0f, 0.0f); glVertex2f((float)renderer_rect.w, (float)renderer_rect.h);
     }
@@ -1355,48 +1407,6 @@ void gld_EndDrawScene(void)
 
 static void gld_AddDrawWallItem(GLDrawItemType itemtype, void *itemdata)
 {
-    if (gl_blend_animations)
-    {
-        anim_t* anim;
-        int currpic, nextpic;
-        GLWall* wall = (GLWall*)itemdata;
-        float oldalpha = wall->alpha;
-
-        switch (itemtype)
-        {
-        case GLDIT_FWALL:
-            anim = anim_flats[wall->gltexture->index - firstflat].anim;
-            if (anim)
-            {
-                wall->alpha = 1.0f - ((float)tic_vars.frac + ((leveltime - 1) % anim->speed) * 65536.0f) / (65536.0f * anim->speed);
-                gld_AddDrawItem(GLDIT_FAWALL, itemdata);
-
-                currpic = wall->gltexture->index - firstflat - anim->basepic;
-                nextpic = anim->basepic + (currpic + 1) % anim->numpics;
-                wall->alpha = oldalpha;
-                wall->gltexture = gld_RegisterFlat(nextpic, true, true);
-            }
-            break;
-        case GLDIT_WALL:
-        case GLDIT_MWALL:
-            anim = anim_textures[wall->gltexture->index].anim;
-            if (anim)
-            {
-                if (itemtype == GLDIT_WALL || itemtype == GLDIT_MWALL)
-                {
-                    wall->alpha = 1.0f - ((float)tic_vars.frac + ((leveltime - 1) % anim->speed) * 65536.0f) / (65536.0f * anim->speed);
-                    gld_AddDrawItem(GLDIT_AWALL, itemdata);
-
-                    currpic = wall->gltexture->index - anim->basepic;
-                    nextpic = anim->basepic + (currpic + 1) % anim->numpics;
-                    wall->alpha = oldalpha;
-                    wall->gltexture = gld_RegisterTexture(nextpic, true, false, true, false);
-                }
-            }
-            break;
-        }
-    }
- 
   gld_AddDrawItem(itemtype, itemdata);
 }
 
@@ -1741,7 +1751,7 @@ void gld_AddWall(seg_t *seg)
           if (wall.ybottom >= zCamera)
           {
             wall.flag=GLDWF_TOPFLUD;
-            temptex=gld_RegisterFlat(flattranslation[seg->backsector->ceilingpic], true, true);
+            temptex=gld_RegisterFlat(P_FlatIndexFromLump(seg->backsector->ceilingpic), true, true);
             if (temptex)
             {
               wall.gltexture=temptex;
@@ -1948,7 +1958,7 @@ bottomtexture:
         if (wall.ytop <= zCamera)
         {
           wall.flag = GLDWF_BOTFLUD;
-          temptex=gld_RegisterFlat(flattranslation[seg->backsector->floorpic], true, true);
+          temptex=gld_RegisterFlat(P_FlatIndexFromLump(seg->backsector->floorpic), true, true);
           if (temptex)
           {
             wall.gltexture=temptex;
@@ -2008,7 +2018,11 @@ static void gld_DrawFlat(GLFlat *flat)
 
   has_offset = (flat->flags & GLFLAT_HAVE_TRANSFORM);
 
-  gld_BindFlat(flat->gltexture, flags);
+  if (flat->flags & GLFLAT_SWIRL)
+    gld_BindSwirlFlat(flat->gltexture, false, flags);
+  else
+    gld_BindFlat(flat->gltexture, flags);
+
   gld_StaticLightAlpha(flat->light, flat->alpha);
 
   glMatrixMode(GL_MODELVIEW);
@@ -2057,6 +2071,10 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   int ceilinglightlevel;    // killough 4/11/98
   GLFlat flat;
 
+  // Swirling flats
+  dboolean swirling_flat;
+  int gl_flat_index;
+  
   if (sectornum<0)
     return;
   flat.sectornum=sectornum;
@@ -2070,12 +2088,15 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   // Enhanced Light Amp - Allow dark areas to be seen
   if(NYAN_LITEAMP && (plane->lightlevel <= 64))
     plane->lightlevel = 64;
+    
+  swirling_flat = P_IsSwirlingFlat(plane->picnum);
+  gl_flat_index = swirling_flat ? P_FlatIndexFromLump(plane->picnum) : flattranslation[plane->picnum];
 
   if (!ceiling) // if it is a floor ...
   {
     // get the texture. flattranslation is maintained by doom and
     // contains the number of the current animation frame
-    flat.gltexture=gld_RegisterFlat(flattranslation[plane->picnum], true, true);
+    flat.gltexture=gld_RegisterFlat(gl_flat_index, true, true);
     if (!flat.gltexture)
       return;
 
@@ -2179,7 +2200,7 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   {
     // get the texture. flattranslation is maintained by doom and
     // contains the number of the current animation frame
-    flat.gltexture=gld_RegisterFlat(flattranslation[plane->picnum], true, true);
+    flat.gltexture=gld_RegisterFlat(gl_flat_index, true, true);
     if (!flat.gltexture)
       return;
 
@@ -2224,20 +2245,9 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     flat.yscale = 1.f;
   }
 
-  if (gl_blend_animations)
+  if (swirling_flat)
   {
-      anim_t* anim = anim_flats[flat.gltexture->index - firstflat].anim;
-      if (anim)
-      {
-          int currpic, nextpic;
-
-          flat.alpha = 1.0f - ((float)tic_vars.frac + ((leveltime - 1) % anim->speed) * 65536.0f) / (65536.0f * anim->speed);
-          gld_AddDrawItem(((flat.flags & GLFLAT_CEILING) ? GLDIT_ACEILING : GLDIT_AFLOOR), &flat);
-
-          currpic = flat.gltexture->index - firstflat - anim->basepic;
-          nextpic = anim->basepic + (currpic + 1) % anim->numpics;
-          flat.gltexture = gld_RegisterFlat(nextpic, true, true);
-      }
+    flat.flags |= GLFLAT_SWIRL;
   }
 
   flat.alpha = 1.0;
@@ -2278,10 +2288,10 @@ static void gld_DrawSprite(GLSprite *sprite)
 
   if (!(sprite->flags & MF_NO_DEPTH_TEST))
   {
-    if(sprite->flags & g_mf_shadow)
+    if(sprite->flags & g_mf_shadow_fuzz)
     {
       // Fuzz has less aliasing if ratio is an integer
-      float ratio = floor((SCREENWIDTH > SCREENHEIGHT ? SCREENHEIGHT : SCREENWIDTH) / 200.0);
+      float ratio = (float)floor((SCREENWIDTH > SCREENHEIGHT ? SCREENHEIGHT : SCREENWIDTH) / 200.0);
       glGetIntegerv(GL_BLEND_SRC, &blend_src);
       glGetIntegerv(GL_BLEND_DST, &blend_dst);
       restore = 1;
@@ -2539,18 +2549,27 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
         (angle_t)(ANG180 / 16)) >> 28;
     }
     lump = sprframe->lump[rot];
-    flip = (dboolean)(sprframe->flip & (1 << rot));
+    flip = sprframe->flip[rot];
   }
   else
   {
     // use single rotation for all views
     lump = sprframe->lump[0];
-    flip = (dboolean)(sprframe->flip & 1);
+    flip = sprframe->flip[0];
   }
   lump += firstspritelump;
 
   patch = R_PatchByNum(lump);
   thing->patch_width = patch->width;
+
+  // [crispy] randomly flip corpse, blood and death animation sprites
+  if (dsda_AllowMirroredCorpses() &&
+      (thing->flags_extra & MFX_MIRROREDCORPSE) &&
+      !(thing->flags & MF_SHOOTABLE) &&
+      (thing->intflags & MIF_FLIP))
+  {
+    flip = !flip;
+  }
 
   // killough 4/9/98: clip things which are out of view due to height
   if(!mlook)
@@ -2681,9 +2700,9 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   if (thing->alpha != 1.f)
     sprite.alpha = thing->alpha;
   else if (sprite.flags & g_mf_translucent)
-    sprite.alpha = tran_filter_pct*0.01f;
-  else if (sprite.flags & MF_ALTSHADOW)
-    sprite.alpha = alttint_filter_pct*0.01f;
+    sprite.alpha = gld_Shadow()*0.01f;
+  else if (sprite.flags & g_mf_translucent_reverse)
+    sprite.alpha = gld_AltShadow()*0.01f;
   else
     sprite.alpha = 1.f;
 
@@ -2739,19 +2758,19 @@ static int C_DECL dicmp_wall(const void *a, const void *b)
 {
   GLTexture *tx1 = ((const GLDrawItem *)a)->item.wall->gltexture;
   GLTexture *tx2 = ((const GLDrawItem *)b)->item.wall->gltexture;
-  return tx1 - tx2;
+  return (int)(tx1 - tx2);
 }
 static int C_DECL dicmp_flat(const void *a, const void *b)
 {
   GLTexture *tx1 = ((const GLDrawItem *)a)->item.flat->gltexture;
   GLTexture *tx2 = ((const GLDrawItem *)b)->item.flat->gltexture;
-  return tx1 - tx2;
+  return (int)(tx1 - tx2);
 }
 static int C_DECL dicmp_sprite(const void *a, const void *b)
 {
   GLTexture *tx1 = ((const GLDrawItem *)a)->item.sprite->gltexture;
   GLTexture *tx2 = ((const GLDrawItem *)b)->item.sprite->gltexture;
-  return tx1 - tx2;
+  return (int)(tx1 - tx2);
 }
 
 static int C_DECL dicmp_sprite_scale(const void *a, const void *b)
@@ -2765,7 +2784,7 @@ static int C_DECL dicmp_sprite_scale(const void *a, const void *b)
   }
   else
   {
-    return sprite1->gltexture - sprite2->gltexture;
+    return (int)(sprite1->gltexture - sprite2->gltexture);
   }
 }
 
@@ -2776,8 +2795,6 @@ static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
   static DICMP_ITEM itemfuncs[GLDIT_TYPES] = {
     0,
     dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall,
-    dicmp_wall, dicmp_wall,
-    dicmp_flat, dicmp_flat,
     dicmp_flat, dicmp_flat,
     dicmp_sprite, dicmp_sprite_scale, dicmp_sprite,
     0,
@@ -3017,42 +3034,6 @@ void gld_DrawScene(player_t *player)
   //
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  if (gl_blend_animations)
-  {
-      // enable backside removing
-      glEnable(GL_CULL_FACE);
-
-      // animated floors
-      glCullFace(GL_FRONT);
-      gld_DrawItemsSortByTexture(GLDIT_AFLOOR);
-      for (i = gld_drawinfo.num_items[GLDIT_AFLOOR] - 1; i >= 0; i--)
-      {
-          gld_DrawFlat(gld_drawinfo.items[GLDIT_AFLOOR][i].item.flat);
-      }
-
-      glCullFace(GL_BACK);
-      gld_DrawItemsSortByTexture(GLDIT_ACEILING);
-      for (i = gld_drawinfo.num_items[GLDIT_ACEILING] - 1; i >= 0; i--)
-      {
-          gld_DrawFlat(gld_drawinfo.items[GLDIT_ACEILING][i].item.flat);
-      }
-
-      // disable backside removing
-      glDisable(GL_CULL_FACE);
-  }
-
-  if (gl_blend_animations)
-  {
-      gld_DrawItemsSortByTexture(GLDIT_AWALL);
-      for (i = gld_drawinfo.num_items[GLDIT_AWALL] - 1; i >= 0; i--)
-      {
-          gld_ProcessWall(gld_drawinfo.items[GLDIT_AWALL][i].item.wall);
-      }
-
-      // projected animated walls
-      gld_DrawProjectedWalls(GLDIT_FAWALL);
-  }
 
   if (dsda_SimpleShadows())
   {

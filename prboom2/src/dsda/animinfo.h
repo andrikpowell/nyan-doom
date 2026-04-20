@@ -82,7 +82,7 @@ void N_ReloadAnimateLumps(void);
 #define V_DrawMenuNamePatchAnimateFS(x,y,lump,color,flags) V_DrawMenuNumPatchFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
 
 // Dynamic Credits
-void V_DrawBackgroundAnimate(const char* lump);
+void V_DrawBackgroundAnimate(const char* lump, int forced_swirl);
 
 // m_menu.c for M_SKULL1/2
 const int N_CheckAnimate(const char* lump);

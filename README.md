@@ -88,7 +88,6 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
   - Setting the "Status Bar and Menu Appearance" option to "not adjusted" may look incorrect in heretic.
   - The "Apply multisampling" automap option is disabled for heretic.
   - Some of the more advanced features are not implemented for heretic yet, and using them may cause crashes or other odd behaviour.
-  - Dehacked support for heretic isn't implemented yet.
   - Some menus extend over the hud.
 
 </details>

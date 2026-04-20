@@ -106,10 +106,14 @@ void P_InitSwitchList(void)
   int episode = (gamemode == registered || gamemode==retail) ?
                  2 : gamemode == commercial ? 3 : 1;
 
-  // MAP_FORMAT_TODO: switch list?
   if (heretic)
   {
-    alphSwitchList = heretic_alphSwitchList;
+    lump = W_CheckNumForName("SWITCHES");
+
+    if (lump != LUMP_NOT_FOUND && lumpinfo[lump].source != source_port_wad)
+      alphSwitchList = (const switchlist_t *)W_LumpByNum(lump);
+    else
+      alphSwitchList = heretic_alphSwitchList;
   }
   else if (hexen)
   {
@@ -801,6 +805,17 @@ P_UseSpecialLine
       // Raise Floor 512
       if (EV_DoFloor(line,raiseFloor512))
         P_ChangeSwitchTexture(line,0);
+      return true;
+
+    // ID24 Music Changers
+    case 2059: case 2065: case 2089: case 2095:
+      P_ChangeSwitchTexture(line,0);
+      EV_ChangeMusic(line, side);
+      return true;
+
+    case 2060: case 2066: case 2090: case 2096:
+      P_ChangeSwitchTexture(line,1);
+      EV_ChangeMusic(line, side);
       return true;
 
       // killough 1/31/98: factored out compatibility check;
@@ -1564,6 +1579,15 @@ dboolean Heretic_P_UseSpecialLine(mobj_t * thing, line_t * line, int side, dbool
             if (EV_DoFloor(line, turboLower))
                 P_ChangeSwitchTexture(line, 1);
             break;
+        // ID24 Music Changers
+        case 2059: case 2065: case 2089: case 2095:
+          P_ChangeSwitchTexture(line,0);
+          EV_ChangeMusic(line, side);
+          return true;
+        case 2060: case 2066: case 2090: case 2096:
+          P_ChangeSwitchTexture(line,1);
+          EV_ChangeMusic(line, side);
+          return true;
     }
 
     return true;

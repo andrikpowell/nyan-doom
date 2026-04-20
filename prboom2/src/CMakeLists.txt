@@ -3,6 +3,39 @@
 set(COMMON_SRC
     am_map.c
     am_map.h
+    deh/ammo.c
+    deh/bex_helper.c
+    deh/bex_music.c
+    deh/bex_pars.c
+    deh/bex_pointer.c
+    deh/bex_pointer.h
+    deh/bex_sound.c
+    deh/bex_sprites.c
+    deh/bex_strings.c
+    deh/cheat.c
+    deh/cheat.h
+    deh/compatibility.c
+    deh/compatibility.h
+    deh/frame.c
+    deh/frame.h
+    deh/func.c
+    deh/func.h
+    deh/deh.c
+    deh/deh.h
+    deh/misc.c
+    deh/misc.h
+    deh/nyan.c
+    deh/nyan.h
+    deh/pointer.c
+    deh/sound.c
+    deh/sprites.c
+    deh/strings.c
+    deh/strings.h
+    deh/text.c
+    deh/text.h
+    deh/thing.c
+    deh/thing.h
+    deh/weapon.c
     doomdata.h
     doomdef.c
     doomdef.h
@@ -79,6 +112,8 @@ set(COMMON_SRC
     dsda/hud_components/base.h
     dsda/hud_components/big_ammo.c
     dsda/hud_components/big_ammo.h
+    dsda/hud_components/big_ammo_text.c
+    dsda/hud_components/big_ammo_text.h
     dsda/hud_components/big_armor.c
     dsda/hud_components/big_armor.h
     dsda/hud_components/big_armor_text.c
@@ -87,16 +122,14 @@ set(COMMON_SRC
     dsda/hud_components/big_artifact.h
     dsda/hud_components/big_artifact_bar.c
     dsda/hud_components/big_artifact_bar.h
-    dsda/hud_components/sml_berserk.c
-    dsda/hud_components/sml_berserk.h
-    dsda/hud_components/sml_armor.c
-    dsda/hud_components/sml_armor.h
-    dsda/hud_components/status.c
-    dsda/hud_components/status.h
     dsda/hud_components/big_health.c
     dsda/hud_components/big_health.h
     dsda/hud_components/big_health_text.c
     dsda/hud_components/big_health_text.h
+    dsda/hud_components/big_mana.c
+    dsda/hud_components/big_mana.h
+    dsda/hud_components/boom_bar.c
+    dsda/hud_components/boom_bar.h
     dsda/hud_components/color_test.c
     dsda/hud_components/color_test.h
     dsda/hud_components/command_display.c
@@ -105,6 +138,8 @@ set(COMMON_SRC
     dsda/hud_components/composite_time.h
     dsda/hud_components/coordinate_display.c
     dsda/hud_components/coordinate_display.h
+    dsda/hud_components/doomguy_face.c
+    dsda/hud_components/doomguy_face.h
     dsda/hud_components/event_split.c
     dsda/hud_components/event_split.h
     dsda/hud_components/fps.c
@@ -123,6 +158,8 @@ set(COMMON_SRC
     dsda/hud_components/line_distance_tracker.h
     dsda/hud_components/line_tracker.c
     dsda/hud_components/line_tracker.h
+    dsda/hud_components/loading_disk.c
+    dsda/hud_components/loading_disk.h
     dsda/hud_components/local_time.c
     dsda/hud_components/local_time.h
     dsda/hud_components/map_coordinates.c
@@ -149,6 +186,8 @@ set(COMMON_SRC
     dsda/hud_components/render_stats.h
     dsda/hud_components/announce_message.c
     dsda/hud_components/announce_message.h
+    dsda/hud_components/artifact_desc.c
+    dsda/hud_components/artifact_desc.h
     dsda/hud_components/secret_message.c
     dsda/hud_components/secret_message.h
     dsda/hud_components/sector_tracker.c
@@ -157,6 +196,14 @@ set(COMMON_SRC
     dsda/hud_components/speed_text.h
     dsda/hud_components/stat_totals.c
     dsda/hud_components/stat_totals.h
+    dsda/hud_components/powerups.c
+    dsda/hud_components/powerups.h
+    dsda/hud_components/status_icons.c
+    dsda/hud_components/status_icons.h
+    dsda/hud_components/status_timers.c
+    dsda/hud_components/status_timers.h
+    dsda/hud_components/target_health.c
+    dsda/hud_components/target_health.h
     dsda/hud_components/tracker.c
     dsda/hud_components/tracker.h
     dsda/hud_components/weapon_text.c
@@ -270,8 +317,6 @@ set(COMMON_SRC
     textscreen/fonts/README
     dstrings.c
     dstrings.h
-    d_deh.c
-    d_deh.h
     d_englsh.h
     d_event.h
     d_items.c
@@ -292,6 +337,30 @@ set(COMMON_SRC
     g_game.h
     g_overflow.c
     g_overflow.h
+    heretic/hhe/ammo.c
+    heretic/hhe/frame.c
+    heretic/hhe/frame.h
+    heretic/hhe/hhe.c
+    heretic/hhe/hhe.h
+    heretic/hhe/rex_music.c
+    heretic/hhe/rex_pointer.c
+    heretic/hhe/rex_pointer.h
+    heretic/hhe/rex_sound.c
+    heretic/hhe/rex_sprites.c
+    heretic/hhe/rex_strings.c
+    heretic/hhe/rex_strings.h
+    heretic/hhe/sound.c
+    heretic/hhe/sprites.c
+    heretic/hhe/sprites.h
+    heretic/hhe/strings.c
+    heretic/hhe/strings.h
+    heretic/hhe/text.c
+    heretic/hhe/text.h
+    heretic/hhe/thing.c
+    heretic/hhe/thing.h
+    heretic/hhe/version.c
+    heretic/hhe/version.h
+    heretic/hhe/weapon.c
     heretic/d_main.c
     heretic/def.h
     heretic/dstrings.h
@@ -309,6 +378,7 @@ set(COMMON_SRC
     heretic/sounds.c
     hexen/a_action.c
     hexen/a_action.h
+    hexen/dstrings.h
     hexen/info.c
     hexen/f_finale.c
     hexen/f_finale.h
@@ -415,6 +485,8 @@ set(COMMON_SRC
     r_sky.c
     r_sky.h
     r_state.h
+    r_swirl.c
+    r_swirl.h
     r_things.c
     r_things.h
     scanner.cpp
@@ -425,8 +497,8 @@ set(COMMON_SRC
     smooth.h
     sounds.c
     sounds.h
-    st_lib.c
-    st_lib.h
+    st_font.c
+    st_font.h
     st_stuff.c
     st_stuff.h
     s_advsound.c

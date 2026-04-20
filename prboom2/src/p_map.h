@@ -133,6 +133,20 @@ dboolean P_TestMobjLocation(mobj_t * mobj);
 mobj_t *P_CheckOnmobj(mobj_t * thing);
 void P_FakeZMovement(mobj_t * mo);
 
+// Over/Under [Nugget]
+
+extern int over_under;
+
+typedef enum {
+  OU_UNDER = -1,
+  OU_NONE,
+  OU_OVER,
+} overunder_t;
+
+overunder_t P_CheckOverUnderMobj(mobj_t *thing);
+int P_EnableOverUnderForThing(void);
+dboolean P_SkullSlam(mobj_t **skull, mobj_t *hitthing);
+
 void P_AppendSpecHit(line_t * ld);
 
 // hexen
@@ -142,6 +156,10 @@ extern mobj_t *BlockingMobj;
 
 void P_BounceWall(mobj_t * mo);
 dboolean P_UsePuzzleItem(player_t * player, int itemType);
+dboolean P_UsePuzzleItemOnThing(player_t *player);
+void dsda_PuzzleFailSound(mobj_t *mo);
+void dsda_PuzzleMissingMessage(player_t *player);
+void dsda_PuzzleFailMessage(player_t *player);
 void PIT_ThrustSpike(mobj_t * actor);
 void P_InitSlideLine(void);
 

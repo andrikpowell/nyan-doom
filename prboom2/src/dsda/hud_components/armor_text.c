@@ -18,66 +18,109 @@
 #include "base.h"
 
 #include "armor_text.h"
+#include "boom_bar.h"
 
 typedef struct {
-  dsda_text_t component;
+  dsda_text_t label;
+  dsda_patch_component_t armor_bar;
+  dsda_text_t percentage;
+  dboolean draw_boom_bar;
 } local_component_t;
 
 static local_component_t* local;
 
-static void dsda_UpdateComponentText(char* str, size_t max_size) {
+static const char* label;
+static boom_bar_t boom_bar;
+static int label_width;
+
+static int dsda_ArmorTextColor(int armor)
+{
+  player_t* player = &players[displayplayer];
+
+  return (armor <= 0)             ? dsda_tc_exhud_armor_zero :
+         (player->armortype == 1) ? dsda_tc_exhud_armor_one :
+                                    dsda_tc_exhud_armor_two;
+}
+
+static void dsda_DrawBar(player_t* player) {
+  extern int idfa_armor;
+  int armor       = st_armor;
+  int armor_max   = hexen ? (pclass[player->pclass].armor_max / (5 * FRACUNIT)) : idfa_armor / 2;
+  int color       = hexen ? dsda_TextCR(dsda_tc_exhud_armor_hexen) : dsda_TextCR(dsda_ArmorTextColor(armor));
+  int supercolor  = dsda_TextCR(dsda_tc_exhud_armor_two);
+
+  // draw bar after label
+  local->armor_bar.x = local->label.text.x + label_width;
+
+  // draw bar
+  dsda_DrawBoomBar(&boom_bar, local->armor_bar, armor, armor_max, color, supercolor, false);
+
+  // draw value after bar
+  local->percentage.text.x = local->armor_bar.x + boom_bar.width;
+}
+
+static void dsda_DrawComponent(void)
+{
   player_t* player;
 
   player = &players[displayplayer];
 
-  if (hexen) {
-    fixed_t armor_percent;
+  dsda_DrawBasicText(&local->label);
 
-    armor_percent = dsda_HexenArmor(player);
+  if (local->draw_boom_bar)
+    dsda_DrawBar(player);
+  else
+    // draw text after label (instead of bar)
+    local->percentage.text.x = local->label.text.x + label_width;
 
-    snprintf(
-      str,
-      max_size,
-      "%sA.C. %2d",
-      armor_percent == 0 ? dsda_TextColor(dsda_tc_exhud_armor_zero) :
-        armor_percent <= 50 ? dsda_TextColor(dsda_tc_exhud_armor_one) :
-        dsda_TextColor(dsda_tc_exhud_armor_two),
-      armor_percent
-    );
+  dsda_DrawBasicText(&local->percentage);
+}
+
+static void dsda_UpdateComponentText(void) {
+  int armor = st_armor;
+
+  if (hexen)
+  {
+    const char* cm  = dsda_TextColor(dsda_tc_exhud_armor_hexen);
+    snprintf(local->label.msg, sizeof(local->label.msg), "%s%s", cm, label);
+    snprintf(local->percentage.msg, sizeof(local->percentage.msg), "%s%2d", cm, armor);
   }
-  else {
-    int armor;
-
-    armor = st_armor; // player->armorpoints[ARMOR_ARMOR]
-
-    snprintf(
-      str,
-      max_size,
-      "%sARM %3d%%",
-      armor <= 0 ? dsda_TextColor(dsda_tc_exhud_armor_zero) :
-        player->armortype == 1 ? dsda_TextColor(dsda_tc_exhud_armor_one) :
-        dsda_TextColor(dsda_tc_exhud_armor_two),
-      armor
-    );
+  else
+  {
+    const char* cm  = dsda_TextColor(dsda_ArmorTextColor(armor));
+    snprintf(local->label.msg, sizeof(local->label.msg), "%s%s", cm, label);
+    snprintf(local->percentage.msg, sizeof(local->percentage.msg), "%s%3d%%", cm, armor);
   }
 }
 
 void dsda_InitArmorTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
+  const char* hexen_label;
+
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
 
-  dsda_InitTextHC(&local->component, x_offset, y_offset, vpt);
+  local->draw_boom_bar = (arg_count > 0) ? !!args[0] : false;
+  hexen_label = local->draw_boom_bar ? "A.C " : "A.C. "; // we want the bars to line up :/
+  label = hexen ? hexen_label : "ARM ";
+
+  dsda_InitTextHC(&local->label,  x_offset, y_offset, vpt);
+  dsda_InitTextHC(&local->percentage, x_offset, y_offset, vpt);
+  dsda_InitPatchHC(&local->armor_bar, x_offset, y_offset, vpt);
+
+  label_width = HU_FontStringWidth(&exhud_font, label);
+  dsda_SetBoomBarInfo(&boom_bar);
 }
 
 void dsda_UpdateArmorTextHC(void* data) {
   local = data;
 
-  dsda_UpdateComponentText(local->component.msg, sizeof(local->component.msg));
-  dsda_RefreshHudText(&local->component);
+  dsda_UpdateComponentText();
+  dsda_RefreshHudText(&local->label);
+  dsda_RefreshHudText(&local->percentage);
 }
 
 void dsda_DrawArmorTextHC(void* data) {
   local = data;
 
-  dsda_DrawBasicText(&local->component);
+  dsda_DrawComponent();
 }

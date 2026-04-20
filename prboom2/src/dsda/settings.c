@@ -103,7 +103,7 @@ static int dsda_WadCompatibilityLevel(void) {
       int num, gamever = false;
       const char *lumps, *limit;
 
-      last_numwadfiles = numwadfiles;
+      last_numwadfiles = (int)numwadfiles;
       num = W_CheckNumForName("COMPLVL");
 
       if (num != LUMP_NOT_FOUND) {
@@ -196,6 +196,10 @@ dboolean dsda_ShowMessages(void) {
   return dsda_IntConfig(dsda_config_show_messages);
 }
 
+dboolean dsda_ColorizeMessages(void) {
+  return dsda_IntConfig(dsda_config_colorize_messages);
+}
+
 dboolean dsda_AutoRun(void) {
   return dsda_IntConfig(dsda_config_autorun);
 }
@@ -246,6 +250,10 @@ dboolean dsda_SwitchWhenAmmoRunsOut(void) {
   return dsda_IntConfig(dsda_config_switch_when_ammo_runs_out);
 }
 
+dboolean dsda_BerserkPreferred(void) {
+  return allow_incompatibility && dsda_IntConfig(dsda_config_switch_berserk_preferred);
+}
+
 dboolean dsda_SkipQuitPrompt(void) {
   return dsda_IntConfig(dsda_config_skip_quit_prompt) || dsda_SkipMode();
 }
@@ -254,8 +262,9 @@ dboolean dsda_PlayQuicksaveSFX(void) {
   return dsda_IntConfig(dsda_config_quicksave_sfx);
 }
 
-dboolean dsda_DetailedQuicksave(void) {
-  return dsda_IntConfig(dsda_config_quicksave_sfx);
+
+dboolean dsda_FadeMessages(void) {
+  return dsda_IntConfig(dsda_config_fade_messages);
 }
 
 dboolean dsda_TrackSplits(void) {
@@ -268,6 +277,22 @@ dboolean dsda_ShowSplitData(void) {
 
 dboolean dsda_CommandDisplay(void) {
   return dsda_IntConfig(dsda_config_command_display) || dsda_BuildMode();
+}
+
+dboolean dsda_FreeTextShown(void) {
+  return dsda_IntConfig(dsda_config_free_text_active);
+}
+
+dboolean dsda_StatusWidget(void) {
+  return dsda_IntConfig(nyan_config_ex_status_widget);
+}
+
+dboolean dsda_TimerWidget(void) {
+  return dsda_IntConfig(nyan_config_ex_timer_widget);
+}
+
+dboolean dsda_TargetHealth() {
+  return dsda_IntConfig(dsda_config_target_health) && !demorecording;
 }
 
 dboolean dsda_CoordinateDisplay(void) {
@@ -354,6 +379,10 @@ dboolean dsda_WipeAtFullSpeed(void) {
   return dsda_IntConfig(dsda_config_wipe_at_full_speed);
 }
 
+dboolean dsda_DrawNearbySprites(void) {
+  return allow_incompatibility && dsda_IntConfig(dsda_config_draw_nearby_sprites);
+}
+
 int dsda_ShowAliveMonsters(void) {
   return dsda_IntConfig(dsda_config_show_alive_monsters);
 }
@@ -364,6 +393,13 @@ dboolean dsda_ShowAutomapKeys(void) {
 
 dboolean dsda_DisableHorizAutoaim(void) {
   return dsda_IntConfig(dsda_config_disable_horiz_autoaim) && allow_incompatibility;
+}
+
+int dsda_EnhancedDoomOverUnder(void) {
+  if (map_format.zdoom || !allow_incompatibility)
+    return false;
+
+  return dsda_IntConfig(dsda_config_enhanced_doom_over_under);
 }
 
 int dsda_TranslucencyPercent(void) {
@@ -396,8 +432,24 @@ int dsda_ExHudTranslucencyPercent(void) {
   return dsda_IntConfig(dsda_config_ex_text_tran_filter_pct);
 }
 
-int dsda_ShowDataDisk(void) {
+dboolean dsda_ShowDataDisk(void) {
   return dsda_IntConfig(nyan_config_loading_disk);
+}
+
+dboolean dsda_AllowMirroredCorpses(void) {
+  return dsda_IntConfig(nyan_config_flip_corpses) && !demorecording;
+}
+
+dboolean dsda_PowerupHideTimes(void) {
+  return dsda_IntConfig(nyan_config_ex_timer_hide_duration) || demorecording || dsda_StrictMode();
+}
+
+dboolean dsda_AllowBlockmapFix(void) {
+  return dsda_IntConfig(dsda_config_blockmap_fix) && !dsda_StrictMode() && allow_incompatibility;
+}
+
+dboolean dsda_PlayQuitSounds(void) {
+  return dsda_IntConfig(dsda_config_quit_sounds) && !raven;
 }
 
 int dsda_reveal_map;
@@ -445,6 +497,14 @@ dboolean dsda_SkipWipe(void) {
 
 dboolean dsda_MultipleAreaMaps(void) {
   return dsda_IntConfig(dsda_config_multiple_area_maps) && !dsda_StrictMode() && allow_incompatibility;
+}
+
+dboolean dsda_SimplerPuzzleUse(void) {
+  return dsda_IntConfig(dsda_config_hexen_simpler_puzzle_use) && !dsda_StrictMode() && allow_incompatibility;
+}
+
+dboolean dsda_FullAutomapHud(void) {
+  return dsda_IntConfig(dsda_config_full_automap_exhud) && dsda_FullExHudOn() && automap_on;
 }
 
 static dboolean game_controller_used;

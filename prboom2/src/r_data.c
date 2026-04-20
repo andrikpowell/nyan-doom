@@ -101,6 +101,7 @@ fixed_t   *textureheight; //needed for texture pegging (and TFE fix - killough)
 int       *flattranslation;             // for global animation
 int       *texturetranslation;
 int       *flatterrain;
+int       *flatsmartswirl;
 
 //
 // R_GetTextureColumn
@@ -358,11 +359,13 @@ static void R_InitFlats(void)
 
   flattranslation = Z_Malloc((numflats+1)*sizeof(*flattranslation));
   flatterrain = Z_Malloc((numflats+1)*sizeof(*flatterrain));
+  flatsmartswirl = Z_Malloc((numflats+1)*sizeof(*flatsmartswirl));
 
   for (i=0 ; i<numflats ; i++)
   {
     flattranslation[i] = i;
     flatterrain[i] = 0;
+    flatsmartswirl[i] = 0;
   }
 }
 

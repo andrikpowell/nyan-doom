@@ -18,7 +18,14 @@
 #ifndef __DSDA_TEXT_COLOR__
 #define __DSDA_TEXT_COLOR__
 
-typedef enum {
+typedef struct {
+  const char* key;
+  int color_range;
+  char color_str[3];
+} dsda_text_color_t;
+
+enum {
+  dsda_tc_orig,
   dsda_tc_exhud_time_label,
   dsda_tc_exhud_level_time,
   dsda_tc_exhud_total_time,
@@ -26,6 +33,7 @@ typedef enum {
   dsda_tc_exhud_armor_zero,
   dsda_tc_exhud_armor_one,
   dsda_tc_exhud_armor_two,
+  dsda_tc_exhud_armor_hexen,
   dsda_tc_exhud_command_entry,
   dsda_tc_exhud_command_queue,
   dsda_tc_exhud_coords_base,
@@ -39,6 +47,7 @@ typedef enum {
   dsda_tc_exhud_health_warning,
   dsda_tc_exhud_health_ok,
   dsda_tc_exhud_health_super,
+  dsda_tc_exhud_health_super_dark,
   dsda_tc_exhud_line_close,
   dsda_tc_exhud_line_far,
   dsda_tc_exhud_line_special,
@@ -51,6 +60,7 @@ typedef enum {
   dsda_tc_exhud_ammo_mana1,
   dsda_tc_exhud_ammo_mana2,
   dsda_tc_exhud_ammo_value,
+  dsda_tc_exhud_ammo_out,
   dsda_tc_exhud_ammo_bad,
   dsda_tc_exhud_ammo_warning,
   dsda_tc_exhud_ammo_ok,
@@ -65,26 +75,50 @@ typedef enum {
   dsda_tc_exhud_speed_slow,
   dsda_tc_exhud_speed_normal,
   dsda_tc_exhud_speed_fast,
+  dsda_tc_exhud_totals_sts_label,
   dsda_tc_exhud_totals_label,
   dsda_tc_exhud_totals_value,
   dsda_tc_exhud_totals_max,
+  dsda_tc_exhud_keys_label,
   dsda_tc_exhud_weapon_label,
   dsda_tc_exhud_weapon_owned,
   dsda_tc_exhud_weapon_berserk,
+  dsda_tc_exhud_weapon_value,
+  dsda_tc_exhud_weapon_out,
+  dsda_tc_exhud_weapon_bad,
+  dsda_tc_exhud_weapon_warning,
+  dsda_tc_exhud_weapon_ok,
+  dsda_tc_exhud_weapon_full,
   dsda_tc_exhud_attempts,
   dsda_tc_exhud_event_split,
   dsda_tc_exhud_line_activation,
   dsda_tc_exhud_local_time,
   dsda_tc_exhud_free_text,
+  dsda_tc_exhud_status_invul,
+  dsda_tc_exhud_status_invis,
+  dsda_tc_exhud_status_suit,
+  dsda_tc_exhud_status_light,
+  dsda_tc_exhud_status_berserk,
+  dsda_tc_exhud_status_allmap,
+  dsda_tc_exhud_status_backpack,
+  dsda_tc_exhud_status_armor_one,
+  dsda_tc_exhud_status_armor_two,
+  dsda_tc_exhud_status_flight,
+  dsda_tc_exhud_status_tome,
+  dsda_tc_exhud_status_morph,
+  dsda_tc_exhud_status_speed,
+  dsda_tc_exhud_status_maulotaur,
+  dsda_tc_exhud_status_blink,
   dsda_tc_hud_message,
-  dsda_tc_hud_yellow_message,
   dsda_tc_hud_announce_message,
   dsda_tc_hud_announce_author,
   dsda_tc_hud_secret_message,
+  dsda_tc_hud_obituary,
   dsda_tc_map_coords,
   dsda_tc_map_time_level,
   dsda_tc_map_time_total,
   dsda_tc_map_title,
+  dsda_tc_map_author,
   dsda_tc_map_totals_label,
   dsda_tc_map_totals_value,
   dsda_tc_map_totals_max,
@@ -113,13 +147,22 @@ typedef enum {
   dsda_tc_stbar_armor_zero,
   dsda_tc_stbar_armor_one,
   dsda_tc_stbar_armor_two,
+  dsda_tc_stbar_armor_hexen,
+  dsda_tc_stbar_ammo_out,
   dsda_tc_stbar_ammo_bad,
   dsda_tc_stbar_ammo_warning,
   dsda_tc_stbar_ammo_ok,
   dsda_tc_stbar_ammo_full,
-} dsda_text_color_index_t;
+};
 
-void dsda_LoadTextColor(void);
+typedef int dsda_text_color_index_t;
+
+extern void dsda_LoadTextColorEntries(const char* def, int parm);
+extern void dsda_SaveTextColorEntries(FILE* f, int maxlen);
+extern int dsda_TextColorConfig(int config_id);
+extern void dsda_UpdateTextColorConfig(int config_id, int cr);
+
+void dsda_RefreshTextColors(void);
 const char* dsda_TextColor(dsda_text_color_index_t i);
 int dsda_TextCR(dsda_text_color_index_t i);
 int dsda_ColorNameToIndex(const char* name);

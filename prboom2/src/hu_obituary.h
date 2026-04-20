@@ -27,6 +27,7 @@ typedef enum
     MOD_Crush,
     MOD_Telefrag,
     MOD_Melee,
+    MOD_Nyan_Suicide
 } method_t;
 
 void dsda_InitObituaries(void);

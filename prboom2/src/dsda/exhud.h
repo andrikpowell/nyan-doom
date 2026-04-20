@@ -19,6 +19,8 @@
 #define __DSDA_EXHUD__
 
 void dsda_InitExHud(void);
+dboolean dsda_FullExHudOn(void);
+void dsda_CycleFullHud(void);
 void dsda_UpdateExHud(void);
 void dsda_DrawExHud(void);
 void dsda_DrawExIntermission(void);
@@ -30,6 +32,10 @@ void dsda_RefreshExHudMinimap(void);
 void dsda_RefreshExHudLevelSplits(void);
 void dsda_RefreshExHudCoordinateDisplay(void);
 void dsda_RefreshExHudCommandDisplay(void);
+void dsda_RefreshExHudFreeText(void);
+void dsda_RefreshExHudStatusWidget(void);
+void dsda_RefreshExHudTimerWidget(void);
+void dsda_RefreshExHudTargetHealth(void);
 void dsda_RefreshMapCoordinates(void);
 void dsda_RefreshMapTotals(void);
 void dsda_RefreshMapTime(void);

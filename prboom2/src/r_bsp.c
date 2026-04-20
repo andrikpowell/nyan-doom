@@ -103,11 +103,11 @@ static void R_ClipWallSegment(int first, int last, dboolean solid)
   while (first < last) {
     if (solidcol[first]) {
       if (!(p = memchr(solidcol+first, 0, last-first))) return; // All solid
-      first = p - solidcol;
+      first = (int)(p - solidcol);
     } else {
       int to;
       if (!(p = memchr(solidcol+first, 1, last-first))) to = last;
-      else to = p - solidcol;
+      else to = (int)(p - solidcol);
       R_StoreWallRange(first, to-1);
       if (solid) {
   memset(solidcol+first,1,to-first);
@@ -390,6 +390,7 @@ static void R_AddLine (seg_t *line)
   angle_t  span;
   angle_t  tspan;
   static sector_t tempsec;     // killough 3/8/98: ceiling/water hack
+  dboolean clipped_right = false;
 
   curline = line;
 
@@ -444,7 +445,7 @@ static void R_AddLine (seg_t *line)
 
     if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
     {
-      unsigned pos = ds_p - drawsegs; // jff 8/9/98 fix from ZDOOM1.14a
+      unsigned pos =  (unsigned int)(ds_p - drawsegs); // jff 8/9/98 fix from ZDOOM1.14a
       unsigned newmax = maxdrawsegs ? maxdrawsegs*2 : 128; // killough
       drawsegs = Z_Realloc(drawsegs,newmax*sizeof(*drawsegs));
       ds_p = drawsegs + pos;          // jff 8/9/98 fix from ZDOOM1.14a
@@ -496,6 +497,7 @@ static void R_AddLine (seg_t *line)
       if (tspan >= span)
         return;
       angle2 = 0-clipangle;
+      clipped_right = true;
     }
 
   // The seg is in the view range,
@@ -507,6 +509,10 @@ static void R_AddLine (seg_t *line)
   // killough 1/31/98: Here is where "slime trails" can SOMETIMES occur:
   x1 = viewangletox[angle1];
   x2 = viewangletox[angle2];
+
+  // Fix HOM line at right of view for weird resolutions
+  if (clipped_right)
+    x2 = viewwidth;
 
   // Does not cross a pixel?
   if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness

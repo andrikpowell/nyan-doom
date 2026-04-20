@@ -38,6 +38,8 @@
 #include "config.h"
 #endif
 
+#include <string.h>
+
 #include "doomtype.h"
 #include "sounds.h"
 
@@ -47,76 +49,85 @@
 
 musicinfo_t doom_S_music[] = {
   { 0 },
-  { "e1m1", 0 },
-  { "e1m2", 0 },
-  { "e1m3", 0 },
-  { "e1m4", 0 },
-  { "e1m5", 0 },
-  { "e1m6", 0 },
-  { "e1m7", 0 },
-  { "e1m8", 0 },
-  { "e1m9", 0 },
-  { "e2m1", 0 },
-  { "e2m2", 0 },
-  { "e2m3", 0 },
-  { "e2m4", 0 },
-  { "e2m5", 0 },
-  { "e2m6", 0 },
-  { "e2m7", 0 },
-  { "e2m8", 0 },
-  { "e2m9", 0 },
-  { "e3m1", 0 },
-  { "e3m2", 0 },
-  { "e3m3", 0 },
-  { "e3m4", 0 },
-  { "e3m5", 0 },
-  { "e3m6", 0 },
-  { "e3m7", 0 },
-  { "e3m8", 0 },
-  { "e3m9", 0 },
-  { "inter", 0 },
-  { "intro", 0 },
-  { "bunny", 0 },
-  { "victor", 0 },
-  { "introa", 0 },
-  { "runnin", 0 },
-  { "stalks", 0 },
-  { "countd", 0 },
-  { "betwee", 0 },
-  { "doom", 0 },
-  { "the_da", 0 },
-  { "shawn", 0 },
-  { "ddtblu", 0 },
-  { "in_cit", 0 },
-  { "dead", 0 },
-  { "stlks2", 0 },
-  { "theda2", 0 },
-  { "doom2", 0 },
-  { "ddtbl2", 0 },
-  { "runni2", 0 },
-  { "dead2", 0 },
-  { "stlks3", 0 },
-  { "romero", 0 },
-  { "shawn2", 0 },
-  { "messag", 0 },
-  { "count2", 0 },
-  { "ddtbl3", 0 },
-  { "ampie", 0 },
-  { "theda3", 0 },
-  { "adrian", 0 },
-  { "messg2", 0 },
-  { "romer2", 0 },
-  { "tense", 0 },
-  { "shawn3", 0 },
-  { "openin", 0 },
-  { "evil", 0 },
-  { "ultima", 0 },
-  { "read_m", 0 },
-  { "dm2ttl", 0 },
-  { "dm2int", 0 },
+  { "e1m1", NULL, 0 },
+  { "e1m2", NULL, 0 },
+  { "e1m3", NULL, 0 },
+  { "e1m4", NULL, 0 },
+  { "e1m5", NULL, 0 },
+  { "e1m6", NULL, 0 },
+  { "e1m7", NULL, 0 },
+  { "e1m8", NULL, 0 },
+  { "e1m9", NULL, 0 },
+  { "e2m1", NULL, 0 },
+  { "e2m2", NULL, 0 },
+  { "e2m3", NULL, 0 },
+  { "e2m4", NULL, 0 },
+  { "e2m5", NULL, 0 },
+  { "e2m6", NULL, 0 },
+  { "e2m7", NULL, 0 },
+  { "e2m8", NULL, 0 },
+  { "e2m9", NULL, 0 },
+  { "e3m1", NULL, 0 },
+  { "e3m2", NULL, 0 },
+  { "e3m3", NULL, 0 },
+  { "e3m4", NULL, 0 },
+  { "e3m5", NULL, 0 },
+  { "e3m6", NULL, 0 },
+  { "e3m7", NULL, 0 },
+  { "e3m8", NULL, 0 },
+  { "e3m9", NULL, 0 },
+  { "e3m4", "e4m1", 0 }, // Episode 4
+  { "e3m2", "e4m2", 0 },
+  { "e3m3", "e4m3", 0 },
+  { "e1m5", "e4m4", 0 },
+  { "e2m7", "e4m5", 0 },
+  { "e2m4", "e4m6", 0 },
+  { "e2m6", "e4m7", 0 },
+  { "e2m5", "e4m8", 0 },
+  { "e1m9", "e4m9", 0 },
+  { "inter", NULL, 0 }, // Doom 2
+  { "intro", NULL, 0 },
+  { "bunny", NULL, 0 },
+  { "victor", NULL, 0 },
+  { "introa", NULL, 0 },
+  { "runnin", NULL, 0 },
+  { "stalks", NULL, 0 },
+  { "countd", NULL, 0 },
+  { "betwee", NULL, 0 },
+  { "doom", NULL, 0 },
+  { "the_da", NULL, 0 },
+  { "shawn", NULL, 0 },
+  { "ddtblu", NULL, 0 },
+  { "in_cit", NULL, 0 },
+  { "dead", NULL, 0 },
+  { "stlks2", NULL, 0 },
+  { "theda2", NULL, 0 },
+  { "doom2", NULL, 0 },
+  { "ddtbl2", NULL, 0 },
+  { "runni2", NULL, 0 },
+  { "dead2", NULL, 0 },
+  { "stlks3", NULL, 0 },
+  { "romero", NULL, 0 },
+  { "shawn2", NULL, 0 },
+  { "messag", NULL, 0 },
+  { "count2", NULL, 0 },
+  { "ddtbl3", NULL, 0 },
+  { "ampie", NULL, 0 },
+  { "theda3", NULL, 0 },
+  { "adrian", NULL, 0 },
+  { "messg2", NULL, 0 },
+  { "romer2", NULL, 0 },
+  { "tense", NULL, 0 },
+  { "shawn3", NULL, 0 },
+  { "openin", NULL, 0 },
+  { "evil", NULL, 0 },
+  { "ultima", NULL, 0 },
+  { "read_m", NULL, 0 },
+  { "dm2ttl", NULL, 0 },
+  { "dm2int", NULL, 0 },
 
   // custom music from MUSINFO lump
-  { "musinfo", 0 }
+  { "musinfo", NULL, 0 }
 };
 
 
@@ -245,6 +256,10 @@ sfxinfo_t doom_S_sfx[] = {
 
   //e6y
   { "dssecret", 60, 0, -1, 0, 0, 0, "" },
+  { "dsgibdth", 60, 0, -1, 0, 0, 0, "" },
+  
+  // Nyan
+  { "dsnyanut", 60, 0, -1, 0, 0, 0, "" },
   // Everything from here up to 500 is reserved for future use.
 
   // Free slots for DEHEXTRA. Priorities should be overridden by user.
@@ -452,9 +467,6 @@ sfxinfo_t doom_S_sfx[] = {
   [697] = { "dsfre197", 127, 0, -1, 0, 0, 0, "" },
   [698] = { "dsfre198", 127, 0, -1, 0, 0, 0, "" },
   [699] = { "dsfre199", 127, 0, -1, 0, 0, 0, "" },
-
-  // Nyan
-  { "dsnyanut", 60, 0, -1, 0, 0, 0, "" },
 };
 
 #define DISAMBIGUATED_SFX(id, tag) { "", 0, &doom_S_sfx[id], 0, 0, 0, 0, tag }
@@ -775,4 +787,6 @@ sfxinfo_t doom_disambiguated_sfx[] = {
   DISAMBIGUATED_SFX(sfx_dgpain, "dog/pain"),
 
   DISAMBIGUATED_SFX(sfx_secret, "misc/secret"),
+
+  DISAMBIGUATED_SFX(sfx_gibdth, "misc/gibdth"),
 };

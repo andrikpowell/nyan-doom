@@ -36,6 +36,8 @@
 #include "dsda/skill_info.h"
 #include "dsda/settings.h"
 
+#include "hexen/sv_save.h"
+
 #include "save.h"
 
 static char* dsda_base_save_dir;
@@ -47,6 +49,7 @@ extern int player_damage_last_tic;
 static void dsda_ArchiveInternal(void) {
   P_SAVE_X(dsda_max_kill_requirement);
   P_SAVE_X(player_damage_last_tic);
+  P_SAVE_X(complete_milestones);
 
   for (int f = 0; f < FEATURE_SLOTS; f++) {
     P_SAVE_X(dsda_UsedFeatures()[f]);
@@ -58,6 +61,7 @@ static void dsda_UnArchiveInternal(void) {
 
   P_LOAD_X(dsda_max_kill_requirement);
   P_LOAD_X(player_damage_last_tic);
+  P_LOAD_X(complete_milestones);
 
   P_LOAD_X(features);
   dsda_MergeFeatures(features);
@@ -151,7 +155,7 @@ int saved_fastparm;
 int saved_nomonsters;
 int saved_coop_spawns;
 
-void dsda_ArchiveGameModifiers(void)
+void dsda_SaveGameModifiers(void)
 {
   saved_limitremoving = limitremoving;
   saved_pistolstart   = pistolstart;
@@ -159,6 +163,29 @@ void dsda_ArchiveGameModifiers(void)
   saved_fastparm      = fastparm;
   saved_nomonsters    = nomonsters;
   saved_coop_spawns   = coop_spawns;
+}
+
+void dsda_LoadGameModifiers(void)
+{
+  // when playing / recording demos, do not touch configs
+  if (!allow_incompatibility)
+    return;
+
+  dsda_UpdateIntConfig(dsda_config_limit_removing,saved_limitremoving,true);
+
+  // If "Always Pistol Start" is enabled, skip resetting "Pistol Start"
+  if (!dsda_IntConfig(dsda_config_always_pistol_start))
+    dsda_UpdateIntConfig(dsda_config_pistol_start,saved_pistolstart,true);
+
+  dsda_UpdateIntConfig(dsda_config_respawn_monsters,saved_respawnparm,true);
+  dsda_UpdateIntConfig(dsda_config_fast_monsters,saved_fastparm,true);
+  dsda_UpdateIntConfig(dsda_config_no_monsters,saved_nomonsters,true);
+  dsda_UpdateIntConfig(dsda_config_coop_spawns,saved_coop_spawns,true);
+}
+
+void dsda_ArchiveGameModifiers(void)
+{
+  dsda_SaveGameModifiers();
 
   P_SAVE_X(saved_limitremoving);
   P_SAVE_X(saved_pistolstart);
@@ -177,14 +204,21 @@ void dsda_UnArchiveGameModifiers(void)
   P_LOAD_X(saved_nomonsters);
   P_LOAD_X(saved_coop_spawns);
 
-  dsda_UpdateIntConfig(dsda_config_limit_removing,saved_limitremoving,true);
-  // If "Always Pistol Start" is enabled, skip resetting "Pistol Start"
-  if (!dsda_IntConfig(dsda_config_always_pistol_start))
-    dsda_UpdateIntConfig(dsda_config_pistol_start,saved_pistolstart,true);
-  dsda_UpdateIntConfig(dsda_config_respawn_monsters,saved_respawnparm,true);
-  dsda_UpdateIntConfig(dsda_config_fast_monsters,saved_fastparm,true);
-  dsda_UpdateIntConfig(dsda_config_no_monsters,saved_nomonsters,true);
-  dsda_UpdateIntConfig(dsda_config_coop_spawns,saved_coop_spawns,true);
+  dsda_LoadGameModifiers();
+}
+
+void dsda_ArchiveHexenStats(void)
+{
+  if (!hexen) return;
+
+  SV_StoreHexenMapStats();
+}
+
+void dsda_UnArchiveHexenStats(void)
+{
+  if (!hexen) return;
+
+  SV_RestoreHexenMapStats();
 }
 
 skill_info_t saved_custom_skill;
@@ -228,6 +262,7 @@ void dsda_ArchiveAll(void) {
   P_ArchiveRNG();
   P_ArchiveMap();
 
+  dsda_ArchiveHexenStats();
   dsda_ArchiveGameModifiers();
   dsda_ArchiveCustomSkill();
   dsda_ArchiveInternal();
@@ -250,6 +285,7 @@ void dsda_UnArchiveAll(void) {
   P_UnArchiveMap();
   P_MapEnd();
 
+  dsda_UnArchiveHexenStats();
   dsda_UnArchiveGameModifiers();
   dsda_UnArchiveCustomSkill();
   dsda_UnArchiveInternal();
@@ -289,7 +325,7 @@ char* dsda_SaveGameName(int slot, dboolean via_cmd) {
 
   save_type = (via_cmd && demoplayback) ? "demosav" : savegamename;
 
-  length = strlen(save_type) + strlen(save_dir) + 10; // "/" + "9999.dsg\0"
+  length = (int)(strlen(save_type) + strlen(save_dir) + 10); // "/" + "9999.dsg\0"
 
   name = Z_Malloc(length);
 

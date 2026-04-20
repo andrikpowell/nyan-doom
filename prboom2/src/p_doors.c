@@ -38,7 +38,7 @@
 #include "sounds.h"
 #include "r_main.h"
 #include "dstrings.h"
-#include "d_deh.h"  // Ty 03/27/98 - externalized
+#include "deh/strings.h"  // Ty 03/27/98 - externalized
 #include "st_stuff.h"
 #include "lprintf.h"
 #include "e6y.h"//e6y
@@ -467,7 +467,7 @@ int EV_DoLockedDoor
     case 133:
       if (!p->cards[it_bluecard] && !p->cards[it_blueskull])
       {
-        dsda_AddPlayerMessage(s_PD_BLUEO, p);
+        dsda_AddPlayerColoredMessage(s_PD_BLUEO, p);
         S_StartMobjSound(p->mo,sfx_oof);         // killough 3/20/98
         ST_SetKeyBlink(p, KEYBLINK_EITHER, KEYBLINK_NONE, KEYBLINK_NONE);
         return 0;
@@ -478,7 +478,7 @@ int EV_DoLockedDoor
     case 135:
       if (!p->cards[it_redcard] && !p->cards[it_redskull])
       {
-        dsda_AddPlayerMessage(s_PD_REDO, p);
+        dsda_AddPlayerColoredMessage(s_PD_REDO, p);
         S_StartMobjSound(p->mo,sfx_oof);         // killough 3/20/98
         ST_SetKeyBlink(p, KEYBLINK_NONE, KEYBLINK_NONE, KEYBLINK_EITHER);
         return 0;
@@ -489,7 +489,7 @@ int EV_DoLockedDoor
     case 137:
       if (!p->cards[it_yellowcard] && !p->cards[it_yellowskull])
       {
-        dsda_AddPlayerMessage(s_PD_YELLOWO, p);
+        dsda_AddPlayerColoredMessage(s_PD_YELLOWO, p);
         S_StartMobjSound(p->mo,sfx_oof);         // killough 3/20/98
         ST_SetKeyBlink(p, KEYBLINK_NONE, KEYBLINK_EITHER, KEYBLINK_NONE);
         return 0;
@@ -643,7 +643,7 @@ int EV_VerticalDoor
         return 0;
       if (!player->cards[it_bluecard] && !player->cards[it_blueskull])
       {
-          dsda_AddPlayerMessage(s_PD_BLUEK, player);
+          dsda_AddPlayerColoredMessage(s_PD_BLUEK, player);
           S_StartMobjSound(player->mo,sfx_oof);     // killough 3/20/98
           ST_SetKeyBlink(player, KEYBLINK_EITHER, KEYBLINK_NONE, KEYBLINK_NONE);
           return 0;
@@ -656,7 +656,7 @@ int EV_VerticalDoor
           return 0;
       if (!player->cards[it_yellowcard] && !player->cards[it_yellowskull])
       {
-          dsda_AddPlayerMessage(s_PD_YELLOWK, player);
+          dsda_AddPlayerColoredMessage(s_PD_YELLOWK, player);
           S_StartMobjSound(player->mo,sfx_oof);     // killough 3/20/98
           ST_SetKeyBlink(player, KEYBLINK_NONE, KEYBLINK_EITHER, KEYBLINK_NONE);
           return 0;
@@ -669,7 +669,7 @@ int EV_VerticalDoor
           return 0;
       if (!player->cards[it_redcard] && !player->cards[it_redskull])
       {
-          dsda_AddPlayerMessage(s_PD_REDK, player);
+          dsda_AddPlayerColoredMessage(s_PD_REDK, player);
           S_StartMobjSound(player->mo,sfx_oof);     // killough 3/20/98
           ST_SetKeyBlink(player, KEYBLINK_NONE, KEYBLINK_NONE, KEYBLINK_EITHER);
           return 0;
@@ -894,7 +894,7 @@ void P_SpawnDoorRaiseIn5Mins
 // heretic
 
 #include "p_inter.h"
-#include "heretic/dstrings.h"
+#include "heretic/hhe/strings.h"
 
 void Heretic_EV_VerticalDoor(line_t * line, mobj_t * thing)
 {
@@ -918,7 +918,7 @@ void Heretic_EV_VerticalDoor(line_t * line, mobj_t * thing)
             }
             if (!player->cards[key_blue])
             {
-                P_SetMessage(player, HERETIC_TXT_NEEDBLUEKEY, false);
+                P_SetColoredMessage(player, s_HERETIC_TXT_NEEDBLUEKEY, false);
                 S_StartVoidSound(heretic_sfx_plroof);
                 ST_SetKeyBlink(player, KEYBLINK_CARD, KEYBLINK_NONE, KEYBLINK_NONE);
                 return;
@@ -932,7 +932,7 @@ void Heretic_EV_VerticalDoor(line_t * line, mobj_t * thing)
             }
             if (!player->cards[key_yellow])
             {
-                P_SetMessage(player, HERETIC_TXT_NEEDYELLOWKEY, false);
+                P_SetColoredMessage(player, s_HERETIC_TXT_NEEDYELLOWKEY, false);
                 S_StartVoidSound(heretic_sfx_plroof);
                 ST_SetKeyBlink(player, KEYBLINK_NONE, KEYBLINK_CARD, KEYBLINK_NONE);
                 return;
@@ -946,7 +946,7 @@ void Heretic_EV_VerticalDoor(line_t * line, mobj_t * thing)
             }
             if (!player->cards[key_green])
             {
-                P_SetMessage(player, HERETIC_TXT_NEEDGREENKEY, false);
+                P_SetColoredMessage(player, s_HERETIC_TXT_NEEDGREENKEY, false);
                 S_StartVoidSound(heretic_sfx_plroof);
                 ST_SetKeyBlink(player, KEYBLINK_NONE, KEYBLINK_NONE, KEYBLINK_CARD);
                 return;

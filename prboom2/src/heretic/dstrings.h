@@ -41,6 +41,19 @@
 #define HERETIC_TXT_ARTIFIREBOMB		"TIME BOMB OF THE ANCIENTS"
 #define HERETIC_TXT_ARTITELEPORT		"CHAOS DEVICE"
 
+// Artifact Descriptions
+
+#define HERETIC_ARTI_DESC_A	"Temporarily Grants Invulnerability" // Ring of Invincibility
+#define HERETIC_ARTI_DESC_B	"Temporarily Obscures Presence" // Shadowsphere
+#define HERETIC_ARTI_DESC_C	"Heals 25% Health" // Quartz Flask
+#define HERETIC_ARTI_DESC_D	"Heals 100% Health" // Mystic Urn
+#define HERETIC_ARTI_DESC_E	"Temporarily Buffs All Weapons" // Tome of Power
+#define HERETIC_ARTI_DESC_F	"Temporarily Lights Up the Surroundings" // Torch
+#define HERETIC_ARTI_DESC_G	"A Magical Bomb That Explodes After a Few Seconds" // Time Bomb of the Ancients
+#define HERETIC_ARTI_DESC_H	"Transforms Enemies Into Chickens" // Morph Ovum
+#define HERETIC_ARTI_DESC_I	"Temporarily Grants Flight" // Wings of Wrath
+#define HERETIC_ARTI_DESC_J	"Instantly Teleport to the Start of the Map" // Chaos Device
+
 // Items
 
 #define HERETIC_TXT_ITEMHEALTH			"CRYSTAL VIAL"
@@ -99,7 +112,7 @@
 #define HERETIC_TXT_CHEATARTIFACTS3		"YOU GOT IT"
 #define HERETIC_TXT_CHEATARTIFACTSFAIL	"BAD INPUT"
 #define HERETIC_TXT_CHEATWARP			"LEVEL WARP"
-#define HERETIC_TXT_CHEATSCREENSHOT		"SCREENSHOT"
+#define HERETIC_TXT_CHEATSCREENSHOT		"SCREEN SHOT"
 #define HERETIC_TXT_CHEATCHICKENON		"CHICKEN ON"
 #define HERETIC_TXT_CHEATCHICKENOFF		"CHICKEN OFF"
 #define HERETIC_TXT_SHOWFPSON			"SHOW FPS ON"	// [crispy]
@@ -141,6 +154,8 @@
 #define HERETIC_AMSTR_MARKEDSPOT	"Marked Spot"
 #define HERETIC_AMSTR_MARKSCLEARED	"All Marks Cleared"
 
+#define HERETIC_AUTOPAGE			"AUTOPAGE"
+
 //---------------------------------------------------------------------------
 //
 // m_menu.c
@@ -148,17 +163,22 @@
 //---------------------------------------------------------------------------
 
 #define HERETIC_SWSTRING		"ONLY AVAILABLE IN THE REGISTERED VERSION"
-#define HERETIC_QUITMSG			"ARE YOU SURE YOU WANT TO QUIT?"
+#define HERETIC_RAVENQUITMSG	"ARE YOU SURE YOU WANT TO QUIT?"
+#define HERETIC_ENDGAME			"ARE YOU SURE YOU WANT TO END THE GAME?"
 
-#define HERETIC_MN_NEW_GAME		"NEW GAME"
-#define HERETIC_MN_OPTIONS		"OPTIONS"
-#define HERETIC_MN_GAME_FILES	"GAME FILES"
-#define HERETIC_MN_INFO			"INFO"
-#define HERETIC_MN_QUIT_GAME	"QUIT GAME"
-#define HERETIC_MN_SAVE_GAME	"SAVE GAME"
-#define HERETIC_MN_LOAD_GAME	"LOAD GAME"
-#define HERETIC_MN_MUSIC_VOL	"MUSIC VOLUME"
-#define HERETIC_MN_SFX_VOL		"SFX VOLUME"
+#define HERETIC_MSGON			"MESSAGES ON"
+#define HERETIC_MSGOFF			"MESSAGES OFF"
+
+#define HERETIC_MNU_NEW_GAME	"NEW GAME"
+#define HERETIC_MNU_OPTIONS		"OPTIONS"
+#define HERETIC_MNU_GAME_FILES	"GAME FILES"
+#define HERETIC_MNU_INFO		"INFO"
+#define HERETIC_MNU_QUIT_GAME	"QUIT GAME"
+#define HERETIC_MNU_SAVE_GAME	"SAVE GAME"
+#define HERETIC_MNU_LOAD_GAME	"LOAD GAME"
+#define HERETIC_MNU_MUSIC_VOL	"MUSIC VOLUME"
+#define HERETIC_MNU_SFX_VOL		"SFX VOLUME"
+#define HERETIC_MNU_CHOOSESKILL "CHOOSE SKILL LEVEL:"
 
 #define HERETIC_EPISODE_1		"CITY OF THE DAMNED"
 #define HERETIC_EPISODE_2		"HELL'S MAW"
@@ -173,59 +193,70 @@
 //---------------------------------------------------------------------------
 
 // EPISODE 1 - THE CITY OF THE DAMNED
-#define HERETIC_HUSTR_E1M1 "E1M1:  The Docks"
-#define HERETIC_HUSTR_E1M2 "E1M2:  The Dungeons"
-#define HERETIC_HUSTR_E1M3 "E1M3:  The Gatehouse"
-#define HERETIC_HUSTR_E1M4 "E1M4:  The Guard Tower"
-#define HERETIC_HUSTR_E1M5 "E1M5:  The Citadel"
-#define HERETIC_HUSTR_E1M6 "E1M6:  The Cathedral"
-#define HERETIC_HUSTR_E1M7 "E1M7:  The Crypts"
-#define HERETIC_HUSTR_E1M8 "E1M8:  Hell's Maw"
-#define HERETIC_HUSTR_E1M9 "E1M9:  The Graveyard"
+#define HERETIC_HUSTR_E1M1 "E1M1:  THE DOCKS"
+#define HERETIC_HUSTR_E1M2 "E1M2:  THE DUNGEONS"
+#define HERETIC_HUSTR_E1M3 "E1M3:  THE GATEHOUSE"
+#define HERETIC_HUSTR_E1M4 "E1M4:  THE GUARD TOWER"
+#define HERETIC_HUSTR_E1M5 "E1M5:  THE CITADEL"
+#define HERETIC_HUSTR_E1M6 "E1M6:  THE CATHEDRAL"
+#define HERETIC_HUSTR_E1M7 "E1M7:  THE CRYPTS"
+#define HERETIC_HUSTR_E1M8 "E1M8:  HELL'S MAW"
+#define HERETIC_HUSTR_E1M9 "E1M9:  THE GRAVEYARD"
 
 // EPISODE 2 - HELL'S MAW
-#define HERETIC_HUSTR_E2M1 "E2M1:  The Crater"
-#define HERETIC_HUSTR_E2M2 "E2M2:  The Lava Pits"
-#define HERETIC_HUSTR_E2M3 "E2M3:  The River of Fire"
-#define HERETIC_HUSTR_E2M4 "E2M4:  The Ice Grotto"
-#define HERETIC_HUSTR_E2M5 "E2M5:  The Catacombs"
-#define HERETIC_HUSTR_E2M6 "E2M6:  The Labyrinth"
-#define HERETIC_HUSTR_E2M7 "E2M7:  The Great Hall"
-#define HERETIC_HUSTR_E2M8 "E2M8:  The Portals of Chaos"
-#define HERETIC_HUSTR_E2M9 "E2M9:  The Glacier"
+#define HERETIC_HUSTR_E2M1 "E2M1:  THE CRATER"
+#define HERETIC_HUSTR_E2M2 "E2M2:  THE LAVA PITS"
+#define HERETIC_HUSTR_E2M3 "E2M3:  THE RIVER OF FIRE"
+#define HERETIC_HUSTR_E2M4 "E2M4:  THE ICE GROTTO"
+#define HERETIC_HUSTR_E2M5 "E2M5:  THE CATACOMBS"
+#define HERETIC_HUSTR_E2M6 "E2M6:  THE LABYRINTH"
+#define HERETIC_HUSTR_E2M7 "E2M7:  THE GREAT HALL"
+#define HERETIC_HUSTR_E2M8 "E2M8:  THE PORTALS OF CHAOS"
+#define HERETIC_HUSTR_E2M9 "E2M9:  THE GLACIER"
 
 // EPISODE 3 - THE DOME OF D'SPARIL
-#define HERETIC_HUSTR_E3M1 "E3M1:  The Storehouse"
-#define HERETIC_HUSTR_E3M2 "E3M2:  The Cesspool"
-#define HERETIC_HUSTR_E3M3 "E3M3:  The Confluence"
-#define HERETIC_HUSTR_E3M4 "E3M4:  The Azure Fortress"
-#define HERETIC_HUSTR_E3M5 "E3M5:  The Ophidian Lair"
-#define HERETIC_HUSTR_E3M6 "E3M6:  The Halls of Fear"
-#define HERETIC_HUSTR_E3M7 "E3M7:  The Chasm"
-#define HERETIC_HUSTR_E3M8 "E3M8:  D'Sparil's Keep"
-#define HERETIC_HUSTR_E3M9 "E3M9:  The Aquifer"
+#define HERETIC_HUSTR_E3M1 "E3M1:  THE STOREHOUSE"
+#define HERETIC_HUSTR_E3M2 "E3M2:  THE CESSPOOL"
+#define HERETIC_HUSTR_E3M3 "E3M3:  THE CONFLUENCE"
+#define HERETIC_HUSTR_E3M4 "E3M4:  THE AZURE FORTRESS"
+#define HERETIC_HUSTR_E3M5 "E3M5:  THE OPHIDIAN LAIR"
+#define HERETIC_HUSTR_E3M6 "E3M6:  THE HALLS OF FEAR"
+#define HERETIC_HUSTR_E3M7 "E3M7:  THE CHASM"
+#define HERETIC_HUSTR_E3M8 "E3M8:  D'SPARIL'S KEEP"
+#define HERETIC_HUSTR_E3M9 "E3M9:  THE AQUIFER"
 
 // EPISODE 4: THE OSSUARY
-#define HERETIC_HUSTR_E4M1 "E4M1:  Catafalque"
-#define HERETIC_HUSTR_E4M2 "E4M2:  Blockhouse"
-#define HERETIC_HUSTR_E4M3 "E4M3:  Ambulatory"
-#define HERETIC_HUSTR_E4M4 "E4M4:  Sepulcher"
-#define HERETIC_HUSTR_E4M5 "E4M5:  Great Stair"
-#define HERETIC_HUSTR_E4M6 "E4M6:  Halls of the Apostate"
-#define HERETIC_HUSTR_E4M7 "E4M7:  Ramparts of Perdition"
-#define HERETIC_HUSTR_E4M8 "E4M8:  Shattered Bridge"
-#define HERETIC_HUSTR_E4M9 "E4M9:  Mausoleum"
+#define HERETIC_HUSTR_E4M1 "E4M1:  CATAFALQUE"
+#define HERETIC_HUSTR_E4M2 "E4M2:  BLOCKHOUSE"
+#define HERETIC_HUSTR_E4M3 "E4M3:  AMBULATORY"
+#define HERETIC_HUSTR_E4M4 "E4M4:  SEPULCHER"
+#define HERETIC_HUSTR_E4M5 "E4M5:  GREAT STAIR"
+#define HERETIC_HUSTR_E4M6 "E4M6:  HALLS OF THE APOSTATE"
+#define HERETIC_HUSTR_E4M7 "E4M7:  RAMPARTS OF PERDITION"
+#define HERETIC_HUSTR_E4M8 "E4M8:  SHATTERED BRIDGE"
+#define HERETIC_HUSTR_E4M9 "E4M9:  MAUSOLEUM"
 
 // EPISODE 5: THE STAGNANT DEMESNE
-#define HERETIC_HUSTR_E5M1 "E5M1:  Ochre Cliffs"
-#define HERETIC_HUSTR_E5M2 "E5M2:  Rapids"
-#define HERETIC_HUSTR_E5M3 "E5M3:  Quay"
-#define HERETIC_HUSTR_E5M4 "E5M4:  Courtyard"
-#define HERETIC_HUSTR_E5M5 "E5M5:  Hydratyr"
-#define HERETIC_HUSTR_E5M6 "E5M6:  Colonnade"
-#define HERETIC_HUSTR_E5M7 "E5M7:  Foetid Manse"
-#define HERETIC_HUSTR_E5M8 "E5M8:  Field of Judgement"
-#define HERETIC_HUSTR_E5M9 "E5M9:  Skein of D'sparil"
+#define HERETIC_HUSTR_E5M1 "E5M1:  OCHRE CLIFFS"
+#define HERETIC_HUSTR_E5M2 "E5M2:  RAPIDS"
+#define HERETIC_HUSTR_E5M3 "E5M3:  QUAY"
+#define HERETIC_HUSTR_E5M4 "E5M4:  COURTYARD"
+#define HERETIC_HUSTR_E5M5 "E5M5:  HYDRATYR"
+#define HERETIC_HUSTR_E5M6 "E5M6:  COLONNADE"
+#define HERETIC_HUSTR_E5M7 "E5M7:  FOETID MANSE"
+#define HERETIC_HUSTR_E5M8 "E5M8:  FIELD OF JUDGEMENT"
+#define HERETIC_HUSTR_E5M9 "E5M9:  SKEIN OF D'SPARIL"
+
+// EPISODE 6: Extra
+#define HERETIC_HUSTR_E6M1 "E6M1:  UNKNOWN"
+#define HERETIC_HUSTR_E6M2 "E6M2:  UNKNOWN"
+#define HERETIC_HUSTR_E6M3 "E6M3:  UNKNOWN"
+#define HERETIC_HUSTR_E6M4 "E6M4:  UNKNOWN"
+#define HERETIC_HUSTR_E6M5 "E6M5:  UNKNOWN"
+#define HERETIC_HUSTR_E6M6 "E6M6:  UNKNOWN"
+#define HERETIC_HUSTR_E6M7 "E6M7:  UNKNOWN"
+#define HERETIC_HUSTR_E6M8 "E6M8:  UNKNOWN"
+#define HERETIC_HUSTR_E6M9 "E6M9:  UNKNOWN"
 
 //---------------------------------------------------------------------------
 //
@@ -341,6 +372,17 @@
 #define HERETIC_BGFLATE5 "FLOOR08"
 
 //
+// killers
+//
+
+#define HERETIC_IN_KILLERS1 "K"
+#define HERETIC_IN_KILLERS2 "I"
+#define HERETIC_IN_KILLERS3 "L"
+#define HERETIC_IN_KILLERS4 "E"
+#define HERETIC_IN_KILLERS5 "R"
+#define HERETIC_IN_KILLERS6 "S"
+
+//
 // Heretic Intermission
 //
 
@@ -349,11 +391,13 @@
 #define HERETIC_IN_ENTERING "NOW ENTERING:"
 #define HERETIC_IN_KILLS	"KILLS"
 #define HERETIC_IN_ITEMS	"ITEMS"
-#define HERETIC_IN_SECRET	"SECRETS"
+#define HERETIC_IN_SECRETS	"SECRETS"
 #define HERETIC_IN_TIME		"TIME"
-#define HERETIC_IN_BONUS	"BONUS"
 #define HERETIC_IN_TOTAL	"TOTAL"
 #define HERETIC_IN_VICTIMS	"VICTIMS"
+
+#define HERETIC_COOP_BONUS	"BONUS"
+#define HERETIC_COOP_SECRET	"SECRET"
 
 //
 // Heretic Skills
@@ -405,197 +449,8 @@
 #define OB_MPPSTAFF			"%o got clapped by %k's charged staff."
 #define OB_MPPGAUNTLETS		"%o was bled dry by %k's gauntlets."
 #define OB_MPPGOLDWAND		"%o was assaulted by %k's elven wand."
-#define OB_MPSHOTGUN		"%o chewed on %k's boomstick."
 #define OB_MPPCROSSBOW		"%o was shafted by %k's ethereal crossbow."
 #define OB_MPPBLASTER		"%o was ripped apart by %k's dragon claw."
 #define OB_MPPSKULLROD		"%k poured the hellstaff on %o."
 #define OB_MPPPHOENIXROD	"%o was burned down by %k's phoenix staff."
 #define OB_MPPMACE			"%o was squished by %k's giant mace sphere."
-
-
-
-// -------------------------------------------------
-//
-// HEXEN STRINGS
-//
-// -------------------------------------------------
-
-//
-// Hexen Pickup Strings
-//
-
-#define TXT_MANA_1    "BLUE MANA"
-#define TXT_MANA_2    "GREEN MANA"
-#define TXT_MANA_BOTH "COMBINED MANA"
-
-#define TXT_KEY_STEEL   "STEEL KEY"
-#define TXT_KEY_CAVE    "CAVE KEY"
-#define TXT_KEY_AXE     "AXE KEY"
-#define TXT_KEY_FIRE    "FIRE KEY"
-#define TXT_KEY_EMERALD "EMERALD KEY"
-#define TXT_KEY_DUNGEON "DUNGEON KEY"
-#define TXT_KEY_SILVER  "SILVER KEY"
-#define TXT_KEY_RUSTED  "RUSTED KEY"
-#define TXT_KEY_HORN    "HORN KEY"
-#define TXT_KEY_SWAMP   "SWAMP KEY"
-#define TXT_KEY_CASTLE  "CASTLE KEY"
-
-#define TXT_NEED_KEY_STEEL      "You need the Steel Key"
-#define TXT_NEED_KEY_CAVE       "You need the Cave Key"
-#define TXT_NEED_KEY_AXE        "You need the Axe Key"
-#define TXT_NEED_KEY_FIRE       "You need the Fire Key"
-#define TXT_NEED_KEY_EMERALD    "You need the Emerald Key"
-#define TXT_NEED_KEY_DUNGEON    "You need the Dungeon Key"
-#define TXT_NEED_KEY_SILVER     "You need the Silver Key"
-#define TXT_NEED_KEY_RUSTED     "You need the Rusted Key"
-#define TXT_NEED_KEY_HORN       "You need the Horn Key"
-#define TXT_NEED_KEY_SWAMP      "You need the Swamp Key"
-#define TXT_NEED_KEY_CASTLE     "You need the Castle Key"
-
-#define TXT_ARTIINVULNERABILITY "ICON OF THE DEFENDER"
-#define TXT_ARTIHEALTH          "QUARTZ FLASK"
-#define TXT_ARTISUPERHEALTH     "MYSTIC URN"
-#define TXT_ARTIHEALINGRADIUS   "MYSTIC AMBIT INCANT"
-#define TXT_ARTISUMMON          "DARK SERVANT"
-#define TXT_ARTITORCH           "TORCH"
-#define TXT_ARTIEGG             "PORKALATOR"
-#define TXT_ARTIFLY             "WINGS OF WRATH"
-#define TXT_ARTIBLASTRADIUS     "DISC OF REPULSION"
-#define TXT_ARTIPOISONBAG       "FLECHETTE"
-#define TXT_ARTITELEPORTOTHER   "BANISHMENT DEVICE"
-#define TXT_ARTISPEED           "BOOTS OF SPEED"
-#define TXT_ARTIBOOSTMANA       "KRATER OF MIGHT"
-#define TXT_ARTIBOOSTARMOR      "DRAGONSKIN BRACERS"
-#define TXT_ARTITELEPORT        "CHAOS DEVICE"
-
-// Puzzle artifacts
-#define TXT_ARTIPUZZSKULL      "YORICK'S SKULL"
-#define TXT_ARTIPUZZGEMBIG     "HEART OF D'SPARIL"
-#define TXT_ARTIPUZZGEMRED     "RUBY PLANET"
-#define TXT_ARTIPUZZGEMGREEN1  "EMERALD PLANET"
-#define TXT_ARTIPUZZGEMGREEN2  "EMERALD PLANET"
-#define TXT_ARTIPUZZGEMBLUE1   "SAPPHIRE PLANET"
-#define TXT_ARTIPUZZGEMBLUE2   "SAPPHIRE PLANET"
-#define TXT_ARTIPUZZBOOK1      "DAEMON CODEX"
-#define TXT_ARTIPUZZBOOK2      "LIBER OSCURA"
-#define TXT_ARTIPUZZSKULL2     "FLAME MASK"
-#define TXT_ARTIPUZZFWEAPON    "GLAIVE SEAL"
-#define TXT_ARTIPUZZCWEAPON    "HOLY RELIC"
-#define TXT_ARTIPUZZMWEAPON    "SIGIL OF THE MAGUS"
-#define TXT_ARTIPUZZGEAR       "CLOCK GEAR"
-#define TXT_USEPUZZLEFAILED    "YOU CANNOT USE THIS HERE"
-
-#define TXT_ITEMHEALTH        "CRYSTAL VIAL"
-#define TXT_ITEMBAGOFHOLDING "BAG OF HOLDING"
-#define TXT_ITEMSHIELD1      "SILVER SHIELD"
-#define TXT_ITEMSHIELD2      "ENCHANTED SHIELD"
-#define TXT_ITEMSUPERMAP     "MAP SCROLL"
-
-#define TXT_ARMOR1 "MESH ARMOR"
-#define TXT_ARMOR2 "FALCON SHIELD"
-#define TXT_ARMOR3 "PLATINUM HELMET"
-#define TXT_ARMOR4 "AMULET OF WARDING"
-
-#define TXT_WEAPON_F2 "TIMON'S AXE"
-#define TXT_WEAPON_F3 "HAMMER OF RETRIBUTION"
-#define TXT_WEAPON_F4 "QUIETUS ASSEMBLED"
-#define TXT_WEAPON_C2 "SERPENT STAFF"
-#define TXT_WEAPON_C3 "FIRESTORM"
-#define TXT_WEAPON_C4 "WRAITHVERGE ASSEMBLED"
-#define TXT_WEAPON_M2 "FROST SHARDS"
-#define TXT_WEAPON_M3 "ARC OF DEATH"
-#define TXT_WEAPON_M4 "BLOODSCOURGE ASSEMBLED"
-
-#define TXT_QUIETUS_PIECE      "SEGMENT OF QUIETUS"
-#define TXT_WRAITHVERGE_PIECE  "SEGMENT OF WRAITHVERGE"
-#define TXT_BLOODSCOURGE_PIECE "SEGMENT OF BLOODSCOURGE"
-
-#define TXT_WEAPONPIECE "A weapon piece! This is your lucky day!"
-
-//
-// Hexen Menu Strings
-//
-
-#define HEXEN_CLASS_FIGHTER		"FIGHTER"
-#define HEXEN_CLASS_CLERIC		"CLERIC"
-#define HEXEN_CLASS_MAGE		"MAGE"
-
-#define HEXEN_FCLASS_SKILL_1    "SQUIRE"
-#define HEXEN_FCLASS_SKILL_2    "KNIGHT"
-#define HEXEN_FCLASS_SKILL_3    "WARRIOR"
-#define HEXEN_FCLASS_SKILL_4    "BERSERKER"
-#define HEXEN_FCLASS_SKILL_5    "TITAN"
-
-#define HEXEN_CCLASS_SKILL_1    "ALTAR BOY"
-#define HEXEN_CCLASS_SKILL_2    "ACOLYTE"
-#define HEXEN_CCLASS_SKILL_3    "PRIEST"
-#define HEXEN_CCLASS_SKILL_4    "CARDINAL"
-#define HEXEN_CCLASS_SKILL_5    "POPE"
-
-#define HEXEN_MCLASS_SKILL_1    "APPRENTICE"
-#define HEXEN_MCLASS_SKILL_2    "ENCHANTER"
-#define HEXEN_MCLASS_SKILL_3    "SORCERER"
-#define HEXEN_MCLASS_SKILL_4    "WARLOCK"
-#define HEXEN_MCLASS_SKILL_5    "ARCHIMAGE"
-
-//
-// Hexen Messages
-//
-
-#define HEXEN_TXT_CHEATARTIFACTS	"ALL ARTIFACTS"
-#define HEXEN_TXT_CHEATPUZZLES		"ALL PUZZLE ITEMS"
-#define HEXEN_TXT_CHEATCLASS1		"ENTER NEW PLAYER CLASS (0 - 2)"
-#define HEXEN_TXT_CHEATCLASS2		"CLASS CHANGED"
-#define HEXEN_TXT_CHEATCLASSFAIL	"INVALID PLAYER CLASS"
-#define HEXEN_TXT_CHEATQUICKEN1		"TRYING TO CHEAT?  THAT'S ONE...."
-#define HEXEN_TXT_CHEATQUICKEN2		"THAT'S TWO...."
-#define HEXEN_TXT_CHEATQUICKEN3		"THAT'S THREE!  TIME TO DIE."
-#define HEXEN_TXT_CHEATPIG			"SQUEAL!!"
-
-//
-// Hexen Obituaries
-//
-
-#define OB_DEMON1HIT			"%o was maimed by a Serpent."
-#define OB_DEMON2HIT			"%o was maimed by a Serpent."
-#define OB_SLAUGHTAURHIT		"%o was cut up by a Slaughtaur."
-#define OB_SERPENTHIT			"%o was mauled by a Stalker."
-#define OB_WRAITHHIT			"%o had %p life stolen by a Reiver."
-
-#define OB_FIREDEMON			"%o tasted an Afrit's fire."
-#define OB_DEMON1				"%o was scalded by a Serpent."
-#define OB_DEMON2				"%o was poisoned by a Serpent."
-#define OB_ETTIN				"%o was mashed by an Ettin."
-#define OB_CENTAUR				"%o was cut up by a Centaur."
-#define OB_SLAUGHTAUR			"%o was struck down by a Slaughtaur's fireball."
-#define OB_BISHOP				"%o succumbed to a Bishop's dark power."
-#define OB_ICEGUY				"%o was frozen solid by a Wendigo."
-#define OB_SERPENT				"%o was melted by a Stalker."
-#define OB_WRAITH				"%o was charred by a Reiver."
-#define OB_DRAGON				"%o was incinerated by the Death Wyvern."
-#define OB_HERESIARCH			"%o had %p bones rolled by the Heresiarch."
-#define OB_FBOSS				"%o was slain by Zedek."
-#define OB_MBOSS				"%o couldn't absorb Menelkir's Mana."
-#define OB_CBOSS				"%o was baptized by Traductus."
-#define OB_KORAX				"%o was swept from the board by Korax."
-
-// Fighter Weapons
-#define OB_MPFWEAPFIST			"%o was beaten to a pulp by %k's bare fists."
-#define OB_MPFWEAPAXE			"%o got the axe from %k."
-#define OB_MPFWEAPHAMMERM		"%o had %p head caved in by %k's hammer."
-#define OB_MPFWEAPHAMMERR		"%o's soul was forged anew by %k's hammer."
-#define OB_MPFWEAPQUIETUS		"%o was silenced by %k's mighty Quietus."
-
-// Cleric Weapons
-#define OB_MPCWEAPMACE			"%o got a mace to the face from %k."
-#define OB_MPCWEAPSTAFFM		"%o was bitten by %k's serpent staff."
-#define OB_MPCWEAPSTAFFR		"%o choked on %k's serpent staff."
-#define OB_MPCWEAPFLAME			"%o was lit up by %k's flames."
-#define OB_MPCWEAPWRAITHVERGE	"%o was cleansed by %k's Wraithverge."
-
-// Mage Weapons
-#define OB_MPMWEAPWAND			"%o took one too many sapphire beams from %k."
-#define OB_MPMWEAPFROST			"%o was turned into a frosty fellow by %k."
-#define OB_MPMWEAPLIGHTNING		"%o received a shocking revelation from %k."
-#define OB_MPMWEAPBLOODSCOURGE	"%o was wiped off the face of the universe by %k's Bloodscourge."
-

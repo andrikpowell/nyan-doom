@@ -23,12 +23,14 @@
 #include "m_random.h"
 #include "g_game.h"
 #include "dsda/settings.h"
-#include "heretic/dstrings.h"
+
 #include "heretic/mn_menu.h"
+#include "heretic/hhe/strings.h"
+#include "hexen/dstrings.h"
 
 #define ITEM_HEIGHT 20
 #define SELECTOR_XOFFSET (-28)
-#define SELECTOR_YOFFSET (-4)
+#define SELECTOR_YOFFSET (-1)
 #define SFX_VOL_INDEX 1
 #define MUS_VOL_INDEX 3
 
@@ -233,11 +235,11 @@ enum
 
 menuitem_t RavenMainMenu[]=
 {
-  {1,"M_NGAME", M_NewGame, 'n', HERETIC_MN_NEW_GAME},
-  {1,"M_OPTION",M_Options, 'o', HERETIC_MN_OPTIONS},
-  {1,"M_GFILES", MN_GameFiles,'g', HERETIC_MN_GAME_FILES},
-  {1,"M_INFO",MN_Info,'i', HERETIC_MN_INFO},
-  {1,"M_QUITG", M_QuitDOOM,'q', HERETIC_MN_QUIT_GAME}
+  {1,"M_NGAME", M_NewGame, 'n', "NEW GAME"},
+  {1,"M_OPTION",M_Options, 'o', "OPTIONS"},
+  {1,"M_GFILES", MN_GameFiles,'g', "GAME FILES"},
+  {1,"M_INFO",MN_Info,'i', "INFO"},
+  {1,"M_QUITG", M_QuitDOOM,'q', "QUIT GAME"}
 };
 
 
@@ -256,8 +258,8 @@ enum
 
 menuitem_t SaveLoadMenu[]=
 {
-  {1,"M_LOADG", M_LoadGame,'l', HERETIC_MN_LOAD_GAME},
-  {1,"M_SAVEG", M_SaveGame,'s', HERETIC_MN_SAVE_GAME},
+  {1,"M_LOADG", M_LoadGame,'l', "LOAD GAME"},
+  {1,"M_SAVEG", M_SaveGame,'s', "SAVE GAME"},
 };
 
 menu_t SaveLoadDef =
@@ -336,8 +338,17 @@ void MN_Init(void)
     SkillDef.y = 44;
   }
 
-  SoundMenu[0].alttext = HERETIC_MN_SFX_VOL;
-  SoundMenu[2].alttext = HERETIC_MN_MUSIC_VOL;
+  SoundMenu[0].alttext = s_HERETIC_MNU_SFX_VOL;
+  SoundMenu[2].alttext = s_HERETIC_MNU_MUSIC_VOL;
+
+  RavenMainMenu[0].alttext = s_HERETIC_MNU_NEW_GAME;
+  RavenMainMenu[1].alttext = s_HERETIC_MNU_OPTIONS;
+  RavenMainMenu[2].alttext = s_HERETIC_MNU_GAME_FILES;
+  RavenMainMenu[3].alttext = s_HERETIC_MNU_INFO;
+  RavenMainMenu[4].alttext = s_HERETIC_MNU_QUIT_GAME;
+
+  SaveLoadMenu[0].alttext = s_HERETIC_MNU_LOAD_GAME;
+  SaveLoadMenu[1].alttext = s_HERETIC_MNU_SAVE_GAME;
 
   // Use exclusive Heretic
   // and Hexen MainMenu.
@@ -419,11 +430,11 @@ void MN_UpdateClass(int choice)
     // Use Heretic Skill Names
     case PCLASS_RANDOM:
       SkillDef.x = 38;
-      SkillDef.menuitems[0].alttext = HERETIC_SKILL_1;
-      SkillDef.menuitems[1].alttext = HERETIC_SKILL_2;
-      SkillDef.menuitems[2].alttext = HERETIC_SKILL_3;
-      SkillDef.menuitems[3].alttext = HERETIC_SKILL_4;
-      SkillDef.menuitems[4].alttext = HERETIC_SKILL_5;
+      SkillDef.menuitems[0].alttext = "THOU NEEDETH A WET-NURSE";
+      SkillDef.menuitems[1].alttext = "YELLOWBELLIES-R-US";
+      SkillDef.menuitems[2].alttext = "BRINGEST THEM ONETH";
+      SkillDef.menuitems[3].alttext = "THOU ART A SMITE-MEISTER";
+      SkillDef.menuitems[4].alttext = "BLACK PLAGUE POSSESSES THEE";
       break;
     default:
       break;
@@ -489,7 +500,7 @@ void MN_Drawer(void)
     int text_sml = text && (currentMenu->menuitems[i].flags == MENUF_OPTLUMP);
 
     if (text_sml) {  // use small font for custom skill
-      y += 4;        // add some padding (looks bad otherwise)
+      y += 6;        // add some padding (looks bad otherwise)
       MN_DrTextA(text, x, y);
     }
     else if (text)
@@ -579,7 +590,7 @@ void MN_DrawMainMenu(void)
 {
   int frame;
 
-  if (hexen) return Hexen_MN_DrawMainMenu();
+  if (hexen) RETURN(Hexen_MN_DrawMainMenu());
 
   frame = (MenuTime / 3) % 18;
   V_DrawMenuNamePatch(88, 0, "M_HTIC", CR_DEFAULT, VPT_STRETCH);
@@ -638,18 +649,18 @@ void MN_PickRandomClass(void)
     int new_random_class = -1;
     int attempt;
 
-    attempt = Nyan_RealRandom() % 100;
+    attempt = Nyan_Random() % 100;
 
     if (attempt < 70)
     {
       do
       {
-        new_random_class = 1 + Nyan_RealRandom() % 3;
+        new_random_class = 1 + Nyan_Random() % 3;
       } while (new_random_class == last_random_class);
     }
     else
     {
-      new_random_class = 1 + Nyan_RealRandom() % 3;
+      new_random_class = 1 + Nyan_Random() % 3;
     }
 
     PlayerClass[consoleplayer] = new_random_class;
@@ -663,7 +674,7 @@ void MN_DrawSkillMenu(void)
     if (PlayerClass[consoleplayer] == PCLASS_RANDOM)
       MN_PickRandomClass();
 
-    MN_DrTextB("CHOOSE SKILL LEVEL:", 74, 16);
+    MN_DrTextB(s_HERETIC_MNU_CHOOSESKILL, 74, 16);
 }
 
 void MN_DrawOptions(void)
@@ -685,7 +696,7 @@ void MN_DrawSound(void)
 
 extern char savegamestrings[10][SAVESTRINGSIZE];
 
-static void MN_DrawFileSlots(int x, int y)
+static void MN_DrawFileSlots(int x, int y, int cm)
 {
   int i;
   extern const char *saves_pages[];
@@ -693,7 +704,7 @@ static void MN_DrawFileSlots(int x, int y)
   for (i = 0; i < g_menu_save_page_size; i++)
   {
     V_DrawMenuNamePatch(x, y, "M_FSLOT", CR_DEFAULT, VPT_STRETCH);
-    MN_DrTextA(savegamestrings[i], x + 5, y + 5);
+    MN_DrTextAColor(savegamestrings[i], x + 5, y + 5, cm);
     y += ITEM_HEIGHT;
   }
 
@@ -704,10 +715,10 @@ void MN_DrawLoad(void)
 {
   const char *title;
 
-  title = HERETIC_MN_LOAD_GAME;
+  title = s_HERETIC_MNU_LOAD_GAME;
 
   MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 10);
-  MN_DrawFileSlots(LoadDef.x, LoadDef.y);
+  MN_DrawFileSlots(LoadDef.x, LoadDef.y, CR_DEFAULT);
 
   if (delete_verify)
     M_DrawDelVerify();
@@ -720,10 +731,10 @@ void MN_DrawSave(void)
 {
   const char *title;
 
-  title = HERETIC_MN_SAVE_GAME;
+  title = s_HERETIC_MNU_SAVE_GAME;
 
   MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 10);
-  MN_DrawFileSlots(SaveDef.x, SaveDef.y);
+  MN_DrawFileSlots(SaveDef.x, SaveDef.y, M_GetCurrentPage() == 0 ? CR_DARKEN : CR_DEFAULT);
 
   if (saveStringEnter)
   {
@@ -737,6 +748,7 @@ void MN_DrawSave(void)
     M_DrawDelVerify();
 }
 
+// Heretic has a "PAUSED" graphic... Why does this exist :/
 void MN_DrawPause(void)
 {
   const char *title;
@@ -760,7 +772,33 @@ void MN_DrTextA(const char *text, int x, int y)
     else
     {
       lump = MN_SafeFontALump(c - 33);
-      V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
+      V_DrawMenuNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
+      x += R_NumPatchWidth(lump) - 1;
+    }
+  }
+}
+
+void MN_DrTextAColor(const char *text, int x, int y, int cm)
+{
+  char c;
+  int lump;
+  int flags;
+
+  flags = VPT_STRETCH;
+  if (cm != CR_DEFAULT)
+    flags |= VPT_COLOR;
+
+  while ((c = *text++) != 0)
+  {
+    c = toupper(c);
+    if (c < 33)
+    {
+      x += 5;
+    }
+    else
+    {
+      lump = MN_SafeFontALump(c - 33);
+      V_DrawMenuNumPatch(x, y, lump, cm, flags);
       x += R_NumPatchWidth(lump) - 1;
     }
   }
@@ -907,7 +945,7 @@ void MN_DrTextAYellow(const char *text, int x, int y)
       else
       {
         lump = FontAYellowBaseLump + c - 33;
-        V_DrawNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
+        V_DrawMenuNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
         x += R_NumPatchWidth(lump) - 1;
       }
     }

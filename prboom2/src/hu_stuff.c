@@ -40,7 +40,7 @@
 #include "s_sound.h"
 #include "dstrings.h"
 #include "sounds.h"
-#include "d_deh.h"   /* Ty 03/27/98 - externalization of mapnamesx arrays */
+#include "deh/strings.h"   /* Ty 03/27/98 - externalization of mapnamesx arrays */
 #include "g_game.h"
 #include "r_main.h"
 #include "p_inter.h"
@@ -219,7 +219,7 @@ void SetCrosshairTarget(void)
         h = h * params->video->height / 200;
       }
       bottom = top - viewheight + h;
-      winy = BETWEEN(bottom, top, winy);
+      winy = CLAMP(winy, bottom, top);
 
       if (!hudadd_crosshair_scale)
       {
@@ -233,6 +233,22 @@ void SetCrosshairTarget(void)
       }
     }
   }
+}
+
+mobj_t *HU_SafeIntercept(void)
+{
+  angle_t an = plr->mo->angle;
+
+  // intercepts overflow guard
+  overflows_enabled = false;
+  P_AimLineAttack(plr->mo, an, 16*64*FRACUNIT, 0);
+  if (!linetarget)
+    P_AimLineAttack(plr->mo, an += 1<<26, 16*64*FRACUNIT, 0);
+  if (!linetarget)
+    P_AimLineAttack(plr->mo, an -= 2<<26, 16*64*FRACUNIT, 0);
+  overflows_enabled = true;
+
+  return linetarget;
 }
 
 mobj_t *HU_Target(void)
@@ -266,7 +282,7 @@ void HU_DrawCrosshair(void)
   if (
     !crosshair_nam[hudadd_crosshair] ||
     crosshair.lump == -1 ||
-    automap_active ||
+    automap_full ||
     menuactive ||
     dsda_Paused()
   )
@@ -327,6 +343,8 @@ void HU_DrawCrosshair(void)
   }
 }
 
+#define ANNOUNCE_TICS (4*TICRATE)
+
 void HU_AnnounceMap(void)
 {
   if (dsda_IntConfig(dsda_config_announce_map)>0)
@@ -337,6 +355,7 @@ void HU_AnnounceMap(void)
     if (gamemap != last_gamemap || gameepisode != last_gameepisode)
     {
       int announce_config = dsda_IntConfig(dsda_config_announce_map);
+      int cur_player = (int)(plr - players);
 
       last_gamemap = gamemap;
       last_gameepisode = gameepisode;
@@ -352,8 +371,8 @@ void HU_AnnounceMap(void)
         }
         else
         {
-          SetTitleMessage(plr - players, hud_title.string, 4 * TICRATE, 0);
-          SetAuthorMessage(plr - players, hud_author.string, 4 * TICRATE, 0);
+          SetTitleMessage(cur_player, hud_title.string, ANNOUNCE_TICS, 0);
+          SetAuthorMessage(cur_player, hud_author.string, ANNOUNCE_TICS, 0);
         }
       }
       else
@@ -361,7 +380,7 @@ void HU_AnnounceMap(void)
         if (announce_config==2)
           dsda_AddAlert(hud_title.string);
         else
-          SetTitleMessage(plr - players, hud_title.string, 4 * TICRATE, 0);
+          SetTitleMessage(cur_player, hud_title.string, ANNOUNCE_TICS, 0);
       }
     }
   }
@@ -381,13 +400,14 @@ void HU_Start(void)
 {
   HU_InitThresholds();
   HU_InitPlayer();
-  dsda_InitObituaries();
   HU_InitMessages();
+  HU_InitColorStrings();
   HU_FetchTitle();
   HU_FetchAuthor();
   HU_InitCrosshair();
 
   dsda_InitExHud();
+  dsda_InitObituaries();
 
   HU_AnnounceMap();
 }
@@ -426,6 +446,10 @@ char* HU_SecretMessage(void) {
   return custom_message_p->ticks > 0 ? secret_message : NULL;
 }
 
+int HU_SecretMessageTics(void) {
+  return custom_message_p->ticks > 0 ? custom_message_p->ticks : 0;
+}
+
 //
 // Announce Map Message
 char* announce_message;
@@ -442,6 +466,10 @@ char* HU_AnnounceMessage(void) {
   return title_message_p->ticks > 0 ? announce_message : NULL;
 }
 
+int HU_AnnounceMessageTics(void) {
+  return title_message_p->ticks > 0 ? title_message_p->ticks : 0;
+}
+
 //
 // Author Map Message
 char* announce_author_message;
@@ -456,6 +484,10 @@ static void HU_UpdateAuthorMessage(const char* message)
 
 char* HU_AuthorMessage(void) {
   return author_message_p->ticks > 0 ? announce_author_message : NULL;
+}
+
+int HU_AuthorMessageTics(void) {
+  return author_message_p->ticks > 0 ? author_message_p->ticks : 0;
 }
 
 //
@@ -529,7 +561,7 @@ void HU_Ticker(void)
   }
 
   // Reset map/author cycle when leaving automap
-  if (hud_title_cycle.string && !automap_active)
+  if (hud_title_cycle.string && !automap_full)
     dsda_FreeString(&hud_title_cycle);
 
   dsda_UpdateExHud();

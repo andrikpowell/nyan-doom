@@ -34,7 +34,8 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   snprintf(
     str,
     max_size,
-    "%s%s%d%%",
+    "%s%s%s%d%%",
+    dsda_TextColor(dsda_tc_exhud_speed_label),
     local->label,
     speed < 100 ? dsda_TextColor(dsda_tc_exhud_speed_slow)
                 : speed == 100 ? dsda_TextColor(dsda_tc_exhud_speed_normal)
@@ -48,7 +49,7 @@ void dsda_InitSpeedTextHC(int x_offset, int y_offset, int vpt, int* args, int ar
   local = *data;
 
   if (arg_count < 1 || args[0])
-    snprintf(local->label, sizeof(local->label), "%sSPEED ", dsda_TextColor(dsda_tc_exhud_speed_label));
+    snprintf(local->label, sizeof(local->label), "SPEED ");
   else
     local->label[0] = '\0';
 

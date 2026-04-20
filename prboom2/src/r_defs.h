@@ -345,6 +345,10 @@ typedef struct line_s
   int healthgroup;
   const byte* tranmap;
   float alpha;
+
+  // ID24 line specials
+  int frontmusic; // Front upper texture -- activated from the front side
+  int backmusic;  // Front lower texture -- activated from the back side
 } line_t;
 
 #define LINE_ARG_COUNT 5
@@ -490,6 +494,7 @@ typedef struct
 typedef struct vissprite_s
 {
   short x1, x2;
+  short gx1;                   // [AR] opengl weapon alignment
   fixed_t gx, gy;              // for line side calculation
   fixed_t gz, gzt;             // global bottom / top for silhouette clipping
   fixed_t startfrac;           // horizontal position of x1
@@ -498,6 +503,7 @@ typedef struct vissprite_s
   fixed_t texturemid;
   int patch;
   uint64_t mobjflags;
+  uint64_t mobjflags_extra; // Woof!
 
   // for color translation and shadow draw, maxbright frames as well
   const lighttable_t *colormap;
@@ -543,7 +549,7 @@ typedef struct
   short lump[16];
 
   // Flip bit (1 = flip) to use for view angles 0-15.
-  unsigned short flip;
+  byte	flip[16]; // [crispy] support 16 sprite rotations
 
 } spriteframe_t;
 

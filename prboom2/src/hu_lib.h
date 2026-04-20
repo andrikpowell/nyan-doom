@@ -37,11 +37,6 @@
 
 #include "dsda/font.h"
 
-/* background and foreground screen numbers
- * different from other modules. */
-//e6y #define BG      1
-#define FG      0
-
 #define HU_MAXLINELENGTH  80
 
 // Text Line widget
@@ -71,6 +66,7 @@ typedef struct
   int line_height;
   int kerning; // Heretic/Hexen -1 kerning
   int space_width;
+  int fade_alpha; // dyanamic font translucency
 } hu_textline_t;
 
 //
@@ -99,10 +95,17 @@ void HUlib_drawOffsetTextLine(hu_textline_t* l, dboolean yellow, dboolean shadow
 
 //e6y
 void HUlib_setTextXCenter(hu_textline_t* t);
+void HUlib_setTextXRightAlign(hu_textline_t *t);
 dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean centered, int max_lines);
+void HUlib_AdjustBottomOffset_MultiLine(hu_textline_t *t, int y_offset, double ratio, int vpt);
+
+int HU_FontStringWidth(const dsda_font_t* f, const char* string);
 
 char HUlib_Color(int cm);
+char HUlib_ColorReset(void);
 char *HU_ColorFromConfig(int config);
-char *HU_ColorFromValue(int value);
+char *HU_ColorFromValue(int cm);
+extern void HU_InitColorStrings(void);
+const char *HU_ColorReset(void);
 
 #endif

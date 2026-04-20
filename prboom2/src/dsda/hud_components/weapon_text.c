@@ -26,9 +26,54 @@ typedef struct {
   const char* label_p;
   const char* label_n;
   const char* label_wpn;
+  dboolean color_ammo;
 } local_component_t;
 
 static local_component_t* local;
+
+int dsda_GetWeaponAmmoColor(player_t* player, int weapon) {
+  ammotype_t ammo_type = dsda_GetWeaponAmmo(player, weapon);
+
+  // Weapon has no ammo
+  if (dsda_WeaponNoAmmo(player, ammo_type))
+    return dsda_tc_exhud_weapon_value;
+
+  // Weapon ran out of ammo
+  else if (dsda_OutOfAmmo(player, ammo_type))
+    return dsda_tc_exhud_weapon_out;
+
+  // draw normal ammo
+  else
+  {
+    int ammo_percent = P_AmmoPercent(player, weapon);
+
+    if (ammo_percent < hud_ammo_red)
+      return dsda_tc_exhud_weapon_bad;
+    else if (ammo_percent < hud_ammo_yellow)
+      return dsda_tc_exhud_weapon_warning;
+    else if (ammo_percent < 100)
+      return dsda_tc_exhud_weapon_ok;
+    else
+      return dsda_tc_exhud_weapon_full;
+  }
+}
+
+static const char* dsda_WeaponColor(player_t* player, int num)
+{
+  int ammo_color = (!hexen && local->color_ammo) ? dsda_GetWeaponAmmoColor(player, num) : dsda_tc_exhud_weapon_owned;
+
+  if (!raven)
+  {
+    // Berserk colour
+    if (num == 0)
+    {
+      return player->powers[pw_strength] ? dsda_TextColor(dsda_tc_exhud_weapon_berserk) :
+                                           dsda_TextColor(ammo_color);
+    }
+  }
+
+  return dsda_TextColor(ammo_color);
+}
 
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
   player_t* player;
@@ -39,49 +84,41 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
     snprintf(
       str,
       max_size,
-      "%s%s%s%c %s%c %c\n"
-      "%s%s%s%c %c %c\n"
-      "%s%s%s%c %c %c",
+      "%s%s %s%c %s%c %s%c\n"
+      "%s%s %s%c %s%c %s%c\n"
+      "%s%s %s%c %s%c %s%c",
       dsda_TextColor(dsda_tc_exhud_weapon_label),
       local->label_w,
-      player->powers[pw_strength] ? dsda_TextColor(dsda_tc_exhud_weapon_berserk) :
-                                    dsda_TextColor(dsda_tc_exhud_weapon_owned),
-      player->weaponowned[0] ? '1' : ' ',
-      dsda_TextColor(dsda_tc_exhud_weapon_owned),
-      player->weaponowned[1] ? '2' : ' ',
-      player->weaponowned[2] ? '3' : ' ',
+      dsda_WeaponColor(player, 0), player->weaponowned[0] ? '1' : ' ',
+      dsda_WeaponColor(player, 1), player->weaponowned[1] ? '2' : ' ',
+      dsda_WeaponColor(player, 2), player->weaponowned[2] ? '3' : ' ',
       dsda_TextColor(dsda_tc_exhud_weapon_label),
       local->label_p,
-      dsda_TextColor(dsda_tc_exhud_weapon_owned),
-      player->weaponowned[3] ? '4' : ' ',
-      player->weaponowned[4] ? '5' : ' ',
-      player->weaponowned[5] ? '6' : ' ',
+      dsda_WeaponColor(player, 3), player->weaponowned[3] ? '4' : ' ',
+      dsda_WeaponColor(player, 4), player->weaponowned[4] ? '5' : ' ',
+      dsda_WeaponColor(player, 5), player->weaponowned[5] ? '6' : ' ',
       dsda_TextColor(dsda_tc_exhud_weapon_label),
       local->label_n,
-      dsda_TextColor(dsda_tc_exhud_weapon_owned),
-      player->weaponowned[6] ? '7' : ' ',
-      player->weaponowned[7] ? '8' : ' ',
-      player->weaponowned[8] ? '9' : ' '
+      dsda_WeaponColor(player, 6), player->weaponowned[6] ? '7' : ' ',
+      dsda_WeaponColor(player, 7), player->weaponowned[7] ? '8' : ' ',
+      dsda_WeaponColor(player, 8), player->weaponowned[8] ? '9' : ' '
     );
   else
     snprintf(
       str,
       max_size,
-      "%s%s%s%c %s%c %c %c %c %c %c %c %c",
+      "%s%s%s%c %s%c %s%c %s%c %s%c %s%c %s%c %s%c %s%c",
       dsda_TextColor(dsda_tc_exhud_weapon_label),
       local->label_wpn,
-      player->powers[pw_strength] ? dsda_TextColor(dsda_tc_exhud_weapon_berserk) :
-                                    dsda_TextColor(dsda_tc_exhud_weapon_owned),
-      player->weaponowned[0] ? '1' : ' ',
-      dsda_TextColor(dsda_tc_exhud_weapon_owned),
-      player->weaponowned[1] ? '2' : ' ',
-      player->weaponowned[2] ? '3' : ' ',
-      player->weaponowned[3] ? '4' : ' ',
-      player->weaponowned[4] ? '5' : ' ',
-      player->weaponowned[5] ? '6' : ' ',
-      player->weaponowned[6] ? '7' : ' ',
-      player->weaponowned[7] ? '8' : ' ',
-      player->weaponowned[8] ? '9' : ' '
+      dsda_WeaponColor(player, 0), player->weaponowned[0] ? '1' : ' ',
+      dsda_WeaponColor(player, 1), player->weaponowned[1] ? '2' : ' ',
+      dsda_WeaponColor(player, 2), player->weaponowned[2] ? '3' : ' ',
+      dsda_WeaponColor(player, 3), player->weaponowned[3] ? '4' : ' ',
+      dsda_WeaponColor(player, 4), player->weaponowned[4] ? '5' : ' ',
+      dsda_WeaponColor(player, 5), player->weaponowned[5] ? '6' : ' ',
+      dsda_WeaponColor(player, 6), player->weaponowned[6] ? '7' : ' ',
+      dsda_WeaponColor(player, 7), player->weaponowned[7] ? '8' : ' ',
+      dsda_WeaponColor(player, 8), player->weaponowned[8] ? '9' : ' '
     );
 }
 
@@ -103,6 +140,8 @@ void dsda_InitWeaponTextHC(int x_offset, int y_offset, int vpt, int* args, int a
     local->label_n = "";
     local->label_wpn = "";
   }
+
+  local->color_ammo = arg_count > 2 ? !!args[2] : false;
 
   dsda_InitTextHC(&local->component, x_offset, y_offset, vpt);
 }

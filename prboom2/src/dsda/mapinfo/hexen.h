@@ -26,6 +26,7 @@
 int dsda_HexenNameToMap(int* found, const char* name, int* episode, int* map);
 int dsda_HexenFirstMap(int* episode, int* map);
 int dsda_HexenNewGameMap(int* episode, int* map);
+int dsda_HexenMapToWarp(int* episode, int* map);
 int dsda_HexenResolveWarp(int* args, int arg_count, int* episode, int* map);
 int dsda_HexenNextMap(int* episode, int* map);
 int dsda_HexenPrevMap(int* episode, int* map);

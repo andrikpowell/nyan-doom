@@ -26,6 +26,7 @@
 #include "p_enemy.h"
 #include "p_tick.h"
 
+#include "dsda.h"
 #include "dsda/skill_info.h"
 #include "hexen/p_things.h"
 
@@ -386,6 +387,7 @@ void A_Summon(mobj_t * actor)
     {
         if (P_TestMobjLocation(mo) == false || !actor->special1.m)
         {                       // Didn't fit - change back to artifact
+            dsda_WatchFailedSpawn(mo);
             P_SetMobjState(mo, HEXEN_S_NULL);
             mo = P_SpawnMobj(actor->x, actor->y, actor->z, HEXEN_MT_SUMMONMAULATOR);
             if (mo)

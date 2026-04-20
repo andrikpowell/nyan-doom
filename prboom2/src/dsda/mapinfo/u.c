@@ -69,6 +69,10 @@ int dsda_UNewGameMap(int* episode, int* map) {
   return false;
 }
 
+int dsda_UMapToWarp(int* episode, int* map) {
+  return false;
+}
+
 int dsda_UResolveWarp(int* args, int arg_count, int* episode, int* map) {
   return false;
 }
@@ -103,14 +107,14 @@ int dsda_UPrevMap(int* episode, int* map) {
   if (!gamemapinfo)
     return false;
 
-  for (i = 0; i < Maps.mapcount; ++i)
+  for (i = 0; i < (int)Maps.mapcount; ++i)
     if (
       Maps.maps[i].nextsecret[0] &&
       !stricmp(Maps.maps[i].nextsecret, gamemapinfo->mapname)
     )
       return dsda_NameToMap(Maps.maps[i].mapname, episode, map);
 
-  for (i = 0; i < Maps.mapcount; ++i)
+  for (i = 0; i < (int)Maps.mapcount; ++i)
     if (
       Maps.maps[i].nextmap[0] &&
       !stricmp(Maps.maps[i].nextmap, gamemapinfo->mapname)

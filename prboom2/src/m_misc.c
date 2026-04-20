@@ -54,6 +54,7 @@
 #include "dsda/args.h"
 #include "dsda/game_controller.h"
 #include "dsda/settings.h"
+#include "dsda/text_color.h"
 
 // NSM
 #include "i_capture.h"
@@ -95,8 +96,6 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_ansi_endoom),
   MIGRATED_SETTING(dsda_config_quit_sounds),
   MIGRATED_SETTING(dsda_config_announce_map),
-  MIGRATED_SETTING(dsda_config_obituaries),
-  MIGRATED_SETTING(dsda_config_obituaries_color),
 
   SETTING_HEADING("Game settings"),
   MIGRATED_SETTING(dsda_config_default_complevel),
@@ -109,7 +108,14 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_sts_blink_keys),
   MIGRATED_SETTING(dsda_config_sts_solid_bg_color),
   MIGRATED_SETTING(dsda_config_show_messages),
-  MIGRATED_SETTING(dsda_config_stats_format),
+  MIGRATED_SETTING(dsda_config_colorize_messages),
+  MIGRATED_SETTING(dsda_config_fade_messages),
+  MIGRATED_SETTING(dsda_config_exhud_stats_format),
+  MIGRATED_SETTING(dsda_config_automap_stats_format),
+  MIGRATED_SETTING(dsda_config_secret_format),
+  MIGRATED_SETTING(dsda_config_kills_milestone),
+  MIGRATED_SETTING(dsda_config_items_milestone),
+  MIGRATED_SETTING(dsda_config_secrets_milestone),
   MIGRATED_SETTING(dsda_config_autorun),
   MIGRATED_SETTING(dsda_config_deh_change_cheats),
   MIGRATED_SETTING(dsda_config_movement_strafe50),
@@ -189,12 +195,10 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_aspect_ratio_correction),
   MIGRATED_SETTING(dsda_config_freelook),
   MIGRATED_SETTING(dsda_config_freelook_autoaim),
-  MIGRATED_SETTING(dsda_config_freelook_autoaim_pct),
   MIGRATED_SETTING(dsda_config_freelook_enhanced_flying),
   MIGRATED_SETTING(dsda_config_extra_level_brightness),
 
   SETTING_HEADING("OpenGL settings"),
-  MIGRATED_SETTING(dsda_config_gl_blend_animations),
   MIGRATED_SETTING(dsda_config_gl_render_multisampling),
   MIGRATED_SETTING(dsda_config_gl_render_fov),
   MIGRATED_SETTING(dsda_config_gl_skymode),
@@ -257,6 +261,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_mapcolor_sprt),
   MIGRATED_SETTING(dsda_config_mapcolor_item),
   MIGRATED_SETTING(dsda_config_mapcolor_hair),
+  MIGRATED_SETTING(dsda_config_mapcolor_marker),
   MIGRATED_SETTING(dsda_config_mapcolor_sngl),
   MIGRATED_SETTING(dsda_config_mapcolor_me),
   MIGRATED_SETTING(dsda_config_mapcolor_enemy),
@@ -290,6 +295,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_pickup),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_item),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_hair),
+  MIGRATED_SETTING(dsda_config_mapcolor_heretic_marker),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_sngl),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_me),
   MIGRATED_SETTING(dsda_config_mapcolor_heretic_enemy),
@@ -317,6 +323,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_pickup),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_item),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_hair),
+  MIGRATED_SETTING(dsda_config_mapcolor_hexen_marker),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_sngl),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_me),
   MIGRATED_SETTING(dsda_config_mapcolor_hexen_enemy),
@@ -329,6 +336,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_map_blinking_locks),
   MIGRATED_SETTING(dsda_config_map_secret_after),
   MIGRATED_SETTING(dsda_config_map_show_keys),
+  MIGRATED_SETTING(dsda_config_full_automap_exhud),
   MIGRATED_SETTING(dsda_config_map_coordinates),
   MIGRATED_SETTING(dsda_config_map_totals),
   MIGRATED_SETTING(dsda_config_map_time),
@@ -386,16 +394,21 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_auto_key_frame_timeout),
   MIGRATED_SETTING(dsda_config_auto_save),
   MIGRATED_SETTING(dsda_config_exhud),
-  MIGRATED_SETTING(dsda_config_ex_text_scale_x),
-  MIGRATED_SETTING(dsda_config_ex_text_ratio_y),
+  MIGRATED_SETTING(dsda_config_doom_full_hud),
+  MIGRATED_SETTING(dsda_config_heretic_full_hud),
+  MIGRATED_SETTING(dsda_config_hexen_full_hud),
+  MIGRATED_SETTING(dsda_config_ex_text_scale),
+  MIGRATED_SETTING(dsda_config_ex_text_ratio_height),
   MIGRATED_SETTING(dsda_config_ex_text_tran_filter),
   MIGRATED_SETTING(dsda_config_ex_text_tran_filter_pct),
+  MIGRATED_SETTING(dsda_config_free_text_active),
   MIGRATED_SETTING(dsda_config_free_text),
   MIGRATED_SETTING(dsda_config_wipe_at_full_speed),
   MIGRATED_SETTING(dsda_config_show_demo_attempts),
   MIGRATED_SETTING(dsda_config_hide_horns),
   MIGRATED_SETTING(dsda_config_hide_weapon),
   MIGRATED_SETTING(dsda_config_organized_saves),
+  MIGRATED_SETTING(dsda_config_target_health),
   MIGRATED_SETTING(dsda_config_command_display),
   MIGRATED_SETTING(dsda_config_command_history_size),
   MIGRATED_SETTING(dsda_config_hide_empty_commands),
@@ -406,7 +419,6 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_skip_quit_prompt),
   MIGRATED_SETTING(dsda_config_show_split_data),
   MIGRATED_SETTING(dsda_config_demo_author),
-  MIGRATED_SETTING(dsda_config_player_name),
   MIGRATED_SETTING(dsda_config_quickstart_cache_tics),
   MIGRATED_SETTING(dsda_config_death_use_action),
   MIGRATED_SETTING(dsda_config_mute_sfx),
@@ -416,25 +428,34 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_allow_jumping),
   MIGRATED_SETTING(dsda_config_always_pistol_start),
   MIGRATED_SETTING(dsda_config_disable_horiz_autoaim),
+  MIGRATED_SETTING(dsda_config_enhanced_doom_over_under),
   MIGRATED_SETTING(dsda_config_parallel_sfx_active),
   MIGRATED_SETTING(dsda_config_parallel_sfx_limit),
   MIGRATED_SETTING(dsda_config_parallel_sfx_window),
   MIGRATED_SETTING(dsda_config_movement_toggle_sfx),
   MIGRATED_SETTING(dsda_config_quicksave_sfx),
-  MIGRATED_SETTING(dsda_config_detailed_quicksave),
   MIGRATED_SETTING(dsda_config_switch_when_ammo_runs_out),
   MIGRATED_SETTING(dsda_config_switch_weapon_on_pickup),
+  MIGRATED_SETTING(dsda_config_switch_berserk_preferred),
   MIGRATED_SETTING(dsda_config_ssg_on_arms),
   MIGRATED_SETTING(dsda_config_viewbob),
   MIGRATED_SETTING(dsda_config_weaponbob),
   MIGRATED_SETTING(dsda_config_quake_intensity),
+  MIGRATED_SETTING(dsda_config_swirling_flats),
+  MIGRATED_SETTING(dsda_config_draw_nearby_sprites),
   MIGRATED_SETTING(dsda_config_fuzzmode),
   MIGRATED_SETTING(dsda_config_fuzzscale),
   MIGRATED_SETTING(dsda_config_multiple_area_maps),
+  MIGRATED_SETTING(dsda_config_blockmap_fix),
   MIGRATED_SETTING(dsda_config_organize_failed_demos),
   MIGRATED_SETTING(dsda_config_demo_end_quit),
-  MIGRATED_SETTING(dsda_config_playback_mouse_controls),
+  MIGRATED_SETTING(dsda_config_artifact_descriptions),
   MIGRATED_SETTING(dsda_config_hexen_skip_ethereal_travel),
+  MIGRATED_SETTING(dsda_config_hexen_simpler_puzzle_use),
+  MIGRATED_SETTING(dsda_config_player_name),
+  MIGRATED_SETTING(dsda_config_player_gender),
+  MIGRATED_SETTING(dsda_config_obituaries),
+  MIGRATED_SETTING(dsda_config_playback_mouse_controls),
 
   SETTING_HEADING("Nyan-Doom settings"),
   MIGRATED_SETTING(nyan_config_menu_play_demo),
@@ -447,6 +468,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_hud_berserk),
   MIGRATED_SETTING(nyan_config_hud_armoricon),
   MIGRATED_SETTING(nyan_config_item_bonus_flash),
+  MIGRATED_SETTING(nyan_config_flip_corpses),
   MIGRATED_SETTING(nyan_config_colored_blood),
   MIGRATED_SETTING(nyan_config_colored_blood_baron),
   MIGRATED_SETTING(nyan_config_colored_blood_knight),
@@ -455,8 +477,9 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_loading_disk),
   MIGRATED_SETTING(nyan_config_highlight_nyan_features),
 
-  SETTING_HEADING("Extended HUD Status Widget"),
+  SETTING_HEADING("Extended HUD Status Icons Widget"),
   MIGRATED_SETTING(nyan_config_ex_status_widget),
+  MIGRATED_SETTING(nyan_config_ex_status_blinking),
   MIGRATED_SETTING(nyan_config_ex_status_armor),
   MIGRATED_SETTING(nyan_config_ex_status_berserk),
   MIGRATED_SETTING(nyan_config_ex_status_areamap),
@@ -465,6 +488,29 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_ex_status_invis),
   MIGRATED_SETTING(nyan_config_ex_status_liteamp),
   MIGRATED_SETTING(nyan_config_ex_status_invuln),
+  MIGRATED_SETTING(nyan_config_ex_status_flight),
+  MIGRATED_SETTING(nyan_config_ex_status_tome),
+  MIGRATED_SETTING(nyan_config_ex_status_morph),
+  MIGRATED_SETTING(nyan_config_ex_status_speed),
+  MIGRATED_SETTING(nyan_config_ex_status_maulotaur),
+
+  SETTING_HEADING("Extended HUD Status Timers Widget"),
+  MIGRATED_SETTING(nyan_config_ex_timer_widget),
+  MIGRATED_SETTING(nyan_config_ex_timer_blinking),
+  MIGRATED_SETTING(nyan_config_ex_timer_hide_duration),
+  MIGRATED_SETTING(nyan_config_ex_timer_armor),
+  MIGRATED_SETTING(nyan_config_ex_timer_berserk),
+  MIGRATED_SETTING(nyan_config_ex_timer_areamap),
+  MIGRATED_SETTING(nyan_config_ex_timer_backpack),
+  MIGRATED_SETTING(nyan_config_ex_timer_radsuit),
+  MIGRATED_SETTING(nyan_config_ex_timer_invis),
+  MIGRATED_SETTING(nyan_config_ex_timer_liteamp),
+  MIGRATED_SETTING(nyan_config_ex_timer_invuln),
+  MIGRATED_SETTING(nyan_config_ex_timer_flight),
+  MIGRATED_SETTING(nyan_config_ex_timer_tome),
+  MIGRATED_SETTING(nyan_config_ex_timer_morph),
+  MIGRATED_SETTING(nyan_config_ex_timer_speed),
+  MIGRATED_SETTING(nyan_config_ex_timer_maulotaur),
 
   SETTING_HEADING("Scripts"),
   MIGRATED_SETTING(dsda_config_script_0),
@@ -560,7 +606,8 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_pause", dsda_input_pause, KEYD_PAUSE, -1, -1),
   INPUT_SETTING("input_map", dsda_input_map, KEYD_TAB, -1, DSDA_CONTROLLER_BUTTON_TRIGGERLEFT),
   INPUT_SETTING("input_soundvolume", dsda_input_soundvolume, KEYD_F4, -1, -1),
-  INPUT_SETTING("input_hud", dsda_input_hud, KEYD_F5, -1, -1),
+  INPUT_SETTING("input_hud", dsda_input_hud, -1, -1, -1),
+  INPUT_SETTING("input_hud_cycle", dsda_input_cycle_hud, KEYD_F5, -1, -1),
   INPUT_SETTING("input_messages", dsda_input_messages, KEYD_F8, -1, -1),
   INPUT_SETTING("input_gamma", dsda_input_gamma, KEYD_F11, -1, -1),
   INPUT_SETTING("input_extra_brightness", dsda_input_extra_brightness, 0, -1, -1),
@@ -667,7 +714,10 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_fps", dsda_input_fps, 0, -1, -1),
   INPUT_SETTING("input_avj", dsda_input_avj, 0, -1, -1),
   INPUT_SETTING("input_exhud", dsda_input_exhud, 0, -1, -1),
+  INPUT_SETTING("input_free_text", dsda_input_free_text, 0, -1, -1),
   INPUT_SETTING("input_status_widget", dsda_input_status_widget, 0, -1, -1),
+  INPUT_SETTING("input_timer_widget", dsda_input_timer_widget, 0, -1, -1),
+  INPUT_SETTING("input_target_health", dsda_input_target_health, 0, -1, -1),
   INPUT_SETTING("input_mute_sfx", dsda_input_mute_sfx, 0, -1, -1),
   INPUT_SETTING("input_mute_music", dsda_input_mute_music, 0, -1, -1),
   INPUT_SETTING("input_cheat_codes", dsda_input_cheat_codes, 0, -1, -1),
@@ -758,7 +808,7 @@ void M_SaveDefaults (void)
   for (i = 0; i < input_def_count; i++) {
     int len;
 
-    len = strlen(input_defs[i].name);
+    len = (int)strlen(input_defs[i].name);
     if (len > maxlen && len < 80)
       maxlen = len;
   }
@@ -810,6 +860,8 @@ void M_SaveDefaults (void)
 
     fprintf(f, "\n");
   }
+
+  dsda_SaveTextColorEntries(f, maxlen);
 
   fclose (f);
 }
@@ -884,7 +936,7 @@ void M_LoadDefaults (void)
         if (strparm[0] == '"')
         {
           // get a string
-          len = strlen(strparm);
+          len = (int)strlen(strparm);
           newstring = Z_Malloc(len);
           strparm[len - 1] = 0; // clears trailing double-quote mark
           strcpy(newstring, strparm + 1); // clears leading double-quote mark
@@ -949,6 +1001,8 @@ void M_LoadDefaults (void)
 
               break;
             }
+
+          dsda_LoadTextColorEntries(def, parm);
         }
       }
     }
@@ -1006,7 +1060,7 @@ const char* M_CheckWritableDir(const char *dir)
   const char *result = NULL;
   int len;
 
-  if (!dir || !(len = strlen(dir)))
+  if (!dir || !(len = (int)strlen(dir)))
   {
     return NULL;
   }
@@ -1078,6 +1132,119 @@ void M_ScreenShot(void)
 
   doom_printf ("M_ScreenShot: Couldn't create screenshot");
   return;
+}
+
+// [Woof]
+// String replace function.
+
+// Source - https://stackoverflow.com/questions/27303062/strstr-function-like-that-ignores-upper-or-lower-case
+// Posted by chux, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-01-03, License - CC BY-SA 3.0
+const char *M_strcasestr(const char *haystack, const char *needle)
+{
+    do
+    {
+        const char *h = haystack;
+        const char *n = needle;
+        while (tolower((unsigned char)*h) == tolower((unsigned char)*n) && *n)
+        {
+            h++;
+            n++;
+        }
+        if (*n == 0)
+        {
+            return haystack;
+        }
+    } while (*haystack++);
+    return NULL;
+}
+
+static inline int is_boundary(char c)
+{
+    return c == '\0' || isspace((unsigned char)c) || ispunct((unsigned char)c);
+}
+
+static char *M_StringReplaceEx(const char *haystack, const char *needle,
+                               const char *replacement, const dboolean whole_word)
+{
+    char *result, *dst;
+    const char *p;
+    const size_t needle_len = strlen(needle);
+    const size_t repl_len = strlen(replacement);
+    size_t result_len, dst_len;
+
+    // Iterate through occurrences of 'needle' and calculate the size of
+    // the new string.
+    result_len = strlen(haystack) + 1;
+    p = haystack;
+
+    for (;;)
+    {
+        p = M_strcasestr(p, needle);
+        if (p == NULL)
+        {
+            break;
+        }
+
+        if (!whole_word ||
+            ((p == haystack || is_boundary(p[-1])) &&
+            is_boundary(p[needle_len])))
+        {
+            result_len += repl_len - needle_len;
+        }
+
+        p += needle_len;
+    }
+
+    // Construct new string.
+
+    result = Z_Malloc(result_len);
+    if (result == NULL)
+    {
+        I_Error("Failed to allocate new string");
+        return NULL;
+    }
+
+    dst = result;
+    dst_len = result_len;
+    p = haystack;
+
+    while (*p != '\0')
+    {
+        if (!strncasecmp(p, needle, needle_len) &&
+            (!whole_word ||
+            ((p == haystack || is_boundary(p[-1])) &&
+            is_boundary(p[needle_len]))))
+        {
+            M_StringCopy(dst, replacement, dst_len);
+            p += needle_len;
+            dst += repl_len;
+            dst_len -= repl_len;
+        }
+        else
+        {
+            *dst = *p;
+            ++dst;
+            --dst_len;
+            ++p;
+        }
+    }
+
+    *dst = '\0';
+
+    return result;
+}
+
+char *M_StringReplace(const char *haystack, const char *needle,
+                      const char *replacement)
+{
+    return M_StringReplaceEx(haystack, needle, replacement, false);
+}
+
+char *M_StringReplaceWord(const char *haystack, const char *needle,
+                          const char *replacement)
+{
+    return M_StringReplaceEx(haystack, needle, replacement, true);
 }
 
 // Safe string copy function that works like OpenBSD's strlcpy().

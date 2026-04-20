@@ -74,7 +74,6 @@ int  viewwindowy;
 // CPhipps - made const*'s
 const byte *tranmap;          // translucency filter maps 256x256   // phares
 const byte *main_tranmap;     // killough 4/11/98
-const byte *menu_ui_tranmap;
 
 //
 // R_DrawColumn
@@ -148,6 +147,7 @@ static int scaledfuzzpos = 0;
 int fuzzcellsize;
 int min_fuzzcellsize;
 int scaled_fuzzcellsize;
+int fuzz_cutoff = false;
 
 // render pipelines
 #define RDC_STANDARD      1
@@ -179,7 +179,7 @@ dboolean R_PartialView(void)
 
 dboolean R_StatusBarVisible(void)
 {
-  return R_PartialView() || automap_on;
+  return R_PartialView() || automap_solid || dsda_FullAutomapHud();
 }
 
 //
@@ -506,8 +506,9 @@ void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars) {
   dcvars->colormap = colormaps[0];
   dcvars->translation = NULL;
   dcvars->edgeslope = dcvars->drawingmasked = 0;
+  dcvars->crop = (patch_crop_t){0};
   dcvars->flags = 0;
-  dcvars->clip_top = dcvars->clip_bottom = 0;
+  dcvars->isplayersprite = false;
 
   // heretic
   dcvars->baseclip = -1;
@@ -663,11 +664,11 @@ void R_InitBuffer(int width, int height)
 
   viewwindowy = width == SCREENWIDTH ? 0 : (SCREENHEIGHT - ST_SCALED_HEIGHT - height) >> 1;
 
-  drawvars.topleft = screens[0].data + viewwindowy * screens[0].pitch + viewwindowx;
-  drawvars.pitch = screens[0].pitch;
+  drawvars.topleft = screens[FG].data + viewwindowy * screens[FG].pitch + viewwindowx;
+  drawvars.pitch = screens[FG].pitch;
 
   for (i=0; i<FUZZTABLE; i++)
-    fuzzoffset[i] = fuzzoffset_org[i]*screens[0].pitch;
+    fuzzoffset[i] = fuzzoffset_org[i]*screens[FG].pitch;
   
   if (!tallscreen)
     fuzzcellsize = scaled_fuzzcellsize = (SCREENHEIGHT + 100) / 200;
@@ -742,9 +743,13 @@ static void R_DrawStbarBorder (void)
     if (stretch)
     {
       // Apply screen scaling when in stretch mode
-      x = floorf((x - params->deltax1) * 320.0f / params->video->width);
-      y = floorf((y - params->deltay1) * 200.0f / params->video->height);
-      w = ceilf(w * 320.0f / params->video->width) + 1.0f;
+      float fx = floorf((x - params->deltax1) * 320.0f / params->video->width);
+      float fy = floorf((y - params->deltay1) * 200.0f / params->video->height);
+      float fw = ceilf(w * 320.0f / params->video->width) + 1.0f;
+
+      x = (int)fx;
+      y = (int)fy;
+      w = (int)fw;
     }
     else
     {
@@ -780,10 +785,15 @@ static void R_DrawBorder (int x, int y, int w, int h)
     if (stretch)
     {
       // Apply screen scaling when in stretch mode
-      x = floorf((x - params->deltax1) * 320.0f / params->video->width);
-      y = floorf((y - params->deltay1) * 200.0f / params->video->height);
-      w = ceilf(w * 320.0f / params->video->width);
-      h = ceilf(h * 200.0f / params->video->height);
+      float fx = floorf((x - params->deltax1) * 320.0f / params->video->width);
+      float fy = floorf((y - params->deltay1) * 200.0f / params->video->height);
+      float fw = ceilf(w * 320.0f / params->video->width);
+      float fh = ceilf(h * 200.0f / params->video->height);
+
+      x = (int)fx;
+      y = (int)fy;
+      w = (int)fw;
+      h = (int)fh;
 
       // Avoid gaps between viewport and border
       x += 1;
@@ -822,7 +832,7 @@ static void R_DrawBorder (int x, int y, int w, int h)
 
 void R_FillBackScreen (void)
 {
-  int automap = automap_on;
+  int automap = automap_solid || dsda_FullAutomapHud();
 
   if (grnrock.lumpnum == 0)
     return;
@@ -882,8 +892,8 @@ void R_FillBackScreen (void)
 static void R_CopyScreenBufferSection(int x, int y, int count)
 {
   if (V_IsSoftwareMode())
-    memcpy(screens[0].data+y*screens[0].pitch+x,
-           screens[1].data+y*screens[1].pitch+x,
+    memcpy(screens[FG].data+y*screens[FG].pitch+x,
+           screens[BG].data+y*screens[BG].pitch+x,
            count);   // LFB copy.
 }
 

@@ -68,7 +68,8 @@ static int AnimDefCount;
 static dboolean LevelHasLightning;
 int NextLightningFlash;
 int LightningFlash;
-static int *LightningLightLevels;
+int *LightningLightLevels;
+int LightningLightLevelCount;
 
 void P_AnimateCompatibleSurfaces(void)
 {
@@ -133,8 +134,14 @@ void P_AnimateHexenSurfaces(void)
             }
             if (ad->type == ANIM_FLAT)
             {
-                flattranslation[ad->index] =
-                    FrameDefs[ad->currentFrameDef].index;
+                // [crispy] add support for SMMU swirling flats
+                if (/*ad->tics > 65535 || ad->startFrameDef == ad->endFrameDef || */
+                    // random tics conflict with this, so I'm commenting this out for now
+                    P_IsSmartSwirlFlat(ad->index))
+                    flattranslation[ad->index] = -1;
+                else
+                    flattranslation[ad->index] =
+                        FrameDefs[ad->currentFrameDef].index;
             }
             else
             {                   // Texture
@@ -314,6 +321,8 @@ void P_InitLightning(void)
     {
         LevelHasLightning = false;
         LightningFlash = 0;
+        LightningLightLevelCount = 0;
+        LightningLightLevels = NULL;
         return;
     }
     LightningFlash = 0;
@@ -334,9 +343,12 @@ void P_InitLightning(void)
     else
     {
         LevelHasLightning = false;
+        LightningLightLevelCount = 0;
+        LightningLightLevels = NULL;
         return;
     }
-    LightningLightLevels = (int *) Z_MallocLevel(secCount * sizeof(int));
+    LightningLightLevelCount = secCount;
+    LightningLightLevels = (int *) Z_MallocLevel(LightningLightLevelCount * sizeof(*LightningLightLevels));
     NextLightningFlash = ((P_Random(pr_hexen) & 15) + 5) * 35;  // don't flash at level start
 }
 

@@ -45,9 +45,8 @@
 #include "dstrings.h"
 #include "r_main.h"
 #include "p_map.h"
-#include "d_deh.h"  // Ty 03/27/98 - externalized strings
+#include "deh/strings.h"  // Ty 03/27/98 - externalized strings
 /* cph 2006/07/23 - needs direct access to thinkercap */
-#include "p_tick.h"
 #include "w_wad.h"
 #include "p_setup.h"
 #include "p_user.h"
@@ -55,6 +54,8 @@
 
 #include "heretic/def.h"
 #include "heretic/sb_bar.h"
+#include "heretic/hhe/strings.h"
+#include "hexen/dstrings.h"
 
 #include "dsda.h"
 #include "dsda/args.h"
@@ -292,7 +293,7 @@ cheatseq_t cheat[] = {
   CHEAT("clubmed", NULL, NULL, not_demo, cht_hexen, cheat_reset_health, 0, false),
   CHEAT("butcher", NULL, NULL, not_demo, cht_hexen, cheat_massacre, 0, false),
   CHEAT("nra", NULL, NULL, not_demo, cht_hexen, cheat_fa, 0, false),
-  CHEAT("indiana", NULL, NULL, not_demo, cht_hexen, cheat_inventory, 0, false),
+  CHEAT("indiana", NULL, NULL, not_demo, cht_heretic | cht_hexen, cheat_inventory, 0, false),
   CHEAT("locksmith", NULL, NULL, not_demo, cht_hexen, cheat_k, 0, false),
   CHEAT("sherlock", NULL, NULL, not_demo, cht_hexen, cheat_puzzle, 0, false),
   CHEAT("casper", NULL, NULL, not_classic_demo, cht_hexen, cheat_noclip, 0, false),
@@ -331,10 +332,7 @@ static void cheat_mus(char *buf)
 
   // Check for random
   if (buf[0] == 'r' && buf[1] == 'r')
-  {
-    cheat_musrr();
-    return;
-  }
+    RETURN(cheat_musrr());
 
   //jff 3/20/98 note: this cheat allowed in netgame/demorecord
 
@@ -392,7 +390,7 @@ void M_CheatGod(void)
     P_MapStart();
     mt.x = plyr->mo->x;
     mt.y = plyr->mo->y;
-    mt.angle = (plyr->mo->angle + ANG45/2)*(uint64_t)45/ANG45;
+    mt.angle = (short)((plyr->mo->angle + ANG45/2)*(uint64_t)45/ANG45);
     mt.type = consoleplayer + 1;
     mt.options = 1; // arbitrary non-zero value
     P_SpawnPlayer(consoleplayer, &mt);
@@ -417,10 +415,10 @@ void M_CheatGod(void)
       plyr->mo->health = god_health;  // Ty 03/09/98 - deh
 
     plyr->health = god_health;
-    dsda_AddMessage(s_STSTR_DQDON);
+    dsda_AddMessage(raven ? s_HERETIC_TXT_CHEATGODON : s_STSTR_DQDON);
   }
   else
-    dsda_AddMessage(s_STSTR_DQDOFF);
+    dsda_AddMessage(raven ? s_HERETIC_TXT_CHEATGODOFF : s_STSTR_DQDOFF);
 }
 
 int hexen_suicide_seq = 0;
@@ -449,22 +447,19 @@ static void cheat_hexen_suicide(void)
 static void cheat_god_raven(void)
 {
   P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
-  dsda_AddMessage(HERETIC_TXT_CHEATIDDQD);
+  dsda_AddMessage(s_HERETIC_TXT_CHEATIDDQD);
 }
 
 static void cheat_suicide()
 {
-  P_DamageMobj(plyr->mo, NULL, plyr->mo, 10000);
+  P_DamageMobjBy(plyr->mo, NULL, plyr->mo, 10000, MOD_Nyan_Suicide);
   dsda_AddMessage("Fuck my life");
 }
 
 static void cheat_god()
 {                                    // 'dqd' cheat for toggleable god mode
   if (demorecording)
-  {
-    dsda_QueueExCmdGod();
-    return;
-  }
+    RETURN(dsda_QueueExCmdGod());
 
   M_CheatGod();
 }
@@ -566,6 +561,12 @@ static void cheat_k()
     if (!plyr->cards[i])     // only print message if at least one key added
       {                      // however, caller may overwrite message anyway
         plyr->cards[i] = true;
+
+        if (raven)
+        {
+          if (plyr == &players[consoleplayer])  // Add hexen keys to hud
+            plyr->ravenkeys |= 1 << i;
+        }
         dsda_AddMessage("Keys Added");
       }
 }
@@ -597,7 +598,7 @@ static void cheat_dostrip(int idkfa_raven)
 
   // Force weapon switch
   plyr->pendingweapon = wp_staff;
-  dsda_AddMessage(idkfa_raven ? HERETIC_TXT_CHEATIDKFA : "Stripped down to the bone");
+  dsda_AddMessage(idkfa_raven ? s_HERETIC_TXT_CHEATIDKFA : "Stripped down to the bone");
   return;
 }
 
@@ -622,16 +623,15 @@ static void cheat_kfa()
 
 void M_CheatNoClip(void)
 {
-  dsda_AddMessage((plyr->cheats ^= CF_NOCLIP) & CF_NOCLIP ? s_STSTR_NCON : s_STSTR_NCOFF);
+  const char *str_noclipon  = raven ? s_HERETIC_TXT_CHEATNOCLIPON : s_STSTR_NCON;
+  const char *str_noclipoff = raven ? s_HERETIC_TXT_CHEATNOCLIPOFF : s_STSTR_NCOFF;
+  dsda_AddMessage((plyr->cheats ^= CF_NOCLIP) & CF_NOCLIP ? str_noclipon : str_noclipoff);
 }
 
 static void cheat_noclip()
 {
   if (demorecording)
-  {
-    dsda_QueueExCmdNoClip();
-    return;
-  }
+    RETURN(dsda_QueueExCmdNoClip());
 
   M_CheatNoClip();
 }
@@ -698,7 +698,7 @@ static void cheat_clevx(char *buf)
 
   if (dsda_ResolveCLEV(&epsd, &map))
   {
-    dsda_AddMessage(s_STSTR_CLEV);
+    dsda_AddMessage(raven ? s_HERETIC_TXT_CHEATWARP : s_STSTR_CLEV);
 
     G_DeferedInitNew(gameskill, epsd, map);
   }
@@ -720,10 +720,10 @@ static void cheat_rate()
 static void cheat_comp()
 {
   if (raven)
-    return doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen");
+    RETURN(doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen"));
 
   if (doom_v11)
-    return doom_printf("Cheat disabled");
+    RETURN(doom_printf("Cheat disabled"));
 
   doom_printf("Complevel: %i - %s", compatibility_level, comp_lev_str[compatibility_level]);
 }
@@ -732,10 +732,10 @@ static void cheat_comp()
 static void cheat_compx(char *buf)
 {
   if (raven)
-    return doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen");
+    RETURN(doom_printf("Cheat disabled for %s", heretic ? "Heretic" : "Hexen"));
 
   if (doom_v11)
-    return doom_printf("Cheat disabled");
+    RETURN(doom_printf("Cheat disabled"));
 
   {
     int compinput = (buf[0] - '0') * 10 + buf[1] - '0';
@@ -825,6 +825,9 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
 
   // killough 7/20/98: kill friendly monsters only if no others to kill
   uint64_t mask = MF_FRIEND;
+
+  complete_milestones |= MILESTONE_KILLS; // Don't announce
+
   P_MapStart();
   do
     while ((currentthinker = P_NextThinker(currentthinker,th_all)) != NULL)
@@ -1170,7 +1173,7 @@ static void cheat_reveal_weaponx(char *buf)
 
     // If weapon outside range, exit
     if (weapon < weapon_low || weapon > weapon_high)
-      return dsda_AddMessage("Invalid weapon number");
+      RETURN(dsda_AddMessage("Invalid weapon number"));
 
     {
       int sprite_num = cheat_get_weapon(weapon);
@@ -1327,7 +1330,7 @@ static void cheat_keyx(char *buf)
     return;
 
   if (!heretic)
-    return dsda_AddMessage("Add key: Card, Skull");
+    RETURN(dsda_AddMessage("Add key: Card, Skull"));
 
   switch (buf[0])
   {
@@ -1838,7 +1841,7 @@ static void cheat_ammox(char *buf)
   int a = *buf - '1';
 
   if (hexen)
-    return cheat_hexen_ammox(buf);
+    RETURN(cheat_hexen_ammox(buf));
 
   if (*buf == 'b')  // Ty 03/27/98 - strings *not* externalized
     if ((plyr->backpack = !plyr->backpack))
@@ -1888,7 +1891,7 @@ static void cheat_notarget()
 static void cheat_camera()
 {
   if (!allow_incompatibility)
-    return dsda_AddMessage("Camera Mode Not Allowed");
+    RETURN(dsda_AddMessage("Camera Mode Not Allowed"));
 
   plyr->cheats ^= CF_CAMERA;
   plyr->cheats ^= CF_GODMODE;
@@ -1969,6 +1972,10 @@ static void cheat_fly()
       plyr->cheats ^= CF_FLY;
       if (plyr->cheats & CF_FLY)
       {
+        if (plyr->mo->z <= plyr->mo->floorz)
+        {
+            plyr->mo->z += 8 * FRACUNIT;     // thrust the player in the air a bit
+        }
         plyr->mo->flags |= MF_NOGRAVITY;
         plyr->mo->flags |= MF_FLY;
         dsda_AddMessage("Fly mode ON");
@@ -2255,8 +2262,6 @@ dboolean M_CheatEntered(const char* element, const char* value)
 
 // heretic
 
-#include "p_user.h"
-
 static void cheat_reset_health(void)
 {
   if (heretic && plyr->chickenTics)
@@ -2271,21 +2276,21 @@ static void cheat_reset_health(void)
   {
     plyr->health = plyr->mo->health = MAXHEALTH;
   }
-  dsda_AddMessage(HERETIC_TXT_CHEATHEALTH);
+  dsda_AddMessage(s_HERETIC_TXT_CHEATHEALTH);
 }
 
 static void cheat_artifact()
 {
   if (!heretic) return;
 
-  dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS1);
+  dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTS1);
 }
 
 static void cheat_artifactx(char *buf) // eat keypress for second prompt
 {
   if (!heretic) return;
 
-  dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS2);
+  dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTS2);
 }
 
 static void cheat_artifactxx(char *buf)
@@ -2312,24 +2317,21 @@ static void cheat_artifactxx(char *buf)
         P_GiveArtifact(plyr, i, NULL);
       }
     }
-    dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS3);
+    dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTS3);
   }
   else if (type > arti_none && type < NUMARTIFACTS && count > 0 && count < 10)
   {
     if (gamemode == shareware && (type == arti_superhealth || type == arti_teleport))
-    {
-      dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTSFAIL);
-      return;
-    }
+      RETURN(dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTSFAIL));
+
     for (i = 0; i < count; i++)
-    {
       P_GiveArtifact(plyr, type, NULL);
-    }
-    dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTS3);
+
+    dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTS3);
   }
   else
   {
-    dsda_AddMessage(HERETIC_TXT_CHEATARTIFACTSFAIL);
+    dsda_AddMessage(s_HERETIC_TXT_CHEATARTIFACTSFAIL);
   }
 }
 
@@ -2340,12 +2342,12 @@ static void cheat_tome(void)
   if (plyr->powers[pw_weaponlevel2])
   {
     plyr->powers[pw_weaponlevel2] = 0;
-    dsda_AddMessage(HERETIC_TXT_CHEATPOWEROFF);
+    dsda_AddMessage(s_HERETIC_TXT_CHEATPOWEROFF);
   }
   else
   {
     P_UseArtifact(plyr, arti_tomeofpower);
-    dsda_AddMessage(HERETIC_TXT_CHEATPOWERON);
+    dsda_AddMessage(s_HERETIC_TXT_CHEATPOWERON);
   }
 }
 
@@ -2360,12 +2362,12 @@ static void cheat_chicken(void)
     {
       if (P_UndoPlayerChicken(plyr))
       {
-          dsda_AddMessage(HERETIC_TXT_CHEATCHICKENOFF);
+          dsda_AddMessage(s_HERETIC_TXT_CHEATCHICKENOFF);
       }
     }
     else if (P_ChickenMorphPlayer(plyr))
     {
-      dsda_AddMessage(HERETIC_TXT_CHEATCHICKENON);
+      dsda_AddMessage(s_HERETIC_TXT_CHEATCHICKENON);
     }
   }
   else
@@ -2391,7 +2393,7 @@ static void cheat_init(void)
 {
   if (dsda_ResolveINIT())
   {
-    P_SetMessage(plyr, HERETIC_TXT_CHEATWARP, true);
+    P_SetMessage(plyr, s_HERETIC_TXT_CHEATWARP, true);
   }
 }
 
@@ -2455,10 +2457,7 @@ static void cheat_classx(char *buf)
 
   new_class = 1 + (buf[0] - '0');
   if (new_class > PCLASS_MAGE || new_class < PCLASS_FIGHTER)
-  {
-    P_SetMessage(plyr, HEXEN_TXT_CHEATCLASSFAIL, true);
-    return;
-  }
+    RETURN(P_SetMessage(plyr, HEXEN_TXT_CHEATCLASSFAIL, true));
   plyr->pclass = new_class;
   for (i = 0; i < NUMARMOR; i++)
   {

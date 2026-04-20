@@ -199,21 +199,20 @@ extern int snd_MusicVolume;    // maximum volume for music
 // CPhipps - screen parameters
 extern int desired_screenwidth, desired_screenheight;
 
-extern int automap_active;
+extern int automap_full;
 extern int automap_overlay;
 extern int automap_rotate;
 extern int automap_follow;
 extern int automap_grid;
-extern int autopage;
+extern int autopage_active;
 extern int autopage_fade;
 extern int autopage_parallax;
 
-#define automap_on (automap_active && !automap_overlay)
-#define automap_off (!automap_active && automap_overlay > 0)
-#define automap_stbar (automap_active && R_StatusBarVisible())
-#define automap_input (automap_active)
-#define automap_hud (automap_active && !automap_overlay)
-#define automap_bg (raven ? autopage > 0 : autopage == 2)
+#define automap_on    (automap_full)
+#define automap_solid (automap_full && !automap_overlay)
+
+#define automap_input (automap_full)
+#define automap_stbar (automap_full && R_StatusBarVisible())
 
 typedef enum {
   mnact_nochange = -1,
@@ -242,6 +241,14 @@ extern  int true_basetic;
 extern  int leveltime;       // level time in tics
 extern  int totalleveltimes; // sum of intermission times in tics at second resolution
 extern  int levels_completed;
+
+// [Nugget]
+typedef enum {
+  MILESTONE_KILLS   = (1<<0),
+  MILESTONE_ITEMS   = (1<<1),
+  MILESTONE_SECRETS = (1<<2),
+} milestone_t;
+extern milestone_t complete_milestones;
 
 // --------------------------------------
 // DEMO playback/recording related stuff.

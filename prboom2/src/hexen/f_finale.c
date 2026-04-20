@@ -42,15 +42,11 @@ static const char* FinaleLumpName;
 static int FontABaseLump;
 static char *FinaleText;
 
-// static fixed_t *Palette;
-// static fixed_t *PaletteDelta;
-// static byte *RealPalette;
-
 void Hexen_F_StartFinale(void)
 {
     gameaction = ga_nothing;
     gamestate = GS_FINALE;
-    automap_active = false;
+    automap_full = false;
 
     FinaleStage = 0;
     FinaleCount = 0;
@@ -78,11 +74,11 @@ void Hexen_F_Ticker(void)
         switch (FinaleStage)
         {
             case 1:            // Text 1
-                FinaleEndCount = strlen(FinaleText) * TEXTSPEED + TEXTWAIT;
+                FinaleEndCount = (int)strlen(FinaleText) * TEXTSPEED + TEXTWAIT;
                 break;
             case 2:            // Pic 2, Text 2
                 FinaleText = GetFinaleText(1);
-                FinaleEndCount = strlen(FinaleText) * TEXTSPEED + TEXTWAIT;
+                FinaleEndCount = (int)strlen(FinaleText) * TEXTSPEED + TEXTWAIT;
                 FinaleLumpName = "FINALE2";
                 S_StartSongName("orb", false);
                 break;
@@ -113,6 +109,21 @@ void Hexen_F_Ticker(void)
     }
 }
 
+static void DrawChessOverlay(void)
+{
+    // Coop / Random Class shows all 3 classes, else show current class
+    if (netgame || (PlayerClass[consoleplayer] == PCLASS_RANDOM))
+    {
+        V_DrawNamePatch(20, 0, "chessall", CR_DEFAULT, VPT_STRETCH);
+    }
+    else if (PlayerClass[consoleplayer] > 1)
+    {
+        V_DrawNumPatch(60, 0,
+                        W_GetNumForName("chessc") + PlayerClass[consoleplayer] - 2,
+                        CR_DEFAULT, VPT_STRETCH);
+    }
+}
+
 static void TextWrite(void)
 {
     int count;
@@ -125,16 +136,7 @@ static void TextWrite(void)
     V_DrawRawScreen(FinaleLumpName);
     if (FinaleStage == 5)
     {                           // Chess pic, draw the correct character graphic
-        if (netgame)
-        {
-            V_DrawNamePatch(20, 0, "chessall", CR_DEFAULT, VPT_STRETCH);
-        }
-        else if (PlayerClass[consoleplayer] > 1)
-        {
-            V_DrawNumPatch(60, 0,
-                           W_GetNumForName("chessc") + PlayerClass[consoleplayer] - 2,
-                           CR_DEFAULT, VPT_STRETCH);
-        }
+        DrawChessOverlay();
     }
     // Draw the actual text
     if (FinaleStage == 5)
@@ -186,55 +188,132 @@ static void TextWrite(void)
     }
 }
 
+//
+// FINALE PALETTE FADE
+//
+// This palette fade has the downside of fading the entire screen.
+// I tested doing a palette / colormap shading on top, but they
+// both didn't look as nice as the vanilla fade.
+//
+// The good news is that I reset the palette when starting
+// a new game, which fixes a vanilla bug that leaves the screen
+// with a dark shaded palette.
+//
+// Note: for OpenGL, we use a simple translucent fill block instead
+//
+
+#define HEXEN_FADE_STEPS 70
+
+static dboolean gl_FadeActive;
+static int gl_FadeLevel;
+static int gl_FadeDelta;
+
+static void gl_InitializeFade(dboolean fadeIn)
+{
+  gl_FadeActive = true;
+
+  if (fadeIn)
+  {
+    gl_FadeLevel = HEXEN_FADE_STEPS;
+    gl_FadeDelta = -1;
+  }
+  else
+  {
+    gl_FadeLevel = 0;
+    gl_FadeDelta = 1;
+  }
+}
+
+static void gl_DeInitializeFade(void)
+{
+  gl_FadeActive = false;
+
+  gl_FadeLevel = 0;
+  gl_FadeDelta = 0;
+}
+
+static void gl_FadePic(void)
+{
+  gl_FadeLevel += gl_FadeDelta;
+
+  if (gl_FadeLevel < 0)
+    gl_FadeLevel = 0;
+  else if (gl_FadeLevel > HEXEN_FADE_STEPS)
+    gl_FadeLevel = HEXEN_FADE_STEPS;
+}
+
 // hexen_note: dynamic palette editing
+static fixed_t *Palette;
+static fixed_t *PaletteDelta;
+static byte *RealPalette;
+
 static void InitializeFade(dboolean fadeIn)
 {
-    // unsigned i;
-    //
-    // Palette = Z_Malloc(768 * sizeof(fixed_t));
-    // PaletteDelta = Z_Malloc(768 * sizeof(fixed_t),);
-    // RealPalette = Z_Malloc(768 * sizeof(byte));
-    //
-    // if (fadeIn)
-    // {
-    //     memset(RealPalette, 0, 768 * sizeof(byte));
-    //     for (i = 0; i < 768; i++)
-    //     {
-    //         Palette[i] = 0;
-    //         PaletteDelta[i] = FixedDiv((*((byte *) W_LumpByName("playpal") +
-    //                                       i)) << FRACBITS, 70 * FRACUNIT);
-    //     }
-    // }
-    // else
-    // {
-    //     for (i = 0; i < 768; i++)
-    //     {
-    //         RealPalette[i] =
-    //             *((byte *) W_LumpByName("playpal") + i);
-    //         Palette[i] = RealPalette[i] << FRACBITS;
-    //         PaletteDelta[i] = FixedDiv(Palette[i], -70 * FRACUNIT);
-    //     }
-    // }
-    // I_SetPalette(RealPalette);
+    unsigned i;
+    const byte *playpal;
+
+    if (V_IsOpenGLMode())
+    {
+        gl_InitializeFade(fadeIn);
+    }
+
+    playpal = V_GetPlaypal();
+
+    Palette = Z_Malloc(768 * sizeof(*Palette));
+    PaletteDelta = Z_Malloc(768 * sizeof(*PaletteDelta));
+    RealPalette = Z_Malloc(768 * sizeof(*RealPalette));
+
+    if (fadeIn)
+    {
+        memset(RealPalette, 0, 768 * sizeof(*RealPalette));
+        for (i = 0; i < 768; i++)
+        {
+            Palette[i] = 0;
+            PaletteDelta[i] = FixedDiv((int)playpal[i] << FRACBITS,
+                                    HEXEN_FADE_STEPS * FRACUNIT);
+        }
+    }
+    else
+    {
+        for (i = 0; i < 768; i++)
+        {
+            RealPalette[i] = playpal[i];
+            Palette[i] = RealPalette[i] << FRACBITS;
+            PaletteDelta[i] = FixedDiv(Palette[i], -HEXEN_FADE_STEPS * FRACUNIT);
+        }
+    }
+    V_SetDynamicPalette(RealPalette);
 }
 
 static void DeInitializeFade(void)
 {
-    // Z_Free(Palette);
-    // Z_Free(PaletteDelta);
-    // Z_Free(RealPalette);
+    if (V_IsOpenGLMode())
+    {
+        gl_DeInitializeFade();
+    }
+
+    V_ClearDynamicPalette();
+
+    Z_Free(Palette);
+    Z_Free(PaletteDelta);
+    Z_Free(RealPalette);
 }
 
 static void FadePic(void)
 {
-    // unsigned i;
-    //
-    // for (i = 0; i < 768; i++)
-    // {
-    //     Palette[i] += PaletteDelta[i];
-    //     RealPalette[i] = Palette[i] >> FRACBITS;
-    // }
-    // I_SetPalette(RealPalette);
+    unsigned i;
+
+    if (V_IsOpenGLMode())
+    {
+        gl_FadePic();
+    }
+
+    for (i = 0; i < 768; i++)
+    {
+        Palette[i] += PaletteDelta[i];
+        RealPalette[i] = Palette[i] >> FRACBITS;
+    }
+    V_TouchPalette();
 }
 
 static void DrawPic(void)
@@ -242,15 +321,17 @@ static void DrawPic(void)
     V_DrawRawScreen(FinaleLumpName);
     if (FinaleStage == 4 || FinaleStage == 5)
     {                           // Chess pic, draw the correct character graphic
-        if (netgame)
+        DrawChessOverlay();
+    }
+
+    // For OpenGL, we use a simple translucent fill block instead
+    if (V_IsOpenGLMode())
+    {
+        if (gl_FadeActive)
         {
-            V_DrawNamePatch(20, 0, "chessall", CR_DEFAULT, VPT_STRETCH);
-        }
-        else if (PlayerClass[consoleplayer] > 1)
-        {
-            V_DrawNumPatch(60, 0,
-                           W_GetNumForName("chessc") + PlayerClass[consoleplayer] - 2,
-                           CR_DEFAULT, VPT_STRETCH);
+            extern void gld_FillBlock(int x, int y, int width, int height, int col, int trans_percent);
+            gld_FillBlock(0, 0, SCREENWIDTH, SCREENHEIGHT, playpal_darkest,
+                          gl_FadeLevel * 100 / HEXEN_FADE_STEPS);
         }
     }
 }

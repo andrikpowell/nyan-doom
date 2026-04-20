@@ -33,6 +33,8 @@ extern animDef_t AnimDefs[MAX_ANIM_DEFS];
 
 extern int NextLightningFlash;
 extern int LightningFlash;
+extern int *LightningLightLevels;
+extern int LightningLightLevelCount;
 
 void P_AnimateSurfaces(void);
 void P_ForceLightning(void);

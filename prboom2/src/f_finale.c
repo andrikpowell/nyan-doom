@@ -36,11 +36,13 @@
 #include "d_event.h"
 #include "g_game.h"
 #include "lprintf.h"
+#include "m_random.h"
+#include "p_enemy.h"
 #include "v_video.h"
 #include "w_wad.h"
 #include "s_sound.h"
 #include "sounds.h"
-#include "d_deh.h"  // Ty 03/22/98 - externalizations
+#include "deh/strings.h"  // Ty 03/22/98 - externalizations
 
 #include "heretic/f_finale.h"
 #include "hexen/f_finale.h"
@@ -50,8 +52,10 @@
 #include "dsda/map_format.h"
 #include "dsda/preferences.h"
 #include "dsda/configuration.h"
+#include "dsda/settings.h"
 #include "dsda/animinfo.h"
 #include "dsda/library.h"
+#include "dsda/input.h"
 
 #include "f_finale.h" // CPhipps - hmm...
 
@@ -104,13 +108,12 @@ void F_StartFinale (void)
   int muslump;
   int SkipText;
 
-  if (heretic) return Heretic_F_StartFinale();
-  if (hexen) return Hexen_F_StartFinale();
+  if (heretic)  RETURN(Heretic_F_StartFinale());
+  if (hexen)    RETURN(Hexen_F_StartFinale());
 
   SkipText = dsda_SkipInterText();
 
-  // Arsinikk
-  // If iwad story text and option, move forward in Doom 2 / Plutonia / TNT
+  // [AR] If iwad story text and option, move forward in Doom 2 / Plutonia / TNT
   if (SkipText && (gamemode == commercial) && !F_ShowCast())
   {
     gameaction = ga_worlddone;
@@ -119,7 +122,7 @@ void F_StartFinale (void)
 
   gameaction = ga_nothing;
   gamestate = GS_FINALE;
-  automap_active = false;
+  automap_full = false;
 
   // killough 3/28/98: clear accelerative text flags
   acceleratestage = midstage = 0;
@@ -139,7 +142,7 @@ void F_StartFinale (void)
     S_ChangeMusic(mnum, true);
   }
 
-  // Arsinikk
+  // [AR]
   // If iwad story text and option, do actions for Doom 1
   // Music change above is needed for Doom 1
   // If Doom 2 cast, skip text and do cast
@@ -343,8 +346,8 @@ void F_Ticker(void)
   int i;
   int next_level = false;
 
-  if (heretic) return Heretic_F_Ticker();
-  if (hexen) return Hexen_F_Ticker();
+  if (heretic)  RETURN(Heretic_F_Ticker());
+  if (hexen)    RETURN(Hexen_F_Ticker());
 
   if (dsda_FTicker())
   {
@@ -506,6 +509,7 @@ static const castinfo_t castorder_d1[] = {
 };
 
 static const castinfo_t *castorder = castorder_d2;
+static int castorder_count;
 
 static int castnum;
 static int casttics;
@@ -514,6 +518,11 @@ static dboolean castdeath;
 static int castframes;
 static int castonmelee;
 static dboolean castattacking;
+static uint64_t castflags;
+static uint64_t castflags2;
+static signed char	castangle; // [crispy] turnable cast
+static signed char	castskip; // [crispy] skippable cast
+static dboolean	castflip; // [crispy] flippable death sequence
 static const char *castbackground;
 
 //
@@ -538,9 +547,108 @@ static void F_StartCastMusic(const char* music, dboolean loop_music)
   }
 }
 
+// [crispy] randomize seestate and deathstate sounds in the cast
+static int F_RandomizeSound (int sound)
+{
+	switch (sound)
+	{
+		// [crispy] actor->info->seesound, from p_enemy.c:A_Look()
+		case sfx_posit1:
+		case sfx_posit2:
+		case sfx_posit3:
+			return sfx_posit1 + Nyan_Random()%3;
+			break;
+
+		case sfx_bgsit1:
+		case sfx_bgsit2:
+			return sfx_bgsit1 + Nyan_Random()%2;
+			break;
+
+		// [crispy] actor->info->deathsound, from p_enemy.c:A_Scream()
+		case sfx_podth1:
+		case sfx_podth2:
+		case sfx_podth3:
+			return sfx_podth1 + Nyan_Random()%3;
+			break;
+
+		case sfx_bgdth1:
+		case sfx_bgdth2:
+			return sfx_bgdth1 + Nyan_Random()%2;
+			break;
+
+		default:
+			return sound;
+			break;
+	}
+}
+
+typedef struct
+{
+	void *const action;
+	const int sound;
+	const dboolean early;
+} actionsound_t;
+
+static const actionsound_t actionsounds[] =
+{
+	{A_PosAttack,   sfx_pistol, false},
+	{A_SPosAttack,  sfx_shotgn, false},
+	{A_CPosAttack,  sfx_shotgn, false},
+	{A_CPosRefire,  sfx_shotgn, false},
+	{A_VileTarget,  sfx_vilatk, true},
+	{A_SkelWhoosh,  sfx_skeswg, false},
+	{A_SkelFist,    sfx_skepch, false},
+	{A_SkelMissile, sfx_skeatk, true},
+	{A_FatAttack1,  sfx_firsht, false},
+	{A_FatAttack2,  sfx_firsht, false},
+	{A_FatAttack3,  sfx_firsht, false},
+	{A_HeadAttack,  sfx_firsht, true},
+	{A_BruisAttack, sfx_firsht, true},
+	{A_TroopAttack, sfx_claw,   false},
+	{A_SargAttack,  sfx_sgtatk, true},
+	{A_SkullAttack, sfx_sklatk, false},
+	{A_PainAttack,  sfx_sklatk, true},
+	{A_BspiAttack,  sfx_plasma, false},
+	{A_CyberAttack, sfx_rlaunc, false},
+};
+
+// [crispy] play attack sound based on state action function (instead of state number)
+static int F_SoundForState (int st)
+{
+	void *const castaction = (void *) caststate->action;
+	void *const nextaction = (void *) (&states[caststate->nextstate])->action;
+
+	// [crispy] fix Doomguy in casting sequence
+	if (castaction == NULL)
+	{
+		if (st == S_PLAY_ATK2)
+			return sfx_dshtgn;
+		else
+			return 0;
+	}
+	else
+	{
+		int i;
+
+		for (i = 0; i < arrlen(actionsounds); i++)
+		{
+			const actionsound_t *const as = &actionsounds[i];
+
+			if ((!as->early && castaction == as->action) ||
+			    (as->early && nextaction == as->action))
+			{
+				return as->sound;
+			}
+		}
+	}
+
+	return 0;
+}
+
 void F_StartCast (const char* background, const char* music, dboolean loop_music)
 {
   castorder = (gamemode == commercial ? castorder_d2 : castorder_d1);
+  castorder_count = (gamemode == commercial ? arrlen(castorder_d2) : arrlen(castorder_d1));
   castbackground = (background ? background : bgcastcall);
 
   wipegamestate = -1;         // force a screen wipe
@@ -567,31 +675,73 @@ void F_CastTicker (void)
   if (--casttics > 0)
     return;                 // not time to change state yet
 
-  if (caststate->tics == -1 || caststate->nextstate == S_NULL)
+  if (caststate->tics == -1 || caststate->nextstate == S_NULL || castskip) // [crispy] skippable cast
   {
-    // switch from deathstate to next monster
-    castnum++;
+    if (castskip)
+    {
+        castnum += castskip;
+        castskip = 0;
+    }
+    else
+    {
+      // switch from deathstate to next monster
+      castnum++;
+    }
+
     castdeath = false;
     if (castorder[castnum].name == NULL)
       castnum = 0;
     if (mobjinfo[castorder[castnum].type].seesound)
-      S_StartVoidSound(mobjinfo[castorder[castnum].type].seesound);
+      S_StartVoidSound(F_RandomizeSound(mobjinfo[castorder[castnum].type].seesound));
     caststate = &states[mobjinfo[castorder[castnum].type].seestate];
+    castflags  = mobjinfo[castorder[castnum].type].flags;
+    castflags2 = mobjinfo[castorder[castnum].type].flags2;
     castframes = 0;
+    castangle = 0; // [crispy] turnable cast
+    castflip = false; // [crispy] flippable death sequence
   }
   else
   {
     // just advance to next state in animation
-    if (caststate == &states[S_PLAY_ATK1])
-      goto stopattack;    // Oh, gross hack!
-    st = caststate->nextstate;
+
+    // [crispy] Allow A_RandomJump() in deaths in cast sequence
+    if (caststate->action == A_RandomJump && Nyan_Random() < caststate->misc2)
+    {
+        st = caststate->misc1;
+    }
+    else
+    {
+      // [crispy] fix Doomguy in casting sequence
+      if (!castdeath && caststate == &states[S_PLAY_ATK1])
+          st = S_PLAY_ATK2;
+      else
+      if (!castdeath && caststate == &states[S_PLAY_ATK2])
+          goto stopattack;    // Oh, gross hack!
+      else
+        st = caststate->nextstate;
+    }
+
     caststate = &states[st];
     castframes++;
 
+    // [AR] allow flags to be altered in cast sequence
+    if (caststate->action == A_AddFlags)
+    {
+      castflags  |= caststate->args[0];
+      castflags2 |= caststate->args[1];
+    }
+    else if (caststate->action == A_RemoveFlags)
+    {
+      castflags  &= ~caststate->args[0];
+      castflags2 &= ~caststate->args[1];
+    }
+
+    sfx = F_SoundForState(st);
+/*
     // sound hacks....
     switch (st)
     {
-      case S_PLAY_ATK1:     sfx = sfx_dshtgn; break;
+      case S_PLAY_ATK2:     sfx = sfx_dshtgn; break; // [crispy] fix Doomguy in casting sequence
       case S_POSS_ATK2:     sfx = sfx_pistol; break;
       case S_SPOS_ATK2:     sfx = sfx_shotgn; break;
       case S_VILE_ATK2:     sfx = sfx_vilatk; break;
@@ -619,12 +769,12 @@ void F_CastTicker (void)
       case S_PAIN_ATK3:     sfx = sfx_sklatk; break;
       default: sfx = 0; break;
     }
-
+*/
     if (sfx)
       S_StartVoidSound(sfx);
   }
 
-  if (castframes == 12)
+  if (!castdeath && castframes == 12)
   {
     // go into attack frame
     castattacking = true;
@@ -657,8 +807,23 @@ void F_CastTicker (void)
   }
 
   casttics = caststate->tics;
+
   if (casttics == -1)
-      casttics = 15;
+  {
+    // [crispy] Allow A_RandomJump() in deaths in cast sequence
+    if (caststate->action == A_RandomJump)
+    {
+        if (Nyan_Random() < caststate->misc2)
+          caststate = &states[caststate->misc1];
+        else
+          caststate = &states[caststate->nextstate];
+
+        casttics = caststate->tics;
+    }
+
+    if (casttics == -1)
+        casttics = 15;
+  }
 }
 
 
@@ -668,20 +833,80 @@ void F_CastTicker (void)
 
 dboolean F_CastResponder (event_t* ev)
 {
+  dboolean xdeath = false;
+
   if (ev->type != ev_keydown)
     return false;
+
+  // [crispy] make monsters turnable in cast ...
+  if (dsda_InputActivated(dsda_input_turnleft))
+  {
+    if (++castangle > 7)
+        castangle = 0;
+    return false;
+  }
+  else if (dsda_InputActivated(dsda_input_turnright))
+  {
+    if (--castangle < 0)
+        castangle = 7;
+    return false;
+  }
+  else
+  // [crispy] ... and allow to skip through them ..
+  if (dsda_InputActivated(dsda_input_strafeleft))
+  {
+    castskip = castnum ? -1 : castorder_count - 2;
+    return false;
+  }
+  else
+  if (dsda_InputActivated(dsda_input_straferight))
+  {
+    castskip = +1;
+    return false;
+  }
+
+  // [crispy] ... and finally turn them into gibbs
+  if (dsda_InputActivated(dsda_input_speed))
+    xdeath = true;
 
   if (castdeath)
     return true;                    // already in dying frames
 
   // go into death frame
   castdeath = true;
-  caststate = &states[mobjinfo[castorder[castnum].type].deathstate];
+  if (xdeath && mobjinfo[castorder[castnum].type].xdeathstate)
+	  caststate = &states[mobjinfo[castorder[castnum].type].xdeathstate];
+  else
+    caststate = &states[mobjinfo[castorder[castnum].type].deathstate];
   casttics = caststate->tics;
+
+  // [crispy] Allow A_RandomJump() in deaths in cast sequence
+  if (casttics == -1 && caststate->action == A_RandomJump)
+  {
+      if (Nyan_Random() < caststate->misc2)
+      {
+          caststate = &states [caststate->misc1];
+      }
+      else
+      {
+          caststate = &states [caststate->nextstate];
+      }
+      casttics = caststate->tics;
+  }
+
   castframes = 0;
   castattacking = false;
-  if (mobjinfo[castorder[castnum].type].deathsound)
-    S_StartVoidSound(mobjinfo[castorder[castnum].type].deathsound);
+  if (xdeath && mobjinfo[castorder[castnum].type].xdeathstate)
+      S_StartSound (NULL, sfx_slop);
+  else
+    if (mobjinfo[castorder[castnum].type].deathsound)
+      S_StartVoidSound(F_RandomizeSound(mobjinfo[castorder[castnum].type].deathsound));
+
+  // [crispy] flippable death sequence
+  castflip = dsda_AllowMirroredCorpses() &&
+    castdeath &&
+    (mobjinfo[castorder[castnum].type].flags_extra & MFX_MIRROREDCORPSE) &&
+    (Nyan_Random() & 1);
 
   return true;
 }
@@ -747,7 +972,10 @@ void F_CastDrawer (void)
   spritedef_t*        sprdef;
   spriteframe_t*      sprframe;
   int                 lump;
-  dboolean             flip;
+  dboolean            flip;
+  int                 rot;
+  int                 cm;
+  int                 exflags;
 
   // e6y: wide-res
   V_ClearBorder(castbackground);
@@ -760,12 +988,36 @@ void F_CastDrawer (void)
   // draw the current frame in the middle of the screen
   sprdef = &sprites[caststate->sprite];
   sprframe = &sprdef->spriteframes[ caststate->frame & FF_FRAMEMASK];
-  lump = sprframe->lump[0];
-  flip = (dboolean)(sprframe->flip & 1);
+  rot = castangle * 2;
+  lump = sprframe->lump[rot]; // [crispy] turnable cast
+  flip = (dboolean)sprframe->flip[rot] ^ castflip; // [crispy] turnable cast, flippable death sequence
+
+  // set defaults
+  cm = CR_DEFAULT;
+  exflags = 0;
+
+  // [AR] allow colour translation
+  if (castflags & MF_TRANSLATION)
+  {
+    cm = CR_LIMIT + ((castflags & MF_TRANSLATION) >> MF_TRANSSHIFT);
+    exflags |= VPT_COLOR;
+  }
+
+  // [AR] allow translucency
+  if (castflags & MF_TRANSLUCENT)
+  {
+    exflags |= VPT_TRANSMAP;
+  }
+
+  // [AR] allow fuzz
+  if (castflags & MF_SHADOW)
+  {
+    exflags |= VPT_FUZZ;
+  }
 
   // CPhipps - patch drawing updated
-  V_DrawNumPatch(160, 170, lump+firstspritelump, CR_DEFAULT,
-     VPT_STRETCH | (flip ? VPT_FLIP : 0));
+  V_DrawNumPatch(160, 170, lump+firstspritelump, cm,
+     VPT_STRETCH | (flip ? VPT_FLIP : 0) | exflags);
 }
 
 //
@@ -891,8 +1143,8 @@ void F_StartPostFinale (void)
 //
 void F_Drawer (void)
 {
-  if (heretic) return Heretic_F_Drawer();
-  if (hexen) return Hexen_F_Drawer();
+  if (heretic)  RETURN(Heretic_F_Drawer());
+  if (hexen)    RETURN(Hexen_F_Drawer());
 
   if (dsda_FDrawer())
   {

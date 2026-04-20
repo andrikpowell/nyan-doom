@@ -19,10 +19,6 @@
 
 #include "base.h"
 
-static char digit_lump[9];
-static const char* digit_lump_format;
-static const char* digit_negative_lump_format;
-
 int dsda_HudComponentY(int y_offset, int vpt, double ratio) {
   int dsda_ExHudVerticalOffset(void);
 
@@ -30,7 +26,7 @@ int dsda_HudComponentY(int y_offset, int vpt, double ratio) {
   int vpt_align;
 
   if (ratio)
-    y_offset *= ratio;
+    y_offset = (int)(y_offset * ratio);
 
   vpt_align = vpt & VPT_ALIGN_MASK;
   if (BOTTOM_ALIGNMENT(vpt_align)) {
@@ -82,75 +78,10 @@ void dsda_InitPatchHC(dsda_patch_component_t* component, int x_offset, int y_off
   component->x = x;
   component->y = y;
   component->vpt = vpt;
-
-  if (raven)
-  {
-    digit_lump_format = "IN%.1d";
-    digit_negative_lump_format = "INRED%.1d";
-  }
-  else
-  {
-    digit_lump_format = digit_negative_lump_format = "STTNUM%.1d";
-  }
 }
 
-int dsda_HexenArmor(player_t* player) {
-  int temp = pclass[player->pclass].auto_armor_save
-             + player->armorpoints[ARMOR_ARMOR]
-             + player->armorpoints[ARMOR_SHIELD]
-             + player->armorpoints[ARMOR_HELMET]
-             + player->armorpoints[ARMOR_AMULET];
-  return FixedDiv(temp, 5 * FRACUNIT) >> FRACBITS;
-}
-
-static void dsda_DrawBigDigit(int x, int y, int cm, int vpt, int digit, int negative) {
-  const char* digit_lump_type = negative && !sts_colored_numbers ? digit_negative_lump_format : digit_lump_format;
-  int flags = sts_colored_numbers ? VPT_COLOR : VPT_NONE;
-
-  if (digit > 9 || digit < 0)
-    return;
-
-  snprintf(digit_lump, sizeof(digit_lump), digit_lump_type, digit);
-  V_DrawNamePatch(x, y, digit_lump, cm, vpt | flags);
-}
-
-static int digit_mod[6] = { 1, 10, 100, 1000, 10000, 100000 };
-static int digit_div[6] = { 1,  1,  10,  100,  1000,  10000 };
-
-void dsda_DrawBigNumber(int x, int y, int delta_x, int delta_y, int cm, int vpt, int count, int n, int negative) {
-  int i;
-  int digit, any_digit;
-
-  if (count > 5)
-    return;
-
-  any_digit = 0;
-
-  for (i = count; i > 0; --i) {
-    digit = (n % digit_mod[i]) / digit_div[i];
-    any_digit |= digit;
-
-    if (any_digit || i == 1)
-      dsda_DrawBigDigit(x, y, cm, vpt, digit, negative);
-
-    x += delta_x;
-  }
-}
-
-void dsda_DrawBasicText(dsda_text_t* component) {
-  HUlib_drawTextLine(&component->text, false, false, false);
-}
-
-void dsda_DrawYellowText(dsda_text_t* component, dboolean yellow) {
-  HUlib_drawTextLine(&component->text, yellow, false, false);
-}
-
-void dsda_DrawBasicShadowedText(dsda_text_t* component) {
-  HUlib_drawTextLine(&component->text, false, true, false);
-}
-
-void dsda_DrawYellowShadowedText(dsda_text_t* component, dboolean yellow) {
-  HUlib_drawTextLine(&component->text, yellow, true, false);
+void dsda_DrawBasicText_Adv(dsda_text_t* component, dboolean yellow, dboolean shadow) {
+  HUlib_drawTextLine(&component->text, yellow, shadow, false);
 }
 
 void dsda_RefreshHudText(dsda_text_t* component) {
@@ -170,4 +101,49 @@ void dsda_RefreshHudTextWrapped(dsda_text_t* component, int centered, int max_li
 
   s = component->msg;
   HUlib_WrapStringToTextLines(&component->text, s, centered, max_lines);
+}
+
+//
+//
+// ammo stuff
+//
+//
+
+ammotype_t dsda_GetReadyAmmo(player_t* player) {
+  return weaponinfo[player->readyweapon].ammo;
+}
+
+ammotype_t dsda_GetWeaponAmmo(player_t* player, int weapon) {
+  return weaponinfo[weapon].ammo;
+}
+
+dboolean dsda_WeaponNoAmmo(player_t* player, ammotype_t ammo_type) {
+  return ammo_type == am_noammo || !player->maxammo[ammo_type];
+}
+
+dboolean dsda_OutOfAmmo(player_t* player, ammotype_t ammo_type) {
+  return ammo_type != am_noammo && player->ammo[ammo_type] <= 0;
+}
+
+int dsda_AmmoColorBig(player_t* player) {
+  ammotype_t ammo_type = dsda_GetReadyAmmo(player);
+
+  // Weapon ran out of ammo
+  if (dsda_OutOfAmmo(player, ammo_type))
+    return dsda_tc_stbar_ammo_out;
+
+  // draw normal ammo
+  else
+  {
+    int ammo_percent = P_AmmoPercent(player, player->readyweapon);
+
+    if (ammo_percent < hud_ammo_red)
+      return dsda_tc_stbar_ammo_bad;
+    else if (ammo_percent < hud_ammo_yellow)
+      return dsda_tc_stbar_ammo_warning;
+    else if (ammo_percent < 100)
+      return dsda_tc_stbar_ammo_ok;
+    else
+      return dsda_tc_stbar_ammo_full;
+  }
 }

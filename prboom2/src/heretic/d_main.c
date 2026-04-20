@@ -20,8 +20,6 @@
 #include "g_game.h"
 #include "d_main.h"
 
-#include "heretic/dstrings.h"
-
 static void Heretic_D_DrawTitle(const char *_x)
 {
   D_SetPage("TITLE", 210, heretic_mus_titl);
@@ -40,6 +38,11 @@ static void Heretic_D_DrawCredits(const char *_x)
 static void Heretic_D_DrawOrder(const char *_x)
 {
   D_SetPage("ORDER", 200, 0);
+}
+
+static void Heretic_D_DynamicCredits(const char *x)
+{
+  D_SetPage(NULL, 200, 0);
 }
 
 const demostate_t heretic_demostates[][4] =
@@ -67,9 +70,9 @@ const demostate_t heretic_demostates[][4] =
 
   {
     { Heretic_D_DrawCredits, NULL },
-    { Heretic_D_DrawCredits, NULL },
-    { Heretic_D_DrawCredits, NULL },
-    { Heretic_D_DrawCredits, NULL },
+    { Heretic_D_DynamicCredits, NULL },
+    { Heretic_D_DynamicCredits, NULL },
+    { Heretic_D_DynamicCredits, NULL },
   },
 
   {

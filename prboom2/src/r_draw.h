@@ -82,9 +82,11 @@ typedef struct draw_column_vars_s
   int                 edgeslope; // OR'ed RDRAW_EDGESLOPE_*
   // 1 if R_DrawColumn* is currently drawing a masked column, otherwise 0
   int                 drawingmasked;
+  patch_crop_t crop;     // [AR] Patch cropping
   unsigned int        flags; //e6y: for detect patches ind colfunc()
-  int clip_top;     // New!
-  int clip_bottom;  // New!
+
+  // [AR] mark weapon sprite
+  dboolean            isplayersprite;
 
   // heretic
   int baseclip;
@@ -167,6 +169,7 @@ void R_CheckFuzzCol(int x, int height);
 extern int fuzzcellsize;
 extern int min_fuzzcellsize;
 extern int scaled_fuzzcellsize;
+extern int fuzz_cutoff;
 
 extern void R_UpdateFuzzSize(void);
 

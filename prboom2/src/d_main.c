@@ -79,7 +79,9 @@
 #include "r_main.h"
 #include "r_fps.h"
 #include "d_main.h"
-#include "d_deh.h"  // Ty 04/08/98 - Externalizations
+#include "deh/deh.h"  // Ty 04/08/98 - Externalizations
+#include "deh/nyan.h"
+#include "deh/cheat.h"
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "am_map.h"
 #include "e6y.h"
@@ -91,6 +93,7 @@
 #include "dsda/features.h"
 #include "dsda/global.h"
 #include "dsda/save.h"
+#include "dsda/stretch.h"
 #include "dsda/data_organizer.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
@@ -286,13 +289,9 @@ static void D_Wipe(void)
   do
   {
     int nowtime, tics;
-    do
-    {
-      I_uSleep(5000); // CPhipps - don't thrash cpu in this loop
-      nowtime = dsda_GetTick();
-      tics = nowtime - wipestart;
-    }
-    while (!tics);
+    I_uSleep(5000); // CPhipps - don't thrash cpu in this loop
+    nowtime = dsda_GetTick();
+    tics = nowtime - wipestart;
 
     // elim - Enable render-to-texture for GL so "melt" is rendered at same resolution as the game scene
     if (V_IsOpenGLMode())
@@ -301,7 +300,6 @@ static void D_Wipe(void)
       dsda_GLStartMeltRenderTexture();
     }
 
-    wipestart = nowtime;
     done = wipe_ScreenWipe(tics);
 
     // elim - Render texture to screen
@@ -318,6 +316,9 @@ static void D_Wipe(void)
     }
 
     I_FinishUpdate();             // page flip or blit buffer
+
+    if (tics > 0)
+      wipestart = nowtime;
   }
   while (!done);
 
@@ -340,26 +341,31 @@ extern dboolean setsizeneeded;
 
 static void D_DrawPause(void)
 {
+  stretch_param_t *params;
+  int viewwindowy_scaled;
+  const char* pause_lump;
+  int pause_space;
+  int pause_x;
+  int pause_y;
+
   if (dsda_PauseMode(PAUSE_BUILDMODE))
     return;
 
+  params = dsda_StretchParams(VPT_STRETCH);
+  viewwindowy_scaled = (viewwindowy - params->deltay1) * 200 / params->video->height;
+
   V_BeginUIDraw();
 
-  if (hexen)
-  {
-    if (!netgame)
-    {
-      V_DrawNamePatch(160, viewwindowy + 5, "PAUSED", CR_DEFAULT, VPT_STRETCH);
-    }
-    else
-    {
-      V_DrawNamePatch(160, 70, "PAUSED", CR_DEFAULT, VPT_STRETCH);
-    }
-  }
-  else if (heretic)
-    MN_DrawPause();
-  else
-    V_DrawNamePatch((320 - V_NamePatchWidth("M_PAUSE")) / 2, 4, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
+  pause_lump = raven ? "PAUSED" : "M_PAUSE";
+  pause_space = raven ? 5 : 4;
+
+  pause_x = raven ? 160 : (320 - V_NamePatchWidth(pause_lump)) / 2;
+  pause_y = automap_full ? pause_space : viewwindowy_scaled + pause_space;
+
+  if (raven && netgame)
+    pause_y = 70;
+
+  V_DrawNamePatch(pause_x, pause_y, pause_lump, CR_DEFAULT, VPT_STRETCH);
 
   V_EndUIDraw();
 }
@@ -441,8 +447,8 @@ void D_Display (fixed_t frac)
   }
   else { // In a level
     // Work out if the player view is visible, and if there is a border
-    viewactive = automap_off && !inhelpscreens;
-    isborder = viewactive ? R_PartialView() : (!inhelpscreens && automap_active);
+    viewactive = !inhelpscreens && !automap_solid;
+    isborder = viewactive ? R_PartialView() : (!inhelpscreens && automap_full);
 
     if (oldgamestate != GS_LEVEL || must_fill_back_screen) {
       must_fill_back_screen = false;
@@ -482,10 +488,10 @@ void D_Display (fixed_t frac)
     frame_fixedcolormap = 0;
 
     // Draw statusbar for software with full view and solid automap
-    if (V_IsSoftwareMode() && R_FullView() && automap_on)
+    if (R_FullView() && (automap_solid || dsda_FullAutomapHud()))
       R_DrawViewBorder();
 
-    if (automap_active)
+    if (automap_full)
     {
       AM_Drawer(false);
     }
@@ -504,15 +510,15 @@ void D_Display (fixed_t frac)
   isborderstate      = isborder;
   oldgamestate = wipegamestate = gamestate;
 
+  // capture wipe end before menu overlay/menu is drawn
+  if (wipe) {
+    wipe_EndScreen();
+  }
+
   // draw pause pic
   if (dsda_Paused() && (menuactive != mnact_full)) {
     D_DrawPause();
   }
-
-  V_BeginMenuDraw();
-  if (M_MenuIsShaded())
-    M_ShadedScreen();
-  V_EndMenuDraw();
 
   // menus go directly to the screen
   M_Drawer();          // menu is drawn even on top of everything
@@ -526,7 +532,6 @@ void D_Display (fixed_t frac)
     I_FinishUpdate ();              // page flip or blit buffer
   else {
     // wipe update
-    wipe_EndScreen();
     D_Wipe();
   }
 
@@ -660,15 +665,22 @@ static void D_PageDrawer(void)
 {
   if (raven)
   {
-    V_DrawRawScreen(pagename);
-    if (demosequence == 1)
+    if (pagename)
     {
-      V_DrawNamePatch(4, 160, "ADVISOR", CR_DEFAULT, VPT_STRETCH);
+      V_DrawRawScreen(pagename);
+      if (demosequence == 1)
+      {
+        V_DrawNamePatch(4, 160, "ADVISOR", CR_DEFAULT, VPT_STRETCH);
+      }
     }
+    else if ((dsda_SkipIwadDemos() && W_PWADLumpNameExists(credit)))
+      V_DrawRawScreen(credit);
+    else
+      M_DrawCreditsDynamic();
     return;
   }
 
-  // Arsinikk - allows use of HELP2 screen for PWADs under DOOM 1
+  // [AR] allows use of HELP2 screen for PWADs under DOOM 1
   if (demosequence == 4 && pwad_help2_check)
     pagename = help2;
 
@@ -882,7 +894,7 @@ void D_AddFile (const char *file, wad_source_t source)
   wadfiles[numwadfiles].handle = 0;
 
   // No Rest For The Living
-  len=strlen(wadfiles[numwadfiles].name);
+  len=(int)strlen(wadfiles[numwadfiles].name);
   if (len>=9 && !strnicmp(wadfiles[numwadfiles].name+len-9,"nerve.wad",9))
     gamemission = pack_nerve;
 
@@ -1194,12 +1206,12 @@ static dboolean FileMatchesIWAD(const char *name)
   int i;
   int name_length;
 
-  name_length = strlen(name);
+  name_length = (int)strlen(name);
   for (i = 0; i < nstandard_iwads; ++i)
   {
     int iwad_length;
 
-    iwad_length = strlen(standard_iwads[i]);
+    iwad_length = (int)strlen(standard_iwads[i]);
     if (
       name_length >= iwad_length &&
       !stricmp(name + name_length - iwad_length, standard_iwads[i])
@@ -1241,6 +1253,7 @@ static void DoLooseFiles(void)
     { ".lmp", dsda_arg_playdemo },
     { ".deh", dsda_arg_deh },
     { ".bex", dsda_arg_deh },
+    { ".hhe", dsda_arg_deh },
     // assume wad if no extension or length of the extention is not equal to 3
     // must be last entry
     { "", dsda_arg_file },
@@ -1368,7 +1381,7 @@ static void D_ProcessDehAutoloadQueue(deh_queue_t *queue)
 
   for (i = 0; i < queue->count; ++i)
   {
-    ProcessDehFile(queue->list[i], D_dehout(), 0);
+    ProcessDehacked(queue->list[i], D_dehout(), 0);
     Z_Free(queue->list[i]);
   }
 
@@ -1403,7 +1416,7 @@ static void LoadDehackedFilesAtPath(const char *path, dboolean defer_loading, de
     glob_t *glob;
 
     glob = I_StartMultiGlob(path, GLOB_FLAG_NOCASE|GLOB_FLAG_SORTED,
-                            "*.deh", "*.bex", NULL);
+                            "*.deh", "*.bex", "*.hhe", NULL);
     for (;;)
     {
         filename = I_NextGlob(glob);
@@ -1422,7 +1435,7 @@ static void LoadDehackedFilesAtPath(const char *path, dboolean defer_loading, de
         }
         else
         {
-            ProcessDehFile(filename, D_dehout(), 0);
+            ProcessDehacked(filename, D_dehout(), 0);
         }
     }
 
@@ -1522,7 +1535,7 @@ static void D_AutoloadPWadDir()
 {
   int i;
 
-  autoload_deh_pwad_count = numwadfiles;
+  autoload_deh_pwad_count = (int)numwadfiles;
   autoload_deh_pwad_queue = Z_Calloc(autoload_deh_pwad_count, sizeof(*autoload_deh_pwad_queue));
 
   for (i = 0; i < numwadfiles; ++i)
@@ -1530,8 +1543,8 @@ static void D_AutoloadPWadDir()
     {
       char *autoload_dir;
       autoload_dir = GetAutoloadDir(dsda_BaseName(wadfiles[i].name), false);
-      LoadWADsAtPath(autoload_dir, source_auto_load);
-      LoadZIPsAtPath(autoload_dir, source_auto_load, &autoload_deh_pwad_queue[i]);
+      LoadWADsAtPath(autoload_dir, source_pwad_auto_load);
+      LoadZIPsAtPath(autoload_dir, source_pwad_auto_load, &autoload_deh_pwad_queue[i]);
       Z_Free(autoload_dir);
     }
 }
@@ -1781,13 +1794,13 @@ static void dsda_Loadfiles(void)
 
       if (!dsda_FileExtension(file_name))
       {
-        const char *extensions[] = { ".wad", ".lmp", ".zip", ".deh", ".bex", NULL };
+        const char *extensions[] = { ".wad", ".lmp", ".zip", ".deh", ".bex", ".hhe", NULL };
 
         file = I_RequireAnyFile(file_name, extensions);
         file_name = file;
       }
 
-      if (dsda_HasFileExt(file_name, ".deh") || dsda_HasFileExt(file_name, ".bex"))
+      if (dsda_HasFileExt(file_name, ".deh") || dsda_HasFileExt(file_name, ".bex") || dsda_HasFileExt(file_name, ".hhe"))
       {
         if (MainLumpCache)
           dsda_AppendStringArg(dsda_arg_deh, file_name);
@@ -1944,6 +1957,7 @@ static void D_DoomMainSetup(void)
   int p;
   dsda_arg_t *arg;
   dboolean autoload;
+  const char* DehackedLump;
 
   setbuf(stdout,NULL);
 
@@ -1961,7 +1975,6 @@ static void D_DoomMainSetup(void)
   IdentifyVersion(); // Get IWAD
 
   dsda_InitGlobal();
-  Nyan_InitRandom();
 
   // e6y: DEH files preloaded in wrong order
   // http://sourceforge.net/tracker/index.php?func=detail&aid=1418158&group_id=148658&atid=772943
@@ -2038,10 +2051,10 @@ static void D_DoomMainSetup(void)
   //e6y: Calculate the screen resolution and init all buffers
   I_InitScreenResolution();
 
-  //e6y: some stuff from command-line should be initialised before ProcessDehFile()
+  //e6y: some stuff from command-line should be initialised before ProcessDehacked()
   e6y_InitCommandLine();
 
-  D_AddFile(port_wad_file, source_auto_load);
+  D_AddFile(port_wad_file, source_port_wad);
 
   // Check arguments for demoplayback / demorecording
   started_demo = dsda_Flag(dsda_arg_record) || dsda_Flag(dsda_arg_recordfromto) ||
@@ -2104,52 +2117,60 @@ static void D_DoomMainSetup(void)
   if (limitremoving_arg)
     lprintf(LO_INFO, "Limit-removing detected. Overflows disabled\n");
 
+  // to allow runtime deh cheat swapping, we copy main cheats over to deh cheats
   dsda_CopyDefaultCheats();
+
+  DehackedLump = !heretic ? "DEHACKED" : "HEHACKED";
 
   // e6y
   // option to disable automatic loading of dehacked-in-wad lump
   if (!dsda_Flag(dsda_arg_nodeh))
   {
     // MBF-style DeHackEd in wad support: load all lumps, not just the last one
-    for (p = -1; (p = W_ListNumFromName("DEHACKED", p)) >= 0; )
+    for (p = -1; (p = W_ListNumFromName(DehackedLump, p)) >= 0; )
       // Split loading DEHACKED lumps into IWAD/autoload and PWADs/others
       if (lumpinfo[p].source == source_iwad
-          || lumpinfo[p].source == source_pre
-          || lumpinfo[p].source == source_auto_load)
-        ProcessDehFile(NULL, D_dehout(), p); // cph - add dehacked-in-a-wad support
+          || lumpinfo[p].source == source_port_wad
+          || lumpinfo[p].source == source_auto_load
+          || lumpinfo[p].source == source_pwad_auto_load)
+        ProcessDehacked(NULL, D_dehout(), p); // cph - add dehacked-in-a-wad support
 
-    if (bfgedition)
+    if (!raven)
     {
-      int lump = W_CheckNumForName2("BFGBEX", ns_prboom);
-      if (lump != LUMP_NOT_FOUND)
+      if (bfgedition)
       {
-        ProcessDehFile(NULL, D_dehout(), lump);
+        int lump = W_CheckNumForName2("BFGBEX", ns_prboom);
+        if (lump != LUMP_NOT_FOUND)
+        {
+          ProcessDehacked(NULL, D_dehout(), lump);
+        }
+      }
+      if (gamemission == pack_nerve)
+      {
+        int lump = W_CheckNumForName2("NERVEBEX", ns_prboom);
+        if (lump != LUMP_NOT_FOUND)
+        {
+          ProcessDehacked(NULL, D_dehout(), lump);
+        }
+      }
+      if (gamemission == tc_chex)
+      {
+        int lump = W_CheckNumForName2("CHEXDEH", ns_prboom);
+        if (lump != LUMP_NOT_FOUND)
+        {
+          ProcessDehacked(NULL, D_dehout(), lump);
+        }
       }
     }
-    if (gamemission == pack_nerve)
-    {
-      int lump = W_CheckNumForName2("NERVEBEX", ns_prboom);
-      if (lump != LUMP_NOT_FOUND)
-      {
-        ProcessDehFile(NULL, D_dehout(), lump);
-      }
-    }
-    if (gamemission == tc_chex)
-    {
-      int lump = W_CheckNumForName2("CHEXDEH", ns_prboom);
-      if (lump != LUMP_NOT_FOUND)
-      {
-        ProcessDehFile(NULL, D_dehout(), lump);
-      }
-    }
+  }
 
-    if (doom_v11)
-    {
-      lprintf(LO_INFO, "NOTICE: Doom v1.0/1.1 support is purely for historical purposes, thus demo support is disabled.\n");
-  
-      if (started_demo)
-        I_Error("Doom v1.0/1.1 IWAD is not supported for demo recording or playback.");
-    }
+  // Doom v1.1 - No demo support
+  if (!raven && doom_v11)
+  {
+    lprintf(LO_INFO, "NOTICE: Doom v1.0/1.1 support is purely for historical purposes, thus demo support is disabled.\n");
+
+    if (started_demo)
+      I_Error("Doom v1.0/1.1 IWAD is not supported for demo recording or playback.");
   }
 
   // process deh files from autoload directory before deh in wads from -file parameter
@@ -2157,11 +2178,12 @@ static void D_DoomMainSetup(void)
     D_AutoloadDehIWadDir();
 
   if (!dsda_Flag(dsda_arg_nodeh))
-    for (p = -1; (p = W_ListNumFromName("DEHACKED", p)) >= 0; )
+    for (p = -1; (p = W_ListNumFromName(DehackedLump, p)) >= 0; )
       if (!(lumpinfo[p].source == source_iwad
-            || lumpinfo[p].source == source_pre
-            || lumpinfo[p].source == source_auto_load))
-        ProcessDehFile(NULL, D_dehout(), p);
+            || lumpinfo[p].source == source_port_wad
+            || lumpinfo[p].source == source_auto_load
+            || lumpinfo[p].source == source_pwad_auto_load))
+        ProcessDehacked(NULL, D_dehout(), p);
 
   // process .deh files from PWADs autoload directories
   if (autoload)
@@ -2191,12 +2213,12 @@ static void D_DoomMainSetup(void)
       file = I_RequireDeh(arg->value.v_string_array[i]);
 
       // during the beta we have debug output to dehout.txt
-      ProcessDehFile(file,D_dehout(),0);
+      ProcessDehacked(file,D_dehout(),0);
       Z_Free(file);
     }
   }
 
-  PostProcessDeh();
+  PostProcessDehacked();
   dsda_AppendZDoomMobjInfo();
   dsda_ApplyDefaultMapFormat();
 

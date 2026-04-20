@@ -59,7 +59,6 @@ set(LUMPS
     lumps/soundfont/sndfont.lmp
     lumps/dsdacr.lmp
     lumps/nyanhud.lmp
-    lumps/nyantc.lmp
 )
 
 set(COLORMAPS
@@ -102,6 +101,7 @@ set(SOUNDS
     sounds/dsdgdth.wav
     sounds/dsdgpain.wav
     sounds/dssecret.wav
+    sounds/dsgibdth.wav
     sounds/dsnyanut.wav
 )
 
@@ -216,14 +216,6 @@ set(GRAPHICS
     graphics/stkeys7.ppm
     graphics/stkeys8.ppm
     graphics/stcfn096.ppm
-    graphics/stfpstr0.ppm
-    graphics/stfpstr1.ppm
-    graphics/stfarms0.ppm
-    graphics/stfarms1.ppm
-    graphics/stfarms2.ppm
-    graphics/stfarm20.ppm
-    graphics/stfarm21.ppm
-    graphics/stfarm22.ppm
     graphics/stfpinv.ppm
     graphics/stfpins.ppm
     graphics/stfpvis.ppm
@@ -233,14 +225,7 @@ set(GRAPHICS
     graphics/stfppstr.ppm
     graphics/stfparm1.ppm
     graphics/stfparm2.ppm
-    graphics/chxparm1.ppm
-    graphics/chxparm2.ppm
-    graphics/chxppstr.ppm
-    graphics/chxpstr0.ppm
-    graphics/chxpstr1.ppm
-    graphics/chxarms0.ppm
-    graphics/chxarms1.ppm
-    graphics/chxarms2.ppm
+    graphics/stfpfly.ppm
     graphics/nyanlogo.ppm
     graphics/m_butt1.ppm
     graphics/m_butt2.ppm
@@ -255,10 +240,34 @@ set(GRAPHICS
     graphics/cross5.ppm
     graphics/cross6.ppm
     graphics/cross7.ppm
+    graphics/stbr123.ppm
 )
 
-set(RAVEN_GRAPHICS
-    graphics/h_palsel.lmp
+set(RAVEN_LUMPS
+    lumps/stbr124.lmp
+    lumps/stbr125.lmp
+    lumps/h_palsel.lmp
+    lumps/stfrtome.lmp
+    lumps/stfrmor1.lmp
+    lumps/stfrmor2.lmp
+    lumps/stfrsped.lmp
+    lumps/stfrmaul.lmp
+)
+
+set(HUD_LUMPS
+    lumps/stfpstr0.lmp
+    lumps/stfpstr1.lmp
+    lumps/stfarms0.lmp
+    lumps/stfarms1.lmp
+    lumps/stfarms2.lmp
+    lumps/stfarm20.lmp
+    lumps/stfarm21.lmp
+    lumps/stfarm22.lmp
+    lumps/chxpstr0.lmp
+    lumps/chxpstr1.lmp
+    lumps/chxarms0.lmp
+    lumps/chxarms1.lmp
+    lumps/chxarms2.lmp
 )
 
 set(FLATS
@@ -455,7 +464,8 @@ set(WAD_SRC
     ${TABLES}
     ${SOUNDS}
     ${GRAPHICS}
-    ${RAVEN_GRAPHICS}
+    ${RAVEN_LUMPS}
+    ${HUD_LUMPS}
     ${FLATS}
     ${SPRITES}
 )
@@ -467,7 +477,8 @@ set(WAD_CMDLINE
     -marker B_START -lumps ${TABLES} -marker B_END
     -sounds ${SOUNDS}
     -graphics ${GRAPHICS}
-    -lumps ${RAVEN_GRAPHICS}
+    -lumps ${RAVEN_LUMPS}
+    -lumps ${HUD_LUMPS}
     -marker FF_START -flats ${FLATS} -marker FF_END
     -marker SS_START -sprites ${SPRITEP} -marker SS_END
 )

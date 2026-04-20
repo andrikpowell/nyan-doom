@@ -83,7 +83,7 @@ void Hexen_IN_Start(wbstartstruct_t* wbstartstruct)
     interstate = 0;
     skipintermission = false;
     intertime = 0;
-    AM_Stop(false);
+    AM_Stop(AM_CLOSE_ALL);
     SN_StopAllSequences();
 }
 
@@ -153,7 +153,7 @@ static void InitStats(void)
                 memcpy(ClusterMessage, W_LumpByNum(msgLump), msgSize);
                 ClusterMessage[msgSize] = '\0';    // Append terminator
                 HubText = ClusterMessage;
-                HubCount = strlen(HubText) * TEXTSPEED + TEXTWAIT;
+                HubCount = (int)strlen(HubText) * TEXTSPEED + TEXTWAIT;
                 S_StartSongName("hub", true);
             }
         }
@@ -484,7 +484,7 @@ static void DrawHubText(void)
         {
             break;
         }
-        V_DrawShadowedNumPatch(cx, cy, lump, CR_DEFAULT, VPT_STRETCH);
+        V_DrawMenuNumPatch(cx, cy, lump, CR_DEFAULT, VPT_STRETCH);
         cx += width;
     }
 }

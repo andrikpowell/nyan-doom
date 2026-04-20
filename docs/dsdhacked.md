@@ -35,6 +35,26 @@ No defaults.
 | Pitch    | -1    |
 | Volume   | -1    |
 
+### Heretic Defaults
+
+Heretic is similar to Doom DSDhacked, but has some differences.
+
+#### State
+
+| Field          | Value                   |
+|----------------|-------------------------|
+| Sprite         | (invisible placeholder) |
+| Tics           | -1                      |
+| Next state     | (this index)            |
+| Action pointer | 0 (NULL)                |
+
+#### Sound
+
+| Field                 | Value           |
+|-----------------------|-----------------|
+| Value (Priority)      | 127             |
+| One/Two (numchannels) | -1 (unlimited)  |
+
 ### Defining Things / States / Sounds
 
 You can define these as you normally do, with `Thing 1234`, `Frame 4444`, or `Sound 137` for instance. From the perspective of dehacked format, there is no change except conceptually "every index exists" for these entities. There is no corresponding `Sprite 111` block in dehacked, but sprites can be defined in the table discussed below.

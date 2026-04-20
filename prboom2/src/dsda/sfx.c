@@ -132,7 +132,7 @@ sfxinfo_t* dsda_NewSFX(int* index) {
 
 void dsda_InitializeSFX(sfxinfo_t* source, int count) {
   int i;
-  extern int raven;
+  extern int hexen;
 
   num_sfx = count;
   highest_index = count - 1;
@@ -140,7 +140,7 @@ void dsda_InitializeSFX(sfxinfo_t* source, int count) {
 
   S_sfx = source;
 
-  if (raven) return;
+  if (hexen) return;
 
   deh_soundnames = malloc(deh_soundnames_size * sizeof(*deh_soundnames));
   for (i = 1; i < num_sfx; i++)

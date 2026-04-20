@@ -167,10 +167,10 @@ static void W_AddFile(wadfile_info_t *wadfile)
   startlump = numlumps;
 
   // mark lumps from internal resource
-  if (wadfile->src == source_auto_load)
+  if (wadfile->src == source_port_wad)
   {
-    int len = strlen(WAD_DATA);
-    int len_file = strlen(wadfile->name);
+    int len = (int)strlen(WAD_DATA);
+    int len_file = (int)strlen(wadfile->name);
     if (len_file >= len)
     {
       if (!strcasecmp(wadfile->name + len_file - len, WAD_DATA))
@@ -305,7 +305,7 @@ static int W_CoalesceMarkedResource(const char *start_marker,
 
   Z_Free(marked);                                   // free marked list
 
-  numlumps = num_unmarked + num_marked;           // new total number of lumps
+  numlumps = (int)(num_unmarked + num_marked);           // new total number of lumps
 
   if (mark_end)                                   // add end marker
     {
@@ -610,7 +610,7 @@ int W_LumpNumExists(int lump)
 
 int W_PWADLumpNumExists(int lump)
 {
-  return W_LumpNumExists(lump) && (lumpinfo[lump].source == source_pwad);
+  return W_LumpNumExists(lump) && (lumpinfo[lump].source == source_pwad || lumpinfo[lump].source == source_pwad_auto_load);
 }
 
 int W_AUTOLumpNumExists(int lump)

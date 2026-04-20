@@ -50,6 +50,7 @@ void HU_Ticker(void);
 void HU_Drawer(void);
 
 mobj_t *HU_Target(void);
+mobj_t *HU_SafeIntercept(void);
 
 int SetCustomMessage(int plr, const char *msg, int ticks, int sfx);
 int SetTitleMessage(int plr, const char *msg, int ticks, int sfx);

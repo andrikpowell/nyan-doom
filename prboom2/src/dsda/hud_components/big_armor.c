@@ -21,15 +21,59 @@
 
 typedef struct {
   dsda_patch_component_t component;
+  dboolean right_align;
+  int anchor;
+  dboolean percent;
 } local_component_t;
 
 static local_component_t* local;
 
 static int armor_lump_green;
 static int armor_lump_blue;
-static int patch_delta_x;
-static int patch_vertical_spacing;
+
+static int font_height;
 static int patch_spacing;
+static int patch_spacing_x;
+static int patch_spacing_y;
+
+static void dsda_ArmorPatchSpacing(void)
+{
+  int lumps[] = {
+    armor_lump_green,
+    armor_lump_blue,
+  };
+
+  for (int i = 0; i < sizeof(lumps) / sizeof(lumps[0]); ++i)
+  {
+    patch_spacing_x = MAX(patch_spacing_x, R_NumPatchWidth(lumps[i]));
+    patch_spacing_y = MAX(patch_spacing_y, R_NumPatchHeight(lumps[i]));
+  }
+}
+
+static int dsda_GetNumberWidth(void)
+{
+  return dsda_GetBigNumberWidth(3, 999, local->right_align, ANCHOR_NONE, local->percent);
+}
+
+static void dsda_DrawBigArmorIcon(int x, int y, int lump, int flags) {
+  int w, h;
+  int shadow = raven ? SHADOW_ALWAYS_RAVEN : SHADOW_EXTRA;
+
+  if (!lump)
+    return;
+
+  w = R_NumPatchWidth(lump);
+  h = R_NumPatchHeight(lump);
+
+  // center horizontally
+  x += (patch_spacing_x - w) / 2;
+  
+  // center vertically
+  y += (font_height - patch_spacing_y) / 2;
+  y += (patch_spacing_y - h) / 2;
+
+  V_DrawShadowedNumPatchAdv(x, y, lump, shadow, CR_DEFAULT, flags);
+}
 
 static void dsda_DrawComponent(void) {
   player_t* player;
@@ -37,72 +81,94 @@ static void dsda_DrawComponent(void) {
   int cm;
   int lump;
   int armor;
-  int flags;
+  int flags, numflags;
+  int lump_width;
+  int text_width;
+  int total_width;
 
   player = &players[displayplayer];
-  flags = local->component.vpt;
+  armor = st_armor;
+  flags = numflags = local->component.vpt;
   x = local->component.x;
   y = local->component.y;
 
+  if (!hexen && players[displayplayer].armorpoints[ARMOR_ARMOR] <= 0)
+    return;
+
   if (hexen) {
-    armor = dsda_HexenArmor(player);
-    cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
+    cm = dsda_TextCR(dsda_tc_stbar_armor_hexen);
     lump = armor_lump_green;
   }
   else {
-    armor = st_armor;
     if (armor <= 0) {
-      cm = dsda_TextCR(dsda_tc_stbar_armor_zero);
+      cm = heretic ? CR_DEFAULT : dsda_TextCR(dsda_tc_stbar_armor_zero);
       lump = armor_lump_green;
     }
     else if (player->armortype < 2) {
-      cm = dsda_TextCR(dsda_tc_stbar_armor_one);
+      cm = heretic ? CR_DEFAULT : dsda_TextCR(dsda_tc_stbar_armor_one);
       lump = armor_lump_green;
     }
     else {
-      cm = dsda_TextCR(dsda_tc_stbar_armor_two);
+      cm = heretic ? CR_DEFAULT : dsda_TextCR(dsda_tc_stbar_armor_two);
       lump = armor_lump_blue;
     }
   }
 
-  V_DrawNumPatch(x, y, lump, CR_DEFAULT, flags);
+  lump_width = patch_spacing_x;
+  text_width = dsda_GetNumberWidth();
+  total_width = lump_width + patch_spacing + text_width;
 
-  x += patch_spacing;
-  y += patch_vertical_spacing;
+  if (local->anchor)
+  {
+    if (local->anchor >= ANCHOR_RIGHT)
+      x -= total_width;
+    else if (local->anchor == ANCHOR_CENTER)
+      x -= total_width / 2;
+  }
+
+  if (!local->right_align)
+  {
+    dsda_DrawBigArmorIcon(x, y, lump, flags);
+    x += patch_spacing + lump_width;
+  }
 
   // Numbers need offsets (so 1 doesn't have a big space)
-  flags &= ~VPT_NOOFFSET;
+  numflags &= ~VPT_NOOFFSET;
 
-  dsda_DrawBigNumber(x, y, patch_delta_x, 0,
-                     cm, flags, 3, armor, false);
+  dsda_DrawBigNumber(x, y, 0, cm, numflags, 3, armor, local->right_align, ANCHOR_NONE, local->percent);
+
+  if (local->right_align)
+  {
+    x += patch_spacing + text_width;
+    dsda_DrawBigArmorIcon(x, y, lump, flags);
+  }
 }
 
 void dsda_InitBigArmorHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
 
+  local->right_align = (arg_count > 0) ? !!args[0] : false;
+  local->anchor = (arg_count > 1) ? args[1] : false;
+  local->percent = (arg_count > 2) ? !!args[2] : false;
+
   if (heretic) {
     armor_lump_green = R_NumPatchForSpriteIndex(HERETIC_SPR_SHLD);
     armor_lump_blue = (gamemode != shareware) ? R_NumPatchForSpriteIndex(HERETIC_SPR_SHD2) : armor_lump_green;
-    patch_delta_x = 9;
-    patch_vertical_spacing = 6;
-    patch_spacing = 2;
   }
   else if (hexen) {
     armor_lump_green = R_NumPatchForSpriteIndex(HEXEN_SPR_ARM3);
-    armor_lump_blue = R_NumPatchForSpriteIndex(HEXEN_SPR_ARM3);
-    patch_delta_x = 8;
-    patch_vertical_spacing = 4;
-    patch_spacing = 2;
+    armor_lump_blue = armor_lump_green;
   }
   else {
     armor_lump_green = R_NumPatchForSpriteIndex(SPR_ARM1);
     armor_lump_blue = R_NumPatchForSpriteIndex(SPR_ARM2);
-    patch_delta_x = 14;
-    patch_vertical_spacing = 1;
-    patch_spacing = 2;
   }
-  patch_spacing += MAX(R_NumPatchWidth(armor_lump_green), R_NumPatchWidth(armor_lump_blue));
+
+  patch_spacing = 6;
+  font_height = raven ? 20 : 15;
+
+  dsda_ArmorPatchSpacing();
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
 }
 

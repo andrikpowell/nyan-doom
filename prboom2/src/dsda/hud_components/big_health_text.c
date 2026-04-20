@@ -21,42 +21,40 @@
 
 typedef struct {
   dsda_patch_component_t component;
+  dboolean right_align;
+  int anchor;
+  dboolean percent;
 } local_component_t;
 
 static local_component_t* local;
 
-static int patch_delta_x;
-
 static void dsda_DrawComponent(void) {
   int cm;
   int health;
-  int negative;
+  int x, y;
 
   // Animated health
   health = st_health;
 
-  // Add support for Hexen "Red Numbers"
-  negative = hexen && (health <= 24);
-
-  cm = health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
+  cm = raven ? CR_DEFAULT :
+       health <= hud_health_red ? dsda_TextCR(dsda_tc_stbar_health_bad) :
        health <= hud_health_yellow ? dsda_TextCR(dsda_tc_stbar_health_warning) :
        health <= hud_health_green ? dsda_TextCR(dsda_tc_stbar_health_ok) :
        dsda_TextCR(dsda_tc_stbar_health_super);
 
-  dsda_DrawBigNumber(local->component.x, local->component.y, patch_delta_x, 0,
-                     cm, local->component.vpt, 3, health, negative);
+  x = local->component.x;
+  y = local->component.y;
+
+  dsda_DrawBigNumber(x, y, 0, cm, local->component.vpt, 3, health, local->right_align, local->anchor, local->percent);
 }
 
 void dsda_InitBigHealthTextHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
 
-  if (heretic)
-    patch_delta_x = 9;
-  else if (hexen)
-    patch_delta_x = 8;
-  else
-    patch_delta_x = 14;
+  local->right_align = (arg_count > 0) ? !!args[0] : false;
+  local->anchor = (arg_count > 1) ? args[1] : false;
+  local->percent = (arg_count > 2) ? !!args[2] : false;
 
   dsda_InitPatchHC(&local->component, x_offset, y_offset, vpt);
 }

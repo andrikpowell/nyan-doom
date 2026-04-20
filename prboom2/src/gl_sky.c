@@ -177,7 +177,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
     {
       // As far as I can tell, textureoffset just adds directly to viewangle and is
       // therefore affected by tiling, but rowoffset is not.
-      wall->skyyaw = (double) (viewangle + s->textureoffset) / (double) ANGLE_MAX;
+      wall->skyyaw = (float)((double) (viewangle + s->textureoffset) / (double) ANGLE_MAX);
       wall->skypitch = skyYShift;
       wall->skyoffset = (((float)s->rowoffset/(float)FRACUNIT - 28.0f)/wall->gltexture->buffer_height);
       wall->flag = l->special == 272 ? GLDWF_SKY : GLDWF_SKYFLIP;
@@ -197,7 +197,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
       if (wall->gltexlayer)
       {
         fg_skyoffset = (angle_t)(((int64_t)Sky1ColumnOffset << ANGLETOSKYSHIFT) >> FRACBITS);
-        wall->skylayer_yaw = (double) (viewangle + fg_skyoffset) / (double) ANGLE_MAX;
+        wall->skylayer_yaw = (float)((double) (viewangle + fg_skyoffset) / (double) ANGLE_MAX);
         wall->skylayer_pitch = skyYShift;
         wall->skylayer_offset = skytexturemid / (float)FRACUNIT / wall->gltexture->buffer_height;
       }
@@ -206,7 +206,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
       if (wall->gltexture)
       {
         bg_skyoffset = (angle_t)(((int64_t)Sky2ColumnOffset << ANGLETOSKYSHIFT) >> FRACBITS);
-        wall->skyyaw = (double) (viewangle + bg_skyoffset) / (double) ANGLE_MAX;
+        wall->skyyaw = (float)((double) (viewangle + bg_skyoffset) / (double) ANGLE_MAX);
         wall->skypitch = skyYShift;
         wall->skyoffset = skytexturemid / (float)FRACUNIT / wall->gltexture->buffer_height;
       }
@@ -222,7 +222,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
       if (wall->gltexture)
       {
         skyoffset_angle = (angle_t)(((int64_t)(which_sky ? Sky2ColumnOffset : Sky1ColumnOffset) << ANGLETOSKYSHIFT) >> FRACBITS);
-        wall->skyyaw = (double) (viewangle + skyoffset_angle) / (double) ANGLE_MAX;
+        wall->skyyaw = (float)((double) (viewangle + skyoffset_angle) / (double) ANGLE_MAX);
         wall->skypitch = skyYShift;
         wall->skyoffset = skytexturemid / (float)FRACUNIT / wall->gltexture->buffer_height;
         wall->flag = GLDWF_SKY;
@@ -374,15 +374,15 @@ static void gld_SkyTransform(GLWall* wall, int skylayer)
   // software mode)
   float sky_height = 880;
   // Texture dimensions
-  float w = buffer_width;
-  float h = buffer_height;
+  float w = (float)buffer_width;
+  float h = (float)buffer_height;
   // Tile factors
   float tilex = sky_width / w;
   float tiley = sky_height / h;
   // Adjustment for tall screens
   float ratio = tallscreen ? (float)ratio_multiplier / ratio_scale : 1.0f;
   // X flip coefficient
-  float flipx = wall->flag == GLDWF_SKYFLIP ? -1.0 : 1.0;
+  float flipx = wall->flag == GLDWF_SKYFLIP ? -1.0f : 1.0f;
   // Scale factors
   float scalex = scale_correction / skyscale * flipx;
   float scaley = scale_correction * ratio * (skystretch ? ( (float)SKYSTRETCH_HEIGHT / h ) : 1.0f) / skyscale;
@@ -741,7 +741,7 @@ static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky, int 
   for (yflip = 0; yflip < 2; yflip++)
   {
     vbo->loops[vbo->loopcount].mode = GL_TRIANGLE_FAN;
-    vbo->loops[vbo->loopcount].vertexindex = vertex_p - &vbo->data[0];
+    vbo->loops[vbo->loopcount].vertexindex = (int)(vertex_p - &vbo->data[0]);
     vbo->loops[vbo->loopcount].vertexcount = col_count;
     vbo->loops[vbo->loopcount].use_texture = false;
     vbo->loopcount++;
@@ -776,7 +776,7 @@ static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky, int 
     for(r = 0; r < row_count; r++)
     {
       vbo->loops[vbo->loopcount].mode = GL_TRIANGLE_STRIP;
-      vbo->loops[vbo->loopcount].vertexindex = vertex_p - &vbo->data[0];
+      vbo->loops[vbo->loopcount].vertexindex = (int)(vertex_p - &vbo->data[0]);
       vbo->loops[vbo->loopcount].vertexcount = 2 * col_count + 2;
       vbo->loops[vbo->loopcount].use_texture = true;
       vbo->loopcount++;

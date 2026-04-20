@@ -68,7 +68,7 @@
 #include "f_wipe.h"
 #include "d_main.h"
 #include "d_event.h"
-#include "d_deh.h"
+#include "deh/compatibility.h"
 #include "i_video.h"
 #include "i_capture.h"
 #include "z_zone.h"
@@ -499,6 +499,30 @@ static void I_InitInputs(void)
   dsda_InitGameController();
 }
 
+extern const byte *dynamic_palette;
+
+static void I_UploadDynamicPalette(int pal)
+{
+  int gtlump;
+  const byte *palette = dynamic_palette;
+  static SDL_Color custom_colours[256];
+  const byte *gtable;
+  int i;
+
+  gtlump = W_CheckNumForName2("GAMMATBL", ns_prboom);
+  gtable = (const byte *)W_LumpByNum(gtlump) + 256 * usegamma;
+
+  for (i = 0; i < 256; i++)
+  {
+    custom_colours[i].r = gtable[palette[0]];
+    custom_colours[i].g = gtable[palette[1]];
+    custom_colours[i].b = gtable[palette[2]];
+    palette += 3;
+  }
+
+  SDL_SetPaletteColors(screen->format->palette, custom_colours, 0, 256);
+}
+
 ///////////////////////////////////////////////////////////
 // Palette stuff.
 //
@@ -513,6 +537,9 @@ static void I_UploadNewPalette(int pal, int force)
 
   if (V_IsOpenGLMode())
     return;
+
+  if (dynamic_palette)
+    RETURN(I_UploadDynamicPalette(pal));
 
   playpal_data = dsda_PlayPalData();
 
@@ -619,13 +646,13 @@ void I_FinishUpdate (void)
       }
 
       dest=(byte*)screen->pixels;
-      src=screens[0].data;
+      src=screens[FG].data;
       h=screen->h;
       for (; h>0; h--)
       {
         memcpy(dest,src,SCREENWIDTH); //e6y
         dest+=screen->pitch;
-        src+=screens[0].pitch;
+        src+=screens[FG].pitch;
       }
 
       SDL_UnlockSurface(screen);
@@ -705,7 +732,6 @@ void I_PreInitGraphics(void)
 // e6y: resolution limitation is removed
 void I_InitBuffersRes(void)
 {
-  R_InitMeltRes();
   R_InitSpritesRes();
   R_InitBuffersRes();
   R_InitPlanesRes();
@@ -880,7 +906,7 @@ static void I_FillScreenResolutionsList(void)
   }
 
   // [FG] sort the list
-  SDL_qsort(screen_resolutions_list, list_size, sizeof(*screen_resolutions_list), cmp_resolutions);
+  SDL_qsort((void *)screen_resolutions_list, list_size, sizeof(*screen_resolutions_list), cmp_resolutions);
 
   // [FG] find the desired resolution again
   for (i = 0; i < list_size; i++)
@@ -1090,16 +1116,18 @@ void I_InitScreenResolution(void)
   V_FreeScreens();
 
   // set first three to standard values
-  for (i=0; i<3; i++) {
+
+  // [AR] we honour this from old prboom
+  // so we exclude the two "wipe" buffers:
+  // WIPE_DST and WIPE_TEMP
+  for (i = FG; i < WIPE_DST; i++) {
     screens[i].width = SCREENWIDTH;
     screens[i].height = SCREENHEIGHT;
     screens[i].pitch = SCREENPITCH;
   }
 
-  // statusbar
-  screens[4].width = SCREENWIDTH;
-  screens[4].height = SCREENHEIGHT;
-  screens[4].pitch = SCREENPITCH;
+  // [AR] removed stbar screen buffer (4)
+  // since we don't use it anymore
 
   I_InitBuffersRes();
 
@@ -1351,13 +1379,13 @@ void I_UpdateVideoMode(void)
     // Get the info needed to render to the display
     if (!SDL_MUSTLOCK(screen))
     {
-      screens[0].not_on_heap = true;
-      screens[0].data = (unsigned char *) (screen->pixels);
-      screens[0].pitch = screen->pitch;
+      screens[FG].not_on_heap = true;
+      screens[FG].data = (unsigned char *) (screen->pixels);
+      screens[FG].pitch = screen->pitch;
     }
     else
     {
-      screens[0].not_on_heap = false;
+      screens[FG].not_on_heap = false;
     }
 
     V_AllocScreens();
@@ -1449,7 +1477,7 @@ static void CorrectMouseStutter(int *x, int *y)
     return;
   }
 
-  fractic = dsda_TickElapsedTime();
+  fractic = (fixed_t)dsda_TickElapsedTime();
 
   *x += x_remainder_old;
   *y += y_remainder_old;

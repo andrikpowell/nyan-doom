@@ -128,6 +128,16 @@ static int P_TranslateMap(int map) {
   return -1;
 }
 
+int P_TranslateMapToWarp(int map)
+{
+  map = QualifyMap(map);
+
+  if (!map)
+    return -1;
+
+  return MapInfo[map].warpTrans;
+}
+
 int dsda_HexenNameToMap(int* found, const char* name, int* episode, int* map) {
   return false;
 }
@@ -181,6 +191,22 @@ int dsda_HexenNextMap(int* episode, int* map) {
 
   *episode = 1;
   *map = CurrentMap->nextMap;
+
+  return true;
+}
+
+int dsda_HexenMapToWarp(int* episode, int* map) {
+  int warp;
+
+  if (!hexen)
+    return false;
+
+  warp = P_TranslateMapToWarp(*map);
+  if (warp == -1)
+    return false;
+
+  *episode = 1;
+  *map = warp;
 
   return true;
 }

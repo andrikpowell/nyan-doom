@@ -17,13 +17,20 @@
 
 #include "d_player.h"
 #include "doomstat.h"
+#include "hu_lib.h"
+#include "lprintf.h"
+#include "m_misc.h"
 #include "z_zone.h"
 
 #include "dsda/settings.h"
 
+#include "deh/strings.h"
+#include "heretic/hhe/strings.h"
+
 #include "messenger.h"
 
-#define MESSAGE_LIFETIME 140
+#define MESSAGE_LIFETIME        (TICRATE*4)
+#define YELLOW_MESSAGE_LIFETIME (5*MESSAGE_LIFETIME)
 
 typedef enum {
   message_alert,
@@ -70,6 +77,57 @@ static void dsda_AppendMessage(message_t* message) {
   }
 }
 
+static int dsda_GetAlphaStep(int a)
+{
+  int step_size;
+
+  if (a <= 0)   return 0;
+  if (a >= 100) return 100;
+
+  step_size = 100 / MESSAGE_FADE_STEPS;
+
+  a = ((a + step_size / 2) / step_size) * step_size;
+
+  return CLAMP(a, 0, 100);
+}
+
+int dsda_MessageFadeOut(int tics, dboolean forced)
+{
+  const int fade_tics = MESSAGE_FADE_TICS;
+  int alpha;
+
+  if (!dsda_FadeMessages() && !forced)
+    return 100;
+
+  if (tics <= 0) return 0;
+  if (tics > fade_tics) return 100;
+
+  alpha = (tics * 100 + (fade_tics / 2)) / fade_tics;
+  alpha = dsda_GetAlphaStep(alpha);
+  return alpha;
+}
+
+int dsda_MessageFadeIn(int tics, dboolean forced)
+{
+  const int fade_tics = MESSAGE_FADE_TICS;
+  int alpha;
+
+  if (!dsda_FadeMessages() && !forced)
+    return 100;
+
+  if (tics <= 0) return 100 / fade_tics;
+  if (tics >= fade_tics) return 100;
+
+  alpha = ((tics + 1) * 100 + (fade_tics / 2)) / fade_tics;
+  alpha = dsda_GetAlphaStep(alpha);
+  return alpha;
+}
+
+int dsda_MessageTics(void)
+{
+  return current_message ? current_message->tics : 0;
+}
+
 static void dsda_QueueMessage(const char* str, message_priority_t priority, dboolean first_time) {
   message_t* new_message;
   int message_lifetime;
@@ -80,14 +138,14 @@ static void dsda_QueueMessage(const char* str, message_priority_t priority, dboo
   // Hexen's Yellow Messages last 5 times longer than normal messages
   if (first_time)
     if (priority == message_yellow)
-      message_lifetime = 5*MESSAGE_LIFETIME;  // hexen_note - yellow message
+      message_lifetime = YELLOW_MESSAGE_LIFETIME;  // hexen_note - yellow message
 
   if (current_message) {
     if (current_message->priority < priority)
       return;
     else if (current_message->priority > priority)
       dsda_ClearMessages();
-    else if (priority == message_normal) {
+    else if (priority == message_normal || priority == message_yellow) {
       Z_Free(current_message->str);
 
       current_message->str = Z_Strdup(str);
@@ -191,4 +249,154 @@ int dsda_PlayerMessageIsYellow(void) {
     return false;
 
   return true;
+}
+
+// Multi-Colored Messages
+
+typedef struct
+{
+  const char * const *deh_string;
+  const char *word;
+  int cm;
+} dsda_msg_color_rule_t;
+
+static const dsda_msg_color_rule_t msg_color_rules[] =
+{
+    { &s_GOTBLUECARD, "blue",   CR_BLUE },
+    { &s_GOTBLUESKUL, "blue",   CR_BLUE },
+    { &s_GOTREDCARD,  "red",    CR_RED  },
+    { &s_GOTREDSKULL, "red",    CR_RED  },
+    { &s_GOTYELWCARD, "yellow", CR_GOLD },
+    { &s_GOTYELWSKUL, "yellow", CR_GOLD },
+    { &s_PD_BLUEC,    "blue",   CR_BLUE },
+    { &s_PD_BLUEK,    "blue",   CR_BLUE },
+    { &s_PD_BLUEO,    "blue",   CR_BLUE },
+    { &s_PD_BLUES,    "blue",   CR_BLUE },
+    { &s_PD_REDC,     "red",    CR_RED  },
+    { &s_PD_REDK,     "red",    CR_RED  },
+    { &s_PD_REDO,     "red",    CR_RED  },
+    { &s_PD_REDS,     "red",    CR_RED  },
+    { &s_PD_YELLOWC,  "yellow", CR_GOLD },
+    { &s_PD_YELLOWK,  "yellow", CR_GOLD },
+    { &s_PD_YELLOWO,  "yellow", CR_GOLD },
+    { &s_PD_YELLOWS,  "yellow", CR_GOLD },
+
+    // Heretic
+    { &s_HERETIC_TXT_GOTBLUEKEY,    "blue",   CR_BLUE   },
+    { &s_HERETIC_TXT_GOTYELLOWKEY,  "yellow", CR_GOLD   },
+    { &s_HERETIC_TXT_GOTGREENKEY,   "green",  CR_GREEN  },
+    { &s_HERETIC_TXT_NEEDBLUEKEY,   "blue",   CR_BLUE   },
+    { &s_HERETIC_TXT_NEEDYELLOWKEY, "yellow", CR_GOLD   },
+    { &s_HERETIC_TXT_NEEDGREENKEY,  "green",  CR_GREEN  },
+
+    // Hexen keys
+    { &s_TXT_KEY_STEEL,         "steel",    CR_WHITE  },
+    { &s_TXT_KEY_CAVE,          "cave",     CR_TAN    },
+    { &s_TXT_KEY_AXE,           "axe",      CR_WHITE  },
+    { &s_TXT_KEY_FIRE,          "fire",     CR_RED    },
+    { &s_TXT_KEY_EMERALD,       "emerald",  CR_GREEN  },
+    { &s_TXT_KEY_DUNGEON,       "dungeon",  CR_WHITE  },
+    { &s_TXT_KEY_SILVER,        "silver",   CR_WHITE  },
+    { &s_TXT_KEY_RUSTED,        "rusted",   CR_WHITE  },
+    { &s_TXT_KEY_HORN,          "horn",     CR_TAN    },
+    { &s_TXT_KEY_SWAMP,         "swamp",    CR_GREEN  },
+    { &s_TXT_KEY_CASTLE,        "castle",   CR_GOLD   },
+
+    // Hexen doors
+    { &s_TXT_NEED_KEY_STEEL,    "steel",    CR_WHITE  },
+    { &s_TXT_NEED_KEY_CAVE,     "cave",     CR_BROWN  },
+    { &s_TXT_NEED_KEY_AXE,      "axe",      CR_WHITE  },
+    { &s_TXT_NEED_KEY_FIRE,     "fire",     CR_RED    },
+    { &s_TXT_NEED_KEY_EMERALD,  "emerald",  CR_GREEN  },
+    { &s_TXT_NEED_KEY_DUNGEON,  "dungeon",  CR_WHITE  },
+    { &s_TXT_NEED_KEY_SILVER,   "silver",   CR_WHITE  },
+    { &s_TXT_NEED_KEY_RUSTED,   "rusted",   CR_WHITE  },
+    { &s_TXT_NEED_KEY_HORN,     "horn",     CR_BROWN  },
+    { &s_TXT_NEED_KEY_SWAMP,    "swamp",    CR_GREEN  },
+    { &s_TXT_NEED_KEY_CASTLE,   "castle",   CR_GOLD   },
+
+    // Hexen Puzzles
+    { &s_TXT_ARTIPUZZSKULL,     "YORICK'S SKULL",      CR_GOLD   },
+    { &s_TXT_ARTIPUZZGEMBIG,    "HEART OF D'SPARIL",   CR_RED    },
+    { &s_TXT_ARTIPUZZGEMRED,    "RUBY",                CR_RED    },
+    { &s_TXT_ARTIPUZZGEMGREEN1, "EMERALD",             CR_GREEN  },
+    { &s_TXT_ARTIPUZZGEMGREEN2, "EMERALD",             CR_GREEN  },
+    { &s_TXT_ARTIPUZZGEMBLUE1,  "SAPPHIRE",            CR_BLUE   },
+    { &s_TXT_ARTIPUZZGEMBLUE2,  "SAPPHIRE",            CR_BLUE   },
+    { &s_TXT_ARTIPUZZBOOK1,     "DAEMON CODEX",        CR_BROWN  },
+    { &s_TXT_ARTIPUZZBOOK2,     "LIBER OSCURA",        CR_BROWN  },
+    { &s_TXT_ARTIPUZZSKULL2,    "FLAME MASK",          CR_RED    },
+    { &s_TXT_ARTIPUZZFWEAPON,   "GLAIVE SEAL",         CR_GREEN  },
+    { &s_TXT_ARTIPUZZCWEAPON,   "HOLY RELIC",          CR_GOLD   },
+    { &s_TXT_ARTIPUZZMWEAPON,   "SIGIL OF THE MAGUS",  CR_RED    },
+    { &s_TXT_ARTIPUZZGEAR,      "CLOCK GEAR",          CR_GOLD   },
+
+    // Hexen mana
+    { &s_TXT_MANA_1,    "Blue",     CR_BLUE   },
+    { &s_TXT_MANA_2,    "Green",    CR_GREEN  },
+    { &s_TXT_MANA_BOTH, "Combined", CR_RED    },
+};
+
+static const dsda_msg_color_rule_t *dsda_GetColorRuleForMessage(const char *str)
+{
+  int i;
+
+  for (i = 0; i < arrlen(msg_color_rules); ++i)
+  {
+    const char *rule_str = *msg_color_rules[i].deh_string;
+
+    if (!rule_str || !str)
+        continue;
+
+    // if string matches exactly
+    if (str == rule_str)
+        return &msg_color_rules[i];
+
+    // Match prefix (ignore trailing '\n')
+    if (strncmp(str, rule_str, strlen(rule_str)) == 0)
+        return &msg_color_rules[i];
+  }
+
+  return NULL;
+}
+
+const char *dsda_ColorizeMessage(const char *str)
+{
+  static char buf[1024];
+
+  const dsda_msg_color_rule_t *rule;
+  char repl[128];
+  char *out;
+
+  if (!dsda_ColorizeMessages() || !str)
+    return str;
+
+  rule = dsda_GetColorRuleForMessage(str);
+  if (!rule)
+    return str;
+
+  snprintf(repl, sizeof(repl), "%s%s%s",
+           HU_ColorFromValue(rule->cm),
+           rule->word,
+           HU_ColorReset());
+
+  out = M_StringReplaceWord(str, rule->word, repl);
+  if (!out)
+    I_Error("alloc failed");
+
+  if (strcmp(out, str) == 0)
+  {
+    Z_Free(out);
+    return str;
+  }
+
+  snprintf(buf, sizeof(buf), "%s", out);
+  Z_Free(out);
+
+  return buf;
+}
+
+void dsda_AddPlayerColoredMessage(const char* str, player_t* player) {
+  if (dsda_ShowMessages() && player == &players[displayplayer])
+    dsda_QueueMessage(dsda_ColorizeMessage(str), message_normal, true);
 }

@@ -16,7 +16,7 @@
 //
 
 #include "doomstat.h"
-#include "d_deh.h"
+#include "deh/strings.h"
 #include "g_game.h"
 #include "m_misc.h"
 #include "p_setup.h"
@@ -29,6 +29,8 @@
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
 #include "dsda/preferences.h"
+
+#include "heretic/dstrings.h"
 
 #include "legacy.h"
 
@@ -109,6 +111,10 @@ int dsda_LegacyNewGameMap(int* episode, int* map) {
   return true;
 }
 
+int dsda_LegacyMapToWarp(int* episode, int* map) {
+  return true;
+}
+
 int dsda_LegacyResolveWarp(int* args, int arg_count, int* episode, int* map) {
   if (gamemode == commercial)
   {
@@ -164,7 +170,7 @@ int dsda_LegacyNextMap(int* episode, int* map) {
     if (gamemode == registered)
       heretic_next[2][7] = 11;
 
-    next = heretic_next[BETWEEN(0, 5, *episode)][BETWEEN(0, 8, *map)];
+    next = heretic_next[CLAMP(*episode, 0, 5)][CLAMP(*map, 0, 8)];
     *episode = next / 10;
     *map = next % 10;
   }
@@ -172,18 +178,21 @@ int dsda_LegacyNextMap(int* episode, int* map) {
     // secret level
     doom2_next[14] = (haswolflevels ? 31 : 16);
 
-    if (bfgedition && allow_incompatibility) {
-      if (gamemission == pack_nerve) {
+    if (allow_incompatibility)
+    {
+      if (bfgedition)
+        doom2_next[1] = 33;
+      
+      if (gamemission == pack_nerve)
+      {
         doom2_next[3] = 9;
         doom2_next[7] = 1;
         doom2_next[8] = 5;
       }
-      else
-        doom2_next[1] = 33;
     }
 
     *episode = 1;
-    *map = doom2_next[BETWEEN(0, 32, *map)];
+    *map = doom2_next[CLAMP(*map, 0, 32)];
   }
   else {
     int next;
@@ -194,7 +203,7 @@ int dsda_LegacyNextMap(int* episode, int* map) {
     doom_next[2][7] = // the fourth episode for pre-ultimate complevels is not allowed
       ((gamemode == registered) || (compatibility_level < ultdoom_compatibility) ? 11 : 41);
 
-    next = doom_next[BETWEEN(0, 3, *episode)][BETWEEN(0, 9, *map)];
+    next = doom_next[CLAMP(*episode, 0, 3)][CLAMP(*map, 0, 9)];
     *episode = next / 10;
     *map = next % 10;
   }
@@ -231,7 +240,7 @@ int dsda_LegacyPrevMap(int* episode, int* map) {
   if (heretic) {
     int prev;
 
-    prev = heretic_prev[BETWEEN(0, 5, *episode)][BETWEEN(0, 8, *map)];
+    prev = heretic_prev[CLAMP(*episode, 0, 5)][CLAMP(*map, 0, 8)];
     *episode = prev / 10;
     *map = prev % 10;
   }
@@ -239,22 +248,25 @@ int dsda_LegacyPrevMap(int* episode, int* map) {
     // secret level
     doom2_prev[15] = (haswolflevels ? 32 : 15);
 
-    if (bfgedition && allow_incompatibility) {
-      if (gamemission == pack_nerve) {
+    if (allow_incompatibility)
+    {
+      if (bfgedition)
+        doom2_prev[2] = 33;
+      
+      if (gamemission == pack_nerve)
+      {
         doom2_prev[4] = 9;
         doom2_prev[8] = 4;
       }
-      else
-        doom2_prev[2] = 33;
     }
 
     *episode = 1;
-    *map = doom2_prev[BETWEEN(0, 32, *map)];
+    *map = doom2_prev[CLAMP(*map, 0, 32)];
   }
   else {
     int prev;
 
-    prev = doom_prev[BETWEEN(0, 3, *episode)][BETWEEN(0, 9, *map)];
+    prev = doom_prev[CLAMP(*episode, 0, 3)][CLAMP(*map, 0, 9)];
     *episode = prev / 10;
     *map = prev % 10;
   }
@@ -339,13 +351,32 @@ int dsda_LegacyResolveINIT(int* init) {
   return true;
 }
 
+const char* dsda_ReplaceMusicName(int music_index, const char* format) {
+  if (S_music[music_index].name_rpl != NULL)
+  {
+    char replace_name[9];
+    snprintf(replace_name, sizeof(replace_name), format, S_music[music_index].name_rpl);
+
+    if (W_LumpNameExists(replace_name))
+      return S_music[music_index].name_rpl;
+  }
+
+  return S_music[music_index].name;
+}
+
 int dsda_LegacyMusicIndexToLumpNum(int* lump, int music_index) {
   char name[9];
   const char* format;
+  const char* music_name;
 
   format = raven ? "%s" : "d_%s";
+  music_name = S_music[music_index].name;
+  
+  // Ultimate Doom and Heretic reuses music lumps
+  // This allows lumps like "MUS_E4M1" / "D_E4M1" to be used
+  music_name = dsda_ReplaceMusicName(music_index, format);
 
-  snprintf(name, sizeof(name), format, S_music[music_index].name);
+  snprintf(name, sizeof(name), format, music_name);
 
   *lump = W_GetNumForName(name);
 
@@ -369,27 +400,14 @@ int dsda_LegacyMapMusic(int* music_index, int* music_lump, int episode, int map)
     if (gamemode == commercial)
       *music_index = mus_runnin + WRAP(map - 1, DOOM_MUSINFO - mus_runnin);
     else {
-      static const int spmus[] = {
-        mus_e3m4,
-        mus_e3m2,
-        mus_e3m3,
-        mus_e1m5,
-        mus_e2m7,
-        mus_e2m4,
-        mus_e2m6,
-        mus_e2m5,
-        mus_e1m9
-      };
-
       if (heretic)
         *music_index = heretic_mus_e1m1 +
                        WRAP((episode - 1) * 9 + map - 1,
                             HERETIC_NUMMUSIC - heretic_mus_e1m1);
-      else if (episode < 4)
-        *music_index = mus_e1m1 +
-                       WRAP((episode - 1) * 9 + map - 1, mus_runnin - mus_e1m1);
       else
-        *music_index = spmus[WRAP(map - 1, 9)];
+        *music_index = mus_e1m1 +
+                       WRAP((episode - 1) * 9 + map - 1,
+                            mus_runnin - mus_e1m1);
     }
   }
 
@@ -589,7 +607,12 @@ int dsda_LegacyCheckInterText(void)
     return SkipText;
 }
 
+extern const char* finaletext;
+extern const char* finaleflat;
+
 int dsda_LegacyStartFinale(void) {
+  if (!finaletext) finaletext = "The End";  // this is to avoid a crash
+  if (!finaleflat) finaleflat = "FLOOR4_8"; // use a single fallback for all maps.
   return true;
 }
 
@@ -611,13 +634,7 @@ int dsda_LegacyMapLumpName(const char** name, int episode, int map) {
   return true;
 }
 
-int dsda_LegacyMapAuthor(const char** author) {
-  *author = NULL;
-
-  return true;
-}
-
-int dsda_LegacyGenericMapname(dsda_string_t* str, int epsd, int map) {
+int dsda_LegacyMapMatch(int epsd, int map) {
   extern char** mapnames[];
   extern char** mapnames2[];
   extern char** mapnamesp[];
@@ -626,52 +643,129 @@ int dsda_LegacyGenericMapname(dsda_string_t* str, int epsd, int map) {
   extern char* og_mapnames2[];
   extern char* og_mapnamesp[];
   extern char* og_mapnamest[];
+  extern char* og_mapnames_nerve[];
 
+  // Ignore iwad map check for Raven
+  if (raven) return true;
+
+  if (map > 0 && epsd > 0) {
+    switch (gamemode) {
+      case shareware:
+      case registered:
+      case retail:
+        if (epsd < 6 && map < 10)
+        {
+          if (!strcmp(*mapnames[(epsd - 1) * 9 + map - 1], og_mapnames[(epsd - 1) * 9 + map - 1]))
+            return true;
+        }
+        break;
+
+      default:
+        if (gamemission == pack_nerve && map < 10)
+        {
+          if (!strcmp(*mapnames2[map - 1], og_mapnames_nerve[map - 1]))
+            return true;
+        }
+        else if (gamemission == pack_tnt && map < 33)
+        {
+          if (!strcmp(*mapnamest[map - 1], og_mapnamest[map - 1]))
+            return true;
+        }
+        else if (gamemission == pack_plut && map < 33)
+        {
+          if (!strcmp(*mapnamesp[map - 1], og_mapnamesp[map - 1]))
+            return true;
+        }
+        else if (map < 34)
+        {
+          if (!strcmp(*mapnames2[map - 1], og_mapnames2[map - 1]))
+            return true;
+        }
+        break;
+    }
+  }
+
+  return false;
+}
+
+int dsda_IsPWADMapMatch(const char* mapname) {
+  dboolean nerve = (gamemission == pack_nerve && gamemap < 10);
+
+  if (nerve)
+    return false;
+
+  return W_PWADLumpNameExists2(mapname);
+}
+
+const char* dsda_IWADLegacyAuthor(const char** author) {
+  extern char* doom1_authors[];
+  extern char* doom2_authors[];
+  extern char* plutonia_authors[];
+  extern char* tnt_authors[];
+  extern char* nerve_authors[];
+
+  int epsd = gameepisode;
+  int map = gamemap;
+
+  *author = NULL;
+
+  if (raven) return NULL; // Raven doesn't use authors
+
+  // only allow authors for Doom, Doom2, TNT, and Plutonia
+  if (!(gamemission == doom || gamemission == doom2 ||
+        gamemission == pack_tnt || gamemission == pack_plut ||
+        gamemission == pack_nerve))
+    return NULL;
+
+  if (map > 0 && epsd > 0) {
+    char* mapname = VANILLA_MAP_LUMP_NAME(epsd, map);
+
+    // if dehacked title found, or pwad map found, don't use iwad authors
+    if (!dsda_LegacyMapMatch(epsd, map) || (gamemission != pack_nerve && dsda_IsPWADMapMatch(mapname))) return NULL;
+
+    switch (gamemode)
+    {
+      case shareware:
+      case registered:
+      case retail:
+        if (epsd < 6 && map < 10)
+          *author = doom1_authors[(epsd - 1) * 9 + map - 1];
+        break;
+
+      default:
+        if (gamemission == pack_nerve && map < 10)
+          *author = nerve_authors[map - 1];
+        else if (gamemission == pack_tnt && map < 33)
+          *author = tnt_authors[map - 1];
+        else if (gamemission == pack_plut && map < 33)
+          *author = plutonia_authors[map - 1];
+        else if (map < 34)
+          *author = doom2_authors[map - 1];
+        break;
+    }
+  }
+
+  return *author;
+}
+
+int dsda_LegacyMapAuthor(const char** author) {
+  *author = dsda_IWADLegacyAuthor(author);
+
+  return true;
+}
+
+int dsda_LegacyGenericMapname(dsda_string_t* str, int epsd, int map) {
   if (raven) return false;
 
   if (map > 0 && epsd > 0) {
     char* mapname = VANILLA_MAP_LUMP_NAME(epsd, map);
 
-    if (W_PWADLumpNameExists2(mapname)) {
-      int classic_mapname = 0;
-
-      switch (gamemode) {
-        case shareware:
-        case registered:
-        case retail:
-          if (epsd < 6 && map < 10)
-          {
-            if (*mapnames[(epsd - 1) * 9 + map - 1] == og_mapnames[(epsd - 1) * 9 + map - 1])
-              classic_mapname++;
-          }
-          break;
-
-        default:
-          if (gamemission == pack_tnt && map < 33)
-          {
-            if (*mapnamest[map - 1] == og_mapnamest[map - 1])
-              classic_mapname++;
-          }
-          else if (gamemission == pack_plut && map < 33)
-          {
-            if (*mapnamesp[map - 1] == og_mapnamesp[map - 1])
-              classic_mapname++;
-          }
-          else if (map < 34)
-          {
-            if (*mapnames2[map - 1] == og_mapnames2[map - 1])
-              classic_mapname++;
-          }
-          break;
-      }
-
-      if (classic_mapname > 0)
-      {
+    // if legacy title found, but pwad map found, use generic title
+    if (dsda_LegacyMapMatch(epsd, map) && dsda_IsPWADMapMatch(mapname)) {
         if (gamemode == commercial)
           sprintf(mapname, "level %i", map);
         dsda_StringCat(str, mapname);
         return true;
-      }
     }
   }
 
@@ -683,7 +777,7 @@ int dsda_LegacyMapTitle(dsda_string_t* str, int epsd, int map, int override) {
   extern char** mapnames2[];
   extern char** mapnamesp[];
   extern char** mapnamest[];
-  extern const char* LevelNames[];
+  extern char * const *LevelNames[];
 
   dsda_InitString(str, NULL);
 
@@ -695,7 +789,7 @@ int dsda_LegacyMapTitle(dsda_string_t* str, int epsd, int map, int override) {
     if (map > 0 && epsd > 0) {
       if (heretic) {
         if (epsd < 6 && map < 10)
-          dsda_StringCat(str, LevelNames[(epsd - 1) * 9 + map - 1]);
+          dsda_StringCat(str, *LevelNames[(epsd - 1) * 9 + map - 1]);
       }
       else {
         switch (gamemode) {

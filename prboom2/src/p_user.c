@@ -59,6 +59,7 @@
 
 // heretic needs
 #include "heretic/def.h"
+#include "hexen/dstrings.h"
 #include "s_sound.h"
 #include "sounds.h"
 #include "p_inter.h"
@@ -317,7 +318,7 @@ void P_CalcHeight (player_t* player)
   if (player->viewz > player->mo->ceilingz - 4 * FRACUNIT)
     player->viewz = player->mo->ceilingz - 4 * FRACUNIT;
 
-  if (heretic && player->viewz < player->mo->floorz + 4 * FRACUNIT)
+  if (raven && player->viewz < player->mo->floorz + 4 * FRACUNIT)
     player->viewz = player->mo->floorz + 4 * FRACUNIT;
 }
 
@@ -371,7 +372,7 @@ void P_MovePlayer (player_t* player)
 
   P_HandleExCmdLook(player);
 
-  if (raven) return Raven_P_MovePlayer(player);
+  if (raven) RETURN(Raven_P_MovePlayer(player));
 
   cmd = &player->cmd;
   mo = player->mo;
@@ -893,14 +894,29 @@ void P_PlayerThink (player_t* player)
 
       if (!hexen)
       {
-        if (
-          newweapon == g_wp_fist && player->weaponowned[g_wp_chainsaw]
-          && (
-            player->readyweapon != g_wp_chainsaw ||
-            (!heretic && !player->powers[pw_strength])
-          )
-        )
-          newweapon = g_wp_chainsaw;
+        if (newweapon == g_wp_fist &&
+            player->weaponowned[g_wp_chainsaw])
+        {
+          // Heretic - always just direct to gauntlets
+          if (heretic)
+          {
+            if (player->readyweapon != g_wp_chainsaw)
+              newweapon = g_wp_chainsaw;
+          }
+          else
+          // Doom - force chainsaw if not currently on chainsaw
+          // + don't allow switch to fist if no berserk
+          //
+          // if "prefer berserk" active, switch to berserk first
+          {
+            dboolean berserk = player->powers[pw_strength];
+            dboolean prefer_berserk = dsda_BerserkPreferred() && berserk;
+
+            if (player->readyweapon != g_wp_chainsaw || !berserk)
+              if (player->readyweapon == g_wp_fist || !prefer_berserk)
+                newweapon = g_wp_chainsaw;
+          }
+        }
 
         if (!heretic &&
             gamemode == commercial &&
@@ -1181,8 +1197,8 @@ dboolean P_UndoPlayerChicken(player_t * player)
     angle_t angle;
     int playerNum;
     weapontype_t weapon;
-    int oldFlags;
-    int oldFlags2;
+    uint64_t oldFlags;
+    uint64_t oldFlags2;
 
     pmo = player->mo;
     x = pmo->x;
@@ -1243,7 +1259,7 @@ void P_ArtiTele(player_t * player)
 
     if (deathmatch)
     {
-        selections = deathmatch_p - deathmatchstarts;
+        selections = (int)(deathmatch_p - deathmatchstarts);
         i = P_Random(pr_heretic) % selections;
         destX = deathmatchstarts[i].x;
         destY = deathmatchstarts[i].y;
@@ -1268,28 +1284,28 @@ void P_PlayerNextArtifact(player_t * player)
 {
     if (player == &players[consoleplayer])
     {
-        inv_ptr--;
-        if (inv_ptr < 6)
+        player->inv_ptr--;
+        if (player->inv_ptr < 6)
         {
-            curpos--;
-            if (curpos < 0)
+            player->curpos--;
+            if (player->curpos < 0)
             {
-                curpos = 0;
+                player->curpos = 0;
             }
         }
-        if (inv_ptr < 0)
+        if (player->inv_ptr < 0)
         {
-            inv_ptr = player->inventorySlotNum - 1;
-            if (inv_ptr < 6)
+            player->inv_ptr = player->inventorySlotNum - 1;
+            if (player->inv_ptr < 6)
             {
-                curpos = inv_ptr;
+                player->curpos = player->inv_ptr;
             }
             else
             {
-                curpos = 6;
+                player->curpos = 6;
             }
         }
-        player->readyArtifact = player->inventory[inv_ptr].type;
+        player->readyArtifact = player->inventory[player->inv_ptr].type;
     }
 }
 
@@ -1308,24 +1324,24 @@ void P_PlayerRemoveArtifact(player_t * player, int slot)
         player->inventorySlotNum--;
         if (player == &players[consoleplayer])
         {                       // Set position markers and get next readyArtifact
-            inv_ptr--;
-            if (inv_ptr < 6)
+            player->inv_ptr--;
+            if (player->inv_ptr < 6)
             {
-                curpos--;
-                if (curpos < 0)
+                player->curpos--;
+                if (player->curpos < 0)
                 {
-                    curpos = 0;
+                    player->curpos = 0;
                 }
             }
-            if (inv_ptr >= player->inventorySlotNum)
+            if (player->inv_ptr >= player->inventorySlotNum)
             {
-                inv_ptr = player->inventorySlotNum - 1;
+                player->inv_ptr = player->inventorySlotNum - 1;
             }
-            if (inv_ptr < 0)
+            if (player->inv_ptr < 0)
             {
-                inv_ptr = 0;
+                player->inv_ptr = 0;
             }
-            player->readyArtifact = player->inventory[inv_ptr].type;
+            player->readyArtifact = player->inventory[player->inv_ptr].type;
         }
     }
 }
@@ -1860,8 +1876,8 @@ dboolean P_UndoPlayerMorph(player_t * player)
     angle_t angle;
     int playerNum;
     weapontype_t weapon;
-    int oldFlags;
-    int oldFlags2;
+    uint64_t oldFlags;
+    uint64_t oldFlags2;
     int oldBeast;
 
     pmo = player->mo;
@@ -1979,7 +1995,7 @@ void P_TeleportToDeathmatchStarts(mobj_t * victim)
     fixed_t destX, destY;
     angle_t destAngle;
 
-    selections = deathmatch_p - deathmatchstarts;
+    selections = (int)(deathmatch_p - deathmatchstarts);
     if (selections)
     {
         i = P_Random(pr_hexen) % selections;
@@ -2261,7 +2277,8 @@ static dboolean Hexen_P_UseArtifact(player_t * player, artitype_t arti)
             }
             else
             {
-                P_SetYellowMessage(player, TXT_USEPUZZLEFAILED, false);
+                // Kex adds extra sfx
+                dsda_PuzzleFailMessage(player);
                 return false;
             }
             break;

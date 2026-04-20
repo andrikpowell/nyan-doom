@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include "info.h"
+#include "deh/strings.h"
 #include "d_items.h"
 #include "p_inter.h"
 #include "p_spec.h"
@@ -38,6 +39,8 @@
 #include "dsda/sfx.h"
 #include "dsda/sprite.h"
 #include "dsda/state.h"
+
+#include "heretic/hhe/strings.h"
 
 #define IGNORE_VALUE -1
 
@@ -127,8 +130,9 @@ int g_door_open;
 
 int g_st_height;
 int g_border_offset;
-int g_mf_translucent;
-int g_mf_shadow;
+uint64_t g_mf_translucent;
+uint64_t g_mf_translucent_reverse;
+uint64_t g_mf_shadow_fuzz;
 
 const char* g_menu_flat;
 int g_menu_save_page_size;
@@ -139,6 +143,13 @@ int g_autopage_width;
 int g_autopage_height;
 
 const char* g_skyflatname;
+
+const char* g_am_followon;
+const char* g_am_followoff;
+const char* g_am_gridon;
+const char* g_am_gridoff;
+const char* g_msgoff;
+const char* g_msgon;
 
 dboolean started_demo = false;
 dboolean hexen = false;
@@ -169,7 +180,7 @@ static void dsda_InitDoom(void) {
   g_mt_player = MT_PLAYER;
   g_mt_tfog = MT_TFOG;
   g_mt_blood = MT_BLOOD;
-  g_skullpop_mt = MT_NULL;
+  g_skullpop_mt = MT_GIBDTH;
 
   g_wp_fist = wp_fist;
   g_wp_chainsaw = wp_chainsaw;
@@ -209,7 +220,8 @@ static void dsda_InitDoom(void) {
   g_st_height = 32;
   g_border_offset = 8;
   g_mf_translucent = MF_TRANSLUCENT;
-  g_mf_shadow = MF_SHADOW;
+  g_mf_translucent_reverse = 0;
+  g_mf_shadow_fuzz = MF_SHADOW;
 
   g_menu_flat = "FLOOR4_6";
   g_menu_save_page_size = 7;
@@ -218,6 +230,13 @@ static void dsda_InitDoom(void) {
   g_autopage = "AUTOPAGE";
   g_autopage_width = 320;
   g_autopage_height = 158;
+
+  g_am_followon = s_AMSTR_FOLLOWON;
+  g_am_followoff = s_AMSTR_FOLLOWOFF;
+  g_am_gridon = s_AMSTR_GRIDON;
+  g_am_gridoff = s_AMSTR_GRIDOFF;
+  g_msgoff = s_MSGOFF;
+  g_msgon = s_MSGON;
 
   g_skyflatname = "F_SKY1";
 
@@ -291,6 +310,32 @@ static void dsda_InitDoom(void) {
 
   for (i = S_SARG_RUN1; i <= S_SARG_PAIN2; ++i)
     states[i].flags |= STATEF_SKILL5FAST;
+
+  // Woof! randomly mirrored death animations
+  for (int i = MT_PLAYER; i <= MT_KEEN; ++i)
+  {
+      switch (i)
+      {
+          case MT_FIRE:
+          case MT_TRACER:
+          case MT_SMOKE:
+          case MT_FATSHOT:
+          case MT_BRUISERSHOT:
+          case MT_CYBORG:
+              continue;
+      }
+      mobjinfo[i].flags_extra |= MFX_MIRROREDCORPSE;
+  }
+
+  mobjinfo[MT_PUFF].flags_extra  |= MFX_MIRROREDCORPSE;
+  mobjinfo[MT_BLOOD].flags_extra |= MFX_MIRROREDCORPSE;
+
+  for (int i = MT_MISC61; i <= MT_MISC69; ++i)
+  {
+      mobjinfo[i].flags_extra |= MFX_MIRROREDCORPSE;
+  }
+
+  mobjinfo[MT_DOGS].flags_extra |= MFX_MIRROREDCORPSE;
 }
 
 static void dsda_InitHeretic(void) {
@@ -385,18 +430,26 @@ static void dsda_InitHeretic(void) {
 
   g_st_height = 42;
   g_border_offset = 4;
-  g_mf_translucent = MF_SHADOW;
-  g_mf_shadow = 0; // doesn't exist in heretic
+  g_mf_translucent = MF_SHADOW; // 40%
+  g_mf_translucent_reverse = 0;
+  g_mf_shadow_fuzz = 0; // doesn't exist in heretic
 
   g_menu_flat = "FLOOR30";
   g_menu_save_page_size = 5;
   g_menu_font_spacing = -1;
 
-  g_autopage = "AUTOPAGE";
+  g_autopage = s_HERETIC_AUTOPAGE;
   g_autopage_width = 320;
   g_autopage_height = 158;
 
   g_skyflatname = "F_SKY1";
+
+  g_am_followon = s_HERETIC_AMSTR_FOLLOWON;
+  g_am_followoff = s_HERETIC_AMSTR_FOLLOWOFF;
+  g_am_gridon = s_HERETIC_AMSTR_GRIDON;
+  g_am_gridoff = s_HERETIC_AMSTR_GRIDOFF;
+  g_msgoff = s_HERETIC_MSGOFF;
+  g_msgon = s_HERETIC_MSGON;
 
   // convert heretic mobj types to shared type
   for (i = 0; i < HERETIC_NUMMOBJTYPES - HERETIC_MT_ZERO; ++i) {
@@ -453,6 +506,51 @@ static void dsda_InitHeretic(void) {
   maxammo[3] = 200; // skull rod
   maxammo[4] = 20;  // phoenix rod
   maxammo[5] = 150; // mace
+
+  // Woof! randomly mirrored death animations
+  {
+    int flippable_things[] = {
+      HERETIC_MT_PLAYER,
+      HERETIC_MT_CHICPLAYER,
+      HERETIC_MT_CHICKEN,
+      HERETIC_MT_MUMMY,
+      HERETIC_MT_MUMMYLEADER,
+      HERETIC_MT_MUMMYGHOST,
+      HERETIC_MT_MUMMYLEADERGHOST,
+      HERETIC_MT_BEAST,
+      HERETIC_MT_SNAKE,
+      HERETIC_MT_HEAD,
+      HERETIC_MT_CLINK,
+      HERETIC_MT_WIZARD,
+      HERETIC_MT_IMP,
+      HERETIC_MT_IMPLEADER,
+      HERETIC_MT_KNIGHT,
+      HERETIC_MT_KNIGHTGHOST,
+      HERETIC_MT_SORCERER1,
+      HERETIC_MT_SORCERER2,
+      HERETIC_MT_MINOTAUR,
+    };
+
+    int flippable_things2[] = {
+      HERETIC_MT_STAFFPUFF,
+      HERETIC_MT_STAFFPUFF2,
+      HERETIC_MT_BEAKPUFF,
+      HERETIC_MT_GAUNTLETPUFF1,
+      HERETIC_MT_BLASTERPUFF1,
+      HERETIC_MT_BLASTERPUFF2,
+      HERETIC_MT_GOLDWANDPUFF1,
+      HERETIC_MT_GOLDWANDPUFF2,
+      HERETIC_MT_PHOENIXPUFF,
+      HERETIC_MT_FEATHER,
+      HERETIC_MT_BLOOD,
+    };
+
+    for (int i = 0; i < arrlen(flippable_things); i++)
+      mobjinfo[flippable_things[i]].flags_extra |= MFX_MIRROREDCORPSE;
+
+    for (int i = 0; i < arrlen(flippable_things2); i++)
+      mobjinfo[flippable_things2[i]].flags_extra |= MFX_MIRROREDCORPSE;
+  }
 }
 
 static void dsda_InitHexen(void) {
@@ -539,20 +637,25 @@ static void dsda_InitHexen(void) {
 
   g_st_height = 39;
   g_border_offset = 4;
-  g_mf_translucent = MF_SHADOW; // hexen_note: SHADOW is actually opposite of normal translucency o.O
-  // g_mf_alt_translucent = MF_ALTSHADOW;
-  // hexen_note: ALTSHADOW is translucency like Boom + Heretic
-  // I'm not using g_mf_alt_translucent because it doesn't update in realtime (which causes issues with the minotaur fade)
-  g_mf_shadow = 0; // doesn't exist in hexen
+  g_mf_translucent = MF_SHADOW;             // hexen_note: SHADOW is actually opposite of Heretic - 60%
+  g_mf_translucent_reverse = MF_ALTSHADOW;  // hexen_note: ALTSHADOW is reverse SHADOW - 40%
+  g_mf_shadow_fuzz = 0; // doesn't exist in hexen
 
   g_menu_flat = "F_032";
-  g_autopage = "AUTOPAGE";
+  g_autopage = s_HERETIC_AUTOPAGE;
   g_autopage_width = 320;
   g_autopage_height = 158;
   g_menu_save_page_size = 5;
   g_menu_font_spacing = -1;
 
   g_skyflatname = "F_SKY";
+
+  g_am_followon = s_HERETIC_AMSTR_FOLLOWON;
+  g_am_followoff = s_HERETIC_AMSTR_FOLLOWOFF;
+  g_am_gridon = s_HERETIC_AMSTR_GRIDON;
+  g_am_gridoff = s_HERETIC_AMSTR_GRIDOFF;
+  g_msgoff = s_HERETIC_MSGOFF;
+  g_msgon = s_HERETIC_MSGON;
 
   // convert hexen mobj types to shared type
   for (i = 0; i < HEXEN_NUMMOBJTYPES - HEXEN_MT_ZERO; ++i) {
@@ -604,6 +707,57 @@ static void dsda_InitHexen(void) {
 
     P_UseHexenRNG();
   }
+
+  // Woof! randomly mirrored death animations
+  {
+    int flippable_things[] = {
+      HEXEN_MT_PLAYER_FIGHTER,
+      HEXEN_MT_PLAYER_CLERIC,
+      HEXEN_MT_PLAYER_MAGE,
+      HEXEN_MT_PIGPLAYER,
+      HEXEN_MT_PIG,
+      HEXEN_MT_CENTAUR,
+      HEXEN_MT_CENTAURLEADER,
+      HEXEN_MT_DEMON,
+      HEXEN_MT_DEMON2,
+      HEXEN_MT_WRAITH,
+      HEXEN_MT_MINOTAUR,
+      HEXEN_MT_SERPENT,
+      HEXEN_MT_SERPENTLEADER,
+      HEXEN_MT_BISHOP,
+      HEXEN_MT_DRAGON,
+      HEXEN_MT_ETTIN,
+      HEXEN_MT_FIREDEMON,
+      HEXEN_MT_ICEGUY,
+      HEXEN_MT_FIGHTER_BOSS,
+      HEXEN_MT_CLERIC_BOSS,
+      HEXEN_MT_FIGHTER_BOSS,
+      HEXEN_MT_MAGE_BOSS,
+      HEXEN_MT_SORCBOSS,
+      HEXEN_MT_KORAX,
+    };
+
+    int flippable_things2[] = {
+      HEXEN_MT_PUNCHPUFF,
+      HEXEN_MT_AXEPUFF,
+      HEXEN_MT_AXEPUFF_GLOW,
+      HEXEN_MT_HAMMERPUFF,
+      HEXEN_MT_CSTAFFPUFF,
+      HEXEN_MT_FLAMEPUFF,
+      HEXEN_MT_FLAMEPUFF2,
+      HEXEN_MT_HOLY_PUFF,
+      HEXEN_MT_HOLY_MISSILE_PUFF,
+      HEXEN_MT_MWANDPUFF,
+      HEXEN_MT_SNOUTPUFF,
+      HERETIC_MT_BLOOD,
+    };
+
+    for (int i = 0; i < arrlen(flippable_things); i++)
+      mobjinfo[flippable_things[i]].flags_extra |= MFX_MIRROREDCORPSE;
+
+    for (int i = 0; i < arrlen(flippable_things2); i++)
+      mobjinfo[flippable_things2[i]].flags_extra |= MFX_MIRROREDCORPSE;
+  }
 }
 
 static dboolean dsda_AutoDetectHeretic(void)
@@ -612,7 +766,7 @@ static dboolean dsda_AutoDetectHeretic(void)
   int length;
   arg = dsda_Arg(dsda_arg_iwad);
   if (arg->found) {
-    length = strlen(arg->value.v_string);
+    length = (int)strlen(arg->value.v_string);
     if (length >= 11 && !strnicmp(arg->value.v_string + length - 11, "heretic.wad", 11))
       return true;
     else if (length >= 12 && !strnicmp(arg->value.v_string + length - 12, "heretic1.wad", 12))
@@ -628,7 +782,7 @@ static dboolean dsda_AutoDetectHexen(void)
   int length;
   arg = dsda_Arg(dsda_arg_iwad);
   if (arg->found) {
-    length = strlen(arg->value.v_string);
+    length = (int)strlen(arg->value.v_string);
     if (length >= 9 && !strnicmp(arg->value.v_string + length - 9, "hexen.wad", 9))
       return true;
   }

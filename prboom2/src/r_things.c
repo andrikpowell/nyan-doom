@@ -134,7 +134,8 @@ void R_UpdateVisSpriteTranMap(vissprite_t *vis, mobj_t *thing)
 {
   if (thing && thing->tranmap)
     vis->tranmap = thing->tranmap;
-  else if (vis->mobjflags & g_mf_translucent || vis->mobjflags & MF_ALTSHADOW)
+  else if (vis->mobjflags & g_mf_translucent ||
+           vis->mobjflags & g_mf_translucent_reverse)
     vis->tranmap = main_tranmap;
   else
     vis->tranmap = NULL;
@@ -176,10 +177,7 @@ static void R_InstallSpriteLump(int lump, unsigned frame,
         if (sprtemp[frame].lump[r] == -1)
           {
             sprtemp[frame].lump[r] = lump - firstspritelump;
-            if (flipped)
-            {
-              sprtemp[frame].flip |= (1 << r);
-            }
+            sprtemp[frame].flip[r] = (byte)flipped;
             sprtemp[frame].rotate = false; //jff 4/24/98 if any subbed, rotless
           }
       return;
@@ -199,10 +197,7 @@ static void R_InstallSpriteLump(int lump, unsigned frame,
   if (sprtemp[frame].lump[rotation] == -1)
     {
       sprtemp[frame].lump[rotation] = lump - firstspritelump;
-      if (flipped)
-      {
-        sprtemp[frame].flip |= (1 << rotation);
-      }
+      sprtemp[frame].flip[rotation] = (byte)flipped;
       sprtemp[frame].rotate = true; //jff 4/24/98 only change if rot used
     }
 }
@@ -278,9 +273,7 @@ static void R_InitSpriteDefs(const char * const * namelist)
         {
           memset(sprtemp, -1, sizeof(sprtemp));
           for (k = 0; k < MAX_SPRITE_FRAMES; k++)
-          {
-            sprtemp[k].flip = 0;
-          }
+            memset(sprtemp[k].flip, 0, sizeof(sprtemp[k].flip));
 
           maxframe = -1;
           do
@@ -327,11 +320,8 @@ static void R_InitSpriteDefs(const char * const * namelist)
                     for (rot = 1; rot < 16; rot++)
                     {
                       sprtemp[frame].lump[rot] = sprtemp[frame].lump[0];
-                    }
-                    // If the frame is flipped, they all should be
-                    if (sprtemp[frame].flip & 1)
-                    {
-                      sprtemp[frame].flip = 0xFFFF;
+                      // If the frame is flipped, they all should be
+                      sprtemp[frame].flip[rot] = sprtemp[frame].flip[0];
                     }
                     break;
 
@@ -342,18 +332,12 @@ static void R_InitSpriteDefs(const char * const * namelist)
                       if (sprtemp[frame].lump[rot * 2 + 1] == -1)
                       {
                         sprtemp[frame].lump[rot * 2 + 1] = sprtemp[frame].lump[rot * 2];
-                        if (sprtemp[frame].flip & (1 << (rot * 2)))
-                        {
-                          sprtemp[frame].flip |= 1 << (rot * 2 + 1);
-                        }
+                        sprtemp[frame].flip[rot * 2 + 1] = sprtemp[frame].flip[rot * 2];
                       }
                       if (sprtemp[frame].lump[rot * 2] == -1)
                       {
                         sprtemp[frame].lump[rot * 2] = sprtemp[frame].lump[rot * 2 + 1];
-                        if (sprtemp[frame].flip & (1 << (rot * 2 + 1)))
-                        {
-                          sprtemp[frame].flip |= 1 << (rot * 2);
-                        }
+                        sprtemp[frame].flip[rot * 2] = sprtemp[frame].flip[rot * 2 + 1];
                       }
 
                     }
@@ -373,7 +357,7 @@ static void R_InitSpriteDefs(const char * const * namelist)
                 if (sprtemp[frame].rotate == -1)
                 {
                   memset(&sprtemp[frame].lump, 0, sizeof(sprtemp[0].lump));
-                  sprtemp[frame].flip = 0;
+                  memset(&sprtemp[frame].flip, 0, sizeof(sprtemp[0].flip));
                   sprtemp[frame].rotate = 0;
                 }
               }
@@ -501,6 +485,28 @@ void R_DrawMaskedColumn(
           // Drawn by either R_DrawColumn
           //  or (SHADOW) R_DrawFuzzColumn.
           dcvars->drawingmasked = 1; // POPE
+          // [AR] Fix SSG fire bleeding bottom line
+          // Player sprites can round one row past the current post.
+          if (dcvars->isplayersprite)
+          {
+            fixed_t post_end    = post->length << FRACBITS;
+            fixed_t frac_start  = dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale;
+            fixed_t frac_end    = dcvars->texturemid + (dcvars->yh - centery) * dcvars->iscale;
+
+            // Trim extra top rows of player sprite.
+            while (dcvars->yl <= dcvars->yh && frac_start < 0)
+            {
+              dcvars->yl++;
+              frac_start += dcvars->iscale;
+            }
+
+            // Trim extra bottom rows of player sprite.
+            while (dcvars->yl <= dcvars->yh && frac_end >= post_end)
+            {
+              dcvars->yh--;
+              frac_end -= dcvars->iscale;
+            }
+          }
           colfunc (dcvars);
           dcvars->drawingmasked = 0; // POPE
 
@@ -523,14 +529,14 @@ static void R_SetSpritelights(int lightlevel)
   if (NYAN_LITEAMP)
     lightnum += NYAN_LITESCALE;
 
-  spritelights = scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
+  spritelights = scalelight[CLAMP(lightnum, 0, LIGHTLEVELS - 1)];
 }
 
 static void R_UpdateFuzzCellSize(vissprite_t *vis)
 {
     const rpatch_t *patch       = R_PatchByNum(vis->patch + firstspritelump);
     int sprite_height           = LittleShort(patch->height);
-    float sprite_screen_height  = FixedMul(sprite_height << FRACBITS, vis->scale) >> FRACBITS;
+    float sprite_screen_height  = (float)(sprite_height * (vis->scale / FRACUNIT));
     float screen_space_factor;
     float base_fuzzcellsize;
 
@@ -576,15 +582,18 @@ static void R_DrawVisSprite(vissprite_t *vis)
   draw_column_vars_t dcvars;
   int isColor = 0;
   int isTranslucenct = 0;
-  int hexen_shadow = 0;
+  int hexen_reverse_trans = 0;
 
   R_SetDefaultDrawColumnVars(&dcvars);
 
   dcvars.colormap = vis->colormap;
 
+  if (vis->mobjflags & MF_PLAYERSPRITE)
+    dcvars.isplayersprite = true;
+
   // Add second Hexen translucent function
   if (hexen && vis->mobjflags & MF_SHADOW)
-    hexen_shadow++;
+    hexen_reverse_trans++;
 
   // killough 4/11/98: rearrange and handle translucent sprites
   // mixed with translucent/non-translucenct 2s normals
@@ -625,9 +634,9 @@ static void R_DrawVisSprite(vissprite_t *vis)
     }
 
     if (isColor && isTranslucenct)
-      colfunc = R_GetDrawColumnFunc(hexen_shadow ? RDC_PIPELINE_ALT_TRTL : RDC_PIPELINE_TRTL, RDRAW_FILTER_POINT);
+      colfunc = R_GetDrawColumnFunc(hexen_reverse_trans ? RDC_PIPELINE_ALT_TRTL : RDC_PIPELINE_TRTL, RDRAW_FILTER_POINT);
     else if (isTranslucenct)
-      colfunc = R_GetDrawColumnFunc(hexen_shadow ? RDC_PIPELINE_ALT_TL : RDC_PIPELINE_TRANSLUCENT, RDRAW_FILTER_POINT);
+      colfunc = R_GetDrawColumnFunc(hexen_reverse_trans ? RDC_PIPELINE_ALT_TL : RDC_PIPELINE_TRANSLUCENT, RDRAW_FILTER_POINT);
     else if (isColor)
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, RDRAW_FILTER_POINT);
     else
@@ -652,7 +661,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 
   if (vis->floorclip && !(vis->mobjflags & MF_PLAYERSPRITE))
   {
-    fixed_t sprbotscreen = sprtopscreen + FixedMul(LittleShort(patch->height) << FRACBITS, spryscale);
+    fixed_t sprbotscreen = (fixed_t)(sprtopscreen + FixedMul(LittleShort(patch->height) << FRACBITS, spryscale));
     dcvars.baseclip = (sprbotscreen - FixedMul(vis->floorclip, spryscale)) >> FRACBITS;
   }
 
@@ -799,13 +808,22 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
           (angle_t)(ANG180 / 16)) >> 28;
       }
       lump = sprframe->lump[rot];
-      flip = (dboolean)(sprframe->flip & (1 << rot));
+      flip = (dboolean)sprframe->flip[rot];
     }
   else
     {
       // use single rotation for all views
       lump = sprframe->lump[0];
-      flip = (dboolean)(sprframe->flip & 1);
+      flip = (dboolean)sprframe->flip[0];
+    }
+
+    // [crispy] randomly flip corpse, blood and death animation sprites
+    if (dsda_AllowMirroredCorpses() &&
+      (thing->flags_extra & MFX_MIRROREDCORPSE) &&
+      !(thing->flags & MF_SHOOTABLE) &&
+      (thing->intflags & MIF_FLIP))
+    {
+      flip = !flip;
     }
 
   {
@@ -880,6 +898,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   vis->heightsec = heightsec;
 
   vis->mobjflags = thing->flags;
+  vis->mobjflags_extra = thing->flags_extra;
 // proff 11/06/98: Changed for high-res
   vis->scale = FixedDiv(projectiony, tz);
   vis->gzt = gzt;                          // killough 3/27/98
@@ -943,7 +962,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   R_SetSpritelights(lightlevel);
 
   // get light level
-  if (thing->flags & g_mf_shadow)
+  if (thing->flags & g_mf_shadow_fuzz)
       vis->colormap = NULL;             // shadow draw
   else if (fixedcolormap && !NYAN_LITEAMP)
     vis->colormap = fixedcolormap;      // fixed map
@@ -958,6 +977,32 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     }
 
   R_UpdateVisSpriteTranMap(vis, thing);
+}
+
+// [AR] Nearby Sprites Array Stuff
+static mobj_t **nearby_sprites = NULL;
+static int num_nearby_sprites = 0;
+static int nearby_sprites_alloc = 0;
+
+static void R_ClearNearbySprites(void)
+{
+  num_nearby_sprites = 0;
+}
+
+static void R_AddNearbySprite(mobj_t *thing)
+{
+  if (num_nearby_sprites >= nearby_sprites_alloc)
+  {
+    size_t num_nearby_sprite_alloc_prev = nearby_sprites_alloc;
+
+    nearby_sprites_alloc = nearby_sprites_alloc ? nearby_sprites_alloc * 2 : 128;
+    nearby_sprites = Z_Realloc(nearby_sprites, nearby_sprites_alloc * sizeof(*nearby_sprites));
+
+    memset(nearby_sprites + num_nearby_sprite_alloc_prev, 0,
+      (nearby_sprites_alloc - num_nearby_sprite_alloc_prev) * sizeof(*nearby_sprites));
+  }
+
+  nearby_sprites[num_nearby_sprites++] = thing;
 }
 
 //
@@ -993,6 +1038,43 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
       R_ProjectSprite(thing, lightlevel);
     }
   }
+
+  if (dsda_DrawNearbySprites())
+  {
+    if (V_IsOpenGLMode())
+      return;
+
+    for (msecnode_t *n = sec->touching_thinglist; n; n = n->m_snext)
+    {
+      thing = n->m_thing;
+
+      // [FG] sprites in sector have already been projected
+      if (thing->subsector->sector->validcount != validcount)
+      {
+        R_AddNearbySprite(thing);
+      }
+    }
+  }
+}
+
+void R_NearbySprites(void)
+{
+  if (V_IsOpenGLMode())
+    return;
+
+  for (int i = 0; i < num_nearby_sprites; i++)
+  {
+    mobj_t *thing = nearby_sprites[i];
+    sector_t *sec = thing->subsector->sector;
+
+    // [FG] sprites in sector have already been projected
+    if (sec->validcount != validcount)
+    {
+      R_ProjectSprite(thing, sec->lightlevel);
+    }
+  }
+
+  R_ClearNearbySprites();
 }
 
 //
@@ -1073,6 +1155,7 @@ static int PSpriteSY[NUMCLASSES][NUMWEAPONS] = {
 static void R_DrawPSprite (pspdef_t *psp)
 {
   int           x1, x2;
+  int           gx1;
   spritedef_t   *sprdef;
   spriteframe_t *sprframe;
   int           lump;
@@ -1102,7 +1185,7 @@ static void R_DrawPSprite (pspdef_t *psp)
   sprframe = &sprdef->spriteframes[psp->state->frame & FF_FRAMEMASK];
 
   lump = sprframe->lump[0];
-  flip = (dboolean)(sprframe->flip & 1);
+  flip = (dboolean) sprframe->flip[0];
 
   {
     int weapon_attack_alignment = dsda_IntConfig(dsda_config_weapon_attack_alignment);
@@ -1112,13 +1195,28 @@ static void R_DrawPSprite (pspdef_t *psp)
                                              (viewplayer->pclass == PCLASS_CLERIC &&
                                              viewplayer->readyweapon == wp_first));
 
+    // [crispy] don't center vertically during lowering and raising states
+    const dboolean raise_or_lower = (psp->state->action == A_Lower || psp->state->action == A_Raise);
+
+    // Player must be alive - fixes lingering flash states
+    const dboolean is_alive       = (viewplayer->playerstate == PST_LIVE);
+
+    // Continuous bobbing
+    const dboolean forced_bobbing = (weapon_attack_alignment == CENTERWEAPON_BOB);
+
+    // Misc Offsets
+    const dboolean x_offset       = (psp->state->misc1);
+    const dboolean y_offset       = (hexen ? psp->state->misc2 :
+                                     x_offset && psp->state->misc2);
+
+
     if (!dsda_WeaponBob() && !(swiping_weapon && viewplayer->attackdown))
     {
       static fixed_t last_sy = 32 * FRACUNIT;
 
       psp_sx = FRACUNIT;
 
-      if (psp->state->action != A_Lower && psp->state->action != A_Raise)
+      if (!raise_or_lower)
       {
         last_sy = psp->sy;
         psp_sy = 32 * FRACUNIT;
@@ -1129,15 +1227,21 @@ static void R_DrawPSprite (pspdef_t *psp)
         psp_sy -= (last_sy - 32 * FRACUNIT);
       }
     }
-    else if (weapon_attack_alignment && viewplayer->attackdown && !psp->state->misc1)
+    else if (weapon_attack_alignment && viewplayer->attackdown)
     { // [crispy] center the weapon sprite horizontally and vertically
-      R_ApplyWeaponBob(&psp_sx, weapon_attack_alignment == CENTERWEAPON_BOB, NULL, false);
+      if (!x_offset)
+        R_ApplyWeaponBob(&psp_sx, forced_bobbing, NULL, false);
 
-      // [crispy] don't center vertically during lowering and raising states
+      // y_offset "centering" or "push up"
       if (weapon_attack_alignment >= CENTERWEAPON_HORVER &&
-          psp->state->action != A_Lower && psp->state->action != A_Raise && !swiping_weapon)
+          !raise_or_lower && !swiping_weapon && is_alive)
       {
-          R_ApplyWeaponBob(NULL, false, &psp_sy, weapon_attack_alignment == CENTERWEAPON_BOB);
+        if (forced_bobbing)
+          R_ApplyWeaponBob(NULL, false, &psp_sy, true);
+
+        // bob for centered horiz/vertical, unless y-offset
+        else if (!y_offset)
+          R_ApplyWeaponBob(NULL, false, &psp_sy, false);
       }
     }
     else if (psp->state->action == A_WeaponReady && psp->state->tics > 1 && movement_smooth)
@@ -1161,6 +1265,9 @@ static void R_DrawPSprite (pspdef_t *psp)
     tx -= patch->leftoffset<<FRACBITS;
     x1 = (centerxfrac + FixedMul (tx,pspritexscale))>>FRACBITS;
 
+    // [AR] opengl weapon alignment
+    gx1 = x1;
+
     tx += patch->width<<FRACBITS;
     x2 = ((centerxfrac + FixedMul (tx, pspritexscale) ) >>FRACBITS) - 1;
 
@@ -1169,12 +1276,14 @@ static void R_DrawPSprite (pspdef_t *psp)
   }
 
   // off the side
+  // [AR] this is fine for software, but opengl needs unclipped x1 (gx1) for drawing quad
   if (x2 < 0 || x1 > viewwidth)
     return;
 
   // store information in a vissprite
   vis = &avis;
   vis->mobjflags = MF_PLAYERSPRITE;
+  vis->mobjflags_extra = 0;
   vis->pclass = 0;
   vis->floorclip = 0;
    // killough 12/98: fix psprite positioning problem
@@ -1191,6 +1300,10 @@ static void R_DrawPSprite (pspdef_t *psp)
 
   vis->x1 = x1 < 0 ? 0 : x1;
   vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
+
+  // [AR] opengl weapon alignment
+  vis->gx1 = gx1;
+
 // proff 11/06/98: Added for high-res
   vis->scale = pspriteyscale;
   vis->color = 0;
@@ -1260,6 +1373,8 @@ static void R_DrawPSprite (pspdef_t *psp)
     {
       int x1;
       int x1_prev;
+      int gx1;
+      int gx1_prev;
       int texturemid;
       int texturemid_prev;
       int lump;
@@ -1270,10 +1385,12 @@ static void R_DrawPSprite (pspdef_t *psp)
     if (realframe)
     {
       psp_inter.x1 = psp_inter.x1_prev;
+      psp_inter.gx1 = psp_inter.gx1_prev;
       psp_inter.texturemid = psp_inter.texturemid_prev;
     }
 
     psp_inter.x1_prev = vis->x1;
+    psp_inter.gx1_prev = vis->gx1;
     psp_inter.texturemid_prev = vis->texturemid;
 
     // Do not interpolate on the first tic of the level
@@ -1285,11 +1402,13 @@ static void R_DrawPSprite (pspdef_t *psp)
         int deltax = vis->x2 - vis->x1;
         vis->x1 = psp_inter.x1 + FixedMul (tic_vars.frac, (vis->x1 - psp_inter.x1));
         vis->x2 = vis->x1 + deltax;
+        vis->gx1 = psp_inter.gx1 + FixedMul(tic_vars.frac, (vis->gx1 - psp_inter.gx1));
         vis->texturemid = psp_inter.texturemid + FixedMul (tic_vars.frac, (vis->texturemid - psp_inter.texturemid));
       }
       else
       {
         psp_inter.x1 = vis->x1;
+        psp_inter.gx1 = vis->gx1;
         psp_inter.texturemid = vis->texturemid;
         psp_inter.lump=lump;
       }

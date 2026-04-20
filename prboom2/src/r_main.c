@@ -427,7 +427,7 @@ static void R_InitTextureMapping (void)
       xtoviewangle[x] = (i<<ANGLETOFINESHIFT)-ANG90;
 
       // [FG] linear horizontal sky scrolling
-      angle = (0.5 - x / (double)viewwidth) * linearskyfactor;
+      angle = (int)((0.5 - x / (double)viewwidth) * linearskyfactor);
       linearskyangle[x] = (angle >= 0) ? angle : ANGLE_MAX + angle;
     }
 
@@ -1097,7 +1097,7 @@ static void R_InitDrawScene(void)
     // proff 11/99: clear buffers
     gld_InitDrawScene();
 
-    if (!automap_on)
+    if (!automap_solid)
     {
       // proff 11/99: switch to perspective mode
       gld_StartDrawScene();
@@ -1181,6 +1181,8 @@ void R_RenderPlayerView (player_t* player)
   R_RenderBSPNodes();
   DSDA_REMOVE_CONTEXT(sf_bsp_nodes);
 
+  R_NearbySprites();
+
   FakeNetUpdate();
 
   if (V_IsSoftwareMode())
@@ -1205,7 +1207,7 @@ void R_RenderPlayerView (player_t* player)
 
   FakeNetUpdate();
 
-  if (V_IsOpenGLMode() && !automap_on) {
+  if (V_IsOpenGLMode() && !automap_solid) {
     DSDA_ADD_CONTEXT(sf_draw_scene);
     gld_DrawScene(player);
     gld_EndDrawScene();

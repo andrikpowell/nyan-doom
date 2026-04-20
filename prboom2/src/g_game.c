@@ -69,7 +69,6 @@
 #include "w_wad.h"
 #include "r_main.h"
 #include "r_draw.h"
-#include "p_map.h"
 #include "s_sound.h"
 #include "s_advsound.h"
 #include "s_random.h"
@@ -77,7 +76,7 @@
 #include "sounds.h"
 #include "r_data.h"
 #include "r_sky.h"
-#include "d_deh.h"              // Ty 3/27/98 deh declarations
+#include "deh/strings.h"              // Ty 3/27/98 deh declarations
 #include "p_inter.h"
 #include "g_game.h"
 #include "lprintf.h"
@@ -107,7 +106,6 @@
 #include "dsda/settings.h"
 #include "dsda/input.h"
 #include "dsda/map_format.h"
-#include "dsda/mapinfo.h"
 #include "dsda/mouse.h"
 #include "dsda/options.h"
 #include "dsda/pause.h"
@@ -144,6 +142,9 @@ struct
     { HERETIC_MT_SOR2FX1, { 20, 28 } },
     { -1, { -1, -1 } }                 // Terminator
 };
+
+// Exhud Target Health Widget
+dboolean hu_target_health_reset;
 
 // e6y
 // It is signature for new savegame format with continuous numbering.
@@ -187,6 +188,8 @@ dboolean         haswolflevels = false;// jff 4/18/98 wolf levels present
 int             totalleveltimes;      // CPhipps - total time for all completed levels
 int             levels_completed;
 int             longtics;
+
+milestone_t     complete_milestones; // [Nugget]
 
 dboolean coop_spawns;
 dboolean skill_loadout;
@@ -595,6 +598,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     int lspeed;
     int look, arti;
     int flyheight;
+    static player_t *plr;
+    plr = &players[consoleplayer];
 
     look = arti = flyheight = 0;
 
@@ -650,20 +655,20 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     {
       if (inventory)
       {
-        players[consoleplayer].readyArtifact = players[consoleplayer].inventory[inv_ptr].type;
+        plr->readyArtifact = plr->inventory[plr->inv_ptr].type;
         inventory = false;
         cmd->arti = 0;
       }
       else
       {
-        cmd->arti |= players[consoleplayer].inventory[inv_ptr].type & AFLAG_MASK;
+        cmd->arti |= plr->inventory[plr->inv_ptr].type & AFLAG_MASK;
       }
     }
 
     // Skip artifact key
     if (dsda_InputTickActivated(dsda_input_skip_artifact))
     {
-      if (players[consoleplayer].inventory[inv_ptr].type != arti_none)
+      if (plr->inventory[plr->inv_ptr].type != arti_none)
       {
         if (hexen)
           P_PlayerNextArtifact(&players[consoleplayer]);
@@ -854,7 +859,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   if (dsda_InputActive(dsda_input_use) || dsda_InputTickActivated(dsda_input_use))
   {
-    if (!dsda_SkipDeathUseAction())
+    if (!dsda_DeathUseNothingInDemo())
       cmd->buttons |= BT_USE;
     // clear double clicks if hit use button
     dclicks = 0;
@@ -956,12 +961,18 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         // the fist is already in use, or the player does not
         // have the berserker strength.
 
+        // [AR] Add beserk priority option
         if (newweapon==wp_fist && player->weaponowned[wp_chainsaw] &&
-            player->readyweapon!=wp_chainsaw &&
-            (player->readyweapon==wp_fist ||
-             !player->powers[pw_strength] ||
-             P_WeaponPreferred(wp_chainsaw, wp_fist)))
-          newweapon = wp_chainsaw;
+            player->readyweapon!=wp_chainsaw)
+        {
+          dboolean prefer_berserk = dsda_BerserkPreferred() && player->powers[pw_strength];
+          dboolean prefer_chainsaw = !prefer_berserk && P_WeaponPreferred(wp_chainsaw, wp_fist);
+
+          if (player->readyweapon==wp_fist ||
+              !player->powers[pw_strength] ||
+              prefer_chainsaw)
+            newweapon = wp_chainsaw;
+        }
 
         // Select SSG from '3' only if it's owned and the player
         // does not have a shotgun, or if the shotgun is already
@@ -998,7 +1009,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         dclicks++;
       if (dclicks == 2)
         {
-          if (!dsda_SkipDeathUseAction())
+          if (!dsda_DeathUseNothingInDemo())
             cmd->buttons |= BT_USE;
           dclicks = 0;
         }
@@ -1021,7 +1032,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         dclicks2++;
       if (dclicks2 == 2)
         {
-          if (!dsda_SkipDeathUseAction())
+          if (!dsda_DeathUseNothingInDemo())
             cmd->buttons |= BT_USE;
           dclicks2 = 0;
         }
@@ -1230,6 +1241,9 @@ static void G_DoLoadLevel (void)
   // [RH] Set up details about sky rendering
   R_InitSkyMap ();
 
+  // Reset dynamic palette (Hexen end screen)
+  V_ClearDynamicPalette();
+
   dsda_InitMessenger();
 
   levelstarttic = gametic;        // for time calculation
@@ -1259,6 +1273,9 @@ static void G_DoLoadLevel (void)
     }
     memset(players[i].frags, 0, sizeof(players[i].frags));
   }
+
+  // Reset Exhud Target Health Widget
+  hu_target_health_reset = true;
 
   // automatic pistol start when advancing from one level to the next
   if (pistolstart && !skill_loadout)
@@ -1474,8 +1491,8 @@ dboolean G_Responder (event_t* ev)
     case ev_move_analog:
       dsda_WatchGameControllerEvent();
 
-      left_analog_x = ev->data1.f;
-      left_analog_y = ev->data2.f;
+      left_analog_x = (int)ev->data1.f;
+      left_analog_y = (int)ev->data2.f;
       return true;    // eat events
 
     case ev_look_analog:
@@ -1701,7 +1718,7 @@ void G_Ticker (void)
     if (inventory && !(--inventoryTics))
     {
         players[consoleplayer].readyArtifact =
-            players[consoleplayer].inventory[inv_ptr].type;
+            players[consoleplayer].inventory[players[consoleplayer].inv_ptr].type;
         inventory = false;
     }
 
@@ -1882,8 +1899,6 @@ static void G_PlayerFinishLevel(int player)
 //
 // G_SetPlayerColour
 
-#include "r_draw.h"
-
 void G_ChangedPlayerColour(int pn, int cl)
 {
   int i;
@@ -1953,8 +1968,8 @@ void G_PlayerReborn (int player)
   localQuakeHappening[player] = false;
   if (p == &players[consoleplayer])
   {
-    inv_ptr = 0;            // reset the inventory pointer
-    curpos = 0;
+    p->inv_ptr = 0;            // reset the inventory pointer
+    p->curpos = 0;
   }
 
   levels_completed = 0;
@@ -2082,7 +2097,7 @@ static dboolean G_CheckSpot(int playernum, mapthing_t *mthing)
 //
 void G_DeathMatchSpawnPlayer (int playernum)
 {
-  int j, selections = deathmatch_p - deathmatchstarts;
+  int j, selections = (int)(deathmatch_p - deathmatchstarts);
 
   if (selections < g_maxplayers)
     I_Error("G_DeathMatchSpawnPlayer: Only %i deathmatch spots, %d required",
@@ -2112,7 +2127,7 @@ void G_DoReborn (int playernum)
   dsda_WatchReborn(playernum);
 
   if (hexen)
-    return Hexen_G_DoReborn(playernum);
+    RETURN(Hexen_G_DoReborn(playernum));
 
   if (!netgame && !(map_info.flags & MI_ALLOW_RESPAWN) && !(skill_info.flags & SI_PLAYER_RESPAWN))
     gameaction = ga_loadlevel;      // reload the level from scratch
@@ -2169,6 +2184,7 @@ int cpars[34] = {
 };
 
 dboolean secretexit;
+dboolean skip_intermission;
 
 void G_ExitLevel(int position)
 {
@@ -2188,6 +2204,24 @@ void G_SecretExitLevel(int position)
     secretexit = false;
   gameaction = ga_completed;
   dsda_UpdateLeaveData(0, position, 0, 0);
+}
+
+void G_ForceFinale (void)
+{
+  skip_intermission = false;
+
+  if (gamemode != commercial)
+  {
+    gameaction = ga_victory;
+
+    return;
+  }
+  else
+  {
+    F_StartFinale();
+
+    return;
+  }
 }
 
 //
@@ -2213,7 +2247,7 @@ void G_DoCompleted (void)
     if (playeringame[i])
       G_PlayerFinishLevel(i);        // take away cards and stuff
 
-  AM_Stop(false);
+  AM_Stop(AM_CLOSE_ALL);
 
   e6y_G_DoCompleted();
   dsda_WatchLevelCompletion();
@@ -2252,12 +2286,15 @@ void G_DoCompleted (void)
   wminfo.totaltimes = totalleveltimes;
 
   gamestate = GS_INTERMISSION;
-  automap_active = false;
+  automap_full = false;
 
   // lmpwatch.pl engine-side demo testing support
   // print "FINISHED: <mapname>" when the player exits the current map
   if (nodrawers && (demoplayback || timingdemo))
     lprintf(LO_INFO, "FINISHED: %s\n", dsda_MapLumpName(gameepisode, gamemap));
+
+  if (skip_intermission)
+    RETURN(G_ForceFinale());
 
   if (!(map_info.flags & MI_INTERMISSION))
   {
@@ -2272,6 +2309,7 @@ void G_DoCompleted (void)
 //
 // G_WorldDone
 //
+
 
 void G_WorldDone (void)
 {
@@ -2483,7 +2521,7 @@ void G_AfterLoad(void)
 
   if (raven)
   {
-    players[consoleplayer].readyArtifact = players[consoleplayer].inventory[inv_ptr].type;
+    players[consoleplayer].readyArtifact = players[consoleplayer].inventory[players[consoleplayer].inv_ptr].type;
   }
 
   if (hexen)
@@ -2693,7 +2731,7 @@ void G_RestartWithLoadout(int skill)
   G_PlayerFinishLevel(consoleplayer);
   dsda_UpdateGameSkill(skill);
 
-  automap_active = false;
+  automap_full = false;
   AM_clearMarks();
 
   skill_loadout = true;
@@ -3176,7 +3214,7 @@ void G_InitNew(int skill, int episode, int map, dboolean prepare)
 
   dsda_ResetPauseMode();
   dsda_ResetCommandHistory();
-  automap_active = false;
+  automap_full = false;
   dsda_UpdateGameSkill(skill);
   dsda_UpdateGameMap(episode, map);
 
@@ -4365,12 +4403,12 @@ static dboolean InventoryMoveLeft(void)
 
     if (R_FullView() && !dsda_CheckBigArtifactBar())
     {
-        inv_ptr--;
-        if (inv_ptr < 0)
+        plr->inv_ptr--;
+        if (plr->inv_ptr < 0)
         {
-            inv_ptr = 0;
+            plr->inv_ptr = 0;
         }
-        plr->readyArtifact = plr->inventory[inv_ptr].type;
+        plr->readyArtifact = plr->inventory[plr->inv_ptr].type;
         return true;
     }
 
@@ -4380,17 +4418,17 @@ static dboolean InventoryMoveLeft(void)
         inventory = true;
         return false;
     }
-    inv_ptr--;
-    if (inv_ptr < 0)
+    plr->inv_ptr--;
+    if (plr->inv_ptr < 0)
     {
-        inv_ptr = 0;
+        plr->inv_ptr = 0;
     }
     else
     {
-        curpos--;
-        if (curpos < 0)
+        plr->curpos--;
+        if (plr->curpos < 0)
         {
-            curpos = 0;
+            plr->curpos = 0;
         }
     }
     return true;
@@ -4404,14 +4442,14 @@ static dboolean InventoryMoveRight(void)
 
     if (R_FullView() && !dsda_CheckBigArtifactBar())
     {
-        inv_ptr++;
-        if (inv_ptr >= plr->inventorySlotNum)
+        plr->inv_ptr++;
+        if (plr->inv_ptr >= plr->inventorySlotNum)
         {
-            inv_ptr--;
-            if (inv_ptr < 0)
-                inv_ptr = 0;
+            plr->inv_ptr--;
+            if (plr->inv_ptr < 0)
+                plr->inv_ptr = 0;
         }
-        plr->readyArtifact = plr->inventory[inv_ptr].type;
+        plr->readyArtifact = plr->inventory[plr->inv_ptr].type;
         return true;
     }
 
@@ -4421,19 +4459,19 @@ static dboolean InventoryMoveRight(void)
         inventory = true;
         return false;
     }
-    inv_ptr++;
-    if (inv_ptr >= plr->inventorySlotNum)
+    plr->inv_ptr++;
+    if (plr->inv_ptr >= plr->inventorySlotNum)
     {
-        inv_ptr--;
-        if (inv_ptr < 0)
-            inv_ptr = 0;
+        plr->inv_ptr--;
+        if (plr->inv_ptr < 0)
+            plr->inv_ptr = 0;
     }
     else
     {
-        curpos++;
-        if (curpos > 6)
+        plr->curpos++;
+        if (plr->curpos > 6)
         {
-            curpos = 6;
+            plr->curpos = 6;
         }
     }
     return true;

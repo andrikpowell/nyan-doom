@@ -90,13 +90,13 @@ dsda_deh_state_t dsda_GetDehState(int index) {
 
 void dsda_InitializeStates(state_t* source, int count) {
   int i;
-  extern int raven;
+  extern int hexen;
 
   num_states = count;
 
   states = source;
 
-  if (raven) return;
+  if (hexen) return;
 
   seenstate_tab = calloc(num_states, sizeof(*seenstate_tab));
 
