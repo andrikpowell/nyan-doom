@@ -59,7 +59,6 @@ set(LUMPS
     lumps/soundfont/sndfont.lmp
     lumps/dsdacr.lmp
     lumps/nyanhud.lmp
-    lumps/nyantc.lmp
 )
 
 set(COLORMAPS
