@@ -1455,6 +1455,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "ex_text_scale", dsda_config_ex_text_scale,
     dsda_config_int, 0, 4000, { 100 }, NULL, NOT_STRICT, dsda_UpdateStretchParams
   },
+  [dsda_config_ex_text_ratio_height] = {
+    "ex_text_ratio_height", dsda_config_ex_text_ratio_height,
+    dsda_config_int, 0, 200, { 100 }, NULL, NOT_STRICT, dsda_UpdateStretchParams
+  },
   [dsda_config_wipe_at_full_speed] = {
     "dsda_wipe_at_full_speed", dsda_config_wipe_at_full_speed,
     CONF_BOOL(1), NULL, STRICT_INT(0)

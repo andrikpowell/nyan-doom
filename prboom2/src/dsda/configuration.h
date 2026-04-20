@@ -334,6 +334,7 @@ enum {
   dsda_config_auto_key_frame_timeout,
   dsda_config_auto_save,
   dsda_config_ex_text_scale,
+  dsda_config_ex_text_ratio_height,
   dsda_config_wipe_at_full_speed,
   dsda_config_show_demo_attempts,
   dsda_config_hide_horns,

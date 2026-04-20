@@ -5225,6 +5225,7 @@ static const char* automap_stat_format_list[] = { "Match Hud", "ratio", "percent
 setup_menu_t exhud_gen_settings[] = {
   { "Use Extended Hud", S_YESNO, m_conf, G_X, dsda_config_exhud },
   { "Ex Hud Scale", S_PERC, m_conf, G_X, dsda_config_ex_text_scale },
+  { "Ex Hud Height Ratio", S_PERC, m_conf, G_X, dsda_config_ex_text_ratio_height },
   EMPTY_LINE,
   { "Ex Hud Free Text", S_NAME | S_NYAN, m_conf, G_X, dsda_config_free_text },
   { "Show Free Text", S_YESNO | S_NYAN, m_conf, G_X, dsda_config_free_text_active },
