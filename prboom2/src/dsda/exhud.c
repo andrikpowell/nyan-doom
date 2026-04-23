@@ -426,6 +426,7 @@ typedef struct {
   dboolean allow_offset;
   const char* hud_string;  // optional full HUD name
   dboolean loaded;
+  dboolean cleared;
   exhud_component_t components[exhud_component_count];
   int y_offset[VPT_ALIGN_MAX];
 } dsda_hud_container_t;
@@ -461,6 +462,7 @@ static void dsda_InitContainer(dsda_hud_container_t *c, const char *name, dboole
   c->status_bar = status_bar;
   c->allow_offset = allow_offset;
   c->hud_string = NULL;
+  c->cleared = false;
   for (i = 0; i < VPT_ALIGN_MAX; ++i)
     c->y_offset[i] = 0;
 }
@@ -567,6 +569,24 @@ static int dsda_ParseHUDConfig(char** hud_config, int line_i) {
       continue;
 
     count = sscanf(line, "%63s %63[^\n\r]", command, args);
+
+    if (count < 1)
+      I_Error("Invalid hud definition \"%s\"", line);
+
+    // clearhud is unique
+    if (!strncmp(command, "clearhud", sizeof(command)))
+    {
+      if (count != 1)
+        I_Error("Invalid hud definition \"%s\"", line);
+
+      if (container == &containers[hud_full])
+        I_Error("\"clearhud\" is not supported for legacy full hud");
+
+      found = true;
+      container->cleared = true;
+      continue;
+    }
+
     if (count != 2)
       I_Error("Invalid hud definition \"%s\"", line);
 
@@ -703,13 +723,11 @@ static void dsda_ParseHUDConfigs(char** hud_config) {
           full_container = dsda_GetFullContainer(full_index);
         }
 
-        if (full_container->loaded)
-          continue;
+        // Reset hud
+        dsda_InitContainer(full_container, "full", false, true);
 
         full_container->loaded = true;
-
-        if (display_name)
-          full_container->hud_string = display_name;
+        full_container->hud_string = display_name;
 
         components = full_container->components;
         memcpy(components, components_template, sizeof(components_template));
@@ -738,50 +756,19 @@ static void dsda_ParseHUDConfigs(char** hud_config) {
   }
 }
 
+static int dsda_GetGameHudConfig(void)
+{
+  return raven ? hexen ? dsda_config_hexen_full_hud : dsda_config_heretic_full_hud : dsda_config_doom_full_hud;
+}
+
 static int dsda_FullHudIndex(void)
 {
-  int config_full_hud = raven ? hexen ? dsda_config_hexen_full_hud : dsda_config_heretic_full_hud : dsda_config_doom_full_hud;
+  int config_full_hud = dsda_GetGameHudConfig();
   int idx = dsda_IntConfig(config_full_hud);
 
   idx = CLAMP(idx, 0, DSDA_MAX_FULLHUD_MAX);
 
   return idx;
-}
-
-static dsda_hud_container_t* dsda_ActiveFullContainer(void)
-{
-  int idx = dsda_FullHudIndex();
-  int i;
-
-  // HUD 0 = legacy
-  if (idx == 0)
-  {
-    if (containers[hud_full].loaded)
-      return &containers[hud_full];
-
-    // no legacy: fall back to first loaded numbered hud
-    for (i = 1; i < full_container_count; ++i)
-      if (full_containers[i].loaded)
-        return &full_containers[i];
-
-    return &containers[hud_full];
-  }
-
-  // HUD 1-16
-  if (idx < full_container_count && full_containers[idx].loaded)
-    return &full_containers[idx];
-
-  // missing numbered hud: fall back to legacy if it exists
-  if (containers[hud_full].loaded)
-    return &containers[hud_full];
-
-  // fallback to first loaded numbered hud
-  for (i = 1; i < full_container_count; ++i)
-    if (full_containers[i].loaded)
-      return &full_containers[i];
-
-  // fallback
-  return &containers[hud_full];
 }
 
 static dboolean dsda_FullHudLoaded(int idx)
@@ -792,7 +779,7 @@ static dboolean dsda_FullHudLoaded(int idx)
   if (idx < 1 || idx >= full_container_count)
     return false;
 
-  return full_containers[idx].loaded;
+  return full_containers[idx].loaded && !full_containers[idx].cleared;
 }
 
 static int dsda_FindNextLoadedFullHud(int cur)
@@ -812,6 +799,50 @@ static int dsda_FindNextLoadedFullHud(int cur)
   return cur;
 }
 
+static dsda_hud_container_t* dsda_ActiveFullContainer(void)
+{
+  int idx = dsda_FullHudIndex();
+  int i;
+
+  // HUD 0 = legacy
+  if (idx == 0)
+  {
+    if (containers[hud_full].loaded)
+      return &containers[hud_full];
+
+    // no legacy: fall back to first loaded numbered hud
+    for (i = 1; i < full_container_count; ++i)
+      if (full_containers[i].loaded && !full_containers[i].cleared)
+        return &full_containers[i];
+
+    return &containers[hud_full];
+  }
+
+  // HUD 1-16
+  if (idx < full_container_count && full_containers[idx].loaded && !full_containers[idx].cleared)
+    return &full_containers[idx];
+
+  // HUD 1-16 - missing or cleared? move on to next hud
+  else
+  {
+    int next = dsda_FindNextLoadedFullHud(idx);
+
+    if (next > 0 && next < full_container_count)
+    {
+      int config_full_hud = dsda_GetGameHudConfig();
+      dsda_UpdateIntConfig(config_full_hud, next, true);
+      return &full_containers[next];
+    }
+  }
+
+  // fallback to legacy
+  if (containers[hud_full].loaded)
+    return &containers[hud_full];
+
+  // fallback - shouldn't reach here
+  return &containers[hud_full];
+}
+
 static void dsda_LoadHUDConfig(void) {
   DO_ONCE
     char* hud_config = NULL;
@@ -828,7 +859,7 @@ static void dsda_LoadHUDConfig(void) {
     else
     {
       lump = -1;
-      while ((lump = W_FindNumFromName("NYANHUD", lump)) >= 0) {
+      while ((lump = W_ListNumFromName("NYANHUD", lump)) >= 0) {
         if (!hud_config) {
           hud_config = W_ReadLumpToString(lump);
           length = W_LumpLength(lump);
@@ -840,8 +871,6 @@ static void dsda_LoadHUDConfig(void) {
           length += W_LumpLength(lump);
           hud_config[length] = '\0';
         }
-
-        break;   // only use the last loaded lump
       }
     }
 
