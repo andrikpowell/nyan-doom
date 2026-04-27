@@ -1690,9 +1690,9 @@ static void EvaluateDoomVerStr(void)
 {
   if (heretic)
   {
-    if(gamemode == retail)
+    if (gamemode == retail)
       doomverstr = "Heretic: Shadow of the Serpent Riders";
-    else if(gamemode == shareware)
+    else if (gamemode == shareware)
       doomverstr = "Heretic Shareware";
     else
       doomverstr = "Heretic";
