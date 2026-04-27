@@ -542,8 +542,11 @@ static void cheat_fa()
 
     // You can't own weapons that aren't in the game // phares 02/27/98
     for (i=0;i<NUMWEAPONS;i++)
-      if (!(((i == wp_plasma || i == wp_bfg) && gamemode == shareware) ||
-            (i == wp_supershotgun && gamemode != commercial)))
+      if (!(
+            (heretic && (i == wp_skullrod || i == wp_phoenixrod || i == wp_mace) && gamemode == shareware) ||
+            (!heretic && (i == wp_plasma || i == wp_bfg) && gamemode == shareware) ||
+            (i == wp_supershotgun && gamemode != commercial)
+           ))
         plyr->weaponowned[i] = true;
 
     for (i=0;i<NUMAMMO;i++)
