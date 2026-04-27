@@ -564,7 +564,7 @@ static void cheat_fa()
     }
   }
 
-  dsda_AddMessage(s_STSTR_FAADDED);
+  dsda_AddMessage(raven ? s_HERETIC_TXT_CHEATWEAPONS : s_STSTR_FAADDED);
 }
 
 static void cheat_k()
@@ -580,7 +580,7 @@ static void cheat_k()
           if (plyr == &players[consoleplayer])  // Add hexen keys to hud
             plyr->ravenkeys |= 1 << i;
         }
-        dsda_AddMessage("Keys Added");
+        dsda_AddMessage(raven ? s_HERETIC_TXT_CHEATKEYS : "Keys Added");
       }
 }
 
