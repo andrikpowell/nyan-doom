@@ -3563,6 +3563,7 @@ setup_menu_t keys_game_settings[] =  // Key Binding screen strings
   { "Pause",             S_INPUT, m_scrn, KB_X, 0, dsda_input_pause },
   { "Volume",            S_INPUT, m_scrn, KB_X, 0, dsda_input_soundvolume },
   { "Hud",               S_INPUT, m_scrn, KB_X, 0, dsda_input_hud },
+  { "Cycle Full Hud", S_INPUT|S_NYAN, m_scrn, KB_X, 0, dsda_input_cycle_hud },
   { "Gamma Fix",         S_INPUT, m_scrn, KB_X, 0, dsda_input_gamma },
   { "Extra Brightness",  S_INPUT, m_scrn, KB_X, 0, dsda_input_extra_brightness },
   { "Spy",               S_INPUT, m_scrn, KB_X, 0, dsda_input_spy },
@@ -3625,7 +3626,6 @@ setup_menu_t keys_toggles_settings[] = {
   TITLE("Cycle", MS_X),
   { "Cycle Input Profile",  S_INPUT, m_scrn, KB_X, 0, dsda_input_cycle_profile },
   { "Cycle Palette",        S_INPUT, m_scrn, KB_X, 0, dsda_input_cycle_palette },
-  { "Cycle Fullscreen Hud", S_INPUT|S_NYAN, m_scrn, KB_X, 0, dsda_input_cycle_hud },
 
   PREV_PAGE(keys_misc_settings),
   NEXT_PAGE(keys_menus_settings),
