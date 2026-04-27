@@ -540,6 +540,7 @@ static void cheat_fa()
     plyr->armorpoints[ARMOR_ARMOR] = idfa_armor;      // Ty 03/09/98 - deh
     plyr->armortype = idfa_armor_class;  // Ty 03/09/98 - deh
 
+    // You can't own weapons that aren't in the game // phares 02/27/98
     if (heretic)
     {
       for (i=0;i<NUMWEAPONS;i++)
@@ -552,7 +553,6 @@ static void cheat_fa()
     }
     else // Doom
     {
-      // You can't own weapons that aren't in the game // phares 02/27/98
       for (i=0;i<NUMWEAPONS;i++)
         if (!(((i == wp_plasma || i == wp_bfg) && gamemode == shareware) ||
               (i == wp_supershotgun && gamemode != commercial)))
@@ -562,9 +562,9 @@ static void cheat_fa()
         if (i!=am_cell || gamemode!=shareware)
           plyr->ammo[i] = plyr->maxammo[i];
     }
-
-    dsda_AddMessage(s_STSTR_FAADDED);
   }
+
+  dsda_AddMessage(s_STSTR_FAADDED);
 }
 
 static void cheat_k()
