@@ -3715,6 +3715,7 @@ setup_menu_t keys_cheats_settings[] =
   { "Reveal Map", S_INPUT, m_scrn, KB_X, 0, dsda_input_iddt },
   { "Reset Health", S_INPUT, m_scrn, KB_X, 0, dsda_input_ponce },
   { "Tome of Power", S_INPUT, m_scrn, KB_X, 0, dsda_input_shazam },
+  { "All Artifacts", S_INPUT, m_scrn, KB_X, 0, dsda_input_inventory },
   { "Chicken", S_INPUT, m_scrn, KB_X, 0, dsda_input_chicken },
   { "No Target", S_INPUT, m_scrn, KB_X, 0, dsda_input_notarget },
   { "Freeze", S_INPUT, m_scrn, KB_X, 0, dsda_input_freeze },

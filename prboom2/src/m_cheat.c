@@ -2214,6 +2214,7 @@ static cheat_input_t cheat_input[] = {
   { dsda_input_iddt, cht_always, cheat_ddt, 0 },
   { dsda_input_ponce, not_demo, cheat_reset_health, 0 },
   { dsda_input_shazam, not_demo, cheat_tome, 0 },
+  { dsda_input_inventory, not_demo, cheat_inventory, 0 },
   { dsda_input_chicken, not_demo, cheat_chicken, 0 },
   { dsda_input_notarget, not_demo, cheat_notarget, 0 },
   { dsda_input_freeze, not_demo, cheat_freeze, 0 },
