@@ -540,18 +540,28 @@ static void cheat_fa()
     plyr->armorpoints[ARMOR_ARMOR] = idfa_armor;      // Ty 03/09/98 - deh
     plyr->armortype = idfa_armor_class;  // Ty 03/09/98 - deh
 
-    // You can't own weapons that aren't in the game // phares 02/27/98
-    for (i=0;i<NUMWEAPONS;i++)
-      if (!(
-            (heretic && (i == wp_skullrod || i == wp_phoenixrod || i == wp_mace) && gamemode == shareware) ||
-            (!heretic && (i == wp_plasma || i == wp_bfg) && gamemode == shareware) ||
-            (i == wp_supershotgun && gamemode != commercial)
-           ))
-        plyr->weaponowned[i] = true;
+    if (heretic)
+    {
+      for (i=0;i<NUMWEAPONS;i++)
+        if (!((i == wp_skullrod || i == wp_phoenixrod || i == wp_mace) && gamemode == shareware))
+          plyr->weaponowned[i] = true;
 
-    for (i=0;i<NUMAMMO;i++)
-      if (i!=am_cell || gamemode!=shareware)
-        plyr->ammo[i] = plyr->maxammo[i];
+      for (i=0;i<NUMAMMO;i++)
+        if (i!=am_skullrod || i!=am_phoenixrod || i!=am_mace || gamemode!=shareware)
+          plyr->ammo[i] = plyr->maxammo[i];
+    }
+    else // Doom
+    {
+      // You can't own weapons that aren't in the game // phares 02/27/98
+      for (i=0;i<NUMWEAPONS;i++)
+        if (!(((i == wp_plasma || i == wp_bfg) && gamemode == shareware) ||
+              (i == wp_supershotgun && gamemode != commercial)))
+          plyr->weaponowned[i] = true;
+
+      for (i=0;i<NUMAMMO;i++)
+        if (i!=am_cell || gamemode!=shareware)
+          plyr->ammo[i] = plyr->maxammo[i];
+    }
 
     dsda_AddMessage(s_STSTR_FAADDED);
   }
