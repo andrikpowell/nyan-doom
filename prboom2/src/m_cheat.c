@@ -2433,6 +2433,9 @@ static void cheat_inventory(void)
   {
     for (j = 0; j < g_arti_limit; j++)
     {
+			if (heretic && gamemode == shareware && (i == arti_superhealth || i == arti_teleport))
+				continue;
+
       P_GiveArtifact(plyr, i, NULL);
     }
   }
