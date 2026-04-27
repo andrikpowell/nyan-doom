@@ -43,16 +43,16 @@ static int dsda_GetAmmoImage(ammotype_t ammo_type) {
     if (ammo_type == am_goldwand) return HERETIC_SPR_AMG1;
     else if (ammo_type == am_crossbow) return HERETIC_SPR_AMC2;
     else if (ammo_type == am_blaster) return HERETIC_SPR_AMB1;
-    else if (ammo_type == am_skullrod) return HERETIC_SPR_AMS1;
-    else if (ammo_type == am_phoenixrod) return HERETIC_SPR_AMP1;
-    else if (ammo_type == am_mace) return HERETIC_SPR_AMM1;
+    else if (gamemode != shareware && ammo_type == am_skullrod) return HERETIC_SPR_AMS1;
+    else if (gamemode != shareware && ammo_type == am_phoenixrod) return HERETIC_SPR_AMP1;
+    else if (gamemode != shareware && ammo_type == am_mace) return HERETIC_SPR_AMM1;
     else return 0;
   }
   else // Doom
   {
     if (ammo_type == am_clip) return SPR_CLIP;
     else if (ammo_type == am_shell) return SPR_SHEL;
-    else if (ammo_type == am_cell) return SPR_CELL;
+    else if (gamemode != shareware && ammo_type == am_cell) return SPR_CELL;
     else if (ammo_type == am_misl) return SPR_ROCK;
     else return 0;
   }
