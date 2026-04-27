@@ -2735,7 +2735,7 @@ mobj_t* P_SpawnMapThing (const mapthing_t* mthing, int index)
   // spawn it
 spawnit:
 
-  if (heretic && i == HERETIC_MT_WMACE)
+  if (heretic && gamemode != shareware && i == HERETIC_MT_WMACE)
   {
     P_AddMaceSpot(mthing);
     return NULL;
