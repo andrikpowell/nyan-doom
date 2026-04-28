@@ -548,7 +548,7 @@ static void cheat_fa()
           plyr->weaponowned[i] = true;
 
       for (i=0;i<NUMAMMO;i++)
-        if (i!=am_skullrod || i!=am_phoenixrod || i!=am_mace || gamemode!=shareware)
+        if (!((i == am_skullrod || i == am_phoenixrod || i == am_mace) && gamemode == shareware))
           plyr->ammo[i] = plyr->maxammo[i];
     }
     else // Doom
@@ -559,7 +559,7 @@ static void cheat_fa()
           plyr->weaponowned[i] = true;
 
       for (i=0;i<NUMAMMO;i++)
-        if (i!=am_cell || gamemode!=shareware)
+        if (!((i == am_cell) && gamemode == shareware))
           plyr->ammo[i] = plyr->maxammo[i];
     }
   }
