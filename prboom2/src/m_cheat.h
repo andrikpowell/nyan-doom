@@ -54,10 +54,14 @@ typedef enum {
 } cheat_when_t;
 
 typedef enum {
+  //cht_null        = 0,
   cht_doom        = (1<<0),
   cht_heretic     = (1<<1),
   cht_hexen       = (1<<2),
-  cht_any         = (1<<3),
+
+  cht_raven       = cht_heretic | cht_hexen,
+  cht_not_hexen   = cht_doom | cht_heretic,
+  cht_any         = cht_doom | cht_heretic | cht_hexen,
 } cheat_game_t;
 
 typedef struct cheatseq_s {
