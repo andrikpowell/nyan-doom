@@ -128,6 +128,7 @@ enum {
   nyan_config_enable_widescreen_lumps,
   nyan_config_enable_animate_lumps,
   nyan_config_highlight_nyan_features,
+  dsda_config_show_all_game_specific_options,
   nyan_config_item_bonus_flash,
   nyan_config_flip_corpses,
   nyan_config_colored_blood,
