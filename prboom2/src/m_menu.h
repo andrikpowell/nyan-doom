@@ -85,6 +85,17 @@ void M_DrawCreditsDynamic(void);    // killough 11/98
 void M_DrawTabs(const char **pages, int m, int y);
 int M_GetCurrentPage(void);
 
+typedef enum {
+  g_null        = 0,
+  g_doom        = (1<<0),
+  g_heretic     = (1<<1),
+  g_hexen       = (1<<2),
+
+  g_raven       = g_heretic | g_hexen,
+  g_not_hexen   = g_doom | g_heretic,
+  g_all         = g_doom | g_heretic | g_hexen,
+} setup_game;
+
 /****************************
  *
  * The setup_group enum is used to show which 'groups' keys fall into so
@@ -132,6 +143,7 @@ typedef struct setup_menu_s
   const char   *m_text;  /* text to display */
   menu_flags_t m_flags;  /* phares 4/17/98: flag bits S_* (defined above) */
   setup_group  m_group;  /* Group */
+  setup_game   m_game;   /* Game */
   short        m_x;      /* screen x position (left is 0) */
   dsda_config_identifier_t config_id;
   int input; // composite input identifier
@@ -193,6 +205,8 @@ void M_DrawDelVerify(void);
 void M_ChangeMessages(void);
 void M_LeaveSetupMenu(void);
 void M_ClearMenus(void);
+
+void M_RefreshGameSpecificMenuOptions();
 
 extern setup_menu_t auto_colors_settings[];
 extern setup_menu_t auto_heretic_colors_settings[];

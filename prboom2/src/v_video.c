@@ -2453,7 +2453,8 @@ void V_ChangeScreenResolution(void)
   }
 
   // Refresh Minimap Coordinates
-  AM_RefreshMinimap();
+  if (in_game && gamestate == GS_LEVEL)
+    AM_RefreshMinimap();
 }
 
 void V_FillRectVPT(int x, int y, int width, int height, byte color, enum patch_translation_e flags)

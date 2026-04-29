@@ -396,6 +396,12 @@ static dboolean WeaponSelectable(weapontype_t weapon)
 {
   if (heretic)
   {
+    if (gamemode == shareware)
+    {
+      if (weapon == wp_skullrod || weapon == wp_phoenixrod || weapon == wp_mace)
+        return false;
+    }
+
     return weapon != wp_beak && players[consoleplayer].weaponowned[weapon];
   }
   else if (hexen)
@@ -925,9 +931,21 @@ void G_BuildTiccmd(ticcmd_t* cmd)
           dsda_InputActive(dsda_input_weapon4) ? wp_fourth :
           wp_nochange;
       }
+      else if (heretic)
+      {
+        newweapon =
+          dsda_InputTickActivated(dsda_input_weapon1) ? wp_staff :
+          dsda_InputTickActivated(dsda_input_weapon2) ? wp_goldwand :
+          dsda_InputTickActivated(dsda_input_weapon3) ? wp_crossbow :
+          dsda_InputTickActivated(dsda_input_weapon4) ? wp_blaster :
+          dsda_InputTickActivated(dsda_input_weapon5) && gamemode != shareware ? wp_skullrod :
+          dsda_InputTickActivated(dsda_input_weapon6) && gamemode != shareware ? wp_phoenixrod :
+          dsda_InputTickActivated(dsda_input_weapon7) && gamemode != shareware ? wp_mace :
+          dsda_InputTickActivated(dsda_input_weapon8) ? wp_gauntlets :
+          wp_nochange;
+      }
       else
       {
-        // HERETIC_TODO: fix this
         newweapon =
           dsda_InputTickActivated(dsda_input_weapon1) ? wp_fist :    // killough 5/2/98: reformatted
           dsda_InputTickActivated(dsda_input_weapon2) ? wp_pistol :

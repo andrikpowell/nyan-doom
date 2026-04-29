@@ -156,6 +156,7 @@ typedef enum {
   dsda_input_strict_mode,
   dsda_input_ponce,
   dsda_input_shazam,
+  dsda_input_inventory,
   dsda_input_chicken,
   dsda_input_console,
   dsda_input_coordinate_display,

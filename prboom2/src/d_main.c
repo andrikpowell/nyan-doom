@@ -646,14 +646,43 @@ void D_PageTicker(void)
     D_AdvanceDemo();
 }
 
+static dboolean dsda_IsBlankPWADLump(const char* lumpname)
+{
+  if (!W_PWADLumpNameExists2(lumpname))
+    return false;
+
+  return lumpinfo[W_CheckNumForName(lumpname)].size == 0;
+}
+
 // Check whether to skip IWAD Demos
-static int dsda_SkipIwadDemos(void)
+static dboolean dsda_SimpleDemoLoop(void)
 {
   int pwaddemos = W_PWADLumpNameExists2("DEMO1");
   int pwadmaps = W_PWADMapsExist();
 
-  if ((pwadmaps && !pwaddemos) || lumpinfo[W_CheckNumForName("DEMO1")].size == 0 || doom_v11)
+  if ((pwadmaps && !pwaddemos) || dsda_IsBlankPWADLump("DEMO1") || doom_v11)
     return true;
+
+  return false;
+}
+
+static dboolean dsda_ForcePWADCredit(void)
+{
+  if (doom_v11)
+    return true;
+
+  if (W_PWADLumpNameExists(credit))
+  {
+    // Simple demo loop and PWAD CREDIT
+    if (dsda_SimpleDemoLoop())
+      return true;
+
+    // Normal demo loop
+    // Check if CREDIT is shown twice in demoloop, else skip dynamic credits
+    // Fixes condition with PWAD CREDIT + REAL DEMO1 + BLANK DEMO2
+    if (W_PWADLumpNameExists2("DEMO1") && dsda_IsBlankPWADLump("DEMO2"))
+      return true;
+  }
 
   return false;
 }
@@ -673,7 +702,7 @@ static void D_PageDrawer(void)
         V_DrawNamePatch(4, 160, "ADVISOR", CR_DEFAULT, VPT_STRETCH);
       }
     }
-    else if ((dsda_SkipIwadDemos() && W_PWADLumpNameExists(credit)))
+    else if (dsda_ForcePWADCredit())
       V_DrawRawScreen(credit);
     else
       M_DrawCreditsDynamic();
@@ -693,7 +722,7 @@ static void D_PageDrawer(void)
     V_ClearBorder(pagename);
     V_DrawNamePatchAnimateFS(0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
   }
-  else if ((dsda_SkipIwadDemos() && W_PWADLumpNameExists(credit)) || doom_v11)
+  else if (dsda_ForcePWADCredit())
     M_DrawCredits();
   else
     M_DrawCreditsDynamic();
@@ -839,7 +868,7 @@ void D_DoAdvanceDemo(void)
   if (demosequence == 6 && gamemode == commercial && !W_LumpNameExists("demo4"))
     demosequence = 0;
 
-  if (dsda_SkipIwadDemos())
+  if (dsda_SimpleDemoLoop())
   {
     // Skip blank / IWAD demos in PWADs
     if (demostates[demosequence][gamemode].func == G_DeferedPlayDemo)
@@ -1661,9 +1690,9 @@ static void EvaluateDoomVerStr(void)
 {
   if (heretic)
   {
-    if(gamemode == retail)
+    if (gamemode == retail)
       doomverstr = "Heretic: Shadow of the Serpent Riders";
-    else if(gamemode == shareware)
+    else if (gamemode == shareware)
       doomverstr = "Heretic Shareware";
     else
       doomverstr = "Heretic";
