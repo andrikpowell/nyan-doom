@@ -740,10 +740,11 @@ static void dsda_ParseHUDConfigs(char** hud_config) {
       // Behavior for ex/off/map
       for (container = containers; container->name; container++) {
         if (!strncmp(container->name, hud_variant, sizeof(hud_variant))) {
-          if (container->loaded)
-            break;
-
           container->loaded = true;
+
+          for (int i = 0; i < VPT_ALIGN_MAX; ++i)
+            container->y_offset[i] = 0;
+
           components = container->components;
           memcpy(components, components_template, sizeof(components_template));
 
