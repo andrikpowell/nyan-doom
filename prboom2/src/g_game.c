@@ -1979,6 +1979,8 @@ void G_PlayerReborn (int player)
   p->usedown = p->attackdown = true;  // don't do anything immediately
   p->playerstate = PST_LIVE;
 
+  st_face_reset = true;
+
   G_SetInitialHealth(p);
   G_SetInitialInventory(p);
 

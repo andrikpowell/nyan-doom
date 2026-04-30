@@ -352,6 +352,7 @@ static int      st_randomnumber;
 
 static int st_priority;
 static int st_lastattackcount = -1;
+dboolean st_face_reset = true;
 
 extern char     *mapnames[];
 
@@ -574,10 +575,28 @@ static void ST_EnvironmentDamageFace()
   }
 }
 
+static dboolean ST_AttackCheck()
+{
+  dboolean attack_raw = plyr->cmd.buttons & BT_ATTACK;
+  dboolean angry_face_fix = dsda_IntConfig(dsda_config_doomguy_angry_face_fix);
+
+  if (st_face_reset)
+  {
+    if (attack_raw)
+      st_face_reset = false;
+
+    // Ignore G_PlayerReborn attackdown
+    if (angry_face_fix)
+      return false;
+  }
+
+  return plyr->attackdown;
+}
+
 static void ST_AttackHoldFace()
 {
   // rapid firing
-  if (plyr->attackdown && leveltime > 1)
+  if (ST_AttackCheck())
   {
     if (st_lastattackcount == -1)
     {

@@ -394,6 +394,7 @@ enum {
   dsda_config_fuzzmode,
   dsda_config_fuzzscale,
   dsda_config_multiple_area_maps,
+  dsda_config_doomguy_angry_face_fix,
   dsda_config_blockmap_fix,
   dsda_config_map_blinking_locks,
   dsda_config_map_secret_after,
