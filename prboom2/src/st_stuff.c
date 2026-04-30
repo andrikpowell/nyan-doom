@@ -350,6 +350,9 @@ int             st_keytype[6];
 // a random number per tick
 static int      st_randomnumber;
 
+static int st_priority;
+static int st_lastattackcount = -1;
+
 extern char     *mapnames[];
 
 static int cr_health_bad;
@@ -424,218 +427,220 @@ dboolean ST_Responder(event_t *ev)
   return M_CheatResponder(ev);
 }
 
-static int ST_calcPainOffset(void)
+static int ST_GetPainOffset(void)
 {
-  static int lastcalc;
+  static int lastPainOffset;
   static int oldhealth = -1;
-  int health = plyr->health > 100 ? 100 : plyr->health;
+  int maxhealth = 100;
+  int health = CLAMP(plyr->health, 0, maxhealth);
 
   if (health != oldhealth)
-    {
-      lastcalc = ST_FACESTRIDE * (((100 - health) * ST_NUMPAINFACES) / 101);
-      oldhealth = health;
-    }
-  return lastcalc;
+  {
+    oldhealth = health;
+    lastPainOffset = ST_FACESTRIDE * (((maxhealth - health) * ST_NUMPAINFACES) / (maxhealth + 1));
+  }
+
+  return lastPainOffset;
 }
 
-//
-// This is a not-very-pretty routine which handles
-//  the face states and their timing.
-// the precedence of expressions is:
-//  dead > evil grin > turned head > straight ahead
-//
+static int ST_BaseFace(int offset)
+{
+  return ST_GetPainOffset() + offset;
+}
 
-// [crispy] fix status bar face hysteresis
-static int faceindex;
+static int ST_OuchHealth(void)
+{
+    // haleyjd 10/12/03: classic DOOM problem of missing OUCH face
+    // was due to inversion of this test:
+    // if(plyr->health - st_oldhealth > ST_MUCHPAIN)
+    // e6y: compatibility optioned
+    return comp[comp_ouchface] ?
+            (plyr->health - st_oldhealth) :
+            (st_oldhealth - plyr->health);
+}
 
-void ST_updateFaceWidget(void)
+static void ST_DeathFace()
+{
+  if (!plyr->health)
+  {
+    st_priority = 9;
+    st_faceindex = ST_DEADFACE;
+    st_facecount = 1;
+  }
+}
+
+static void ST_NewWeaponFace()
 {
   int         i;
+  dboolean    doevilgrin;
+
+  if (plyr->bonuscount)
+  {
+    // picking up bonus
+    doevilgrin = false;
+
+    // check if just picked up weapon
+    for (i=0;i<NUMWEAPONS;i++)
+    {
+      if (oldweaponsowned[i] != plyr->weaponowned[i])
+      {
+        doevilgrin = true;
+        oldweaponsowned[i] = plyr->weaponowned[i];
+      }
+    }
+
+    // evil grin if just picked up weapon
+    if (doevilgrin)
+    {
+      st_priority = 8;
+      st_faceindex = ST_BaseFace(ST_EVILGRINOFFSET);
+      st_facecount = ST_EVILGRINCOUNT;
+    }
+  }
+}
+
+static void ST_EnemyDamageFace()
+{
+  angle_t     playerangle;
   angle_t     badguyangle;
-  angle_t     diffang;
-  static int  lastattackdown = -1;
-  static int  priority = 0;
-  dboolean     doevilgrin;
+  dboolean    right;
 
-  // [crispy] fix status bar face hysteresis
-  int		painoffset;
-
-  painoffset = ST_calcPainOffset();
-
-  if (priority < 10)
+  if (plyr->damagecount && plyr->attacker && plyr->attacker != plyr->mo)
   {
-    // dead
-    if (!plyr->health)
+    // being attacked
+    st_priority = 7;
+
+    if(ST_OuchHealth() > ST_MUCHPAIN)
     {
-      priority = 9;
-      painoffset = 0;
-      faceindex = ST_DEADFACE;
-      st_facecount = 1;
-    }
-  }
+      // e6y
+      // There are TWO bugs in the ouch face code.
+      // Not only was the condition reversed, but the priority system is
+      // broken in a way that makes the face not work with monster damage.
+      if(!comp[comp_ouchface])
+        st_priority = 8;
 
-  if (priority < 9)
-  {
-    if (plyr->bonuscount)
-    {
-      // picking up bonus
-      doevilgrin = false;
-
-      for (i=0;i<NUMWEAPONS;i++)
-      {
-        if (oldweaponsowned[i] != plyr->weaponowned[i])
-        {
-          doevilgrin = true;
-          oldweaponsowned[i] = plyr->weaponowned[i];
-        }
-      }
-      if (doevilgrin)
-      {
-        // evil grin if just picked up weapon
-        priority = 8;
-        st_facecount = ST_EVILGRINCOUNT;
-        faceindex = ST_EVILGRINOFFSET;
-      }
-    }
-  }
-
-  if (priority < 8)
-  {
-    if (plyr->damagecount && plyr->attacker && plyr->attacker != plyr->mo)
-    {
-      // being attacked
-      priority = 7;
-
-      // haleyjd 10/12/03: classic DOOM problem of missing OUCH face
-      // was due to inversion of this test:
-      // if(plyr->health - st_oldhealth > ST_MUCHPAIN)
-      // e6y: compatibility optioned
-      if((comp[comp_ouchface]?
-          (plyr->health - st_oldhealth):
-          (st_oldhealth - plyr->health)) > ST_MUCHPAIN)
-      {
-        // e6y
-        // There are TWO bugs in the ouch face code.
-        // Not only was the condition reversed, but the priority system is
-        // broken in a way that makes the face not work with monster damage.
-        if(!comp[comp_ouchface])
-          priority = 8;
-
-        st_facecount = ST_TURNCOUNT;
-        faceindex = ST_OUCHOFFSET;
-      }
-      else
-      {
-        badguyangle = R_PointToAngle2(plyr->mo->x,
-                                      plyr->mo->y,
-                                      plyr->attacker->x,
-                                      plyr->attacker->y);
-
-        if (badguyangle > plyr->mo->angle)
-        {
-          // whether right or left
-          diffang = badguyangle - plyr->mo->angle;
-          i = diffang > ANG180;
-        }
-        else
-        {
-          // whether left or right
-          diffang = plyr->mo->angle - badguyangle;
-          i = diffang <= ANG180;
-        } // confusing, aint it?
-
-        st_facecount = ST_TURNCOUNT;
-
-        if (diffang < ANG45)
-        {
-          // head-on
-          faceindex = ST_RAMPAGEOFFSET;
-        }
-        else if (i)
-        {
-          // turn face right
-          faceindex = ST_TURNOFFSET;
-        }
-        else
-        {
-          // turn face left
-          faceindex = ST_TURNOFFSET+1;
-        }
-      }
-    }
-  }
-
-  if (priority < 7)
-  {
-    // getting hurt because of your own damn stupidity
-    if (plyr->damagecount)
-    {
-      // haleyjd 10/12/03: classic DOOM problem of missing OUCH face
-      // was due to inversion of this test:
-      // if(plyr->health - st_oldhealth > ST_MUCHPAIN)
-      // e6y: compatibility optioned
-      if((comp[comp_ouchface]?
-          (plyr->health - st_oldhealth):
-          (st_oldhealth - plyr->health)) > ST_MUCHPAIN)
-      {
-        priority = 7;
-        st_facecount = ST_TURNCOUNT;
-        faceindex = ST_OUCHOFFSET;
-      }
-      else
-      {
-        priority = 6;
-        st_facecount = ST_TURNCOUNT;
-        faceindex = ST_RAMPAGEOFFSET;
-      }
-    }
-  }
-
-  if (priority < 6)
-  {
-    // rapid firing (only after a gametic)
-    if (plyr->attackdown && leveltime > 1)
-    {
-        if (lastattackdown==-1) 
-          lastattackdown = ST_RAMPAGEDELAY;
-        else if (!--lastattackdown)
-        {
-          priority = 5;
-          faceindex = ST_RAMPAGEOFFSET;
-          st_facecount = 1;
-          lastattackdown = 1;
-        }
+      st_facecount = ST_TURNCOUNT;
+      st_faceindex = ST_BaseFace(ST_OUCHOFFSET);
     }
     else
-      lastattackdown = -1;
-  }
-
-  if (priority < 5)
-  {
-    // invulnerability
-    if ((plyr->cheats & CF_GODMODE)
-        || plyr->powers[pw_invulnerability])
     {
-      priority = 4;
+      playerangle = plyr->mo->angle;
+      badguyangle = R_PointToAngle2(plyr->mo->x,
+                                    plyr->mo->y,
+                                    plyr->attacker->x,
+                                    plyr->attacker->y);
 
-      painoffset = 0;
-      faceindex = ST_GODFACE;
-      st_facecount = 1;
+      if (badguyangle > playerangle)
+      {
+        badguyangle -= playerangle;
+        right = badguyangle > ANG180;
+      }
+      else
+      {
+        badguyangle = playerangle - badguyangle;
+        right = badguyangle <= ANG180;
+      }
+
+      st_facecount = ST_TURNCOUNT;
+
+      if (badguyangle < ANG45)  // head-on
+        st_faceindex = ST_RAMPAGEOFFSET;
+      else if (right)     // turn face right
+        st_faceindex = ST_TURNOFFSET;
+      else                // turn face left
+        st_faceindex = ST_TURNOFFSET + 1;
+
+      st_faceindex = ST_BaseFace(st_faceindex);
     }
   }
+}
 
-  // look left or look right if the facecount has timed out
-  if (!st_facecount)
+static void ST_EnvironmentDamageFace()
+{
+  if (plyr->damagecount)
   {
-    faceindex = st_randomnumber % 3;
-    st_facecount = ST_STRAIGHTFACECOUNT;
-    priority = 0;
+    st_facecount = ST_TURNCOUNT;
+
+    if(ST_OuchHealth() > ST_MUCHPAIN)
+    {
+      st_priority = 7;
+      st_faceindex = ST_BaseFace(ST_OUCHOFFSET);
+    }
+    else
+    {
+      st_priority = 6;
+      st_faceindex = ST_BaseFace(ST_RAMPAGEOFFSET);
+    }
   }
+}
+
+static void ST_AttackHoldFace()
+{
+  // rapid firing
+  if (plyr->attackdown && leveltime > 1)
+  {
+    if (st_lastattackcount == -1)
+    {
+      st_lastattackcount = ST_RAMPAGEDELAY;
+    }
+    else if (--st_lastattackcount == 0)
+    {
+      st_priority = 5;
+      st_faceindex = ST_BaseFace(ST_RAMPAGEOFFSET);
+      st_facecount = 1;
+      st_lastattackcount = 1;
+    }
+  }
+  else
+  {
+    st_lastattackcount = -1;
+  }
+}
+
+static void ST_InvulnerableFace()
+{
+  // invulnerability
+  if ((plyr->cheats & CF_GODMODE)
+      || plyr->powers[pw_invulnerability])
+  {
+    st_priority = 4;
+    st_faceindex = ST_GODFACE;
+    st_facecount = 1;
+  }
+}
+
+static void ST_LookingFace()
+{
+  // look left or look right if the facecount has timed out
+  st_faceindex = ST_BaseFace(st_randomnumber % 3);
+  st_facecount = ST_STRAIGHTFACECOUNT;
+  st_priority = 0;
+}
+
+void ST_updateFaceWidget()
+{
+  if (st_priority < 10)
+    ST_DeathFace();
+
+  if (st_priority < 9)
+    ST_NewWeaponFace();
+
+  if (st_priority < 8)
+    ST_EnemyDamageFace();
+
+  if (st_priority < 7)
+    ST_EnvironmentDamageFace();
+
+  if (st_priority < 6)
+    ST_AttackHoldFace();
+
+  if (st_priority < 5)
+    ST_InvulnerableFace();
+
+  if (!st_facecount)
+    ST_LookingFace();
 
   st_facecount--;
-
-  // [crispy] fix status bar face hysteresis
-  st_faceindex = painoffset + faceindex;
 }
 
 static void ST_updateNyanIcons(void)
@@ -1431,7 +1436,7 @@ static void ST_initData(void)
 
   st_statusbaron = true;
 
-  faceindex = 0; // [crispy] fix status bar face hysteresis across level changes
+  st_lastattackcount = -1;
   st_faceindex = 0;
   st_palette = -1;
 
