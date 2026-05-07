@@ -594,6 +594,9 @@ extern const char* s_STSTR_CLEV; // = STSTR_CLEV;
 extern const char* s_STSTR_COMPON;
 extern const char* s_STSTR_COMPOFF;
 
+// secret messages
+extern const char* s_HUSTR_SECRETFOUND;
+
 //
 //      F_Finale.C
 //

@@ -346,6 +346,9 @@ const char *s_stdisk       = "STDISK";
  * cph - updated for prboom */
 const char *savegamename = PROJECT_TARNAME"-savegame";
 
+// secret messages
+const char *s_HUSTR_SECRETFOUND = HUSTR_SECRETFOUND;
+
 // obituaries
 const char *s_OB_CRUSH = OB_CRUSH;
 const char *s_OB_FALLING = OB_FALLING;

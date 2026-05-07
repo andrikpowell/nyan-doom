@@ -1676,7 +1676,7 @@ static const char* dsda_GetSecretMessage(void)
     is_percent = (secret_format == 2);
 
     if (is_default)
-      return "A secret is revealed!";
+      return s_HUSTR_SECRETFOUND;
 
     for (int i = 0; i < g_maxplayers; ++i) {
       if (playeringame[i]) {
@@ -1689,7 +1689,7 @@ static const char* dsda_GetSecretMessage(void)
     else if (is_percent)
       sprintf(secret_message, "%d%% secrets revealed!", !totalsecret ? 100 : secretcount * 100 / totalsecret);
     else // fallback
-      sprintf(secret_message, "A secret is revealed!");
+      sprintf(secret_message, s_HUSTR_SECRETFOUND);
 
     return secret_message;
 }
