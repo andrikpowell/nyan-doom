@@ -24,6 +24,11 @@ find_package(SDL2 2.0.12 CONFIG REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 find_package(SndFile 1.0.29 REQUIRED)
 find_package(ZLIB REQUIRED)
+
+if(NOT TARGET ZLIB::ZLIB AND TARGET ZLIB::ZLIBSTATIC)
+  add_library(ZLIB::ZLIB ALIAS ZLIB::ZLIBSTATIC)
+endif()
+
 find_package(libzip REQUIRED)
 
 if(SndFile_VERSION VERSION_GREATER_EQUAL "1.1.0")
