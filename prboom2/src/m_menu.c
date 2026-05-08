@@ -4719,6 +4719,7 @@ setup_menu_t display_options_settings[] = {
   EMPTY_LINE,
   { "GL Light Fade", S_CHOICE, m_conf, g_all, G_X, dsda_config_gl_fade_mode, 0, gl_fade_mode_list, DEPEND(dsda_config_videomode, OPENGL_MODE) },
   { "GL Health Bars", S_YESNO, m_conf, g_all, G_X, dsda_config_gl_health_bar, DEPEND_GL },
+  { "GL Simple Shadows", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_gl_shadows, DEPEND_GL },
   EMPTY_LINE,
   { "Palette On Pain", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_ondamage, 0, palette_reduced_list },
   { "Palette On Pickup", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onbonus, 0, palette_reduced_list },

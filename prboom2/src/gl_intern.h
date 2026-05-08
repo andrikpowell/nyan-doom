@@ -463,6 +463,11 @@ void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y);
 void gld_DrawDomeSkyBox(int skylayer);
 void gld_DrawSkyCaps(int skylayer);
 
+// shadows
+void gld_InitShadows(void);
+void gld_ProcessThingShadow(mobj_t *mo);
+void gld_RenderShadows(void);
+
 // VBO
 typedef struct vbo_vertex_s
 {

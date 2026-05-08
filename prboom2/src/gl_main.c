@@ -225,6 +225,7 @@ void gld_Init(int width, int height)
   glsl_Init();
   gld_FlushTextures(); // TODO: should this be here?
   M_ChangeSkyMode();
+  gld_InitShadows();
 
 #ifdef HAVE_LIBSDL2_IMAGE
   gld_InitMapPics();
@@ -2713,10 +2714,12 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   else if (sprite.alpha != 1.f || sprite.flags & (MF_SHADOW | MF_TRANSLUCENT))
   {
     gld_AddDrawItem(GLDIT_TSPRITE, &sprite);
+    gld_ProcessThingShadow(thing);
   }
   else
   {
     gld_AddDrawItem(GLDIT_SPRITE, &sprite);
+    gld_ProcessThingShadow(thing);
   }
 
   if (dsda_ShowHealthBars())
@@ -3031,6 +3034,13 @@ void gld_DrawScene(player_t *player)
   //
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  if (dsda_SimpleShadows())
+  {
+    glsl_PushNullShader();
+    gld_RenderShadows();
+    glsl_PopNullShader();
+  }
 
   /* Transparent sprites and transparent things must be rendered
    * in far-to-near order. The approach used here is to sort in-
