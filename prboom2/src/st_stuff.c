@@ -842,7 +842,7 @@ static void ST_DrawFaceNyanExt(int x, int y, int vpt, dboolean exhud)
   if (raven || exhud)
     return;
 
-  shadow = (netgame || exhud) ? SHADOW_OFF : SHADOW_EXTRA;
+  shadow = SHADOW_OFF;
 
   if (armor_icon)
   {
