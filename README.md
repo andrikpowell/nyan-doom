@@ -6,17 +6,23 @@
 
 <div align="center" markdown="1">
 
-[![Static Badge](https://img.shields.io/badge/Windows-grey)]()
-[![Static Badge](https://img.shields.io/badge/macOS-grey?logo=apple)]()
-[![Static Badge](https://img.shields.io/badge/Linux-grey?logo=linux)]()
+[![Static Badge](https://img.shields.io/badge/Windows-grey)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![Static Badge](https://img.shields.io/badge/macOS-grey?logo=apple)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![Static Badge](https://img.shields.io/badge/Linux-grey?logo=linux)](https://github.com/andrikpowell/nyan-doom/releases/latest)
 <br>
 [![Release](https://img.shields.io/github/release/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Build Status](https://github.com/andrikpowell/nyan-doom/actions/workflows/continuous_integration.yml/badge.svg)](https://github.com/andrikpowell/nyan-doom/actions/workflows/continuous_integration.yml)
+[![Latest Release](https://img.shields.io/github/release-date/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![Downloads (latest)](https://img.shields.io/github/downloads/andrikpowell/nyan-doom/latest/total.svg?label=downloads)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![Downloads (total)](https://img.shields.io/github/downloads/andrikpowell/nyan-doom/total.svg?label=total%20downloads)](https://github.com/andrikpowell/nyan-doom/releases)
+<br>
+[![Commits Since](https://img.shields.io/github/commits-since/andrikpowell/nyan-doom/latest.svg)](https://github.com/andrikpowell/nyan-doom/commits/master)
+[![Last Commit](https://img.shields.io/github/last-commit/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/commits/master)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/andrikpowell/nyan-doom/continuous_integration.yml)](https://github.com/andrikpowell/nyan-doom/commits/master)
 [![Top Language](https://img.shields.io/github/languages/top/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom)
 <br>
-[![Downloads (total)](https://img.shields.io/github/downloads/andrikpowell/nyan-doom/total)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Downloads (latest)](https://img.shields.io/github/downloads/andrikpowell/nyan-doom/latest/total.svg)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Latest Release](https://img.shields.io/github/release-date/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![Stars](https://img.shields.io/github/stars/andrikpowell/nyan-doom.svg?style=flat&logo=github)](https://github.com/andrikpowell/nyan-doom/stargazers)
+[![Discord](https://img.shields.io/discord/1053356270767308810?style=flat&logo=discord&label=discord)](http://discordapp.com/invite/aXtCVYw83k)
+<br>
 
 </div>
 
