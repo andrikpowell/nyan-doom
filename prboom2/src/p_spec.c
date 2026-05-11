@@ -1694,13 +1694,33 @@ static const char* dsda_GetSecretMessage(void)
     return secret_message;
 }
 
+int P_GetMilestoneSound(int config_id)
+{
+  dboolean config = dsda_IntConfig(config_id);
+
+  if (config == 0)
+    return 0;
+
+  if (raven)
+    return g_sfx_secret;
+
+  if (config == 1)
+  {
+    dboolean sound_exist = !(I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0);
+
+    return sound_exist ? g_sfx_secret : g_sfx_secret_subtle;
+  }
+
+  return g_sfx_secret_subtle;
+}
+
 #define SECRET_MESSAGE_TICS ((int)(2.5*TICRATE))
 
 void P_PlayerAnnounceSecret(player_t *player, const char* message)
 {
   if (dsda_IntConfig(dsda_config_hudadd_secretarea)!=0)
   {
-    int sfx_id = raven ? g_sfx_secret : I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+    int sfx_id = P_GetMilestoneSound(dsda_config_secret_sfx);
     int cur_player = (int)(player - players);
 
     if(dsda_IntConfig(dsda_config_hudadd_secretarea)==2)
@@ -1717,9 +1737,9 @@ void P_PlayerAnnounceSecret(player_t *player, const char* message)
 
 #define MILESTONE_TICS ((int)(2.5*TICRATE))
 
-void P_PlayerAnnounceMilestone(player_t *player, const char* message)
+void P_PlayerAnnounceMilestone(player_t *player, const char* message, int config_id)
 {
-  int sfx_id = raven ? g_sfx_secret : I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+  int sfx_id = P_GetMilestoneSound(config_id);
   int cur_player = (int)(player - players);
 
   SetCustomMessage(cur_player, message, MILESTONE_TICS, sfx_id);
@@ -1745,7 +1765,7 @@ dboolean P_AnnounceSecretMilestone(void)
 
       if (dsda_IntConfig(dsda_config_secrets_milestone))
       {
-        P_PlayerAnnounceMilestone(&players[displayplayer], "All secrets revealed!");
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All secrets revealed!", dsda_config_secrets_milestone_sfx);
         return true;
       }
     }
@@ -1774,7 +1794,7 @@ dboolean P_AnnounceItemMilestone(void)
 
       if (dsda_IntConfig(dsda_config_items_milestone))
       {
-        P_PlayerAnnounceMilestone(&players[displayplayer], "All items collected!");
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All items collected!", dsda_config_items_milestone_sfx);
         return true;
       }
     }
@@ -1812,7 +1832,7 @@ dboolean P_AnnounceKillMilestone(void)
 
       if (dsda_IntConfig(dsda_config_kills_milestone))
       {
-        P_PlayerAnnounceMilestone(&players[displayplayer], "All enemies killed!");
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All enemies killed!", dsda_config_kills_milestone_sfx);
         return true;
       }
     }

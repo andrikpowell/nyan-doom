@@ -5228,17 +5228,24 @@ static const char* announce_map_list[] = { "Off", "On", "Subtle", NULL };
 static const char* secretarea_list[] = { "Off", "On", "Subtle", NULL };
 static const char* secret_format_list[] = { "Default", "Ratio", "Percent", NULL };
 
+static const char* secret_sound_list[] = { "None", "Default", "Subtle", NULL };
+static const char* milestone_sound_list[] = { "None", "Secret", "Subtle", NULL };
+
 setup_menu_t announce_gen_settings[] = {
   { "Announce Map On Entry", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_announce_map, 0, announce_map_list },
   EMPTY_LINE,
   TITLE("Secrets", G_X),
   { "Report Revealed Secrets", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_hudadd_secretarea, 0, secretarea_list },
   { "Secret Msg Format", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_secret_format, 0, secret_format_list, EXCLUDE(dsda_config_hudadd_secretarea, false) },
+  { "Secret Sound", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_secret_sfx, 0, secret_sound_list, EXCLUDE(dsda_config_hudadd_secretarea, false)  },
   EMPTY_LINE,
   TITLE("Milestones", G_X),
   { "Report All Kills", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_kills_milestone },
+  { "Sound", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_kills_milestone_sfx, 0, milestone_sound_list, DEPEND(dsda_config_kills_milestone, true) },
   { "Report All Items", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_items_milestone },
+  { "Sound", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_items_milestone_sfx, 0, milestone_sound_list, DEPEND(dsda_config_items_milestone, true)  },
   { "Report All Secrets", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_secrets_milestone },
+  { "Sound", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_secrets_milestone_sfx, 0, milestone_sound_list, DEPEND(dsda_config_secrets_milestone, true)  },
   FINAL_ENTRY
 };
 

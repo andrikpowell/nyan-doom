@@ -256,6 +256,7 @@ sfxinfo_t doom_S_sfx[] = {
 
   //e6y
   { "dssecret", 60, 0, -1, 0, 0, 0, "" },
+  { "dsitmbk", 60, 0, -1, 0, 0, 0, "" },
   { "dsgibdth", 60, 0, -1, 0, 0, 0, "" },
   
   // Nyan

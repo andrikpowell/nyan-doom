@@ -413,6 +413,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_secret_format", dsda_config_secret_format,
     dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT
   },
+  [dsda_config_secret_sfx] = {
+    "dsda_secret_sfx", dsda_config_secret_sfx,
+    dsda_config_int, 0, 2, { 1 }, NULL, NOT_STRICT
+  },
   [dsda_config_kills_milestone] = {
     "dsda_kills_milestone", dsda_config_kills_milestone,
     CONF_BOOL(0), NULL, NOT_STRICT
@@ -424,6 +428,18 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_secrets_milestone] = {
     "dsda_secrets_milestone", dsda_config_secrets_milestone,
     CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [dsda_config_kills_milestone_sfx] = {
+    "dsda_kills_milestone_sfx", dsda_config_kills_milestone_sfx,
+    dsda_config_int, 0, 2, { 2 }, NULL, NOT_STRICT
+  },
+  [dsda_config_items_milestone_sfx] = {
+    "dsda_items_milestone_sfx", dsda_config_items_milestone_sfx,
+    dsda_config_int, 0, 2, { 2 }, NULL, NOT_STRICT
+  },
+  [dsda_config_secrets_milestone_sfx] = {
+    "dsda_secrets_milestone_sfx", dsda_config_secrets_milestone_sfx,
+    dsda_config_int, 0, 2, { 1 }, NULL, NOT_STRICT
   },
   [dsda_config_target_health] = {
     "dsda_target_health", dsda_config_target_health,
