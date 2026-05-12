@@ -35,6 +35,8 @@
 ## About the source port
 Nyan Doom is based on the DSDA-Doom source port, but adds many more quality-of-life and innovative features! If you like the DSDA-Doom, but wanted a few extra whistles and customisations, then this is the port for you!
 
+It is called Nyan Doom, because I am a cat - *meow!*
+
 ## Downloads
 
 Available for Windows, macOS and Linux in [Releases](https://github.com/andrikpowell/nyan-doom/releases/latest)
