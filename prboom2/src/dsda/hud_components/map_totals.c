@@ -27,6 +27,7 @@ typedef struct {
   dsda_text_t component;
   dsda_text_t dm_stats;
   dboolean include_kills, include_items, include_secrets;
+  dsda_patch_component_t icons;
   int stats_count;
 } local_component_t;
 
@@ -75,6 +76,61 @@ static void dsda_DMStats(char* str, size_t max_size) {
 
       if (length >= max_size)
         break;
+  }
+}
+
+static void dsda_DrawMapIcon(int x, int y, const char* lumpname, int color)
+{
+  int flags = local->icons.vpt;
+  dboolean from_pwad;
+
+  if (!lumpname || !W_LumpNameExists(lumpname))
+    return;
+
+  from_pwad = W_PWADLumpNameExists2(lumpname);
+
+  if (!from_pwad)
+    flags |= VPT_COLOR;
+
+  V_DrawMenuNamePatch(x, y, lumpname, color, flags);
+}
+
+static void dsda_DrawMapTotalsIcons(void)
+{
+  int x = local->icons.x;
+  int y = local->icons.y;
+  int y_spacing = raven ? 10 : 8;
+
+  if (raven)
+    y += 3;
+
+  if (local->include_kills)
+  {
+    int color = raven ? dsda_tc_map_raven_icon_kills : dsda_tc_map_icon_kills;
+    const char* kill_icon_lump =  hexen   ? "AMKILLS3" :
+                                  heretic ? "AMKILLS2" :
+                                            "AMKILLS";
+    dsda_DrawMapIcon(x, y, kill_icon_lump, dsda_TextCR(color));
+    y += y_spacing;
+  }
+
+  if (local->include_items)
+  {
+    int color = raven ? dsda_tc_map_raven_icon_items : dsda_tc_map_icon_items;
+    const char* item_icon_lump =  hexen   ? "AMITEM3" :
+                                  heretic ? "AMITEM2" :
+                                            "AMITEM";
+    dsda_DrawMapIcon(x, y, item_icon_lump, dsda_TextCR(color));
+    y += y_spacing;
+  }
+
+  if (local->include_secrets)
+  {
+    int color = raven ? dsda_tc_map_raven_icon_secrets : dsda_tc_map_icon_secrets;
+    const char* secret_icon_lump =  hexen   ? "AMSECR3" :
+                                    heretic ? "AMSECR2" :
+                                              "AMSECR";
+    dsda_DrawMapIcon(x, y, secret_icon_lump, dsda_TextCR(color));
   }
 }
 
@@ -189,6 +245,7 @@ void dsda_InitMapTotalsHC(int x_offset, int y_offset, int vpt, int* args, int ar
   dsda_InitBlockyHC(&local->dm_stats, x_offset, y_offset, vpt);
   dsda_InitBlockyHC(&local->label, x_offset, y_offset, vpt);
   dsda_InitBlockyHC(&local->component, x_offset + 12, y_offset, vpt);
+  dsda_InitPatchHC(&local->icons, x_offset, y_offset, vpt);
 }
 
 void dsda_UpdateMapTotalsHC(void* data) {
@@ -217,7 +274,10 @@ void dsda_DrawMapTotalsHC(void* data) {
   }
   else
   {
-    dsda_DrawBasicShadowedText(&local->label);
+    if (dsda_IntConfig(dsda_config_map_stat_icons))
+      dsda_DrawMapTotalsIcons();
+    else
+      dsda_DrawBasicShadowedText(&local->label);
     dsda_DrawBasicShadowedText(&local->component);
   }
 }

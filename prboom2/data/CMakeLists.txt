@@ -203,6 +203,9 @@ set(GRAPHICS
     graphics/fonta06.ppm
     graphics/fonta28.ppm
     graphics/fonta30.ppm
+    graphics/amkills.ppm
+    graphics/amitem.ppm
+    graphics/amsecr.ppm
     graphics/boxul.ppm
     graphics/boxuc.ppm
     graphics/boxur.ppm
@@ -244,6 +247,12 @@ set(GRAPHICS
 )
 
 set(RAVEN_LUMPS
+    lumps/amkills2.lmp
+    lumps/amitem2.lmp
+    lumps/amsecr2.lmp
+    lumps/amkills3.lmp
+    lumps/amitem3.lmp
+    lumps/amsecr3.lmp
     lumps/stbr124.lmp
     lumps/stbr125.lmp
     lumps/h_palsel.lmp

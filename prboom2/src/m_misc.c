@@ -338,6 +338,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_map_secret_after),
   MIGRATED_SETTING(dsda_config_map_show_keys),
   MIGRATED_SETTING(dsda_config_full_automap_exhud),
+  MIGRATED_SETTING(dsda_config_map_stat_icons),
   MIGRATED_SETTING(dsda_config_map_coordinates),
   MIGRATED_SETTING(dsda_config_map_totals),
   MIGRATED_SETTING(dsda_config_map_time),

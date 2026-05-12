@@ -404,6 +404,7 @@ enum {
   dsda_config_map_secret_after,
   dsda_config_map_show_keys,
   dsda_config_full_automap_exhud,
+  dsda_config_map_stat_icons,
   dsda_config_map_coordinates,
   dsda_config_map_totals,
   dsda_config_map_time,

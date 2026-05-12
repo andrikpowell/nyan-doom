@@ -1732,6 +1732,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_full_automap_exhud", dsda_config_full_automap_exhud,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
+  [dsda_config_map_stat_icons] = {
+    "dsda_map_stat_icons", dsda_config_map_stat_icons,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
   [dsda_config_map_coordinates] = {
     "map_coordinates", dsda_config_map_coordinates,
     CONF_BOOL(1), NULL, STRICT_INT(0), dsda_RefreshMapCoordinates
