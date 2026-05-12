@@ -1689,7 +1689,7 @@ static const char* dsda_GetSecretMessage(void)
     else if (is_percent)
       sprintf(secret_message, "%d%% secrets revealed!", !totalsecret ? 100 : secretcount * 100 / totalsecret);
     else // fallback
-      sprintf(secret_message, s_HUSTR_SECRETFOUND);
+      sprintf(secret_message, "%s", s_HUSTR_SECRETFOUND);
 
     return secret_message;
 }
