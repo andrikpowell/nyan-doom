@@ -499,6 +499,18 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_ex_status_blinking", nyan_config_ex_status_blinking,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
+  [nyan_config_ex_status_all_kills] = {
+    "nyan_ex_status_all_kills", nyan_config_ex_status_all_kills,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_status_all_items] = {
+    "nyan_ex_status_all_items", nyan_config_ex_status_all_items,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_status_all_secrets] = {
+    "nyan_ex_status_all_secrets", nyan_config_ex_status_all_secrets,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
   [nyan_config_ex_status_armor] = {
     "nyan_ex_status_armor", nyan_config_ex_status_armor,
     CONF_BOOL(0), NULL, NOT_STRICT
@@ -558,6 +570,18 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [nyan_config_ex_timer_blinking] = {
     "nyan_ex_timer_blinking", nyan_config_ex_timer_blinking,
     CONF_BOOL(1), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_timer_all_kills] = {
+    "nyan_ex_timer_all_kills", nyan_config_ex_timer_all_kills,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_timer_all_items] = {
+    "nyan_ex_timer_all_items", nyan_config_ex_timer_all_items,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_timer_all_secrets] = {
+    "nyan_ex_timer_all_secrets", nyan_config_ex_timer_all_secrets,
+    CONF_BOOL(0), NULL, NOT_STRICT
   },
   [nyan_config_ex_timer_hide_duration] = {
     "nyan_ex_timer_hide_duration", nyan_config_ex_timer_hide_duration,

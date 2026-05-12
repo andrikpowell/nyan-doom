@@ -219,6 +219,9 @@ set(GRAPHICS
     graphics/stkeys7.ppm
     graphics/stkeys8.ppm
     graphics/stcfn096.ppm
+    graphics/stfpkill.ppm
+    graphics/stfpitem.ppm
+    graphics/stfpsecr.ppm
     graphics/stfpinv.ppm
     graphics/stfpins.ppm
     graphics/stfpvis.ppm
@@ -256,6 +259,12 @@ set(RAVEN_LUMPS
     lumps/stbr124.lmp
     lumps/stbr125.lmp
     lumps/h_palsel.lmp
+    lumps/stfrkil2.lmp
+    lumps/stfritm2.lmp
+    lumps/stfrscr2.lmp
+    lumps/stfrkil3.lmp
+    lumps/stfritm3.lmp
+    lumps/stfrscr3.lmp
     lumps/stfrtome.lmp
     lumps/stfrmor1.lmp
     lumps/stfrmor2.lmp

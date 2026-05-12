@@ -43,7 +43,7 @@ static void dsda_UpdateComponentText(char *str, size_t max_size)
   if (max_size > 0)
     str[0] = '\0';
 
-  dsda_SortPowerups(p, idx, &n, POWERUP_STATUS_TEXT);
+  dsda_SortPowerups(p, idx, &n, POWERUP_STATUS_TEXT, false);
 
   for (int i = 0; i < n; i++)
   {
