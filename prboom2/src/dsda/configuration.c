@@ -2141,7 +2141,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [nyan_config_show_endoom] = {
     "show_endoom", nyan_config_show_endoom,
-    dsda_config_int, 0, 2, { 1 }
+    dsda_config_int, 0, 2, { 2 }
   },
   [nyan_config_export_endoom] = {
     "export_endoom", nyan_config_export_endoom,
