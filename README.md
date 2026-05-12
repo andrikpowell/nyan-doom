@@ -71,7 +71,7 @@ Available for Windows, macOS and Linux in [Releases](https://github.com/andrikpo
 - All DSDA-Doom features... and more!
 
 ## Patch Notes
-- [v1.4](./patch_notes/v1.4.md)
+- [v1.5](./patch_notes/v1.5.md)
 
 ## Compiling
 
