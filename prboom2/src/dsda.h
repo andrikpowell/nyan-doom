@@ -90,6 +90,16 @@ int dsda_MaxKillRequirement(void);
 void dsda_SetMaxKillRequirement(int max_kills);
 int* dsda_PlayerActivatedLines(void);
 
+int dsda_GetCurrentKills(void);
+int dsda_GetCurrentItems(void);
+int dsda_GetCurrentSecrets(void);
+int dsda_GetMaxKills(void);
+int dsda_GetMaxItems(void);
+int dsda_GetMaxSecrets(void);
+dboolean dsda_IsAllKills(void);
+dboolean dsda_IsAllItems(void);
+dboolean dsda_IsAllSecrets(void);
+
 int dsda_TurboScale(void);
 int dsda_StartInBuildMode(void);
 

@@ -173,43 +173,20 @@ static const char* dsda_StatSeparator() {
 }
 
 static void dsda_LevelStats(char* str, size_t max_size) {
-  int i;
   size_t length;
-  int fullkillcount, fullitemcount, fullsecretcount;
   const char* killcolor;
   const char* itemcolor;
   const char* secretcolor;
-  int kill_percent_count;
-  int max_kill_requirement;
 
   length = 0;
-  fullkillcount = 0;
-  fullitemcount = 0;
-  fullsecretcount = 0;
-  kill_percent_count = 0;
-  max_kill_requirement = dsda_MaxKillRequirement();
   local->stats_count = 0;
 
-  for (i = 0; i < g_maxplayers; ++i) {
-    if (playeringame[i]) {
-      fullkillcount += players[i].killcount - players[i].maxkilldiscount;
-      fullitemcount += players[i].itemcount;
-      fullsecretcount += players[i].secretcount;
-      kill_percent_count += players[i].killcount;
-    }
-  }
-
-  if (skill_info.respawn_time) {
-    fullkillcount = kill_percent_count;
-    max_kill_requirement = totalkills;
-  }
-
-  killcolor = (fullkillcount >= max_kill_requirement ? dsda_TextColor(dsda_tc_exhud_totals_max) :
-                                                       dsda_TextColor(dsda_tc_exhud_totals_value));
-  secretcolor = (fullsecretcount >= totalsecret ? dsda_TextColor(dsda_tc_exhud_totals_max) :
-                                                  dsda_TextColor(dsda_tc_exhud_totals_value));
-  itemcolor = (fullitemcount >= totalitems ? dsda_TextColor(dsda_tc_exhud_totals_max) :
-                                             dsda_TextColor(dsda_tc_exhud_totals_value));
+  killcolor   = (dsda_IsAllKills()    ? dsda_TextColor(dsda_tc_exhud_totals_max) :
+                                        dsda_TextColor(dsda_tc_exhud_totals_value));
+  itemcolor   = (dsda_IsAllItems()    ? dsda_TextColor(dsda_tc_exhud_totals_max) :
+                                        dsda_TextColor(dsda_tc_exhud_totals_value));
+  secretcolor = (dsda_IsAllSecrets()  ? dsda_TextColor(dsda_tc_exhud_totals_max) :
+                                        dsda_TextColor(dsda_tc_exhud_totals_value));
 
   if (local->include_sts_label)
     length += snprintf(str + length, max_size - length, "%s%s%s", dsda_TextColor(dsda_tc_exhud_totals_sts_label), local->label_sts, local->stat_separator );
@@ -221,19 +198,19 @@ static void dsda_LevelStats(char* str, size_t max_size) {
   if (local->include_kills)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, local->label_k, killcolor, fullkillcount, max_kill_requirement, true, false, dsda_StatSeparator());
+    length += dsda_PrintStats(length, str + length, max_size - length, local->label_k, killcolor, dsda_GetCurrentKills(), dsda_GetMaxKills(), true, false, dsda_StatSeparator());
   }
 
   if (local->include_items)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, local->label_i, itemcolor, fullitemcount, totalitems, false, false, dsda_StatSeparator());
+    length += dsda_PrintStats(length, str + length, max_size - length, local->label_i, itemcolor, dsda_GetCurrentItems(), dsda_GetMaxItems(), false, false, dsda_StatSeparator());
   }
 
   if (local->include_secrets)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, local->label_s, secretcolor, fullsecretcount, totalsecret, false, false, dsda_StatSeparator());
+    length += dsda_PrintStats(length, str + length, max_size - length, local->label_s, secretcolor, dsda_GetCurrentSecrets(), dsda_GetMaxSecrets(), false, false, dsda_StatSeparator());
   }
 }
 

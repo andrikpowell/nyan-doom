@@ -170,43 +170,21 @@ static const char* dsda_StatSeparator() {
 }
 
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
-  int i;
   size_t length;
-  int fullkillcount, fullitemcount, fullsecretcount;
   const char* killcolor;
   const char* itemcolor;
   const char* secretcolor;
-  int kill_percent_count;
-  int max_kill_requirement;
 
   length = 0;
-  fullkillcount = 0;
-  fullitemcount = 0;
-  fullsecretcount = 0;
-  kill_percent_count = 0;
-  max_kill_requirement = dsda_MaxKillRequirement();
   local->stats_count = 0;
 
-  for (i = 0; i < g_maxplayers; ++i) {
-    if (playeringame[i]) {
-      fullkillcount += players[i].killcount - players[i].maxkilldiscount;
-      fullitemcount += players[i].itemcount;
-      fullsecretcount += players[i].secretcount;
-      kill_percent_count += players[i].killcount;
-    }
-  }
+  killcolor   = (dsda_IsAllKills()    ? dsda_TextColor(dsda_tc_map_totals_max) :
+                                        dsda_TextColor(dsda_tc_map_totals_value));
+  itemcolor   = (dsda_IsAllItems()    ? dsda_TextColor(dsda_tc_map_totals_max) :
+                                        dsda_TextColor(dsda_tc_map_totals_value));
+  secretcolor = (dsda_IsAllSecrets()  ? dsda_TextColor(dsda_tc_map_totals_max) :
+                                        dsda_TextColor(dsda_tc_map_totals_value));
 
-  if (skill_info.respawn_time) {
-    fullkillcount = kill_percent_count;
-    max_kill_requirement = totalkills;
-  }
-
-  killcolor = (fullkillcount >= max_kill_requirement ? dsda_TextColor(dsda_tc_map_totals_max) :
-                                                       dsda_TextColor(dsda_tc_map_totals_value));
-  secretcolor = (fullsecretcount >= totalsecret ? dsda_TextColor(dsda_tc_map_totals_max) :
-                                                  dsda_TextColor(dsda_tc_map_totals_value));
-  itemcolor = (fullitemcount >= totalitems ? dsda_TextColor(dsda_tc_map_totals_max) :
-                                             dsda_TextColor(dsda_tc_map_totals_value));
 
   if (local->include_kills)   local->stats_count++;
   if (local->include_items)   local->stats_count++;
@@ -215,19 +193,19 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   if (local->include_kills)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, killcolor, fullkillcount, max_kill_requirement, true, true, dsda_StatSeparator());
+    length += dsda_PrintStats(length, str + length, max_size - length, NULL, killcolor, dsda_GetCurrentKills(), dsda_GetMaxKills(), true, true, dsda_StatSeparator());
   }
 
   if (local->include_items)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, itemcolor, fullitemcount, totalitems, false, true, dsda_StatSeparator());
+    length += dsda_PrintStats(length, str + length, max_size - length, NULL, itemcolor, dsda_GetCurrentItems(), dsda_GetMaxItems(), false, true, dsda_StatSeparator());
   }
 
   if (local->include_secrets)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, secretcolor, fullsecretcount, totalsecret, false, true, dsda_StatSeparator());
+    length += dsda_PrintStats(length, str + length, max_size - length, NULL, secretcolor, dsda_GetCurrentSecrets(), dsda_GetMaxSecrets(), false, true, dsda_StatSeparator());
   }
 }
 
