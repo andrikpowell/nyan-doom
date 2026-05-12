@@ -4017,7 +4017,7 @@ setup_menu_t auto_options_settings[] =
   { "Stat Totals", S_YESNO, m_conf, g_all, AU_X, dsda_config_map_totals },
   { "Player Coordinates", S_YESNO, m_conf, g_all, AU_X, dsda_config_map_coordinates },
   { "Level / Total Time", S_YESNO, m_conf, g_all, AU_X, dsda_config_map_time },
-  { "Level Title", S_YESNO, m_conf, g_all, AU_X, g_all, dsda_config_map_title },
+  { "Level Title", S_YESNO, m_conf, g_all, AU_X, dsda_config_map_title },
 
   NEXT_PAGE(auto_appearance_settings),
   FINAL_ENTRY
