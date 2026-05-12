@@ -616,7 +616,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_pause", dsda_input_pause, KEYD_PAUSE, -1, -1),
   INPUT_SETTING("input_map", dsda_input_map, KEYD_TAB, -1, DSDA_CONTROLLER_BUTTON_TRIGGERLEFT),
   INPUT_SETTING("input_soundvolume", dsda_input_soundvolume, KEYD_F4, -1, -1),
-  INPUT_SETTING("input_hud", dsda_input_hud, -1, -1, -1),
+  INPUT_SETTING("input_hud_toggle", dsda_input_hud, -1, -1, -1),
   INPUT_SETTING("input_hud_cycle", dsda_input_cycle_hud, KEYD_F5, -1, -1),
   INPUT_SETTING("input_messages", dsda_input_messages, KEYD_F8, -1, -1),
   INPUT_SETTING("input_gamma", dsda_input_gamma, KEYD_F11, -1, -1),
