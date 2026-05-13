@@ -226,7 +226,6 @@ See the [build mode guide](./build_mode.md) for more info.
 - `killem`
 - `hom`
 - `tntka`
-- `idk`
 - `smart`
 - `pitch`
 - `fast`
