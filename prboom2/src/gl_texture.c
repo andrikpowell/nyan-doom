@@ -1144,6 +1144,16 @@ GLTexture *gld_RegisterRaw(int lump, int width, int height, dboolean mipmap, dbo
 static unsigned char *gld_swirl_buffer = NULL;
 static int gld_swirl_buffer_size = 0;
 
+static void gld_CleanSwirlBuffer(void)
+{
+  if (gld_swirl_buffer)
+  {
+    Z_Free(gld_swirl_buffer);
+    gld_swirl_buffer = NULL;
+    gld_swirl_buffer_size = 0;
+  }
+}
+
 static void gld_UploadRawSwirlTexture(GLTexture *gltexture, GLuint texid, const byte *raw)
 {
   int tex_format = (gltexture->flags & GLTEXTURE_INDEXED) ? GL_RG : GL_RGBA;
@@ -1545,6 +1555,7 @@ void gld_FlushTextures(void)
     fuzz_texid = 0;
   }
 
+  gld_CleanSwirlBuffer();
   gld_ResetLastTexture();
 
   gld_InitSky();
@@ -1758,6 +1769,7 @@ void gld_Precache(void)
 void gld_CleanMemory(void)
 {
   gld_CleanVertexData();
+  gld_CleanSwirlBuffer();
   gld_CleanTexItems(numtextures, &gld_GLTextures);
   gld_CleanTexItems(numlumps, &gld_GLPatchTextures);
   gld_CleanTexItems(numtextures, &gld_GLIndexedTextures);
