@@ -387,6 +387,11 @@ void dsda_ContinueKeyFrame(void) {
 void dsda_RewindAutoKeyFrame(void) {
   auto_kf_t* load_kf;
 
+  if (auto_kf_timed_out && dsda_IntConfig(dsda_config_auto_key_frame_timeout_block)) {
+    doom_printf("Rewind Disabled Due To Timeout");
+    return;
+  }
+
   load_kf = last_auto_kf;
   dsda_RewindKF(&load_kf);
 

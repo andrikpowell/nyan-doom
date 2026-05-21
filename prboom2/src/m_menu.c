@@ -4423,6 +4423,7 @@ setup_menu_t gen_gamesim_settings[] = {
   { "Rewind Interval (s)", S_NUM, m_conf, g_all, G2_X, dsda_config_auto_key_frame_interval, 0, empty_list, DEPEND(dsda_config_auto_key_frame_active, true) },
   { "Rewind Depth", S_NUM, m_conf, g_all, G2_X, dsda_config_auto_key_frame_depth, 0, empty_list, DEPEND(dsda_config_auto_key_frame_active, true) },
   { "Rewind Timeout (ms)", S_NUM, m_conf, g_all, G2_X, dsda_config_auto_key_frame_timeout, 0, empty_list, DEPEND(dsda_config_auto_key_frame_active, true) },
+  { "Block Rewind After Timeout", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_auto_key_frame_timeout_block, 0, empty_list, DEPEND(dsda_config_auto_key_frame_active, true) },
 
   PREV_PAGE(gen_device_settings),
   NEXT_PAGE(gen_misc_settings),

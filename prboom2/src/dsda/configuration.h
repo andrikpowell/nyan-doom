@@ -343,6 +343,7 @@ enum {
   dsda_config_auto_key_frame_interval,
   dsda_config_auto_key_frame_depth,
   dsda_config_auto_key_frame_timeout,
+  dsda_config_auto_key_frame_timeout_block,
   dsda_config_auto_save,
   dsda_config_ex_text_scale,
   dsda_config_ex_text_ratio_height,
