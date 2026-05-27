@@ -2564,7 +2564,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   // [crispy] randomly flip corpse, blood and death animation sprites
   if (dsda_AllowMirroredCorpses() &&
       (thing->flags_extra & MFX_MIRROREDCORPSE) &&
-      !(thing->flags & MF_SHOOTABLE) &&
+      !(thing->flags & (MF_SHOOTABLE | MF_SPECIAL)) &&
       (thing->intflags & MIF_FLIP))
   {
     flip = !flip;
