@@ -184,7 +184,7 @@ static dboolean wipe_updateMelt(int ticks)
           done = false;
         }
         else if (prevy[col] < wipe_rows) {
-          int dy = (prevy[col] < 16) ? prevy[col] + 1 : 8;
+          int dy = (prevy[col] < 16) ? prevy[col] + 1 : 8 * dsda_WipeScreenSpeed();
           curry[col] = MIN(prevy[col] + dy, wipe_rows);
           done = false;
         }

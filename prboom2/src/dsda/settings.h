@@ -72,6 +72,7 @@ dboolean dsda_PickupPaletteReduced(void);
 dboolean dsda_EffectPaletteReduced(void);
 dboolean dsda_RenderWipeScreen(void);
 dboolean dsda_WipeAtFullSpeed(void);
+int dsda_WipeScreenSpeed(void);
 dboolean dsda_ShowAutomapKeys(void);
 dboolean dsda_DisableHorizAutoaim(void);
 int dsda_EnhancedDoomOverUnder(void);

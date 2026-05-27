@@ -1963,7 +1963,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_render_wipescreen] = {
     "render_wipescreen", dsda_config_render_wipescreen,
-    CONF_BOOL(1), NULL, STRICT_INT(1)
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1)
   },
   [dsda_config_render_screen_multiply] = {
     "render_screen_multiply", dsda_config_render_screen_multiply,

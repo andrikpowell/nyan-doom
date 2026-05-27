@@ -4708,13 +4708,14 @@ static const char* fake_contrast_list[] =
 };
 
 static const char *gl_fade_mode_list[] = { "Normal", "Smooth", NULL };
+static const char* wipe_screen_list[] = { "Off", "On", "Fast", NULL };
 static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
 static const char* palette_list[] = { "Off", "Default", NULL };
 static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
 static const char* swirling_flat_list[] = { "Off", "Smart", "All", NULL };
 
 setup_menu_t display_options_settings[] = {
-  { "Wipe Screen Effect", S_YESNO,  m_conf, g_doom, G_X, dsda_config_render_wipescreen },
+  { "Screen Wipe Effect", S_CHOICE, m_conf, g_doom, G_X, dsda_config_render_wipescreen, 0, wipe_screen_list },
   { "Linear Sky Scrolling", S_YESNO, m_conf, g_all, G_X, dsda_config_render_linearsky, DEPEND_SW },
   { "Quake Intensity", S_PERC, m_conf, g_all, G_X, dsda_config_quake_intensity },
   { "Fake Contrast", S_CHOICE, m_conf, g_all, G_X, dsda_config_fake_contrast_mode, 0, fake_contrast_list },
