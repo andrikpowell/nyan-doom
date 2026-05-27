@@ -4715,7 +4715,7 @@ static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL 
 static const char* swirling_flat_list[] = { "Off", "Smart", "All", NULL };
 
 setup_menu_t display_options_settings[] = {
-  { "Screen Wipe Effect", S_CHOICE, m_conf, g_doom, G_X, dsda_config_render_wipescreen, 0, wipe_screen_list },
+  { "Screen Wipe Effect", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_render_wipescreen, 0, wipe_screen_list },
   { "Linear Sky Scrolling", S_YESNO, m_conf, g_all, G_X, dsda_config_render_linearsky, DEPEND_SW },
   { "Quake Intensity", S_PERC, m_conf, g_all, G_X, dsda_config_quake_intensity },
   { "Fake Contrast", S_CHOICE, m_conf, g_all, G_X, dsda_config_fake_contrast_mode, 0, fake_contrast_list },
