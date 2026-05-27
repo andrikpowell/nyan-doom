@@ -2300,7 +2300,7 @@ static dboolean M_RavenDisabled(const setup_menu_t* s)
         nyan_config_loading_disk, dsda_config_fuzzmode, dsda_config_fuzzscale, dsda_config_enhanced_liteamp,
         nyan_config_item_bonus_flash, nyan_config_colored_blood, dsda_config_sts_traditional_keys,
         nyan_config_hud_berserk, nyan_config_hud_armoricon, dsda_config_enhanced_doom_over_under,
-        dsda_config_quit_sounds, dsda_config_switch_berserk_preferred,
+        dsda_config_quit_sounds, dsda_config_switch_berserk_preferred, nyan_config_skullpop_easter_egg
       };
 
       if (M_DisableAndSetConfig(s, options_disable_false, arrlen(options_disable_false), false))
@@ -4415,6 +4415,7 @@ setup_menu_t gen_device_settings[] = {
 
 setup_menu_t gen_gamesim_settings[] = {
   { "Death Use Action", S_CHOICE, m_conf, g_all, G2_X, dsda_config_death_use_action, 0, death_use_strings },
+  { "Rare Player Gib Death", S_YESNO | S_NYAN, m_conf, g_doom, G2_X, nyan_config_skullpop_easter_egg },
   { "Skip Ethereal Travel", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_skip_ethereal_travel },
   { "Simpler Puzzle Piece Use", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_simpler_puzzle_use },
   EMPTY_LINE,

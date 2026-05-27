@@ -2071,6 +2071,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_flip_corpses", nyan_config_flip_corpses,
     CONF_BOOL(0), NULL, STRICT_INT(0)
   },
+  [nyan_config_skullpop_easter_egg] = {
+    "nyan_skullpop_easter_egg", nyan_config_skullpop_easter_egg,
+    CONF_BOOL(0), NULL, STRICT_INT(0)
+  },
   [nyan_config_colored_blood] = {
     "nyan_colored_blood", nyan_config_colored_blood,
     dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT, deh_changeColoredBlood

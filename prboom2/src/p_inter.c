@@ -853,6 +853,10 @@ static int P_CheckGibDeath(mobj_t *source, mobj_t *target, method_t mod)
   if (mod == MOD_Nyan_Suicide)
     return true;
 
+  // exit out if config is disabled
+  if (!dsda_IntConfig(nyan_config_skullpop_easter_egg))
+    return false;
+
   // if receiving damage is -100 (player health)
   else if (target->player && source && target->health < -target->info->spawnhealth/2)
   {
