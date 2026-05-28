@@ -270,7 +270,7 @@ composite_time 2 40 bottom_left
 free_text 2 48 bottom_left
 tracker 2 56 bottom_left
 ammo_text 256 48 bottom_right
-keys 241 30 bottom_right
+keys 245 30 bottom_right
 big_artifact 206 32 bottom_right
 big_artifact_bar 160 32 bottom_center 1
 render_stats 2 8 top_left
@@ -289,6 +289,32 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 heretic full 2 "modern"
+big_health 4 26 bottom_left 1
+big_armor 66 26 bottom_left 1
+big_ammo 280 26 bottom_right 1 2
+status_timers 318 64 top_right 1
+status_widget 310 50 bottom_right 0 1
+free_text 2 48 bottom_left
+tracker 2 56 bottom_left
+keys 286 42 bottom_right 1 0
+big_artifact 286 32 bottom_right 0 1
+big_artifact_bar 160 32 bottom_center 1
+render_stats 2 8 top_left
+coordinate_display 2 8 top_left
+line_display 98 8 top_left
+command_display 198 64 bottom_right
+event_split 10 16 top_left
+level_splits 2 2 top
+fps 298 0 top_right
+minimap 264 8 top_right 48 48 1024
+message 0 1 top 1
+announce_message 0 18 none
+secret_message 0 66 none
+target_health 0 10 top 1
+artifact_desc 0 36 bottom 1
+add_offset 1 top_left
+
+heretic full 3 "modern - with stats"
 big_health 4 26 bottom_left 1
 big_armor 66 26 bottom_left 1
 big_ammo 280 26 bottom_right 1 2
@@ -315,7 +341,7 @@ target_health 0 10 top 1
 artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
-heretic full 3 "boom modern"
+heretic full 4 "boom modern"
 ready_ammo_text 2 24 bottom_left 1
 health_text 2 16 bottom_left 1
 armor_text 2 8 bottom_left 1
@@ -327,7 +353,7 @@ composite_time 2 48 bottom_left
 free_text 2 56 bottom_left
 tracker 2 64 bottom_left
 ammo_text 256 48 bottom_right
-keys 241 30 bottom_right
+keys 245 30 bottom_right
 big_artifact 206 32 bottom_right
 big_artifact_bar 160 32 bottom_center 1
 render_stats 2 8 top_left
@@ -345,7 +371,7 @@ target_health 0 10 top 1
 artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
-heretic full 4 "boom classic"
+heretic full 5 "boom classic"
 free_text 2 64 bottom_left
 speed_text 2 56 bottom_left
 stat_totals 2 48 bottom_left 1 1 1 0 1 1
@@ -374,7 +400,7 @@ target_health 0 10 top 1
 artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
-heretic full 5 "vanilla"
+heretic full 6 "vanilla"
 big_health_text 4 26 bottom_left 1
 status_timers 318 64 top_right 1
 status_widget 310 42 bottom_right 0 1
@@ -430,6 +456,31 @@ hexen full 2 "modern"
 big_health 4 26 bottom_left 1
 big_armor 50 26 bottom_left 1
 big_mana 236 32 bottom_right 1
+status_timers 318 64 top_right 1
+status_widget 310 42 bottom_right 0 1
+free_text 2 48 bottom_left
+tracker 2 56 bottom_left
+big_artifact 284 32 bottom_right 0 1
+big_artifact_bar 160 32 bottom_center 1
+render_stats 2 8 top_left
+coordinate_display 2 8 top_left
+line_display 98 8 top_left
+command_display 198 64 bottom_right
+event_split 10 16 top_left
+level_splits 2 2 top
+fps 298 0 top_right
+minimap 264 8 top_right 48 48 1024
+message 0 1 top 1
+announce_message 0 18 none
+secret_message 0 66 none
+target_health 0 10 top 1
+artifact_desc 0 36 bottom 1
+add_offset 1 top_left
+
+hexen full 3 "modern - with stats"
+big_health 4 26 bottom_left 1
+big_armor 50 26 bottom_left 1
+big_mana 236 32 bottom_right 1
 stat_totals 2 40 bottom_left 1 0 0
 status_timers 318 64 top_right 1
 status_widget 310 42 bottom_right 0 1
@@ -452,7 +503,7 @@ target_health 0 10 top 1
 artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
-hexen full 3 "boom modern"
+hexen full 4 "boom modern"
 ready_ammo_text 2 24 bottom_left 1
 health_text 2 16 bottom_left 1
 armor_text 2 8 bottom_left 1
@@ -481,7 +532,7 @@ target_health 0 10 top 1
 artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
-hexen full 4 "boom classic"
+hexen full 5 "boom classic"
 free_text 2 56 bottom_left
 speed_text 2 48 bottom_left
 stat_totals 2 40 bottom_left 1 0 0 0 1 1
@@ -509,7 +560,7 @@ target_health 0 10 top 1
 artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
-hexen full 5 "vanilla"
+hexen full 6 "vanilla"
 big_health_text 4 26 bottom_left 1
 status_timers 318 64 top_right 1
 status_widget 310 42 bottom_right 0 1
