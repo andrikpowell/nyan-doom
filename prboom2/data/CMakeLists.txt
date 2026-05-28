@@ -246,7 +246,7 @@ set(GRAPHICS
     graphics/cross5.ppm
     graphics/cross6.ppm
     graphics/cross7.ppm
-    graphics/stbr123.ppm
+    graphics/nyanstb1.ppm
 )
 
 set(RAVEN_LUMPS
@@ -256,8 +256,8 @@ set(RAVEN_LUMPS
     lumps/amkills3.lmp
     lumps/amitem3.lmp
     lumps/amsecr3.lmp
-    lumps/stbr124.lmp
-    lumps/stbr125.lmp
+    lumps/nyanstb2.lmp
+    lumps/nyanstb3.lmp
     lumps/h_palsel.lmp
     lumps/stfrkil2.lmp
     lumps/stfritm2.lmp

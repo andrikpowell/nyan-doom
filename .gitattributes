@@ -155,7 +155,7 @@ prboom2/data/graphics/stcfn096.ppm -text
 prboom2/data/graphics/stkeys6.ppm -text
 prboom2/data/graphics/stkeys7.ppm -text
 prboom2/data/graphics/stkeys8.ppm -text
-prboom2/data/graphics/stbr123.ppm -text
+prboom2/data/graphics/nyanstb1.ppm -text
 prboom2/data/graphics/sml_bln2.ppm -text
 prboom2/data/graphics/stfpkill.ppm -text
 prboom2/data/graphics/stfpitem.ppm -text
@@ -177,8 +177,8 @@ prboom2/data/lumps/amsecr2.lmp -text
 prboom2/data/lumps/amkills3.lmp -text
 prboom2/data/lumps/amitem3.lmp -text
 prboom2/data/lumps/amsecr3.lmp -text
-prboom2/data/lumps/stbr124.lmp -text
-prboom2/data/lumps/stbr125.lmp -text
+prboom2/data/lumps/nyanstb2.lmp -text
+prboom2/data/lumps/nyanstb3.lmp -text
 prboom2/data/lumps/stfrkil2.lmp -text
 prboom2/data/lumps/stfritm2.lmp -text
 prboom2/data/lumps/stfrscr2.lmp -text

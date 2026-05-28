@@ -40,7 +40,7 @@ static int dsda_FillSegments(int value, int max, int count)
 
 void dsda_SetBoomBarInfo(boom_bar_t* bar)
 {
-  const char* lump = hexen ? "STBR125" : heretic ? "STBR124" : "STBR123";
+  const char* lump = hexen ? "NYANSTB3" : heretic ? "NYANSTB2" : "NYANSTB1";
   bar->lump = W_GetNumForName(lump);
   bar->seg_w = R_NumPatchWidth(bar->lump);
   bar->spacing = HU_FontStringWidth(&exhud_font, " ");
