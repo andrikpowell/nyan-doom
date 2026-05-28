@@ -1209,6 +1209,8 @@ static void R_DrawPSprite (pspdef_t *psp)
     const dboolean y_offset       = (hexen ? psp->state->misc2 :
                                      x_offset && psp->state->misc2);
 
+    // The ready loop can include frames that do not have A_WeaponReady.
+    const dboolean weapon_ready_state  = P_PspriteInReadyState(viewplayer, psp);
 
     if (!dsda_WeaponBob() && !(swiping_weapon && viewplayer->attackdown))
     {
@@ -1244,12 +1246,13 @@ static void R_DrawPSprite (pspdef_t *psp)
           R_ApplyWeaponBob(NULL, false, &psp_sy, false);
       }
     }
-    else if (psp->state->action == A_WeaponReady && psp->state->tics > 1 && movement_smooth)
+    else if (weapon_ready_state && movement_smooth)
     {
       // Interpolate bobbing for animated weapons (Chainsaw)
+      // and for every frame in the ready-state loop
       R_ApplyWeaponBob(&psp_sx, true, &psp_sy, true);
     }
-    else if (psp->state->action == A_WeaponReady && dsda_WeaponBob() < 4)
+    else if (weapon_ready_state && dsda_WeaponBob() < 4)
     {
       // Always apply Weaponbob when using bobbing increments
       R_ApplyWeaponBob(&psp_sx, true, &psp_sy, true);

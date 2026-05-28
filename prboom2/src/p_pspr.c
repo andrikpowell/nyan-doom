@@ -389,6 +389,50 @@ int P_AmmoPercent(player_t *player, int weapon)
   return player->ammo[ammo_i] * 100 / player->maxammo[ammo_i];
 }
 
+static statenum_t P_GetReadyWeaponState(const player_t *player)
+{
+  if (player->powers[pw_weaponlevel2])
+    return wpnlev2info[player->readyweapon].readystate;
+  else if (player->pclass)
+  {
+    // Timon's Axe uses a separate glowing ready loop when powered
+    if (player->pclass == PCLASS_FIGHTER && player->readyweapon == wp_second
+        && player->ammo[MANA_1])
+    {
+      return HEXEN_S_FAXEREADY_G;
+    }
+    else
+    {
+      return hexen_weaponinfo[player->readyweapon][player->pclass].readystate;
+    }
+  }
+  else
+    return weaponinfo[player->readyweapon].readystate;
+}
+
+dboolean P_PspriteInReadyState(const player_t *player, const pspdef_t *psp)
+{
+  statenum_t ready_state;
+
+  if (psp != &player->psprites[ps_weapon] || !psp->state || player->morphTics)
+    return false;
+
+  ready_state = P_GetReadyWeaponState(player);
+
+  // Ready animations may have frames without "A_WeaponReady"
+  // Move through ready-state loop and stop when it repeats
+  for (statenum_t s = ready_state; s != S_NULL; s = states[s].nextstate)
+  {
+    if (psp->state == &states[s])
+      return true;
+
+    if (states[s].nextstate == ready_state)
+      break;
+  }
+
+  return false;
+}
+
 //
 // P_CheckAmmo
 // Returns true if there is enough ammo to shoot.
@@ -750,22 +794,7 @@ void A_Raise(player_t *player, pspdef_t *psp)
   // The weapon has been raised all the way,
   //  so change to the ready state.
 
-  if (player->powers[pw_weaponlevel2])
-    newstate = wpnlev2info[player->readyweapon].readystate;
-  else if (player->pclass)
-  {
-    if (player->pclass == PCLASS_FIGHTER && player->readyweapon == wp_second
-        && player->ammo[MANA_1])
-    {
-      newstate = HEXEN_S_FAXEREADY_G;
-    }
-    else
-    {
-      newstate = hexen_weaponinfo[player->readyweapon][player->pclass].readystate;
-    }
-  }
-  else
-    newstate = weaponinfo[player->readyweapon].readystate;
+  newstate = P_GetReadyWeaponState(player);
 
   P_SetPsprite(player, ps_weapon, newstate);
 }

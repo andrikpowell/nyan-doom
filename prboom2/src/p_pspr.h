@@ -99,6 +99,7 @@ void P_SetupPsprites(struct player_s *curplayer);
 void P_MovePsprites(struct player_s *curplayer);
 void P_DropWeapon(struct player_s *player);
 int P_AmmoPercent(struct player_s *player, int weapon);
+dboolean P_PspriteInReadyState(const struct player_s *player, const pspdef_t *psp);
 
 void A_Light0(struct player_s *player, pspdef_t *psp);
 void A_WeaponReady(struct player_s *player, pspdef_t *psp);
