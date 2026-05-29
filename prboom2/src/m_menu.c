@@ -8645,6 +8645,15 @@ void M_ShadedScreen(void)
   V_DrawShaded(0, 0, SCREENWIDTH, SCREENHEIGHT, screenshade);
 }
 
+static dboolean M_OptionalLumpMissing(const menuitem_t *item)
+{
+  // if not optional, return
+  if (!(item->flags & MENUF_OPTLUMP))
+    return false;
+
+  return item->name[0] && !W_LumpNameExists(item->name);
+}
+
 //
 // M_Drawer
 // Called after the view has been rendered,
@@ -8722,19 +8731,20 @@ void M_Drawer (void)
     lumps_missing = 0;
 
     for (i = 0; i < max; i++)
-      if (
-        currentMenu->menuitems[i].status != -1 && (
-          !currentMenu->menuitems[i].name[0] || !W_LumpNameExists(currentMenu->menuitems[i].name)
-        ) && !(currentMenu->menuitems[i].flags & MENUF_OPTLUMP)
-      )
+    {
+      dboolean optional_lump = currentMenu->menuitems[i].flags & MENUF_OPTLUMP;
+
+      if (currentMenu->menuitems[i].status != -1 && !optional_lump &&
+          (!currentMenu->menuitems[i].name[0] || !W_LumpNameExists(currentMenu->menuitems[i].name)))
         ++lumps_missing;
+    }
 
     for (i = 0; i < max; i++)
     {
+      dboolean optional_lump_missing = M_OptionalLumpMissing(&currentMenu->menuitems[i]);
       const char *alttext = currentMenu->menuitems[i].alttext;
 
-      if (!lumps_missing && currentMenu->menuitems[i].name[0] &&
-          !(currentMenu->menuitems[i].flags & MENUF_OPTLUMP))
+      if (!lumps_missing && currentMenu->menuitems[i].name[0] && !optional_lump_missing)
         V_DrawMenuNamePatch(x, y, currentMenu->menuitems[i].name,
                         currentMenu->menuitems[i].color, VPT_STRETCH);
 
