@@ -6549,9 +6549,10 @@ static int M_GetKeyString(int c,int offset)
     // cph - Keypad keys, general code reorganisation to
     //  make this smaller and neater.
     if ((0x100 <= c) && (c < 0x200)) {
-      if (c == KEYD_KEYPADENTER)
-  s = "PADE";
-      else {
+      if (c == KEYD_KEYPADENTER) {
+  strcpy(&menu_buffer[offset], "PADE");
+  offset+=4;
+      } else {
   strcpy(&menu_buffer[offset], "PAD");
   offset+=4;
   menu_buffer[offset-1] = c & 0xff;
