@@ -43,13 +43,7 @@
 #include "lprintf.h"
 
 #include "heretic/hhe/hhe.h"
-
 // Error block
-static void deh_procError(DEHFILE *fpin, char *line)
-{
-  deh_log("Unmatched Block: '%.*s'\n", DEH_BUFFERMAX - 1, line);
-}
-
 const deh_block deh_block_error = { "", deh_procError };
 
 // Grab info from all deh blocks

@@ -44,6 +44,12 @@ int deh_log(const char *s, ...)
   return r;
 }
 
+// Error block
+void deh_procError(DEHFILE *fpin, char *line)
+{
+  deh_log("Unmatched Block: '%.*s'\n", DEH_BUFFERMAX - 1, line);
+}
+
 // e6y: for compatibility with BOOM deh parser
 int deh_strcasecmp(const char *str1, const char *str2)
 {

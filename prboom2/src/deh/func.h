@@ -54,6 +54,8 @@ typedef struct
   void (*const fptr)(DEHFILE *, char *); // handler
 } deh_block;
 
+extern void deh_procError(DEHFILE *fpin, char *line);
+
 extern uint64_t deh_translate_bits(uint64_t value, const struct deh_flag_s *flags);
 
 extern char *dehfgets(char *buf, size_t n, DEHFILE *fp);
