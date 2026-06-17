@@ -47,10 +47,7 @@
 // Error block
 static void deh_procError(DEHFILE *fpin, char *line)
 {
-  char inbuffer[DEH_BUFFERMAX];
-
-  strncpy(inbuffer, line, DEH_BUFFERMAX - 1);
-  deh_log("Unmatched Block: '%s'\n", inbuffer);
+  deh_log("Unmatched Block: '%.*s'\n", DEH_BUFFERMAX - 1, line);
 }
 
 const deh_block deh_block_error = { "", deh_procError };
