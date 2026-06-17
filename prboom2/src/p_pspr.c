@@ -410,29 +410,6 @@ static statenum_t P_GetReadyWeaponState(const player_t *player)
     return weaponinfo[player->readyweapon].readystate;
 }
 
-dboolean P_PspriteInReadyState(const player_t *player, const pspdef_t *psp)
-{
-  statenum_t ready_state;
-
-  if (psp != &player->psprites[ps_weapon] || !psp->state || player->morphTics)
-    return false;
-
-  ready_state = P_GetReadyWeaponState(player);
-
-  // Ready animations may have frames without "A_WeaponReady"
-  // Move through ready-state loop and stop when it repeats
-  for (statenum_t s = ready_state; s != S_NULL; s = states[s].nextstate)
-  {
-    if (psp->state == &states[s])
-      return true;
-
-    if (states[s].nextstate == ready_state)
-      break;
-  }
-
-  return false;
-}
-
 //
 // P_CheckAmmo
 // Returns true if there is enough ammo to shoot.

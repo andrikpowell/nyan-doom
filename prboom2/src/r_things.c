@@ -1129,6 +1129,81 @@ static void R_ApplyWeaponBob (fixed_t *sx, dboolean bobx, fixed_t *sy, dboolean 
 	}
 }
 
+// [AR] Moved weapon bobbing logic out of main drawing function
+static void R_SetupWeaponBob(pspdef_t *psp, fixed_t *psp_sx, fixed_t *psp_sy)
+{
+    int weapon_attack_alignment = dsda_IntConfig(dsda_config_weapon_attack_alignment);
+
+    // [crispy] don't align swiping weapons
+    const dboolean swiping_weapon = hexen && (viewplayer->pclass == PCLASS_FIGHTER ||
+                                             (viewplayer->pclass == PCLASS_CLERIC &&
+                                             viewplayer->readyweapon == wp_first));
+
+    // [crispy] don't center vertically during lowering and raising states
+    const dboolean raise_or_lower = (psp->state->action == A_Lower || psp->state->action == A_Raise);
+
+    // [AR] Instead of checking weaponready directly, check if player is idle instead.
+    const dboolean weapon_ready_state = !raise_or_lower && !viewplayer->attackdown;
+
+    // Player must be alive - fixes lingering flash states
+    const dboolean is_alive       = (viewplayer->playerstate == PST_LIVE);
+
+    // Continuous bobbing
+    const dboolean forced_bobbing = (weapon_attack_alignment == CENTERWEAPON_BOB);
+
+    // Misc Offsets
+    const dboolean x_offset       = (psp->state->misc1);
+    const dboolean y_offset       = (hexen ? psp->state->misc2 :
+                                     x_offset && psp->state->misc2);
+
+    // If no weapon bobbing (and not hexen swiping weapon)
+    if (!dsda_WeaponBob() && !(swiping_weapon && viewplayer->attackdown))
+    {
+      static fixed_t last_sy = 32 * FRACUNIT;
+
+      *psp_sx = FRACUNIT;
+
+      if (!raise_or_lower)
+      {
+        last_sy = psp->sy;
+        *psp_sy = 32 * FRACUNIT;
+      }
+      else if (psp->state->action == A_Lower)
+      {
+        // We want to move smoothly from where we were
+        *psp_sy -= (last_sy - 32 * FRACUNIT);
+      }
+    }
+    else if (weapon_attack_alignment && viewplayer->attackdown)
+    {
+      // [crispy] center the weapon sprite horizontally and vertically
+      if (!x_offset)
+        R_ApplyWeaponBob(psp_sx, forced_bobbing, NULL, false);
+
+      // y_offset "centering" or "push up"
+      if (weapon_attack_alignment >= CENTERWEAPON_HORVER &&
+          !raise_or_lower && !swiping_weapon && is_alive)
+      {
+        if (forced_bobbing)
+          R_ApplyWeaponBob(NULL, false, psp_sy, true);
+
+        // bob for centered horiz/vertical, unless y-offset
+        else if (!y_offset)
+          R_ApplyWeaponBob(NULL, false, psp_sy, false);
+      }
+    }
+    else if (weapon_ready_state && movement_smooth)
+    {
+      // Interpolate bobbing for animated weapons (Chainsaw)
+      R_ApplyWeaponBob(psp_sx, true, psp_sy, true);
+    }
+    else if (weapon_ready_state && dsda_WeaponBob() < 4)
+    {
+      // Always apply Weaponbob when using bobbing increments
+      R_ApplyWeaponBob(psp_sx, true, psp_sy, true);
+    }
+}
+
 //
 // R_DrawPSprite
 //
@@ -1187,77 +1262,8 @@ static void R_DrawPSprite (pspdef_t *psp)
   lump = sprframe->lump[0];
   flip = (dboolean) sprframe->flip[0];
 
-  {
-    int weapon_attack_alignment = dsda_IntConfig(dsda_config_weapon_attack_alignment);
-
-    // [crispy] don't align swiping weapons
-    const dboolean swiping_weapon = hexen && (viewplayer->pclass == PCLASS_FIGHTER ||
-                                             (viewplayer->pclass == PCLASS_CLERIC &&
-                                             viewplayer->readyweapon == wp_first));
-
-    // [crispy] don't center vertically during lowering and raising states
-    const dboolean raise_or_lower = (psp->state->action == A_Lower || psp->state->action == A_Raise);
-
-    // Player must be alive - fixes lingering flash states
-    const dboolean is_alive       = (viewplayer->playerstate == PST_LIVE);
-
-    // Continuous bobbing
-    const dboolean forced_bobbing = (weapon_attack_alignment == CENTERWEAPON_BOB);
-
-    // Misc Offsets
-    const dboolean x_offset       = (psp->state->misc1);
-    const dboolean y_offset       = (hexen ? psp->state->misc2 :
-                                     x_offset && psp->state->misc2);
-
-    // The ready loop can include frames that do not have A_WeaponReady.
-    const dboolean weapon_ready_state  = P_PspriteInReadyState(viewplayer, psp);
-
-    if (!dsda_WeaponBob() && !(swiping_weapon && viewplayer->attackdown))
-    {
-      static fixed_t last_sy = 32 * FRACUNIT;
-
-      psp_sx = FRACUNIT;
-
-      if (!raise_or_lower)
-      {
-        last_sy = psp->sy;
-        psp_sy = 32 * FRACUNIT;
-      }
-      else if (psp->state->action == A_Lower)
-      {
-        // We want to move smoothly from where we were
-        psp_sy -= (last_sy - 32 * FRACUNIT);
-      }
-    }
-    else if (weapon_attack_alignment && viewplayer->attackdown)
-    { // [crispy] center the weapon sprite horizontally and vertically
-      if (!x_offset)
-        R_ApplyWeaponBob(&psp_sx, forced_bobbing, NULL, false);
-
-      // y_offset "centering" or "push up"
-      if (weapon_attack_alignment >= CENTERWEAPON_HORVER &&
-          !raise_or_lower && !swiping_weapon && is_alive)
-      {
-        if (forced_bobbing)
-          R_ApplyWeaponBob(NULL, false, &psp_sy, true);
-
-        // bob for centered horiz/vertical, unless y-offset
-        else if (!y_offset)
-          R_ApplyWeaponBob(NULL, false, &psp_sy, false);
-      }
-    }
-    else if (weapon_ready_state && movement_smooth)
-    {
-      // Interpolate bobbing for animated weapons (Chainsaw)
-      // and for every frame in the ready-state loop
-      R_ApplyWeaponBob(&psp_sx, true, &psp_sy, true);
-    }
-    else if (weapon_ready_state && dsda_WeaponBob() < 4)
-    {
-      // Always apply Weaponbob when using bobbing increments
-      R_ApplyWeaponBob(&psp_sx, true, &psp_sy, true);
-    }
-  }
+  // [AR] Set up weapon bobbing
+  R_SetupWeaponBob(psp, &psp_sx, &psp_sy);
 
   {
     const rpatch_t* patch = R_PatchByNum(lump+firstspritelump);
