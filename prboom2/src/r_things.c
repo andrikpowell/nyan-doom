@@ -1208,8 +1208,8 @@ static void R_SetupWeaponBob(pspdef_t *psp, fixed_t *psp_sx, fixed_t *psp_sy)
 // R_DrawPSprite
 //
 
-// heretic
-static int PSpriteSY[NUMCLASSES][NUMWEAPONS] = {
+// heretic + hexen
+static int Full_Raven_PSpriteSY[NUMCLASSES][NUMWEAPONS] = {
   {
     0,                          // staff
     5 * FRACUNIT,               // goldwand
@@ -1301,7 +1301,7 @@ static void R_DrawPSprite (pspdef_t *psp)
 
   if (R_FullView() && raven)
   {
-    vis->texturemid -= PSpriteSY[viewplayer->pclass][players[consoleplayer].readyweapon];
+    vis->texturemid -= Full_Raven_PSpriteSY[viewplayer->pclass][players[consoleplayer].readyweapon];
   }
 
   // Move the weapon down for 1280x1024.
