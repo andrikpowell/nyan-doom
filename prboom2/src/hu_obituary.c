@@ -45,7 +45,7 @@ enum
 	GENDER_MAX
 };
 
-static const char *pronoun_list[GENDER_MAX][5] =
+static const char* pronoun_list[GENDER_MAX][5] =
 {
     { "he",   "him",  "his",   "his",    "he's"    },
     { "she",  "her",  "her",   "hers",   "she's"   },
@@ -53,14 +53,14 @@ static const char *pronoun_list[GENDER_MAX][5] =
     { "it",   "it",   "its",   "its'",   "it's"    }
 };
 
-static const char *playerstr[] = {
+static const char* playerstr[] = {
     "Player 1",
     "Player 2",
     "Player 3",
     "Player 4",
 };
 
-static const char *dsda_GetPronoun(int pronoun, char code)
+static const char* dsda_GetPronoun(int pronoun, char code)
 {
   switch (code)
   {
@@ -75,7 +75,7 @@ static const char *dsda_GetPronoun(int pronoun, char code)
 
 // Obituaries
 
-static void dsda_AssignObituary(const int type, const char *ob, const char *ob_m)
+static void dsda_AssignObituary(const int type, const char* ob, const char* ob_m)
 {
   if (ob && !mobjinfo[type].obituary)
   {
@@ -161,7 +161,7 @@ void dsda_InitObituaries(void)
   playerstr[consoleplayer] = dsda_StringConfig(dsda_config_player_name);
 }
 
-static const char *dsda_GetWeaponObituary(const char *ob, mobj_t *source, method_t mod)
+static const char* dsda_GetWeaponObituary(const char* ob, mobj_t* source, method_t mod)
 {
   if (heretic)
   {
@@ -305,9 +305,9 @@ static const char *dsda_GetWeaponObituary(const char *ob, mobj_t *source, method
   return ob;
 }
 
-static const char *dsda_GetObituary(mobj_t *target, mobj_t *inflictor, mobj_t *source, method_t mod)
+static const char* dsda_GetObituary(mobj_t* target, mobj_t* inflictor, mobj_t* source, method_t mod)
 {
-  const char *ob = s_OB_DEFAULT;
+  const char* ob = s_OB_DEFAULT;
 
   if (target->player->mo != target)
   {
@@ -372,17 +372,17 @@ static const char *dsda_GetObituary(mobj_t *target, mobj_t *inflictor, mobj_t *s
   return ob;
 }
 
-static void dsda_ExpandObituary(dsda_string_t *out, const char *tmp, mobj_t *target, mobj_t *source)
+static void dsda_ExpandObituary(dsda_string_t* out, const char* tmp, mobj_t* target, mobj_t* source)
 {
-  const char *from = (source && source->player) ? playerstr[source->player - players] : NULL;
-  const char *to = playerstr[target->player - players];
+  const char* from = (source && source->player) ? playerstr[source->player - players] : NULL;
+  const char* to = playerstr[target->player - players];
 
   // NULL or ""
   if (!to || !*to) to = "Player";
 
   dsda_InitString(out, NULL);
 
-  for (const char *p = tmp; *p; )
+  for (const char* p = tmp; *p; )
   {
     if (*p == '%' && p[1])
     {
@@ -405,7 +405,7 @@ static void dsda_ExpandObituary(dsda_string_t *out, const char *tmp, mobj_t *tar
 
       // pronoun lookup (%g %h %p %s %r)
       {
-        const char *key;
+        const char* key;
 
         // Default gender
         int pronoun = GENDER_NEUTER;
@@ -432,11 +432,11 @@ static void dsda_ExpandObituary(dsda_string_t *out, const char *tmp, mobj_t *tar
   }
 }
 
-void dsda_Obituary(mobj_t *target, struct mobj_s *inflictor, struct mobj_s *source, method_t mod)
+void dsda_Obituary(mobj_t* target, struct mobj_s* inflictor, struct mobj_s* source, method_t mod)
 {
   int i;
 
-  const char *ob = dsda_GetObituary(target, inflictor, source, mod);
+  const char* ob = dsda_GetObituary(target, inflictor, source, mod);
 
   for (i = 0; i < g_maxplayers; i++)
   {

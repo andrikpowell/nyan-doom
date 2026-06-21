@@ -255,8 +255,8 @@ int dsda_PlayerMessageIsYellow(void) {
 
 typedef struct
 {
-  const char * const *deh_string;
-  const char *word;
+  const char* const *deh_string;
+  const char* word;
   int cm;
 } dsda_msg_color_rule_t;
 
@@ -417,13 +417,13 @@ static const dsda_msg_color_rule_t *dsda_GetColoredMessage(const char* str, int 
   return &msg_color_rules[i];
 }
 
-static const dsda_msg_color_rule_t *dsda_GetColorRuleForMessage(const char *str)
+static const dsda_msg_color_rule_t *dsda_GetColorRuleForMessage(const char* str)
 {
   int i;
 
   for (i = 0; i < arrlen(msg_color_rules); ++i)
   {
-    const char *rule_str = *msg_color_rules[i].deh_string;
+    const char* rule_str = *msg_color_rules[i].deh_string;
 
     if (!rule_str || !str)
         continue;
@@ -440,7 +440,7 @@ static const dsda_msg_color_rule_t *dsda_GetColorRuleForMessage(const char *str)
   return NULL;
 }
 
-const char *dsda_ColorizeMessage(const char *str)
+const char* dsda_ColorizeMessage(const char* str)
 {
   static char buf[1024];
 
