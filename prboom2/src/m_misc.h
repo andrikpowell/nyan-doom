@@ -62,6 +62,7 @@ char *M_StringReplace(const char *haystack, const char *needle,
                       const char *replacement);
 char *M_StringReplaceWord(const char *haystack, const char *needle,
                           const char *replacement);
+dboolean M_StringContainsWord(const char *haystack, const char *needle);
 
 typedef struct array_s
 {

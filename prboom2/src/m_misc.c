@@ -1177,6 +1177,30 @@ static inline int is_boundary(char c)
     return c == '\0' || isspace((unsigned char)c) || ispunct((unsigned char)c);
 }
 
+dboolean M_StringContainsWord(const char *haystack, const char *needle)
+{
+    const char *p = haystack;
+    const size_t needle_len = strlen(needle);
+
+    if (!needle_len)
+    {
+        return false;
+    }
+
+    while ((p = M_strcasestr(p, needle)))
+    {
+        if ((p == haystack || is_boundary(p[-1])) &&
+            is_boundary(p[needle_len]))
+        {
+            return true;
+        }
+
+        p += needle_len;
+    }
+
+    return false;
+}
+
 static char *M_StringReplaceEx(const char *haystack, const char *needle,
                                const char *replacement, const dboolean whole_word)
 {
