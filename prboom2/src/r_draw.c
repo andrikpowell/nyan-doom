@@ -509,6 +509,7 @@ void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars) {
   dcvars->crop = (patch_crop_t){0};
   dcvars->flags = 0;
   dcvars->isplayersprite = false;
+  dcvars->pspritepostheight = 0;
 
   // heretic
   dcvars->baseclip = -1;

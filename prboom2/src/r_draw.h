@@ -87,6 +87,7 @@ typedef struct draw_column_vars_s
 
   // [AR] mark weapon sprite
   dboolean            isplayersprite;
+  int                 pspritepostheight;
 
   // heretic
   int baseclip;
