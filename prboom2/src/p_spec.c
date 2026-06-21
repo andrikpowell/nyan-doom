@@ -76,6 +76,7 @@
 #include "dsda/messenger.h"
 #include "dsda/scroll.h"
 #include "dsda/skill_info.h"
+#include "dsda/text_color.h"
 #include "dsda/thing_id.h"
 #include "dsda/utility.h"
 
@@ -1725,8 +1726,11 @@ void P_PlayerAnnounceSecret(player_t *player, const char* message)
 
     if(dsda_IntConfig(dsda_config_hudadd_secretarea)==2)
     {
-      dsda_AddAlert(message);
+      dsda_string_t secret_message;
+      dsda_StringPrintF(&secret_message, "%s%s", dsda_TextColor(dsda_tc_hud_secret_message), message);
+      dsda_AddAlert(secret_message.string);
       S_StartVoidSound(sfx_id);
+      dsda_FreeString(&secret_message);
     }
     else
     {
