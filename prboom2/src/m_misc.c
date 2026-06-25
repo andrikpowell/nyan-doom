@@ -1078,10 +1078,10 @@ const char* M_CheckWritableDir(const char *dir)
     return NULL;
   }
 
-  if (len + 1 > base_len)
+  if (len + 2 > base_len)
   {
-    base_len = len + 1;
-    base = Z_Malloc(len + 1);
+    base_len = len + 2;
+    base = Z_Realloc(base, base_len);
   }
 
   if (base)
