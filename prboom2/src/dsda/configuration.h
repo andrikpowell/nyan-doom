@@ -398,6 +398,7 @@ enum {
   dsda_config_switch_weapon_on_pickup,
   dsda_config_switch_berserk_preferred,
   dsda_config_ssg_on_arms,
+  dsda_config_switch_speed,
   dsda_config_viewbob,
   dsda_config_weaponbob,
   dsda_config_quake_intensity,

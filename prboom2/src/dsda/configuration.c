@@ -1700,6 +1700,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_ssg_on_arms", dsda_config_ssg_on_arms,
     CONF_BOOL(1)
   },
+  [dsda_config_switch_speed] = {
+    "dsda_config_switch_speed", dsda_config_switch_speed,
+    CONF_BOOL(0), NULL, STRICT_INT(0)
+  },
   [dsda_config_viewbob] = {
     "dsda_viewbob_pct", dsda_config_viewbob,
     dsda_config_int, 0, 4, { 4 }

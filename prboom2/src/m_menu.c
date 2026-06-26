@@ -3910,6 +3910,8 @@ setup_menu_t* weap_settings[] =
   NULL
 };
 
+static const char *weap_switch_speed_list[] = { "Slow", "Normal", "Fast", "Instant", NULL };
+
 setup_menu_t weap_pref_settings[] =  // Weapons Settings screen
 {
   TITLE("Gameplay", WP_X),
@@ -3917,6 +3919,7 @@ setup_menu_t weap_pref_settings[] =  // Weapons Settings screen
   { "Auto Switch on Pickup", S_YESNO, m_conf, g_all, WP_X, dsda_config_switch_weapon_on_pickup },
   { "Berserk Fist Over Chainsaw", S_YESNO | S_NYAN, m_conf, g_doom, WP_X, dsda_config_switch_berserk_preferred },
   { "Direct Vertical Aiming", S_YESNO | S_NYAN, m_conf, g_all, WP_X, dsda_config_disable_horiz_autoaim },
+  { "Switch Speed", S_CHOICE, m_conf, g_doom, WP_X, dsda_config_switch_speed, 0, weap_switch_speed_list },
   EMPTY_LINE,
   TITLE("Cosmetic", WP_X),
   { "View Bob", S_THERMO | S_PERC, m_conf, g_all, WP1_X, dsda_config_viewbob },
