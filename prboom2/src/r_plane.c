@@ -229,6 +229,11 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
     if (index >= MAXLIGHTZ )
       index = MAXLIGHTZ-1;
     dsvars->colormap = dsvars->planezlight[index];
+
+    // do not allow dithered lighting to go darker than 64
+    if (dsvars->minzlight)
+      if (dsvars->colormap > dsvars->minzlight)
+        dsvars->colormap = dsvars->minzlight;
   }
 
   // fullbright
@@ -763,6 +768,22 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       stop = pl->maxx + 1;
       dsvars.planezlight = zlight[light];
+      dsvars.minzlight = NULL;
+
+      // Set darkest allowed colormap value (64)
+      if (NYAN_LITEAMP)
+      {
+        int minlight = (64 >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT) + NYAN_LITESCALE;
+
+        if (minlight >= LIGHTLEVELS)
+          minlight = LIGHTLEVELS - 1;
+
+        if (minlight < 0)
+          minlight = 0;
+
+        dsvars.minzlight = zlight[minlight][MAXLIGHTZ - 1];
+      }
+
       pl->top[pl->minx-1] = pl->top[stop] = SHRT_MAX; // dropoff overflow
 
       for (x = pl->minx ; x <= stop ; x++)
