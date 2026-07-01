@@ -37,6 +37,7 @@ function(nyan_internal_check_variables)
     PROJECT_STRING
     DOOMWADDIR
     NYAN_ABSOLUTE_PWAD_PATH
+    NYAN_NIGHTLY
     WORDS_BIGENDIAN
     SIMPLECHECKS
     RANGECHECK

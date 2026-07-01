@@ -438,7 +438,7 @@ int I_MessageBox(const char* text, unsigned int type)
   {
     HWND current_hwnd = GetForegroundWindow();
     wchar_t *wtext = ConvertUtf8ToWide(text);
-    wchar_t *wpackage = ConvertUtf8ToWide(PROJECT_NAME);
+    wchar_t *wpackage = ConvertUtf8ToWide(PROJECT_STRING);
     result = MessageBoxW(GetDesktopWindow(), wtext, wpackage, type|MB_TASKMODAL|MB_TOPMOST);
     Z_Free(wtext);
     Z_Free(wpackage);

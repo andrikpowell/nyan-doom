@@ -29,6 +29,10 @@ set(PROJECT_TARNAME "nyan-doom")
 set(WAD_DATA "nyan-doom.wad")
 set(PROJECT_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
 
+if(NYAN_NIGHTLY)
+  string(APPEND PROJECT_STRING " (nightly)")
+endif()
+
 include(NyanOptions)
 include(NyanTargetFeatures)
 include(NyanDependencies)

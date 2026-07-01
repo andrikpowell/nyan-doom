@@ -6,6 +6,7 @@
 
 #cmakedefine DOOMWADDIR "@DOOMWADDIR@"
 #cmakedefine NYAN_ABSOLUTE_PWAD_PATH "@NYAN_ABSOLUTE_PWAD_PATH@"
+#cmakedefine NYAN_NIGHTLY
 
 #cmakedefine WORDS_BIGENDIAN
 
