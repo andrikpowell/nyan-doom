@@ -207,6 +207,7 @@ void M_LeaveSetupMenu(void);
 void M_ClearMenus(void);
 
 void M_RefreshGameSpecificMenuOptions();
+void M_LoadTextColors(void);
 
 extern setup_menu_t auto_colors_settings[];
 extern setup_menu_t auto_heretic_colors_settings[];

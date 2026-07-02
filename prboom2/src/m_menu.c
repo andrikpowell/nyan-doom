@@ -486,7 +486,7 @@ static int cr_warning;
 static int cr_scrollbar;
 static int cr_nyan_feature;
 
-static void M_LoadTextColors(void)
+void M_LoadTextColors(void)
 {
   cr_logo = dsda_TextCR(dsda_tc_menu_logo);
   cr_title = dsda_TextCR(dsda_tc_menu_title);
@@ -7438,8 +7438,6 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
         else if (ptr1->m_flags & S_CRCHOICE)
         {
           dsda_UpdateTextColorConfig(ptr1->config_id, choice_value);
-          M_LoadTextColors();
-          ST_LoadTextColors();
         }
         else
         {

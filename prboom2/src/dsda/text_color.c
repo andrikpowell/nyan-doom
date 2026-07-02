@@ -18,6 +18,8 @@
 #include "doomdef.h"
 #include "hu_lib.h"
 #include "lprintf.h"
+#include "m_menu.h"
+#include "st_stuff.h"
 #include "w_wad.h"
 #include "v_video.h"
 
@@ -228,6 +230,8 @@ void dsda_UpdateTextColorCR(dsda_text_color_index_t i, int cr)
 void dsda_UpdateTextColorConfig(int config_id, int cr)
 {
   dsda_UpdateTextColorCR(config_id, cr);
+  M_LoadTextColors();
+  ST_LoadTextColors();
 }
 
 void dsda_LoadTextColorEntries(const char* def, int parm) {
