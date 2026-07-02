@@ -673,6 +673,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_menu_enter", dsda_input_menu_enter, KEYD_ENTER, -1, DSDA_CONTROLLER_BUTTON_A),
   INPUT_SETTING("input_menu_escape", dsda_input_menu_escape, KEYD_ESCAPE, -1, DSDA_CONTROLLER_BUTTON_START),
   INPUT_SETTING("input_menu_clear", dsda_input_menu_clear, KEYD_DEL, -1, DSDA_CONTROLLER_BUTTON_BACK),
+  INPUT_SETTING("input_menu_reset", dsda_input_menu_reset, 'r', -1, DSDA_CONTROLLER_BUTTON_Y),
 
   INPUT_SETTING("input_iddqd", dsda_input_iddqd, 0, -1, -1),
   INPUT_SETTING("input_buddha", dsda_input_buddha, 0, -1, -1),

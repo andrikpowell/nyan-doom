@@ -154,7 +154,7 @@
 #define S_NYAN_HILITE   0x000000200000000ULL // highlight nyan options
 #define S_DISABLED      0x000000400000000ULL // disabled / darken options
 #define S_HIDDEN        0x000000800000000ULL // hide game-specific options
-//#define S_            0x000001000000000ULL
+#define S_NORESET       0x000001000000000ULL // exclude from reset
 //#define S_            0x000002000000000ULL
 
 /* S_SHOWDESC  = the set of items whose description should be displayed
@@ -192,6 +192,8 @@ static dboolean level_table_active = false;
 static dboolean setup_select      = false; // changing an item
 static dboolean setup_gather      = false; // gathering keys for value
 static dboolean colorbox_active   = false; // color palette being shown
+static dboolean setup_reset_verify = false;
+static setup_menu_t *setup_reset_item = NULL;
 
 // submenus
 static dboolean sub_advanced_audio_active = false;
@@ -346,6 +348,7 @@ static int  M_StringWidth(const char *string);
 static int  M_StringHeight(const char *string);
 static void M_DrawTitle(int y, const char *text, int cm);
 static void M_DrawTitleImage(int x, int y, const char *patch, const char *text, int cm);
+static void M_DrawSetupResetVerify(void);
 static void M_StartMessage(const char *string,void *routine,dboolean input);
 static void M_StopMessage(void);
 
@@ -3145,6 +3148,9 @@ static void M_DrawScreenItems(const setup_menu_t* base_src, int base_y)
     if (src->m_flags & S_SHOWSET)
       M_DrawSetting(src, set_y);
   }
+
+  if (setup_reset_verify)
+    M_DrawSetupResetVerify();
 }
 
 // Draws the name of each page. If there are more than m, uses a carousel
@@ -3211,14 +3217,115 @@ void M_DrawTabs(const char **pages, int m, int y)
 
 // [FG] delete a savegame
 
-void M_DrawDelVerify(void)
+static void M_DrawVerify(const char* message, dboolean blinking)
 {
   V_DrawMenuNamePatch(VERIFYBOXXORG,VERIFYBOXYORG,"M_VBOX",CR_DEFAULT,VPT_STRETCH);
 
-  if (whichSkull) {
-    strcpy(menu_buffer,"Delete savegame? (Y or N)");
+  if (whichSkull || !blinking) {
+    strcpy(menu_buffer, message);
     M_DrawMenuString(VERIFYBOXXORG + 8, VERIFYBOXYORG + 8, cr_warning);
   }
+}
+
+void M_DrawDelVerify(void)
+{
+  M_DrawVerify("Delete savegame? (Y or N)", true);
+}
+
+static void M_DrawSetupResetVerify(void)
+{
+  M_DrawVerify("Reset to default? (Y or N)", false);
+}
+
+//
+// Reset logic / defaults
+//
+
+static dboolean M_SetupItemCanReset(const setup_menu_t *s)
+{
+  return s->config_id && !(s->m_flags & (S_INPUT | S_FUNC | S_WEAP | S_STRING | S_NORESET));
+}
+
+static dboolean M_ResetSetupItemDefault(setup_menu_t *ptr)
+{
+  menu_flags_t flags = ptr->m_flags;
+
+  if (!M_SetupItemCanReset(ptr))
+    return false;
+
+  switch (flags & (S_STR | S_YESNO | S_NUM | S_PERC | S_COLOR | S_CRCHOICE | S_CHOICE | S_THERMO))
+  {
+    case S_CHOICE | S_STR:
+      dsda_UpdateStringConfig(ptr->config_id, dsda_DefaultStringConfig(ptr->config_id), true);
+      return true;
+
+    case S_CRCHOICE:
+      dsda_UpdateTextColorConfig(ptr->config_id, dsda_DefaultTextColorConfig(ptr->config_id));
+      return true;
+
+    case S_YESNO:
+    case S_NUM:
+    case S_PERC:
+    case S_COLOR:
+    case S_CHOICE:
+    case S_THERMO:
+    case S_THERMO | S_PERC:
+      dsda_UpdateIntConfig(ptr->config_id, dsda_DefaultIntConfig(ptr->config_id), true);
+      return true;
+
+    default:
+      return false;
+  }
+
+  return false;
+}
+
+static void M_StartSetupResetVerify(setup_menu_t *ptr)
+{
+  setup_reset_item = ptr;
+  setup_reset_verify = true;
+  S_StartVoidSound(g_sfx_menu);
+}
+
+typedef enum {
+  confirmation_null = -1,
+  confirmation_no = 0,
+  confirmation_yes = 1,
+} confirmation_t;
+
+static confirmation_t M_EventToConfirmation(int ch, int action, event_t* ev)
+{
+  if (ch == 'y' || action == MENU_ENTER)
+    return confirmation_yes;
+  else if (ch == ' ' || ch == KEYD_ESCAPE || ch == 'n' || action == MENU_BACKSPACE)
+    return confirmation_no;
+  else
+    return confirmation_null;
+}
+
+static dboolean M_SetupResetVerifyResponder(int ch, int action, event_t *ev)
+{
+  switch (M_EventToConfirmation(ch, action, ev))
+  {
+    case confirmation_yes:
+      if (setup_reset_item && M_ResetSetupItemDefault(setup_reset_item))
+        S_StartVoidSound(g_sfx_menu);
+      else
+        S_StartVoidSound(g_sfx_oof);
+
+      setup_reset_item = NULL;
+      setup_reset_verify = false;
+      break;
+    case confirmation_no:
+      S_StartVoidSound(g_sfx_oof);
+      setup_reset_item = NULL;
+      setup_reset_verify = false;
+      break;
+    case confirmation_null:
+      break;
+  }
+
+  return true;
 }
 
 /////////////////////////////
@@ -3238,7 +3345,8 @@ static void M_DrawInstructionString(int cr, const char *str)
 
 static void M_DrawInstructions(void)
 {
-  menu_flags_t flags = current_setup_menu[set_menu_itemon].m_flags;
+  const setup_menu_t *s = current_setup_menu + set_menu_itemon;
+  menu_flags_t flags = s->m_flags;
 
   // There are different instruction messages depending on whether you
   // are changing an item or just sitting on it.
@@ -3285,6 +3393,8 @@ static void M_DrawInstructions(void)
       M_DrawInstructionString(cr_info_highlight, "Press Enter to Change, Del to Clear");
     else if (flags & S_FUNC)
       M_DrawInstructionString(cr_info_highlight, "Press Enter to Select");
+    else if (M_SetupItemCanReset(s))
+      M_DrawInstructionString(cr_info_highlight, "Press Enter to Change, Reset for default");
     else
       M_DrawInstructionString(cr_info_highlight, "Press Enter to Change");
   }
@@ -3542,7 +3652,7 @@ setup_menu_t* keys_settings[] =
 
 setup_menu_t keys_movement_settings[] =  // Key Binding screen strings
 {
-  { "Input Profile", S_NUM, m_conf, g_all, KB_X, dsda_config_input_profile },
+  { "Input Profile", S_NUM | S_NORESET, m_conf, g_all, KB_X, dsda_config_input_profile },
   EMPTY_LINE,
   { "Forward",       S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_forward },
   { "Backward",      S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_backward },
@@ -3722,6 +3832,7 @@ setup_menu_t keys_menus_settings[] =
   { "Select Item",  S_INPUT | S_NOCLEAR,  m_menu, g_all, KB_X, 0,  dsda_input_menu_enter },
   { "Exit",         S_INPUT,              m_menu, g_all, KB_X, 0,  dsda_input_menu_escape},
   { "Clear",        S_INPUT,              m_menu, g_all, KB_X, 0,  dsda_input_menu_clear},
+  { "Reset to Default", S_INPUT | S_NYAN, m_menu, g_all, KB_X, 0,  dsda_input_menu_reset},
 
   PREV_PAGE(keys_toggles_settings),
   NEXT_PAGE(keys_inventory_settings),
@@ -5515,13 +5626,13 @@ setup_menu_t comp_options_settings[] = {
   { "Default compatibility level", S_CHOICE, m_conf, g_all, G2_X, dsda_config_default_complevel, 0, &gen_compstrings[1] },
   EMPTY_LINE,
   TITLE("Game Modifiers", G2_X),
-  { "Pistol Start", S_YESNO, m_conf, g_all, G2_X, dsda_config_pistol_start },
-  { "Respawn Monsters", S_YESNO, m_conf, g_all, G2_X, dsda_config_respawn_monsters },
-  { "Fast Monsters", S_YESNO, m_conf, g_all, G2_X, dsda_config_fast_monsters },
-  { "No Monsters", S_YESNO, m_conf, g_all, G2_X, dsda_config_no_monsters },
-  { "Coop Spawns", S_YESNO, m_conf, g_all, G2_X, dsda_config_coop_spawns },
+  { "Pistol Start", S_YESNO | S_NORESET, m_conf, g_all, G2_X, dsda_config_pistol_start },
+  { "Respawn Monsters", S_YESNO | S_NORESET, m_conf, g_all, G2_X, dsda_config_respawn_monsters },
+  { "Fast Monsters", S_YESNO | S_NORESET, m_conf, g_all, G2_X, dsda_config_fast_monsters },
+  { "No Monsters", S_YESNO | S_NORESET, m_conf, g_all, G2_X, dsda_config_no_monsters },
+  { "Coop Spawns", S_YESNO | S_NORESET, m_conf, g_all, G2_X, dsda_config_coop_spawns },
   EMPTY_LINE,
-  { "Always Pistol Start", S_YESNO, m_conf, g_all, G2_X, dsda_config_always_pistol_start },
+  { "Always Pistol Start", S_YESNO | S_NORESET, m_conf, g_all, G2_X, dsda_config_always_pistol_start },
 
   NEXT_PAGE(comp_emulation_settings),
   FINAL_ENTRY
@@ -5532,7 +5643,7 @@ static const char *over_under_list[] =
   { "Off", "Player", "All things", NULL };
 
 setup_menu_t comp_emulation_settings[] = {
-  { "Limit-Removing", S_YESNO | S_NYAN, m_conf, g_all, CP_X, dsda_config_limit_removing },
+  { "Limit-Removing", S_YESNO | S_NORESET | S_NYAN, m_conf, g_all, CP_X, dsda_config_limit_removing },
   FUNC_DEPEND("Overflows", S_CENTER, g_all, CP_X, M_Sub_Overflows, dsda_config_limit_removing, false),
   EMPTY_LINE,
   TITLE("Mapping Error Fixes", CP_X),
@@ -5702,19 +5813,19 @@ static const char *skill_multiplier[]         = { "Half", "Default", "1.5x", "Do
 #define SK_X2 50
 
 setup_menu_t skill_options_builder[] = {
-  { "Thing Spawns", S_CHOICE, m_conf, g_all, SK_X, dsda_config_skill_spawn_filter, 0, skill_spawn_filter },
-  { "Multiplayer Spawns", S_YESNO, m_conf, g_all, SK_X, dsda_config_skill_coop_spawns },
+  { "Thing Spawns", S_CHOICE | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_spawn_filter, 0, skill_spawn_filter },
+  { "Multiplayer Spawns", S_YESNO | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_coop_spawns },
   EMPTY_LINE,
-  { "Damage to Player", S_CHOICE, m_conf, g_all, SK_X, dsda_config_skill_damage_factor, 0, skill_damage_multiplier },
-  { "Ammo Pickups %", S_CHOICE, m_conf, g_all, SK_X, dsda_config_skill_ammo_factor, 0, skill_ammo_multiplier },
-  { "Auto Use Health", S_YESNO, m_conf, g_all, SK_X, dsda_config_skill_auto_use_health },
+  { "Damage to Player", S_CHOICE | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_damage_factor, 0, skill_damage_multiplier },
+  { "Ammo Pickups %", S_CHOICE | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_ammo_factor, 0, skill_ammo_multiplier },
+  { "Auto Use Health", S_YESNO | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_auto_use_health },
   EMPTY_LINE,
-  { "Respawn Monsters", S_YESNO, m_conf, g_all, SK_X, dsda_config_skill_respawn_monsters },
-  { "Fast Monsters", S_YESNO, m_conf, g_all, SK_X, dsda_config_skill_fast_monsters },
-  { "Aggressive Monsters", S_YESNO, m_conf, g_all, SK_X, dsda_config_skill_aggressive_monsters},
-  { "No Monsters", S_YESNO, m_conf, g_all, SK_X, dsda_config_skill_no_monsters },
+  { "Respawn Monsters", S_YESNO | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_respawn_monsters },
+  { "Fast Monsters", S_YESNO | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_fast_monsters },
+  { "Aggressive Monsters", S_YESNO | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_aggressive_monsters},
+  { "No Monsters", S_YESNO | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_no_monsters },
   EMPTY_LINE,
-  { "Pistol Start", S_YESNO, m_conf, g_all, SK_X, dsda_config_pistol_start },
+  { "Pistol Start", S_YESNO | S_NORESET, m_conf, g_all, SK_X, dsda_config_pistol_start },
   EMPTY_LINE,
   FUNC("Start New Game", S_LEFTJUST, SK_X2, CSNewGame),
   FUNC("Restart Map -- Pistol Start", S_LEFTJUST, SK_X2, CSPistolStart),
@@ -5725,15 +5836,15 @@ setup_menu_t skill_options_builder[] = {
 };
 
 setup_menu_t skill_options_start[] = {
-  { "Respawn Time", S_NUM, m_conf, g_all, SK_X, dsda_config_skill_respawn_time, 0, empty_list, DEPEND(dsda_config_skill_respawn_monsters, true) },
-  { "Slow Spawn-Cube Spitter", S_YESNO, m_conf, g_doom, SK_X, dsda_config_skill_easy_brain },
-  { "Disable Pain States", S_YESNO, m_conf, g_all, SK_X, dsda_config_skill_no_pain },
-  { "Show Automap Keys", S_YESNO, m_conf, g_all, SK_X, dsda_config_skill_easy_key },
+  { "Respawn Time", S_NUM | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_respawn_time, 0, empty_list, DEPEND(dsda_config_skill_respawn_monsters, true) },
+  { "Slow Spawn-Cube Spitter", S_YESNO | S_NORESET, m_conf, g_doom, SK_X, dsda_config_skill_easy_brain },
+  { "Disable Pain States", S_YESNO | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_no_pain },
+  { "Show Automap Keys", S_YESNO | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_easy_key },
   EMPTY_LINE,
-  { "Armor Pickups %", S_CHOICE, m_conf, g_all, SK_X, dsda_config_skill_armor_factor, 0, skill_multiplier },
-  { "Health Pickups %", S_CHOICE, m_conf, g_all, SK_X, dsda_config_skill_health_factor, 0, skill_multiplier },
-  { "Monster Health", S_CHOICE, m_conf, g_all, SK_X, dsda_config_skill_monster_health_factor, 0, skill_multiplier },
-  { "Friend Health", S_CHOICE, m_conf, g_all, SK_X, dsda_config_skill_friend_health_factor, 0, skill_multiplier },
+  { "Armor Pickups %", S_CHOICE | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_armor_factor, 0, skill_multiplier },
+  { "Health Pickups %", S_CHOICE | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_health_factor, 0, skill_multiplier },
+  { "Monster Health", S_CHOICE | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_monster_health_factor, 0, skill_multiplier },
+  { "Friend Health", S_CHOICE | S_NORESET, m_conf, g_all, SK_X, dsda_config_skill_friend_health_factor, 0, skill_multiplier },
 
   PREV_PAGE(skill_options_builder),
   FINAL_ENTRY
@@ -7469,6 +7580,9 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
     }
   }
 
+  if (setup_reset_verify)
+    return M_SetupResetVerifyResponder(ch, action, ev);
+
   return false;
 }
 
@@ -7531,6 +7645,22 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
         dsda_InputReset(ptr1->input);
       }
     }
+
+    return true;
+  }
+
+  if (action == MENU_RESET)
+  {
+    if (M_ItemDisabled(ptr1))
+    {
+      S_StartVoidSound(g_sfx_oof);
+      return true;
+    }
+
+    if (M_SetupItemCanReset(ptr1))
+      M_StartSetupResetVerify(ptr1);
+    else
+      S_StartVoidSound(g_sfx_oof);
 
     return true;
   }
@@ -8015,22 +8145,6 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
   return false;
 }
 
-typedef enum {
-  confirmation_null = -1,
-  confirmation_no = 0,
-  confirmation_yes = 1,
-} confirmation_t;
-
-static confirmation_t M_EventToConfirmation(int ch, int action, event_t* ev)
-{
-  if (ch == 'y' || action == MENU_ENTER)
-    return confirmation_yes;
-  else if (ch == ' ' || ch == KEYD_ESCAPE || ch == 'n' || action == MENU_BACKSPACE)
-    return confirmation_no;
-  else
-    return confirmation_null;
-}
-
 static dboolean M_MainNavigationResponder(int ch, int action, event_t* ev)
 {
   if (action == MENU_DOWN)                             // phares 3/7/98
@@ -8447,6 +8561,10 @@ static int M_CurrentAction(event_t* ev)
   else if (dsda_InputActivated(dsda_input_menu_clear))
   {
     return MENU_CLEAR;
+  }
+  else if (dsda_InputActivated(dsda_input_menu_reset))
+  {
+    return MENU_RESET;
   }
 
   return MENU_NULL;

@@ -172,8 +172,10 @@ typedef int dsda_text_color_index_t;
 extern void dsda_LoadTextColorEntries(const char* def, int parm);
 extern void dsda_SaveTextColorEntries(FILE* f, int maxlen);
 extern int dsda_TextColorConfig(int config_id);
+extern int dsda_DefaultTextColorConfig(int config_id);
 extern void dsda_UpdateTextColorConfig(int config_id, int cr);
 
+void dsda_InitTextColorDefaults(void);
 void dsda_RefreshTextColors(void);
 const char* dsda_TextColor(dsda_text_color_index_t i);
 int dsda_TextCR(dsda_text_color_index_t i);

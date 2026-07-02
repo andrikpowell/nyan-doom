@@ -2417,6 +2417,14 @@ const char* dsda_UpdateStringConfig(dsda_config_identifier_t id, const char* val
   return dsda_StringConfig(id);
 }
 
+int dsda_DefaultIntConfig(dsda_config_identifier_t id) {
+  return dsda_config[id].default_value.v_int;
+}
+
+const char* dsda_DefaultStringConfig(dsda_config_identifier_t id) {
+  return dsda_config[id].default_value.v_string;
+}
+
 // No callbacks, to avoid recursion cases
 const char* dsda_HackStringConfig(dsda_config_identifier_t id, const char* value, dboolean persist) {
   if (dsda_config[id].transient_value.v_string)

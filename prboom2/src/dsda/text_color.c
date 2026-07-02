@@ -171,6 +171,8 @@ dsda_text_color_t dsda_text_colors[] = {
   { NULL },
 };
 
+static dboolean textcolor_defaults_initialized;
+static int textcolor_defaults[sizeof(dsda_text_colors) / sizeof(dsda_text_colors[0])];
 static int textcolor_def_count = (sizeof(dsda_text_colors) / sizeof(dsda_text_colors[0])) - 1;
 
 const char* dsda_TextColor(dsda_text_color_index_t i) {
@@ -179,6 +181,16 @@ const char* dsda_TextColor(dsda_text_color_index_t i) {
 
 int dsda_TextCR(dsda_text_color_index_t i) {
   return dsda_text_colors[i].color_range;
+}
+
+void dsda_InitTextColorDefaults(void)
+{
+  int i;
+
+  for (i = 0; i < textcolor_def_count; i++)
+    textcolor_defaults[i] = dsda_text_colors[i].color_range;
+
+  textcolor_defaults_initialized = true;
 }
 
 void dsda_RefreshTextColors(void) {
@@ -194,6 +206,9 @@ void dsda_RefreshTextColors(void) {
   dsda_text_colors[dsda_tc_orig].color_str[0] = '\x1b';
   dsda_text_colors[dsda_tc_orig].color_str[1] = HUlib_ColorReset();
   dsda_text_colors[dsda_tc_orig].color_str[2] = '\0';
+
+  if (!textcolor_defaults_initialized)
+    dsda_InitTextColorDefaults();
 }
 
 static int dsda_ClampCR(int cr)
@@ -211,6 +226,16 @@ int dsda_TextColorConfig(int config_id)
     return CR_DEFAULT;
 
   return dsda_text_colors[i].color_range;
+}
+
+int dsda_DefaultTextColorConfig(int config_id)
+{
+  const int i = config_id;
+
+  if (i <= dsda_tc_orig || i >= textcolor_def_count)
+    return CR_DEFAULT;
+
+  return textcolor_defaults[i];
 }
 
 void dsda_UpdateTextColorCR(dsda_text_color_index_t i, int cr)
