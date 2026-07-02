@@ -3244,7 +3244,7 @@ static void M_DrawInstructions(void)
   // are changing an item or just sitting on it.
 
   if (setup_select) {
-    switch (flags & (S_INPUT | S_YESNO | S_WEAP | S_NUM | S_PERC | S_COLOR | S_CRITEM | S_CRBLOOD | S_FILE | S_CHOICE | S_THERMO | S_NAME)) {
+    switch (flags & (S_INPUT | S_YESNO | S_WEAP | S_NUM | S_PERC | S_COLOR | S_CRITEM | S_CRBLOOD | S_CRCHOICE | S_FILE | S_CHOICE | S_THERMO | S_NAME)) {
       case S_INPUT:
         M_DrawInstructionString(cr_info_edit, "Press key or button for this action");
         break;
@@ -7553,7 +7553,8 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
     //
     // killough 10/98: use friendlier char-based input buffer
 
-    if (flags & (S_NUM | S_PERC))
+    if (flags & (S_NUM | S_PERC) &&  // number?
+       !(flags & S_THERMO)) // skip thermo
     {
       setup_gather = true;
       gather_count = 0;
