@@ -140,20 +140,22 @@
 #define S_CREDIT   0x00200000ULL // killough 10/98: credit
 #define S_THERMO   0x00400000ULL // Slider for choosing a value
 #define S_CHOICE   0x00800000ULL // this item has several values
-#define S_DISABLED 0x01000000ULL
-#define S_NAME     0x02000000ULL
-#define S_RESET_Y  0x04000000ULL
-#define S_FUNC     0x08000000ULL
-#define S_PERC     0x10000000ULL
-#define S_CRBLOOD  0x20000000ULL
-#define S_STR      0x40000000ULL // need to refactor things...
-#define S_NYAN     0x80000000ULL
-#define S_NYAN_HILITE   0x000000100000000ULL
-#define S_CRCHOICE      0x000000200000000ULL
-#define S_HIDDEN        0x000000400000000ULL
-// #define S_           0x000000800000000ULL
-// #define S_           0x000001000000000ULL
-#define S_NOCLEAR       0x800000000000000ULL
+#define S_NAME     0x01000000ULL
+#define S_RESET_Y  0x02000000ULL
+#define S_STR      0x04000000ULL // need to refactor things...
+#define S_NOCLEAR  0x08000000ULL
+#define S_PERC     0x10000000ULL // percent
+#define S_CRCHOICE 0x20000000ULL // color choice
+#define S_CRBLOOD  0x40000000ULL // bloodcolor choice
+#define S_FUNC     0x80000000ULL // function
+
+// NYAN
+#define S_NYAN          0x000000100000000ULL // mark nyan options
+#define S_NYAN_HILITE   0x000000200000000ULL // highlight nyan options
+#define S_DISABLED      0x000000400000000ULL // disabled / darken options
+#define S_HIDDEN        0x000000800000000ULL // hide game-specific options
+//#define S_            0x000001000000000ULL
+//#define S_            0x000002000000000ULL
 
 /* S_SHOWDESC  = the set of items whose description should be displayed
  * S_SHOWSET   = the set of items whose setting should be displayed
