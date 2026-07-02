@@ -8367,21 +8367,67 @@ static int M_EventToCharacter(event_t* ev)
   return MENU_NULL;
 }
 
-static int M_CurrentAction(void)
+#define MENU_ANALOG_THRESHOLD 0.7f
+
+static int M_AnalogMenuAction(event_t* ev)
 {
-  if (dsda_InputActivated(dsda_input_menu_left))
+  static int wait;
+  int action;
+  float x, y;
+
+  if (ev->type != ev_menu_analog)
+    return MENU_NULL;
+
+  x = ev->data1.f;
+  y = ev->data2.f;
+
+  x = CLAMP(x, -1.0f, 1.0f);
+  y = CLAMP(y, -1.0f, 1.0f);
+
+  if (x * x > y * y)
+  {
+    if (x < -MENU_ANALOG_THRESHOLD)
+      action = MENU_LEFT;
+    else if (x > MENU_ANALOG_THRESHOLD)
+      action = MENU_RIGHT;
+    else
+      return MENU_NULL;
+  }
+  else
+  {
+    if (y > MENU_ANALOG_THRESHOLD)
+      action = MENU_UP;
+    else if (y < -MENU_ANALOG_THRESHOLD)
+      action = MENU_DOWN;
+    else
+      return MENU_NULL;
+  }
+
+  if (wait >= dsda_GetTick())
+    return MENU_NULL;
+
+  wait = dsda_GetTick() + 5;
+
+  return action;
+}
+
+static int M_CurrentAction(event_t* ev)
+{
+  int analog_action = M_AnalogMenuAction(ev);
+
+  if (dsda_InputActivated(dsda_input_menu_left) || analog_action == MENU_LEFT)
   {
     return MENU_LEFT;
   }
-  else if (dsda_InputActivated(dsda_input_menu_right))
+  else if (dsda_InputActivated(dsda_input_menu_right) || analog_action == MENU_RIGHT)
   {
     return MENU_RIGHT;
   }
-  else if (dsda_InputActivated(dsda_input_menu_up))
+  else if (dsda_InputActivated(dsda_input_menu_up) || analog_action == MENU_UP)
   {
     return MENU_UP;
   }
-  else if (dsda_InputActivated(dsda_input_menu_down))
+  else if (dsda_InputActivated(dsda_input_menu_down) || analog_action == MENU_DOWN)
   {
     return MENU_DOWN;
   }
@@ -8409,7 +8455,7 @@ dboolean M_Responder(event_t* ev) {
   int ch, action;
 
   ch = M_EventToCharacter(ev);
-  action = M_CurrentAction();
+  action = M_CurrentAction(ev);
 
   if (M_ConsoleOpen() && action != MENU_ESCAPE)
     if (M_ConsoleResponder(ch, action, ev))
@@ -9095,6 +9141,19 @@ static void M_InitCompStr(void)
   }
 }
 
+static void M_InitSoundfontMenu(void)
+{
+  setup_menu_t** page;
+  setup_menu_t* s;
+
+  for (page = gen_settings; *page; page++)
+    for (s = *page; !(s->m_flags & S_END); s++)
+      if (s->config_id == dsda_config_snd_soundfont)
+      {
+        s->selectstrings = I_GetSoundfontList();
+        return;
+      }
+}
 
 //
 // M_Init

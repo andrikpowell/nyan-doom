@@ -53,6 +53,7 @@ typedef enum
   ev_joystick,
   ev_move_analog,
   ev_look_analog,
+  ev_menu_analog,
   ev_trigger,
   ev_text,
 } evtype_t;

@@ -102,6 +102,14 @@ static void dsda_PollLeftStick(void) {
 
   if (ev.data1.f || ev.data2.f)
     D_PostEvent(&ev);
+
+  // analog for menus
+  {
+    ev.type = ev_menu_analog;
+
+    if (ev.data1.f || ev.data2.f)
+      D_PostEvent(&ev);
+  }
 }
 
 static void dsda_PollRightStick(void) {
