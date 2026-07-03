@@ -1178,6 +1178,70 @@ static void AM_AddHighlightConnection(mpoint_t a, mpoint_t b)
   ++highlight.connection_count;
 }
 
+static void AM_HighlightLineCenter(mpoint_t *point, line_t *line)
+{
+  R_LineCenter(&point->x, &point->y, line);
+  point->x >>= FRACTOMAPBITS;
+  point->y >>= FRACTOMAPBITS;
+}
+
+static void AM_HighlightSectorCenter(mpoint_t *point, sector_t *sec)
+{
+  R_SectorCenter(&point->x, &point->y, sec);
+  point->x >>= FRACTOMAPBITS;
+  point->y >>= FRACTOMAPBITS;
+}
+
+static void AM_AddTaggedLineConnections(line_t *line)
+{
+  const int *id_p;
+  mpoint_t origin;
+  mpoint_t destination;
+
+  AM_HighlightLineCenter(&origin, line);
+
+  FIND_SECTORS(id_p, line->tag)
+  {
+    AM_HighlightSectorCenter(&destination, &sectors[*id_p]);
+    AM_AddHighlightConnection(origin, destination);
+  }
+}
+
+static void AM_AddTaggedSectorConnections(sector_t *sec)
+{
+  const int *id_p;
+  mpoint_t origin;
+  mpoint_t destination;
+
+  AM_HighlightSectorCenter(&origin, sec);
+
+  FIND_LINES(id_p, sec->tag)
+  {
+    AM_HighlightLineCenter(&destination, &lines[*id_p]);
+    AM_AddHighlightConnection(origin, destination);
+  }
+}
+
+static void AM_HighlightConnections(void)
+{
+  Z_Free(highlight.connections);
+  highlight.connections = NULL;
+  highlight.connection_count = 0;
+  highlight.connection_max = 0;
+
+  if (highlight.tag)
+  {
+    if (highlight.line)
+    {
+      AM_AddTaggedLineConnections(highlight.line);
+    }
+    else if (highlight.sec)
+    {
+      AM_AddTaggedSectorConnections(highlight.sec);
+    }
+  }
+}
+
 static void AM_HighlightByTag(void)
 {
   fixed_t x, y;
@@ -1195,6 +1259,7 @@ static void AM_HighlightByTag(void)
   sec = R_PointInSector(x << FRACTOMAPBITS, y << FRACTOMAPBITS);
   line = AM_ClosestLine(x, y, sec);
 
+  // Highlight sector
   if (!repeat || (!highlight.sec && !highlight.line))
   {
     highlight.sec = sec;
@@ -1203,6 +1268,7 @@ static void AM_HighlightByTag(void)
 
     doom_printf("Highlight sector %d, tag %d\n", highlight.sec->iSectorID, sec->tag);
   }
+  // Highlight line
   else if (highlight.sec)
   {
     highlight.sec = NULL;
@@ -1211,6 +1277,7 @@ static void AM_HighlightByTag(void)
 
     doom_printf("Highlight line %d, tag %d\n", highlight.line->iLineID, line->tag);
   }
+  // Nothing
   else
   {
     highlight.line = NULL;
@@ -1219,56 +1286,7 @@ static void AM_HighlightByTag(void)
     doom_printf("Highlight nothing\n");
   }
 
-  Z_Free(highlight.connections);
-  highlight.connections = NULL;
-  highlight.connection_count = 0;
-  highlight.connection_max = 0;
-
-  if (highlight.tag)
-  {
-    const int *id_p;
-    mpoint_t origin;
-    mpoint_t destination;
-
-    if (highlight.line)
-    {
-      sector_t *sec;
-
-      R_LineCenter(&origin.x, &origin.y, highlight.line);
-      origin.x >>= FRACTOMAPBITS;
-      origin.y >>= FRACTOMAPBITS;
-
-      FIND_SECTORS(id_p, highlight.tag)
-      {
-        sec = &sectors[*id_p];
-
-        R_SectorCenter(&destination.x, &destination.y, sec);
-        destination.x >>= FRACTOMAPBITS;
-        destination.y >>= FRACTOMAPBITS;
-
-        AM_AddHighlightConnection(origin, destination);
-      }
-    }
-    else
-    {
-      line_t *line;
-
-      R_SectorCenter(&origin.x, &origin.y, highlight.sec);
-      origin.x >>= FRACTOMAPBITS;
-      origin.y >>= FRACTOMAPBITS;
-
-      FIND_LINES(id_p, highlight.tag)
-      {
-        line = &lines[*id_p];
-
-        R_LineCenter(&destination.x, &destination.y, line);
-        destination.x >>= FRACTOMAPBITS;
-        destination.y >>= FRACTOMAPBITS;
-
-        AM_AddHighlightConnection(origin, destination);
-      }
-    }
-  }
+  AM_HighlightConnections();
 }
 
 //
