@@ -2565,6 +2565,10 @@ static int GetOptionColor(menu_flags_t flags)
 
 // CPhipps - static, hanging else removed, const parameter
 
+static dboolean M_PrevChoiceExists(const setup_menu_t *s);
+static dboolean M_NextChoiceExists(const setup_menu_t *s);
+static void M_ChoiceBlinkingArrowRight(const setup_menu_t *s, int x, int y, int color);
+
 #define S_HIDDEN_FLAGS (S_HIDDEN | S_SKIP | S_NOSELECT)
 
 static void M_DrawItem(const setup_menu_t* s, int y)
@@ -2606,7 +2610,17 @@ static void M_DrawItem(const setup_menu_t* s, int y)
 
     // print a blinking left "arrow" before highlighted menu item
     if (M_ItemSelected(s))
-      M_DrawString(x - 8, y, color, ">");
+    {
+      if (setup_select && (flags & (S_CHOICE | S_CRCHOICE | S_THERMO)))
+      {
+        if (M_PrevChoiceExists(s))
+          M_DrawString(x - 8, y, color, "<");
+
+        // if first choice, don't draw arrow
+      }
+      else // if not in setup, draw arrow
+        M_DrawString(x - 8, y, color, ">");
+    }
 
     // print a blinking right "arrow" after highlighted function
     if (flags & S_FUNC)
@@ -2666,6 +2680,130 @@ static void M_GetStringWithEllipsis(char* dest, const char* src, int max_width)
 
   // Combine fitted substring + "..."
   snprintf(dest, ENTRY_STRING_BFR_SIZE, "%s%s", temp, ellipsis);
+}
+
+//
+// Check next or prev choices
+//
+
+static int M_IndexInChoices(const char *str, const char **choices) {
+  int i = 0;
+
+  while (*choices != NULL) {
+    if (!strcmp(str, *choices))
+      return i;
+    i++;
+    choices++;
+  }
+  return 0;
+}
+
+// select either color or config list
+static const char **M_SetupChoiceList(const setup_menu_t *s)
+{
+  return (s->m_flags & S_CRCHOICE) ? color_list : s->selectstrings;
+}
+
+// Treat empty string choices as their default value (only for S_STR)
+static const char *M_ChoiceStringConfig(const setup_menu_t *s)
+{
+  const char *value = dsda_StringConfig(s->config_id);
+
+  if (!value || !value[0])
+    value = dsda_DefaultStringConfig(s->config_id);
+
+  return value;
+}
+
+static int M_SetupChoiceValue(const setup_menu_t *s)
+{
+  menu_flags_t flags = s->m_flags;
+
+  if (flags & S_THERMO)
+    return dsda_IntConfig(s->config_id);
+
+  if (flags & S_STR)
+  {
+    const char *value = (setup_select && (s->m_flags & (S_HILITE | S_SELECT))) ? entry_string_index : M_ChoiceStringConfig(s);
+
+    return M_IndexInChoices(value, M_SetupChoiceList(s));
+  }
+
+  if (setup_select && (s->m_flags & (S_HILITE | S_SELECT)))
+    return choice_value;
+
+  if (flags & S_CRCHOICE)
+    return dsda_TextColorConfig(s->config_id);
+
+  return dsda_IntConfig(s->config_id);
+}
+
+static int M_StepThroughChoices(const char **choice_list, int value, int direction)
+{
+  while (value > 0 && choice_list && choice_list[value] && choice_list[value][0] == '~')
+    value += direction;
+
+  return value;
+}
+
+static dboolean M_PrevChoiceExists(const setup_menu_t *s)
+{
+  int value = M_SetupChoiceValue(s);
+  menu_flags_t flags = s->m_flags;
+  const char **choice_list;
+
+  if (flags & S_THERMO)
+    return value > dsda_LowerLimitConfig(s->config_id);
+
+  if (flags & S_STR)
+    return value > 0;
+
+  choice_list = M_SetupChoiceList(s);
+
+  value = M_StepThroughChoices(choice_list, value - 1, -1);
+
+  if (choice_list)
+    return value >= 0 && choice_list[value][0] != '~';
+
+  return value >= dsda_LowerLimitConfig(s->config_id);
+}
+
+static dboolean M_NextChoiceExists(const setup_menu_t *s)
+{
+  int value = M_SetupChoiceValue(s);
+  menu_flags_t flags = s->m_flags;
+  const char **choice_list;
+
+  if (flags & S_THERMO)
+    return value < dsda_UpperLimitConfig(s->config_id);
+
+  choice_list = M_SetupChoiceList(s);
+
+  if (flags & S_STR)
+    return choice_list && choice_list[value + 1];
+
+  value = M_StepThroughChoices(choice_list, value + 1, 1);
+
+  if (choice_list)
+    return choice_list[value] != NULL;
+
+  return value <= dsda_UpperLimitConfig(s->config_id);
+}
+
+static void M_ChoiceBlinkingArrowRight(const setup_menu_t *s, int x, int y, int color)
+{
+  if (M_ItemSelected(s))
+  {
+    if (setup_select)
+    {
+      if (M_NextChoiceExists(s))
+        M_DrawString(x + M_GetPixelWidth(menu_buffer), y, color, " >");
+    }
+    else
+    {
+      M_BlinkingArrowRight(s);
+    }
+  }
 }
 
 static void M_DrawSetting(const setup_menu_t* s, int y)
@@ -2954,12 +3092,12 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
       if (setup_select && (s->m_flags & (S_HILITE | S_SELECT)))
         snprintf(menu_buffer, sizeof(menu_buffer), "%s", entry_string_index);
       else
-        snprintf(menu_buffer, sizeof(menu_buffer), "%s", dsda_StringConfig(s->config_id));
+        snprintf(menu_buffer, sizeof(menu_buffer), "%s", M_ChoiceStringConfig(s));
     }
     else
     {
       int value;
-      const char **choice_list = (flags & S_CRCHOICE) ? color_list : s->selectstrings;
+      const char **choice_list = M_SetupChoiceList(s);
 
       if (setup_select && (s->m_flags & (S_HILITE | S_SELECT)))
         value = choice_value;
@@ -3006,7 +3144,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
       }
     }
 
-    M_BlinkingArrowRight(s);
+    M_ChoiceBlinkingArrowRight(s, x, y, color);
     M_DrawMenuString(x,y,color);
     return;
   }
@@ -3024,7 +3162,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
     else
       snprintf(menu_buffer, sizeof(menu_buffer), "%d", dsda_IntConfig(s->config_id));
 
-    M_BlinkingArrowRight(s);
+    M_ChoiceBlinkingArrowRight(s, x + 80, y + 3, color);
     M_DrawMenuString(x + 80, y + 3, color);
     return;
   }
@@ -6889,18 +7027,6 @@ void M_DrawCreditsDynamic(void)     // Dynamic Credits
   M_DrawScreenItems(cred_settings, 48);
 }
 
-static int M_IndexInChoices(const char *str, const char **choices) {
-  int i = 0;
-
-  while (*choices != NULL) {
-    if (!strcmp(str, *choices))
-      return i;
-    i++;
-    choices++;
-  }
-  return 0;
-}
-
 // [FG] support more joystick and mouse buttons
 
 static inline int GetButtons(const unsigned int max, int data)
@@ -7482,62 +7608,38 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
 
     if (ptr1->m_flags & S_CHOICE || ptr1->m_flags & S_CRCHOICE) // selection of choices?
     {
-      const char** choice_list = (ptr1->m_flags & S_CRCHOICE) ? color_list : ptr1->selectstrings;
+      const char** choice_list = M_SetupChoiceList(ptr1);
       if (action == MENU_LEFT) {
-        if (ptr1->m_flags & S_STR)
+        if (M_PrevChoiceExists(ptr1))
         {
-          int old_value, value;
+          S_StartVoidSound(g_sfx_menu);
 
-          old_value = M_IndexInChoices(entry_string_index, choice_list);
-          value = old_value - 1;
-          if (value < 0)
-            value = 0;
-          if (old_value != value)
+          if (ptr1->m_flags & S_STR)
           {
-            S_StartVoidSound(g_sfx_menu);
+            int value = M_SetupChoiceValue(ptr1) - 1;
+
             strncpy(entry_string_index, choice_list[value], ENTRY_STRING_BFR_SIZE - 1);
           }
-        }
-        else
-        {
-          int value = choice_value;
-
-          do {
-            --value;
-          } while (value > 0 && choice_list && choice_list[value][0] == '~');
-
-          if (value >= 0 && choice_value != value) {
-            S_StartVoidSound(g_sfx_menu);
-            choice_value = value;
+          else
+          {
+            choice_value = M_StepThroughChoices(choice_list, choice_value - 1, -1);
           }
         }
       }
       else if (action == MENU_RIGHT) {
-        if (ptr1->m_flags & S_STR)
+        if (M_NextChoiceExists(ptr1))
         {
-          int old_value, value;
+          S_StartVoidSound(g_sfx_menu);
 
-          old_value = M_IndexInChoices(entry_string_index, choice_list);
-          value = old_value + 1;
-          if (choice_list[value] == NULL)
-            value = old_value;
-          if (old_value != value)
+          if (ptr1->m_flags & S_STR)
           {
-            S_StartVoidSound(g_sfx_menu);
+            int value = M_SetupChoiceValue(ptr1) + 1;
+
             strncpy(entry_string_index, choice_list[value], ENTRY_STRING_BFR_SIZE - 1);
           }
-        }
-        else
-        {
-          int value = choice_value;
-
-          do {
-            ++value;
-          } while (choice_list && choice_list[value] && choice_list[value][0] == '~');
-
-          if (choice_list[value] && choice_value != value) {
-            S_StartVoidSound(g_sfx_menu);
-            choice_value = value;
+          else
+          {
+            choice_value = M_StepThroughChoices(choice_list, choice_value + 1, 1);
           }
         }
       }
@@ -7562,13 +7664,13 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
     if (ptr1->m_flags & S_THERMO)
     {
       if (action == MENU_LEFT) {
-        if (dsda_IntConfig(ptr1->config_id) > dsda_LowerLimitConfig(ptr1->config_id)) {
+        if (M_PrevChoiceExists(ptr1)) {
           dsda_DecrementIntConfig(ptr1->config_id, true);
           S_StartVoidSound(g_sfx_menu);
         }
       }
       else if (action == MENU_RIGHT) {
-        if (dsda_IntConfig(ptr1->config_id) < dsda_UpperLimitConfig(ptr1->config_id)) {
+        if (M_NextChoiceExists(ptr1)) {
           dsda_IncrementIntConfig(ptr1->config_id, true);
           S_StartVoidSound(g_sfx_menu);
         }
@@ -7709,7 +7811,7 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
     {
       if (flags & S_STR)
       {
-        strncpy(entry_string_index, dsda_StringConfig(ptr1->config_id),
+        strncpy(entry_string_index, M_ChoiceStringConfig(ptr1),
                 ENTRY_STRING_BFR_SIZE - 1);
       }
       else if (flags & S_CRCHOICE)
