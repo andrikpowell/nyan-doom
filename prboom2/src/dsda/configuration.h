@@ -299,6 +299,7 @@ enum {
   dsda_config_snd_midiplayer,
   dsda_config_snd_mididev,
   dsda_config_snd_soundfont,
+  dsda_config_snd_soundfont_dir,
   dsda_config_mus_fluidsynth_chorus,
   dsda_config_mus_fluidsynth_reverb,
   dsda_config_mus_fluidsynth_gain,
@@ -531,6 +532,7 @@ int dsda_DecrementIntConfig(dsda_config_identifier_t id, dboolean persist);
 int dsda_CycleConfig(dsda_config_identifier_t id, dboolean persist);
 int dsda_UpdateIntConfig(dsda_config_identifier_t id, int value, dboolean persist);
 const char* dsda_UpdateStringConfig(dsda_config_identifier_t id, const char* value, dboolean persist);
+const char* dsda_HackStringConfig(dsda_config_identifier_t id, const char* value, dboolean persist);
 int dsda_DefaultIntConfig(dsda_config_identifier_t id);
 const char* dsda_DefaultStringConfig(dsda_config_identifier_t id);
 int dsda_IntConfig(dsda_config_identifier_t id);
