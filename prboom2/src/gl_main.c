@@ -253,6 +253,24 @@ static int C_DECL dicmp_visible_subsectors_by_pic(const void *a, const void *b)
          (*((const subsector_t *const *)a))->sector->floorpic;
 }
 
+static int gld_MapSkyTexture(sector_t *sector)
+{
+  int sky = sector->floorsky;
+
+  if (sky & PL_SKYFLAT_LINE)
+  {
+    const line_t *line = &lines[sky & ~PL_SKYFLAT_LINE];
+    const side_t *side = &sides[line->sidenum[0]];
+
+    return texturetranslation[side->toptexture];
+  }
+
+  if (sky & PL_SKYFLAT_SECTOR)
+    return sky & ~PL_SKYFLAT_SECTOR;
+
+  return texturetranslation[skytexture];
+}
+
 static int visible_subsectors_count_prev = -1;
 void gld_ResetTexturedAutomap(void)
 {
@@ -368,6 +386,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   {
     subsector_t *sub = visible_subsectors[i];
     int ssidx = (int)(sub - subsectors);
+    dboolean sky_flat;
 
     if (sub->sector->bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
       sub->sector->bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
@@ -378,10 +397,21 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
       continue;
     }
     
-    swirling_flat = P_IsSwirlingFlat(sub->sector->floorpic);
-    gl_flat_index = swirling_flat ? P_FlatIndexFromLump(sub->sector->floorpic) : flattranslation[sub->sector->floorpic];
+    sky_flat = sub->sector->floorpic == skyflatnum;
 
-    gltexture = gld_RegisterFlat(gl_flat_index, true, V_IsUILightmodeIndexed());
+    if (sky_flat)
+    {
+      gltexture = gld_RegisterTexture(gld_MapSkyTexture(sub->sector), true, true, V_IsUILightmodeIndexed(), false);
+      swirling_flat = false;
+    }
+    else
+    {
+      swirling_flat = P_IsSwirlingFlat(sub->sector->floorpic);
+      gl_flat_index = swirling_flat ? P_FlatIndexFromLump(sub->sector->floorpic) : flattranslation[sub->sector->floorpic];
+
+      gltexture = gld_RegisterFlat(gl_flat_index, true, V_IsUILightmodeIndexed());
+    }
+
     if (gltexture)
     {
       sector_t tempsec;
@@ -395,6 +425,8 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
       if (swirling_flat)
         gld_BindSwirlFlat(gltexture, false, 0);
+      else if (sky_flat)
+        gld_BindTexture(gltexture, 0, false);
       else
         gld_BindFlat(gltexture, 0);
 
@@ -405,7 +437,8 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
                   sec->floor_yoffs ||
                   sec->floor_rotation ||
                   sec->floor_xscale != FRACUNIT ||
-                  sec->floor_yscale != FRACUNIT;
+                  sec->floor_yscale != FRACUNIT ||
+                  sky_flat;
 
       if (transform)
       {
@@ -423,6 +456,14 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
         glMatrixMode(GL_TEXTURE);
         glPushMatrix();
+
+        if (sky_flat)
+        {
+          glScalef(64.0f / gltexture->realtexwidth,
+                   64.0f / gltexture->realtexheight,
+                   1.0f);
+        }
+
         glScalef(xscale, yscale, 1.f);
         glTranslatef(uoffs, voffs, 0.f);
         glRotatef(-rotation, 0.f, 0.f, 1.f);
