@@ -130,6 +130,10 @@ static map_things_appearance_t map_things_appearance;
 // moves 140 pixels in 1 second
 #define F_SPEED  (dsda_InputActive(dsda_input_speed) ? !dsda_AutoRun() : dsda_AutoRun())
 #define F_PANINC  (F_SPEED ? map_pan_speed * 2 : map_pan_speed)
+#define PAN_SPEED_DIVISOR 4
+#define M_PANINC_X (FTOM(F_PANINC * SCREENWIDTH / 320) / PAN_SPEED_DIVISOR)
+#define M_PANINC_Y (FTOM(F_PANINC * SCREENHEIGHT / 200) / PAN_SPEED_DIVISOR)
+// map zoom
 #define F_ZOOMINC  (F_SPEED ? map_scroll_speed * 2 : map_scroll_speed)
 // how much zoom-in per tic
 // goes to 2x in 1 second
@@ -1284,7 +1288,7 @@ dboolean AM_Responder
   {
     if (!automap_follow)
     {
-      m_paninc.x = FTOM(F_PANINC);
+      m_paninc.x = M_PANINC_X;
       return true;
     }
   }
@@ -1292,7 +1296,7 @@ dboolean AM_Responder
   {
     if (!automap_follow)
     {
-      m_paninc.x = -FTOM(F_PANINC);
+      m_paninc.x = -M_PANINC_X;
       return true;
     }
   }
@@ -1310,7 +1314,7 @@ dboolean AM_Responder
   {
     if (!automap_follow)
     {
-      m_paninc.y = FTOM(F_PANINC);
+      m_paninc.y = M_PANINC_Y;
       return true;
     }
   }
@@ -1318,7 +1322,7 @@ dboolean AM_Responder
   {
     if (!automap_follow)
     {
-      m_paninc.y = -FTOM(F_PANINC);
+      m_paninc.y = -M_PANINC_Y;
       return true;
     }
   }
