@@ -2229,6 +2229,56 @@ static void AM_drawWalls(void)
   }
 }
 
+static void AM_DrawArrowHead(const mline_t *line)
+{
+  double dx, dy, length;
+  fixed_t arrow_length, arrow_width, arrow_max;
+  fixed_t back_x, back_y, spread_x, spread_y;
+  mline_t arrow;
+
+  dx = (double)line->b.x - line->a.x;
+  dy = (double)line->b.y - line->a.y;
+  length = sqrt(dx * dx + dy * dy);
+
+  // If too small, just don't draw arrow
+  if (!length)
+    return;
+
+  // scale arrow based on screensize
+  arrow_length = FTOM(2 * SCREENWIDTH / 320);
+  arrow_width = FTOM(1 * SCREENWIDTH / 320);
+
+  // shrink arrowhead based on line length
+  arrow_max = (fixed_t)(length * 0.4);
+
+  if (arrow_length > arrow_max)
+  {
+      arrow_length = arrow_max;
+      arrow_width = arrow_max / 2;
+  }
+
+  // get point back from arrow point
+  back_x = line->b.x - (fixed_t)(dx / length * arrow_length);
+  back_y = line->b.y - (fixed_t)(dy / length * arrow_length);
+
+  // spread from point
+  spread_x = (fixed_t)(-dy / length * arrow_width);
+  spread_y = (fixed_t)(dx / length * arrow_width);
+
+  // draw first part of arrow head
+  arrow.a = line->b;
+  arrow.b.x = back_x + spread_x;
+  arrow.b.y = back_y + spread_y;
+  AM_SetMPointFloatValue(&arrow.b);
+  AM_drawMline(&arrow, mapcolor_p->tagfinder);
+
+  // Draw second part of arrow head
+  arrow.b.x = back_x - spread_x;
+  arrow.b.y = back_y - spread_y;
+  AM_SetMPointFloatValue(&arrow.b);
+  AM_drawMline(&arrow, mapcolor_p->tagfinder);
+}
+
 static void AM_DrawConnections(void)
 {
   int i;
@@ -2253,6 +2303,7 @@ static void AM_DrawConnections(void)
     }
 
     AM_drawMline(&l, mapcolor_p->tagfinder);
+    AM_DrawArrowHead(&l);
   }
 }
 
