@@ -155,7 +155,7 @@
 #define S_DISABLED      0x000000400000000ULL // disabled / darken options
 #define S_HIDDEN        0x000000800000000ULL // hide game-specific options
 #define S_NORESET       0x000001000000000ULL // exclude from reset
-//#define S_            0x000002000000000ULL
+#define S_TWO_LINE      0x000002000000000ULL // draw two-line option
 
 /* S_SHOWDESC  = the set of items whose description should be displayed
  * S_SHOWSET   = the set of items whose setting should be displayed
@@ -2689,6 +2689,102 @@ static void M_GetStringWithEllipsis(char* dest, const char* src, int max_width)
   snprintf(dest, ENTRY_STRING_BFR_SIZE, "%s%s", temp, ellipsis);
 }
 
+static void M_TrimEllipsisFragment(char *text)
+{
+  int len = (int)strlen(text);
+  dboolean trimmed_dot = false;
+
+  while (len > 0 && text[len - 1] == '.')
+  {
+    text[--len] = '\0';
+    trimmed_dot = true;
+  }
+
+  if (trimmed_dot)
+  {
+    char *space = strrchr(text, ' ');
+
+    if (space && space[1])
+      *space = '\0';
+  }
+}
+
+static void M_GetTrimmedStringWithEllipsis(char* dest, const char* src, int max_width)
+{
+  const char *ellipsis = "...";
+  int ellipsis_width = M_GetPixelWidth(ellipsis);
+  char temp[ENTRY_STRING_BFR_SIZE];
+
+  M_GetFittingString(temp, src, max_width - ellipsis_width);
+  M_TrimEllipsisFragment(temp);
+
+  snprintf(dest, ENTRY_STRING_BFR_SIZE, "%s%s", temp, ellipsis);
+}
+
+//
+// Two Line Choice
+//
+
+static const char *M_TwoLineChoiceArrow(const setup_menu_t *s)
+{
+  if (!M_ItemSelected(s))
+    return NULL;
+
+  if (setup_select)
+    return M_NextChoiceExists(s) ? " >" : NULL;
+
+  return " <";
+}
+
+static void M_DrawTwoLineChoiceString(const setup_menu_t *s, int x, int y, int color)
+{
+  char line1[sizeof(menu_buffer)];
+  char line2[sizeof(menu_buffer)];
+  int max_width = BASE_WIDTH - x - 12;
+  const char *arrow;
+  dboolean has_arrow;
+  int arrow_width;
+  int len;
+  dboolean fits_on_one_line;
+
+  M_GetFittingString(line1, menu_buffer, max_width);
+  len = (int)strlen(line1);
+  fits_on_one_line = !menu_buffer[len];
+
+  // If it fits on one line, then just draw normally
+  if (fits_on_one_line)
+  {
+    M_ChoiceBlinkingArrowRight(s, x, y, color);
+    M_DrawMenuString(x, y, color);
+    return;
+  }
+
+  // at this point we hit the 2 line string
+  arrow = M_TwoLineChoiceArrow(s);
+  has_arrow = arrow != NULL;
+  arrow_width = has_arrow ? M_GetPixelWidth(arrow) : 0;
+
+  {
+    const char *remaining_text = menu_buffer + len;
+    int line2_width = max_width - arrow_width;
+
+    if (line2_width < 1)
+      line2_width = max_width;
+
+    // Trim line 2 if needed, leaving room for the arrow.
+    if (M_GetPixelWidth(remaining_text) > line2_width)
+      M_GetTrimmedStringWithEllipsis(line2, remaining_text, line2_width);
+    else
+      snprintf(line2, sizeof(line2), "%s", remaining_text);
+  }
+
+  M_DrawString(x, y, color, line1);     // line 1
+  M_DrawString(x, y + 8, color, line2); // line 2
+
+  if (has_arrow)
+    M_DrawString(x + M_GetPixelWidth(line2), y + 8, color, arrow);
+}
+
 //
 // Check next or prev choices
 //
@@ -3151,6 +3247,12 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
       }
     }
 
+    if (flags & S_TWO_LINE)
+    {
+      M_DrawTwoLineChoiceString(s, x, y, color);
+      return;
+    }
+
     M_ChoiceBlinkingArrowRight(s, x, y, color);
     M_DrawMenuString(x,y,color);
     return;
@@ -3283,6 +3385,10 @@ static void M_DrawScreenItems(const setup_menu_t* base_src, int base_y)
     {
       carry_y += 6;
       desc_y += 3;
+    }
+    else if (src->m_flags & S_TWO_LINE)
+    {
+      carry_y += line_height;
     }
 
     // See if we're to draw the item description (left-hand part)
@@ -4641,7 +4747,7 @@ setup_menu_t gen_audio_settings[] = {
   { "Play SFX For Quicksave", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_quicksave_sfx },
   EMPTY_LINE,
   { "Preferred MIDI player", S_CHOICE | S_STR, m_conf, g_all, G_X, dsda_config_snd_midiplayer, 0, midiplayers },
-  { "Soundfont", S_CHOICE | S_STR, m_conf, g_all, G_X, dsda_config_snd_soundfont, 0, soundfont_list, DEPEND(dsda_config_snd_midiplayer, MIDI_FLUIDSYNTH) },
+  { "Soundfont", S_CHOICE | S_STR | S_TWO_LINE, m_conf, g_all, G_X, dsda_config_snd_soundfont, 0, soundfont_list, DEPEND(dsda_config_snd_midiplayer, MIDI_FLUIDSYNTH) },
   EMPTY_LINE,
   FUNC("Advanced Sound", S_CENTER, G_X, M_Sub_AdvAudio),
 
