@@ -904,6 +904,7 @@ void AM_SetResolution(void)
 {
   AM_SetPosition();
   AM_SetScale();
+  AM_activateNewScale();
 }
 
 static void AM_ResetTagHighlight(void)
