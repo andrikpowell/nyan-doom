@@ -2762,7 +2762,7 @@ static void M_DrawTwoLineChoiceString(const setup_menu_t *s, int x, int y, int c
   // at this point we hit the 2 line string
   arrow = M_TwoLineChoiceArrow(s);
   has_arrow = arrow != NULL;
-  arrow_width = has_arrow ? M_GetPixelWidth(arrow) : 0;
+  arrow_width = M_GetPixelWidth(" >");
 
   {
     const char *remaining_text = menu_buffer + len;
