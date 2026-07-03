@@ -183,6 +183,7 @@ typedef struct sector_s
   short ceilingpic;
   short lightlevel;
   short special;
+  short spawn_special;
   short tag;
 
   // [kb] For R_FixWiggle

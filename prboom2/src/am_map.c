@@ -1192,6 +1192,37 @@ static void AM_HighlightSectorCenter(mpoint_t *point, sector_t *sec)
   point->y >>= FRACTOMAPBITS;
 }
 
+static const char* AM_SectorEffectMessage(short spawn_special)
+{
+  if (raven)
+    return "";
+
+  if (map_format.zdoom)
+  {
+    switch (spawn_special & 0xff)
+    {
+      case zs_d_sector_door_close_in_30:
+        return ", 30 sec door close";
+      case zs_d_sector_door_raise_in_5_mins:
+        return ", door opens after 5 min";
+      default:
+        return "";
+    }
+  }
+  else // classic Doom
+  {
+    switch (spawn_special & 31)
+    {
+      case 10:
+        return ", 30 sec door close";
+      case 14:
+        return ", door opens after 5 min";
+      default:
+        return "";
+    }
+  }
+}
+
 static void AM_AddTaggedLineConnections(line_t *line)
 {
   const int *id_p;
@@ -1266,7 +1297,9 @@ static void AM_HighlightByTag(void)
     highlight.line = NULL;
     highlight.tag = sec->tag;
 
-    doom_printf("Highlight sector %d, tag %d\n", highlight.sec->iSectorID, sec->tag);
+    doom_printf("Highlight sector %d, tag %d%s\n",
+                highlight.sec->iSectorID, highlight.tag,
+                AM_SectorEffectMessage(highlight.sec->spawn_special));
   }
   // Highlight line
   else if (highlight.sec)

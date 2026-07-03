@@ -4145,8 +4145,12 @@ static void P_InitSectorSpecials(void)
 
   sector = sectors;
   for (i = 0; i < numsectors; i++, sector++)
+  {
+    sector->spawn_special = sector->special;
+
     if (sector->special)
       map_format.init_sector_special(sector, i);
+  }
 }
 
 static void P_InitButtons(void)
