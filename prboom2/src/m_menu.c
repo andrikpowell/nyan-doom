@@ -3976,6 +3976,7 @@ setup_menu_t keys_automap_settings[] =  // Key Binding screen strings
   { "Overlay",          S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_overlay },
   { "Textured",         S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_textured },
   { "Highlight By Tag", S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_highlight_by_tag },
+  { "Mouse Pan",        S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_mouse_pan },
 
   PREV_PAGE(keys_weapons_settings),
   NEXT_PAGE(keys_game_settings),
@@ -4373,6 +4374,7 @@ setup_menu_t auto_options_settings[] =
   EMPTY_LINE,
   { "Grid cell size 8..256, -1 for auto", S_NUM, m_conf, g_all, AU_X, dsda_config_map_grid_size },
   { "Pan speed (1..32)", S_NUM, m_conf, g_all, AU_X, dsda_config_map_pan_speed },
+  { "Mouse pan speed (1..32)", S_NUM, m_conf, g_all, AU_X, dsda_config_map_mouse_pan_speed },
   { "Zoom speed (1..32)", S_NUM, m_conf, g_all, AU_X, dsda_config_map_scroll_speed },
   { "Use mouse wheel for zooming", S_YESNO, m_conf, g_all, AU_X, dsda_config_map_wheel_zoom },
   { "Show Minimap", S_YESNO, m_conf, g_all, AU_X, dsda_config_show_minimap },

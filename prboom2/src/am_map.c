@@ -112,6 +112,7 @@ static int map_blinking_locks;
 static int map_secret_after;
 static int map_grid_size;
 static int map_pan_speed;
+static int map_mouse_pan_speed;
 static int map_scroll_speed;
 static int map_wheel_zoom;
 static int map_things_hitboxes;
@@ -133,6 +134,10 @@ static map_things_appearance_t map_things_appearance;
 #define PAN_SPEED_DIVISOR 4
 #define M_PANINC_X (FTOM(F_PANINC * SCREENWIDTH / 320) / PAN_SPEED_DIVISOR)
 #define M_PANINC_Y (FTOM(F_PANINC * SCREENHEIGHT / 200) / PAN_SPEED_DIVISOR)
+// mouse map panning
+#define F_MOUSEPANINC  (F_SPEED ? map_mouse_pan_speed * 2 : map_mouse_pan_speed)
+#define MOUSE_PAN_SPEED_DIVISOR 8
+#define MOUSE_PAN_SPEED_BASE 16
 // map zoom
 #define F_ZOOMINC  (F_SPEED ? map_scroll_speed * 2 : map_scroll_speed)
 // how much zoom-in per tic
@@ -387,6 +392,7 @@ int automap_full;
 int automap_overlay;
 int automap_rotate;
 int automap_follow;
+int automap_mouse_pan;
 int automap_grid;
 int autopage_active;
 int autopage_fade;
@@ -409,6 +415,10 @@ static fixed_t m_x, m_y;     // LL x,y window location on the map (map coords)
 static fixed_t m_x2, m_y2;   // UR x,y window location on the map (map coords)
 
 static fixed_t prev_m_x, prev_m_y;
+
+// mouse panning
+static int mouse_pan_x;
+static int mouse_pan_y;
 
 //
 // width/height of window on map (map coords)
@@ -692,30 +702,15 @@ static void AM_ParallaxPan(fixed_t incx, fixed_t incy)
 }
 
 //
-// AM_changeWindowLoc()
+// AM_moveWindowLoc()
 //
-// Moves the map window by the global variables m_paninc.x, m_paninc.y
+// Moves the map window from the given origin by incx and incy.
 //
-// Passed nothing, returns nothing
-//
-static void AM_changeWindowLoc(void)
+static void AM_moveWindowLoc(fixed_t origin_x, fixed_t origin_y, fixed_t incx, fixed_t incy)
 {
-  fixed_t incx, incy;
-
-  if (m_paninc.x || m_paninc.y)
+  if ((incx || incy) && automap_follow)
   {
-    dsda_UpdateIntConfig(dsda_config_automap_follow, false, true);
-  }
-
-  if (movement_smooth)
-  {
-    incx = FixedMul(m_paninc.x, tic_vars.frac);
-    incy = FixedMul(m_paninc.y, tic_vars.frac);
-  }
-  else
-  {
-    incx = m_paninc.x;
-    incy = m_paninc.y;
+    dsda_UpdateIntConfig(dsda_config_automap_follow, false, false);
   }
 
   if (automap_rotate)
@@ -723,8 +718,8 @@ static void AM_changeWindowLoc(void)
     AM_rotate(&incx, &incy, viewangle - ANG90);
   }
 
-  m_x = prev_m_x + incx;
-  m_y = prev_m_y + incy;
+  m_x = origin_x + incx;
+  m_y = origin_y + incy;
 
   if (!automap_rotate)
   {
@@ -755,6 +750,45 @@ static void AM_changeWindowLoc(void)
 
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
+}
+
+// Moves the map window by the global variables m_paninc.x, m_paninc.y.
+// plus any added mouse panning
+static void AM_changeWindowLoc(void)
+{
+  fixed_t incx, incy;
+
+  // keyboard
+  if (movement_smooth)
+  {
+    incx = FixedMul(m_paninc.x, tic_vars.frac);
+    incy = FixedMul(m_paninc.y, tic_vars.frac);
+  }
+  else
+  {
+    incx = m_paninc.x;
+    incy = m_paninc.y;
+  }
+
+  // Mouse
+  if (mouse_pan_x || mouse_pan_y)
+  {
+    incx += FTOM(mouse_pan_x / MOUSE_PAN_SPEED_DIVISOR);
+    incy += FTOM(mouse_pan_y / MOUSE_PAN_SPEED_DIVISOR);
+
+    mouse_pan_x = 0;
+    mouse_pan_y = 0;
+  }
+
+  AM_moveWindowLoc(prev_m_x, prev_m_y, incx, incy);
+}
+
+static void AM_AddMousePan(int x, int y)
+{
+  int speed = F_MOUSEPANINC;
+
+  mouse_pan_x -= x * SCREENWIDTH  * speed / 320 / MOUSE_PAN_SPEED_BASE;
+  mouse_pan_y -= y * SCREENHEIGHT * speed / 200 / MOUSE_PAN_SPEED_BASE;
 }
 
 //
@@ -888,6 +922,7 @@ static void AM_initVariables(void)
   oldplr.y = plr->mo->y;
   m_x = (plr->mo->x >> FRACTOMAPBITS) - m_w/2;//e6y
   m_y = (plr->mo->y >> FRACTOMAPBITS) - m_h/2;//e6y
+  mouse_pan_x = mouse_pan_y = 0;
   AM_Ticker();
   AM_changeWindowLoc();
 
@@ -977,6 +1012,7 @@ void AM_InitParams(void)
   map_blinking_locks = dsda_IntConfig(dsda_config_map_blinking_locks);
   map_secret_after = dsda_IntConfig(dsda_config_map_secret_after);
   map_pan_speed = dsda_IntConfig(dsda_config_map_pan_speed);
+  map_mouse_pan_speed = dsda_IntConfig(dsda_config_map_mouse_pan_speed);
   map_scroll_speed = dsda_IntConfig(dsda_config_map_scroll_speed);
   map_grid_size = dsda_IntConfig(dsda_config_map_grid_size);
   map_wheel_zoom = dsda_IntConfig(dsda_config_map_wheel_zoom);
@@ -1278,6 +1314,15 @@ dboolean AM_Responder
       return true;
     }
   }
+  // mouse
+  else if (ev->type == ev_mousemotion && (ev->data1.i || ev->data2.i))
+  {
+    if (automap_mouse_pan && !automap_follow)
+    {
+      AM_AddMousePan(ev->data1.i, ev->data2.i);
+      return true;
+    }
+  }
   else if (dsda_InputActivated(dsda_input_map))
   {
     bigstate = 0;
@@ -1371,6 +1416,13 @@ dboolean AM_Responder
     }
     else
       AM_restoreScaleAndLoc();
+
+    return true;
+  }
+  else if (dsda_InputActivated(dsda_input_map_mouse_pan))
+  {
+    dsda_ToggleConfig(dsda_config_automap_mouse_pan, true);
+    dsda_AddMessage(automap_mouse_pan ? "Mouse Panning ON" : "Mouse Panning OFF");
 
     return true;
   }
@@ -3582,7 +3634,7 @@ void AM_Drawer (dboolean minimap)
     AM_changeWindowScale();
 
   // Change x,y location
-  if (m_paninc.x || m_paninc.y)
+  if (m_paninc.x || m_paninc.y || mouse_pan_x || mouse_pan_y)
     AM_changeWindowLoc();
 
   AM_setFrameVariables();

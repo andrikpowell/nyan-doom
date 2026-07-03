@@ -357,9 +357,11 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_automap_linesize),
   MIGRATED_SETTING(dsda_config_automap_rotate),
   MIGRATED_SETTING(dsda_config_automap_follow),
+  MIGRATED_SETTING(dsda_config_automap_mouse_pan),
   MIGRATED_SETTING(dsda_config_automap_grid),
   MIGRATED_SETTING(dsda_config_map_grid_size),
   MIGRATED_SETTING(dsda_config_map_pan_speed),
+  MIGRATED_SETTING(dsda_config_map_mouse_pan_speed),
   MIGRATED_SETTING(dsda_config_map_scroll_speed),
   MIGRATED_SETTING(dsda_config_map_wheel_zoom),
   MIGRATED_SETTING(dsda_config_map_use_multisamling),
@@ -651,6 +653,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_map_overlay", dsda_input_map_overlay, 'o', -1, -1),
   INPUT_SETTING("input_map_textured", dsda_input_map_textured, 0, -1, -1),
   INPUT_SETTING("input_map_highlight_by_tag", dsda_input_map_highlight_by_tag, 'h', -1, -1),
+  INPUT_SETTING("input_map_mouse_pan", dsda_input_map_mouse_pan, 'p', -1, -1),
 
   INPUT_SETTING("input_repeat_message", dsda_input_repeat_message, 0, -1, -1),
 

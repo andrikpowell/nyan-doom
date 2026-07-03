@@ -203,6 +203,7 @@ extern int automap_full;
 extern int automap_overlay;
 extern int automap_rotate;
 extern int automap_follow;
+extern int automap_mouse_pan;
 extern int automap_grid;
 extern int autopage_active;
 extern int autopage_fade;
