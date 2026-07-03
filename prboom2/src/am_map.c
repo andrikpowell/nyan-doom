@@ -1253,6 +1253,40 @@ static void AM_AddTaggedSectorConnections(sector_t *sec)
   }
 }
 
+static void AM_AddManualDoorLineConnection(line_t *line)
+{
+  mpoint_t origin;
+  mpoint_t destination;
+
+  if (!P_IsManualDoor(line))
+    return;
+
+  AM_HighlightLineCenter(&origin, line);
+  AM_HighlightSectorCenter(&destination, line->backsector);
+
+  AM_AddHighlightConnection(origin, destination);
+}
+
+static void AM_AddManualDoorSectorConnections(sector_t *sec)
+{
+  int i;
+  mpoint_t origin;
+  mpoint_t destination;
+
+  AM_HighlightSectorCenter(&origin, sec);
+
+  for (i = 0; i < numlines; ++i)
+  {
+    line_t *line = &lines[i];
+
+    if (P_IsManualDoor(line) && line->backsector == sec)
+    {
+      AM_HighlightLineCenter(&destination, line);
+      AM_AddHighlightConnection(origin, destination);
+    }
+  }
+}
+
 static void AM_HighlightConnections(void)
 {
   Z_Free(highlight.connections);
@@ -1269,6 +1303,18 @@ static void AM_HighlightConnections(void)
     else if (highlight.sec)
     {
       AM_AddTaggedSectorConnections(highlight.sec);
+    }
+  }
+  // Zero Tag Doors
+  else if (highlight.tag == 0)
+  {
+    if (highlight.line)
+    {
+      AM_AddManualDoorLineConnection(highlight.line);
+    }
+    else if (highlight.sec)
+    {
+      AM_AddManualDoorSectorConnections(highlight.sec);
     }
   }
 }

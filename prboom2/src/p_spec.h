@@ -1021,6 +1021,9 @@ sector_t* getNextSector
 int P_CheckTag
 (line_t *line); // jff 2/27/98
 
+dboolean P_IsManualDoor
+(line_t* line);
+
 dboolean P_CanUnlockGenDoor
 ( line_t* line,
   player_t* player);
