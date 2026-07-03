@@ -4673,6 +4673,7 @@ setup_menu_t* gen_settings[] =
 
 #define G_X 210
 #define G2_X 220
+#define G3_X 200
 
 static const char *videomodes[] = {
   "Software",
@@ -4741,17 +4742,17 @@ setup_menu_t gen_video_settings[] = {
 static const char *soundfont_list[] = { "Internal", NULL };
 
 setup_menu_t gen_audio_settings[] = {
-  { "SFX Volume", S_THERMO, m_conf, g_all, G_X, dsda_config_sfx_volume },
-  { "Music Volume", S_THERMO, m_conf, g_all, G_X, dsda_config_music_volume },
+  { "SFX Volume", S_THERMO, m_conf, g_all, G3_X, dsda_config_sfx_volume },
+  { "Music Volume", S_THERMO, m_conf, g_all, G3_X, dsda_config_music_volume },
   EMPTY_LINE,
-  { "Mute When Out of Focus", S_YESNO, m_conf, g_all, G_X, dsda_config_mute_unfocused_window },
-  { "SFX For Movement Toggles", S_YESNO, m_conf, g_all, G_X, dsda_config_movement_toggle_sfx },
-  { "Play SFX For Quicksave", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_quicksave_sfx },
+  { "Mute When Out of Focus", S_YESNO, m_conf, g_all, G3_X, dsda_config_mute_unfocused_window },
+  { "SFX For Movement Toggles", S_YESNO, m_conf, g_all, G3_X, dsda_config_movement_toggle_sfx },
+  { "Play SFX For Quicksave", S_YESNO | S_NYAN, m_conf, g_all, G3_X, dsda_config_quicksave_sfx },
   EMPTY_LINE,
-  { "Preferred MIDI player", S_CHOICE | S_STR, m_conf, g_all, G_X, dsda_config_snd_midiplayer, 0, midiplayers },
-  { "Soundfont", S_CHOICE | S_STR | S_TWO_LINE, m_conf, g_all, G_X, dsda_config_snd_soundfont, 0, soundfont_list, DEPEND(dsda_config_snd_midiplayer, MIDI_FLUIDSYNTH) },
+  { "Preferred MIDI player", S_CHOICE | S_STR, m_conf, g_all, G3_X, dsda_config_snd_midiplayer, 0, midiplayers },
+  { "Soundfont", S_CHOICE | S_STR | S_TWO_LINE, m_conf, g_all, G3_X, dsda_config_snd_soundfont, 0, soundfont_list, DEPEND(dsda_config_snd_midiplayer, MIDI_FLUIDSYNTH) },
   EMPTY_LINE,
-  FUNC("Advanced Sound", S_CENTER, G_X, M_Sub_AdvAudio),
+  FUNC("Advanced Sound", S_CENTER, G3_X, M_Sub_AdvAudio),
 
   PREV_PAGE(gen_video_settings),
   NEXT_PAGE(gen_device_settings),
@@ -4766,11 +4767,11 @@ setup_menu_t gen_device_settings[] = {
   { "Enable Mouse", S_YESNO, m_conf, g_all, G2_X, dsda_config_use_mouse },
   { "Vertical Mouse Movement", S_YESNO, m_conf, g_all, G2_X, dsda_config_vertmouse, 0, empty_list, DEPEND(dsda_config_use_mouse, true) },
   { "Dbl-Click As Use", S_YESNO, m_conf, g_all, G2_X, dsda_config_mouse_doubleclick_as_use, 0, empty_list, DEPEND(dsda_config_use_mouse, true) },
-  FUNC_DEPEND("Mouse Options", S_CENTER, g_all, G_X, M_Sub_Mouse, dsda_config_use_mouse, true),
+  FUNC_DEPEND("Mouse Options", S_CENTER, g_all, G2_X, M_Sub_Mouse, dsda_config_use_mouse, true),
   EMPTY_LINE,
   { "Enable Gamepad", S_YESNO, m_conf, g_all, G2_X, dsda_config_use_game_controller },
   { "Swap Analogs", S_YESNO, m_conf, g_all, G2_X, dsda_config_swap_analogs, 0, empty_list, DEPEND(dsda_config_use_game_controller, true) },
-  FUNC_DEPEND("Gamepad Options", S_CENTER, g_all, G_X, M_Sub_Gamepad, dsda_config_use_game_controller, true),
+  FUNC_DEPEND("Gamepad Options", S_CENTER, g_all, G2_X, M_Sub_Gamepad, dsda_config_use_game_controller, true),
   EMPTY_LINE,
   { "Enable Freelook", S_YESNO, m_conf, g_all, G2_X, dsda_config_freelook },
   { "Invert Freelook", S_YESNO, m_conf, g_all, G2_X, dsda_config_movement_mouseinvert, 0, empty_list, DEPEND_MULTI(freelook_list) },
