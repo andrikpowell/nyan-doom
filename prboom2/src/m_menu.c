@@ -2168,6 +2168,7 @@ static int choice_value;
 
 #define SOFTWARE_MODE 0
 #define OPENGL_MODE   1
+#define MIDI_FLUIDSYNTH 0
 
 static dboolean M_DependantDisabled(const setup_menu_t* s)
 {
@@ -2186,6 +2187,12 @@ static dboolean M_DependantDisabled(const setup_menu_t* s)
 
         // Disable Software Options in OpenGL
         if ((dep->value == SOFTWARE_MODE) && V_IsOpenGLMode())
+          return true;
+      }
+      // Fluidsynth Soundfont
+      else if (dep->config_id == dsda_config_snd_midiplayer)
+      {
+        if ((dep->value == MIDI_FLUIDSYNTH) && stricmp(dsda_StringConfig(dsda_config_snd_midiplayer), "fluidsynth"))
           return true;
       }
       else  // Default behaviour
@@ -4623,15 +4630,18 @@ setup_menu_t gen_video_settings[] = {
   FINAL_ENTRY
 };
 
+static const char *soundfont_list[] = { "Internal", NULL };
+
 setup_menu_t gen_audio_settings[] = {
   { "SFX Volume", S_THERMO, m_conf, g_all, G_X, dsda_config_sfx_volume },
   { "Music Volume", S_THERMO, m_conf, g_all, G_X, dsda_config_music_volume },
   EMPTY_LINE,
-  { "Preferred MIDI player", S_CHOICE | S_STR, m_conf, g_all, G_X, dsda_config_snd_midiplayer, 0, midiplayers },
   { "Mute When Out of Focus", S_YESNO, m_conf, g_all, G_X, dsda_config_mute_unfocused_window },
-  EMPTY_LINE,
   { "SFX For Movement Toggles", S_YESNO, m_conf, g_all, G_X, dsda_config_movement_toggle_sfx },
   { "Play SFX For Quicksave", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_quicksave_sfx },
+  EMPTY_LINE,
+  { "Preferred MIDI player", S_CHOICE | S_STR, m_conf, g_all, G_X, dsda_config_snd_midiplayer, 0, midiplayers },
+  { "Soundfont", S_CHOICE | S_STR, m_conf, g_all, G_X, dsda_config_snd_soundfont, 0, soundfont_list, DEPEND(dsda_config_snd_midiplayer, MIDI_FLUIDSYNTH) },
   EMPTY_LINE,
   FUNC("Advanced Sound", S_CENTER, G_X, M_Sub_AdvAudio),
 
@@ -9412,6 +9422,7 @@ void M_Init(void)
   M_ChangeMapMultisamling();
 
   M_ChangeStretch();
+  M_InitSoundfontMenu();
 
   M_ChangeMIDIPlayer();
 }

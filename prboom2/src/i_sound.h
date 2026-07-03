@@ -134,6 +134,9 @@ typedef enum
 
 extern const char *midiplayers[];
 
+const char** I_GetSoundfontList(void);
+const char* I_GetSoundfontFile(const char *soundfont);
 void M_ChangeMIDIPlayer(void);
+void M_ChangeSoundfont(void);
 
 #endif

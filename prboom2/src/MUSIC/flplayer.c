@@ -69,7 +69,7 @@ const music_player_t fl_player =
 #include <fluidsynth.h>
 #include <stdlib.h>
 #include <string.h>
-#include "i_system.h" // for I_FindFile()
+#include "i_sound.h"
 #include "lprintf.h"
 #include "midifile.h"
 #include "memio.h"
@@ -283,10 +283,14 @@ static int fl_init (int samplerate)
 
     if (!replaced_soundfont && snd_soundfont && snd_soundfont[0])
     {
-      checked_file = true;
-      checked_f_font = snd_soundfont;
-      filename = I_FindFile2(snd_soundfont, ".sf2");
-      f_font = fluid_synth_sfload (f_syn, filename, 1);
+      filename = I_GetSoundfontFile(snd_soundfont);
+
+      if (filename)
+      {
+        checked_file = true;
+        checked_f_font = snd_soundfont;
+        f_font = fluid_synth_sfload (f_syn, filename, 1);
+      }
     }
 
     if ((!checked_file || f_font == FLUID_FAILED) && lumpnum >= 0)
