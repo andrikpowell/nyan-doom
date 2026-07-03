@@ -189,7 +189,7 @@ static void I_AddSoundfontToList(const char* soundfont)
   soundfont_list[soundfont_count] = NULL;
 }
 
-static void I_InitSoundfontList(void)
+void I_InitSoundfontList(void)
 {
   const char* soundfont_folder;
   const char* filename;
@@ -1248,7 +1248,7 @@ void I_InitMusic(void)
   I_AtExit(I_ShutdownMusic, true, "I_ShutdownMusic", exit_priority_normal);
 }
 
-static void I_ReinitMusic(void)
+void I_ReinitMusic(void)
 {
   int i;
 
@@ -1271,6 +1271,28 @@ static void I_ReinitMusic(void)
   S_RestartMusic();
 }
 
+static dboolean I_ReloadSoundfont(void)
+{
+  int i;
+  dboolean result = false;
+
+  if (nomusicparm || !musmutex)
+    return false;
+
+  for (i = 0; music_players[i]; i++)
+  {
+    if (music_players[i] == &fl_player && music_player_was_init[i])
+    {
+      SDL_LockMutex(musmutex);
+      result = fl_reload_soundfont();
+      SDL_UnlockMutex(musmutex);
+      break;
+    }
+  }
+
+  return result;
+}
+
 void M_ChangeSoundfont(void)
 {
   const char* soundfont = I_GetSoundfontConfig();
@@ -1278,13 +1300,22 @@ void M_ChangeSoundfont(void)
   if (current_soundfont && !strcmp(soundfont, current_soundfont))
     return;
 
-  if (nomusicparm || !musmutex)
+  if (!musmutex)
   {
     I_SetCurrentSoundfont();
     return;
   }
 
-  I_ReinitMusic();
+  if (I_ReloadSoundfont())
+  {
+    I_SetCurrentSoundfont();
+    return;
+  }
+
+  lprintf(LO_WARN, "M_ChangeSoundfont: unable to reload soundfont; keeping current soundfont.\n");
+
+  if (current_soundfont)
+    dsda_HackStringConfig(dsda_config_snd_soundfont, current_soundfont, true);
 }
 
 // Derived value (not saved, accounts for muted music)

@@ -36,6 +36,8 @@
 
 extern const music_player_t fl_player;
 
+int fl_reload_soundfont(void);
+
 
 
 
