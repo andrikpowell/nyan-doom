@@ -33,6 +33,8 @@ typedef struct {
 
 static local_component_t* local;
 
+#define MAP_TOTALS_ICON_HEIGHT 7
+
 static void dsda_DMStats(char* str, size_t max_size) {
   int i, p;
   size_t length;
@@ -79,13 +81,15 @@ static void dsda_DMStats(char* str, size_t max_size) {
   }
 }
 
-static void dsda_DrawMapIcon(int x, int y, const char* lumpname, int color)
+static void dsda_DrawMapIcon(int x, int y, const char* lumpname, int color, int line_height)
 {
   int flags = local->icons.vpt;
   dboolean from_pwad;
 
   if (!lumpname || !W_LumpNameExists(lumpname))
     return;
+
+  y += (line_height - MAP_TOTALS_ICON_HEIGHT) / 2;
 
   from_pwad = W_PWADLumpNameExists2(lumpname);
 
@@ -98,11 +102,8 @@ static void dsda_DrawMapIcon(int x, int y, const char* lumpname, int color)
 static void dsda_DrawMapTotalsIcons(void)
 {
   int x = local->icons.x;
-  int y = local->icons.y;
-  int y_spacing = raven ? 10 : 8;
-
-  if (raven)
-    y += 3;
+  int y = local->label.text.y;
+  int y_spacing = local->label.text.line_height;
 
   if (local->include_kills)
   {
@@ -110,7 +111,7 @@ static void dsda_DrawMapTotalsIcons(void)
     const char* kill_icon_lump =  hexen   ? "AMKILLS3" :
                                   heretic ? "AMKILLS2" :
                                             "AMKILLS";
-    dsda_DrawMapIcon(x, y, kill_icon_lump, dsda_TextCR(color));
+    dsda_DrawMapIcon(x, y, kill_icon_lump, dsda_TextCR(color), y_spacing);
     y += y_spacing;
   }
 
@@ -120,7 +121,7 @@ static void dsda_DrawMapTotalsIcons(void)
     const char* item_icon_lump =  hexen   ? "AMITEM3" :
                                   heretic ? "AMITEM2" :
                                             "AMITEM";
-    dsda_DrawMapIcon(x, y, item_icon_lump, dsda_TextCR(color));
+    dsda_DrawMapIcon(x, y, item_icon_lump, dsda_TextCR(color), y_spacing);
     y += y_spacing;
   }
 
@@ -130,7 +131,7 @@ static void dsda_DrawMapTotalsIcons(void)
     const char* secret_icon_lump =  hexen   ? "AMSECR3" :
                                     heretic ? "AMSECR2" :
                                               "AMSECR";
-    dsda_DrawMapIcon(x, y, secret_icon_lump, dsda_TextCR(color));
+    dsda_DrawMapIcon(x, y, secret_icon_lump, dsda_TextCR(color), y_spacing);
   }
 }
 
