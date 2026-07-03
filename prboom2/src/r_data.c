@@ -652,12 +652,29 @@ void R_SetSpriteByNum(patchnum_t *patchnum, int lump)
   patchnum->lumpnum = lump;
 }
 
+static void R_ErrorMissingSpriteFrames(const char *func, spritenum_t item)
+{
+  if (item < 0 || item >= num_sprites)
+    I_Error("%s: sprite index %d out of range", func, item);
+
+  if (sprnames[item])
+    I_Error("%s: sprite %.4s has no frames; expected %.4sA0",
+            func, sprnames[item], sprnames[item]);
+
+  I_Error("%s: sprite index %d has no frames", func, item);
+}
+
 int R_SetSpriteByIndex(patchnum_t *patchnum, spritenum_t item)
 {
   int result = false;
-  if (item < num_sprites)
+  if (item >= 0 && item < num_sprites)
   {
-    int lump = firstspritelump + sprites[item].spriteframes->lump[0];
+    int lump;
+
+    if (!sprites[item].spriteframes)
+      R_ErrorMissingSpriteFrames("R_SetSpriteByIndex", item);
+
+    lump = firstspritelump + sprites[item].spriteframes->lump[0];
     R_SetSpriteByNum(patchnum, lump);
     result = true;
   }
@@ -671,7 +688,20 @@ int R_NumPatchForSpriteIndex(spritenum_t item)
     return -1;
   }
 
+  if (!sprites[item].spriteframes)
+    R_ErrorMissingSpriteFrames("R_NumPatchForSpriteIndex", item);
+
   return firstspritelump + sprites[item].spriteframes->lump[0];
+}
+
+int R_SafeNumPatchForSpriteIndex(spritenum_t item)
+{
+  if (item < 0 || item >= num_sprites || !sprites[item].spriteframes)
+  {
+    return LUMP_NOT_FOUND;
+  }
+
+  return R_NumPatchForSpriteIndex(item);
 }
 
 int R_SetSpriteByName(patchnum_t *patchnum, const char *name)
