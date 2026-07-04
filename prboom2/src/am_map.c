@@ -1723,6 +1723,10 @@ static void AM_changeWindowScale(void)
     AM_maxOutWindowScale();
   else
     AM_activateNewScale();
+
+  // Update position for mouse panning
+  prev_m_x = m_x;
+  prev_m_y = m_y;
 }
 
 //
