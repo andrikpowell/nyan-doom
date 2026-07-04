@@ -1712,6 +1712,42 @@ static void AM_DrawHighlightBlink(void)
 }
 
 //
+// Save/Load Tag Finder State
+//
+
+void AM_GetTagFinderState(am_tagfinder_state_t *state)
+{
+  state->sector = highlight.sec ? highlight.sec->iSectorID : -1;
+  state->line = highlight.line ? highlight.line->iLineID : -1;
+  state->tag = highlight.tag;
+  state->thing = highlight.thing;
+  state->x = highlight.x;
+  state->y = highlight.y;
+}
+
+void AM_SetTagFinderState(const am_tagfinder_state_t *state)
+{
+  AM_ResetTagHighlight();
+
+  highlight.x = state->x;
+  highlight.y = state->y;
+
+  if (state->sector >= 0 && state->sector < numsectors)
+    highlight.sec = &sectors[state->sector];
+
+  if (state->line >= 0 && state->line < numlines)
+    highlight.line = &lines[state->line];
+
+  if (highlight.sec || highlight.line)
+  {
+    highlight.tag = state->tag;
+    highlight.thing = state->thing;
+
+    AM_HighlightConnections();
+  }
+}
+
+//
 // AM_Responder()
 //
 // Handle events (user inputs) in automap mode

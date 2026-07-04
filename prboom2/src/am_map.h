@@ -153,6 +153,19 @@ typedef struct
 extern markpoint_t *markpoints;
 extern int markpointnum, markpointnum_max;
 
+typedef struct
+{
+  int sector;
+  int line;
+  int tag;
+  int thing;
+  fixed_t x;
+  fixed_t y;
+} am_tagfinder_state_t;
+
+void AM_GetTagFinderState(am_tagfinder_state_t *state);
+void AM_SetTagFinderState(const am_tagfinder_state_t *state);
+
 // end changes -- killough 2/22/98
 
 extern mapcolor_t mapcolor;
