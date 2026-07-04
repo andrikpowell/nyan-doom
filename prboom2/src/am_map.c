@@ -1155,6 +1155,20 @@ static line_t *AM_ClosestLine(fixed_t x, fixed_t y, sector_t *sec)
   return closest_line;
 }
 
+static void AM_HighlightLineCenter(mpoint_t *point, line_t *line)
+{
+  R_LineCenter(&point->x, &point->y, line);
+  point->x >>= FRACTOMAPBITS;
+  point->y >>= FRACTOMAPBITS;
+}
+
+static void AM_HighlightSectorCenter(mpoint_t *point, sector_t *sec)
+{
+  R_SectorCenter(&point->x, &point->y, sec);
+  point->x >>= FRACTOMAPBITS;
+  point->y >>= FRACTOMAPBITS;
+}
+
 static void AM_AddHighlightConnection(mpoint_t a, mpoint_t b)
 {
   if (!highlight.connection_max)
@@ -1178,50 +1192,9 @@ static void AM_AddHighlightConnection(mpoint_t a, mpoint_t b)
   ++highlight.connection_count;
 }
 
-static void AM_HighlightLineCenter(mpoint_t *point, line_t *line)
-{
-  R_LineCenter(&point->x, &point->y, line);
-  point->x >>= FRACTOMAPBITS;
-  point->y >>= FRACTOMAPBITS;
-}
-
-static void AM_HighlightSectorCenter(mpoint_t *point, sector_t *sec)
-{
-  R_SectorCenter(&point->x, &point->y, sec);
-  point->x >>= FRACTOMAPBITS;
-  point->y >>= FRACTOMAPBITS;
-}
-
-static const char* AM_SectorEffectMessage(short spawn_special)
-{
-  if (raven)
-    return "";
-
-  if (map_format.zdoom)
-  {
-    switch (spawn_special & 0xff)
-    {
-      case zs_d_sector_door_close_in_30:
-        return ", 30 sec door close";
-      case zs_d_sector_door_raise_in_5_mins:
-        return ", door opens after 5 min";
-      default:
-        return "";
-    }
-  }
-  else // classic Doom
-  {
-    switch (spawn_special & 31)
-    {
-      case 10:
-        return ", 30 sec door close";
-      case 14:
-        return ", door opens after 5 min";
-      default:
-        return "";
-    }
-  }
-}
+//
+// Tag Finder Normal Actions
+//
 
 static void AM_AddTaggedLineConnections(line_t *line)
 {
@@ -1252,6 +1225,10 @@ static void AM_AddTaggedSectorConnections(sector_t *sec)
     AM_AddHighlightConnection(origin, destination);
   }
 }
+
+//
+// Tag Finder ZeroTag Actions (Manual Doors)
+//
 
 static void AM_AddManualDoorLineConnection(line_t *line)
 {
@@ -1286,6 +1263,70 @@ static void AM_AddManualDoorSectorConnections(sector_t *sec)
     }
   }
 }
+
+//
+// Tag Finder Sector Effect
+//
+
+typedef enum {
+  AM_NO_EFFECT,
+  AM_30_SEC_DOOR,
+  AM_5_MIN_DOOR,
+} am_sec_effect_t;
+
+static int AM_HighlightSectorEffect(sector_t *sec)
+{
+  if (raven)
+    return AM_NO_EFFECT;
+
+  if (map_format.zdoom)
+  {
+    switch (sec->spawn_special & 0xff)
+    {
+      case zs_d_sector_door_close_in_30:
+        return AM_30_SEC_DOOR;
+      case zs_d_sector_door_raise_in_5_mins:
+        return AM_5_MIN_DOOR;
+
+      default:
+        return AM_NO_EFFECT;
+    }
+  }
+  else // classic Doom
+  {
+    switch (sec->spawn_special & 31)
+    {
+      case 10:
+          return AM_30_SEC_DOOR;
+      case 14:
+        return AM_5_MIN_DOOR;
+
+      default:
+        return AM_NO_EFFECT;
+    }
+  }
+
+  return AM_NO_EFFECT;
+}
+
+static const char* AM_HighlightSectorEffectMessage(sector_t *sec)
+{
+  int sector_effect = AM_HighlightSectorEffect(sec);
+
+  if (sector_effect != AM_NO_EFFECT)
+  {
+    if (sector_effect & AM_30_SEC_DOOR)
+      return ", 30 sec door close";
+    else if (sector_effect & AM_5_MIN_DOOR)
+      return ", door opens after 5 min";
+  }
+
+  return "";
+}
+
+//
+// Tag Finder Main Functions
+//
 
 static void AM_HighlightConnections(void)
 {
@@ -1325,6 +1366,7 @@ static void AM_HighlightByTag(void)
   sector_t *sec;
   line_t *line;
   dboolean repeat;
+  const char* highlight_effect;
 
   x = m_x + m_w / 2;
   y = m_y + m_h / 2;
@@ -1343,9 +1385,11 @@ static void AM_HighlightByTag(void)
     highlight.line = NULL;
     highlight.tag = sec->tag;
 
-    doom_printf("Highlight sector %d, tag %d%s\n",
+    highlight_effect = AM_HighlightSectorEffectMessage(highlight.sec);
+
+    doom_printf("Highlight sector %d, tag %d%s%s\n",
                 highlight.sec->iSectorID, highlight.tag,
-                AM_SectorEffectMessage(highlight.sec->spawn_special));
+                highlight_effect);
   }
   // Highlight line
   else if (highlight.sec)
