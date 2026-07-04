@@ -29,6 +29,7 @@ mobjinfo_t* mobjinfo;
 int num_mobj_types;
 int mobj_types_zero;
 byte* edited_mobjinfo_bits;
+byte* edited_mobjinfo_bloodcolor;
 
 static void dsda_ResetMobjInfo(int from, int to) {
   int i;
@@ -59,6 +60,11 @@ static void dsda_EnsureCapacity(int limit) {
     memset(edited_mobjinfo_bits + old_num_mobj_types, 0,
       (num_mobj_types - old_num_mobj_types) * sizeof(*edited_mobjinfo_bits));
 
+    edited_mobjinfo_bloodcolor =
+      Z_Realloc(edited_mobjinfo_bloodcolor, num_mobj_types * sizeof(*edited_mobjinfo_bloodcolor));
+    memset(edited_mobjinfo_bloodcolor + old_num_mobj_types, 0,
+      (num_mobj_types - old_num_mobj_types) * sizeof(*edited_mobjinfo_bloodcolor));
+
     dsda_ResetMobjInfo(old_num_mobj_types, num_mobj_types);
   }
 }
@@ -85,6 +91,7 @@ dsda_deh_mobjinfo_t dsda_GetDehMobjInfo(int index) {
 
   deh_mobjinfo.info = &mobjinfo[index];
   deh_mobjinfo.edited_bits = &edited_mobjinfo_bits[index];
+  deh_mobjinfo.edited_bloodcolor = &edited_mobjinfo_bloodcolor[index];
 
   return deh_mobjinfo;
 }
@@ -102,6 +109,7 @@ void dsda_InitializeMobjInfo(int zero, int max, int count) {
   deh_mobj_index_hash.start_index = num_mobj_types;
   deh_mobj_index_hash.end_index = num_mobj_types;
   edited_mobjinfo_bits = Z_Calloc(num_mobj_types, sizeof(*edited_mobjinfo_bits));
+  edited_mobjinfo_bloodcolor = Z_Calloc(num_mobj_types, sizeof(*edited_mobjinfo_bloodcolor));
 }
 
 // Changing the renderer causes a reset that accesses this list,

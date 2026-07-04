@@ -25,6 +25,7 @@
 typedef struct {
   mobjinfo_t* info;
   byte* edited_bits;
+  byte* edited_bloodcolor;
 } dsda_deh_mobjinfo_t;
 
 int dsda_FindDehMobjIndex(int index);

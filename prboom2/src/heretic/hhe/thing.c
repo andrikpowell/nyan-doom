@@ -518,6 +518,10 @@ static void hhe_procThing(DEHFILE *fpin, char *line)
       // -----------------------
       switch (ix)
       {
+        case HHE_MOBJINFO_BLOODCOLOR:
+          *hhe_mobjinfo.edited_bloodcolor = true;
+          break;
+
         case HHE_MOBJINFO_OBITUARY:
         {
           char *stripped_string = ptr_lstrip(strval);
