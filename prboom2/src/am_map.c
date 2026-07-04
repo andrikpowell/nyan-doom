@@ -478,6 +478,8 @@ am_frame_t am_frame;
 array_t map_lines;
 
 static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a);
+static void AM_rotatePoint(mpoint_t *p);
+static void AM_drawMline(mline_t* ml, int color);
 
 static void AM_SetMPointFloatValue(mpoint_t *p)
 {
@@ -1410,6 +1412,110 @@ static void AM_HighlightByTag(void)
   }
 
   AM_HighlightConnections();
+}
+
+//
+// Tag Finder Blinking Lines / Sectors
+//
+
+static dboolean AM_ShouldBlinkHighlightLine(line_t *line)
+{
+  if (highlight.line)
+  {
+    // if nothing to highlight
+    if (!highlight.connection_count)
+      return false;
+
+    // highlight main line
+    if (line == highlight.line)
+      return highlight.tag || P_IsManualDoor(highlight.line);
+
+    // highlight sectors linked to main line
+    if (highlight.tag)
+      return (line->frontsector && line->frontsector->tag == highlight.tag) ||
+             (line->backsector && line->backsector->tag == highlight.tag);
+
+    // highlight manual doors
+    if (P_IsManualDoor(highlight.line))
+      return line->frontsector == highlight.line->backsector ||
+             line->backsector == highlight.line->backsector;
+
+    return false;
+  }
+
+  if (highlight.sec)
+  {
+    dboolean sector_line = line->frontsector == highlight.sec || line->backsector == highlight.sec;
+
+    // highlight sector effect
+    if (AM_HighlightSectorEffect(highlight.sec) && sector_line)
+      return true;
+
+    // if nothing to highlight
+    if (!highlight.connection_count)
+      return false;
+
+    // highlight main sector
+    if (sector_line)
+      return true;
+
+    // highlight lines linked to main sector
+    if (highlight.tag)
+      return line->tag == highlight.tag;
+
+    // highlight manual doors
+    if (P_IsManualDoor(line))
+      return line->backsector == highlight.sec;
+
+    return false;
+  }
+
+  return false;
+}
+
+static void AM_DrawHighlightBlink(void)
+{
+  int i;
+
+  // no color + no blinking
+  if (!mapcolor_p->tagfinder)
+    return;
+
+  // blink interval (opposite of locked door blink)
+  if (!(!!(gametic & 16)))
+    return;
+
+  for (i = 0; i < numlines; ++i)
+  {
+    mline_t l;
+
+    if (lines[i].bbox[BOXLEFT] >> FRACTOMAPBITS > am_frame.bbox[BOXRIGHT] ||
+        lines[i].bbox[BOXRIGHT] >> FRACTOMAPBITS < am_frame.bbox[BOXLEFT] ||
+        lines[i].bbox[BOXBOTTOM] >> FRACTOMAPBITS > am_frame.bbox[BOXTOP] ||
+        lines[i].bbox[BOXTOP] >> FRACTOMAPBITS < am_frame.bbox[BOXBOTTOM])
+      continue;
+
+    if (!AM_ShouldBlinkHighlightLine(&lines[i]))
+      continue;
+
+    l.a.x = lines[i].v1->x >> FRACTOMAPBITS;
+    l.a.y = lines[i].v1->y >> FRACTOMAPBITS;
+    l.b.x = lines[i].v2->x >> FRACTOMAPBITS;
+    l.b.y = lines[i].v2->y >> FRACTOMAPBITS;
+
+    if (automap_rotate)
+    {
+      AM_rotatePoint(&l.a);
+      AM_rotatePoint(&l.b);
+    }
+    else
+    {
+      AM_SetMPointFloatValue(&l.a);
+      AM_SetMPointFloatValue(&l.b);
+    }
+
+    AM_drawMline(&l, mapcolor_p->tagfinder);
+  }
 }
 
 //
@@ -2413,6 +2519,8 @@ static void AM_DrawConnections(void)
 
   if (!dsda_RevealAutomap())
     return;
+
+  AM_DrawHighlightBlink();
 
   for (i = 0; i < highlight.connection_count; ++i)
   {
