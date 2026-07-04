@@ -1509,6 +1509,27 @@ static void AM_HighlightSectorMessage(void)
               AM_HighlightBossActionMessage(highlight.thing));
 }
 
+#define TAG_FINDER_GRACE_PIXELS 3
+
+static dboolean AM_SameHighlightSpot(fixed_t x, fixed_t y)
+{
+  fixed_t g_x, g_y;
+  fixed_t min_x, max_x, min_y, max_y;
+
+  if (highlight.x == INT_MIN || highlight.y == INT_MIN)
+    return false;
+
+  g_x = FTOM(TAG_FINDER_GRACE_PIXELS * SCREENWIDTH / 320);
+  g_y = FTOM(TAG_FINDER_GRACE_PIXELS * SCREENHEIGHT / 200);
+
+  min_x = highlight.x - g_x;
+  max_x = highlight.x + g_x;
+  min_y = highlight.y - g_y;
+  max_y = highlight.y + g_y;
+
+  return x >= min_x && x <= max_x && y >= min_y && y <= max_y;
+}
+
 static void AM_HighlightByTag(void)
 {
   fixed_t x, y;
@@ -1521,9 +1542,21 @@ static void AM_HighlightByTag(void)
   x = m_x + m_w / 2;
   y = m_y + m_h / 2;
 
-  repeat = (x == highlight.x && y == highlight.y);
-  highlight.x = x;
-  highlight.y = y;
+  // grace area (scaled 3px) for mouse highlighting
+  repeat = AM_SameHighlightSpot(x, y);
+
+  if (repeat)
+  {
+    // reuse last highlight point
+    x = highlight.x;
+    y = highlight.y;
+  }
+  else
+  {
+    // set new highlight point
+    highlight.x = x;
+    highlight.y = y;
+  }
 
   sec = R_PointInSector(x << FRACTOMAPBITS, y << FRACTOMAPBITS);
   line = AM_ClosestLine(x, y, sec);
