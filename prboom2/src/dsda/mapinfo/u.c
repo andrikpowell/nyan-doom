@@ -547,6 +547,28 @@ int dsda_UBossAction(mobj_t* mo) {
   return true;
 }
 
+int dsda_UHasBossActionTag(int* result, int type, int tag) {
+  int i;
+
+  if (!gamemapinfo || !gamemapinfo->numbossactions || map_format.zdoom)
+    return false;
+
+  if (gamemapinfo->numbossactions < 0)
+    return true;
+
+  for (i = 0; i < gamemapinfo->numbossactions; ++i)
+  {
+    if (gamemapinfo->bossactions[i].type == type &&
+        gamemapinfo->bossactions[i].tag == tag)
+    {
+      *result = true;
+      break;
+    }
+  }
+
+  return true;
+}
+
 int dsda_UMapLumpName(const char** name, int episode, int map) {
   return false;
 }

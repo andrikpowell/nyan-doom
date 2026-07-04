@@ -45,6 +45,9 @@
 #include "r_main.h"
 #include "p_setup.h"
 #include "p_maputl.h"
+#include "p_enemy.h"
+#include "p_inter.h"
+#include "p_tick.h"
 #include "w_wad.h"
 #include "v_video.h"
 #include "p_spec.h"
@@ -62,6 +65,7 @@
 #include "dsda/id_list.h"
 #include "dsda/input.h"
 #include "dsda/map_format.h"
+#include "dsda/mapinfo.h"
 #include "dsda/messenger.h"
 #include "dsda/pause.h"
 #include "dsda/settings.h"
@@ -95,9 +99,16 @@ typedef struct
   mpoint_t a, b;
 } mline_t;
 
+typedef enum {
+  AM_NONE,
+  AM_BOSSDEATH,
+  AM_KEENDIE,
+} am_thingfilter_t;
+
 typedef struct
 {
   int tag;
+  am_thingfilter_t thing;
   fixed_t x, y;
   sector_t *sec;
   line_t *line;
@@ -1171,6 +1182,12 @@ static void AM_HighlightSectorCenter(mpoint_t *point, sector_t *sec)
   point->y >>= FRACTOMAPBITS;
 }
 
+static void AM_HighlightMobjCenter(mpoint_t *point, mobj_t *mo)
+{
+  point->x = mo->x >> FRACTOMAPBITS;
+  point->y = mo->y >> FRACTOMAPBITS;
+}
+
 static void AM_AddHighlightConnection(mpoint_t a, mpoint_t b)
 {
   if (!highlight.connection_max)
@@ -1327,6 +1344,119 @@ static const char* AM_HighlightSectorEffectMessage(sector_t *sec)
 }
 
 //
+// Tag Finder Bossactions (Bossdeath / Keendie)
+//
+
+static int P_FindBossActionForTag(mobj_t *mo, int tag)
+{
+  int action = AM_NONE;
+
+  if (mo->health > 0)
+  {
+    if (P_MobjHasDeathAction(mo, A_KeenDie) && tag == 666)
+      action |= AM_KEENDIE;
+
+    if (P_MobjHasDeathAction(mo, A_BossDeath) && dsda_HasBossActionTag(mo, tag))
+      action |= AM_BOSSDEATH;
+  }
+
+  return action;
+}
+
+static int AM_HighlightedBossAction(mobj_t *mo)
+{
+  if (highlight.sec && highlight.tag && highlight.thing)
+  {
+    if (P_FindBossActionForTag(mo, highlight.tag) & highlight.thing)
+      return highlight.thing;
+  }
+
+  return false;
+}
+
+static int AM_BossActionsForTag(int tag)
+{
+  thinker_t *th;
+  int actions = AM_NONE;
+  mobj_t *mo;
+
+  if (tag)
+  {
+    // don't use thinglist, as it doesn't include nosector
+    for (th = thinkercap.next; th != &thinkercap; th = th->next)
+    {
+      if (th->function != P_MobjThinker)
+        continue;
+
+      mo = (mobj_t *) th;
+      actions |= P_FindBossActionForTag(mo, tag);
+
+      if (actions == (AM_BOSSDEATH | AM_KEENDIE))
+        return actions;
+    }
+  }
+
+  return actions;
+}
+
+static int AM_FirstBossAction(int tag)
+{
+  int actions = AM_BossActionsForTag(tag);
+
+  if (actions & AM_BOSSDEATH)
+    return AM_BOSSDEATH;
+
+  if (actions & AM_KEENDIE)
+    return AM_KEENDIE;
+
+  return AM_NONE;
+}
+
+static const char* AM_HighlightBossActionMessage(int filter)
+{
+  switch (filter)
+  {
+    case AM_BOSSDEATH:
+      return ", BossDeath";
+
+    case AM_KEENDIE:
+      return ", KeenDie";
+
+    default:
+      return "";
+  }
+
+  return "";
+}
+
+static void AM_AddBossActionConnections(sector_t *sec, int filter)
+{
+  thinker_t *th;
+  mpoint_t origin;
+  mpoint_t destination;
+  mobj_t *mo;
+
+  if (!sec->tag || !filter)
+    return;
+
+  AM_HighlightSectorCenter(&destination, sec);
+
+  for (th = thinkercap.next; th != &thinkercap; th = th->next)
+  {
+    if (th->function != P_MobjThinker)
+      continue;
+
+    mo = (mobj_t *) th;
+
+    if (P_FindBossActionForTag(mo, sec->tag) & filter)
+    {
+      AM_HighlightMobjCenter(&origin, mo);
+      AM_AddHighlightConnection(origin, destination);
+    }
+  }
+}
+
+//
 // Tag Finder Main Functions
 //
 
@@ -1346,6 +1476,15 @@ static void AM_HighlightConnections(void)
     else if (highlight.sec)
     {
       AM_AddTaggedSectorConnections(highlight.sec);
+
+      if (highlight.thing)
+      {
+        // Include live bossaction thing lines with sector lines
+        if (AM_BossActionsForTag(highlight.tag) & highlight.thing)
+          AM_AddBossActionConnections(highlight.sec, highlight.thing);
+        else
+          highlight.thing = AM_NONE; // Stop following once dead
+      }
     }
   }
   // Zero Tag Doors
@@ -1362,13 +1501,22 @@ static void AM_HighlightConnections(void)
   }
 }
 
+static void AM_HighlightSectorMessage(void)
+{
+  doom_printf("Highlight sector %d, tag %d%s%s\n",
+              highlight.sec->iSectorID, highlight.tag,
+              AM_HighlightSectorEffectMessage(highlight.sec),
+              AM_HighlightBossActionMessage(highlight.thing));
+}
+
 static void AM_HighlightByTag(void)
 {
   fixed_t x, y;
   sector_t *sec;
   line_t *line;
   dboolean repeat;
-  const char* highlight_effect;
+  dboolean sector_highlight;
+  dboolean sector_highlight2;
 
   x = m_x + m_w / 2;
   y = m_y + m_h / 2;
@@ -1380,18 +1528,26 @@ static void AM_HighlightByTag(void)
   sec = R_PointInSector(x << FRACTOMAPBITS, y << FRACTOMAPBITS);
   line = AM_ClosestLine(x, y, sec);
 
+  sector_highlight = !repeat || (!highlight.sec && !highlight.line);
+  sector_highlight2 = highlight.sec &&
+                      highlight.thing == AM_BOSSDEATH &&
+                      (AM_BossActionsForTag(highlight.tag) & AM_KEENDIE);
+
   // Highlight sector
-  if (!repeat || (!highlight.sec && !highlight.line))
+  if (sector_highlight)
   {
     highlight.sec = sec;
     highlight.line = NULL;
     highlight.tag = sec->tag;
+    highlight.thing = AM_FirstBossAction(highlight.tag);
 
-    highlight_effect = AM_HighlightSectorEffectMessage(highlight.sec);
-
-    doom_printf("Highlight sector %d, tag %d%s%s\n",
-                highlight.sec->iSectorID, highlight.tag,
-                highlight_effect);
+    AM_HighlightSectorMessage();
+  }
+  // Highlight sector (second bossaction)
+  else if (sector_highlight2)
+  {
+    highlight.thing = AM_KEENDIE;
+    AM_HighlightSectorMessage();
   }
   // Highlight line
   else if (highlight.sec)
@@ -1399,6 +1555,7 @@ static void AM_HighlightByTag(void)
     highlight.sec = NULL;
     highlight.line = line;
     highlight.tag = line->tag;
+    highlight.thing = 0;
 
     doom_printf("Highlight line %d, tag %d\n", highlight.line->iLineID, line->tag);
   }
@@ -1407,6 +1564,7 @@ static void AM_HighlightByTag(void)
   {
     highlight.line = NULL;
     highlight.tag = 0;
+    highlight.thing = 0;
 
     doom_printf("Highlight nothing\n");
   }
@@ -1451,6 +1609,10 @@ static dboolean AM_ShouldBlinkHighlightLine(line_t *line)
     if (AM_HighlightSectorEffect(highlight.sec) && sector_line)
       return true;
 
+    // highlight bossaction sector
+    if (highlight.thing && sector_line)
+      return true;
+
     // if nothing to highlight
     if (!highlight.connection_count)
       return false;
@@ -1473,16 +1635,14 @@ static dboolean AM_ShouldBlinkHighlightLine(line_t *line)
   return false;
 }
 
+#define TAG_FINDER_BLINK_OFF (!(gametic & 16))
+
 static void AM_DrawHighlightBlink(void)
 {
   int i;
 
-  // no color + no blinking
-  if (!mapcolor_p->tagfinder)
-    return;
-
-  // blink interval (opposite of locked door blink)
-  if (!(!!(gametic & 16)))
+  // no color / blink interval (opposite of locked door blink)
+  if (!mapcolor_p->tagfinder || TAG_FINDER_BLINK_OFF)
     return;
 
   for (i = 0; i < numlines; ++i)
@@ -2512,6 +2672,8 @@ static void AM_DrawArrowHead(const mline_t *line)
   AM_drawMline(&arrow, mapcolor_p->tagfinder);
 }
 
+static void AM_DrawBossActionThings(void);
+
 static void AM_DrawConnections(void)
 {
   int i;
@@ -2519,6 +2681,12 @@ static void AM_DrawConnections(void)
 
   if (!dsda_RevealAutomap())
     return;
+
+  if (highlight.thing)
+  {
+    AM_HighlightConnections(); // continue to follow moving things
+    AM_DrawBossActionThings();
+  }
 
   AM_DrawHighlightBlink();
 
@@ -2631,6 +2799,53 @@ INLINE static void AM_GetMobjPosition(mobj_t *mo, mpoint_t *p, angle_t *angle)
 
   p->x = p->x >> FRACTOMAPBITS;
   p->y = p->y >> FRACTOMAPBITS;
+}
+
+static void AM_DrawBossActionThings(void)
+{
+  thinker_t *th;
+  mobj_t *mo;
+
+  // no color / blink interval (opposite of locked door blink)
+  if (!mapcolor_p->tagfinder || TAG_FINDER_BLINK_OFF)
+    return;
+
+#if defined(HAVE_LIBSDL2_IMAGE)
+  if (V_IsOpenGLMode())
+  {
+    if (map_opengl_nice_things)
+      return;
+  }
+#endif
+
+  for (th = thinkercap.next; th != &thinkercap; th = th->next)
+  {
+    angle_t angle;
+    fixed_t scale;
+    mpoint_t p;
+
+    if (th->function != P_MobjThinker)
+      continue;
+
+    mo = (mobj_t *) th;
+
+    if (AM_HighlightedBossAction(mo))
+    {
+      if (map_things_appearance == map_things_appearance_scaled)
+        scale = (CLAMP(mo->radius, 4<<FRACBITS, 256<<FRACBITS)>>FRACTOMAPBITS);// * 16 / 20;
+      else
+        scale = 16<<MAPBITS;
+
+      AM_GetMobjPosition(mo, &p, &angle);
+
+      if (automap_rotate)
+        AM_rotatePoint(&p);
+      else
+        AM_SetMPointFloatValue(&p);
+
+      AM_drawLineCharacter(thintriangle_guy, NUMTHINTRIANGLEGUYLINES, scale, 0, angle, mapcolor_p->tagfinder, p.x, p.y);
+    }
+  }
 }
 
 //
@@ -2964,6 +3179,60 @@ static void AM_InitNiceThings(void)
     nice_icons[i] = og_icons[i];
 }
 
+static void AM_MapColorRGB(int color, unsigned char *r, unsigned char *g, unsigned char *b)
+{
+  const unsigned char *playpal = V_GetPlaypal();
+
+  if (color < 0 || color == 247)
+    color = 0;
+
+  color &= 0xff;
+  *r = playpal[color * 3 + 0];
+  *g = playpal[color * 3 + 1];
+  *b = playpal[color * 3 + 2];
+}
+
+static int AM_NiceThingPulse(void)
+{
+  int pulse = gametic & 31;
+
+  if (pulse >= 16)
+    pulse = 31 - pulse;
+
+  return pulse;
+}
+
+static void AM_AddNiceBossActionBG(float x, float y, float radius, float angle)
+{
+  int pulse = AM_NiceThingPulse();
+  unsigned char r, g, b;
+  float s_radius, g_radius;
+  unsigned char s_alpha, g_alpha;
+
+  // colored shadow
+  AM_MapColorRGB(mapcolor_p->tagfinder, &r, &g, &b);
+  s_radius = radius * (1.85f + pulse / 70.0f);    // 185% - 206%
+  s_alpha = (128 + pulse * 6);                    // 128..218 (50% - 85%)
+  gld_AddNiceThing(am_icon_shadow, x, y, s_radius, angle, r, g, b, s_alpha);
+
+  // light glow
+  g_radius = radius * (1.25f + pulse / 140.0f);   // 125% - 136%
+  g_alpha = (96 + pulse * 5);                     // 96..171 (38% - 66%)
+  gld_AddNiceThing(am_icon_shadow, x, y, g_radius, angle, 255, 255, 255, g_alpha);
+}
+
+static void AM_AddNiceBossActionPulse(int type, float x, float y, float radius, float angle)
+{
+  int pulse = AM_NiceThingPulse();
+  float h_radius;
+  unsigned char h_alpha;
+
+  // white pulse on top of icon
+  h_radius = radius * (1.0f + pulse / 220.0f);  // 100% - 107%
+  h_alpha = (72 + pulse * 6);                   // 72..162 (28% - 63%)
+  gld_AddNiceThing(type, x, y, h_radius, angle, 255, 255, 255, h_alpha);
+}
+
 static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t y)
 {
   const float shadow_scale_factor = 1.3f;
@@ -2971,6 +3240,7 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
   int i, type, radius, rotate, need_shadow;
   float fx, fy, fradius, rot, shadow_radius;
   unsigned char r, g, b, a;
+  dboolean thing_highlight = AM_HighlightedBossAction(mobj) && mapcolor_p->tagfinder;
 
   if (!nice_sprites_max)
     AM_InitNiceThings();
@@ -3043,6 +3313,13 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
     }
   }
 
+  if (thing_highlight)
+  {
+    // force for small things
+    radius = CLAMP(radius, 12<<FRACBITS, 256<<FRACBITS);
+    need_shadow = true;
+  }
+
   fradius = MTOF_F(radius >> FRACTOMAPBITS);
   if (fradius < 1.0f)
     return;
@@ -3064,10 +3341,22 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
   ang = (rotate ? angle : 0) + (automap_rotate ? ANG90 - viewangle : 0);
   rot = -(float)ang / (float)(1u << 31) * (float)M_PI;
 
-  gld_AddNiceThing(type, fx, fy, fradius, rot, r, g, b, a);
+  // shadow will end up drawing underneath
   if (need_shadow)
   {
     gld_AddNiceThing(am_icon_shadow, fx, fy, shadow_radius, rot, 0, 0, 0, 128);
+  }
+
+  // highlighted nice things have glow / highlight pulse
+  if (thing_highlight)
+  {
+    AM_AddNiceBossActionBG(fx, fy, fradius, rot); // shadow + glow
+    gld_AddNiceThing(type, fx, fy, fradius, rot, r, g, b, a); // main thing
+    AM_AddNiceBossActionPulse(type, fx, fy, fradius, rot); // highlight pulse
+  }
+  else // normal nice thing
+  {
+    gld_AddNiceThing(type, fx, fy, fradius, rot, r, g, b, a);
   }
 }
 
@@ -3149,6 +3438,33 @@ static void AM_DrawNiceEasyKeys(void)
   }
 }
 
+static void AM_DrawNiceBossActionThings(void)
+{
+  thinker_t *th;
+  mobj_t *mo;
+  mpoint_t p;
+  angle_t angle;
+
+  if (!dsda_RevealAutomap())
+    return;
+
+  for (th = thinkercap.next; th != &thinkercap; th = th->next)
+  {
+    if (th->function != P_MobjThinker)
+      continue;
+
+    mo = (mobj_t *) th;
+
+    if (AM_HighlightedBossAction(mo))
+    {
+      AM_GetMobjPosition(mo, &p, &angle);
+      if (automap_rotate)
+        AM_rotatePoint(&p);
+      AM_ProcessNiceThing(mo, angle, p.x, p.y);
+    }
+  }
+}
+
 static void AM_DrawNiceThings(void)
 {
   int i;
@@ -3156,6 +3472,7 @@ static void AM_DrawNiceThings(void)
   mpoint_t p;
   angle_t angle;
   int showkeys = skill_info.flags & SI_EASY_KEY || dsda_ShowAutomapKeys();
+  int bossaction = highlight.thing;
 
   gld_ClearNiceThings();
 
@@ -3212,6 +3529,9 @@ static void AM_DrawNiceThings(void)
   // draw nice easy keys
   if (showkeys)
     AM_DrawNiceEasyKeys();
+
+  if (bossaction)
+    AM_DrawNiceBossActionThings();
 
   // marked locations on the automap
   {

@@ -89,6 +89,7 @@ void dsda_StartFinale(void);
 int dsda_FTicker(void);
 int dsda_FDrawer(void);
 int dsda_BossAction(mobj_t* mo);
+int dsda_HasBossActionTag(mobj_t* mo, int tag);
 const char* dsda_MapLumpName(int episode, int map);
 const char* dsda_MapAuthor(void);
 void dsda_HUTitle(dsda_string_t* str);

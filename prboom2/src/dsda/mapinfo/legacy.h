@@ -46,6 +46,7 @@ int dsda_LegacyStartFinale(void);
 int dsda_LegacyFTicker(void);
 void dsda_LegacyFDrawer(void);
 int dsda_LegacyBossAction(mobj_t* mo);
+int dsda_LegacyHasBossActionTag(int* result, mobj_t* mo, int tag);
 int dsda_LegacyMapLumpName(const char** name, int episode, int map);
 int dsda_LegacyMapAuthor(const char** author);
 int dsda_LegacyHUTitle(dsda_string_t* str);

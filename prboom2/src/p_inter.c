@@ -1961,6 +1961,37 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
       target->flags |= MF_JUSTHIT;    // fight back!
 }
 
+//
+// [AR] check states for action
+//
+
+static dboolean P_StateChainHasAction(int state, actionf_t action)
+{
+  int count;
+
+  for (count = 0; count < num_states; ++count)
+  {
+    if (state == g_s_null || state < 0 || state >= num_states)
+      return false;
+
+    if (states[state].action == action)
+      return true;
+
+    state = states[state].nextstate;
+  }
+
+  return false;
+}
+
+dboolean P_MobjHasDeathAction(mobj_t *mo, actionf_t action)
+{
+  if (!mo->info)
+    return false;
+
+  return P_StateChainHasAction(mo->info->deathstate,  action) ||
+         P_StateChainHasAction(mo->info->xdeathstate, action);
+}
+
 // heretic
 
 #include "p_user.h"

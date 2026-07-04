@@ -502,6 +502,12 @@ int dsda_DoomBossAction(mobj_t* mo) {
   return true;
 }
 
+int dsda_DoomHasBossActionTag(int* result, mobj_t* mo, int tag) {
+  *result = false;
+
+  return false;
+}
+
 int dsda_DoomMapLumpName(const char** name, int episode, int map) {
   const doom_mapinfo_map_t* target_map;
 

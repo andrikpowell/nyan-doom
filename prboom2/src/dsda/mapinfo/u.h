@@ -46,6 +46,7 @@ int dsda_UStartFinale(void);
 int dsda_UFTicker(void);
 void dsda_UFDrawer(void);
 int dsda_UBossAction(mobj_t* mo);
+int dsda_UHasBossActionTag(int* result, int type, int tag);
 int dsda_UMapLumpName(const char** name, int episode, int map);
 int dsda_UMapAuthor(const char** author);
 int dsda_UHUTitle(dsda_string_t* str);
