@@ -35,6 +35,7 @@ function(nyan_internal_check_variables)
     WAD_DATA
     PROJECT_VERSION
     PROJECT_STRING
+    PROJECT_DEMO_STRING
     DOOMWADDIR
     NYAN_ABSOLUTE_PWAD_PATH
     NYAN_NIGHTLY
