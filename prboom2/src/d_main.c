@@ -310,7 +310,7 @@ static void D_Wipe(void)
 
     M_Drawer();                   // menu is drawn even on top of wipes
 
-    if (capturing_video && !dsda_SkipMode() && cap_wipescreen)
+    if (tics > 0 && capturing_video && !dsda_SkipMode() && cap_wipescreen)
     {
       I_QueueFrameCapture();
     }
