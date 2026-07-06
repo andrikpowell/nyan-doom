@@ -1235,6 +1235,8 @@ void I_UpdateVideoMode(void)
   dboolean create_window;
   const dboolean novsync = dsda_Flag(dsda_arg_timedemo) ||
                            dsda_Flag(dsda_arg_fastdemo);
+  static int last_exclusive_fullscreen = -1;
+  static int last_render_vsync = -1;
 
   exclusive_fullscreen = dsda_IntConfig(dsda_config_exclusive_fullscreen) &&
                          I_DesiredVideoMode() == VID_MODESW;
@@ -1247,6 +1249,7 @@ void I_UpdateVideoMode(void)
   if(sdl_window)
   {
     dboolean was_opengl = V_IsOpenGLMode();
+    dboolean destroy_window = false;
 
     // video capturing cannot be continued with new screen settings
     I_CaptureFinish();
@@ -1259,7 +1262,11 @@ void I_UpdateVideoMode(void)
 
     I_InitScreenResolution();
 
-    I_FreeVideoResources(was_opengl != V_IsOpenGLMode());
+    destroy_window = (was_opengl != V_IsOpenGLMode()) ||
+                     (last_exclusive_fullscreen != exclusive_fullscreen) ||
+                     (last_render_vsync != render_vsync);
+
+    I_FreeVideoResources(destroy_window);
   }
 
   create_window = !sdl_window;
@@ -1418,6 +1425,9 @@ void I_UpdateVideoMode(void)
   {
     SDL_GL_SetSwapInterval((render_vsync ? 1 : 0));
   }
+
+  last_exclusive_fullscreen = exclusive_fullscreen;
+  last_render_vsync = render_vsync;
 
   if (V_IsSoftwareMode())
   {
