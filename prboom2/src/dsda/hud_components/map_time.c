@@ -28,18 +28,23 @@ typedef struct {
 
 static local_component_t* local;
 
+void dsda_GetPlaytime(int* level_time, int* total_time)
+{
+  *total_time = hexen ?
+               players[consoleplayer].worldTimer :
+               totalleveltimes + leveltime;
+  *level_time = leveltime;
+
+  *total_time /= 35;
+  *level_time /= 35;
+}
+
 static void dsda_UpdateLabelComponentText(char* str, size_t max_size) {
   size_t length = 0;
   int level_time;
   int total_time;
 
-  total_time = hexen ?
-               players[consoleplayer].worldTimer :
-               totalleveltimes + leveltime;
-  level_time = leveltime;
-
-  total_time /= 35;
-  level_time /= 35;
+  dsda_GetPlaytime(&level_time, &total_time);
   
   length += snprintf(
     str,
@@ -62,13 +67,7 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   int level_time;
   int total_time;
 
-  total_time = hexen ?
-               players[consoleplayer].worldTimer :
-               totalleveltimes + leveltime;
-  level_time = leveltime;
-
-  total_time /= 35;
-  level_time /= 35;
+  dsda_GetPlaytime(&level_time, &total_time);
 
   length = snprintf(
       str,
