@@ -40,7 +40,7 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   total_time /= 35;
   level_time /= 35;
 
-  if (local->use_labels)
+  if (local->show_labels)
     length = snprintf(
       str,
       max_size,
@@ -62,9 +62,9 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
       level_time % 60
   );
 
-  if (local->show_both_times || total_time != level_time)
+  if (local->always_show_both || total_time != level_time)
   {
-    if (local->use_labels)
+    if (local->show_labels)
       snprintf(
         str + length,
         max_size - length,
@@ -92,8 +92,8 @@ void dsda_InitMapTimeHC(int x_offset, int y_offset, int vpt, int* args, int arg_
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
 
-  local->show_both_times = arg_count > 0 ? !!args[0] : false;
-  local->use_labels = arg_count > 1 ? !!args[1] : false;
+  local->always_show_both = arg_count > 0 ? !!args[0] : false;
+  local->show_labels = arg_count > 1 ? !!args[1] : false;
 
   dsda_InitBlockyHC(&local->component, x_offset, y_offset, vpt);
 }
@@ -104,13 +104,6 @@ void dsda_UpdateMapTimeHC(void* data) {
   dsda_UpdateComponentText(local->component.msg, sizeof(local->component.msg));
   dsda_RefreshHudText(&local->component);
 }
-
-void dsda_DrawMapTimeHC(void* data) {
-  local = data;
-
-  dsda_DrawBasicShadowedText(&local->component);
-}
-
 
 void dsda_DrawMapTimeHC(void* data) {
   local = data;
