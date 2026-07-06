@@ -21,6 +21,8 @@
 
 typedef struct {
   dsda_text_t component;
+  dboolean always_show_both;
+  dboolean show_labels;
 } local_component_t;
 
 static local_component_t* local;
@@ -38,33 +40,60 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   total_time /= 35;
   level_time /= 35;
 
-  length = snprintf(
-    str,
-    max_size,
-    "%sM %s%02d:%02d:%02d\n",
-    dsda_TextColor(dsda_tc_map_time_level_label),
-    dsda_TextColor(dsda_tc_map_time_level),
-    level_time / 3600,
-    (level_time % 3600) / 60,
-    level_time % 60
+  if (local->use_labels)
+    length = snprintf(
+      str,
+      max_size,
+      "%sM %s%02d:%02d:%02d\n",
+      dsda_TextColor(dsda_tc_map_time_level_label),
+      dsda_TextColor(dsda_tc_map_time_level),
+      level_time / 3600,
+      (level_time % 3600) / 60,
+      level_time % 60
+  );
+  else
+    length = snprintf(
+      str,
+      max_size,
+      "%s%02d:%02d:%02d\n",
+      dsda_TextColor(dsda_tc_map_time_level),
+      level_time / 3600,
+      (level_time % 3600) / 60,
+      level_time % 60
   );
 
-  // Draw total time.
-  snprintf(
-      str + length,
-      max_size - length,
-      "%sT %s%02d:%02d:%02d\n",
-      dsda_TextColor(dsda_tc_map_time_total_label),
-      dsda_TextColor(dsda_tc_map_time_total),
-      total_time / 3600,
-      (total_time % 3600) / 60,
-      total_time % 60
+  if (local->show_both_times || total_time != level_time)
+  {
+    if (local->use_labels)
+      snprintf(
+        str + length,
+        max_size - length,
+        "%sT %s%02d:%02d:%02d\n",
+        dsda_TextColor(dsda_tc_map_time_total_label),
+        dsda_TextColor(dsda_tc_map_time_total),
+        total_time / 3600,
+        (total_time % 3600) / 60,
+        total_time % 60
     );
+    else
+      snprintf(
+        str + length,
+        max_size - length,
+        "%s%02d:%02d:%02d\n",
+        dsda_TextColor(dsda_tc_map_time_total),
+        total_time / 3600,
+        (total_time % 3600) / 60,
+        total_time % 60
+    );
+  }
 }
 
 void dsda_InitMapTimeHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
+
+  local->show_both_times = arg_count > 0 ? !!args[0] : false;
+  local->use_labels = arg_count > 1 ? !!args[1] : false;
 
   dsda_InitBlockyHC(&local->component, x_offset, y_offset, vpt);
 }
@@ -75,6 +104,13 @@ void dsda_UpdateMapTimeHC(void* data) {
   dsda_UpdateComponentText(local->component.msg, sizeof(local->component.msg));
   dsda_RefreshHudText(&local->component);
 }
+
+void dsda_DrawMapTimeHC(void* data) {
+  local = data;
+
+  dsda_DrawBasicShadowedText(&local->component);
+}
+
 
 void dsda_DrawMapTimeHC(void* data) {
   local = data;
