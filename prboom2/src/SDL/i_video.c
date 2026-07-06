@@ -1264,7 +1264,8 @@ void I_UpdateVideoMode(void)
 
     destroy_window = (was_opengl != V_IsOpenGLMode()) ||
                      (last_exclusive_fullscreen != exclusive_fullscreen) ||
-                     (last_render_vsync != render_vsync);
+                     (last_render_vsync != render_vsync) ||
+                     render_vsync;
 
     I_FreeVideoResources(destroy_window);
   }
