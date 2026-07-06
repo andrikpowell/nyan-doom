@@ -41,18 +41,20 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   length = snprintf(
     str,
     max_size,
-    "%s%02d:%02d:%02d\n",
+    "%sM %s%02d:%02d:%02d\n",
+    dsda_TextColor(dsda_tc_map_time_level_label),
     dsda_TextColor(dsda_tc_map_time_level),
     level_time / 3600,
     (level_time % 3600) / 60,
     level_time % 60
   );
 
-  if (total_time != level_time)
-    snprintf(
+  // Draw total time.
+  snprintf(
       str + length,
       max_size - length,
-      "%s%02d:%02d:%02d\n",
+      "%sT %s%02d:%02d:%02d\n",
+      dsda_TextColor(dsda_tc_map_time_total_label),
       dsda_TextColor(dsda_tc_map_time_total),
       total_time / 3600,
       (total_time % 3600) / 60,
