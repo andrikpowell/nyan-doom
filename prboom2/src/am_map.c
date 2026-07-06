@@ -800,8 +800,8 @@ static void AM_AddMousePan(int x, int y)
 {
   int speed = F_MOUSEPANINC;
 
-  mouse_pan_x -= x * SCREENWIDTH  * speed / 320 / MOUSE_PAN_SPEED_BASE;
-  mouse_pan_y -= y * SCREENHEIGHT * speed / 200 / MOUSE_PAN_SPEED_BASE;
+  mouse_pan_x += x * SCREENWIDTH  * speed / 320 / MOUSE_PAN_SPEED_BASE;
+  mouse_pan_y += y * SCREENHEIGHT * speed / 200 / MOUSE_PAN_SPEED_BASE;
 }
 
 //
