@@ -54,8 +54,6 @@
 #include "dsda/excmd.h"
 #include "dsda/settings.h"
 
-#define LOWERSPEED   (FRACUNIT*6)
-#define RAISESPEED   (FRACUNIT*6)
 #define WEAPONBOTTOM (FRACUNIT*128)
 #define WEAPONTOP    (FRACUNIT*32)
 
@@ -89,6 +87,10 @@ static const int recoil_values[] = {    // phares
   0,  // wp_chainsaw
   80  // wp_supershotgun
 };
+
+// Weapon switching speed
+switch_speed_t switch_speed;
+
 
 //
 // P_SetPsprite
@@ -720,7 +722,27 @@ void A_Lower(player_t *player, pspdef_t *psp)
   }
   else
   {
-      psp->sy += LOWERSPEED;
+      switch (switch_speed)
+      {
+        case WEAPON_SPEED_SLOW:
+          psp->sy += FRACUNIT*3;
+          break;
+
+        case WEAPON_SPEED_NORMAL:
+          psp->sy += FRACUNIT*6;
+          break;
+
+        case WEAPON_SPEED_FAST:
+          psp->sy += FRACUNIT*9;
+          break;
+
+        case WEAPON_SPEED_INSTANT:
+          psp->sy += FRACUNIT*12;
+                 
+        default:        
+          psp->sy += FRACUNIT*6;
+          break;
+      }
   }
 
   // Is already down.
@@ -761,7 +783,27 @@ void A_Raise(player_t *player, pspdef_t *psp)
 
   CHECK_WEAPON_CODEPOINTER("A_Raise", player);
 
-  psp->sy -= RAISESPEED;
+  switch (switch_speed)
+  {
+    case WEAPON_SPEED_SLOW:
+      psp->sy -= FRACUNIT*3;
+      break;
+
+    case WEAPON_SPEED_NORMAL:
+      psp->sy -= FRACUNIT*6;
+      break;
+
+    case WEAPON_SPEED_FAST:
+      psp->sy -= FRACUNIT*9;
+      break;
+
+    case WEAPON_SPEED_INSTANT:
+      psp->sy -= FRACUNIT*12;
+             
+    default:        
+      psp->sy -= FRACUNIT*6;
+      break;
+  }
 
   if (psp->sy > WEAPONTOP)
     return;

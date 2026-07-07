@@ -1701,8 +1701,8 @@ dsda_config_t dsda_config[dsda_config_count] = {
     CONF_BOOL(1)
   },
   [dsda_config_switch_speed] = {
-    "dsda_config_switch_speed", dsda_config_switch_speed,
-    CONF_BOOL(0), NULL, STRICT_INT(0)
+    "dsda_switch_speed", dsda_config_switch_speed, dsda_config_int, WEAPON_SPEED_SLOW, WEAPON_SPEED_INSTANT,
+    { WEAPON_SPEED_NORMAL }, (int*) &switch_speed
   },
   [dsda_config_viewbob] = {
     "dsda_viewbob_pct", dsda_config_viewbob,

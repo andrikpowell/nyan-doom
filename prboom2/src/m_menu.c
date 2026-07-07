@@ -3910,7 +3910,14 @@ setup_menu_t* weap_settings[] =
   NULL
 };
 
-static const char *weap_switch_speed_list[] = { "Slow", "Normal", "Fast", "Instant", NULL };
+static const char* weap_switch_speed_list[] =
+{
+  [WEAPON_SPEED_SLOW] = "Slow",
+  [WEAPON_SPEED_NORMAL] = "Normal",
+  [WEAPON_SPEED_FAST] = "Fast",
+  [WEAPON_SPEED_INSTANT] = "Instant",
+  NULL
+};
 
 setup_menu_t weap_pref_settings[] =  // Weapons Settings screen
 {

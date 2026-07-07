@@ -89,6 +89,16 @@ enum
     NUM_CENTERWEAPON,
 };
 
+typedef enum
+{
+  WEAPON_SPEED_SLOW,
+  WEAPON_SPEED_NORMAL,
+  WEAPON_SPEED_FAST,
+  WEAPON_SPEED_INSTANT  
+} switch_speed_t;
+
+extern switch_speed_t switch_speed;
+
 int P_WeaponPreferred(int w1, int w2);
 
 struct player_s;
