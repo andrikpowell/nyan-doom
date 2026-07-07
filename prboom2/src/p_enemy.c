@@ -3904,6 +3904,25 @@ void A_ImpXDeath2(mobj_t * actor)
     }
 }
 
+// the chicken's return type is stored in special2.i
+//
+// HHE patches can enter chicken states without going through the normal
+// morph setup, leaving the return type as zero. In Crispy/vanilla Heretic,
+// zero is Heretic's first mobj type, but in DSDA/Nyan's combined enum
+// it resolves to Doom's zero, causing incorrect behavior.
+//
+// Translate to Heretic's zero before spawning the return mobj.
+//
+static mobjtype_t P_ResolveChickenReturnType(mobj_t *actor)
+{
+    mobjtype_t moType = actor->special2.i;
+
+    if (heretic && moType == 0)
+        return HERETIC_MT_ZERO;
+
+    return moType;
+}
+
 dboolean P_UpdateChicken(mobj_t * actor, int tics)
 {
     mobj_t *fog;
@@ -3919,7 +3938,7 @@ dboolean P_UpdateChicken(mobj_t * actor, int tics)
     {
         return (false);
     }
-    moType = actor->special2.i;
+    moType = P_ResolveChickenReturnType(actor);
     x = actor->x;
     y = actor->y;
     z = actor->z;
