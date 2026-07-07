@@ -248,6 +248,7 @@ static void R_InitTextures (void)
 
       texture->width = LittleShort(mtexture->width);
       texture->height = LittleShort(mtexture->height);
+      texture->direct = false;
       texture->patchcount = LittleShort(mtexture->patchcount);
 
         /* Mattias Engdeg�rd emailed me of the following explenation of
@@ -295,6 +296,9 @@ static void R_InitTextures (void)
           patch->originx = LittleShort(mpatch->originx);
           patch->originy = LittleShort(mpatch->originy);
           patch->patch = patchlookup[LittleShort(mpatch->patch)];
+          patch->direct = R_IsDirectTallPatchLump(patch->patch);
+          if (patch->direct)
+            texture->direct = true;
           if (patch->patch == -1)
             {
               //jff 8/3/98 use logical output routine

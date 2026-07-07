@@ -750,6 +750,14 @@ static GLTexture *gld_InitUnregisteredTexture(int texture_num, GLTexture *gltext
       gltexture->flags |= GLTEXTURE_SKYHACK;
       gltexture->realtexheight=patch->height;
     }
+    // [AR] Add support for post-less patches.
+    else
+    {
+      const rpatch_t *composite_patch = R_TextureCompositePatchByNum(texture_num);
+
+      if (composite_patch->flags & PATCH_DIRECTTALL)
+        gltexture->realtexheight=composite_patch->height;
+    }
   }
 
   gltexture->leftoffset = 0;
