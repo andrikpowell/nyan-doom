@@ -218,12 +218,12 @@ dboolean dsda_StrictMode(void) {
 
 dboolean dsda_MuteSfx(void) {
   return dsda_IntConfig(dsda_config_mute_sfx) ||
-         (!I_WindowFocused() && dsda_IntConfig(dsda_config_mute_unfocused_window));
+         (!I_WindowFocused() && dsda_IntConfig(dsda_config_mute_unfocused_window) && !dsda_Flag(dsda_arg_viddump));
 }
 
 dboolean dsda_MuteMusic(void) {
   return dsda_IntConfig(dsda_config_mute_music) ||
-         (!I_WindowFocused() && dsda_IntConfig(dsda_config_mute_unfocused_window));
+         (!I_WindowFocused() && dsda_IntConfig(dsda_config_mute_unfocused_window) && !dsda_Flag(dsda_arg_viddump));
 }
 
 dboolean dsda_ProcessCheatCodes(void) {
