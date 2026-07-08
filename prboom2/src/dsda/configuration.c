@@ -1221,6 +1221,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mouse_sensitivity_mlook", dsda_config_mouse_sensitivity_mlook,
     dsda_config_int, 0, INT_MAX, { 10 }, NULL, NOT_STRICT, G_UpdateMouseSensitivity
   },
+  [dsda_config_mouse_sensitivity_automap] = {
+    "mouse_sensitivity_automap", dsda_config_mouse_sensitivity_automap,
+    dsda_config_int, 0, INT_MAX, { 10 }, NULL, NOT_STRICT, AM_InitParams
+  },
   [dsda_config_mouse_stutter_correction] = {
     "mouse_stutter_correction", dsda_config_mouse_stutter_correction,
     CONF_BOOL(1)
@@ -1851,10 +1855,6 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_map_pan_speed] = {
     "map_pan_speed", dsda_config_map_pan_speed,
-    dsda_config_int, 1, 32, { 16 }, NULL, NOT_STRICT, AM_InitParams
-  },
-  [dsda_config_map_mouse_pan_speed] = {
-    "map_mouse_pan_speed", dsda_config_map_mouse_pan_speed,
     dsda_config_int, 1, 32, { 16 }, NULL, NOT_STRICT, AM_InitParams
   },
   [dsda_config_map_scroll_speed] = {
