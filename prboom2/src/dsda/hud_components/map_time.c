@@ -88,7 +88,7 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
       total_time / 3600,
       (total_time % 3600) / 60,
       total_time % 60
-  );
+    );
 }
 
 void dsda_InitMapTimeHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
