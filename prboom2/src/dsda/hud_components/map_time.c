@@ -70,13 +70,13 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   dsda_GetPlaytime(&level_time, &total_time);
 
   length = snprintf(
-      str,
-      max_size,
-      "%s%02d:%02d:%02d\n",
-      dsda_TextColor(dsda_tc_map_time_level),
-      level_time / 3600,
-      (level_time % 3600) / 60,
-      level_time % 60
+    str,
+    max_size,
+    "%s%02d:%02d:%02d\n",
+    dsda_TextColor(dsda_tc_map_time_level),
+    level_time / 3600,
+    (level_time % 3600) / 60,
+    level_time % 60
   );
 
   if (local->always_show_both || total_time != level_time)
@@ -116,6 +116,5 @@ void dsda_DrawMapTimeHC(void* data) {
 
   if (local->show_labels)
     dsda_DrawBasicShadowedText(&local->label);
-  dsda_DrawBasicShadowedText(&local->component
-  );
+  dsda_DrawBasicShadowedText(&local->component);
 }
