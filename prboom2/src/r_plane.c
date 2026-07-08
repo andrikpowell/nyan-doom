@@ -599,6 +599,20 @@ static void R_DoDrawPlane(visplane_t *pl)
       tex_patch = tex_patch2 = R_TextureCompositePatchByNum(texture);
       if (DoubleSky) tex_patch2 = R_TextureCompositePatchByNum(texture2);
 
+      // [AR] Add support for post-less patches.
+      if ((tex_patch->flags & PATCH_DIRECTTALL) ||
+          (DoubleSky && (tex_patch2->flags & PATCH_DIRECTTALL)))
+      {
+        int skyheight;
+
+        if (DoubleSky)
+          skyheight = MIN(tex_patch->height, tex_patch2->height);
+        else
+          skyheight = tex_patch->height;
+
+        dcvars.texheight = skyheight;
+      }
+
       // killough 10/98: Use sky scrolling offset, and possibly flip picture
       for (x = pl->minx; (dcvars.x = x) <= pl->maxx; x++)
         if ((dcvars.yl = pl->top[x]) != SHRT_MAX && dcvars.yl <= (dcvars.yh = pl->bottom[x])) // dropoff overflow

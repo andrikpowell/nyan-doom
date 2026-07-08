@@ -47,6 +47,7 @@ typedef enum {
   PATCH_ISNOTTILEABLE   = 0x00000001,
   PATCH_REPEAT          = 0x00000002,
   PATCH_HASHOLES        = 0x00000004,
+  PATCH_DIRECTTALL      = 0x00000008,
 } rpatch_flag_t;
 
 typedef struct {
@@ -88,6 +89,7 @@ const rpatch_t *R_PatchByNum(int id);
 const rpatch_t *R_TextureCompositePatchByNum(int id);
 
 dboolean R_IsPatchLump(int lumpnum);
+dboolean R_IsDirectTallPatchLump(int lumpnum);
 
 // Size query funcs
 int R_NumPatchWidth(int lump) ;

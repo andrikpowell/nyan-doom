@@ -780,7 +780,8 @@ void S_ChangeMusInfoMusic(int lumpnum, int looping)
 
   music = &S_music[mus_musinfo];
 
-  if (music->lumpnum == lumpnum)
+  // Allow MUSINFO music to restart after MIDI player changes
+  if (music->lumpnum == lumpnum && mus_playing)
     return;
 
   // shutdown old music

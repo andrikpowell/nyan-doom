@@ -46,6 +46,7 @@ typedef struct
 {
   int originx, originy;  // Block origin, which has already accounted
   int patch;             // for the internal origin of the patch.
+  dboolean direct;       // [AR] patch uses direct tall column data.
 } texpatch_t;
 
 //
@@ -62,6 +63,7 @@ typedef struct
   unsigned  widthmask;
   // CPhipps - end of additions
   short width, height;
+  dboolean direct;       // [AR] texture has a direct tall patch.
   short patchcount;      // All the patches[patchcount] are drawn
   texpatch_t patches[1]; // back-to-front into the cached texture.
 } texture_t;

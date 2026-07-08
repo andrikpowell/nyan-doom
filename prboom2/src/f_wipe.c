@@ -78,6 +78,10 @@ static void wipe_BindScreens(void)
   screens[WIPE_SRC]  = wipe_scr_start;
   screens[WIPE_DST]  = wipe_scr_end;
   screens[WIPE_TEMP] = wipe_scr;
+
+  screens[WIPE_SRC].not_on_heap = true;
+  screens[WIPE_DST].not_on_heap = true;
+  screens[WIPE_TEMP].not_on_heap = true;
 }
 
 static fixed_t wipe_GetFrac(void)
