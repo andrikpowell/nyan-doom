@@ -1702,7 +1702,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_switch_speed] = {
     "dsda_switch_speed", dsda_config_switch_speed, dsda_config_int, WEAPON_SPEED_DEFAULT, WEAPON_SPEED_SLOW,
-    { WEAPON_SPEED_DEFAULT }, (int*) &switch_speed
+    { WEAPON_SPEED_DEFAULT }, (int*) &switch_speed, STRICT_INT(WEAPON_SPEED_DEFAULT)
   },
   [dsda_config_viewbob] = {
     "dsda_viewbob_pct", dsda_config_viewbob,

@@ -94,6 +94,9 @@ static const int recoil_values[] = {    // phares
 switch_speed_t switch_speed;
 static switch_speed_t dsda_getWeaponSpeed(void)
 {
+  if (!allow_incompatibility)
+    return RAISESPEED; // same as LOWERSPEED
+  
   if (switch_speed == WEAPON_SPEED_SLOW)
       return FRACUNIT*3;
   else if (switch_speed == WEAPON_SPEED_FAST)
