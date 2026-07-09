@@ -728,7 +728,7 @@ void A_Lower(player_t *player, pspdef_t *psp)
           psp->sy += FRACUNIT*3;
           break;
 
-        case WEAPON_SPEED_NORMAL:
+        case WEAPON_SPEED_DEFAULT:
           psp->sy += FRACUNIT*6;
           break;
 
@@ -789,7 +789,7 @@ void A_Raise(player_t *player, pspdef_t *psp)
       psp->sy -= FRACUNIT*3;
       break;
 
-    case WEAPON_SPEED_NORMAL:
+    case WEAPON_SPEED_DEFAULT:
       psp->sy -= FRACUNIT*6;
       break;
 
