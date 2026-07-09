@@ -585,7 +585,7 @@ add_offset 1 top_left
 
 doom map
 map_totals 2 8 top_left
-map_time 2 40 top_left
+map_time 2 40 top_left 0 0
 map_coordinates 255 8 top_right
 map_title 2 8 bottom_left
 message 0 0 top_left
@@ -594,7 +594,7 @@ secret_message 0 76 none
 
 heretic map
 map_totals 2 8 top_left
-map_time 2 40 top_left
+map_time 2 40 top_left 0 0
 map_coordinates 255 8 top_right
 map_title 20 11 bottom
 message 0 1 top 1
@@ -604,7 +604,7 @@ artifact_desc 0 12 bottom 1
 
 hexen map
 map_totals 2 8 top_left 1 0 0
-map_time 2 40 top_left
+map_time 2 40 top_left 0 0
 map_coordinates 255 8 top_right
 map_title 36 15 bottom
 message 0 1 top 1
