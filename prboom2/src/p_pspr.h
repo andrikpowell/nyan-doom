@@ -98,6 +98,7 @@ typedef enum
 } switch_speed_t;
 
 extern switch_speed_t switch_speed;
+static switch_speed_t dsda_getWeaponSpeed(void);
 
 int P_WeaponPreferred(int w1, int w2);
 

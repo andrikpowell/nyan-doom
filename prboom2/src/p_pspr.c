@@ -54,6 +54,8 @@
 #include "dsda/excmd.h"
 #include "dsda/settings.h"
 
+#define LOWERSPEED   (FRACUNIT*6)
+#define RAISESPEED   (FRACUNIT*6)
 #define WEAPONBOTTOM (FRACUNIT*128)
 #define WEAPONTOP    (FRACUNIT*32)
 
@@ -90,7 +92,17 @@ static const int recoil_values[] = {    // phares
 
 // Weapon switching speed
 switch_speed_t switch_speed;
-
+static switch_speed_t dsda_getWeaponSpeed(void)
+{
+  if (switch_speed == WEAPON_SPEED_SLOW)
+      return FRACUNIT*3;
+  else if (switch_speed == WEAPON_SPEED_FAST)
+      return FRACUNIT*9;
+  else if (switch_speed == WEAPON_SPEED_INSTANT)
+      return FRACUNIT*12;
+  else // normal speed
+      return RAISESPEED; // same as LOWERSPEED
+}
 
 //
 // P_SetPsprite
@@ -722,27 +734,7 @@ void A_Lower(player_t *player, pspdef_t *psp)
   }
   else
   {
-      switch (switch_speed)
-      {
-        case WEAPON_SPEED_SLOW:
-          psp->sy += FRACUNIT*3;
-          break;
-
-        case WEAPON_SPEED_DEFAULT:
-          psp->sy += FRACUNIT*6;
-          break;
-
-        case WEAPON_SPEED_FAST:
-          psp->sy += FRACUNIT*9;
-          break;
-
-        case WEAPON_SPEED_INSTANT:
-          psp->sy += FRACUNIT*12;
-                 
-        default:        
-          psp->sy += FRACUNIT*6;
-          break;
-      }
+      psp->sy += dsda_getWeaponSpeed();
   }
 
   // Is already down.
@@ -783,27 +775,7 @@ void A_Raise(player_t *player, pspdef_t *psp)
 
   CHECK_WEAPON_CODEPOINTER("A_Raise", player);
 
-  switch (switch_speed)
-  {
-    case WEAPON_SPEED_SLOW:
-      psp->sy -= FRACUNIT*3;
-      break;
-
-    case WEAPON_SPEED_DEFAULT:
-      psp->sy -= FRACUNIT*6;
-      break;
-
-    case WEAPON_SPEED_FAST:
-      psp->sy -= FRACUNIT*9;
-      break;
-
-    case WEAPON_SPEED_INSTANT:
-      psp->sy -= FRACUNIT*12;
-             
-    default:        
-      psp->sy -= FRACUNIT*6;
-      break;
-  }
+  psp->sy -= dsda_getWeaponSpeed();
 
   if (psp->sy > WEAPONTOP)
     return;
