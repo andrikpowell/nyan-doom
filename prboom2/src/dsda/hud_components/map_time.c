@@ -50,7 +50,7 @@ static void dsda_UpdateLabelComponentText(char* str, size_t max_size) {
     str,
     max_size,
     "%sM\n",
-    dsda_TextColor(dsda_tc_map_time_label)
+    dsda_TextColor(dsda_tc_map_level_time_label)
   );
 
   if (local->always_show_total || total_time != level_time)
@@ -58,7 +58,7 @@ static void dsda_UpdateLabelComponentText(char* str, size_t max_size) {
       str + length,
       max_size - length,
       "%sT\n",
-      dsda_TextColor(dsda_tc_map_time_label)
+      dsda_TextColor(dsda_tc_map_total_time_label)
   );
 }
 
