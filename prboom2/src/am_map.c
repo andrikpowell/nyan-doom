@@ -123,7 +123,7 @@ static int map_blinking_locks;
 static int map_secret_after;
 static int map_grid_size;
 static int map_pan_speed;
-static int map_mouse_pan_speed;
+static int map_mouse_pan_sensitivity;
 static int map_scroll_speed;
 static int map_wheel_zoom;
 static int map_things_hitboxes;
@@ -142,14 +142,10 @@ static map_things_appearance_t map_things_appearance;
 // moves 140 pixels in 1 second
 #define F_SPEED  (dsda_InputActive(dsda_input_speed) ? !dsda_AutoRun() : dsda_AutoRun())
 #define F_PANINC  (F_SPEED ? map_pan_speed * 2 : map_pan_speed)
-#define PAN_SPEED_DIVISOR 4
-#define M_PANINC_X (FTOM(F_PANINC * SCREENWIDTH / 320) / PAN_SPEED_DIVISOR)
-#define M_PANINC_Y (FTOM(F_PANINC * SCREENHEIGHT / 200) / PAN_SPEED_DIVISOR)
-// mouse map panning
-#define F_MOUSEPANINC  (F_SPEED ? map_mouse_pan_speed * 2 : map_mouse_pan_speed)
-#define MOUSE_PAN_SPEED_DIVISOR 8
-#define MOUSE_PAN_SPEED_BASE 16
-// map zoom
+#define PAN_SPEED_SCALE 4     // Maps default map_pan_speed 16 to Crispy's F_PANINC 4
+#define PAN_MOUSE_SCALE 160   // Crispy's mouse pan scale, later scaled for current resolution
+#define M_PANINC_X (FTOM(F_PANINC * SCREENWIDTH  / 320) / PAN_SPEED_SCALE)
+#define M_PANINC_Y (FTOM(F_PANINC * SCREENHEIGHT / 200) / PAN_SPEED_SCALE)
 #define F_ZOOMINC  (F_SPEED ? map_scroll_speed * 2 : map_scroll_speed)
 // how much zoom-in per tic
 // goes to 2x in 1 second
@@ -427,9 +423,7 @@ static fixed_t m_x2, m_y2;   // UR x,y window location on the map (map coords)
 
 static fixed_t prev_m_x, prev_m_y;
 
-// mouse panning
-static int mouse_pan_x;
-static int mouse_pan_y;
+static mpoint_t m_paninc2; // [crispy] mouse map panning
 
 //
 // width/height of window on map (map coords)
@@ -784,13 +778,13 @@ static void AM_changeWindowLoc(void)
   }
 
   // Mouse
-  if (mouse_pan_x || mouse_pan_y)
+  if (m_paninc2.x || m_paninc2.y)
   {
-    incx += FTOM(mouse_pan_x / MOUSE_PAN_SPEED_DIVISOR);
-    incy += FTOM(mouse_pan_y / MOUSE_PAN_SPEED_DIVISOR);
+    incx += m_paninc2.x;
+    incy += m_paninc2.y;
 
-    mouse_pan_x = 0;
-    mouse_pan_y = 0;
+    m_paninc2.x = 0;
+    m_paninc2.y = 0;
   }
 
   AM_moveWindowLoc(prev_m_x, prev_m_y, incx, incy);
@@ -798,10 +792,8 @@ static void AM_changeWindowLoc(void)
 
 static void AM_AddMousePan(int x, int y)
 {
-  int speed = F_MOUSEPANINC;
-
-  mouse_pan_x += x * SCREENWIDTH  * speed / 320 / MOUSE_PAN_SPEED_BASE;
-  mouse_pan_y += y * SCREENHEIGHT * speed / 200 / MOUSE_PAN_SPEED_BASE;
+  m_paninc2.x = FTOM(x * SCREENWIDTH  * (map_mouse_pan_sensitivity + 5) / (320 * PAN_MOUSE_SCALE));
+  m_paninc2.y = FTOM(y * SCREENHEIGHT * (map_mouse_pan_sensitivity + 5) / (200 * PAN_MOUSE_SCALE));
 }
 
 //
@@ -911,7 +903,7 @@ static void AM_initVariables(void)
   AM_initPlayerTrail();
   AM_SetPlayerArrow();
 
-  m_paninc.x = m_paninc.y = 0;
+  m_paninc.x = m_paninc.y = m_paninc2.x = m_paninc2.y = 0;
   ftom_zoommul = FRACUNIT;
   mtof_zoommul = FRACUNIT;
 
@@ -935,7 +927,6 @@ static void AM_initVariables(void)
   oldplr.y = plr->mo->y;
   m_x = (plr->mo->x >> FRACTOMAPBITS) - m_w/2;//e6y
   m_y = (plr->mo->y >> FRACTOMAPBITS) - m_h/2;//e6y
-  mouse_pan_x = mouse_pan_y = 0;
   AM_Ticker();
   AM_changeWindowLoc();
 
@@ -1025,7 +1016,7 @@ void AM_InitParams(void)
   map_blinking_locks = dsda_IntConfig(dsda_config_map_blinking_locks);
   map_secret_after = dsda_IntConfig(dsda_config_map_secret_after);
   map_pan_speed = dsda_IntConfig(dsda_config_map_pan_speed);
-  map_mouse_pan_speed = dsda_IntConfig(dsda_config_map_mouse_pan_speed);
+  map_mouse_pan_sensitivity = dsda_IntConfig(dsda_config_mouse_sensitivity_automap);
   map_scroll_speed = dsda_IntConfig(dsda_config_map_scroll_speed);
   map_grid_size = dsda_IntConfig(dsda_config_map_grid_size);
   map_wheel_zoom = dsda_IntConfig(dsda_config_map_wheel_zoom);
@@ -4327,7 +4318,7 @@ void AM_Drawer (dboolean minimap)
     AM_changeWindowScale();
 
   // Change x,y location
-  if (m_paninc.x || m_paninc.y || mouse_pan_x || mouse_pan_y)
+  if (m_paninc.x || m_paninc.y || m_paninc2.x || m_paninc2.y)
     AM_changeWindowLoc();
 
   AM_setFrameVariables();

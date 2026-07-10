@@ -1221,6 +1221,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mouse_sensitivity_mlook", dsda_config_mouse_sensitivity_mlook,
     dsda_config_int, 0, INT_MAX, { 10 }, NULL, NOT_STRICT, G_UpdateMouseSensitivity
   },
+  [dsda_config_mouse_sensitivity_automap] = {
+    "mouse_sensitivity_automap", dsda_config_mouse_sensitivity_automap,
+    dsda_config_int, 0, INT_MAX, { 10 }, NULL, NOT_STRICT, AM_InitParams
+  },
   [dsda_config_mouse_stutter_correction] = {
     "mouse_stutter_correction", dsda_config_mouse_stutter_correction,
     CONF_BOOL(1)
@@ -1853,10 +1857,6 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "map_pan_speed", dsda_config_map_pan_speed,
     dsda_config_int, 1, 32, { 16 }, NULL, NOT_STRICT, AM_InitParams
   },
-  [dsda_config_map_mouse_pan_speed] = {
-    "map_mouse_pan_speed", dsda_config_map_mouse_pan_speed,
-    dsda_config_int, 1, 32, { 16 }, NULL, NOT_STRICT, AM_InitParams
-  },
   [dsda_config_map_scroll_speed] = {
     "map_scroll_speed", dsda_config_map_scroll_speed,
     dsda_config_int, 1, 32, { 32 }, NULL, NOT_STRICT, AM_InitParams
@@ -2117,36 +2117,36 @@ dsda_config_t dsda_config[dsda_config_count] = {
     dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0)
   },
   [dsda_config_left_analog_deadzone] = {
-    "left_analog_deadzone", dsda_config_left_analog_deadzone,
-    dsda_config_int, 0, 16384, { 6556 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+    "dsda_left_analog_deadzone", dsda_config_left_analog_deadzone,
+    dsda_config_int, 0, 50, { 20 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_right_analog_deadzone] = {
-    "right_analog_deadzone", dsda_config_right_analog_deadzone,
-    dsda_config_int, 0, 16384, { 6556 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+    "dsda_right_analog_deadzone", dsda_config_right_analog_deadzone,
+    dsda_config_int, 0, 50, { 20 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_left_trigger_deadzone] = {
-    "left_trigger_deadzone", dsda_config_left_trigger_deadzone,
-    dsda_config_int, 0, 16384, { 6556 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+    "dsda_left_trigger_deadzone", dsda_config_left_trigger_deadzone,
+    dsda_config_int, 0, 50, { 20 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_right_trigger_deadzone] = {
-    "right_trigger_deadzone", dsda_config_right_trigger_deadzone,
-    dsda_config_int, 0, 16384, { 6556 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+    "dsda_right_trigger_deadzone", dsda_config_right_trigger_deadzone,
+    dsda_config_int, 0, 50, { 20 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_left_analog_sensitivity_x] = {
-    "left_analog_sensitivity_x", dsda_config_left_analog_sensitivity_x,
-    dsda_config_int, 0, 16384, { 100 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+    "dsda_left_analog_sensitivity_x", dsda_config_left_analog_sensitivity_x,
+    dsda_config_int, 0, 40, { 10 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_left_analog_sensitivity_y] = {
-    "left_analog_sensitivity_y", dsda_config_left_analog_sensitivity_y,
-    dsda_config_int, 0, 16384, { 100 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+    "dsda_left_analog_sensitivity_y", dsda_config_left_analog_sensitivity_y,
+    dsda_config_int, 0, 40, { 10 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_right_analog_sensitivity_x] = {
-    "right_analog_sensitivity_x", dsda_config_right_analog_sensitivity_x,
-    dsda_config_int, 0, 16384, { 1536 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+    "dsda_analog_turn_speed", dsda_config_right_analog_sensitivity_x,
+    dsda_config_int, 0, 720, { 240 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_right_analog_sensitivity_y] = {
-    "right_analog_sensitivity_y", dsda_config_right_analog_sensitivity_y,
-    dsda_config_int, 0, 16384, { 768 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+    "dsda_analog_look_speed", dsda_config_right_analog_sensitivity_y,
+    dsda_config_int, 0, 720, { 135 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_analog_look_acceleration] = {
     "analog_look_acceleration", dsda_config_analog_look_acceleration,
