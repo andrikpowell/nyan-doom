@@ -923,8 +923,7 @@ void MN_DrawSlider(int x, int y, int width, int range, int slot)
 
   width += 1;
 
-  slot_offset = 8 * slot * width / range;
-  slot_offset -= range / width;
+  slot_offset = slot * (width * 8 - 8) / (range - 1);
   V_DrawNamePatch(x + 20 + slot_offset, y + 7, "M_SLDKB", CR_DEFAULT, VPT_STRETCH);
 }
 

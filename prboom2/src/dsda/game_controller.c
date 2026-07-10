@@ -44,6 +44,24 @@ static axis_t right_trigger = { SDL_CONTROLLER_AXIS_TRIGGERRIGHT };
 
 static int swap_analogs;
 
+// Deadzone configs used to store raw SDL axis values (0-16384).
+// They now use a clearer 0-50% menu scale similar to Woof
+static int dsda_GameControllerDeadzone(int percent) {
+  return 32768 * percent / 100;
+}
+
+// In Woof, movement sensitivity is done using a multiplier (10 = 1.0x)
+// Use Woof's scale, and then scale back to SDL's (old DSDA) raw axis scale
+static int dsda_GameControllerMoveSensitivity(int sensitivity) {
+  return sensitivity * 10;
+}
+
+// In Woof, turn / look settings are configured as speed in degrees per second
+// Convert that to the raw per-tic turn scale back to SDL's (old DSDA) raw axis scale
+static int dsda_GameControllerLookSpeed(int speed) {
+  return speed * 32768 / 180 / 35; // 35 (TICRATE)
+}
+
 static const char* button_names[] = {
   [DSDA_CONTROLLER_BUTTON_A] = "pad a",
   [DSDA_CONTROLLER_BUTTON_B] = "pad b",
@@ -180,22 +198,32 @@ void dsda_PollGameController(void) {
 }
 
 void dsda_InitGameControllerParameters(void) {
-  left_analog_x.deadzone = dsda_IntConfig(dsda_config_left_analog_deadzone);
-  left_analog_x.sensitivity = dsda_IntConfig(dsda_config_left_analog_sensitivity_x);
-  left_analog_y.deadzone = left_analog_x.deadzone;
-  left_analog_y.sensitivity = dsda_IntConfig(dsda_config_left_analog_sensitivity_y);
+  int move_x, move_y, look_x, look_y;
 
-  right_analog_x.deadzone = dsda_IntConfig(dsda_config_right_analog_deadzone);
-  right_analog_x.sensitivity = dsda_IntConfig(dsda_config_right_analog_sensitivity_x);
-  right_analog_y.deadzone = right_analog_x.deadzone;
-  right_analog_y.sensitivity = dsda_IntConfig(dsda_config_right_analog_sensitivity_y);
+  // Stick Sensitivity
+  move_x = dsda_GameControllerMoveSensitivity(dsda_IntConfig(dsda_config_left_analog_sensitivity_x));
+  move_y = dsda_GameControllerMoveSensitivity(dsda_IntConfig(dsda_config_left_analog_sensitivity_y));
+  look_x = dsda_GameControllerLookSpeed(dsda_IntConfig(dsda_config_right_analog_sensitivity_x));
+  look_y = dsda_GameControllerLookSpeed(dsda_IntConfig(dsda_config_right_analog_sensitivity_y));
 
-  left_trigger.deadzone = dsda_IntConfig(dsda_config_left_trigger_deadzone);
-  left_trigger.sensitivity = 1;
-  right_trigger.deadzone = dsda_IntConfig(dsda_config_right_trigger_deadzone);
-  right_trigger.sensitivity = 1;
-
+  // Swap sticks, but keep sensitivity for movement / looking
   swap_analogs = dsda_IntConfig(dsda_config_swap_analogs);
+  left_analog_x.sensitivity  = swap_analogs ? look_x : move_x;
+  left_analog_y.sensitivity  = swap_analogs ? look_y : move_y;
+  right_analog_x.sensitivity = swap_analogs ? move_x : look_x;
+  right_analog_y.sensitivity = swap_analogs ? move_y : look_y;
+
+  // Stick Deadzones (keep separated per left / right)
+  left_analog_x.deadzone = dsda_GameControllerDeadzone(dsda_IntConfig(dsda_config_left_analog_deadzone));
+  left_analog_y.deadzone = left_analog_x.deadzone;
+  right_analog_x.deadzone = dsda_GameControllerDeadzone(dsda_IntConfig(dsda_config_right_analog_deadzone));
+  right_analog_y.deadzone = right_analog_x.deadzone;
+
+  // Triggers
+  left_trigger.deadzone = dsda_GameControllerDeadzone(dsda_IntConfig(dsda_config_left_trigger_deadzone));
+  left_trigger.sensitivity = 1;
+  right_trigger.deadzone = dsda_GameControllerDeadzone(dsda_IntConfig(dsda_config_right_trigger_deadzone));
+  right_trigger.sensitivity = 1;
 }
 
 void dsda_InitGameController(void) {
