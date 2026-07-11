@@ -97,66 +97,17 @@ static fixed_t dsda_getWeaponSpeed(void)
   if (allow_incompatibility && !netgame && switch_speed != WEAPON_SPEED_DEFAULT)
   {
       if (switch_speed == WEAPON_SPEED_SLOW)
-          return RAISESPEED * 0.7;
+          return FRACUNIT*3;  // 0.5x speed
       else if (switch_speed == WEAPON_SPEED_FAST)
-          return RAISESPEED * 1.5;
-      else if (switch_speed == WEAPON_SPEED_VERY_FAST)
-          return RAISESPEED * 3;
+          return FRACUNIT*9;  // 1.5x speed
+      else if (switch_speed == WEAPON_SPEED_FASTER)
+          return FRACUNIT*12; // 2x speed
+      else if (switch_speed == WEAPON_SPEED_INSTANT)
+          return FRACUNIT*128;
   }
 
   // normal speed
   return RAISESPEED; // same as LOWERSPEED
-}
-
-static bool dsda_checkWeaponSwitch(statenum_t stnum)
-{
-  if
-  (
-    // doom weapons
-    stnum == S_PUNCHDOWN || stnum == S_PUNCHUP ||
-    stnum == S_PISTOLDOWN || stnum == S_PISTOLUP ||
-    stnum == S_SGUNDOWN || stnum == S_SGUNUP ||
-    stnum == S_DSGUNDOWN || stnum == S_DSGUNUP ||
-    stnum == S_CHAINDOWN || stnum == S_CHAINUP ||
-    stnum == S_MISSILEDOWN || stnum == S_MISSILEUP ||
-    stnum == S_SAWDOWN || stnum == S_SAWUP ||
-    stnum == S_PLASMADOWN || stnum == S_PLASMAUP ||
-    stnum == S_BFGDOWN || stnum == S_BFGUP ||
-
-    // heretic weapons
-    stnum == HERETIC_S_STAFFDOWN || stnum == HERETIC_S_STAFFUP ||
-    stnum == HERETIC_S_STAFFDOWN2 || stnum == HERETIC_S_STAFFUP2 ||
-    stnum == HERETIC_S_BEAKDOWN || stnum == HERETIC_S_BEAKUP ||
-    stnum == HERETIC_S_GAUNTLETDOWN || stnum == HERETIC_S_GAUNTLETUP ||
-    stnum == HERETIC_S_GAUNTLETDOWN2 || stnum == HERETIC_S_GAUNTLETUP2 ||
-    stnum == HERETIC_S_BLASTERDOWN || stnum == HERETIC_S_BLASTERUP ||
-    stnum == HERETIC_S_MACEDOWN || stnum == HERETIC_S_MACEUP ||
-    stnum == HERETIC_S_HORNRODDOWN || stnum == HERETIC_S_HORNRODUP ||
-    stnum == HERETIC_S_GOLDWANDDOWN || stnum == HERETIC_S_GOLDWANDUP ||
-    stnum == HERETIC_S_PHOENIXDOWN || stnum == HERETIC_S_PHOENIXUP ||
-    stnum == HERETIC_S_CRBOWDOWN || stnum == HERETIC_S_CRBOWUP ||
-
-    // hexen weapons
-    stnum == HEXEN_S_PUNCHDOWN || stnum == HEXEN_S_PUNCHUP ||
-    stnum == HEXEN_S_FAXEDOWN || stnum == HEXEN_S_FAXEUP ||
-    stnum == HEXEN_S_FAXEDOWN_G || stnum == HEXEN_S_FAXEUP_G ||
-    stnum == HEXEN_S_FHAMMERDOWN || stnum == HEXEN_S_FHAMMERUP ||
-    stnum == HEXEN_S_FSWORDDOWN || stnum == HEXEN_S_FSWORDUP ||
-    stnum == HEXEN_S_CMACEDOWN || stnum == HEXEN_S_CMACEUP ||
-    stnum == HEXEN_S_CSTAFFDOWN || stnum == HEXEN_S_CSTAFFDOWN2 || stnum == HEXEN_S_CSTAFFDOWN3 || stnum == HEXEN_S_CSTAFFUP ||
-    stnum == HEXEN_S_CFLAMEDOWN || stnum == HEXEN_S_CFLAMEUP ||
-    stnum == HEXEN_S_CHOLYDOWN || stnum == HEXEN_S_CHOLYUP ||
-    stnum == HEXEN_S_MWANDDOWN || stnum == HEXEN_S_MWANDUP ||
-    stnum == HEXEN_S_MLIGHTNINGDOWN || stnum == HEXEN_S_MLIGHTNINGUP ||
-    stnum == HEXEN_S_MSTAFFDOWN || stnum == HEXEN_S_MSTAFFUP ||
-    stnum == HEXEN_S_SNOUTDOWN || stnum == HEXEN_S_SNOUTUP ||
-    stnum == HEXEN_S_CONEDOWN || stnum == HEXEN_S_CONEUP
-  )
-  {
-    return true;
-  }
-
-  return false;
 }
 
 //
@@ -187,14 +138,7 @@ void P_SetPspritePtr(player_t *player, pspdef_t *psp, statenum_t stnum)
 
     state = &states[stnum];
     psp->state = state;
-    if (switch_speed == WEAPON_SPEED_INSTANT && allow_incompatibility && dsda_checkWeaponSwitch(stnum))
-    {
-      psp->tics = 0;
-    }
-    else
-    {
-      psp->tics = state->tics;        // could be 0
-    }
+    psp->tics = state->tics;        // could be 0
 
     if (hexen)
     {

@@ -91,11 +91,11 @@ enum
 
 typedef enum
 {
+  WEAPON_SPEED_SLOW,
   WEAPON_SPEED_DEFAULT,
   WEAPON_SPEED_FAST,
-  WEAPON_SPEED_VERY_FAST,
+  WEAPON_SPEED_FASTER,
   WEAPON_SPEED_INSTANT,
-  WEAPON_SPEED_SLOW
 } switch_speed_t;
 
 extern switch_speed_t switch_speed;
