@@ -120,12 +120,9 @@ void S_ParseMusInfo(const char *mapid)
 
     SC_Close();
   }
-  else // No MUSINFO lump -> clear MUSINFO music state
+  else
   {
-    memset(&musinfo, 0, sizeof(musinfo));
     musinfo.items[0] = -1;
-    musinfo.current_item = -1;
-    S_music[mus_musinfo].lumpnum = -1;
   }
 }
 
