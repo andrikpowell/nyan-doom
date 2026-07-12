@@ -706,6 +706,11 @@ static arg_config_t arg_config[dsda_arg_count] = {
     "turns on mapinfo parsing in doom (temporary arg for testing)",
     arg_null,
   },
+  [nyan_arg_no_colored_blood] = {
+    "-nocoloredblood", NULL, NULL, NULL,
+    "disables the colored blood setting",
+    arg_null,
+  },
 };
 
 static dsda_arg_t arg_value[dsda_arg_count];
