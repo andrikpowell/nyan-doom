@@ -1701,6 +1701,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_switch_weapon_on_pickup", dsda_config_switch_weapon_on_pickup,
     CONF_BOOL(1), NULL, STRICT_INT(1)
   },
+  [dsda_config_switch_speed] = {
+    "dsda_switch_speed", dsda_config_switch_speed, dsda_config_int, WEAPON_SPEED_SLOW, WEAPON_SPEED_INSTANT,
+    { WEAPON_SPEED_DEFAULT }, (int*) &switch_speed, STRICT_INT(WEAPON_SPEED_DEFAULT)
+  },
   [dsda_config_switch_berserk_preferred] = {
     "dsda_switch_berserk_preferred", dsda_config_switch_berserk_preferred,
     CONF_BOOL(0), NULL, STRICT_INT(0)

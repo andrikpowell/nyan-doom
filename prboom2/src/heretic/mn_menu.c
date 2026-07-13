@@ -498,13 +498,18 @@ void MN_Drawer(void)
   {
     const char *text = currentMenu->menuitems[i].alttext;
     int text_sml = text && (currentMenu->menuitems[i].flags == MENUF_OPTLUMP);
+    int color = CR_DEFAULT;
+
+    // Lighten current item
+    if (i == itemOn)
+      color += CR_LIGHTEN;
 
     if (text_sml) {  // use small font for custom skill
       y += 6;        // add some padding (looks bad otherwise)
-      MN_DrTextA(text, x, y);
+      MN_DrTextAColor(text, x, y, color);
     }
     else if (text)
-      MN_DrTextB(text, x, y);
+      MN_DrTextBColor(text, x, y, color);
     y += ITEM_HEIGHT;
   }
 
@@ -685,11 +690,11 @@ void MN_DrawSound(void)
 {
   char num[4];
 
-  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX, 16, 16, snd_SfxVolume);
+  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX, 16, 16, snd_SfxVolume, M_CurrentSelectedItem(SFX_VOL_INDEX-1));
   snprintf(num, sizeof(num), "%3d", snd_SfxVolume);
   MN_DrTextA(num, SoundDef.x + 130, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX + 3);
 
-  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX, 16, 16, snd_MusicVolume);
+  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX, 16, 16, snd_MusicVolume, M_CurrentSelectedItem(MUS_VOL_INDEX-1));
   snprintf(num, sizeof(num), "%3d", snd_MusicVolume);
   MN_DrTextA(num, SoundDef.x + 130, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX + 3);
 }
@@ -707,10 +712,10 @@ static void MN_DrawFileSlots(int x, int y, int menu)
     int flags = VPT_STRETCH;
 
     if (M_FileBoxHighlight(menu, i))
-    {
       color += CR_LIGHTEN;
+
+    if (color != CR_DEFAULT)
       flags |= VPT_COLOR;
-    }
 
     V_DrawMenuNamePatch(x, y, "M_FSLOT", color, flags);
     MN_DrTextAColor(savegamestrings[i], x + 5, y + 5, M_FileTextColor(menu, i));
@@ -870,6 +875,33 @@ void MN_DrTextB(const char *text, int x, int y)
   }
 }
 
+void MN_DrTextBColor(const char *text, int x, int y, int cm)
+{
+  char c;
+  int lump;
+  int flags;
+
+  flags = VPT_STRETCH;
+  if (cm != CR_DEFAULT)
+    flags |= VPT_COLOR;
+
+  while ((c = *text++) != 0)
+  {
+    c = toupper(c);
+    if (c < 33)
+    {
+      x += 8;
+    }
+    else
+    {
+      lump = FontBBaseLump + c - 33;
+      V_DrawMenuNumPatch(x, y, lump, cm, flags);
+      x += R_NumPatchWidth(lump) - 1;
+    }
+  }
+}
+
+
 int MN_TextBWidth(const char *text)
 {
   char c;
@@ -902,28 +934,37 @@ void MN_DrawTitle(int y, const char *text, int cm)
 #define SLIDER_WIDTH (SLIDER_LIMIT - 64)
 #define SLIDER_PATCH_COUNT (SLIDER_WIDTH / 8)
 
-void MN_DrawSlider(int x, int y, int width, int range, int slot)
+void MN_DrawSlider(int x, int y, int width, int range, int slot, dboolean highlight)
 {
   int xx;
   int i;
   int slot_offset;
   short slider_img = 0;
 
+  int color = CR_DEFAULT;
+  int flags = VPT_STRETCH;
+
+  if (highlight)
+    color += CR_LIGHTEN;
+
+  if (color != CR_DEFAULT)
+    flags |= VPT_COLOR;
+
   width -= 4;
 
   xx = x - 12;
-  V_DrawMenuNamePatch(xx, y, "M_SLDLT", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(xx, y, "M_SLDLT", color, flags);
   xx += 32;
   for (i=0;i<width;i++)
   {
     const char* name;
     name = (slider_img & 1 ? "M_SLDMD1" : "M_SLDMD2");
     slider_img ^= 1;
-    V_DrawMenuNamePatch(xx, y, name, CR_DEFAULT, VPT_STRETCH);
+    V_DrawMenuNamePatch(xx, y, name, color, flags);
 
     xx += 8;
   }
-  V_DrawMenuNamePatch(xx, y, "M_SLDRT", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(xx, y, "M_SLDRT", color, flags);
 
   if (slot >= range)
   {
@@ -933,7 +974,7 @@ void MN_DrawSlider(int x, int y, int width, int range, int slot)
   width += 1;
 
   slot_offset = slot * (width * 8 - 8) / (range - 1);
-  V_DrawNamePatch(x + 20 + slot_offset, y + 7, "M_SLDKB", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(x + 20 + slot_offset, y + 7, "M_SLDKB", color, flags);
 }
 
 // hexen

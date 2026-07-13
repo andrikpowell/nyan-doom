@@ -1012,10 +1012,10 @@ static void M_DrawSaveLoadBorder(int x,int y,dboolean highlight)
   int flags = VPT_STRETCH;
 
   if (highlight)
-  {
     color += CR_LIGHTEN;
+
+  if (color != CR_DEFAULT)
     flags |= VPT_COLOR;
-  }
 
   V_DrawMenuNamePatch(x-8, y+7, "M_LSLEFT", color, flags);
 
@@ -1518,6 +1518,11 @@ menu_t SoundDef =
 // Change Sfx & Music volumes
 //
 
+dboolean M_CurrentSelectedItem(int item)
+{
+  return itemOn == item;
+}
+
 static void M_DrawSound(void)
 {
   char num[4];
@@ -1527,12 +1532,12 @@ static void M_DrawSound(void)
   // CPhipps - patch drawing updated
   V_DrawMenuNamePatch(60, 38, "M_SVOL", CR_DEFAULT, VPT_STRETCH);
 
-  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),16,16,snd_SfxVolume, itemOn == sfx_vol);
+  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),16,16,snd_SfxVolume,M_CurrentSelectedItem(sfx_vol));
   snprintf(num, sizeof(num), "%3d", snd_SfxVolume);
   strcpy(menu_buffer, num);
   M_DrawMenuString(SoundDef.x + 150, SoundDef.y+LINEHEIGHT*(sfx_vol+1) + 3, cr_value_edit);
 
-  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(music_vol+1),16,16,snd_MusicVolume, itemOn == music_vol);
+  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(music_vol+1),16,16,snd_MusicVolume,M_CurrentSelectedItem(music_vol));
   snprintf(num, sizeof(num), "%3d", snd_MusicVolume);
   strcpy(menu_buffer, num);
   M_DrawMenuString(SoundDef.x + 150, SoundDef.y+LINEHEIGHT*(music_vol+1) + 3, cr_value_edit);
@@ -4414,11 +4419,22 @@ setup_menu_t* weap_settings[] =
   NULL
 };
 
+static const char* weap_switch_speed_list[] =
+{
+  [WEAPON_SPEED_SLOW] = "Slow",
+  [WEAPON_SPEED_DEFAULT] = "Default",
+  [WEAPON_SPEED_FAST] = "Fast",
+  [WEAPON_SPEED_FASTER] = "Faster",
+  [WEAPON_SPEED_INSTANT] = "Instant",
+  NULL
+};
+
 setup_menu_t weap_pref_settings[] =  // Weapons Settings screen
 {
   TITLE("Gameplay", WP_X),
   { "Boom Weapon Auto Switch", S_YESNO, m_conf, g_all, WP_X, dsda_config_switch_when_ammo_runs_out },
   { "Auto Switch on Pickup", S_YESNO, m_conf, g_all, WP_X, dsda_config_switch_weapon_on_pickup },
+  { "Switch Speed", S_CHOICE | S_NYAN, m_conf, g_all, WP_X, dsda_config_switch_speed, 0, weap_switch_speed_list },
   { "Berserk Fist Over Chainsaw", S_YESNO | S_NYAN, m_conf, g_doom, WP_X, dsda_config_switch_berserk_preferred },
   { "Direct Vertical Aiming", S_YESNO | S_NYAN, m_conf, g_all, WP_X, dsda_config_disable_horiz_autoaim },
   EMPTY_LINE,
@@ -9292,10 +9308,10 @@ void M_Drawer (void)
       int flags = VPT_STRETCH;
 
       if (i == itemOn)
-      {
         color += CR_LIGHTEN;
-        flags |= VPT_COLOR;
-      }
+
+      if (color != CR_DEFAULT)
+        flags |= VPT_COLOR; 
 
       if (!lumps_missing && currentMenu->menuitems[i].name[0] && !optional_lump_missing)
         V_DrawMenuNamePatch(x, y, currentMenu->menuitems[i].name,
@@ -9429,13 +9445,13 @@ static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int therm
   int color = CR_DEFAULT;
   int flags = VPT_STRETCH;
 
-  if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot));
+  if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot, highlight));
 
   if (highlight)
-  {
     color += CR_LIGHTEN;
+
+  if (color != CR_DEFAULT)
     flags |= VPT_COLOR;
-  }
 
   xx = x;
   V_DrawMenuNamePatch(xx, y, "M_THERML", color, flags);
