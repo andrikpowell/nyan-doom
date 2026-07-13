@@ -83,6 +83,7 @@ void M_DrawCredits(void);
 void M_DrawCreditsDynamic(void);    // killough 11/98
 
 void M_DrawTabs(const char **pages, int m, int y);
+dboolean M_CurrentSelectedItem(int item);
 dboolean M_FileBoxHighlight(int menu, int item);
 int M_FileTextColor(int menu, int item);
 

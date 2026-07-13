@@ -31,13 +31,14 @@ void MN_DrawLoad(void);
 void MN_DrawSave(void);
 void MN_DrawPause(void);
 void MN_DrawMessage(const char* messageString);
-void MN_DrawSlider(int x, int y, int width, int range, int slot);
+void MN_DrawSlider(int x, int y, int width, int range, int slot, dboolean highlight);
 void MN_DrawTitle(int y, const char *text, int cm);
 void MN_DrTextA(const char *text, int x, int y);
 void MN_DrTextAColor(const char *text, int x, int y, int cm);
 int MN_TextAHeight(const char *text);
 int MN_TextAWidth(const char *text);
 void MN_DrTextB(const char *text, int x, int y);
+void MN_DrTextBColor(const char *text, int x, int y, int cm);
 int MN_TextBWidth(const char *text);
 
 // hexen
