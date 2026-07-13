@@ -2371,9 +2371,6 @@ void dsda_ApplyAdHocConfiguration(void) {
   arg = dsda_Arg(dsda_arg_game_speed);
   if (arg->found)
     dsda_ReadConfig("game_speed", NULL, arg->value.v_int);
-
-  if (dsda_Flag(nyan_arg_no_colored_blood))
-    dsda_InitIntConfig(&dsda_config[nyan_config_colored_blood], 0, false);
 }
 
 int dsda_ToggleConfig(dsda_config_identifier_t id, dboolean persist) {

@@ -2484,6 +2484,21 @@ static dboolean M_DoomDisabled(const setup_menu_t* s)
   return false;
 }
 
+static dboolean M_ArgDisabled(const setup_menu_t* s)
+{
+  if (s->config_id == nyan_config_colored_blood && dsda_Flag(nyan_arg_no_colored_blood))
+  {
+    static const int options_disable_false[] = 
+    {
+      nyan_config_colored_blood
+    };
+    M_DisableAndSetConfig(s, options_disable_false, arrlen(options_disable_false), false);
+    return true;
+  }
+
+  return false;
+}
+
 //
 // Main Disable Function
 //
@@ -2516,6 +2531,10 @@ static dboolean M_ItemDisabled(const setup_menu_t* s)
 
   // Doom-Specific
   if (M_DoomDisabled(s))
+    return true;
+
+  // Disabled From Argument
+  if (M_ArgDisabled(s))
     return true;
 
   return false;
