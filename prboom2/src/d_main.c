@@ -2258,7 +2258,8 @@ static void D_DoomMainSetup(void)
 
   lprintf(LO_INFO, "\n"); // Separator after file loading
 
-  V_InitColorTranslation(); //jff 4/24/98 load color translation lumps
+  V_UpdateColorTranslation(); //jff 4/24/98 load color translation lumps
+  V_UpdateShadeColormap();    // Update dark overlay colormap
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_DEBUG, "M_Init: Init miscellaneous info.\n");

@@ -84,6 +84,8 @@ screeninfo_t screens[NUM_SCREENS];
 
 /* jff 4/24/98 initialize this at runtime */
 const byte *colrngs[CR_LIMIT];
+static byte *color_translation_table;
+static byte ui_shademap[31][256];
 
 int usegamma;
 int extra_brightness;
@@ -154,15 +156,55 @@ void V_InitFlexTranTable(void)
   }
 }
 
-void V_InitColorTranslation(void)
+//
+// Shade Colormap - Used by Heretic Stbar and Automap/menu fade
+//
+
+static const byte *V_ShadeColormap(int shade)
+{
+  shade = CLAMP(shade, 0, 30);  // 31 is invuln
+  return ui_shademap[shade];
+}
+
+void V_UpdateShadeColormap(void)
 {
   int i;
-  byte* full_table;
+  const byte *playpal = V_GetPlaypal();
 
-  full_table = dsda_GenerateCRTable();
+  for (i = 0; i < 256; ++i)
+  {
+    int shade;
+    int r = playpal[i * 3 + 0];
+    int g = playpal[i * 3 + 1];
+    int b = playpal[i * 3 + 2];
+
+    ui_shademap[0][i] = i;
+
+    for (shade = 1; shade <= 30; ++shade)
+    {
+      int light = 30 - shade;
+
+      ui_shademap[shade][i] = V_BestColor(
+        playpal,
+        r * light / 30,
+        g * light / 30,
+        b * light / 30
+      );
+    }
+  }
+}
+
+void V_UpdateColorTranslation(void)
+{
+  int i;
+
+  if (color_translation_table)
+    Z_Free(color_translation_table);
+
+  color_translation_table = dsda_GenerateCRTable();
 
   for (i = 0; i < CR_LIMIT; ++i)
-    colrngs[i] = full_table + 256 * i;
+    colrngs[i] = color_translation_table + 256 * i;
 
   dsda_RefreshTextColors();
 }
@@ -997,7 +1039,9 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags, int fade
   if (cm == CR_DEFAULT)
     patch.colortr = &colormaps[0][0];
   else if (cm == CR_SHADOW)
-    patch.colortr = &colormaps[0][256 * 31];
+    patch.colortr = colrngs[CR_SHADOW];
+  else if (cm == CR_LIGHTEN)
+    patch.colortr = colrngs[CR_LIGHTEN];
   else if (cm == CR_DARKEN)
     patch.colortr = &colormaps[0][256 * 15];
   else if (cm < CR_LIMIT)
@@ -1038,7 +1082,7 @@ v_patchinfo_t V_GetShadowDrawInfo(int shadowtype, enum patch_translation_e flags
   }
 
   shadow.active = true;
-  shadow.colortr = &colormaps[0][256 * 31]; // close to black
+  shadow.colortr = colrngs[CR_SHADOW];
   shadow.flags = flags | VPT_SHADOW;
 
   // Shadow always has color
@@ -1142,9 +1186,7 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
   const byte *shademap;
   int ix, iy;
 
-  // 31 is invuln
-  shade = CLAMP(shade, 0, 30);
-  shademap = colormaps[0] + shade * 256;
+  shademap = V_ShadeColormap(shade);
 
   for (iy = y; iy < y + height; ++iy)
   {
@@ -1212,11 +1254,22 @@ void V_SetPalette(int pal)
   }
 }
 
+void V_UpdateStbarColor(void)
+{
+  void D_MustFillBackScreen();
+  D_MustFillBackScreen();
+}
+
 void V_SetPlayPal(int playpal_index)
 {
   dsda_SetPlayPal(playpal_index);
   R_UpdatePlayPal();
   V_SetPalette(currentPaletteIndex);
+
+  V_UpdateColorTranslation(); // Update Text Colors
+  V_UpdateShadeColormap();    // Update automap / menu overlay
+  dsda_RefreshTranMaps();     // Update shadows / translucency
+  V_UpdateStbarColor();       // Update stbar background color
 
   if (V_IsOpenGLMode())
   {
@@ -1306,7 +1359,7 @@ void FUNC_V_FillRectShaded(int x, int y, int w, int h, int start_shade, int end_
       int block_size = vertical ? j : i;
       int shade = start_shade + ((end_shade - start_shade) * block_size) / (blocks - 1);
 
-      const byte *shades = colormaps[0] + 9 * 256 + (shade * 2) * 256;
+      const byte *shades = V_ShadeColormap(9 + shade * 2);
       dest[i] = shades[dest[i]];
     }
 
@@ -2167,14 +2220,17 @@ SDL_Color V_GetPatchColor (int lumpnum)
 
 static byte V_GetBorderColor(const char* lump)
 {
-  int lumpnum = W_GetNumForName(lump);
   static int prevlump = -1;
+  static int prevpalette = -1;
   static byte col;
+
+  int lumpnum = W_GetNumForName(lump);
+  int palette = dsda_PlayPalIndex();
 
   if (animateLumps)
     lumpnum = N_GetPatchAnimateNum(lump, true);
 
-  if (prevlump != lumpnum)
+  if (prevlump != lumpnum || prevpalette != palette)
   {
     const unsigned char *playpal = V_GetPlaypal();
     SDL_Color patch_color = V_GetPatchColor(lumpnum);
@@ -2190,6 +2246,7 @@ static byte V_GetBorderColor(const char* lump)
     // Convert to palette
     col = V_BestColor(playpal, r, g, b);
     prevlump = lumpnum;
+    prevpalette = palette;
   }
 
   return col;

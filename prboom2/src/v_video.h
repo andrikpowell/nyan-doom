@@ -86,22 +86,17 @@ typedef enum
   CR_PURPLE,
   CR_WHITE,
   CR_HUD_LIMIT,
+
+  // Dark variants
   CR_DARKEN = CR_HUD_LIMIT,
-  CR_DARKEN_BRICK,
-  CR_DARKEN_TAN,
-  CR_DARKEN_GRAY,
-  CR_DARKEN_GREEN,
-  CR_DARKEN_BROWN,
-  CR_DARKEN_GOLD,
-  CR_DARKEN_RED,
-  CR_DARKEN_BLUE,
-  CR_DARKEN_ORANGE,
-  CR_DARKEN_YELLOW,
-  CR_DARKEN_LIGHTBLUE,
-  CR_DARKEN_BLACK,
-  CR_DARKEN_PURPLE,
-  CR_DARKEN_WHITE,
-  CR_BLOOD,
+  CR_DARKEN_LIMIT = CR_DARKEN + CR_HUD_LIMIT,
+
+  // Light variants
+  CR_LIGHTEN = CR_DARKEN_LIMIT,
+  CR_LIGHTEN_LIMIT = CR_LIGHTEN + CR_HUD_LIMIT,
+
+  // Blood
+  CR_BLOOD = CR_LIGHTEN_LIMIT,
   CR_BLOOD_GRAY = CR_BLOOD,
   CR_BLOOD_GREEN,
   CR_BLOOD_BLUE,
@@ -111,6 +106,8 @@ typedef enum
   CR_BLOOD_WHITE,
   CR_BLOOD_ORANGE,
   CR_BLOOD_LIMIT,
+
+  // Shadow
   CR_SHADOW = CR_BLOOD_LIMIT,
   CR_LIMIT,
 } crange_idx_e;
@@ -174,7 +171,8 @@ dboolean V_IsAutomapLightmodeIndexed(void);
 dboolean V_IsMenuLightmodeIndexed(void);
 
 //jff 4/24/98 loads color translation lumps
-void V_InitColorTranslation(void);
+void V_UpdateColorTranslation(void);
+void V_UpdateShadeColormap(void);
 
 void V_InitFlexTranTable(void);
 
