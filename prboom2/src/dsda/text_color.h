@@ -121,6 +121,7 @@ enum {
   dsda_tc_hud_secret_message,
   dsda_tc_hud_obituary,
   dsda_tc_map_coords,
+  dsda_tc_map_time_label,
   dsda_tc_map_time_level,
   dsda_tc_map_time_total,
   dsda_tc_map_title,

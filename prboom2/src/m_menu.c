@@ -5332,6 +5332,7 @@ setup_menu_t display_color_settings[] = {
   {"Map Totals Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_totals_label },
   {"Map Totals Value", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_totals_value },
   {"Map Totals Max", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_totals_max },
+  {"Map Time Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_time_label },
   {"Map Time Level", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_time_level },
   {"Map Time Total", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_time_total },
   {"Map Coords", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_coords },
