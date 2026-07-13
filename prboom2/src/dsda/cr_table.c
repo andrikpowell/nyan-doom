@@ -191,21 +191,6 @@ static void dsda_LoadCRLumps(byte* buffer) {
   }
 }
 
-static int dsda_GetShadowIndex(const byte *playpal) {
-  double best_L = 999.0;
-  int best_i = 0;
-
-  for (int i = 0; i < 256; ++i) {
-    double L = dsda_PaletteEntryLightness(playpal, i);
-    if (L < best_L) {
-      best_L = L;
-      best_i = i;
-    }
-  }
-
-  return best_i;
-}
-
 static double dsda_GetCRBrightness(const byte *playpal, int index) {
   double length;
 
