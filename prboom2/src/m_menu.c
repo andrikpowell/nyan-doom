@@ -1012,10 +1012,10 @@ static void M_DrawSaveLoadBorder(int x,int y,dboolean highlight)
   int flags = VPT_STRETCH;
 
   if (highlight)
-  {
     color += CR_LIGHTEN;
+
+  if (color != CR_DEFAULT)
     flags |= VPT_COLOR;
-  }
 
   V_DrawMenuNamePatch(x-8, y+7, "M_LSLEFT", color, flags);
 
@@ -9272,10 +9272,10 @@ void M_Drawer (void)
       int flags = VPT_STRETCH;
 
       if (i == itemOn)
-      {
         color += CR_LIGHTEN;
-        flags |= VPT_COLOR;
-      }
+
+      if (color != CR_DEFAULT)
+        flags |= VPT_COLOR; 
 
       if (!lumps_missing && currentMenu->menuitems[i].name[0] && !optional_lump_missing)
         V_DrawMenuNamePatch(x, y, currentMenu->menuitems[i].name,
@@ -9412,10 +9412,10 @@ static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int therm
   if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot));
 
   if (highlight)
-  {
     color += CR_LIGHTEN;
+
+  if (color != CR_DEFAULT)
     flags |= VPT_COLOR;
-  }
 
   xx = x;
   V_DrawMenuNamePatch(xx, y, "M_THERML", color, flags);

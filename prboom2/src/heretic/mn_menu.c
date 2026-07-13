@@ -707,10 +707,10 @@ static void MN_DrawFileSlots(int x, int y, int menu)
     int flags = VPT_STRETCH;
 
     if (M_FileBoxHighlight(menu, i))
-    {
       color += CR_LIGHTEN;
+
+    if (color != CR_DEFAULT)
       flags |= VPT_COLOR;
-    }
 
     V_DrawMenuNamePatch(x, y, "M_FSLOT", color, flags);
     MN_DrTextAColor(savegamestrings[i], x + 5, y + 5, M_FileTextColor(menu, i));
