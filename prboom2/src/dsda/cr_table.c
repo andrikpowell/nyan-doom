@@ -270,6 +270,7 @@ typedef struct {
 static const cr_variants_t cr_variants[] = {
   { 0,          1.0 }, // normal
   { CR_DARKEN,  0.5 }, // dark
+  { CR_LIGHTEN, 1.4 }, // light
 };
 
 byte* dsda_GenerateCRTable(void) {
@@ -299,12 +300,20 @@ byte* dsda_GenerateCRTable(void) {
         int index;
         int target_r, target_g, target_b;
 
-        target_r = cr_range[cr_i].r1 +
-                  (int) (length * (cr_range[cr_i].r2 - cr_range[cr_i].r1));
-        target_g = cr_range[cr_i].g1 +
-                  (int) (length * (cr_range[cr_i].g2 - cr_range[cr_i].g1));
-        target_b = cr_range[cr_i].b1 +
-                  (int) (length * (cr_range[cr_i].b2 - cr_range[cr_i].b1));
+        // Preserve the source hue when brightening without a color translation.
+        if (variant->offset == CR_LIGHTEN && cr_i == CR_DEFAULT) {
+          target_r = playpal[orig_i * 3 + 0];
+          target_g = playpal[orig_i * 3 + 1];
+          target_b = playpal[orig_i * 3 + 2];
+        }
+        else {
+          target_r = cr_range[cr_i].r1 +
+                    (int) (length * (cr_range[cr_i].r2 - cr_range[cr_i].r1));
+          target_g = cr_range[cr_i].g1 +
+                    (int) (length * (cr_range[cr_i].g2 - cr_range[cr_i].g1));
+          target_b = cr_range[cr_i].b1 +
+                    (int) (length * (cr_range[cr_i].b2 - cr_range[cr_i].b1));
+        }
 
         target_r = (int)(target_r * variant->brightness);
         target_g = (int)(target_g * variant->brightness);

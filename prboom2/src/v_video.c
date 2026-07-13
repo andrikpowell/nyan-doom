@@ -1040,6 +1040,8 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags, int fade
     patch.colortr = &colormaps[0][0];
   else if (cm == CR_SHADOW)
     patch.colortr = colrngs[CR_SHADOW];
+  else if (cm == CR_LIGHTEN)
+    patch.colortr = colrngs[CR_LIGHTEN];
   else if (cm == CR_DARKEN)
     patch.colortr = &colormaps[0][256 * 15];
   else if (cm < CR_LIMIT)
