@@ -90,6 +90,26 @@ static const int recoil_values[] = {    // phares
   80  // wp_supershotgun
 };
 
+// Weapon switching speed
+switch_speed_t switch_speed;
+static fixed_t dsda_getWeaponSpeed(void)
+{
+  if (allow_incompatibility && !netgame && switch_speed != WEAPON_SPEED_DEFAULT)
+  {
+      if (switch_speed == WEAPON_SPEED_SLOW)
+          return FRACUNIT*3;  // 0.5x speed
+      else if (switch_speed == WEAPON_SPEED_FAST)
+          return FRACUNIT*9;  // 1.5x speed
+      else if (switch_speed == WEAPON_SPEED_FASTER)
+          return FRACUNIT*12; // 2x speed
+      else if (switch_speed == WEAPON_SPEED_INSTANT)
+          return FRACUNIT*128;
+  }
+
+  // normal speed
+  return RAISESPEED; // same as LOWERSPEED
+}
+
 //
 // P_SetPsprite
 //
@@ -720,7 +740,7 @@ void A_Lower(player_t *player, pspdef_t *psp)
   }
   else
   {
-      psp->sy += LOWERSPEED;
+      psp->sy += dsda_getWeaponSpeed();
   }
 
   // Is already down.
@@ -761,7 +781,7 @@ void A_Raise(player_t *player, pspdef_t *psp)
 
   CHECK_WEAPON_CODEPOINTER("A_Raise", player);
 
-  psp->sy -= RAISESPEED;
+  psp->sy -= dsda_getWeaponSpeed();
 
   if (psp->sy > WEAPONTOP)
     return;

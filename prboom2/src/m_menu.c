@@ -4400,11 +4400,22 @@ setup_menu_t* weap_settings[] =
   NULL
 };
 
+static const char* weap_switch_speed_list[] =
+{
+  [WEAPON_SPEED_SLOW] = "Slow",
+  [WEAPON_SPEED_DEFAULT] = "Default",
+  [WEAPON_SPEED_FAST] = "Fast",
+  [WEAPON_SPEED_FASTER] = "Faster",
+  [WEAPON_SPEED_INSTANT] = "Instant",
+  NULL
+};
+
 setup_menu_t weap_pref_settings[] =  // Weapons Settings screen
 {
   TITLE("Gameplay", WP_X),
   { "Boom Weapon Auto Switch", S_YESNO, m_conf, g_all, WP_X, dsda_config_switch_when_ammo_runs_out },
   { "Auto Switch on Pickup", S_YESNO, m_conf, g_all, WP_X, dsda_config_switch_weapon_on_pickup },
+  { "Switch Speed", S_CHOICE | S_NYAN, m_conf, g_all, WP_X, dsda_config_switch_speed, 0, weap_switch_speed_list },
   { "Berserk Fist Over Chainsaw", S_YESNO | S_NYAN, m_conf, g_doom, WP_X, dsda_config_switch_berserk_preferred },
   { "Direct Vertical Aiming", S_YESNO | S_NYAN, m_conf, g_all, WP_X, dsda_config_disable_horiz_autoaim },
   EMPTY_LINE,
