@@ -160,6 +160,7 @@ static void cheat_strip();
 static void cheat_killonsight();
 static void cheat_reveal_lock();
 static void cheat_reveal_lockx(char *buf);
+static void cheat_reset();
 
 //-----------------------------------------------------------------------------
 //
@@ -319,6 +320,8 @@ cheatseq_t cheat[] = {
   CHEAT("strip", NULL, NULL, not_demo, cht_any, cheat_strip, 0, false),
   CHEAT("killme", NULL, NULL, not_demo, cht_any, cheat_suicide, 0, false),
   CHEAT("basilisk", NULL, NULL, not_demo, cht_any, cheat_killonsight, 0, false),
+  CHEAT("idclev00", NULL, NULL, not_demo, cht_doom, cheat_reset, 0, false), // DOOM-specific alias to reset
+  CHEAT("reset", NULL, NULL, not_demo, cht_any, cheat_reset, 0, false),
 
   // end-of-list marker
   {NULL}
@@ -1205,6 +1208,11 @@ static void cheat_reveal_weaponx(char *buf)
       }
     }
   }
+}
+
+static void cheat_reset(void)
+{
+  G_DeferedInitNew(gameskill, gameepisode, gamemap);
 }
 
 // Exit finder [Based on Nugget cheat]
