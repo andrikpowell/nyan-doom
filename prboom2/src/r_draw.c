@@ -47,6 +47,7 @@
 #include "i_system.h"
 
 #include "dsda/animinfo.h"
+#include "dsda/palette.h"
 #include "dsda/settings.h"
 #include "dsda/stretch.h"
 
@@ -691,13 +692,15 @@ void R_FillBackColor (void)
   static byte col;
   static byte col_top;
   static int prevlump = -1;
+  static int prevpalette = -1;
   const int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
   stretch_param_t* stretch = dsda_StretchParams(VPT_STRETCH);
   float ratio_y = stretch->video->height / 200.f;
   const int ST_SCALED_BORDER = (int)(brdr_b.height * ratio_y)/2;
   int lump = N_GetPatchAnimateNum(W_LumpName(stbarbg.lumpnum), false);
+  int palette = dsda_PlayPalIndex();
 
-  if (prevlump != lump)
+  if (prevlump != lump || prevpalette != palette)
   {
     const unsigned char *playpal = V_GetPlaypal();
     SDL_Color stbar_color = V_GetPatchColor(lump);
@@ -714,6 +717,7 @@ void R_FillBackColor (void)
       col_top = V_BestColor(playpal, r, g, b);
 
     prevlump = lump;
+    prevpalette = palette;
   }
 
   V_BeginMenuDraw();

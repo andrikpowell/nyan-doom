@@ -174,7 +174,8 @@ dboolean V_IsAutomapLightmodeIndexed(void);
 dboolean V_IsMenuLightmodeIndexed(void);
 
 //jff 4/24/98 loads color translation lumps
-void V_InitColorTranslation(void);
+void V_UpdateColorTranslation(void);
+void V_UpdateShadeColormap(void);
 
 void V_InitFlexTranTable(void);
 

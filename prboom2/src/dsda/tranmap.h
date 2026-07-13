@@ -25,6 +25,7 @@ const byte* dsda_TranMap_Custom(unsigned int alpha);
 const byte* dsda_DefaultTranMap(void);
 void dsda_UpdateTranMap(void);
 void dsda_UpdateFadeTranMaps(void);
+void dsda_RefreshTranMaps(void);
 int P_ConvertTrans(int val);
 
 // main trans
