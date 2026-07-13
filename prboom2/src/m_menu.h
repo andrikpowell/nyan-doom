@@ -83,7 +83,13 @@ void M_DrawCredits(void);
 void M_DrawCreditsDynamic(void);    // killough 11/98
 
 void M_DrawTabs(const char **pages, int m, int y);
-int M_GetCurrentPage(void);
+dboolean M_FileBoxHighlight(int menu, int item);
+int M_FileTextColor(int menu, int item);
+
+typedef enum {
+  MN_LOAD,
+  MN_SAVE,
+} save_or_load_menu;
 
 typedef enum {
   g_null        = 0,

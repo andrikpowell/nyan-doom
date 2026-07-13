@@ -342,8 +342,8 @@ static void M_DrawSave(void);
 static void M_DrawHelp (void);                                     // phares 5/04/98
 static void M_DrawAd(void);
 
-static void M_DrawSaveLoadBorder(int x,int y);
-static void M_DrawThermo(int x,int y,int thermWidth,int thermRange,int thermDot);
+static void M_DrawSaveLoadBorder(int x,int y,dboolean highlight);
+static void M_DrawThermo(int x,int y,int thermWidth,int thermRange,int thermDot,dboolean highlight);
 static void M_DrawEmptyCell(menu_t *menu,int item);
 static void M_DrawSelCell(menu_t *menu,int item);
 static void M_WriteText(int x, int y, const char *string, int cm);
@@ -951,6 +951,31 @@ static void M_DeleteSaveGame(int slot)
 }
 
 //
+// Load/Save Highlight
+//
+
+static dboolean M_FileSlotEnabled(int menu, int item)
+{
+  if (menu == MN_LOAD)
+    return LoadMenue[item].status;
+
+  if (menu == MN_SAVE)
+    return current_page != 0;
+
+  return false;
+}
+
+dboolean M_FileBoxHighlight(int menu, int item)
+{
+  return item == itemOn && M_FileSlotEnabled(menu, item);
+}
+
+int M_FileTextColor(int menu, int item)
+{
+  return M_FileSlotEnabled(menu, item) ? CR_DEFAULT : CR_DARKEN;
+}
+
+//
 // M_LoadGame & Cie.
 //
 
@@ -966,8 +991,8 @@ static void M_DrawLoad(void)
   // CPhipps - patch drawing updated
   V_DrawMenuNamePatch(72 ,LOADGRAPHIC_Y, "M_LOADG", CR_DEFAULT, VPT_STRETCH);
   for (i = 0 ; i < load_end ; i++) {
-    M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
-    M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], CR_DEFAULT);
+    M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i,M_FileBoxHighlight(MN_LOAD,i));
+    M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i],M_FileTextColor(MN_LOAD,i));
   }
 
   M_DrawTabs(saves_pages, 5, 145);
@@ -980,19 +1005,27 @@ static void M_DrawLoad(void)
 // Draw border for the savegame description
 //
 
-static void M_DrawSaveLoadBorder(int x,int y)
+static void M_DrawSaveLoadBorder(int x,int y,dboolean highlight)
 {
   int i;
+  int color = CR_DEFAULT;
+  int flags = VPT_STRETCH;
 
-  V_DrawMenuNamePatch(x-8, y+7, "M_LSLEFT", CR_DEFAULT, VPT_STRETCH);
+  if (highlight)
+  {
+    color += CR_LIGHTEN;
+    flags |= VPT_COLOR;
+  }
+
+  V_DrawMenuNamePatch(x-8, y+7, "M_LSLEFT", color, flags);
 
   for (i = 0 ; i < 24 ; i++)
     {
-      V_DrawMenuNamePatch(x, y+7, "M_LSCNTR", CR_DEFAULT, VPT_STRETCH);
+      V_DrawMenuNamePatch(x, y+7, "M_LSCNTR", color, flags);
       x += 8;
     }
 
-  V_DrawMenuNamePatch(x, y+7, "M_LSRGHT", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(x, y+7, "M_LSRGHT", color, flags);
 }
 
 //
@@ -1192,11 +1225,6 @@ void M_AutoSave(void)
   doom_printf("autosave");
 }
 
-int M_GetCurrentPage(void)
-{
-  return current_page;
-}
-
 //
 //  M_SaveGame & Cie.
 //
@@ -1213,8 +1241,8 @@ static void M_DrawSave(void)
   V_DrawMenuNamePatch(72, LOADGRAPHIC_Y, "M_SAVEG", CR_DEFAULT, VPT_STRETCH);
   for (i = 0 ; i < load_end ; i++)
     {
-    M_DrawSaveLoadBorder(SaveDef.x,SaveDef.y+LINEHEIGHT*i);
-    M_WriteText(SaveDef.x,SaveDef.y+LINEHEIGHT*i,savegamestrings[i], current_page == 0 ? CR_DARKEN : CR_DEFAULT);
+    M_DrawSaveLoadBorder(SaveDef.x,SaveDef.y+LINEHEIGHT*i,M_FileBoxHighlight(MN_SAVE,i));
+    M_WriteText(SaveDef.x,SaveDef.y+LINEHEIGHT*i,savegamestrings[i],M_FileTextColor(MN_SAVE,i));
     }
 
   M_DrawTabs(saves_pages, 5, 145);
@@ -1499,12 +1527,12 @@ static void M_DrawSound(void)
   // CPhipps - patch drawing updated
   V_DrawMenuNamePatch(60, 38, "M_SVOL", CR_DEFAULT, VPT_STRETCH);
 
-  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),16,16,snd_SfxVolume);
+  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),16,16,snd_SfxVolume, itemOn == sfx_vol);
   snprintf(num, sizeof(num), "%3d", snd_SfxVolume);
   strcpy(menu_buffer, num);
   M_DrawMenuString(SoundDef.x + 150, SoundDef.y+LINEHEIGHT*(sfx_vol+1) + 3, cr_value_edit);
 
-  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(music_vol+1),16,16,snd_MusicVolume);
+  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(music_vol+1),16,16,snd_MusicVolume, itemOn == music_vol);
   snprintf(num, sizeof(num), "%3d", snd_MusicVolume);
   strcpy(menu_buffer, num);
   M_DrawMenuString(SoundDef.x + 150, SoundDef.y+LINEHEIGHT*(music_vol+1) + 3, cr_value_edit);
@@ -3348,7 +3376,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
 
     value = dsda_IntConfig(s->config_id);
 
-    M_DrawThermo(x, y, 8, M_ThermoDisplayUpperLimit(s) + 1, M_ThermoDisplayValue(s));
+    M_DrawThermo(x, y, 8, M_ThermoDisplayUpperLimit(s) + 1, M_ThermoDisplayValue(s), flags & S_HILITE);
     M_FormatMenuSetting(s, value);
 
     M_ChoiceBlinkingArrowRight(s, x + 80, y + 3, color);
@@ -9240,14 +9268,22 @@ void M_Drawer (void)
     {
       dboolean optional_lump_missing = M_OptionalLumpMissing(&currentMenu->menuitems[i]);
       const char *alttext = currentMenu->menuitems[i].alttext;
+      int color = currentMenu->menuitems[i].color;
+      int flags = VPT_STRETCH;
+
+      if (i == itemOn)
+      {
+        color += CR_LIGHTEN;
+        flags |= VPT_COLOR;
+      }
 
       if (!lumps_missing && currentMenu->menuitems[i].name[0] && !optional_lump_missing)
         V_DrawMenuNamePatch(x, y, currentMenu->menuitems[i].name,
-                        currentMenu->menuitems[i].color, VPT_STRETCH);
+                        color, flags);
 
       else if (alttext)
         M_WriteText(x, y + 8 - (M_StringHeight(alttext) / 2),
-                    alttext, currentMenu->menuitems[i].color);
+                    alttext, color);
 
       y += LINEHEIGHT;
     }
@@ -9364,23 +9400,32 @@ static void M_StopMessage(void)
 // proff/nicolas 09/20/98 -- changed for hi-res
 // CPhipps - patch drawing updated
 //
-static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int thermDot )
+static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int thermDot, dboolean highlight )
 {
   int xx;
   int i;
   int dot_offset;
 
+  int color = CR_DEFAULT;
+  int flags = VPT_STRETCH;
+
   if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot));
 
+  if (highlight)
+  {
+    color += CR_LIGHTEN;
+    flags |= VPT_COLOR;
+  }
+
   xx = x;
-  V_DrawMenuNamePatch(xx, y, "M_THERML", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(xx, y, "M_THERML", color, flags);
   xx += 8;
   for (i=0;i<thermWidth;i++)
   {
-    V_DrawMenuNamePatch(xx, y, "M_THERMM", CR_DEFAULT, VPT_STRETCH);
+    V_DrawMenuNamePatch(xx, y, "M_THERMM", color, flags);
     xx += 8;
   }
-  V_DrawMenuNamePatch(xx, y, "M_THERMR", CR_DEFAULT, VPT_STRETCH);
+  V_DrawMenuNamePatch(xx, y, "M_THERMR", color, flags);
 
   if (thermDot >= thermRange)
   {
@@ -9388,7 +9433,7 @@ static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int therm
   }
 
   dot_offset = thermDot * (thermWidth * 8 - 8) / (thermRange - 1);
-  V_DrawNamePatch(x + 8 + dot_offset, y, "M_THERMO", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(x + 8 + dot_offset, y, "M_THERMO", color, flags);
 }
 
 //
