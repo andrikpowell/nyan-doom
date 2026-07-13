@@ -1039,7 +1039,7 @@ v_patchinfo_t V_GetMainDrawInfo(int cm, enum patch_translation_e flags, int fade
   if (cm == CR_DEFAULT)
     patch.colortr = &colormaps[0][0];
   else if (cm == CR_SHADOW)
-    patch.colortr = &colormaps[0][256 * 31];
+    patch.colortr = colrngs[CR_SHADOW];
   else if (cm == CR_DARKEN)
     patch.colortr = &colormaps[0][256 * 15];
   else if (cm < CR_LIMIT)
@@ -1080,7 +1080,7 @@ v_patchinfo_t V_GetShadowDrawInfo(int shadowtype, enum patch_translation_e flags
   }
 
   shadow.active = true;
-  shadow.colortr = &colormaps[0][256 * 31]; // close to black
+  shadow.colortr = colrngs[CR_SHADOW];
   shadow.flags = flags | VPT_SHADOW;
 
   // Shadow always has color
