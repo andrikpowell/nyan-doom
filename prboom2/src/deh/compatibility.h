@@ -22,6 +22,7 @@
 
 extern void deh_changeCompTranslucency(void);
 extern void deh_applyCompatibility(void);
+extern void deh_changeSkymap(void);
 
 extern void dsda_SSGFrameFix(void);
 

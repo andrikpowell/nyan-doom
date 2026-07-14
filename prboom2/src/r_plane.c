@@ -557,14 +557,8 @@ static void R_DoDrawPlane(visplane_t *pl)
        * Because of this hack, sky is not affected by INVUL inverse mapping.
        * Until Boom fixed this. Compat option added in MBF. */
 
-      int use_mbf_cm = dsda_IntConfig(penguino_force_colormap);
-      if (use_mbf_cm == 2)
-        dcvars.colormap = fixedcolormap;
-      else if (use_mbf_cm == 1)
-        dcvars.colormap = fullcolormap;
-      else if (use_mbf_cm == 0 && (comp[comp_skymap] || !(dcvars.colormap = fixedcolormap)))
+      if (comp[comp_skymap] || !(dcvars.colormap = fixedcolormap))
         dcvars.colormap = fullcolormap;          // killough 3/20/98
-
 
       //dcvars.texturemid = skytexturemid;
       dcvars.texheight = textureheight[texture]>>FRACBITS; // killough
