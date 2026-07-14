@@ -5258,7 +5258,7 @@ setup_menu_t display_options_settings[] = {
   { "Quake Intensity", S_PERC, m_conf, g_all, G_X, dsda_config_quake_intensity },
   { "Fake Contrast", S_CHOICE, m_conf, g_all, G_X, dsda_config_fake_contrast_mode, 0, fake_contrast_list },
   { "Swirling Flats", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_swirling_flats, 0, swirling_flat_list },
-  { "Force Invuln Sky Palette", S_CHOICE | S_NYAN, m_conf, g_all, G_X, penguino_force_colormap, 0, sky_color_map_list },
+  { "Force Invuln Sky Palette", S_CHOICE | S_NYAN, m_conf, g_all, G_X, penguino_force_colormap, 0, sky_color_map_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
   EMPTY_LINE,
   { "GL Light Fade", S_CHOICE, m_conf, g_all, G_X, dsda_config_gl_fade_mode, 0, gl_fade_mode_list, DEPEND(dsda_config_videomode, OPENGL_MODE) },
   { "GL Health Bars", S_YESNO, m_conf, g_all, G_X, dsda_config_gl_health_bar, DEPEND_GL },

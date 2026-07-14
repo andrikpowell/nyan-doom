@@ -75,7 +75,6 @@
 
 #include "dsda/animinfo.h"
 #include "dsda/mapinfo.h"
-#include "dsda/configuration.h"
 
 int imageformats[5] = {0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA};
 
@@ -620,21 +619,6 @@ static void gld_AddColormapToTexture(GLTexture *gltexture, unsigned char *buffer
   }
 }
 
-static void gld_FixedSky(const byte *gtable, const unsigned char *playpal, const byte *source, int j, int pos, unsigned char *buffer)
-{
-  const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
-  buffer[pos+0]=gtable[playpal[colormap[source[j]]*3+0]];
-  buffer[pos+1]=gtable[playpal[colormap[source[j]]*3+1]];
-  buffer[pos+2]=gtable[playpal[colormap[source[j]]*3+2]];
-}
-
-static void gld_VanillaSky(const byte *gtable, const unsigned char *playpal, const byte *source, int j, int pos, unsigned char *buffer)
-{
-  buffer[pos+0]=gtable[playpal[source[j]*3+0]];
-  buffer[pos+1]=gtable[playpal[source[j]*3+1]];
-  buffer[pos+2]=gtable[playpal[source[j]*3+2]];
-}
-
 // [XA] indexed lightmode sky support -- this basically creates
 // a "pre-baked" version of the sky texture with the given
 // palette (i.e. normal, pain flash, etc.) and gamma applied.
@@ -708,18 +692,19 @@ static void gld_AddIndexedSkyToTexture(GLTexture *gltexture, unsigned char *buff
           return;
         }
 #endif
-        // Really shoddy OpenGL implementation of Force Colormap
-        int use_mbf_cm = dsda_IntConfig(penguino_force_colormap);
-        if (use_mbf_cm == 2)
-          gld_FixedSky(gtable, playpal, source, j, pos, buffer);
-        else if (use_mbf_cm == 1)
-          gld_VanillaSky(gtable, playpal, source, j, pos, buffer);
-        else if (use_mbf_cm == 0)
+        //e6y: Boom's color maps
+        if (use_boom_cm && !comp[comp_skymap])
         {
-          if (use_boom_cm && !comp[comp_skymap])
-            gld_FixedSky(gtable, playpal, source, j, pos, buffer);
-          else
-            gld_VanillaSky(gtable, playpal, source, j, pos, buffer);
+          const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
+          buffer[pos+0]=gtable[playpal[colormap[source[j]]*3+0]];
+          buffer[pos+1]=gtable[playpal[colormap[source[j]]*3+1]];
+          buffer[pos+2]=gtable[playpal[colormap[source[j]]*3+2]];
+        }
+        else
+        {
+          buffer[pos+0]=gtable[playpal[source[j]*3+0]];
+          buffer[pos+1]=gtable[playpal[source[j]*3+1]];
+          buffer[pos+2]=gtable[playpal[source[j]*3+2]];
         }
 
         // Cut out black pixels
