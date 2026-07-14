@@ -1,12 +1,12 @@
 include_guard()
 
-function(nyan_fail_if_invalid_target tgt)
+function(penguino_fail_if_invalid_target tgt)
   if(NOT TARGET ${tgt})
     message(FATAL_ERROR "${tgt} is not a valid CMake target.")
   endif()
 endfunction()
 
-function(nyan_set_default_build_config build_config)
+function(penguino_set_default_build_config build_config)
   get_cmake_property(is_multi_config GENERATOR_IS_MULTI_CONFIG)
   if(NOT is_multi_config AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "${build_config}"

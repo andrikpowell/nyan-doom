@@ -1,12 +1,12 @@
 include_guard()
 
-include(NyanHelpers)
+include(PenguinoHelpers)
 
-set(NYAN_INTERNAL_GENERATED_CONFIG_DIR "${PROJECT_BINARY_DIR}/build-config")
+set(PENGUINO_INTERNAL_GENERATED_CONFIG_DIR "${PROJECT_BINARY_DIR}/build-config")
 
 # Internal functions, these should not be called from outside this module
 
-function(nyan_internal_check_symbols)
+function(penguino_internal_check_symbols)
   include(CheckSymbolExists)
 
   check_symbol_exists(stricmp "string.h" HAVE_STRICMP)
@@ -19,7 +19,7 @@ function(nyan_internal_check_symbols)
   check_symbol_exists(getpwuid "unistd.h;sys/types.h;pwd.h" HAVE_GETPWUID)
 endfunction()
 
-function(nyan_internal_check_includes)
+function(penguino_internal_check_includes)
   include(CheckIncludeFile)
 
   check_include_file("sys/wait.h" HAVE_SYS_WAIT_H)
@@ -28,7 +28,7 @@ function(nyan_internal_check_includes)
   check_include_file("dirent.h" HAVE_DIRENT_H)
 endfunction()
 
-function(nyan_internal_check_variables)
+function(penguino_internal_check_variables)
   set(expected_vars
     PROJECT_NAME
     PROJECT_TARNAME
@@ -37,8 +37,8 @@ function(nyan_internal_check_variables)
     PROJECT_STRING
     PROJECT_DEMO_STRING
     DOOMWADDIR
-    NYAN_ABSOLUTE_PWAD_PATH
-    NYAN_NIGHTLY
+    PENGUINO_ABSOLUTE_PWAD_PATH
+    PENGUINO_NIGHTLY
     WORDS_BIGENDIAN
     SIMPLECHECKS
     RANGECHECK
@@ -50,35 +50,35 @@ function(nyan_internal_check_variables)
   endforeach()
 endfunction()
 
-function(nyan_internal_generate_build_config)
+function(penguino_internal_generate_build_config)
   include(CheckBigEndian)
   check_big_endian(WORDS_BIGENDIAN)
 
-  nyan_internal_check_symbols()
-  nyan_internal_check_includes()
-  nyan_internal_check_variables()
+  penguino_internal_check_symbols()
+  penguino_internal_check_includes()
+  penguino_internal_check_variables()
 
   configure_file(
     "${CMAKE_CURRENT_LIST_DIR}/config.h.cin" 
-    "${NYAN_INTERNAL_GENERATED_CONFIG_DIR}/config.h"
+    "${PENGUINO_INTERNAL_GENERATED_CONFIG_DIR}/config.h"
   )
 endfunction()
 
-nyan_internal_generate_build_config()
+penguino_internal_generate_build_config()
 
 # Public functions
 
-function(nyan_target_use_config_h tgt)
-  nyan_fail_if_invalid_target(${tgt})
+function(penguino_target_use_config_h tgt)
+  penguino_fail_if_invalid_target(${tgt})
 
   target_sources(${tgt}
     PRIVATE
-    "${NYAN_INTERNAL_GENERATED_CONFIG_DIR}/config.h"
+    "${PENGUINO_INTERNAL_GENERATED_CONFIG_DIR}/config.h"
   )
 
   target_include_directories(${tgt}
     PRIVATE
-    $<BUILD_INTERFACE:${NYAN_INTERNAL_GENERATED_CONFIG_DIR}>
+    $<BUILD_INTERFACE:${PENGUINO_INTERNAL_GENERATED_CONFIG_DIR}>
   )
 
   target_compile_definitions(${TARGET}

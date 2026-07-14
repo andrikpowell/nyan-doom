@@ -7,6 +7,7 @@ NYANHUD is very similar to DSDAHUD, but does include extra widgets, thus is inco
 Multiple NYANHUD lumps can be stacked similar to UMAPINFO or DEHACKED. Note that the entire hud blocks will be replaced by the most recent version. This also applies to the `full` variants.
 
 Options marked with 😸 are Nyan exclusive.
+Options marked with 🐧 are Penguino exclusive.
 
 ## Specification
 
@@ -232,7 +233,7 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
   - Requires menu option "announce message" to be set to "on"
   - Supports 2 arguments: `center show_author`
     - `center`: centers the component horizontally
-    - `show_author` doesn't show author (0), shows author when given (1), always show author message (2)
+    - 🐧 `show_author` doesn't show author (0), shows author when given (1), always show author message (2)
 
 ### Stats
 - `stat_totals`: shows the kills / secrets / items on the current map

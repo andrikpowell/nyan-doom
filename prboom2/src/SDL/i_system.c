@@ -165,7 +165,7 @@ unsigned long I_GetRandomTimeSeed(void)
  */
 const char* I_GetVersionString(char* buf, size_t sz)
 {
-  snprintf(buf, sz, "%s (https://github.com/andrikpowell/nyan-doom/)", PROJECT_STRING);
+  snprintf(buf, sz, "%s (https://github.com/CoderPenguin1-dev/penguino-doom/)", PROJECT_STRING);
   return buf;
 }
 
@@ -484,7 +484,7 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
     {NULL}, // current working directory
     {NULL, NULL, "DOOMWADDIR"}, // run-time $DOOMWADDIR
     {DOOMWADDIR}, // build-time configured DOOMWADDIR
-    {NYAN_ABSOLUTE_PWAD_PATH}, // build-time configured absolute path to nyan-doom.wad
+    {PENGUINO_ABSOLUTE_PWAD_PATH}, // build-time configured absolute path to penguino-doom.wad
     {NULL, NULL, NULL, I_GetBasePath}, // search the base path provided by SDL
     {NULL, "../share/games/doom", NULL, I_GetBasePath}, // AppImage
     {NULL, "doom", "HOME"}, // ~/doom

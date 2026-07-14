@@ -4,10 +4,10 @@
 <assemblyIdentity
     version="1.0.0.0"
     processorArchitecture="*"
-    name="nyan-doom.nyan-doom.nyan-doom"
+    name="penguino-doom.penguino-doom.penguino-doom"
     type="win32"
 />
-<description>Nyan-Doom</description>
+<description>Penguin-Doom</description>
 <dependency>
     <dependentAssembly>
         <assemblyIdentity

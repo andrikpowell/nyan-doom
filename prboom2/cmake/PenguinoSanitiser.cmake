@@ -5,12 +5,12 @@ include(CMakeDependentOption)
 
 if(MSVC)
   check_c_compiler_flag(/fsanitize=address HAVE_ASAN)
-  cmake_dependent_option(NYAN_ENABLE_ASAN
+  cmake_dependent_option(PENGUINO_ENABLE_ASAN
     "Enable address sanitiser"
     OFF "HAVE_ASAN" OFF
   )
 
-  if(NYAN_ENABLE_ASAN)
+  if(PENGUINO_ENABLE_ASAN)
     string(REPLACE "/RTC1" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
     string(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
     add_compile_options(/fsanitize=address /fsanitize-address-use-after-return)
@@ -21,31 +21,31 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
   foreach(sanitiser_name sanitiser_id IN ZIP_LISTS sanitiser_names sanitiser_ids)
     list(APPEND CMAKE_REQUIRED_LINK_OPTIONS -fsanitize=${sanitiser_name})
     check_c_compiler_flag(-fsanitize=${sanitiser_name} HAVE_${sanitiser_id})
-    cmake_dependent_option(NYAN_ENABLE_${sanitiser_id}
+    cmake_dependent_option(PENGUINO_ENABLE_${sanitiser_id}
       "Enable ${sanitiser_name} sanitiser"
       OFF "HAVE_${sanitiser_id}" OFF
     )
     list(POP_BACK CMAKE_REQUIRED_LINK_OPTIONS)
   endforeach()
 
-  if(NYAN_ENABLE_ASAN AND NYAN_ENABLE_TSAN)
+  if(PENGUINO_ENABLE_ASAN AND PENGUINO_ENABLE_TSAN)
     message(FATAL_ERROR
       "Invalid sanitizer combination:\n"
-      "  NYAN_ENABLE_ASAN: ${NYAN_ENABLE_ASAN}\n"
-      "  NYAN_ENABLE_UBSAN: ${NYAN_ENABLE_UBSAN}\n"
-      "  NYAN_ENABLE_TSAN: ${NYAN_ENABLE_TSAN}\n"
+      "  PENGUINO_ENABLE_ASAN: ${PENGUINO_ENABLE_ASAN}\n"
+      "  PENGUINO_ENABLE_UBSAN: ${PENGUINO_ENABLE_UBSAN}\n"
+      "  PENGUINO_ENABLE_TSAN: ${PENGUINO_ENABLE_TSAN}\n"
     )
   endif()
 
   add_compile_options(
     -fno-omit-frame-pointer
-    $<$<BOOL:${NYAN_ENABLE_ASAN}>:-fsanitize=address>
-    $<$<BOOL:${NYAN_ENABLE_UBSAN}>:-fsanitize=undefined>
-    $<$<BOOL:${NYAN_ENABLE_TSAN}>:-fsanitize=thread>
+    $<$<BOOL:${PENGUINO_ENABLE_ASAN}>:-fsanitize=address>
+    $<$<BOOL:${PENGUINO_ENABLE_UBSAN}>:-fsanitize=undefined>
+    $<$<BOOL:${PENGUINO_ENABLE_TSAN}>:-fsanitize=thread>
   )
   add_link_options(
-    $<$<BOOL:${NYAN_ENABLE_ASAN}>:-fsanitize=address>
-    $<$<BOOL:${NYAN_ENABLE_UBSAN}>:-fsanitize=undefined>
-    $<$<BOOL:${NYAN_ENABLE_TSAN}>:-fsanitize=thread>
+    $<$<BOOL:${PENGUINO_ENABLE_ASAN}>:-fsanitize=address>
+    $<$<BOOL:${PENGUINO_ENABLE_UBSAN}>:-fsanitize=undefined>
+    $<$<BOOL:${PENGUINO_ENABLE_TSAN}>:-fsanitize=thread>
   )
 endif()

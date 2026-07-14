@@ -860,7 +860,7 @@ static void dsda_LoadHUDConfig(void) {
     else
     {
       lump = -1;
-      while ((lump = W_ListNumFromName("NYANHUD", lump)) >= 0) {
+      while ((lump = W_ListNumFromName("PENGHUD", lump)) >= 0) {
         if (!hud_config) {
           hud_config = W_ReadLumpToString(lump);
           length = W_LumpLength(lump);

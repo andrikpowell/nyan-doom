@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8...4.0)
-project(nyan-doom-wad
+project(penguino-doom-wad
     LANGUAGES C
 )
 
@@ -12,7 +12,7 @@ endif()
 
 # PrBoom-Plus WAD creation tool
 
-add_executable(nyan_rdatawad
+add_executable(penguino_rdatawad
     rd_main.c
     rd_util.c
     rd_util.h
@@ -26,22 +26,22 @@ add_executable(nyan_rdatawad
     rd_graphic.h
 )
 
-target_compile_features(nyan_rdatawad
+target_compile_features(penguino_rdatawad
     PRIVATE c_std_99
 )
-set_target_properties(nyan_rdatawad
+set_target_properties(penguino_rdatawad
     PROPERTIES
     OUTPUT_NAME rdatawad
 )
 
-include(NyanTargetFeatures)
-nyan_target_set_warnings(nyan_rdatawad)
-nyan_target_silence_deprecation(nyan_rdatawad)
+include(PenguinoTargetFeatures)
+penguino_target_set_warnings(penguino_rdatawad)
+penguino_target_silence_deprecation(penguino_rdatawad)
 
 include(CheckBigEndian)
 check_big_endian(RD_IS_BIG_ENDIAN)
 
-target_compile_definitions(nyan_rdatawad
+target_compile_definitions(penguino_rdatawad
     PRIVATE
     "RD_IS_BIG_ENDIAN=${RD_IS_BIG_ENDIAN}"
 )
@@ -58,7 +58,7 @@ set(LUMPS
     lumps/sndcurve.lmp
     lumps/soundfont/sndfont.lmp
     lumps/dsdacr.lmp
-    lumps/nyanhud.lmp
+    lumps/penghud.lmp
 )
 
 set(COLORMAPS
@@ -232,7 +232,7 @@ set(GRAPHICS
     graphics/stfparm1.ppm
     graphics/stfparm2.ppm
     graphics/stfpfly.ppm
-    graphics/nyanlogo.ppm
+    graphics/penglogo.ppm
     graphics/m_butt1.ppm
     graphics/m_butt2.ppm
     graphics/m_colors.ppm
@@ -503,8 +503,8 @@ set(WAD_CMDLINE
 
 add_custom_command(
     OUTPUT ${WAD_DATA_PATH}
-    COMMAND $<TARGET_FILE:nyan_rdatawad> -I "${CMAKE_CURRENT_SOURCE_DIR}" ${WAD_CMDLINE} -o "${WAD_DATA_PATH}"
-    DEPENDS nyan_rdatawad ${WAD_SRC}
+    COMMAND $<TARGET_FILE:penguino_rdatawad> -I "${CMAKE_CURRENT_SOURCE_DIR}" ${WAD_CMDLINE} -o "${WAD_DATA_PATH}"
+    DEPENDS penguino_rdatawad ${WAD_SRC}
     VERBATIM
 )
 
