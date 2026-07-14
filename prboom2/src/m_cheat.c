@@ -160,7 +160,10 @@ static void cheat_strip();
 static void cheat_killonsight();
 static void cheat_reveal_lock();
 static void cheat_reveal_lockx(char *buf);
+
+// penguino
 static void cheat_reset();
+static void cheat_fps();
 
 //-----------------------------------------------------------------------------
 //
@@ -205,7 +208,7 @@ cheatseq_t cheat[] = {
   CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cht_any, cheat_clevx, -2, false),
   CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cht_any, cheat_clev, 0, false),
   CHEAT("idmypos",    NULL,   NULL,               cht_always, cht_any, cheat_mypos, 0, false),
-  CHEAT("idrate",     NULL,   "Frame rate",       cht_always, cht_any, cheat_rate, 0, false),
+  CHEAT("rate",     NULL,     "Frame rate",       cht_always, cht_any, cheat_rate, 0, false),
 
   // phares
   CHEAT("comp",       NULL,   NULL,               not_demo, cht_doom, cheat_compx, -2, false),
@@ -320,9 +323,13 @@ cheatseq_t cheat[] = {
   CHEAT("strip", NULL, NULL, not_demo, cht_any, cheat_strip, 0, false),
   CHEAT("killme", NULL, NULL, not_demo, cht_any, cheat_suicide, 0, false),
   CHEAT("basilisk", NULL, NULL, not_demo, cht_any, cheat_killonsight, 0, false),
-  CHEAT("idclev00", NULL, NULL, not_demo, cht_doom, cheat_reset, 0, false), // DOOM-specific alias to reset
+  
+  
+  // penguino
   CHEAT("reset", NULL, NULL, not_demo, cht_any, cheat_reset, 0, false),
-
+  CHEAT("idclev00", NULL, NULL, not_demo, cht_doom, cheat_reset, 0, false), // DOOM-specific alias to reset
+  CHEAT("showfps", NULL, NULL, cht_always, cht_any, cheat_fps, 0, false),
+  
   // end-of-list marker
   {NULL}
 };
@@ -1213,6 +1220,12 @@ static void cheat_reveal_weaponx(char *buf)
 static void cheat_reset(void)
 {
   G_DeferedInitNew(gameskill, gameepisode, gamemap);
+}
+
+static void cheat_fps(void)
+{
+  dsda_AddMessage(dsda_ToggleConfig(dsda_config_show_fps, false) ? "FPS On"
+                                                                 : "FPS Off");
 }
 
 // Exit finder [Based on Nugget cheat]

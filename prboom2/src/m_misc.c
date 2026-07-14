@@ -487,6 +487,9 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_highlight_nyan_features),
   MIGRATED_SETTING(dsda_config_show_all_game_specific_options),
 
+  SETTING_HEADING("Penguino Doom settings"),
+  MIGRATED_SETTING(penguino_force_colormap),
+
   SETTING_HEADING("Extended HUD Status Icons Widget"),
   MIGRATED_SETTING(nyan_config_ex_status_widget),
   MIGRATED_SETTING(nyan_config_ex_status_blinking),

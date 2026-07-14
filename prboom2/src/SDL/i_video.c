@@ -1224,6 +1224,7 @@ void I_UpdateVideoMode(void)
   sdl_video_display_index = dsda_IntConfig(dsda_config_sdl_video_display_index);
   screen_multiply = dsda_IntConfig(dsda_config_render_screen_multiply);
   integer_scaling = dsda_IntConfig(dsda_config_integer_scaling);
+  
 
   if(sdl_window)
   {
