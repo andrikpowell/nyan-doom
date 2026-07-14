@@ -154,7 +154,8 @@ static map_things_appearance_t map_things_appearance;
 // pulls out to 0.5x in 1 second
 #define M_ZOOMOUT       ((int) ((float)FRACUNIT / (1.00f + F_ZOOMINC / 200.0f)))
 
-#define PLAYERRADIUS    (16*(1<<MAPBITS)) // e6y
+#define MAPUNIT         (1<<MAPBITS) // Crispy
+#define PLAYERRADIUS    (16*MAPUNIT) // e6y
 
 // translates between frame-buffer and map distances
 #define FTOM(x) FixedMul(((x)<<16),scale_ftom)
@@ -710,8 +711,10 @@ static void AM_ParallaxPan(fixed_t incx, fixed_t incy)
   {
     if (autopage_parallax && !minimap) // disable parallax on minimap (same reason above)
     {
-      mapxstart += MTOF(incx) >> 1;
-      mapystart -= MTOF(incy) >> 1;
+      if (incx)
+        mapxstart = prev_mapxstart + MTOF(incx + MAPUNIT / 2);
+      if (incy)
+        mapystart = prev_mapystart - MTOF(incy + MAPUNIT / 2);
     }
   }
 }
