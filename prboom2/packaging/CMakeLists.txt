@@ -1,5 +1,5 @@
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
-set(CPACK_PACKAGE_VENDOR "Nyan Doom maintainers")
+set(CPACK_PACKAGE_VENDOR "Penguino Doom maintainers")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "This is a successor of prboom+ with extra tooling for demo recording and playback, with a focus on speedrunning and quality of life.")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
 set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})

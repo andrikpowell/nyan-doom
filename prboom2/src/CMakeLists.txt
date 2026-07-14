@@ -656,11 +656,11 @@ function(AddGameExecutable TARGET SOURCES)
         C_STANDARD 99
     )
 
-    add_dependencies(${TARGET} nyan-doom-wad)
+    add_dependencies(${TARGET} penguino-doom-wad)
     add_custom_command(TARGET ${TARGET}
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E echo "Copying ${WAD_DATA_PATH} to $<TARGET_FILE_DIR:nyan-doom>"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${WAD_DATA_PATH} $<TARGET_FILE_DIR:nyan-doom>
+        COMMAND ${CMAKE_COMMAND} -E echo "Copying ${WAD_DATA_PATH} to $<TARGET_FILE_DIR:penguino-doom>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${WAD_DATA_PATH} $<TARGET_FILE_DIR:penguino-doom>
     )
 
     if(MSVC)
@@ -693,4 +693,4 @@ function(AddGameExecutable TARGET SOURCES)
     endif()
 endfunction()
 
-AddGameExecutable(nyan-doom "${NYAN_SOURCES}")
+AddGameExecutable(penguino-doom "${NYAN_SOURCES}")

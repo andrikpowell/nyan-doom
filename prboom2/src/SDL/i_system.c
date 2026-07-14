@@ -373,16 +373,16 @@ const char *I_ConfigDir(void)
     const char *home = I_GetHomeDir();
 
     // First, try legacy directory.
-    base = dsda_ConcatDir(home, ".nyan-doom");
+    base = dsda_ConcatDir(home, ".penguino-doom");
     if (access(base, F_OK) != 0)
     {
       // Legacy directory is not accessible. Use XDG directory.
       Z_Free(base);
 
 #ifdef __APPLE__
-      base = dsda_ConcatDir(home, "Library/Application Support/nyan-doom");
+      base = dsda_ConcatDir(home, "Library/Application Support/penguino-doom");
 #else
-      base = dsda_ConcatDir(I_GetXDGDataHome(), "nyan-doom");
+      base = dsda_ConcatDir(I_GetXDGDataHome(), "penguino-doom");
 #endif
     }
 

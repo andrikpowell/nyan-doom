@@ -508,7 +508,7 @@ add_custom_command(
     VERBATIM
 )
 
-add_custom_target(nyan-doom-wad 
+add_custom_target(penguino-doom-wad 
     ALL
     DEPENDS ${WAD_DATA_PATH}
 )
