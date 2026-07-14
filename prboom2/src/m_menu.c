@@ -159,6 +159,8 @@
 #define S_PERC_RANGE    0x000004000000000ULL // convert config range to 0-100%
 #define S_MULTIPLIER    0x000008000000000ULL // display config as a multiplier
 #define S_UNBOUND       0x000010000000000ULL // allow values outside display thermo
+#define S_PENG          0x000020000000000ULL // mark penguino options
+#define S_PENG_HILITE   0x000040000000000ULL // mark penguino options
 
 /* S_SHOWDESC  = the set of items whose description should be displayed
  * S_SHOWSET   = the set of items whose setting should be displayed
@@ -491,6 +493,7 @@ static int cr_info_edit;
 static int cr_warning;
 static int cr_scrollbar;
 static int cr_nyan_feature;
+static int cr_penguino_feature;
 
 void M_LoadTextColors(void)
 {
@@ -509,6 +512,7 @@ void M_LoadTextColors(void)
   cr_warning = dsda_TextCR(dsda_tc_menu_warning);
   cr_scrollbar = dsda_TextCR(dsda_tc_menu_scrollbar);
   cr_nyan_feature = dsda_TextCR(dsda_tc_menu_nyan_feature);
+  cr_penguino_feature = dsda_TextCR(dsda_tc_map_author);
 }
 
 static const dsda_font_t *menu_font;
@@ -2590,6 +2594,15 @@ static dboolean M_ItemNyan(const setup_menu_t* s)
   return false;
 }
 
+static dboolean M_ItemPenguino(const setup_menu_t* s)
+{
+    if (s->m_flags & S_PENG)
+    if (dsda_IntConfig(penguino_config_highlight_peng_features))
+        return true;
+
+  return false;
+}
+
 /////////////////////////////
 //
 // Menu Color Item Functions
@@ -2600,11 +2613,12 @@ static int GetItemColor(menu_flags_t flags)
 {
     return (flags & S_TITLE && flags & S_DISABLED) ? cr_title + CR_DARKEN :
            (flags & S_NYAN_HILITE && flags & S_DISABLED) ? cr_nyan_feature + CR_DARKEN :
-            flags & S_DISABLED ? cr_label + CR_DARKEN :
-            flags & (S_SELECT|S_TC_SEL) ? cr_label_edit :
-            flags & S_HILITE ? cr_label_highlight :
-            flags & (S_TITLE|S_NEXT|S_PREV) ? cr_title :
-            flags & S_NYAN_HILITE ? cr_nyan_feature :
+           flags & S_DISABLED ? cr_label + CR_DARKEN :
+           flags & (S_SELECT|S_TC_SEL) ? cr_label_edit :
+           flags & S_HILITE ? cr_label_highlight :
+           flags & (S_TITLE|S_NEXT|S_PREV) ? cr_title :
+           flags & S_NYAN_HILITE ? cr_nyan_feature :
+           flags & S_PENG_HILITE ? cr_penguino_feature :
             cr_label; // killough 10/98
 }
 
@@ -2650,6 +2664,9 @@ static void M_DrawItem(const setup_menu_t* s, int y)
 
   if (M_ItemNyan(s))
     flags |= S_NYAN_HILITE;
+
+  if (M_ItemPenguino(s))
+    flags |= S_PENG_HILITE;
  
   color = GetItemColor(flags);
 
@@ -4808,11 +4825,13 @@ static const char *gen_pages[] =
   "Gamesim",
   "Misc",
   "Nyan",
+  "Penguino",
   NULL
 };
 
 setup_menu_t gen_video_settings[], gen_audio_settings[], gen_device_settings[];
 setup_menu_t gen_gamesim_settings[], gen_misc_settings[], gen_nyan_settings[];
+setup_menu_t gen_penguino_settings[];
 
 setup_menu_t* gen_settings[] =
 {
@@ -4822,6 +4841,7 @@ setup_menu_t* gen_settings[] =
   gen_gamesim_settings,
   gen_misc_settings,
   gen_nyan_settings,
+  gen_penguino_settings,
   NULL
 };
 
@@ -4995,6 +5015,14 @@ setup_menu_t gen_nyan_settings[] = {
   { "Highlight Nyan Features", S_YESNO | S_NYAN_HILITE, m_conf, g_all, G2_X, nyan_config_highlight_nyan_features },
 
   PREV_PAGE(gen_misc_settings),
+  NEXT_PAGE(gen_penguino_settings),
+  FINAL_ENTRY
+};
+
+setup_menu_t gen_penguino_settings[] = {
+  { "Highlight Penguino Features", S_YESNO | S_PENG_HILITE, m_conf, g_all, G2_X, penguino_config_highlight_peng_features },
+
+  PREV_PAGE(gen_nyan_settings),
   FINAL_ENTRY
 };
 
@@ -5250,6 +5278,7 @@ static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
 static const char* palette_list[] = { "Off", "Default", NULL };
 static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
 static const char* swirling_flat_list[] = { "Off", "Smart", "All", NULL };
+static const char* invuln_effect_list[] = { "MBF", "Vanilla", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Screen Wipe Effect", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_render_wipescreen, 0, wipe_screen_list },
@@ -5257,6 +5286,7 @@ setup_menu_t display_options_settings[] = {
   { "Quake Intensity", S_PERC, m_conf, g_all, G_X, dsda_config_quake_intensity },
   { "Fake Contrast", S_CHOICE, m_conf, g_all, G_X, dsda_config_fake_contrast_mode, 0, fake_contrast_list },
   { "Swirling Flats", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_swirling_flats, 0, swirling_flat_list },
+  { "Invulnerability Effect", S_CHOICE | S_PENG, m_conf, g_all, G_X, penguino_config_invuln_cm, 0, invuln_effect_list },
   EMPTY_LINE,
   { "GL Light Fade", S_CHOICE, m_conf, g_all, G_X, dsda_config_gl_fade_mode, 0, gl_fade_mode_list, DEPEND(dsda_config_videomode, OPENGL_MODE) },
   { "GL Health Bars", S_YESNO, m_conf, g_all, G_X, dsda_config_gl_health_bar, DEPEND_GL },

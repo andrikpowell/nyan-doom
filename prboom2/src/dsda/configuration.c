@@ -146,6 +146,7 @@ void dsda_RefreshLinearSky(void);
 void deh_changeCompTranslucency(void);
 void deh_changeBonusFlash(void);
 void deh_changeColoredBlood(void);
+void deh_changeSkymap(void);
 void dsda_InitGameControllerParameters(void);
 void dsda_InitExHud(void);
 void dsda_UpdateFreeText(void);
@@ -158,6 +159,7 @@ void dsda_UpdateTranMap(void);
 void cht_UpdateCheats(void);
 void R_UpdateFuzzSize(void);
 void M_RefreshGameSpecificMenuOptions(void);
+void penguino_Invuln_Colormap(void);
 
 void dsda_TrackConfigFeatures(void) {
   if (!demorecording)
@@ -2204,7 +2206,24 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "playback_mouse_controls", dsda_config_playback_mouse_controls,
     CONF_BOOL(1)
   },
+  [penguino_config_invuln_cm] = {
+    "penguino_config_invuln_cm", penguino_config_invuln_cm,
+    CONF_BOOL(0), NULL, NOT_STRICT, penguino_Invuln_Colormap
+  },
+  [penguino_config_highlight_peng_features] = {
+    "penguino_config_highlight_peng_features", penguino_config_highlight_peng_features,
+    CONF_BOOL(0)
+  }
 };
+
+// Need to figure out a better place for this.
+// For now, it stays here.
+void penguino_Invuln_Colormap(void)
+{
+  deh_changeSkymap();
+  if (V_IsOpenGLMode())
+    M_ChangeVideoMode();
+}
 
 static void dsda_PersistIntConfig(dsda_config_t* conf) {
   conf->persistent_value.v_int = conf->transient_value.v_int;
