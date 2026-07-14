@@ -376,13 +376,9 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
         else if (use_boom_cm && !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
         {
           //e6y: Boom's color maps
-          // buffer[pos+0]=playpal[colormap[source[j]]*3+0];
-          // buffer[pos+1]=playpal[colormap[source[j]]*3+1];
-          // buffer[pos+2]=playpal[colormap[source[j]]*3+2];
-          // buffer[pos+3]=255;
-          buffer[pos+0]=playpal[source[j]*3+0];
-          buffer[pos+1]=playpal[source[j]*3+1];
-          buffer[pos+2]=playpal[source[j]*3+2];
+          buffer[pos+0]=playpal[colormap[source[j]]*3+0];
+          buffer[pos+1]=playpal[colormap[source[j]]*3+1];
+          buffer[pos+2]=playpal[colormap[source[j]]*3+2];
           buffer[pos+3]=255;
         }
         else
