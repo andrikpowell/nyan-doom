@@ -668,6 +668,10 @@ static void AM_UpdateParallax(void)
     int dmapx;
     int dmapy;
 
+    // no autopage = no parallax
+    if (!W_LumpNameExists(g_autopage))
+      return;
+
     if (automap_follow && !dsda_Paused())
     {
         dmapx = (MTOF(plr->mo->x) >> FRACTOMAPBITS) - (MTOF(oldplr.x) >> FRACTOMAPBITS);    //fixed point
@@ -694,6 +698,10 @@ static void AM_UpdateParallax(void)
 static void AM_ParallaxPan(fixed_t incx, fixed_t incy)
 {
   dboolean minimap = !automap_full;
+
+  // no autopage = no parallax
+  if (!W_LumpNameExists(g_autopage))
+    return;
 
   // [crispy] Disable map background scroll in non-follow + rotate mode.
   // The combination of the two effects is unappealing and slightly
@@ -906,9 +914,6 @@ static void AM_initVariables(void)
   m_paninc.x = m_paninc.y = m_paninc2.x = m_paninc2.y = 0;
   ftom_zoommul = FRACUNIT;
   mtof_zoommul = FRACUNIT;
-
-  if (!W_LumpNameExists(g_autopage)) // Raven AUTOPAGE RAW format (custom size)
-    g_autopage_width = g_autopage_height = 64;
 
   maplump_width = (g_autopage_width * params->video->width) / 320;
   maplump_height = (g_autopage_height * params->video->height) / 200;
@@ -4256,32 +4261,19 @@ static void AM_setFrameVariables(void)
 //
 //=============================================================================
 
-typedef enum {
-  AUTOMAP_BG_OFF,
-  AUTOMAP_BG_GAME_DEFAULT,
-  AUTOMAP_BG_FORCED,
-} automap_bg_t;
-
 static void AM_DrawBackground (void)
 {
-  int automap_bg = raven ? (autopage_active != AUTOMAP_BG_OFF)
-                         : (autopage_active == AUTOMAP_BG_FORCED);
+  int automap_bg = autopage_active && W_LumpNameExists(g_autopage);
 
   if (automap_bg) { // Automap Parallax Background
     V_BeginUIDraw(); // OpenGL doesn't like flats in AutomapDraw()
 
-    if (W_LumpNameExists(g_autopage)) // Raven AUTOPAGE RAW format (custom size)
-      V_FillNameRawAdv(g_autopage, f_x, f_y, g_autopage_width, g_autopage_height, f_w, f_h, mapxstart, mapystart, VPT_STRETCH);
-
-    else if (W_FlatNameExists(g_autopage)) // AUTOPAGE flat format (64x64)
-      V_FillNameFlatAdv(g_autopage, f_x, f_y, f_w, f_h, mapxstart, mapystart, VPT_STRETCH);
-
-    else // AUTOPAGE flat format (64x64) - fallback
-      V_FillNameFlatAdv("FLOOR4_6", f_x, f_y, f_w, f_h, mapxstart, mapystart, VPT_STRETCH);
+    // Raven AUTOPAGE RAW format (custom size)
+    V_FillNameRawAdv(g_autopage, f_x, f_y, g_autopage_width, g_autopage_height, f_w, f_h, mapxstart, mapystart, VPT_STRETCH);
 
     V_EndUIDraw();
 
-    if (autopage_fade > 0) // Darken flat
+    if (autopage_fade > 0) // Darken autopage
       V_DrawShaded(f_x, f_y, f_w, f_h, autopage_fade * 31 / 100);
 
     return;
