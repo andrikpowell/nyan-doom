@@ -5099,10 +5099,10 @@ setup_menu_t* gamepad_settings[] =
 };
 
 setup_menu_t gamepad_adv_settings[] = {
-  { "Forward Sensitivity", S_THERMO | S_MULTIPLIER, m_conf, g_all, GP_X, dsda_config_left_analog_sensitivity_y },
-  { "Strafe Sensitivity", S_THERMO | S_MULTIPLIER, m_conf, g_all, GP_X, dsda_config_left_analog_sensitivity_x },
-  { "Turn Speed", S_THERMO, m_conf, g_all, GP_X, dsda_config_right_analog_sensitivity_x },
-  { "Look Speed", S_THERMO, m_conf, g_all, GP_X, dsda_config_right_analog_sensitivity_y },
+  { "Forward Sensitivity", S_THERMO | S_MULTIPLIER, m_conf, g_all, GP_X, dsda_config_analog_forward_sensitivity_y },
+  { "Strafe Sensitivity", S_THERMO | S_MULTIPLIER, m_conf, g_all, GP_X, dsda_config_analog_strafe_sensitivity_x },
+  { "Turn Speed", S_THERMO, m_conf, g_all, GP_X, dsda_config_analog_turn_sensitivity_x },
+  { "Look Speed", S_THERMO, m_conf, g_all, GP_X, dsda_config_analog_look_sensitivity_y },
   { "Acceleration", S_THERMO, m_conf, g_all, GP_X, dsda_config_analog_look_acceleration },
   EMPTY_LINE,
   { "Invert Look", S_YESNO, m_conf, g_all, GP_X, dsda_config_invert_analog_look },
