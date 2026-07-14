@@ -34,7 +34,7 @@
 #include "data_organizer.h"
 
 #define DATA_DIR_LIMIT 9
-static const char* dsda_data_root = "nyan_doom_data";
+static const char* dsda_data_root = "penguino_doom_data";
 static char* dsda_data_dir_strings[DATA_DIR_LIMIT];
 static char* dsda_base_data_dir;
 static char* dsda_wad_data_dir;
