@@ -510,7 +510,6 @@ enum {
   dsda_config_obituaries,
   dsda_config_extra_level_brightness,
   dsda_config_demo_end_quit,
-  penguino_force_colormap,
   dsda_config_count,
 };
 

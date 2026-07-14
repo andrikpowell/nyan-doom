@@ -2204,10 +2204,6 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "playback_mouse_controls", dsda_config_playback_mouse_controls,
     CONF_BOOL(1)
   },
-  [penguino_force_colormap] = {
-    "penguino_force_colormap", penguino_force_colormap,
-    dsda_config_int, 0, 2, { 0 }
-  },
 };
 
 static void dsda_PersistIntConfig(dsda_config_t* conf) {
