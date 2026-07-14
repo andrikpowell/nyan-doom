@@ -4571,7 +4571,6 @@ static const char *map_things_appearance_list[] =
 
 static const char *map_player_arrow_list[] = { "Default", "Modern", "Doom", "Raven", NULL };
 static const char *map_marker_style_list[] = { "Classic", "Line", NULL };
-static const char *automap_background_list[] = { "Off", "Default", "On", NULL };
 static const char *automap_linesize_list[] = { "Auto", "1x", "2x", "3x", "4x", "5x", "6x", NULL };
 
 setup_menu_t auto_appearance_settings[] =
@@ -4580,7 +4579,7 @@ setup_menu_t auto_appearance_settings[] =
   { "Automap Markers", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_marker_style, 0, map_marker_style_list },
   FUNC("Thing Appearance", S_CENTER | S_NYAN, AA_X, M_Sub_AutoMapThings),
   EMPTY_LINE,
-  { "Automap background", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_background, 0, automap_background_list },
+  { "Automap background", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_background },
   { "Background shade", S_PERC | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_background_shade, 0, empty_list, EXCLUDE(dsda_config_automap_background, false) },
   { "Parallex Effect", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_parallax, 0, empty_list, EXCLUDE(dsda_config_automap_background, false) },
   EMPTY_LINE,

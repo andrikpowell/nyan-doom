@@ -1825,7 +1825,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_automap_background] = {
     "automap_background", dsda_config_automap_background,
-    dsda_config_int, 0, 2, { 1 }, &autopage_active
+    CONF_BOOL(1), &autopage_active
   },
   [dsda_config_automap_background_shade] = {
     "automap_background_shade", dsda_config_automap_background_shade,
@@ -1849,7 +1849,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_automap_mouse_pan] = {
     "automap_mouse_pan", dsda_config_automap_mouse_pan,
-    CONF_BOOL(0), &automap_mouse_pan
+    CONF_BOOL(1), &automap_mouse_pan
   },
   [dsda_config_automap_grid] = {
     "automap_grid", dsda_config_automap_grid,
