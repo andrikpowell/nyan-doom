@@ -22,6 +22,7 @@
 typedef struct {
   dsda_text_t component;
   dboolean center;
+  int show_author;
   int y_offset;
   int vpt;
   double ratio;
@@ -71,6 +72,8 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
 
   const char* title_msg  = HU_AnnounceMessage();
   const char* author_msg = HU_AuthorMessage();
+  if (!(author_msg && *author_msg) && local->show_author == 2)
+    author_msg = "Unknown Author";
 
   if (!title_msg || !*title_msg)
   {
@@ -79,7 +82,7 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
     return;
   }
 
-  if (author_msg && *author_msg)
+  if ((author_msg && *author_msg) && local->show_author > 0)
   {
     snprintf(
       str,
@@ -108,6 +111,9 @@ void dsda_InitAnnounceMessageHC(int x_offset, int y_offset, int vpt, int* args, 
   local = *data;
 
   local->center = arg_count > 0 ? !!args[0] : true;
+  local->show_author = arg_count > 1 ? args[1] : 1;
+  // if (local->show_author < 0 || local->show_author > 2)
+  //   local->show_author = 1;
 
   dsda_InitBlockyHC(&local->component, x_offset, y_offset, vpt);
 

@@ -230,8 +230,9 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
 - 😸 `announce_message`: shows the announce map message with author on next line
   - Uses the message font
   - Requires menu option "announce message" to be set to "on"
-  - Supports 1 argument: `center`
+  - Supports 2 arguments: `center show_author`
     - `center`: centers the component horizontally
+    - `show_author` doesn't show author (0), shows author when given (1), always show author message (2)
 
 ### Stats
 - `stat_totals`: shows the kills / secrets / items on the current map
