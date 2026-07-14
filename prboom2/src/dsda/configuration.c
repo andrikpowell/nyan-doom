@@ -2206,7 +2206,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [penguino_force_colormap] = {
     "penguino_force_colormap", penguino_force_colormap,
-    dsda_config_int, 0, 2, { 0 }
+    dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT, M_ChangeVideoMode
   },
 };
 
