@@ -208,7 +208,7 @@ cheatseq_t cheat[] = {
   CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cht_any, cheat_clevx, -2, false),
   CHEAT("idclev",     NULL,   "Level Warp",       not_demo | not_menu, cht_any, cheat_clev, 0, false),
   CHEAT("idmypos",    NULL,   NULL,               cht_always, cht_any, cheat_mypos, 0, false),
-  CHEAT("idrate",     NULL,   "Frame rate",       cht_always, cht_any, cheat_rate, 0, false),
+  CHEAT("rate",     NULL,   "Frame rate",       cht_always, cht_any, cheat_rate, 0, false),
 
   // phares
   CHEAT("comp",       NULL,   NULL,               not_demo, cht_doom, cheat_compx, -2, false),
