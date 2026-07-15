@@ -803,8 +803,19 @@ static void AM_changeWindowLoc(void)
 
 static void AM_AddMousePan(int x, int y)
 {
-  m_paninc2.x = FTOM(x * SCREENWIDTH  * (map_mouse_pan_sensitivity + 5) / (320 * PAN_MOUSE_SCALE));
-  m_paninc2.y = FTOM(y * SCREENHEIGHT * (map_mouse_pan_sensitivity + 5) / (200 * PAN_MOUSE_SCALE));
+  int64_t sensitivity = map_mouse_pan_sensitivity;
+  int64_t dx, dy;
+
+  sensitivity += 5;
+
+  dx = sensitivity * x * SCREENWIDTH  / (320 * PAN_MOUSE_SCALE);
+  dy = sensitivity * y * SCREENHEIGHT / (200 * PAN_MOUSE_SCALE);
+
+  dx = FTOM((fixed_t)CLAMP(dx, INT_MIN / FRACUNIT, INT_MAX / FRACUNIT));
+  dy = FTOM((fixed_t)CLAMP(dy, INT_MIN / FRACUNIT, INT_MAX / FRACUNIT));
+
+  m_paninc2.x = (fixed_t)CLAMP(m_paninc2.x + dx, INT_MIN, INT_MAX);
+  m_paninc2.y = (fixed_t)CLAMP(m_paninc2.y + dy, INT_MIN, INT_MAX);
 }
 
 //

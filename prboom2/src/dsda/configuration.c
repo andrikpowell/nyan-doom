@@ -2138,20 +2138,20 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_right_trigger_deadzone", dsda_config_right_trigger_deadzone,
     dsda_config_int, 0, 50, { 20 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
-  [dsda_config_left_analog_sensitivity_x] = {
-    "dsda_left_analog_sensitivity_x", dsda_config_left_analog_sensitivity_x,
+  [dsda_config_analog_strafe_sensitivity_x] = {
+    "dsda_analog_strafe_sensitivity", dsda_config_analog_strafe_sensitivity_x,
     dsda_config_int, 0, 40, { 10 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
-  [dsda_config_left_analog_sensitivity_y] = {
-    "dsda_left_analog_sensitivity_y", dsda_config_left_analog_sensitivity_y,
+  [dsda_config_analog_forward_sensitivity_y] = {
+    "dsda_analog_forward_sensitivity", dsda_config_analog_forward_sensitivity_y,
     dsda_config_int, 0, 40, { 10 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
-  [dsda_config_right_analog_sensitivity_x] = {
-    "dsda_analog_turn_speed", dsda_config_right_analog_sensitivity_x,
+  [dsda_config_analog_turn_sensitivity_x] = {
+    "dsda_analog_turn_speed", dsda_config_analog_turn_sensitivity_x,
     dsda_config_int, 0, 720, { 240 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
-  [dsda_config_right_analog_sensitivity_y] = {
-    "dsda_analog_look_speed", dsda_config_right_analog_sensitivity_y,
+  [dsda_config_analog_look_sensitivity_y] = {
+    "dsda_analog_look_speed", dsda_config_analog_look_sensitivity_y,
     dsda_config_int, 0, 720, { 135 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_analog_look_acceleration] = {

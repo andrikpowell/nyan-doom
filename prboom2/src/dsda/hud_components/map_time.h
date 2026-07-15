@@ -21,6 +21,5 @@
 void dsda_InitMapTimeHC(int x_offset, int y_offset, int vpt_flags, int* args, int arg_count, void** data);
 void dsda_UpdateMapTimeHC(void* data);
 void dsda_DrawMapTimeHC(void* data);
-void dsda_GetPlaytime(int* level_time, int* total_time);
 
 #endif
