@@ -928,9 +928,9 @@ void M_LoadDefaults (void)
   else
   {
     const char* configdir = I_ConfigDir();
-    int len = snprintf(NULL, 0, "%s/nyan-doom.cfg", configdir);
+    int len = snprintf(NULL, 0, "%s/penguino-doom.cfg", configdir);
     defaultfile = Z_Malloc(len + 1);
-    snprintf(defaultfile, len + 1, "%s/nyan-doom.cfg", configdir);
+    snprintf(defaultfile, len + 1, "%s/penguino-doom.cfg", configdir);
   }
 
   lprintf(LO_DEBUG, " default file: %s\n", defaultfile);
