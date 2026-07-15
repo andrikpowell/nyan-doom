@@ -201,10 +201,10 @@ void dsda_InitGameControllerParameters(void) {
   int move_x, move_y, look_x, look_y;
 
   // Stick Sensitivity
-  move_x = dsda_GameControllerMoveSensitivity(dsda_IntConfig(dsda_config_left_analog_sensitivity_x));
-  move_y = dsda_GameControllerMoveSensitivity(dsda_IntConfig(dsda_config_left_analog_sensitivity_y));
-  look_x = dsda_GameControllerLookSpeed(dsda_IntConfig(dsda_config_right_analog_sensitivity_x));
-  look_y = dsda_GameControllerLookSpeed(dsda_IntConfig(dsda_config_right_analog_sensitivity_y));
+  move_x = dsda_GameControllerMoveSensitivity(dsda_IntConfig(dsda_config_analog_strafe_sensitivity_x));
+  move_y = dsda_GameControllerMoveSensitivity(dsda_IntConfig(dsda_config_analog_forward_sensitivity_y));
+  look_x = dsda_GameControllerLookSpeed(dsda_IntConfig(dsda_config_analog_turn_sensitivity_x));
+  look_y = dsda_GameControllerLookSpeed(dsda_IntConfig(dsda_config_analog_look_sensitivity_y));
 
   // Swap sticks, but keep sensitivity for movement / looking
   swap_analogs = dsda_IntConfig(dsda_config_swap_analogs);

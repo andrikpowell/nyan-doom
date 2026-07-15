@@ -32,7 +32,11 @@
 
 void deh_changeSkymap()
 {
-  comp[comp_skymap] = dsda_IntConfig(penguino_config_invuln_cm);
+  int invuln_cm = dsda_IntConfig(penguino_config_invuln_cm);
+  if (invuln_cm != 0)
+    comp[comp_skymap] = invuln_cm - 1;
+  else
+    comp[comp_skymap] = compatibility_level >= 11 ? 0 : 1;
 }
 
 void deh_changeCompTranslucency(void)

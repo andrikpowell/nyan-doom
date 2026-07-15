@@ -166,6 +166,7 @@ enum {
   dsda_tc_stbar_ammo_warning,
   dsda_tc_stbar_ammo_ok,
   dsda_tc_stbar_ammo_full,
+  penguino_tc_menu_penguin_feature,
 };
 
 typedef int dsda_text_color_index_t;

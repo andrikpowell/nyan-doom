@@ -512,7 +512,7 @@ void M_LoadTextColors(void)
   cr_warning = dsda_TextCR(dsda_tc_menu_warning);
   cr_scrollbar = dsda_TextCR(dsda_tc_menu_scrollbar);
   cr_nyan_feature = dsda_TextCR(dsda_tc_menu_nyan_feature);
-  cr_penguino_feature = dsda_TextCR(dsda_tc_map_author);
+  cr_penguino_feature = dsda_TextCR(penguino_tc_menu_penguin_feature);
 }
 
 static const dsda_font_t *menu_font;
@@ -4571,7 +4571,6 @@ static const char *map_things_appearance_list[] =
 
 static const char *map_player_arrow_list[] = { "Default", "Modern", "Doom", "Raven", NULL };
 static const char *map_marker_style_list[] = { "Classic", "Line", NULL };
-static const char *automap_background_list[] = { "Off", "Default", "On", NULL };
 static const char *automap_linesize_list[] = { "Auto", "1x", "2x", "3x", "4x", "5x", "6x", NULL };
 
 setup_menu_t auto_appearance_settings[] =
@@ -4580,7 +4579,7 @@ setup_menu_t auto_appearance_settings[] =
   { "Automap Markers", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_marker_style, 0, map_marker_style_list },
   FUNC("Thing Appearance", S_CENTER | S_NYAN, AA_X, M_Sub_AutoMapThings),
   EMPTY_LINE,
-  { "Automap background", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_background, 0, automap_background_list },
+  { "Automap background", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_background },
   { "Background shade", S_PERC | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_background_shade, 0, empty_list, EXCLUDE(dsda_config_automap_background, false) },
   { "Parallex Effect", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_parallax, 0, empty_list, EXCLUDE(dsda_config_automap_background, false) },
   EMPTY_LINE,
@@ -5147,10 +5146,10 @@ setup_menu_t* gamepad_settings[] =
 };
 
 setup_menu_t gamepad_adv_settings[] = {
-  { "Forward Sensitivity", S_THERMO | S_MULTIPLIER, m_conf, g_all, GP_X, dsda_config_left_analog_sensitivity_y },
-  { "Strafe Sensitivity", S_THERMO | S_MULTIPLIER, m_conf, g_all, GP_X, dsda_config_left_analog_sensitivity_x },
-  { "Turn Speed", S_THERMO, m_conf, g_all, GP_X, dsda_config_right_analog_sensitivity_x },
-  { "Look Speed", S_THERMO, m_conf, g_all, GP_X, dsda_config_right_analog_sensitivity_y },
+  { "Forward Sensitivity", S_THERMO | S_MULTIPLIER, m_conf, g_all, GP_X, dsda_config_analog_forward_sensitivity_y },
+  { "Strafe Sensitivity", S_THERMO | S_MULTIPLIER, m_conf, g_all, GP_X, dsda_config_analog_strafe_sensitivity_x },
+  { "Turn Speed", S_THERMO, m_conf, g_all, GP_X, dsda_config_analog_turn_sensitivity_x },
+  { "Look Speed", S_THERMO, m_conf, g_all, GP_X, dsda_config_analog_look_sensitivity_y },
   { "Acceleration", S_THERMO, m_conf, g_all, GP_X, dsda_config_analog_look_acceleration },
   EMPTY_LINE,
   { "Invert Look", S_YESNO, m_conf, g_all, GP_X, dsda_config_invert_analog_look },
@@ -5278,7 +5277,7 @@ static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
 static const char* palette_list[] = { "Off", "Default", NULL };
 static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
 static const char* swirling_flat_list[] = { "Off", "Smart", "All", NULL };
-static const char* invuln_effect_list[] = { "MBF", "Vanilla", NULL };
+static const char* invuln_effect_list[] = { "Default", "MBF", "Vanilla", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Screen Wipe Effect", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_render_wipescreen, 0, wipe_screen_list },

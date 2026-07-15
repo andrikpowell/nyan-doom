@@ -1825,7 +1825,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_automap_background] = {
     "automap_background", dsda_config_automap_background,
-    dsda_config_int, 0, 2, { 1 }, &autopage_active
+    CONF_BOOL(1), &autopage_active
   },
   [dsda_config_automap_background_shade] = {
     "automap_background_shade", dsda_config_automap_background_shade,
@@ -1849,7 +1849,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_automap_mouse_pan] = {
     "automap_mouse_pan", dsda_config_automap_mouse_pan,
-    CONF_BOOL(0), &automap_mouse_pan
+    CONF_BOOL(1), &automap_mouse_pan
   },
   [dsda_config_automap_grid] = {
     "automap_grid", dsda_config_automap_grid,
@@ -2138,20 +2138,20 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_right_trigger_deadzone", dsda_config_right_trigger_deadzone,
     dsda_config_int, 0, 50, { 20 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
-  [dsda_config_left_analog_sensitivity_x] = {
-    "dsda_left_analog_sensitivity_x", dsda_config_left_analog_sensitivity_x,
+  [dsda_config_analog_strafe_sensitivity_x] = {
+    "dsda_analog_strafe_sensitivity", dsda_config_analog_strafe_sensitivity_x,
     dsda_config_int, 0, 40, { 10 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
-  [dsda_config_left_analog_sensitivity_y] = {
-    "dsda_left_analog_sensitivity_y", dsda_config_left_analog_sensitivity_y,
+  [dsda_config_analog_forward_sensitivity_y] = {
+    "dsda_analog_forward_sensitivity", dsda_config_analog_forward_sensitivity_y,
     dsda_config_int, 0, 40, { 10 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
-  [dsda_config_right_analog_sensitivity_x] = {
-    "dsda_analog_turn_speed", dsda_config_right_analog_sensitivity_x,
+  [dsda_config_analog_turn_sensitivity_x] = {
+    "dsda_analog_turn_speed", dsda_config_analog_turn_sensitivity_x,
     dsda_config_int, 0, 720, { 240 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
-  [dsda_config_right_analog_sensitivity_y] = {
-    "dsda_analog_look_speed", dsda_config_right_analog_sensitivity_y,
+  [dsda_config_analog_look_sensitivity_y] = {
+    "dsda_analog_look_speed", dsda_config_analog_look_sensitivity_y,
     dsda_config_int, 0, 720, { 135 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_analog_look_acceleration] = {
@@ -2208,7 +2208,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [penguino_config_invuln_cm] = {
     "penguino_config_invuln_cm", penguino_config_invuln_cm,
-    CONF_BOOL(0), NULL, NOT_STRICT, penguino_Invuln_Colormap
+    dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT, penguino_Invuln_Colormap
   },
   [penguino_config_highlight_peng_features] = {
     "penguino_config_highlight_peng_features", penguino_config_highlight_peng_features,
