@@ -512,7 +512,7 @@ void M_LoadTextColors(void)
   cr_warning = dsda_TextCR(dsda_tc_menu_warning);
   cr_scrollbar = dsda_TextCR(dsda_tc_menu_scrollbar);
   cr_nyan_feature = dsda_TextCR(dsda_tc_menu_nyan_feature);
-  cr_penguino_feature = dsda_TextCR(dsda_tc_map_author);
+  cr_penguino_feature = dsda_TextCR(penguino_tc_menu_penguin_feature);
 }
 
 static const dsda_font_t *menu_font;
@@ -5277,7 +5277,7 @@ static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
 static const char* palette_list[] = { "Off", "Default", NULL };
 static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
 static const char* swirling_flat_list[] = { "Off", "Smart", "All", NULL };
-static const char* invuln_effect_list[] = { "MBF", "Vanilla", NULL };
+static const char* invuln_effect_list[] = { "Default", "MBF", "Vanilla", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Screen Wipe Effect", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_render_wipescreen, 0, wipe_screen_list },

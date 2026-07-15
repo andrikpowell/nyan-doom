@@ -2208,7 +2208,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [penguino_config_invuln_cm] = {
     "penguino_config_invuln_cm", penguino_config_invuln_cm,
-    CONF_BOOL(0), NULL, NOT_STRICT, penguino_Invuln_Colormap
+    dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT, penguino_Invuln_Colormap
   },
   [penguino_config_highlight_peng_features] = {
     "penguino_config_highlight_peng_features", penguino_config_highlight_peng_features,

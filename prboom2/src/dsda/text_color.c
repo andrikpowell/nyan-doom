@@ -169,6 +169,7 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_stbar_ammo_warning] = { "stbar_ammo_warning", CR_GOLD },
   [dsda_tc_stbar_ammo_ok] = { "stbar_ammo_ok", CR_GREEN },
   [dsda_tc_stbar_ammo_full] = { "stbar_ammo_full", CR_BLUE },
+  [penguino_tc_menu_penguin_feature] = { "menu_penguino_feature", CR_BLUE },
   { NULL },
 };
 
