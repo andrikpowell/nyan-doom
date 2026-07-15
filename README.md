@@ -1,145 +1,28 @@
 <div align="center" markdown="1">
-    <a href="https://github.com/andrikpowell/nyan-doom/"><img src="./prboom2/ICONS/nyan-doom.svg" alt="Nyan Doom Logo" width="200"/></a>
-    <h1>Nyan Doom</h1>
-    <h3>The most fuzzy, cuddly Doom port ever!</h3>
+    <h1>Penguino Doom</h1>
+    <h3>The second most feathery, cuddly Doom port ever!</h3>
 </div>
 
-<div align="center" markdown="1">
+Penguino Doom is a fork of Nyan Doom focusing on adding in additional tweaks and nicities.
 
-[![Static Badge](https://img.shields.io/badge/Windows-grey)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Static Badge](https://img.shields.io/badge/macOS-grey?logo=apple)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Static Badge](https://img.shields.io/badge/Linux-grey?logo=linux)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-<br>
-[![Release](https://img.shields.io/github/release/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Latest Release](https://img.shields.io/github/release-date/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Downloads (latest)](https://img.shields.io/github/downloads/andrikpowell/nyan-doom/latest/total.svg?label=downloads)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Downloads (total)](https://img.shields.io/github/downloads/andrikpowell/nyan-doom/total.svg?label=total%20downloads)](https://github.com/andrikpowell/nyan-doom/releases)
-<br>
-[![Commits Since](https://img.shields.io/github/commits-since/andrikpowell/nyan-doom/latest.svg)](https://github.com/andrikpowell/nyan-doom/commits/master)
-[![Last Commit](https://img.shields.io/github/last-commit/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/commits/master)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/andrikpowell/nyan-doom/continuous_integration.yml)](https://github.com/andrikpowell/nyan-doom/commits/master)
-[![Top Language](https://img.shields.io/github/languages/top/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom)
-<br>
-[![Stars](https://img.shields.io/github/stars/andrikpowell/nyan-doom.svg?style=flat&logo=github)](https://github.com/andrikpowell/nyan-doom/stargazers)
-[![Discord](https://img.shields.io/discord/1053356270767308810?style=flat&logo=discord&label=discord)](http://discordapp.com/invite/aXtCVYw83k)
-<br>
-
-</div>
-
-<div align="center" markdown="1">
-
-[Doomworld thread](https://www.doomworld.com/forum/topic/145913/)
-
-</div>
-
-## About the source port
-Nyan Doom is based on the DSDA-Doom source port, but adds many more quality-of-life and innovative features! If you like the DSDA-Doom, but wanted a few extra whistles and customisations, then this is the port for you!
-
-It is called Nyan Doom, because I am a cat - *meow!*
-
-## Downloads
-
-Available for Windows, macOS and Linux in [Releases](https://github.com/andrikpowell/nyan-doom/releases/latest)
-
-<details markdown="1">
-  <summary>Download for Arch Linux</summary>
-  
-  <a href="https://aur.archlinux.org/packages/nyan-doom">https://aur.archlinux.org/packages/nyan-doom</a>
-  
-  > May not be fully up-to-date (unofficial)
-</details>
-<details markdown="1">
-  <summary>Dev builds</summary>
-  
-  <a href="https://github.com/andrikpowell/nyan-doom/actions">https://github.com/andrikpowell/nyan-doom/actions</a>
-
-  Requires a github account to download and are only available for a 90 days after creation.
-  
-  > May be completely broken and unusable
-</details>
+Penguino and Nyan can be seen as an analog to Nugget Doom and Woof; only adding and (maybe) fixing, but not straying too far from the parent port.
 
 ## Key Features
-- New [animated background / menu element](./docs/animbg.md) lump support (for animated M_DOOM, TITLEPIC, INTERPIC, etc)
-- Native [widescreen](./docs/ws.md) lump support for widescreen assets (avoiding the need for separate asset WADs)
-- Support for [GAMEVERS](./docs/gamevers.md) lump in combination with [COMPLVL](./docs/complvl.md) to further specify Vanilla compatibility.
-- [Limit-Removing Support](./docs/limit_removing.md) for Vanilla style maps to ignore overflow errors (such as all-ghosts, etc)
-- Native "berserk" and "armour" elements on the statusbar *(Options > Display)*
-- Extended HUD "Status Widget" showing currently active powerups *(Options > Display)*
-- Savegame support for per-game modifiers (`pistol start`, `respawn`, `fast monsters`, etc)
-- Experimental "Light Amplification Visor" screen effect
-- In-depth "Boom Translucency" customization
-- Smarter "Colored Blood" option
-- Enhanced ENDOOM support
-- All DSDA-Doom features... and more!
+- "Invulnerability Effect" setting to change how the sky is affected by the Invuln powerup (idea from *[Woof!](https://github.com/fabiangreffrath/woof)*).
+- Extended settings for some hud components.
+- `-nocoloredblood` argument to temporarily disable the Colored Blood setting.
+- All Nyan Doom and DSDA-Doom features... and more!
 
-## Patch Notes
-- [v1.5](./patch_notes/v1.5.md)
 
 ## Compiling
 
-Code available at [https://github.com/andrikpowell/nyan-doom/](https://github.com/andrikpowell/nyan-doom/)
+Code available at [https://github.com/CoderPenguin1-dev/penguino-doom](https://github.com/CoderPenguin1-dev/penguino-doom/)
 
 Instructions in [guides](./docs/guides/)
 
-## Notice
-Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). This means that certain features already in DSDA-Doom (and by extension Nyan Doom) may be broken or unfinished, especially in regards to Heretic and Hexen support. Here is some documentation on those features:
-
-<details markdown="1">
-
-  <summary>Heretic Support</summary>
-
-### Heretic Support
-- Nyan Doom includes demo-compatible support for heretic (all the demos stored on dsda are in sync).
-- Heretic game logic should be set automatically if you use `HERETIC.WAD` as the iwad. If it doesn't work, please use the `-heretic` commandline option. This flips a switch in the engine that determines all the core game data.
-- Don't need to supply complevel (heretic is complevel 0 by necessity)
-- Known issues
-  - Setting the "Status Bar and Menu Appearance" option to "not adjusted" may look incorrect in heretic.
-  - The "Apply multisampling" automap option is disabled for heretic.
-  - Some of the more advanced features are not implemented for heretic yet, and using them may cause crashes or other odd behaviour.
-  - Some menus extend over the hud.
-
-</details>
-
-<details markdown="1">
-
-  <summary>Hexen Support</summary>
-
-### Hexen Support
-- Nyan Doom includes demo-compatible support for hexen.
-  - Use -iwad HEXEN.WAD (-file HEXDD.WAD for the expansion)
-    - Or drag wads onto the exe
-  - You can force hexen engine behaviour with `-hexen` (shouldn't be necessary)
-- Don't need to supply complevel (hexen is complevel 0 by necessity)
-- Known issues
-  - Setting the "Status Bar and Menu Appearance" option to "not adjusted" may look incorrect in hexen.
-  - The "Apply multisampling" automap option is disabled for hexen
-  - Some of the more advanced features are not implemented for hexen yet, and using them may cause crashes or other odd behaviour.
-  - Some menus extend over the hud.
-  - Monster counter doesn't work as expected, due to cluster format (ex hud / levelstat)
- 
-</details>
-
-<details markdown="1">
-
-  <summary>More Documentation</summary>
-
-### Feature Support
-- [Doom-in-Hexen Support](./docs/doom_in_hexen.md)
-- [UDMF Support](./docs/udmf.md)
-- [MAPINFO Support](./docs/mapinfo.md)
-
-### Standards
-- [MBF21 v1.4](https://github.com/kraflab/mbf21)
-- [UMAPINFO v2.2](https://github.com/kraflab/umapinfo)
-
-</details>
-
-## Nyan Launcher
-[Download (Windows and macOS)](https://github.com/andrikpowell/nyan-launcher/releases/latest)
-> Linux Version is available, but you will have to compile yourself
-
 ## Credits
+Penguino Doom and its logo are made by CoderPenguin1.
 
-Nyan Doom and its logo design are by Andrik Powell (Arsinikk)
+Penguino Doom is based off [Nyan Doom](https://github.com/andrikpowell/nyan-doom) by Andrik Powell (Arsinikk).
 
-Nyan Doom is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom) by kraflab, now maintained by Fabian Greffrath, Roman Fomin (rfomin), and Pedro-Beirao
+Nyan Doom is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom) by kraflab, now maintained by Fabian Greffrath, Roman Fomin (rfomin), and Pedro-Beirao.
