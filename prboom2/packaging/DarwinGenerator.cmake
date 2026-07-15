@@ -39,8 +39,7 @@ execute_process(
     --dest-dir ${packaged_dir}/libs_${CPACK_SYSTEM_PROCESSOR}
 )
 
-# dylibbundler resolves Brew's unversioned SDL3 symlink and copies only
-# libSDL3.0.dylib, while sdl2-compat opens libSDL3.dylib by name.
+# dylibbundler copies libSDL3.0.dylib, while sdl2-compat requires libSDL3.dylib
 if(EXISTS "${packaged_dir}/libs_${CPACK_SYSTEM_PROCESSOR}/libSDL3.0.dylib")
   file(CREATE_LINK
     "libSDL3.0.dylib"
