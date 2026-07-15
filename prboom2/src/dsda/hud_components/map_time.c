@@ -22,7 +22,7 @@
 typedef struct {
   dsda_text_t label;
   dsda_text_t component;
-  dboolean always_show_total;
+  int show_total;
   dboolean show_labels;
 } local_component_t;
 
@@ -53,13 +53,16 @@ static void dsda_UpdateLabelComponentText(char* str, size_t max_size) {
     dsda_TextColor(dsda_tc_map_time_label)
   );
 
-  if (local->always_show_total || total_time != level_time)
-    length += snprintf(
-      str + length,
-      max_size - length,
-      "%sT\n",
-      dsda_TextColor(dsda_tc_map_time_label)
-  );
+  if (local->show_total > 0)
+  {
+    if (local->show_total == 2 || total_time != level_time)
+      length += snprintf(
+        str + length,
+        max_size - length,
+        "%sT\n",
+        dsda_TextColor(dsda_tc_map_time_label)
+    );
+  }
 }
 
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
@@ -79,23 +82,26 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
     level_time % 60
   );
 
-  if (local->always_show_total || total_time != level_time)
-    snprintf(
-      str + length,
-      max_size - length,
-      "%s%02d:%02d:%02d\n",
-      dsda_TextColor(dsda_tc_map_time_total),
-      total_time / 3600,
-      (total_time % 3600) / 60,
-      total_time % 60
-    );
+  if (local->show_total > 0)
+  {
+    if (local->show_total == 2 || total_time != level_time)
+      snprintf(
+        str + length,
+        max_size - length,
+        "%s%02d:%02d:%02d\n",
+        dsda_TextColor(dsda_tc_map_time_total),
+        total_time / 3600,
+        (total_time % 3600) / 60,
+        total_time % 60
+      );
+  }
 }
 
 void dsda_InitMapTimeHC(int x_offset, int y_offset, int vpt, int* args, int arg_count, void** data) {
   *data = Z_Calloc(1, sizeof(local_component_t));
   local = *data;
 
-  local->always_show_total = arg_count > 0 ? !!args[0] : false;
+  local->show_total = arg_count > 0 ? args[0] : 0;
   local->show_labels = arg_count > 1 ? !!args[1] : false;
 
   dsda_InitBlockyHC(&local->label, x_offset, y_offset, vpt);
