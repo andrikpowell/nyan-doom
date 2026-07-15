@@ -21,10 +21,6 @@ if(APPLE)
 endif()
 
 find_package(SDL2 2.0.12 CONFIG REQUIRED)
-# MacOS Brew requires SDL3
-if(APPLE)
-  find_package(SDL3 CONFIG REQUIRED)
-endif()
 find_package(SDL2_mixer REQUIRED)
 find_package(SndFile 1.0.29 REQUIRED)
 find_package(ZLIB REQUIRED)
@@ -142,11 +138,6 @@ target_link_libraries(nyan_dependencies
 
   nyan::SDL2
 )
-
-# MacOS Brew requires SDL3
-if(APPLE)
-  target_link_libraries(nyan_dependencies INTERFACE SDL3::SDL3)
-endif()
 
 if(WIN32)
   target_link_libraries(nyan_dependencies

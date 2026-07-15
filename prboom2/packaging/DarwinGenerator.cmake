@@ -39,14 +39,18 @@ execute_process(
     --dest-dir ${packaged_dir}/libs_${CPACK_SYSTEM_PROCESSOR}
 )
 
-# dylibbundler copies libSDL3.0.dylib, while sdl2-compat requires libSDL3.dylib
-if(EXISTS "${packaged_dir}/libs_${CPACK_SYSTEM_PROCESSOR}/libSDL3.0.dylib")
-  file(CREATE_LINK
-    "libSDL3.0.dylib"
-    "${packaged_dir}/libs_${CPACK_SYSTEM_PROCESSOR}/libSDL3.dylib"
-    SYMBOLIC
-  )
-endif()
+# SDL3 is loaded dynamically by sdl2-compat, so dylibbundler cannot detect it
+find_library(SDL3_LIBRARY
+  NAMES SDL3
+  PATHS /opt/homebrew/lib /usr/local/lib
+  NO_DEFAULT_PATH
+  REQUIRED
+)
+
+file(COPY_FILE
+  "${SDL3_LIBRARY}"
+  "${packaged_dir}/libs_${CPACK_SYSTEM_PROCESSOR}/libSDL3.dylib"
+)
 
 execute_process(
   COMMAND zip
