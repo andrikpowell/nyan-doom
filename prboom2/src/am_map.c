@@ -662,6 +662,13 @@ void AM_SetMapCenter(fixed_t x, fixed_t y)
   m_y2 = m_y + m_h;
 }
 
+static dboolean AM_AutopageExists(void)
+{
+  int lumpnum = W_CheckNumForName(g_autopage);
+
+  return (lumpnum != LUMP_NOT_FOUND) && (W_LumpLength(lumpnum) == 320*158); // RAW format
+}
+
 static void AM_UpdateParallax(void)
 {
     dboolean minimap = !automap_full;
@@ -670,7 +677,7 @@ static void AM_UpdateParallax(void)
     int dmapy;
 
     // no autopage = no parallax
-    if (!W_LumpNameExists(g_autopage))
+    if (!AM_AutopageExists())
       return;
 
     if (automap_follow && !dsda_Paused())
@@ -701,7 +708,7 @@ static void AM_ParallaxPan(fixed_t incx, fixed_t incy)
   dboolean minimap = !automap_full;
 
   // no autopage = no parallax
-  if (!W_LumpNameExists(g_autopage))
+  if (!AM_AutopageExists())
     return;
 
   // [crispy] Disable map background scroll in non-follow + rotate mode.
@@ -4277,17 +4284,18 @@ static void AM_setFrameVariables(void)
 
 static void AM_DrawBackground (void)
 {
-  int automap_bg = autopage_active && W_LumpNameExists(g_autopage);
+  int automap_bg = AM_AutopageExists() && autopage_active;
 
-  if (automap_bg) { // Automap Parallax Background
-    V_BeginUIDraw(); // OpenGL doesn't like flats in AutomapDraw()
-
-    // Raven AUTOPAGE RAW format (custom size)
+  // Automap Parallax Background
+  if (automap_bg)
+  { 
+    // Raven AUTOPAGE RAW format (320x158)
+    V_BeginUIDraw(); // OpenGL doesn't like RAW / flats in AutomapDraw()
     V_FillNameRawAdv(g_autopage, f_x, f_y, g_autopage_width, g_autopage_height, f_w, f_h, mapxstart, mapystart, VPT_STRETCH);
-
     V_EndUIDraw();
 
-    if (autopage_fade > 0) // Darken autopage
+    // Darken autopage
+    if (autopage_fade > 0)
       V_DrawShaded(f_x, f_y, f_w, f_h, autopage_fade * 31 / 100);
 
     return;
