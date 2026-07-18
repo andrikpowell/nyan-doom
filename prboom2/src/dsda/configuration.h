@@ -431,6 +431,7 @@ enum {
   dsda_config_automap_background_shade,
   dsda_config_automap_parallax,
   dsda_config_automap_linesize,
+  dsda_config_automap_line_endpoints,
   dsda_config_automap_rotate,
   dsda_config_automap_follow,
   dsda_config_automap_mouse_pan,
