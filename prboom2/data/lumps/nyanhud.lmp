@@ -584,6 +584,7 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 doom map
+fps 298 0 top_right
 map_totals 2 8 top_left
 map_time 2 40 top_left 0 0
 map_coordinates 255 8 top_right
@@ -593,6 +594,7 @@ announce_message 0 18 none
 secret_message 0 76 none
 
 heretic map
+fps 298 0 top_right
 map_totals 2 8 top_left
 map_time 2 40 top_left 0 0
 map_coordinates 255 8 top_right
@@ -603,6 +605,7 @@ secret_message 0 66 none
 artifact_desc 0 12 bottom 1
 
 hexen map
+fps 298 0 top_right
 map_totals 2 8 top_left 1 0 0
 map_time 2 40 top_left 0 0
 map_coordinates 255 8 top_right
