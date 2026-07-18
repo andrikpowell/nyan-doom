@@ -930,7 +930,6 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
   map_line_t *line;
   float thickness, length, extend;
   float dx, dy, px, py;
-  float extend_dx, extend_dy, extend_length;
 
   // Set line thickness
   thickness = AM_GetLineWeight() * 0.5f;
@@ -954,19 +953,8 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
   dx /= length;
   dy /= length;
 
-  // Scale extend per resolution
-  extend_dx = dx * gl_scale_x;
-  extend_dy = dy * gl_scale_y;
-
-  extend_length = sqrtf((extend_dx * extend_dx) + (extend_dy * extend_dy));
-
-  // safeguard (this should never happen)
-  if (extend_length == 0.0f)
-    extend_length = 1.0f;
-
   // Extend quads a bit to fix weird gaps
-  extend = 1.0f / extend_length;
-
+  extend = 0.5f;
   x0 -= dx * extend;
   y0 -= dy * extend;
   x1 += dx * extend;
