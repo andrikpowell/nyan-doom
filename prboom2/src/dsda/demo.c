@@ -121,8 +121,10 @@ char* dsda_GenerateDemoName(unsigned int* counter, const char* base_name) {
   demo_name = Z_Malloc(demo_name_size);
   snprintf(demo_name, demo_name_size, "%s.lmp", base_name);
 
-  for (; j <= 99999 && M_FileExists(demo_name); j++)
-    snprintf(demo_name, demo_name_size, "%s-%05d.lmp", base_name, j);
+  if (!dsda_IntConfig(dsda_config_overwrite_previous_demos)) {
+    for (; j <= 99999 && M_FileExists(demo_name); j++)
+      snprintf(demo_name, demo_name_size, "%s-%05d.lmp", base_name, j);
+  }
 
   *counter = j;
 
