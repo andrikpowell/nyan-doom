@@ -127,6 +127,7 @@ enum {
   dsda_config_mute_unfocused_window,
   dsda_config_cheat_codes,
   dsda_config_organize_failed_demos,
+  dsda_config_overwrite_previous_demos,
   dsda_config_artifact_descriptions,
   dsda_config_hexen_skip_ethereal_travel,
   dsda_config_hexen_simpler_puzzle_use,

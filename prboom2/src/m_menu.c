@@ -34,6 +34,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
+#include "dsda/configuration.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -6312,6 +6313,7 @@ setup_menu_t demos_options_settings[] =  // Demos Settings screen
   { "Smooth Playback Factor", S_NUM, m_conf, g_all, DM_X, dsda_config_demo_smoothturnsfactor },
   { "Cycle Ghost Colors", S_YESNO, m_conf, g_all, DM_X, dsda_config_cycle_ghost_colors },
   { "Organize Failed Demos", S_YESNO,  m_conf, g_all, DM_X, dsda_config_organize_failed_demos },
+  { "Overwrite Previous Demos", S_YESNO | S_NYAN, m_conf, g_all, DM_X, dsda_config_overwrite_previous_demos },
 
   NEXT_PAGE(demos_tas_settings),
   FINAL_ENTRY
