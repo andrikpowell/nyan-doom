@@ -1570,7 +1570,7 @@ void gld_FlushTextures(void)
   gld_CleanSwirlBuffer();
   gld_ResetLastTexture();
 
-  gld_InitSky();
+  gld_CleanSkyData();
   gld_InitColormapTextures(V_IsUILightmodeIndexed() || V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed());
 
   // do not draw anything in current frame after flushing
@@ -1780,6 +1780,7 @@ void gld_Precache(void)
 
 void gld_CleanMemory(void)
 {
+  gld_CleanSkyData();
   gld_CleanVertexData();
   gld_CleanSwirlBuffer();
   gld_CleanTexItems(numtextures, &gld_GLTextures);
