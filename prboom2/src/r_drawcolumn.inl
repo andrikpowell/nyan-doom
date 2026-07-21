@@ -34,6 +34,7 @@
 
 #define R_DRAWCOLUMN_ANY_TRANSLUCENT (R_DRAWCOLUMN_TRANSLUCENT || R_DRAWCOLUMN_TRANSLUCENT_REVERSE)
 #define R_DRAWCOLUMN_FUZZ (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ || R_DRAWCOLUMN_PIPELINE & RDC_FUZZ_SCALED)
+#define R_DRAWCOLUMN_SKY_COLOR_CAP (R_DRAWCOLUMN_PIPELINE & RDC_SKY_COLOR_CAP)
 
 #if (R_DRAWCOLUMN_TRANSLATED)
 #define GETCOL_MAPPED(col) (translation[(col)])
@@ -210,6 +211,37 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 
     count++;
 
+// [Woof] Draw sky with color on top
+#if (R_DRAWCOLUMN_SKY_COLOR_CAP)
+    const byte sky_cap_color = dcvars->skycolor;
+    const byte sky_texture_color = GETCOL(0);
+    const byte fade_50 = dcvars->sky_tranmap[sky_texture_color * 256 + sky_cap_color];
+    const byte fade_25 = dcvars->sky_tranmap[fade_50 * 256 + sky_cap_color];
+
+    const fixed_t heightmask = dcvars->texheight << FRACBITS;
+
+    if (frac >= heightmask)
+      while (frac >= heightmask)
+        frac -= heightmask;
+
+    while (count--) {
+      if (frac < -2 * FRACUNIT)
+        *dest = sky_cap_color;
+      else if (frac < -FRACUNIT)
+        *dest = fade_25;
+      else if (frac < 0)
+        *dest = fade_50;
+      else
+        *dest = GETCOL(frac);
+
+      dest += 4;
+      if ((frac += fracstep) >= heightmask)
+        frac -= heightmask;
+    }
+
+    return;
+#endif
+
     // Inner loop that does the actual texture mapping,
     //  e.g. a DDA-lile scaling.
     // This is as fast as it gets.       (Yeah, right!!! -- killough)
@@ -293,5 +325,6 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 #undef R_DRAWCOLUMN_TRANSLUCENT_REVERSE
 #undef R_DRAWCOLUMN_ANY_TRANSLUCENT
 #undef R_DRAWCOLUMN_FUZZ
+#undef R_DRAWCOLUMN_SKY_COLOR_CAP
 #undef R_DRAWCOLUMN_FUNCNAME
 #undef R_DRAWCOLUMN_PIPELINE

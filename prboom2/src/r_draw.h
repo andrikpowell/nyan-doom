@@ -44,6 +44,7 @@ enum column_pipeline_e {
   RDC_PIPELINE_ALT_TL,     // reverse translucency
   RDC_PIPELINE_ALT_TRTL,   // translated + reverse translucency
   RDC_PIPELINE_DOUBLESKY,
+  RDC_PIPELINE_SKY_COLOR_CAP,
   RDC_PIPELINE_FUZZ,
   RDC_PIPELINE_FUZZ_SCALED,
   RDC_PIPELINE_MAXPIPELINES,
@@ -92,8 +93,10 @@ typedef struct draw_column_vars_s
   // heretic
   int baseclip;
 
-  // hexen double sky
-  const byte *source2;
+  // Sky
+  const byte *source2;      // hexen double sky
+  byte skycolor;            // [Woof] color above sky textures
+  const byte *sky_tranmap;  // [Woof] color above sky textures
 } draw_column_vars_t;
 
 void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars);

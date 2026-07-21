@@ -51,4 +51,6 @@ extern fixed_t freelookviewheight;
 /* Called whenever the view size changes. */
 void R_InitSkyMap(void);
 
+byte R_GetSkyColor(int texturenum);
+
 #endif

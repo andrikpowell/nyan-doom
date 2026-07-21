@@ -151,17 +151,18 @@ int scaled_fuzzcellsize;
 int fuzz_cutoff = false;
 
 // render pipelines
-#define RDC_STANDARD      1
-#define RDC_TRANSLUCENT   2 // translucent
-#define RDC_TRANSLATED    4 // color
-#define RDC_TRTL          8 // Translucent + color
-#define RDC_ALT_TL       16 // alt-translucent
-#define RDC_ALT_TRTL     32 // alt-translucent + color
-#define RDC_DOUBLESKY    64
-#define RDC_FUZZ        128
-#define RDC_FUZZ_SCALED 256
+#define RDC_STANDARD          1
+#define RDC_TRANSLUCENT       2 // translucent
+#define RDC_TRANSLATED        4 // color
+#define RDC_TRTL              8 // Translucent + color
+#define RDC_ALT_TL           16 // alt-translucent
+#define RDC_ALT_TRTL         32 // alt-translucent + color
+#define RDC_DOUBLESKY        64 // hexen double sky
+#define RDC_SKY_COLOR_CAP   128 // [Woof] sky color cap
+#define RDC_FUZZ            256
+#define RDC_FUZZ_SCALED     512
 // no color mapping
-#define RDC_NOCOLMAP    512
+#define RDC_NOCOLMAP       1024
 
 draw_vars_t drawvars = {
   NULL, // topleft
@@ -430,6 +431,23 @@ byte *translationtables;
 #undef R_DRAWCOLUMN_PIPELINE_TYPE
 
 //
+// R_DrawSkyColorCapColumn
+// Extends the top of a sky texture with a solid color
+//
+
+#define R_DRAWCOLUMN_PIPELINE_TYPE RDC_PIPELINE_SKY_COLOR_CAP
+#define R_DRAWCOLUMN_PIPELINE_BASE RDC_SKY_COLOR_CAP
+
+#define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawSkyColorCapColumn ## postfix
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad
+#include "r_drawcolpipeline.inl"
+
+#undef R_DRAWCOLUMN_PIPELINE_BASE
+#undef R_DRAWCOLUMN_PIPELINE_TYPE
+
+//
 // Framebuffer postprocessing.
 // Creates a fuzzy image by copying pixels
 //  from adjacent ones to left and right.
@@ -477,6 +495,7 @@ static R_DrawColumn_f drawcolumnfuncs[RDRAW_FILTER_MAXFILTERS][RDC_PIPELINE_MAXP
     R_DrawAltTLColumn_PointUV,
     R_DrawAltTRTLColumn_PointUV,
     R_DrawDoubleSkyColumn_PointUV,
+    R_DrawSkyColorCapColumn_PointUV,
     R_DrawFuzzColumn_PointUV,
     R_DrawFuzzScaledColumn_PointUV,
   },
@@ -488,6 +507,7 @@ static R_DrawColumn_f drawcolumnfuncs[RDRAW_FILTER_MAXFILTERS][RDC_PIPELINE_MAXP
     R_DrawAltTLColumn_PointUV_PointZ,
     R_DrawAltTRTLColumn_PointUV_PointZ,
     R_DrawDoubleSkyColumn_PointUV_PointZ,
+    R_DrawSkyColorCapColumn_PointUV_PointZ,
     R_DrawFuzzColumn_PointUV_PointZ,
     R_DrawFuzzScaledColumn_PointUV_PointZ,
   },
@@ -511,6 +531,8 @@ void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars) {
   dcvars->flags = 0;
   dcvars->isplayersprite = false;
   dcvars->pspritepostheight = 0;
+  dcvars->skycolor = 0;
+  dcvars->sky_tranmap = NULL;
 
   // heretic
   dcvars->baseclip = -1;

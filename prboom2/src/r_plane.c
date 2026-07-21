@@ -161,8 +161,8 @@ void R_InitPlanes (void)
 {
 }
 
-// Refresh "Linear Sky"
-void dsda_RefreshLinearSky (void)
+// Refresh Sky
+void dsda_RefreshSky (void)
 {
   xtoskyangle = dsda_IntConfig(dsda_config_render_linearsky) ? linearskyangle : xtoviewangle;
 }
@@ -461,7 +461,7 @@ static void R_DoDrawPlane(visplane_t *pl)
 {
   register int x;
   draw_column_vars_t dcvars;
-  R_DrawColumn_f colfunc = R_GetDrawColumnFunc(DoubleSky ? RDC_PIPELINE_DOUBLESKY : RDC_PIPELINE_STANDARD, RDRAW_FILTER_POINT);;
+  R_DrawColumn_f colfunc = R_GetDrawColumnFunc(DoubleSky ? RDC_PIPELINE_DOUBLESKY : RDC_PIPELINE_STANDARD, RDRAW_FILTER_POINT);
 
   R_SetDefaultDrawColumnVars(&dcvars);
 
@@ -570,6 +570,24 @@ static void R_DoDrawPlane(visplane_t *pl)
       // old code: dcvars.iscale = FRACUNIT*200/viewheight;
       dcvars.iscale = skyiscale;
 
+      // [Woof] Sky fade for short skies
+      if (!DoubleSky && dcvars.texheight >= 128)
+      {
+        // Make sure the fade-to-color effect doesn't happen too early
+        fixed_t diff = dcvars.texturemid - 100 * FRACUNIT;
+        if (diff < 0)
+        {
+          diff += textureheight[texture];
+          diff %= textureheight[texture];
+          dcvars.texturemid = 100 * FRACUNIT + diff;
+        }
+        dcvars.skycolor = dcvars.colormap[R_GetSkyColor(texture)];
+        dcvars.sky_tranmap = main_tranmap;
+        colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_SKY_COLOR_CAP, RDRAW_FILTER_POINT);
+      }
+
+      // heretic sky hack, return if true
+      if (heretic)
       {
         const rpatch_t *patch, *patch2;
 

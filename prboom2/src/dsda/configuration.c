@@ -142,7 +142,7 @@ void R_SetViewSize(void);
 void M_ChangeApplyPalette(void);
 void M_ChangeStretch(void);
 void M_ChangeAspectRatio(void);
-void dsda_RefreshLinearSky(void);
+void dsda_RefreshSky(void);
 void deh_changeCompTranslucency(void);
 void deh_changeBonusFlash(void);
 void deh_changeColoredBlood(void);
@@ -2022,7 +2022,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_render_linearsky] = {
     "render_linearsky", dsda_config_render_linearsky,
-    CONF_BOOL(0), NULL, NOT_STRICT, dsda_RefreshLinearSky
+    CONF_BOOL(0), NULL, NOT_STRICT, dsda_RefreshSky
   },
   [dsda_config_aspect_ratio_correction] = {
     "aspect_ratio_correction", dsda_config_aspect_ratio_correction,
