@@ -1076,9 +1076,10 @@ void gld_DrawDomeSkyBox(int skylayer)
 
     glDisable(GL_STENCIL_TEST);
   }
-  else
+  // Single sky dome
+  else if (num_skyboxes == 1)
   {
-    gld_DrawDomeSkyBoxFor(&SkyBox, skylayer, -1, false);
+    gld_DrawDomeSkyBoxFor(&SkyBoxes[0], skylayer, -1, false);
   }
 }
 
