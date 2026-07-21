@@ -86,13 +86,13 @@ int gl_stretchsky = false;
 static PalEntry_t *SkyColor;
 
 SkyBoxParams_t SkyBox;
-float y_offset_saved;
+static SkyBoxParams_t *SkyBoxes;
+static int num_skyboxes;
+static int max_skyboxes;
 
 void gld_InitSky(void)
 {
   memset(&SkyBox, 0, sizeof(SkyBox));
-  SkyBox.index = -1;
-  y_offset_saved = 0;
 }
 
 void gld_InitFrameSky(void)
@@ -105,9 +105,10 @@ void gld_InitFrameSky(void)
   // Hexen DoubleSky
   SkyBox.wall.gltexlayer = NULL;
   SkyBox.x_offset_layer = 0;
+  num_skyboxes = 0;
 }
 
-static void gld_DrawFakeSkyStrips(void)
+static void gld_DrawFakeSkyStrips(int skybox_index)
 {
   int i;
 
@@ -126,6 +127,10 @@ static void gld_DrawFakeSkyStrips(void)
   {
     GLWall* wall = gld_drawinfo.items[GLDIT_SWALL][i].item.wall;
 
+    // Only draw sky strips for the specified dome.
+    if (skybox_index >= 0 && wall->skybox_index != skybox_index)
+      continue;
+
     glBegin(GL_TRIANGLE_STRIP);
     glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
     glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
@@ -136,6 +141,45 @@ static void gld_DrawFakeSkyStrips(void)
 
   gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+}
+
+static int gld_AddSkyBox(const GLWall *wall, int skytype, float x_offset, float y_offset, float x_offset_layer)
+{
+  SkyBoxParams_t skybox;
+  int i;
+
+  memset(&skybox, 0, sizeof(skybox));
+  skybox.type = skytype;
+  skybox.wall = *wall;
+  skybox.x_offset = x_offset;
+  skybox.y_offset = y_offset;
+  skybox.x_offset_layer = x_offset_layer;
+
+  // Store enough info to compare different sky domes
+  for (i = 0; i < num_skyboxes; ++i)
+  {
+    SkyBoxParams_t *check = &SkyBoxes[i];
+
+    if (check->wall.gltexture == skybox.wall.gltexture &&
+        check->wall.gltexlayer == skybox.wall.gltexlayer &&
+        check->wall.flag == skybox.wall.flag &&
+        check->x_offset == skybox.x_offset &&
+        check->y_offset == skybox.y_offset &&
+        check->x_offset_layer == skybox.x_offset_layer)
+    {
+      check->type |= skytype;
+      return i;
+    }
+  }
+
+  if (num_skyboxes >= max_skyboxes)
+  {
+    max_skyboxes = max_skyboxes ? max_skyboxes * 2 : 4;
+    SkyBoxes = Z_Realloc(SkyBoxes, max_skyboxes * sizeof(*SkyBoxes));
+  }
+
+  SkyBoxes[num_skyboxes] = skybox;
+  return num_skyboxes++;
 }
 
 // Sky textures with a zero index should be forced
@@ -149,6 +193,8 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
   angle_t fg_skyoffset = 0, bg_skyoffset = 0, skyoffset_angle = 0;
 
   wall->gltexture = NULL;
+  wall->gltexlayer = NULL;
+  wall->skybox_index = -1;
 
   if (sky1 & PL_SKYFLAT_LINE)
   {
@@ -248,110 +294,67 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
 // SkyBox Code
 //
 
-  if (hexen)
+  if (gl_drawskys == skytype_skydome)
   {
-// Hexen - Double Sky
-    if (DoubleSky)
+    float dome_x_offset = 0;
+    float dome_y_offset = 0.0f;
+    float dome_x_offset_layer = 0;
+
+    if (hexen)
     {
-      if (wall->gltexture)
+      dome_y_offset = 39.0f;
+      if (DoubleSky)
       {
-        SkyBox.type |= skytype;
-        wall->gltexture->flags |= GLTEXTURE_SKY;
-
-        gld_AddDrawItem(GLDIT_SWALL, wall);
-
-        if (!SkyBox.wall.gltexture)
-        {
-          SkyBox.wall = *wall;
-
-          switch (gl_drawskys)
-          {
-          case skytype_skydome:
-            SkyBox.x_offset       = (float)bg_skyoffset * 180.0f / (float)ANG180;
-            SkyBox.x_offset_layer = (float)fg_skyoffset * 180.0f / (float)ANG180;
-            SkyBox.y_offset       = 39.0f;
-            break;
-          }
-        }
+        dome_x_offset = (float)bg_skyoffset * 180.0f / (float)ANG180;
+        dome_x_offset_layer = (float)fg_skyoffset * 180.0f / (float)ANG180;
       }
-      if (wall->gltexlayer)
+      else
       {
-        SkyBox.type |= skytype;
-        wall->gltexlayer->flags |= GLTEXTURE_SKY;
-
-        gld_AddDrawItem(GLDIT_SWALL, wall);
-
-        if (!SkyBox.wall.gltexlayer)
-        {
-          SkyBox.wall = *wall;
-
-          switch (gl_drawskys)
-          {
-          case skytype_skydome:
-            SkyBox.x_offset       = (float)bg_skyoffset * 180.0f / (float)ANG180;
-            SkyBox.x_offset_layer = (float)fg_skyoffset * 180.0f / (float)ANG180;
-            SkyBox.y_offset       = 39.0f;
-            break;
-          }
-        }
+        dome_x_offset = (float)skyoffset_angle * 180.0f / (float)ANG180;
       }
     }
-    else
+    else if (s) // sky transfer
     {
-// Hexen - Normal Sky
-      if (wall->gltexture)
-      {
-        SkyBox.type |= skytype;
+      dome_x_offset = (float)s->textureoffset * 180.0f / (float)ANG180;
+      dome_y_offset = (float)s->rowoffset / (float)FRACUNIT;
+    }
+    else if (raven)
+    {
+      dome_y_offset = 39.0f;
+    }
 
-        wall->gltexture->flags |= GLTEXTURE_SKY;
-
-        gld_AddDrawItem(GLDIT_SWALL, wall);
-
-        if (!SkyBox.wall.gltexture)
-        {
-          SkyBox.wall = *wall;
-
-          switch (gl_drawskys)
-          {
-          case skytype_skydome:
-            SkyBox.x_offset = (float)skyoffset_angle * 180.0f / (float)ANG180;
-            SkyBox.y_offset = 39.0f;
-            break;
-          }
-        }
-      }
+    // Index all skies to refer to later
+    if (wall->gltexture || wall->gltexlayer)
+    {
+      wall->skybox_index = gld_AddSkyBox(wall, skytype, dome_x_offset, dome_y_offset, dome_x_offset_layer);
     }
   }
-  else // Doom or Heretic
+
+//
+// Register sky walls for rendering
+//
+
+  if (wall->gltexture)
   {
-    if (wall->gltexture)
-    {
-      SkyBox.type |= skytype;
+    SkyBox.type |= skytype;
+    wall->gltexture->flags |= GLTEXTURE_SKY;
 
-      wall->gltexture->flags |= GLTEXTURE_SKY;
+    gld_AddDrawItem(GLDIT_SWALL, wall);
 
-      gld_AddDrawItem(GLDIT_SWALL, wall);
+    if (!SkyBox.wall.gltexture)
+      SkyBox.wall = *wall;
+  }
 
-      if (!SkyBox.wall.gltexture)
-      {
-        SkyBox.wall = *wall;
+  // Hexen - Double Sky
+  if (DoubleSky && wall->gltexlayer)
+  {
+    SkyBox.type |= skytype;
+    wall->gltexlayer->flags |= GLTEXTURE_SKY;
 
-        switch (gl_drawskys)
-        {
-        case skytype_skydome:
-          if (s)
-          {
-            SkyBox.x_offset = (float)s->textureoffset * 180.0f / (float)ANG180;
-            SkyBox.y_offset = (float)s->rowoffset / (float)FRACUNIT;
-          }
-          else if (raven)
-          {
-            SkyBox.y_offset = 39.0f;
-          }
-          break;
-        }
-      }
-    }
+    gld_AddDrawItem(GLDIT_SWALL, wall);
+
+    if (!SkyBox.wall.gltexlayer)
+      SkyBox.wall = *wall;
   }
 }
 
@@ -585,7 +588,7 @@ static float delta = 0.0f;
 //
 //-----------------------------------------------------------------------------
 
-void gld_GetSkyCapColors(int skylayer)
+void gld_GetSkyCapColors(SkyBoxParams_t *skybox, int skylayer)
 {
   int color, width, height;
   int frame_fixedcolormap_saved;
@@ -593,9 +596,9 @@ void gld_GetSkyCapColors(int skylayer)
   const unsigned char *playpal = V_GetPlaypal();
   const lighttable_t *colormap;
   const lighttable_t *fixedcolormap_saved;
-  PalEntry_t *ceiling_rgb = &SkyBox.CeilingSkyColor[0];
-  PalEntry_t *floor_rgb = &SkyBox.FloorSkyColor[0];
-  GLTexture *gltexture = skylayer ? SkyBox.wall.gltexlayer : SkyBox.wall.gltexture;
+  PalEntry_t *ceiling_rgb = &skybox->CeilingSkyColor[0];
+  PalEntry_t *floor_rgb = &skybox->FloorSkyColor[0];
+  GLTexture *gltexture = skylayer ? skybox->wall.gltexlayer : skybox->wall.gltexture;
 
   // saving current colormap
   fixedcolormap_saved = fixedcolormap;
@@ -627,14 +630,14 @@ void gld_GetSkyCapColors(int skylayer)
   colormap = fullcolormap + INVERSECOLORMAP * 256 * sizeof(lighttable_t);
 
   color = V_BestColor(playpal, ceiling_rgb->r, ceiling_rgb->g, ceiling_rgb->b);
-  SkyBox.CeilingSkyColor[1].r = playpal[colormap[color] * 3 + 0];
-  SkyBox.CeilingSkyColor[1].g = playpal[colormap[color] * 3 + 1];
-  SkyBox.CeilingSkyColor[1].b = playpal[colormap[color] * 3 + 2];
+  skybox->CeilingSkyColor[1].r = playpal[colormap[color] * 3 + 0];
+  skybox->CeilingSkyColor[1].g = playpal[colormap[color] * 3 + 1];
+  skybox->CeilingSkyColor[1].b = playpal[colormap[color] * 3 + 2];
 
   color = V_BestColor(playpal, floor_rgb->r, floor_rgb->g, floor_rgb->b);
-  SkyBox.FloorSkyColor[1].r = playpal[colormap[color] * 3 + 0];
-  SkyBox.FloorSkyColor[1].g = playpal[colormap[color] * 3 + 1];
-  SkyBox.FloorSkyColor[1].b = playpal[colormap[color] * 3 + 2];
+  skybox->FloorSkyColor[1].r = playpal[colormap[color] * 3 + 0];
+  skybox->FloorSkyColor[1].g = playpal[colormap[color] * 3 + 1];
+  skybox->FloorSkyColor[1].b = playpal[colormap[color] * 3 + 2];
 
   // restorin current colormap
   fixedcolormap = fixedcolormap_saved;
@@ -649,7 +652,7 @@ void gld_GetSkyCapColors(int skylayer)
 //
 //-----------------------------------------------------------------------------
 
-static void SkyVertex(vbo_vertex_t *vbo, int r, int c)
+static void SkyVertex(vbo_vertex_t *vbo, int r, int c, byte flag)
 {
   static const float scale = 10000.0f;
   static const float maxSideAngle = DEG2RAD(60.0f);
@@ -686,7 +689,7 @@ static void SkyVertex(vbo_vertex_t *vbo, int r, int c)
       vbo->v = ((rows-r)/(float)rows) * 1.f * yMult + yAdd;
     }
 
-    if (SkyBox.wall.flag == GLDWF_SKYFLIP)
+    if (flag == GLDWF_SKYFLIP)
       vbo->u = -vbo->u;
   }
 
@@ -701,16 +704,106 @@ static void SkyVertex(vbo_vertex_t *vbo, int r, int c)
   vbo->z = z / MAP_COEFF;
 }
 
-GLSkyVBO sky_vbo[2];
-GLSkyVBO skylayer_vbo[2];
+typedef struct
+{
+  int tex_width, tex_height;
+  float y_offset;
+  byte flag;
+  int skylayer;
+  dboolean stretch;
+  GLTexture *gltexture;
+  GLSkyVBO vbo[2];
+} GLSkyVBOEntry;
 
-static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky, int cm, int skylayer)
+static GLSkyVBOEntry *sky_vbo_entries;
+static GLSkyVBOEntry *sky_vbo_last;
+static int max_sky_vbo_entries;
+
+static void gld_ClearSkyVBOs(void)
+{
+  GLSkyVBOEntry *entry;
+  int i;
+
+  for (entry = sky_vbo_entries; entry != sky_vbo_last; ++entry)
+  {
+    for (i = 0; i < 2; ++i)
+    {
+      GLSkyVBO *vbo = &entry->vbo[i];
+
+      if (vbo->id)
+        GLEXT_glDeleteBuffersARB(1, &vbo->id);
+
+      Z_Free(vbo->loops);
+      Z_Free(vbo->data);
+    }
+  }
+
+  Z_Free(sky_vbo_entries);
+  sky_vbo_entries = NULL;
+  sky_vbo_last = NULL;
+  max_sky_vbo_entries = 0;
+}
+
+static void gld_ExtendSkyVBOs(void)
+{
+  if (!sky_vbo_entries)
+  {
+    max_sky_vbo_entries = 8;
+    sky_vbo_entries = Z_Malloc(max_sky_vbo_entries * sizeof(*sky_vbo_entries));
+    sky_vbo_last = sky_vbo_entries;
+    return;
+  }
+
+  if (sky_vbo_last >= sky_vbo_entries + max_sky_vbo_entries)
+  {
+    size_t used = sky_vbo_last - sky_vbo_entries;
+
+    max_sky_vbo_entries *= 2;
+    sky_vbo_entries = Z_Realloc(sky_vbo_entries, max_sky_vbo_entries * sizeof(*sky_vbo_entries));
+    sky_vbo_last = sky_vbo_entries + used;
+  }
+}
+
+static GLSkyVBO *gld_GetSkyVBOs(GLTexture *gltexture, float y_offset, byte flag, int skylayer)
+{
+  GLSkyVBOEntry *entry;
+
+  // If sky vbo found, retrieve it
+  for (entry = sky_vbo_entries; entry != sky_vbo_last; ++entry)
+  {
+    if (entry->tex_width == gltexture->buffer_width &&
+        entry->tex_height == gltexture->buffer_height &&
+        entry->y_offset == y_offset &&
+        entry->flag == flag &&
+        entry->skylayer == skylayer &&
+        entry->stretch == gl_stretchsky &&
+        entry->gltexture == gltexture)
+      return entry->vbo;
+  }
+
+  gld_ExtendSkyVBOs();
+
+  // Add new sky vbo
+  entry = sky_vbo_last++;
+
+  memset(entry, 0, sizeof(*entry));
+  entry->tex_width = gltexture->buffer_width;
+  entry->tex_height = gltexture->buffer_height;
+  entry->y_offset = y_offset;
+  entry->flag = flag;
+  entry->skylayer = skylayer;
+  entry->stretch = gl_stretchsky;
+  entry->gltexture = gltexture;
+  return entry->vbo;
+}
+
+static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky, int cm, int skylayer, GLSkyVBO *vbos)
 {
   int texh, c, r;
   vbo_vertex_t *vertex_p;
   int vertex_count = 2 * row_count * (col_count * 2 + 2) + col_count * 2;
   int vbo_idx = (cm == INVERSECOLORMAP ? 1 : 0);
-  GLSkyVBO *vbo        = skylayer ? &skylayer_vbo[vbo_idx]   : &sky_vbo[vbo_idx];
+  GLSkyVBO *vbo        = &vbos[vbo_idx];
   GLTexture *gltexture = skylayer ? sky->wall.gltexlayer     : sky->wall.gltexture;
 
   if ((vbo->columns != col_count) || (vbo->rows != row_count))
@@ -762,7 +855,7 @@ static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky, int 
     foglayer = true;
     for(c = 0; c < col_count; c++)
     {
-      SkyVertex(vertex_p, 1, c);
+      SkyVertex(vertex_p, 1, c, sky->wall.flag);
       vertex_p->r = SkyColor->r;
       vertex_p->g = SkyColor->g;
       vertex_p->b = SkyColor->b;
@@ -783,8 +876,8 @@ static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky, int 
 
       for(c = 0; c <= col_count; c++)
       {
-        SkyVertex(vertex_p++, r + (yflip ? 1 : 0), (c ? c : 0));
-        SkyVertex(vertex_p++, r + (yflip ? 0 : 1), (c ? c : 0));
+        SkyVertex(vertex_p++, r + (yflip ? 1 : 0), (c ? c : 0), sky->wall.flag);
+        SkyVertex(vertex_p++, r + (yflip ? 0 : 1), (c ? c : 0), sky->wall.flag);
       }
     }
   }
@@ -804,7 +897,7 @@ static void RenderDome(SkyBoxParams_t *sky, int skylayer)
   dboolean rebuild_sky;
   float sky_offset      = skylayer ? sky->x_offset_layer  : sky->x_offset;
   GLTexture *gltexture  = skylayer ? sky->wall.gltexlayer : sky->wall.gltexture;
-  GLSkyVBO *vbo_layer   = skylayer ? skylayer_vbo         : sky_vbo;
+  GLSkyVBO *vbo_layer = gld_GetSkyVBOs(gltexture, sky->y_offset, sky->wall.flag, skylayer);
 
   if (!sky || !gltexture)
     return;
@@ -819,20 +912,13 @@ static void RenderDome(SkyBoxParams_t *sky, int skylayer)
   rows = 4;
   columns = 64;
   vbosize = 2 * rows * (columns * 2 + 2) + columns * 2;
-  rebuild_sky = sky->y_offset != y_offset_saved || gltexture->index != sky->index;
+  rebuild_sky = !vbo->data;
 
   if (rebuild_sky)
   {
-    y_offset_saved = sky->y_offset;
-
-    if (gltexture->index != sky->index)
-    {
-      sky->index = gltexture->index;
-      gld_GetSkyCapColors(skylayer);
-    }
-
-    gld_BuildSky(rows, columns, sky, 0, skylayer);
-    gld_BuildSky(rows, columns, sky, INVERSECOLORMAP, skylayer);
+    gld_GetSkyCapColors(sky, skylayer);
+    gld_BuildSky(rows, columns, sky, 0, skylayer, vbo_layer);
+    gld_BuildSky(rows, columns, sky, INVERSECOLORMAP, skylayer, vbo_layer);
   }
 
   if (gl_ext_arb_vertex_buffer_object)
@@ -917,15 +1003,20 @@ static void RenderDome(SkyBoxParams_t *sky, int skylayer)
   glDisableClientState(GL_COLOR_ARRAY);
 }
 
-void gld_DrawDomeSkyBox(int skylayer) 
+static void gld_DrawDomeSkyBoxFor(SkyBoxParams_t *skybox, int skylayer, int skybox_index, dboolean masked)
 {
-  GLTexture *gltexture = skylayer ? SkyBox.wall.gltexlayer : SkyBox.wall.gltexture;
+  GLTexture *gltexture = skylayer ? skybox->wall.gltexlayer : skybox->wall.gltexture;
 
   if (gltexture)
   {
     GLint shading_mode = GL_FLAT;
 
-    gld_DrawFakeSkyStrips();
+    // If multiple domes, mask skybox
+    // If single dome, no masking
+    if (masked)
+      glStencilFunc(GL_EQUAL, skybox_index+1, ~0);
+    else
+      gld_DrawFakeSkyStrips(-1);
 
     glGetIntegerv(GL_SHADE_MODEL, &shading_mode);
     glShadeModel(GL_SMOOTH);
@@ -948,7 +1039,7 @@ void gld_DrawDomeSkyBox(int skylayer)
     glScalef(-2.0f, 2.0f, 2.0f);
     glTranslatef(0.f, -1250.0f / MAP_COEFF, 0.f);
 
-    RenderDome(&SkyBox, skylayer);
+    RenderDome(skybox, skylayer);
 
     glPopMatrix();
 
@@ -960,4 +1051,44 @@ void gld_DrawDomeSkyBox(int skylayer)
 
     glShadeModel(shading_mode);
   }
+}
+
+void gld_DrawDomeSkyBox(int skylayer)
+{
+  int i;
+
+  // Mask sky domes to their own areas.
+  if (num_skyboxes > 1 && gl_use_stencil)
+  {
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+    for (i = 0; i < num_skyboxes; ++i)
+    {
+      glStencilFunc(GL_ALWAYS, i + 1, ~0);
+      gld_DrawFakeSkyStrips(i);
+    }
+
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    for (i = 0; i < num_skyboxes; ++i)
+      gld_DrawDomeSkyBoxFor(&SkyBoxes[i], skylayer, i, true);
+
+    glDisable(GL_STENCIL_TEST);
+  }
+  else
+  {
+    gld_DrawDomeSkyBoxFor(&SkyBox, skylayer, -1, false);
+  }
+}
+
+void gld_CleanSkyData(void)
+{
+  Z_Free(SkyBoxes);
+  SkyBoxes = NULL;
+  num_skyboxes = 0;
+  max_skyboxes = 0;
+
+  gld_ClearSkyVBOs();
+  gld_InitSky();
 }
