@@ -1837,10 +1837,6 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "automap_linesize", dsda_config_automap_linesize,
     dsda_config_int, 0, 6, { 0 }, NULL, NOT_STRICT
   },
-  [dsda_config_automap_line_endpoints] = {
-    "automap_line_endpoints", dsda_config_automap_line_endpoints,
-    CONF_BOOL(1), NULL, NOT_STRICT, AM_InitParams
-  },
   [dsda_config_automap_rotate] = {
     "automap_rotate", dsda_config_automap_rotate,
     CONF_BOOL(0), &automap_rotate

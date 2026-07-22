@@ -356,7 +356,6 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_automap_background_shade),
   MIGRATED_SETTING(dsda_config_automap_parallax),
   MIGRATED_SETTING(dsda_config_automap_linesize),
-  MIGRATED_SETTING(dsda_config_automap_line_endpoints),
   MIGRATED_SETTING(dsda_config_automap_rotate),
   MIGRATED_SETTING(dsda_config_automap_follow),
   MIGRATED_SETTING(dsda_config_automap_mouse_pan),

@@ -483,7 +483,6 @@ am_frame_t am_frame;
 
 array_t map_lines;
 array_t map_line_points;
-dboolean map_line_endpoints;
 
 static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a);
 static void AM_rotatePoint(mpoint_t *p);
@@ -1051,7 +1050,6 @@ void AM_InitParams(void)
   map_things_appearance = dsda_IntConfig(dsda_config_map_things_appearance);
   map_things_hitboxes = dsda_IntConfig(dsda_config_map_things_hitbox);
   map_opengl_nice_things = dsda_IntConfig(dsda_config_map_things_nice);
-  map_line_endpoints = dsda_IntConfig(dsda_config_automap_line_endpoints);
 }
 
 static void AM_ExchangeScales(int full_automap, int *last_full_automap)

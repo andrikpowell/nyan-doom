@@ -925,9 +925,6 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
 
 static void gld_AddMapLinePoints(float x0, float y0, float x1, float y1, float thickness, color_rgb_t color, unsigned char a)
 {
-  if (!map_line_endpoints)
-    return;
-
   // Skip endpoints for lines smaller than 1px
   if (thickness * 2.0f * MIN(gl_scale_x, gl_scale_y) <= 1.0f)
     return;

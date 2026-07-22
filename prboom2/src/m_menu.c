@@ -4548,7 +4548,6 @@ setup_menu_t auto_appearance_settings[] =
   { "Parallex Effect", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_parallax, 0, empty_list, EXCLUDE(dsda_config_automap_background, false) },
   EMPTY_LINE,
   TITLE_DEPEND("OpenGL Features", AA_X, dsda_config_videomode, OPENGL_MODE),
-  { "GL Line Endpoints", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_line_endpoints, DEPEND_GL },
   { "Textured automap", S_YESNO, m_conf, g_all, AA_X, dsda_config_map_textured, DEPEND_GL },
   { "Textured automap", S_PERC, m_conf, g_all, AA_X, dsda_config_map_textured_trans, DEPEND_GL },
   { "Textured automap on overlay", S_PERC, m_conf, g_all, AA_X, dsda_config_map_textured_overlay_trans, DEPEND_GL },
