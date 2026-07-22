@@ -137,6 +137,7 @@ sector_t* GetBestFake(sector_t *sector, int ceiling, int validcount);
 sector_t* GetBestBleedSector(sector_t* source, enum bleedtype type);
 
 void gld_DrawMapLines(void);
+void gld_DrawMapLinePoints(void);
 
 //multisampling
 void gld_MultisamplingInit(void);

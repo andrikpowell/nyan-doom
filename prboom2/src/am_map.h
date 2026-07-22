@@ -91,6 +91,7 @@ typedef struct map_line_s
 } PACKEDATTR map_line_t;
 
 extern array_t map_lines;
+extern array_t map_line_points;
 
 #define MAPBITS 12
 #define FRACTOMAPBITS (FRACBITS-MAPBITS)

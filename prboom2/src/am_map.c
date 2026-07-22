@@ -482,6 +482,7 @@ map_trail_mode_t map_trail_mode;
 am_frame_t am_frame;
 
 array_t map_lines;
+array_t map_line_points;
 
 static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a);
 static void AM_rotatePoint(mpoint_t *p);
@@ -4205,6 +4206,15 @@ static void AM_drawCrosshair(int color)
   }
 }
 
+static void AM_DrawGLMapLines(void)
+{
+  gld_DrawMapLines();
+  gld_DrawMapLinePoints();
+
+  M_ArrayClear(&map_lines);
+  M_ArrayClear(&map_line_points);
+}
+
 void M_ChangeMapTextured(void)
 {
   map_textured = dsda_IntConfig(dsda_config_map_textured);
@@ -4361,20 +4371,27 @@ void AM_Drawer (dboolean minimap)
   AM_drawPlayers();
   AM_drawThings(); //jff 1/5/98 default double IDDT sprite
   AM_DrawConnections();
-  AM_drawCrosshair(mapcolor_p->hair);   //jff 1/7/98 default crosshair color
   AM_UpdateParallax();
+
+  // Draw map lines before the crosshair
+  if (V_IsOpenGLMode())
+  {
+    AM_DrawGLMapLines();
+  }
+
+  AM_drawCrosshair(mapcolor_p->hair);   //jff 1/7/98 default crosshair color
 
   if (V_IsOpenGLMode())
   {
-    gld_DrawMapLines();
-    M_ArrayClear(&map_lines);
-
 #if defined(HAVE_LIBSDL2_IMAGE)
     if (map_opengl_nice_things)
     {
       gld_DrawNiceThings(f_x, f_y, f_w, f_h);
     }
 #endif
+
+    // Draw crosshair above nice things
+    AM_DrawGLMapLines();
   }
 
   AM_drawMarks();

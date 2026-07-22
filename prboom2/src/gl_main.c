@@ -923,12 +923,31 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
   }
 }
 
+static void gld_AddMapLinePoints(float x0, float y0, float x1, float y1, float thickness, color_rgb_t color, unsigned char a)
+{
+  // Skip endpoints for lines smaller than 1px
+  if (thickness * 2.0f * MIN(gl_scale_x, gl_scale_y) <= 1.0f)
+    return;
+
+  for (int i = 0; i < 2; ++i)
+  {
+    map_point_t *point = M_ArrayGetNewItem(&map_line_points, sizeof(*point));
+
+    point->x = i ? x1 : x0;
+    point->y = i ? y1 : y0;
+    point->r = color.r;
+    point->g = color.g;
+    point->b = color.b;
+    point->a = a;
+  }
+}
+
 void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
 {
   color_rgb_t color;
   unsigned char a;
   map_line_t *line;
-  float thickness, length, extend;
+  float thickness, length;
   float dx, dy, px, py;
 
   // Set line thickness
@@ -946,18 +965,12 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
   dy = y1 - y0;
 
   length = sqrtf(dx * dx + dy * dy);
+
   if (length == 0.0f)
     return;
 
   dx /= length;
   dy /= length;
-
-  // Extend quads a bit to fix weird gaps
-  extend = 1.0f; // adjustable
-  x0 -= dx * extend;
-  y0 -= dy * extend;
-  x1 += dx * extend;
-  y1 += dy * extend;
 
   px = -dy * thickness;
   py = dx * thickness;
@@ -982,6 +995,9 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
     line->point[i].b = color.b;
     line->point[i].a = a;
   }
+
+  // Add end points
+  gld_AddMapLinePoints(x0, y0, x1, y1, thickness, color, a);
 }
 
 void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
