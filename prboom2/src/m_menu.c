@@ -1011,7 +1011,7 @@ static void M_DrawSaveLoadBorder(int x,int y,dboolean highlight)
   int color = CR_DEFAULT;
   int flags = VPT_STRETCH;
 
-  if (highlight && dsda_IntConfig(dsda_config_menu_highlight) == 1)
+  if (highlight && dsda_IntConfig(dsda_config_menu_highlight))
     color += CR_LIGHTEN;
 
   if (color != CR_DEFAULT)
@@ -9289,7 +9289,7 @@ void M_Drawer (void)
       int color = currentMenu->menuitems[i].color;
       int flags = VPT_STRETCH;
 
-      if (i == itemOn && dsda_IntConfig(dsda_config_menu_highlight) == 1)
+      if (i == itemOn && dsda_IntConfig(dsda_config_menu_highlight))
         color += CR_LIGHTEN;
 
       if (color != CR_DEFAULT)
@@ -9429,7 +9429,7 @@ static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int therm
 
   if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot, highlight));
 
-  if (highlight && dsda_IntConfig(dsda_config_menu_highlight) == 1)
+  if (highlight && dsda_IntConfig(dsda_config_menu_highlight))
     color += CR_LIGHTEN;
 
   if (color != CR_DEFAULT)
