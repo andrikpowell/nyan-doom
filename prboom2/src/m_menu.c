@@ -972,6 +972,9 @@ dboolean M_FileBoxHighlight(int menu, int item)
 
 int M_FileTextColor(int menu, int item)
 {
+  if (!dsda_IntConfig(dsda_config_menu_highlight))
+    return CR_DEFAULT;
+
   return M_FileSlotEnabled(menu, item) ? CR_DEFAULT : CR_DARKEN;
 }
 
