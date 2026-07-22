@@ -501,7 +501,7 @@ void MN_Drawer(void)
     int color = CR_DEFAULT;
 
     // Lighten current item
-    if (i == itemOn)
+    if (i == itemOn && dsda_IntConfig(dsda_config_menu_highlight) == 1)
       color += CR_LIGHTEN;
 
     if (text_sml) {  // use small font for custom skill
@@ -711,7 +711,7 @@ static void MN_DrawFileSlots(int x, int y, int menu)
     int color = CR_DEFAULT;
     int flags = VPT_STRETCH;
 
-    if (M_FileBoxHighlight(menu, i))
+    if (M_FileBoxHighlight(menu, i) && dsda_IntConfig(dsda_config_menu_highlight) == 1)
       color += CR_LIGHTEN;
 
     if (color != CR_DEFAULT)
@@ -944,7 +944,7 @@ void MN_DrawSlider(int x, int y, int width, int range, int slot, dboolean highli
   int color = CR_DEFAULT;
   int flags = VPT_STRETCH;
 
-  if (highlight)
+  if (highlight && dsda_IntConfig(dsda_config_menu_highlight) == 1)
     color += CR_LIGHTEN;
 
   if (color != CR_DEFAULT)
