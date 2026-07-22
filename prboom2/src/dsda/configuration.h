@@ -29,6 +29,7 @@ enum {
   dsda_config_default_skill,
   dsda_config_vanilla_keymap,
   nyan_config_menu_play_demo,
+  dsda_config_menu_highlight,
   dsda_config_menu_background,
   dsda_config_process_priority,
   dsda_config_max_player_corpse,
