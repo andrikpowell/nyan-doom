@@ -2020,9 +2020,9 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "render_stretchsky", dsda_config_render_stretchsky,
     CONF_BOOL(1), NULL, NOT_STRICT, M_ChangeSkyMode
   },
-  [dsda_config_render_linearsky] = {
-    "render_linearsky", dsda_config_render_linearsky,
-    CONF_BOOL(0), NULL, NOT_STRICT, dsda_RefreshSky
+  [dsda_config_render_sky_projection] = {
+    "render_sky_projection", dsda_config_render_sky_projection,
+    dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT, dsda_RefreshSky
   },
   [dsda_config_aspect_ratio_correction] = {
     "aspect_ratio_correction", dsda_config_aspect_ratio_correction,

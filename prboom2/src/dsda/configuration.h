@@ -476,7 +476,7 @@ enum {
   dsda_config_render_patches_scalex,
   dsda_config_render_patches_scaley,
   dsda_config_render_stretchsky,
-  dsda_config_render_linearsky,
+  dsda_config_render_sky_projection,
   dsda_config_aspect_ratio_correction,
   dsda_config_ex_text_tran_filter,
   dsda_config_ex_text_tran_filter_pct,
