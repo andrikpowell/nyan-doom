@@ -972,6 +972,9 @@ dboolean M_FileBoxHighlight(int menu, int item)
 
 int M_FileTextColor(int menu, int item)
 {
+  if (!dsda_IntConfig(dsda_config_menu_highlight))
+    return CR_DEFAULT;
+
   return M_FileSlotEnabled(menu, item) ? CR_DEFAULT : CR_DARKEN;
 }
 
@@ -1011,7 +1014,7 @@ static void M_DrawSaveLoadBorder(int x,int y,dboolean highlight)
   int color = CR_DEFAULT;
   int flags = VPT_STRETCH;
 
-  if (highlight)
+  if (highlight && dsda_IntConfig(dsda_config_menu_highlight))
     color += CR_LIGHTEN;
 
   if (color != CR_DEFAULT)
@@ -5247,6 +5250,7 @@ setup_menu_t display_options_settings[] = {
   { "Palette On Powers", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onpowers, 0, palette_list },
   { "Palette On Effects", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_oneffects, 0, palette_reduced_list },
   EMPTY_LINE,
+  { "Menu Entry Highlighting", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_menu_highlight, 0 },
   { "Menu Background", S_CHOICE, m_conf, g_all, G_X, dsda_config_menu_background, 0, menu_background_list },
 
   NEXT_PAGE(display_nyan_settings),
@@ -9288,7 +9292,7 @@ void M_Drawer (void)
       int color = currentMenu->menuitems[i].color;
       int flags = VPT_STRETCH;
 
-      if (i == itemOn)
+      if (i == itemOn && dsda_IntConfig(dsda_config_menu_highlight))
         color += CR_LIGHTEN;
 
       if (color != CR_DEFAULT)
@@ -9428,7 +9432,7 @@ static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int therm
 
   if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot, highlight));
 
-  if (highlight)
+  if (highlight && dsda_IntConfig(dsda_config_menu_highlight))
     color += CR_LIGHTEN;
 
   if (color != CR_DEFAULT)

@@ -272,6 +272,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_play_demos_in_menu", nyan_config_menu_play_demo,
     CONF_BOOL(1)
   },
+  [dsda_config_menu_highlight] = {
+    "menu_highlight", dsda_config_menu_highlight,
+    CONF_BOOL(1)
+  },
   [dsda_config_menu_background] = {
     "menu_background", dsda_config_menu_background,
     dsda_config_int, 0, 2, { 1 }
