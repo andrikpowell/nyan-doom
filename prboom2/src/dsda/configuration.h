@@ -132,6 +132,7 @@ enum {
   dsda_config_hexen_simpler_puzzle_use,
   nyan_config_full_menu_fade,
   nyan_config_gradual_menu_fade,
+  nyan_config_extra_menu_highlights,
   nyan_config_skip_default_text,
   nyan_config_ignore_default_map_names,
   nyan_config_play_random_music,

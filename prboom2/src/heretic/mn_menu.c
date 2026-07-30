@@ -496,13 +496,14 @@ void MN_Drawer(void)
 
   for (i = 0; i < max; i++)
   {
+    dboolean selected = (i == itemOn);
     const char *text = currentMenu->menuitems[i].alttext;
     int text_sml = text && (currentMenu->menuitems[i].flags == MENUF_OPTLUMP);
     int color = CR_DEFAULT;
 
     // Lighten current item
-    if (i == itemOn)
-      color += CR_LIGHTEN;
+    if (selected)
+      color += M_Highlight(false);
 
     if (text_sml) {  // use small font for custom skill
       y += 6;        // add some padding (looks bad otherwise)
@@ -690,11 +691,11 @@ void MN_DrawSound(void)
 {
   char num[4];
 
-  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX, 16, 16, snd_SfxVolume, M_CurrentSelectedItem(SFX_VOL_INDEX-1));
+  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX, 16, 16, snd_SfxVolume, M_CurrentSelectedItem(SFX_VOL_INDEX-1), false);
   snprintf(num, sizeof(num), "%3d", snd_SfxVolume);
   MN_DrTextA(num, SoundDef.x + 130, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX + 3);
 
-  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX, 16, 16, snd_MusicVolume, M_CurrentSelectedItem(MUS_VOL_INDEX-1));
+  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX, 16, 16, snd_MusicVolume, M_CurrentSelectedItem(MUS_VOL_INDEX-1), false);
   snprintf(num, sizeof(num), "%3d", snd_MusicVolume);
   MN_DrTextA(num, SoundDef.x + 130, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX + 3);
 }
@@ -708,11 +709,12 @@ static void MN_DrawFileSlots(int x, int y, int menu)
 
   for (i = 0; i < g_menu_save_page_size; i++)
   {
+    dboolean selected = M_FileBoxSelected(menu, i);
     int color = CR_DEFAULT;
     int flags = VPT_STRETCH;
 
-    if (M_FileBoxHighlight(menu, i))
-      color += CR_LIGHTEN;
+    if (selected)
+      color += M_Highlight(false);
 
     if (color != CR_DEFAULT)
       flags |= VPT_COLOR;
@@ -934,7 +936,7 @@ void MN_DrawTitle(int y, const char *text, int cm)
 #define SLIDER_WIDTH (SLIDER_LIMIT - 64)
 #define SLIDER_PATCH_COUNT (SLIDER_WIDTH / 8)
 
-void MN_DrawSlider(int x, int y, int width, int range, int slot, dboolean highlight)
+void MN_DrawSlider(int x, int y, int width, int range, int slot, dboolean selected, dboolean small_thermo)
 {
   int xx;
   int i;
@@ -944,8 +946,8 @@ void MN_DrawSlider(int x, int y, int width, int range, int slot, dboolean highli
   int color = CR_DEFAULT;
   int flags = VPT_STRETCH;
 
-  if (highlight)
-    color += CR_LIGHTEN;
+  if (selected)
+    color += M_Highlight(small_thermo);
 
   if (color != CR_DEFAULT)
     flags |= VPT_COLOR;

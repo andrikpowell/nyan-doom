@@ -688,6 +688,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_gradual_menu_fade", nyan_config_gradual_menu_fade,
     CONF_BOOL(1)
   },
+  [nyan_config_extra_menu_highlights] = {
+    "nyan_extra_menu_highlights", nyan_config_extra_menu_highlights,
+    CONF_BOOL(1)
+  },
   [nyan_config_skip_default_text] = {
    "nyan_skip_default_text", nyan_config_skip_default_text,
    CONF_BOOL(1), NULL, STRICT_INT(0)

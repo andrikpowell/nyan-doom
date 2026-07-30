@@ -342,8 +342,8 @@ static void M_DrawSave(void);
 static void M_DrawHelp (void);                                     // phares 5/04/98
 static void M_DrawAd(void);
 
-static void M_DrawSaveLoadBorder(int x,int y,dboolean highlight);
-static void M_DrawThermo(int x,int y,int thermWidth,int thermRange,int thermDot,dboolean highlight);
+static void M_DrawSaveLoadBorder(int x,int y,dboolean selected);
+static void M_DrawThermo(int x,int y,int thermWidth,int thermRange,int thermDot,dboolean selected,dboolean small_thermo);
 static void M_DrawEmptyCell(menu_t *menu,int item);
 static void M_DrawSelCell(menu_t *menu,int item);
 static void M_WriteText(int x, int y, const char *string, int cm);
@@ -516,6 +516,18 @@ static const dsda_font_t *menu_font;
 static void M_LoadMenuFont(void)
 {
   menu_font = &hud_font;
+}
+
+//
+// Highlight option
+//
+
+int M_Highlight(int override)
+{
+  if (override || dsda_IntConfig(nyan_config_extra_menu_highlights))
+    return CR_LIGHTEN;
+
+  return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -965,7 +977,7 @@ static dboolean M_FileSlotEnabled(int menu, int item)
   return false;
 }
 
-dboolean M_FileBoxHighlight(int menu, int item)
+dboolean M_FileBoxSelected(int menu, int item)
 {
   return item == itemOn && M_FileSlotEnabled(menu, item);
 }
@@ -991,7 +1003,7 @@ static void M_DrawLoad(void)
   // CPhipps - patch drawing updated
   V_DrawMenuNamePatch(72 ,LOADGRAPHIC_Y, "M_LOADG", CR_DEFAULT, VPT_STRETCH);
   for (i = 0 ; i < load_end ; i++) {
-    M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i,M_FileBoxHighlight(MN_LOAD,i));
+    M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i,M_FileBoxSelected(MN_LOAD,i));
     M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i],M_FileTextColor(MN_LOAD,i));
   }
 
@@ -1005,14 +1017,14 @@ static void M_DrawLoad(void)
 // Draw border for the savegame description
 //
 
-static void M_DrawSaveLoadBorder(int x,int y,dboolean highlight)
+static void M_DrawSaveLoadBorder(int x,int y,dboolean selected)
 {
   int i;
   int color = CR_DEFAULT;
   int flags = VPT_STRETCH;
 
-  if (highlight)
-    color += CR_LIGHTEN;
+  if (selected)
+    color += M_Highlight(false);
 
   if (color != CR_DEFAULT)
     flags |= VPT_COLOR;
@@ -1241,7 +1253,7 @@ static void M_DrawSave(void)
   V_DrawMenuNamePatch(72, LOADGRAPHIC_Y, "M_SAVEG", CR_DEFAULT, VPT_STRETCH);
   for (i = 0 ; i < load_end ; i++)
     {
-    M_DrawSaveLoadBorder(SaveDef.x,SaveDef.y+LINEHEIGHT*i,M_FileBoxHighlight(MN_SAVE,i));
+    M_DrawSaveLoadBorder(SaveDef.x,SaveDef.y+LINEHEIGHT*i,M_FileBoxSelected(MN_SAVE,i));
     M_WriteText(SaveDef.x,SaveDef.y+LINEHEIGHT*i,savegamestrings[i],M_FileTextColor(MN_SAVE,i));
     }
 
@@ -1532,12 +1544,12 @@ static void M_DrawSound(void)
   // CPhipps - patch drawing updated
   V_DrawMenuNamePatch(60, 38, "M_SVOL", CR_DEFAULT, VPT_STRETCH);
 
-  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),16,16,snd_SfxVolume,M_CurrentSelectedItem(sfx_vol));
+  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),16,16,snd_SfxVolume,M_CurrentSelectedItem(sfx_vol),false);
   snprintf(num, sizeof(num), "%3d", snd_SfxVolume);
   strcpy(menu_buffer, num);
   M_DrawMenuString(SoundDef.x + 150, SoundDef.y+LINEHEIGHT*(sfx_vol+1) + 3, cr_value_edit);
 
-  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(music_vol+1),16,16,snd_MusicVolume,M_CurrentSelectedItem(music_vol));
+  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(music_vol+1),16,16,snd_MusicVolume,M_CurrentSelectedItem(music_vol),false);
   snprintf(num, sizeof(num), "%3d", snd_MusicVolume);
   strcpy(menu_buffer, num);
   M_DrawMenuString(SoundDef.x + 150, SoundDef.y+LINEHEIGHT*(music_vol+1) + 3, cr_value_edit);
@@ -3377,11 +3389,12 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
   }
 
   if (flags & S_THERMO) {
+    dboolean selected = flags & S_HILITE;
     int value;
 
     value = dsda_IntConfig(s->config_id);
 
-    M_DrawThermo(x, y, 8, M_ThermoDisplayUpperLimit(s) + 1, M_ThermoDisplayValue(s), flags & S_HILITE);
+    M_DrawThermo(x, y, 8, M_ThermoDisplayUpperLimit(s) + 1, M_ThermoDisplayValue(s), selected, true);
     M_FormatMenuSetting(s, value);
 
     M_ChoiceBlinkingArrowRight(s, x + 80, y + 3, color);
@@ -4963,6 +4976,7 @@ setup_menu_t gen_nyan_settings[] = {
   { "Play Demos While In Menus", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_menu_play_demo },
   { "Overlay for All Menus", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_full_menu_fade },
   { "Overlay Gradual Fade", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_gradual_menu_fade },
+  { "Extra Menu Highlights", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_extra_menu_highlights },
   EMPTY_LINE,
   { "Skip IWAD Story For PWADs", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_skip_default_text },
   { "Skip IWAD Map Names For PWADs", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_ignore_default_map_names },
@@ -9284,12 +9298,13 @@ void M_Drawer (void)
     for (i = 0; i < max; i++)
     {
       dboolean optional_lump_missing = M_OptionalLumpMissing(&currentMenu->menuitems[i]);
+      dboolean selected = (i == itemOn);
       const char *alttext = currentMenu->menuitems[i].alttext;
       int color = currentMenu->menuitems[i].color;
       int flags = VPT_STRETCH;
 
-      if (i == itemOn)
-        color += CR_LIGHTEN;
+      if (selected)
+        color += M_Highlight(false);
 
       if (color != CR_DEFAULT)
         flags |= VPT_COLOR; 
@@ -9417,7 +9432,7 @@ static void M_StopMessage(void)
 // proff/nicolas 09/20/98 -- changed for hi-res
 // CPhipps - patch drawing updated
 //
-static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int thermDot, dboolean highlight )
+static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int thermDot, dboolean selected, dboolean small_thermo )
 {
   int xx;
   int i;
@@ -9426,10 +9441,10 @@ static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int therm
   int color = CR_DEFAULT;
   int flags = VPT_STRETCH;
 
-  if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot, highlight));
+  if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot, selected, small_thermo));
 
-  if (highlight)
-    color += CR_LIGHTEN;
+  if (selected)
+    color += M_Highlight(small_thermo);
 
   if (color != CR_DEFAULT)
     flags |= VPT_COLOR;

@@ -82,9 +82,11 @@ void M_ResetMenu(void);      // killough 11/98: reset main menu ordering
 void M_DrawCredits(void);
 void M_DrawCreditsDynamic(void);    // killough 11/98
 
+int M_Highlight(int override);
+
 void M_DrawTabs(const char **pages, int m, int y);
 dboolean M_CurrentSelectedItem(int item);
-dboolean M_FileBoxHighlight(int menu, int item);
+dboolean M_FileBoxSelected(int menu, int item);
 int M_FileTextColor(int menu, int item);
 
 typedef enum {
