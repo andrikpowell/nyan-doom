@@ -103,6 +103,10 @@ static int64_t  topstep;    // [PN] WiggleFix
 static int64_t  bottomfrac; // R_WiggleFix
 static int64_t  bottomstep; // [PN] WiggleFix
 
+// [AR] Only use DDA for projected walls spanning at least 1/16 of the view
+// Improves performance quite a bit, while not being visually noticeable
+#define DDA_MIN_SPAN (viewwidth / 16)
+
 // [PN] Sub-pixel stable DDA for rw_scale/topfrac/bottomfrac
 //
 // Integer division used for rw_scalestep leaves a remainder. Accumulating the
@@ -463,7 +467,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   masked_scalespan64 = 0;
   masked_scalespan = ds->x2 - ds->x1;
 
-  if (masked_scalespan > 0)
+  if (masked_scalespan >= DDA_MIN_SPAN)
   {
       const int64_t delta = (int64_t)ds->scale2 - (int64_t)ds->scale1;
       const int64_t step64 = delta / (int64_t)masked_scalespan;
@@ -912,7 +916,8 @@ void R_StoreWallRange(const int start, const int stop)
 
     ds_p->scale2 = (fixed_t)scale2;
     ds_p->scalestep = rw_scalestep = (fixed_t)step64;
-    rw_scalerem = delta - step64 * (int64_t)rw_scalespan;
+    if (rw_scalespan >= DDA_MIN_SPAN)
+      rw_scalerem = delta - step64 * (int64_t)rw_scalespan;
   }
   else
   {
