@@ -217,29 +217,61 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
     const byte sky_texture_color = GETCOL(0);
     const byte fade_50 = dcvars->sky_tranmap[sky_texture_color * 256 + sky_cap_color];
     const byte fade_25 = dcvars->sky_tranmap[fade_50 * 256 + sky_cap_color];
+    int n;
 
-    const fixed_t heightmask = dcvars->texheight << FRACBITS;
+    if (frac < -2 * FRACUNIT)
+    {
+      n = (-frac - 2 * FRACUNIT + fracstep - 1) / fracstep;
+      if (n > count)
+        n = count;
 
-    if (frac >= heightmask)
-      while (frac >= heightmask)
-        frac -= heightmask;
-
-    while (count--) {
-      if (frac < -2 * FRACUNIT)
+      count -= n;
+      while (n--)
+      {
         *dest = sky_cap_color;
-      else if (frac < -FRACUNIT)
-        *dest = fade_25;
-      else if (frac < 0)
-        *dest = fade_50;
-      else
-        *dest = GETCOL(frac);
+        dest += 4;
+        frac += fracstep;
+      }
 
-      dest += 4;
-      if ((frac += fracstep) >= heightmask)
-        frac -= heightmask;
+      if (!count)
+        return;
     }
 
-    return;
+    if (frac < -FRACUNIT)
+    {
+      n = (-frac - FRACUNIT + fracstep - 1) / fracstep;
+      if (n > count)
+        n = count;
+
+      count -= n;
+      while (n--)
+      {
+        *dest = fade_25;
+        dest += 4;
+        frac += fracstep;
+      }
+
+      if (!count)
+        return;
+    }
+
+    if (frac < 0)
+    {
+      n = (-frac + fracstep - 1) / fracstep;
+      if (n > count)
+        n = count;
+
+      count -= n;
+      while (n--)
+      {
+        *dest = fade_50;
+        dest += 4;
+        frac += fracstep;
+      }
+
+      if (!count)
+        return;
+    }
 #endif
 
     // Inner loop that does the actual texture mapping,
