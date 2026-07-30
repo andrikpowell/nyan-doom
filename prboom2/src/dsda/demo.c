@@ -122,6 +122,8 @@ char* dsda_GenerateDemoName(unsigned int* counter, const char* base_name) {
   snprintf(demo_name, demo_name_size, "%s.lmp", base_name);
 
   if (!dsda_IntConfig(dsda_config_overwrite_previous_demos)) {
+    snprintf(demo_name, demo_name_size, "%s-%05d.lmp", base_name, j); // for the "M_FileExists(demo_name)" check below; will check with the counter already appended 
+
     for (; j <= 99999 && M_FileExists(demo_name); j++)
       snprintf(demo_name, demo_name_size, "%s-%05d.lmp", base_name, j);
   }
@@ -134,8 +136,8 @@ char* dsda_GenerateDemoName(unsigned int* counter, const char* base_name) {
 #define ADD_FILE_COUNTER static unsigned int counter; \
                          DO_ONCE \
                            counter = dsda_DemoAttempts(); \
-                           if (counter < 2) \
-                             counter = 2; \
+                           if (counter < 1) \
+                             counter = 1; \
                          END_ONCE
 
 char* dsda_FallbackDemoName(void) {
