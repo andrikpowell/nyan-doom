@@ -500,12 +500,12 @@ static void R_SetSpritelights(int lightlevel)
   int lightnum;
 
   // Enhanced Light Amp - Allow dark areas to be seen
-  if (NYAN_LITEAMP && (lightlevel <= 64))
+  if (nyan_liteamp && (lightlevel <= 64))
     lightlevel = 64;
 
   lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
 
-  if (NYAN_LITEAMP)
+  if (nyan_liteamp)
     lightnum += NYAN_LITESCALE;
 
   spritelights = scalelight[CLAMP(lightnum, 0, LIGHTLEVELS - 1)];
@@ -943,7 +943,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   // get light level
   if (thing->flags & g_mf_shadow_fuzz)
       vis->colormap = NULL;             // shadow draw
-  else if (fixedcolormap && !NYAN_LITEAMP)
+  else if (fixedcolormap && !nyan_liteamp)
     vis->colormap = fixedcolormap;      // fixed map
   else if (LevelUseFullBright && thing->frame & FF_FULLBRIGHT)
     vis->colormap = fullcolormap;     // full bright  // killough 3/20/98

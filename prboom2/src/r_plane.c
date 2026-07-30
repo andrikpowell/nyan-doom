@@ -221,7 +221,7 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
   }
 
   // Nyan lite amp
-  else if (NYAN_LITEAMP)
+  else if (nyan_liteamp)
   {
     int lightshift = NYAN_LIGHTZSHIFT;
     dsvars->z = distance;
@@ -779,14 +779,14 @@ static void R_DoDrawPlane(visplane_t *pl)
       dsvars.planeheight = D_abs(pl->height-viewz);
 
       // SoM 10/19/02: deep water colormap fix
-      if (fixedcolormap && !NYAN_LITEAMP)
+      if (fixedcolormap && !nyan_liteamp)
         light = (255  >> LIGHTSEGSHIFT);
       else
       {
         int lightlevel = pl->lightlevel;
 
         // Fixed lower lightlevels to 64
-        if (NYAN_LITEAMP && lightlevel <= 64)
+        if (nyan_liteamp && lightlevel <= 64)
           lightlevel = 64;
 
         light = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
@@ -803,7 +803,7 @@ static void R_DoDrawPlane(visplane_t *pl)
       dsvars.minzlight = NULL;
 
       // Set darkest allowed colormap value (64)
-      if (NYAN_LITEAMP)
+      if (nyan_liteamp)
       {
         int minlight = (64 >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT) + NYAN_LITESCALE;
 

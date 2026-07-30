@@ -97,7 +97,7 @@ void gld_StaticLightAlpha(float light, float alpha)
   glColor4f(1.0f, 1.0f, 1.0f, alpha);
 
   // if nyan liteamp, raise light level (and clamp)
-  if (NYAN_LITEAMP)
+  if (nyan_liteamp)
     light = MIN(light + 0.3f, 1.0f);
 
   // if normal liteamp, force static fullbright

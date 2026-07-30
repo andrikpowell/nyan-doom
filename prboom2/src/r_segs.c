@@ -321,14 +321,14 @@ const lighttable_t** GetLightTable(int lightlevel)
   int lightnum;
 
   // Enhanced Light Amp - Allow dark areas to be seen
-  if (NYAN_LITEAMP && (lightlevel <= 64))
+  if (nyan_liteamp && (lightlevel <= 64))
     lightlevel = 64;
 
   R_AddContrast(curline, &lightlevel);
 
   lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
 
-  if (NYAN_LITEAMP)
+  if (nyan_liteamp)
     lightnum += NYAN_LITESCALE;
 
   return scalelight[CLAMP(lightnum, 0, LIGHTLEVELS - 1)];
@@ -392,7 +392,7 @@ static void R_ApplyBottomLight(side_t *side)
 
 static void R_ApplyLightColormap(draw_column_vars_t *dcvars, fixed_t scale)
 {
-  if (!fixedcolormap || NYAN_LITEAMP)
+  if (!fixedcolormap || nyan_liteamp)
   {
     int index = (int)(((int64_t) scale * 160 / wide_centerx) >> (LIGHTSCALESHIFT));
     if (index >= MAXLIGHTSCALE)
@@ -669,7 +669,7 @@ static void R_RenderSegLoop (void)
       dcvars.prevsource = R_GetTextureColumn(tex_patch, specific_texturecolumn-1);
       dcvars.nextsource = R_GetTextureColumn(tex_patch, specific_texturecolumn+1);
       dcvars.texheight = midtexheight;
-      if (!fixedcolormap || NYAN_LITEAMP)
+      if (!fixedcolormap || nyan_liteamp)
         R_ApplyMidLight(curline->sidedef);
       R_ApplyLightColormap(&dcvars, rw_scale);
       colfunc(&dcvars);
@@ -702,7 +702,7 @@ static void R_RenderSegLoop (void)
           dcvars.prevsource = R_GetTextureColumn(tex_patch,specific_texturecolumn-1);
           dcvars.nextsource = R_GetTextureColumn(tex_patch,specific_texturecolumn+1);
           dcvars.texheight = toptexheight;
-          if (!fixedcolormap || NYAN_LITEAMP)
+          if (!fixedcolormap || nyan_liteamp)
             R_ApplyTopLight(curline->sidedef);
           R_ApplyLightColormap(&dcvars, rw_scale);
           colfunc(&dcvars);
@@ -740,7 +740,7 @@ static void R_RenderSegLoop (void)
           dcvars.prevsource = R_GetTextureColumn(tex_patch, specific_texturecolumn-1);
           dcvars.nextsource = R_GetTextureColumn(tex_patch, specific_texturecolumn+1);
           dcvars.texheight = bottomtexheight;
-          if (!fixedcolormap || NYAN_LITEAMP)
+          if (!fixedcolormap || nyan_liteamp)
             R_ApplyBottomLight(curline->sidedef);
           R_ApplyLightColormap(&dcvars, rw_scale);
           colfunc(&dcvars);
