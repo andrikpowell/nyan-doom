@@ -128,6 +128,10 @@ char* dsda_GenerateDemoName(unsigned int* counter, const char* base_name) {
       snprintf(demo_name, demo_name_size, "%s-%05d.lmp", base_name, j);
   }
 
+  else {
+    j++;
+  }
+
   *counter = j;
 
   return demo_name;
