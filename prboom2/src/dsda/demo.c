@@ -121,7 +121,7 @@ char* dsda_GenerateDemoName(unsigned int* counter, const char* base_name) {
   demo_name = Z_Malloc(demo_name_size);
   snprintf(demo_name, demo_name_size, "%s.lmp", base_name);
 
-  if (!dsda_IntConfig(dsda_config_overwrite_previous_demos)) {
+  if (!dsda_IntConfig(dsda_config_only_keep_latest_demo)) {
     snprintf(demo_name, demo_name_size, "%s-%05d.lmp", base_name, j); // for the "M_FileExists(demo_name)" check below; will check with the counter already appended 
 
     for (; j <= 99999 && M_FileExists(demo_name); j++)

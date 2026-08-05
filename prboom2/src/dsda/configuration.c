@@ -668,8 +668,8 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_organize_failed_demos", dsda_config_organize_failed_demos,
     CONF_BOOL(0)
   },
-  [dsda_config_overwrite_previous_demos] = {
-    "dsda_overwrite_previous_demos", dsda_config_overwrite_previous_demos,
+  [dsda_config_only_keep_latest_demo] = {
+    "dsda_only_keep_latest_demo", dsda_config_only_keep_latest_demo,
     CONF_BOOL(0)
   },
   [dsda_config_artifact_descriptions] = {
