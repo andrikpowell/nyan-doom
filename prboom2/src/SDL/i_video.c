@@ -108,6 +108,7 @@ static void DeactivateMouse(void);
 //static int AccelerateMouse(int val);
 static void UpdatePlaybackMouseTimer(void);
 static void I_ReadMouse(void);
+static void I_FreeVideoResources(dboolean destroy_window);
 static dboolean MouseIsInWindow(void);
 static dboolean MouseShouldBeGrabbed();
 static void UpdateFocus(void);
@@ -706,13 +707,30 @@ void I_SetPalette (int pal)
 
 // I_PreInitGraphics
 
-void I_ShutdownSDL(void)
+static void I_FreeVideoResources(dboolean destroy_window)
 {
   if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
   if (screen) SDL_FreeSurface(screen);
   if (buffer) SDL_FreeSurface(buffer);
   if (sdl_texture) SDL_DestroyTexture(sdl_texture);
   if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
+
+  sdl_glcontext = NULL;
+  screen = NULL;
+  buffer = NULL;
+  sdl_texture = NULL;
+  sdl_renderer = NULL;
+
+  if (destroy_window)
+  {
+    if (sdl_window) SDL_DestroyWindow(sdl_window);
+    sdl_window = NULL;
+  }
+}
+
+void I_ShutdownSDL(void)
+{
+  I_FreeVideoResources(true);
   if (sdl_window) SDL_DestroyWindow(sdl_window);
 
   SDL_Quit();
@@ -1214,8 +1232,12 @@ void I_UpdateVideoMode(void)
   const char *sdl_video_window_pos;
   int sdl_video_display_index;
   int x, y;
+  int window_width, window_height;
+  dboolean create_window;
   const dboolean novsync = dsda_Flag(dsda_arg_timedemo) ||
                            dsda_Flag(dsda_arg_fastdemo);
+  static int last_exclusive_fullscreen = -1;
+  static int last_render_vsync = -1;
 
   exclusive_fullscreen = dsda_IntConfig(dsda_config_exclusive_fullscreen) &&
                          I_DesiredVideoMode() == VID_MODESW;
@@ -1227,10 +1249,13 @@ void I_UpdateVideoMode(void)
 
   if(sdl_window)
   {
+    dboolean was_opengl = V_IsOpenGLMode();
+    dboolean destroy_window = false;
+
     // video capturing cannot be continued with new screen settings
     I_CaptureFinish();
 
-    if (V_IsOpenGLMode())
+    if (was_opengl)
     {
       gld_CleanMemory();
       gld_CleanStaticMemory();
@@ -1238,20 +1263,15 @@ void I_UpdateVideoMode(void)
 
     I_InitScreenResolution();
 
-    if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
-    if (screen) SDL_FreeSurface(screen);
-    if (buffer) SDL_FreeSurface(buffer);
-    if (sdl_texture) SDL_DestroyTexture(sdl_texture);
-    if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
-    SDL_DestroyWindow(sdl_window);
+    destroy_window = (was_opengl != V_IsOpenGLMode()) ||
+                     (last_exclusive_fullscreen != exclusive_fullscreen) ||
+                     (last_render_vsync != render_vsync) ||
+                     render_vsync; // right now anytime vsync is on, a refresh is required. This is temp.
 
-    sdl_renderer = NULL;
-    sdl_window = NULL;
-    sdl_glcontext = NULL;
-    screen = NULL;
-    buffer = NULL;
-    sdl_texture = NULL;
+    I_FreeVideoResources(destroy_window);
   }
+
+  create_window = !sdl_window;
 
   // Initialize SDL with this graphics mode
   if (V_IsOpenGLMode()) {
@@ -1288,6 +1308,9 @@ void I_UpdateVideoMode(void)
       init_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
   }
 
+  window_width = SCREENWIDTH * screen_multiply;
+  window_height = ACTUALHEIGHT * screen_multiply;
+
   if (V_IsOpenGLMode())
   {
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
@@ -1307,11 +1330,19 @@ void I_UpdateVideoMode(void)
     //e6y: anti-aliasing
     gld_MultisamplingInit();
 
-    sdl_window = SDL_CreateWindow(
-      PROJECT_STRING,
-      x, y,
-      SCREENWIDTH * screen_multiply, ACTUALHEIGHT * screen_multiply,
-      init_flags);
+    if (create_window)
+    {
+      sdl_window = SDL_CreateWindow(
+        PROJECT_STRING,
+        x, y,
+        window_width, window_height,
+        init_flags);
+    }
+    else
+    {
+      // Keep the old window size until the new GL resources are ready below
+    }
+
     sdl_glcontext = SDL_GL_CreateContext(sdl_window);
     SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, ACTUALHEIGHT);
   }
@@ -1322,11 +1353,19 @@ void I_UpdateVideoMode(void)
     if (render_vsync)
       flags |= SDL_RENDERER_PRESENTVSYNC;
 
-    sdl_window = SDL_CreateWindow(
-      PROJECT_STRING,
-      x, y,
-      SCREENWIDTH * screen_multiply, ACTUALHEIGHT * screen_multiply,
-      init_flags);
+    if (create_window)
+    {
+      sdl_window = SDL_CreateWindow(
+        PROJECT_STRING,
+        x, y,
+        window_width, window_height,
+        init_flags);
+    }
+    else
+    {
+      // Keep the old window size until the new software texture is ready below
+    }
+    
     sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
 
     SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, ACTUALHEIGHT);
@@ -1346,12 +1385,12 @@ void I_UpdateVideoMode(void)
     }
   }
 
-  // When creating the window, its not allowed to set a position in a different display
-  // This allows that
-  SDL_SetWindowPosition(sdl_window, x, y);
-
   if (desired_fullscreen)
   {
+    // When creating the window, its not allowed to set a position in a different display
+    // This allows that
+    SDL_SetWindowPosition(sdl_window, x, y);
+
     if (exclusive_fullscreen)
       SDL_SetWindowFullscreen(sdl_window, SDL_WINDOW_FULLSCREEN);
     else
@@ -1359,8 +1398,16 @@ void I_UpdateVideoMode(void)
   }
   else
   {
+    SDL_SetWindowFullscreen(sdl_window, 0);
     SDL_SetWindowResizable(sdl_window, SDL_TRUE);
+    SDL_SetWindowSize(sdl_window, window_width, window_height);
+
+    // Do this after windowed resizing so final window is centered
+    SDL_SetWindowPosition(sdl_window, x, y);
   }
+
+  I_SetWindowRect();
+  I_SetViewportRect();
 
   // Workaround for SDL 2.0.14 alt-tab bug (taken from Doom Retro)
 #if defined(_WIN32)
@@ -1380,6 +1427,9 @@ void I_UpdateVideoMode(void)
   {
     SDL_GL_SetSwapInterval((render_vsync ? 1 : 0));
   }
+
+  last_exclusive_fullscreen = exclusive_fullscreen;
+  last_render_vsync = render_vsync;
 
   if (V_IsSoftwareMode())
   {
