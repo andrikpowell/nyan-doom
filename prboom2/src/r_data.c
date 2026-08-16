@@ -107,17 +107,27 @@ int       *flatsmartswirl;
 // R_GetTextureColumn
 //
 
-const byte *R_GetTextureColumn(const rpatch_t *texpatch, int col) {
+const byte *R_GetTextureColumn(const rpatch_t *texpatch, int col, dboolean tutti_frutti) {
   const int width = texpatch->width;
   const unsigned int mask = texpatch->widthmask;
 
   while (col < 0)
     col += width;
 
-  if (mask + 1 == width)
+  if (tutti_frutti)
+  {
     col &= mask;
+
+    if (texpatch->columns[col].vanilla_pixels)
+      return texpatch->columns[col].vanilla_pixels;
+  }
   else
-    col %= width;
+  {
+    if (mask + 1 == width)
+      col &= mask;
+    else
+      col %= width;
+  }
 
   return texpatch->columns[col].pixels;
 }

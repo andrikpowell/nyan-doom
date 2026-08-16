@@ -478,6 +478,7 @@ set(COMMON_SRC
     r_main.h
     r_patch.c
     r_patch.h
+    r_patch_vanilla.inl
     r_plane.c
     r_plane.h
     r_segs.c

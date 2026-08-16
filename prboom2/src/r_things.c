@@ -453,6 +453,11 @@ void R_DrawMaskedColumn(
   colheight = 0;
 
   dcvars->texheight = patch->height; // killough 11/98
+
+  // Draw the full Medusa post without wrapping at the texture height
+  if (dcvars->flags & DRAW_COLUMN_MEDUSA)
+    dcvars->texheight = column->posts[0].length;
+
   for (i=0; i<column->numPosts; i++) {
       const rpost_t *post = &column->posts[i];
 
@@ -475,9 +480,20 @@ void R_DrawMaskedColumn(
       // killough 3/2/98, 3/27/98: Failsafe against overflow/crash:
       if (dcvars->yl >= 0 && dcvars->yl <= dcvars->yh && dcvars->yh < viewheight)
         {
-          dcvars->source = column->pixels + post->topdelta;
-          dcvars->prevsource = prevcolumn->pixels + post->topdelta;
-          dcvars->nextsource = nextcolumn->pixels + post->topdelta;
+          dboolean tutti_frutti = (dcvars->flags & DRAW_COLUMN_WALLTEXTURE) && dsda_VanillaTextureEmulation();
+
+          if (tutti_frutti)
+          {
+            dcvars->source     = (column->vanilla_pixels     ? column->vanilla_pixels     : column->pixels)     + post->topdelta;
+            dcvars->prevsource = (prevcolumn->vanilla_pixels ? prevcolumn->vanilla_pixels : prevcolumn->pixels) + post->topdelta;
+            dcvars->nextsource = (nextcolumn->vanilla_pixels ? nextcolumn->vanilla_pixels : nextcolumn->pixels) + post->topdelta;
+          }
+          else
+          {
+            dcvars->source     = column->pixels + post->topdelta;
+            dcvars->prevsource = prevcolumn->pixels + post->topdelta;
+            dcvars->nextsource = nextcolumn->pixels + post->topdelta;
+          }
 
           dcvars->texturemid = basetexturemid - (post->topdelta<<FRACBITS);
           dcvars->pspritepostheight = dcvars->isplayersprite ? post->length : 0;

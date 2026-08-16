@@ -6059,14 +6059,22 @@ setup_menu_t comp_options_settings[] = {
 };
 
 #define CP_X 230
-static const char *over_under_list[] =
-  { "Off", "Player", "All things", NULL };
+static const char *over_under_list[] = { "Off", "Player", "All things", NULL };
+
+static const char *texture_emulation_list[] =
+{
+  [EMULATE_TEXTURE_OFF] = "Off",
+  [EMULATE_TEXTURE_VANILLA] = "Vanilla",
+  [EMULATE_TEXTURE_LIMIT] = "Limit-Removing",
+  [EMULATE_TEXTURE_ALL] = "Forced",
+  NULL
+};
 
 setup_menu_t comp_emulation_settings[] = {
   { "Limit-Removing", S_YESNO | S_NORESET | S_NYAN, m_conf, g_all, CP_X, dsda_config_limit_removing },
   FUNC_DEPEND("Overflows", S_CENTER, g_all, CP_X, M_Sub_Overflows, dsda_config_limit_removing, false),
   EMPTY_LINE,
-  TITLE("Mapping Error Fixes", CP_X),
+  { "Vanilla Texture Emulation", S_CHOICE | S_NYAN, m_conf, g_all, CP_X, nyan_config_vanilla_texture_emulation, 0, texture_emulation_list },
   { "Lindefs w/o Tags Apply Locally", S_YESNO | S_NYAN, m_conf, g_all, CP_X, dsda_config_comperr_zerotag },
   { "Use Passes Thru All Special Lines", S_YESNO, m_conf, g_all, CP_X, dsda_config_comperr_passuse },
   { "Walk Under Solid Hanging Bodies", S_YESNO, m_conf, g_all, CP_X, dsda_config_comperr_hangsolid },

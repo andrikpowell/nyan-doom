@@ -635,10 +635,10 @@ static void R_DoDrawPlane(visplane_t *pl)
       for (x = pl->minx; (dcvars.x = x) <= pl->maxx; x++)
         if ((dcvars.yl = pl->top[x]) != SHRT_MAX && dcvars.yl <= (dcvars.yh = pl->bottom[x])) // dropoff overflow
         {
-          dcvars.source = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x])^flip) >> ANGLETOSKYSHIFT);
-          dcvars.prevsource = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x-1])^flip) >> ANGLETOSKYSHIFT);
-          dcvars.nextsource = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x+1])^flip) >> ANGLETOSKYSHIFT);
-          if (DoubleSky) dcvars.source2 = R_GetTextureColumn(tex_patch2, ((an2 + xtoskyangle[x])^flip) >> ANGLETOSKYSHIFT);
+          dcvars.source = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x])^flip) >> ANGLETOSKYSHIFT, false);
+          dcvars.prevsource = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x-1])^flip) >> ANGLETOSKYSHIFT, false);
+          dcvars.nextsource = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x+1])^flip) >> ANGLETOSKYSHIFT, false);
+          if (DoubleSky) dcvars.source2 = R_GetTextureColumn(tex_patch2, ((an2 + xtoskyangle[x])^flip) >> ANGLETOSKYSHIFT, false);
           colfunc(&dcvars);
         }
     }

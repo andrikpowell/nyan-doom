@@ -49,13 +49,15 @@
 #include "r_plane.h"
 #include "r_things.h"
 #include "r_draw.h"
+#include "r_patch.h"
 #include "w_wad.h"
 #include "v_video.h"
 #include "lprintf.h"
 
+#include "dsda/configuration.h"
 #include "dsda/mapinfo.h"
 #include "dsda/render_stats.h"
-#include "dsda/configuration.h"
+#include "dsda/settings.h"
 
 // OPTIMIZE: closed two sided lines as single sided
 
@@ -409,6 +411,26 @@ static void R_ApplyLightColormap(draw_column_vars_t *dcvars, fixed_t scale)
   }
 }
 
+static void R_SetTextureColumn(draw_column_vars_t* dcvars, const rpatch_t* tex_patch, int texturecolumn)
+{
+  dboolean tutti_frutti = dsda_VanillaTextureEmulation();
+
+  dcvars->source     = R_GetTextureColumn(tex_patch, texturecolumn,     tutti_frutti);
+  dcvars->prevsource = R_GetTextureColumn(tex_patch, texturecolumn - 1, tutti_frutti);
+  dcvars->nextsource = R_GetTextureColumn(tex_patch, texturecolumn + 1, tutti_frutti);
+}
+
+static fixed_t R_WallTextureRowOffset(fixed_t rowoffset, fixed_t texture_height)
+{
+  dboolean tutti_frutti = dsda_VanillaTextureEmulation();
+
+  // Keep the full offset for vanilla tutti-frutti overreads
+  if (tutti_frutti)
+    return rowoffset;
+
+  return FixedMod(rowoffset, texture_height);
+}
+
 //
 // R_RenderMaskedSegRange
 //
@@ -516,6 +538,9 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
     if (maskedtexturecol[dcvars.x] != INT_MAX) // dropoff overflow
       {
         fixed_t texturecolumn;
+        const rcolumn_t *column;
+        const rcolumn_t *prevcolumn;
+        const rcolumn_t *nextcolumn;
 
         R_ApplyLightColormap(&dcvars, spryscale);
 
@@ -553,13 +578,22 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
         // when forming multipatched textures (see r_data.c).
 
         // draw the texture
+        column = R_GetPatchColumnWrapped(patch, texturecolumn);
+        prevcolumn = R_GetPatchColumnWrapped(patch, texturecolumn-1);
+        nextcolumn = R_GetPatchColumnWrapped(patch, texturecolumn+1);
+
+        if (R_SetMedusaColumn(patch, &column, &prevcolumn, &nextcolumn))
+          dcvars.flags |= DRAW_COLUMN_MEDUSA;
+        else
+          dcvars.flags &= ~DRAW_COLUMN_MEDUSA;
+
         R_DrawMaskedColumn(
           patch,
           colfunc,
           &dcvars,
-          R_GetPatchColumnWrapped(patch, texturecolumn),
-          R_GetPatchColumnWrapped(patch, texturecolumn-1),
-          R_GetPatchColumnWrapped(patch, texturecolumn+1)
+          column,
+          prevcolumn,
+          nextcolumn
         );
 
         maskedtexturecol[dcvars.x] = INT_MAX; // dropoff overflow
@@ -597,6 +631,7 @@ static void R_RenderSegLoop (void)
   fixed_t specific_texturecolumn = 0;
 
   R_SetDefaultDrawColumnVars(&dcvars);
+  dcvars.flags |= DRAW_COLUMN_WALLTEXTURE;
 
   dsda_RecordDrawSeg();
 
@@ -669,9 +704,7 @@ static void R_RenderSegLoop (void)
       dcvars.yh = yh;
       dcvars.texturemid = rw_midtexturemid;
       tex_patch = R_TextureCompositePatchByNum(midtexture);
-      dcvars.source = R_GetTextureColumn(tex_patch, specific_texturecolumn);
-      dcvars.prevsource = R_GetTextureColumn(tex_patch, specific_texturecolumn-1);
-      dcvars.nextsource = R_GetTextureColumn(tex_patch, specific_texturecolumn+1);
+      R_SetTextureColumn(&dcvars, tex_patch, specific_texturecolumn);
       dcvars.texheight = midtexheight;
       if (!fixedcolormap || nyan_liteamp)
         R_ApplyMidLight(curline->sidedef);
@@ -702,9 +735,7 @@ static void R_RenderSegLoop (void)
           dcvars.yh = mid;
           dcvars.texturemid = rw_toptexturemid;
           tex_patch = R_TextureCompositePatchByNum(toptexture);
-          dcvars.source = R_GetTextureColumn(tex_patch,specific_texturecolumn);
-          dcvars.prevsource = R_GetTextureColumn(tex_patch,specific_texturecolumn-1);
-          dcvars.nextsource = R_GetTextureColumn(tex_patch,specific_texturecolumn+1);
+          R_SetTextureColumn(&dcvars, tex_patch, specific_texturecolumn);
           dcvars.texheight = toptexheight;
           if (!fixedcolormap || nyan_liteamp)
             R_ApplyTopLight(curline->sidedef);
@@ -740,9 +771,7 @@ static void R_RenderSegLoop (void)
           dcvars.yh = yh;
           dcvars.texturemid = rw_bottomtexturemid;
           tex_patch = R_TextureCompositePatchByNum(bottomtexture);
-          dcvars.source = R_GetTextureColumn(tex_patch, specific_texturecolumn);
-          dcvars.prevsource = R_GetTextureColumn(tex_patch, specific_texturecolumn-1);
-          dcvars.nextsource = R_GetTextureColumn(tex_patch, specific_texturecolumn+1);
+          R_SetTextureColumn(&dcvars, tex_patch, specific_texturecolumn);
           dcvars.texheight = bottomtexheight;
           if (!fixedcolormap || nyan_liteamp)
             R_ApplyBottomLight(curline->sidedef);
@@ -949,8 +978,8 @@ void R_StoreWallRange(const int start, const int stop)
     else        // top of texture at top
       rw_midtexturemid = worldtop;
 
-    rw_midtexturemid += FixedMod(sidedef->rowoffset + sidedef->rowoffset_mid,
-                                 textureheight[midtexture]);
+    rw_midtexturemid += R_WallTextureRowOffset(sidedef->rowoffset + sidedef->rowoffset_mid,
+                                               textureheight[midtexture]);
 
     ds_p->silhouette = SIL_BOTH;
     ds_p->sprtopclip = screenheightarray;
@@ -1043,8 +1072,8 @@ void R_StoreWallRange(const int start, const int stop)
       toptexheight = (linedef->r_flags & RF_TOP_TILE) ? 0 : textureheight[toptexture] >> FRACBITS;
       rw_toptexturemid = linedef->flags & ML_DONTPEGTOP ? worldtop :
         backsector->ceilingheight+textureheight[sidedef->toptexture]-viewz;
-      rw_toptexturemid += FixedMod(sidedef->rowoffset + sidedef->rowoffset_top,
-                                   textureheight[toptexture]);
+      rw_toptexturemid += R_WallTextureRowOffset(sidedef->rowoffset + sidedef->rowoffset_top,
+                                                 textureheight[toptexture]);
     }
 
     if (worldlow > worldbottom) // bottom texture
@@ -1053,8 +1082,8 @@ void R_StoreWallRange(const int start, const int stop)
       bottomtexheight = (linedef->r_flags & RF_BOT_TILE) ? 0 : textureheight[bottomtexture] >> FRACBITS;
       rw_bottomtexturemid = linedef->flags & ML_DONTPEGBOTTOM ? worldtop :
         worldlow;
-      rw_bottomtexturemid += FixedMod(sidedef->rowoffset + sidedef->rowoffset_bottom,
-                                      textureheight[bottomtexture]);
+      rw_bottomtexturemid += R_WallTextureRowOffset(sidedef->rowoffset + sidedef->rowoffset_bottom,
+                                                    textureheight[bottomtexture]);
     }
 
     // allocate space for masked texture tables
