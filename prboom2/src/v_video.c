@@ -1487,8 +1487,8 @@ static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center,
 static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags) {}
 static void NULL_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadow, patch_crop_t crop, int cm, int fade_alpha, enum patch_translation_e flags) {}
 static void NULL_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadow, patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags) {}
-static void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
-static void NULL_PlotPixelWu(int scrn, int x, int y, byte color, int weight) {}
+static void NULL_PlotPixel(int x, int y, byte color) {}
+static void NULL_PlotPixelWu(int x, int y, byte color, int weight) {}
 static void NULL_DrawLine(fline_t* fl, int color) {}
 static void NULL_DrawLineWu(fline_t* fl, int color) {}
 static void NULL_DrawShaded(int x, int y, int width, int height, int shade) {}
@@ -1514,8 +1514,7 @@ V_FillRaw_f V_FillRaw = NULL_FillRaw;
 V_FillRawPrecise_f V_FillRawPrecise = NULL_FillRawPrecise;
 V_FillPatch_f V_FillPatch = NULL_FillPatch;
 V_PlotPixel_f V_PlotPixel = NULL_PlotPixel;
-
-Wu_f V_PlotPixelWu = NULL_PlotPixelWu;
+V_PlotPixelWu_f V_PlotPixelWu = NULL_PlotPixelWu;
 V_DrawLine_f V_DrawLine = NULL_DrawLine;
 V_DrawLineWu_f V_DrawLineWu = NULL_DrawLineWu;
 V_DrawShaded_f V_DrawShaded = NULL_DrawShaded;
