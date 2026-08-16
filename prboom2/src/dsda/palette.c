@@ -65,6 +65,11 @@ void dsda_CyclePlayPal(void) {
   V_SetPlayPal(cycle_playpal_index);
 }
 
+int dsda_PlayPalIndex(void)
+{
+    return playpal_index;
+}
+
 void dsda_SetPlayPal(int index) {
   if (index < 0 || index >= NUMPALETTES)
     index = playpal_default;

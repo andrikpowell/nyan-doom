@@ -161,8 +161,8 @@ void R_InitPlanes (void)
 {
 }
 
-// Refresh "Linear Sky"
-void dsda_RefreshLinearSky (void)
+// Refresh Sky
+void dsda_RefreshSky (void)
 {
   xtoskyangle = dsda_IntConfig(dsda_config_render_linearsky) ? linearskyangle : xtoviewangle;
 }
@@ -209,15 +209,34 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
   dsvars->xfrac = FixedMul(dsvars->xfrac, dsvars->xscale);
   dsvars->yfrac = FixedMul(dsvars->yfrac, dsvars->yscale);
 
-  if (!(dsvars->colormap = fixedcolormap) || NYAN_LITEAMP)
+  // Normal dithered lighting
+  if (!(dsvars->colormap = fixedcolormap))
   {
-    int lightshift = NYAN_LITEAMP ? NYAN_LIGHTZSHIFT : LIGHTZSHIFT;
+    int lightshift = LIGHTZSHIFT;
     dsvars->z = distance;
     index = distance >> (lightshift);
     if (index >= MAXLIGHTZ )
       index = MAXLIGHTZ-1;
     dsvars->colormap = dsvars->planezlight[index];
   }
+
+  // Nyan lite amp
+  else if (nyan_liteamp)
+  {
+    int lightshift = NYAN_LIGHTZSHIFT;
+    dsvars->z = distance;
+    index = distance >> (lightshift);
+    if (index >= MAXLIGHTZ )
+      index = MAXLIGHTZ-1;
+    dsvars->colormap = dsvars->planezlight[index];
+
+    // do not allow dithered lighting to go darker than 64
+    if (dsvars->minzlight)
+      if (dsvars->colormap > dsvars->minzlight)
+        dsvars->colormap = dsvars->minzlight;
+  }
+
+  // fullbright
   else
   {
     dsvars->z = 0;
@@ -442,7 +461,7 @@ static void R_DoDrawPlane(visplane_t *pl)
 {
   register int x;
   draw_column_vars_t dcvars;
-  R_DrawColumn_f colfunc = R_GetDrawColumnFunc(DoubleSky ? RDC_PIPELINE_DOUBLESKY : RDC_PIPELINE_STANDARD, RDRAW_FILTER_POINT);;
+  R_DrawColumn_f colfunc = R_GetDrawColumnFunc(DoubleSky ? RDC_PIPELINE_DOUBLESKY : RDC_PIPELINE_STANDARD, RDRAW_FILTER_POINT);
 
   R_SetDefaultDrawColumnVars(&dcvars);
 
@@ -551,6 +570,24 @@ static void R_DoDrawPlane(visplane_t *pl)
       // old code: dcvars.iscale = FRACUNIT*200/viewheight;
       dcvars.iscale = skyiscale;
 
+      // [Woof] Sky fade for short skies
+      if (!DoubleSky && dcvars.texheight >= 128)
+      {
+        // Make sure the fade-to-color effect doesn't happen too early
+        fixed_t diff = dcvars.texturemid - 100 * FRACUNIT;
+        if (diff < 0)
+        {
+          diff += textureheight[texture];
+          diff %= textureheight[texture];
+          dcvars.texturemid = 100 * FRACUNIT + diff;
+        }
+        dcvars.skycolor = dcvars.colormap[R_GetSkyColor(texture)];
+        dcvars.sky_tranmap = main_tranmap;
+        colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_SKY_COLOR_CAP, RDRAW_FILTER_POINT);
+      }
+
+      // heretic sky hack, return if true
+      if (heretic)
       {
         const rpatch_t *patch, *patch2;
 
@@ -579,6 +616,20 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       tex_patch = tex_patch2 = R_TextureCompositePatchByNum(texture);
       if (DoubleSky) tex_patch2 = R_TextureCompositePatchByNum(texture2);
+
+      // [AR] Add support for post-less patches.
+      if ((tex_patch->flags & PATCH_DIRECTTALL) ||
+          (DoubleSky && (tex_patch2->flags & PATCH_DIRECTTALL)))
+      {
+        int skyheight;
+
+        if (DoubleSky)
+          skyheight = MIN(tex_patch->height, tex_patch2->height);
+        else
+          skyheight = tex_patch->height;
+
+        dcvars.texheight = skyheight;
+      }
 
       // killough 10/98: Use sky scrolling offset, and possibly flip picture
       for (x = pl->minx; (dcvars.x = x) <= pl->maxx; x++)
@@ -727,14 +778,19 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       dsvars.planeheight = D_abs(pl->height-viewz);
 
-      if (NYAN_LITEAMP && pl->lightlevel <= 64)
-        pl->lightlevel = 64;
-
       // SoM 10/19/02: deep water colormap fix
-      if (fixedcolormap && !NYAN_LITEAMP)
+      if (fixedcolormap && !nyan_liteamp)
         light = (255  >> LIGHTSEGSHIFT);
       else
-        light = (pl->lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
+      {
+        int lightlevel = pl->lightlevel;
+
+        // Fixed lower lightlevels to 64
+        if (nyan_liteamp && lightlevel <= 64)
+          lightlevel = 64;
+
+        light = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
+      }
 
       if(light >= LIGHTLEVELS)
         light = LIGHTLEVELS-1;
@@ -744,6 +800,22 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       stop = pl->maxx + 1;
       dsvars.planezlight = zlight[light];
+      dsvars.minzlight = NULL;
+
+      // Set darkest allowed colormap value (64)
+      if (nyan_liteamp)
+      {
+        int minlight = (64 >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT) + NYAN_LITESCALE;
+
+        if (minlight >= LIGHTLEVELS)
+          minlight = LIGHTLEVELS - 1;
+
+        if (minlight < 0)
+          minlight = 0;
+
+        dsvars.minzlight = zlight[minlight][MAXLIGHTZ - 1];
+      }
+
       pl->top[pl->minx-1] = pl->top[stop] = SHRT_MAX; // dropoff overflow
 
       for (x = pl->minx ; x <= stop ; x++)

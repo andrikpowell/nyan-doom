@@ -53,7 +53,7 @@ void R_InitPlanes(void);
 void R_ClearPlanes(void);
 void R_DrawPlanes (void);
 
-void dsda_RefreshLinearSky (void);
+void dsda_RefreshSky (void);
 
 const rpatch_t *R_HackedSkyPatch(texture_t *texture);
 

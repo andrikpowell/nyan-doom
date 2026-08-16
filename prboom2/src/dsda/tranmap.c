@@ -23,12 +23,14 @@
 #include "lprintf.h"
 #include "m_file.h"
 #include "r_data.h"
+#include "v_video.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
 #include "dsda/configuration.h"
 #include "dsda/data_organizer.h"
 #include "dsda/messenger.h"
+#include "dsda/palette.h"
 #include "dsda/settings.h"
 #include "dsda/utility.h"
 
@@ -59,16 +61,15 @@ int gl_tran_reverse_filter_pct;
 int gl_exhud_tran_reverse_filter_pct;
 
 static const int tranmap_length = 256 * 256;
-static const byte* tranmap_data[100];
+static byte* tranmap_data[100];
 
 static void dsda_CalculatePlaypalCksum(void) {
   struct MD5Context md5;
-  int lump;
-
-  lump = W_GetNumForName("PLAYPAL");
+  const byte *playpal = V_GetPlaypal();
+  int playpal_length = dsda_PlayPalData()->length;
 
   MD5Init(&md5);
-  MD5Update(&md5, W_LumpByNum(lump), W_LumpLength(lump));
+  MD5Update(&md5, playpal, playpal_length);
   MD5Final(playpal_cksum.bytes, &md5);
   dsda_TranslateCheckSum(&playpal_cksum);
 }
@@ -120,7 +121,7 @@ static byte* dsda_GenerateTranMap(unsigned int alpha) {
   int pal_w1[3][256];
   int w1, w2;
 
-  playpal = W_LumpByName("PLAYPAL");
+  playpal = V_GetPlaypal();
 
   w1 = (alpha << TSC) / 100;
   w2 = (1l << TSC) - w1;
@@ -249,6 +250,37 @@ const byte* dsda_TranMap_Custom(unsigned int alpha)
     *slot = dsda_GenerateTranMap(alpha);
 
   return *slot;
+}
+
+void dsda_RefreshTranMaps(void)
+{
+  int i;
+
+  for (i = 0; i < 100; ++i)
+  {
+    if (tranmap_data[i])
+    {
+      Z_Free(tranmap_data[i]);
+      tranmap_data[i] = NULL;
+    }
+
+    if (custom_tranmap[i])
+    {
+      Z_Free(custom_tranmap[i]);
+      custom_tranmap[i] = NULL;
+    }
+  }
+
+  if (tranmap_palette_dir)
+  {
+    Z_Free(tranmap_palette_dir);
+    tranmap_palette_dir = NULL;
+  }
+
+  memset(&playpal_cksum, 0, sizeof(playpal_cksum));
+
+  // Re-generate tranmaps with new palette
+  dsda_UpdateTranMap();
 }
 
 //

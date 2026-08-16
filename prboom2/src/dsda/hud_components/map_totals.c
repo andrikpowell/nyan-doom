@@ -27,10 +27,13 @@ typedef struct {
   dsda_text_t component;
   dsda_text_t dm_stats;
   dboolean include_kills, include_items, include_secrets;
+  dsda_patch_component_t icons;
   int stats_count;
 } local_component_t;
 
 static local_component_t* local;
+
+#define MAP_TOTALS_ICON_HEIGHT 7
 
 static void dsda_DMStats(char* str, size_t max_size) {
   int i, p;
@@ -78,6 +81,60 @@ static void dsda_DMStats(char* str, size_t max_size) {
   }
 }
 
+static void dsda_DrawMapIcon(int x, int y, const char* lumpname, int color, int line_height)
+{
+  int flags = local->icons.vpt;
+  dboolean from_pwad;
+
+  if (!lumpname || !W_LumpNameExists(lumpname))
+    return;
+
+  y += (line_height - MAP_TOTALS_ICON_HEIGHT) / 2;
+
+  from_pwad = W_PWADLumpNameExists2(lumpname);
+
+  if (!from_pwad)
+    flags |= VPT_COLOR;
+
+  V_DrawMenuNamePatch(x, y, lumpname, color, flags);
+}
+
+static void dsda_DrawMapTotalsIcons(void)
+{
+  int x = local->icons.x;
+  int y = local->label.text.y;
+  int y_spacing = local->label.text.line_height;
+
+  if (local->include_kills)
+  {
+    int color = raven ? dsda_tc_map_raven_icon_kills : dsda_tc_map_icon_kills;
+    const char* kill_icon_lump =  hexen   ? "AMKILLS3" :
+                                  heretic ? "AMKILLS2" :
+                                            "AMKILLS";
+    dsda_DrawMapIcon(x, y, kill_icon_lump, dsda_TextCR(color), y_spacing);
+    y += y_spacing;
+  }
+
+  if (local->include_items)
+  {
+    int color = raven ? dsda_tc_map_raven_icon_items : dsda_tc_map_icon_items;
+    const char* item_icon_lump =  hexen   ? "AMITEM3" :
+                                  heretic ? "AMITEM2" :
+                                            "AMITEM";
+    dsda_DrawMapIcon(x, y, item_icon_lump, dsda_TextCR(color), y_spacing);
+    y += y_spacing;
+  }
+
+  if (local->include_secrets)
+  {
+    int color = raven ? dsda_tc_map_raven_icon_secrets : dsda_tc_map_icon_secrets;
+    const char* secret_icon_lump =  hexen   ? "AMSECR3" :
+                                    heretic ? "AMSECR2" :
+                                              "AMSECR";
+    dsda_DrawMapIcon(x, y, secret_icon_lump, dsda_TextCR(color), y_spacing);
+  }
+}
+
 static void dsda_UpdateLabelComponentText(char* str, size_t max_size) {
   size_t length = 0;
 
@@ -114,43 +171,21 @@ static const char* dsda_StatSeparator() {
 }
 
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
-  int i;
   size_t length;
-  int fullkillcount, fullitemcount, fullsecretcount;
   const char* killcolor;
   const char* itemcolor;
   const char* secretcolor;
-  int kill_percent_count;
-  int max_kill_requirement;
 
   length = 0;
-  fullkillcount = 0;
-  fullitemcount = 0;
-  fullsecretcount = 0;
-  kill_percent_count = 0;
-  max_kill_requirement = dsda_MaxKillRequirement();
   local->stats_count = 0;
 
-  for (i = 0; i < g_maxplayers; ++i) {
-    if (playeringame[i]) {
-      fullkillcount += players[i].killcount - players[i].maxkilldiscount;
-      fullitemcount += players[i].itemcount;
-      fullsecretcount += players[i].secretcount;
-      kill_percent_count += players[i].killcount;
-    }
-  }
+  killcolor   = (dsda_IsAllKills()    ? dsda_TextColor(dsda_tc_map_totals_max) :
+                                        dsda_TextColor(dsda_tc_map_totals_value));
+  itemcolor   = (dsda_IsAllItems()    ? dsda_TextColor(dsda_tc_map_totals_max) :
+                                        dsda_TextColor(dsda_tc_map_totals_value));
+  secretcolor = (dsda_IsAllSecrets()  ? dsda_TextColor(dsda_tc_map_totals_max) :
+                                        dsda_TextColor(dsda_tc_map_totals_value));
 
-  if (skill_info.respawn_time) {
-    fullkillcount = kill_percent_count;
-    max_kill_requirement = totalkills;
-  }
-
-  killcolor = (fullkillcount >= max_kill_requirement ? dsda_TextColor(dsda_tc_map_totals_max) :
-                                                       dsda_TextColor(dsda_tc_map_totals_value));
-  secretcolor = (fullsecretcount >= totalsecret ? dsda_TextColor(dsda_tc_map_totals_max) :
-                                                  dsda_TextColor(dsda_tc_map_totals_value));
-  itemcolor = (fullitemcount >= totalitems ? dsda_TextColor(dsda_tc_map_totals_max) :
-                                             dsda_TextColor(dsda_tc_map_totals_value));
 
   if (local->include_kills)   local->stats_count++;
   if (local->include_items)   local->stats_count++;
@@ -159,19 +194,19 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   if (local->include_kills)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, killcolor, fullkillcount, max_kill_requirement, true, true, dsda_StatSeparator());
+    length += dsda_PrintStats(length, str + length, max_size - length, NULL, killcolor, dsda_GetCurrentKills(), dsda_GetMaxKills(), true, true, dsda_StatSeparator());
   }
 
   if (local->include_items)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, itemcolor, fullitemcount, totalitems, false, true, dsda_StatSeparator());
+    length += dsda_PrintStats(length, str + length, max_size - length, NULL, itemcolor, dsda_GetCurrentItems(), dsda_GetMaxItems(), false, true, dsda_StatSeparator());
   }
 
   if (local->include_secrets)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, secretcolor, fullsecretcount, totalsecret, false, true, dsda_StatSeparator());
+    length += dsda_PrintStats(length, str + length, max_size - length, NULL, secretcolor, dsda_GetCurrentSecrets(), dsda_GetMaxSecrets(), false, true, dsda_StatSeparator());
   }
 }
 
@@ -189,6 +224,7 @@ void dsda_InitMapTotalsHC(int x_offset, int y_offset, int vpt, int* args, int ar
   dsda_InitBlockyHC(&local->dm_stats, x_offset, y_offset, vpt);
   dsda_InitBlockyHC(&local->label, x_offset, y_offset, vpt);
   dsda_InitBlockyHC(&local->component, x_offset + 12, y_offset, vpt);
+  dsda_InitPatchHC(&local->icons, x_offset, y_offset, vpt);
 }
 
 void dsda_UpdateMapTotalsHC(void* data) {
@@ -217,7 +253,10 @@ void dsda_DrawMapTotalsHC(void* data) {
   }
   else
   {
-    dsda_DrawBasicShadowedText(&local->label);
+    if (dsda_IntConfig(dsda_config_map_stat_icons))
+      dsda_DrawMapTotalsIcons();
+    else
+      dsda_DrawBasicShadowedText(&local->label);
     dsda_DrawBasicShadowedText(&local->component);
   }
 }

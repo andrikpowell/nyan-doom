@@ -5,7 +5,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # Setup dependencies options before `project()` so vcpkg features can be used
 include(NyanDepsSetup)
 
-project("nyan-doom" VERSION 1.4.3)
+project("nyan-doom" VERSION 1.5.4)
 
 set(nyan_is_top_project FALSE)
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
@@ -27,9 +27,17 @@ endif()
 
 set(PROJECT_TARNAME "nyan-doom")
 set(WAD_DATA "nyan-doom.wad")
-set(PROJECT_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
+
+set(PROJECT_STRING "${PROJECT_NAME} v${PROJECT_VERSION}")
+set(PROJECT_DEMO_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
 
 include(NyanOptions)
+
+if(NYAN_NIGHTLY)
+  string(APPEND PROJECT_STRING " (nightly)")
+  string(APPEND PROJECT_DEMO_STRING " (nightly)")
+endif()
+
 include(NyanTargetFeatures)
 include(NyanDependencies)
 include(NyanConfigHeader)
@@ -59,6 +67,8 @@ if(NYAN_BUILD_PWAD_WITH_EXTERNAL_PROJECT)
             "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
             "-DWAD_DATA_PATH:FILEPATH=${WAD_DATA_PATH}"
             "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${NYAN_HOST_TOOLCHAIN}"
+            "-DCMAKE_C_FLAGS:STRING=$ENV{CFLAGS_FOR_BUILD} $ENV{CPPFLAGS_FOR_BUILD}"
+            "-DCMAKE_EXE_LINKER_FLAGS:STRING=$ENV{LDFLAGS_FOR_BUILD}"
         BUILD_ALWAYS TRUE
         BUILD_BYPRODUCTS "${WAD_DATA_PATH}"
         INSTALL_COMMAND ""

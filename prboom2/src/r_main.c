@@ -113,6 +113,7 @@ angle_t  viewangle;
 fixed_t  viewcos, viewsin;
 fixed_t  viewtancos, viewtansin;
 player_t *viewplayer;
+dboolean nyan_liteamp;
 // e6y: Added for more precise flats drawing
 fixed_t viewfocratio;
 
@@ -1077,6 +1078,13 @@ static void R_SetupFrame (player_t *player)
   else
     fixedcolormap = 0;
 
+  nyan_liteamp =
+    dsda_IntConfig(dsda_config_enhanced_liteamp) &&
+    !raven &&
+    fixedcolormap &&
+    player->powers[pw_infrared] &&
+    !player->powers[pw_invulnerability];
+
   R_SetClipPlanes();
 
   if (V_IsOpenGLMode() || HU_CrosshairEnabled())
@@ -1180,6 +1188,8 @@ void R_RenderPlayerView (player_t* player)
   DSDA_ADD_CONTEXT(sf_bsp_nodes);
   R_RenderBSPNodes();
   DSDA_REMOVE_CONTEXT(sf_bsp_nodes);
+
+  R_NearbySprites();
 
   FakeNetUpdate();
 

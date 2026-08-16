@@ -75,7 +75,7 @@ static void dsda_DrawComponent(void) {
     y = local->component.y;
     idx = powerup_index;
 
-    dsda_SortPowerups(player, idx, &n, POWERUP_STATUS_ICON);
+    dsda_SortPowerups(player, idx, &n, POWERUP_STATUS_ICON, local->reverse);
 
     for (int i = 0; i < n; ++i)
     {

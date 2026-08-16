@@ -96,7 +96,7 @@ extern int LIGHTLEVELS;
 #define MAXLIGHTZ        128
 #define LIGHTZSHIFT       20
 
-#define NYAN_LITEAMP         (dsda_IntConfig(dsda_config_enhanced_liteamp) && !raven && (fixedcolormap) && viewplayer->powers[pw_infrared] && !viewplayer->powers[pw_invulnerability])
+extern dboolean nyan_liteamp;
 #define NYAN_LITESCALE       9
 #define NYAN_LIGHTZSHIFT     23
 

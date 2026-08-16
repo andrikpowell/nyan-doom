@@ -113,9 +113,13 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_exhud_stats_format),
   MIGRATED_SETTING(dsda_config_automap_stats_format),
   MIGRATED_SETTING(dsda_config_secret_format),
+  MIGRATED_SETTING(dsda_config_secret_sfx),
   MIGRATED_SETTING(dsda_config_kills_milestone),
   MIGRATED_SETTING(dsda_config_items_milestone),
   MIGRATED_SETTING(dsda_config_secrets_milestone),
+  MIGRATED_SETTING(dsda_config_kills_milestone_sfx),
+  MIGRATED_SETTING(dsda_config_items_milestone_sfx),
+  MIGRATED_SETTING(dsda_config_secrets_milestone_sfx),
   MIGRATED_SETTING(dsda_config_autorun),
   MIGRATED_SETTING(dsda_config_deh_change_cheats),
   MIGRATED_SETTING(dsda_config_movement_strafe50),
@@ -134,6 +138,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_snd_midiplayer),
   MIGRATED_SETTING(dsda_config_snd_mididev),
   MIGRATED_SETTING(dsda_config_snd_soundfont),
+  MIGRATED_SETTING(dsda_config_snd_soundfont_dir),
   MIGRATED_SETTING(dsda_config_mus_fluidsynth_chorus),
   MIGRATED_SETTING(dsda_config_mus_fluidsynth_reverb),
   MIGRATED_SETTING(dsda_config_mus_fluidsynth_gain),
@@ -214,6 +219,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_mouse_sensitivity_vert),
   MIGRATED_SETTING(dsda_config_mouse_acceleration),
   MIGRATED_SETTING(dsda_config_mouse_sensitivity_mlook),
+  MIGRATED_SETTING(dsda_config_mouse_sensitivity_automap),
   MIGRATED_SETTING(dsda_config_mouse_doubleclick_as_use),
   MIGRATED_SETTING(dsda_config_mouse_carrytics),
   MIGRATED_SETTING(dsda_config_vertmouse),
@@ -226,10 +232,10 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_right_analog_deadzone),
   MIGRATED_SETTING(dsda_config_left_trigger_deadzone),
   MIGRATED_SETTING(dsda_config_right_trigger_deadzone),
-  MIGRATED_SETTING(dsda_config_left_analog_sensitivity_x),
-  MIGRATED_SETTING(dsda_config_left_analog_sensitivity_y),
-  MIGRATED_SETTING(dsda_config_right_analog_sensitivity_x),
-  MIGRATED_SETTING(dsda_config_right_analog_sensitivity_y),
+  MIGRATED_SETTING(dsda_config_analog_strafe_sensitivity_x),
+  MIGRATED_SETTING(dsda_config_analog_forward_sensitivity_y),
+  MIGRATED_SETTING(dsda_config_analog_turn_sensitivity_x),
+  MIGRATED_SETTING(dsda_config_analog_look_sensitivity_y),
   MIGRATED_SETTING(dsda_config_analog_look_acceleration),
   MIGRATED_SETTING(dsda_config_swap_analogs),
   MIGRATED_SETTING(dsda_config_invert_analog_look),
@@ -334,6 +340,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_map_secret_after),
   MIGRATED_SETTING(dsda_config_map_show_keys),
   MIGRATED_SETTING(dsda_config_full_automap_exhud),
+  MIGRATED_SETTING(dsda_config_map_stat_icons),
   MIGRATED_SETTING(dsda_config_map_coordinates),
   MIGRATED_SETTING(dsda_config_map_totals),
   MIGRATED_SETTING(dsda_config_map_time),
@@ -351,6 +358,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_automap_linesize),
   MIGRATED_SETTING(dsda_config_automap_rotate),
   MIGRATED_SETTING(dsda_config_automap_follow),
+  MIGRATED_SETTING(dsda_config_automap_mouse_pan),
   MIGRATED_SETTING(dsda_config_automap_grid),
   MIGRATED_SETTING(dsda_config_map_grid_size),
   MIGRATED_SETTING(dsda_config_map_pan_speed),
@@ -389,12 +397,14 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_auto_key_frame_interval),
   MIGRATED_SETTING(dsda_config_auto_key_frame_depth),
   MIGRATED_SETTING(dsda_config_auto_key_frame_timeout),
+  MIGRATED_SETTING(dsda_config_auto_key_frame_timeout_block),
   MIGRATED_SETTING(dsda_config_auto_save),
   MIGRATED_SETTING(dsda_config_exhud),
   MIGRATED_SETTING(dsda_config_doom_full_hud),
   MIGRATED_SETTING(dsda_config_heretic_full_hud),
   MIGRATED_SETTING(dsda_config_hexen_full_hud),
   MIGRATED_SETTING(dsda_config_ex_text_scale),
+  MIGRATED_SETTING(dsda_config_ex_text_ratio_height),
   MIGRATED_SETTING(dsda_config_ex_text_tran_filter),
   MIGRATED_SETTING(dsda_config_ex_text_tran_filter_pct),
   MIGRATED_SETTING(dsda_config_free_text_active),
@@ -432,15 +442,18 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_quicksave_sfx),
   MIGRATED_SETTING(dsda_config_switch_when_ammo_runs_out),
   MIGRATED_SETTING(dsda_config_switch_weapon_on_pickup),
+  MIGRATED_SETTING(dsda_config_switch_speed),
   MIGRATED_SETTING(dsda_config_switch_berserk_preferred),
   MIGRATED_SETTING(dsda_config_ssg_on_arms),
   MIGRATED_SETTING(dsda_config_viewbob),
   MIGRATED_SETTING(dsda_config_weaponbob),
   MIGRATED_SETTING(dsda_config_quake_intensity),
   MIGRATED_SETTING(dsda_config_swirling_flats),
+  MIGRATED_SETTING(dsda_config_draw_nearby_sprites),
   MIGRATED_SETTING(dsda_config_fuzzmode),
   MIGRATED_SETTING(dsda_config_fuzzscale),
   MIGRATED_SETTING(dsda_config_multiple_area_maps),
+  MIGRATED_SETTING(dsda_config_doomguy_angry_face_fix),
   MIGRATED_SETTING(dsda_config_blockmap_fix),
   MIGRATED_SETTING(dsda_config_organize_failed_demos),
   MIGRATED_SETTING(dsda_config_demo_end_quit),
@@ -456,6 +469,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_menu_play_demo),
   MIGRATED_SETTING(nyan_config_full_menu_fade),
   MIGRATED_SETTING(nyan_config_gradual_menu_fade),
+  MIGRATED_SETTING(nyan_config_extra_menu_highlights),
   MIGRATED_SETTING(nyan_config_skip_default_text),
   MIGRATED_SETTING(nyan_config_ignore_default_map_names),
   MIGRATED_SETTING(nyan_config_enable_widescreen_lumps),
@@ -464,6 +478,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_hud_armoricon),
   MIGRATED_SETTING(nyan_config_item_bonus_flash),
   MIGRATED_SETTING(nyan_config_flip_corpses),
+  MIGRATED_SETTING(nyan_config_skullpop_easter_egg),
   MIGRATED_SETTING(nyan_config_colored_blood),
   MIGRATED_SETTING(nyan_config_colored_blood_baron),
   MIGRATED_SETTING(nyan_config_colored_blood_knight),
@@ -471,10 +486,14 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_colored_blood_spectre),
   MIGRATED_SETTING(nyan_config_loading_disk),
   MIGRATED_SETTING(nyan_config_highlight_nyan_features),
+  MIGRATED_SETTING(dsda_config_show_all_game_specific_options),
 
   SETTING_HEADING("Extended HUD Status Icons Widget"),
   MIGRATED_SETTING(nyan_config_ex_status_widget),
   MIGRATED_SETTING(nyan_config_ex_status_blinking),
+  MIGRATED_SETTING(nyan_config_ex_status_all_kills),
+  MIGRATED_SETTING(nyan_config_ex_status_all_items),
+  MIGRATED_SETTING(nyan_config_ex_status_all_secrets),
   MIGRATED_SETTING(nyan_config_ex_status_armor),
   MIGRATED_SETTING(nyan_config_ex_status_berserk),
   MIGRATED_SETTING(nyan_config_ex_status_areamap),
@@ -493,6 +512,9 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_ex_timer_widget),
   MIGRATED_SETTING(nyan_config_ex_timer_blinking),
   MIGRATED_SETTING(nyan_config_ex_timer_hide_duration),
+  MIGRATED_SETTING(nyan_config_ex_timer_all_kills),
+  MIGRATED_SETTING(nyan_config_ex_timer_all_items),
+  MIGRATED_SETTING(nyan_config_ex_timer_all_secrets),
   MIGRATED_SETTING(nyan_config_ex_timer_armor),
   MIGRATED_SETTING(nyan_config_ex_timer_berserk),
   MIGRATED_SETTING(nyan_config_ex_timer_areamap),
@@ -601,7 +623,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_pause", dsda_input_pause, KEYD_PAUSE, -1, -1),
   INPUT_SETTING("input_map", dsda_input_map, KEYD_TAB, -1, DSDA_CONTROLLER_BUTTON_TRIGGERLEFT),
   INPUT_SETTING("input_soundvolume", dsda_input_soundvolume, KEYD_F4, -1, -1),
-  INPUT_SETTING("input_hud", dsda_input_hud, -1, -1, -1),
+  INPUT_SETTING("input_hud_toggle", dsda_input_hud, -1, -1, -1),
   INPUT_SETTING("input_hud_cycle", dsda_input_cycle_hud, KEYD_F5, -1, -1),
   INPUT_SETTING("input_messages", dsda_input_messages, KEYD_F8, -1, -1),
   INPUT_SETTING("input_gamma", dsda_input_gamma, KEYD_F11, -1, -1),
@@ -633,6 +655,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_map_overlay", dsda_input_map_overlay, 'o', -1, -1),
   INPUT_SETTING("input_map_textured", dsda_input_map_textured, 0, -1, -1),
   INPUT_SETTING("input_map_highlight_by_tag", dsda_input_map_highlight_by_tag, 'h', -1, -1),
+  INPUT_SETTING("input_map_mouse_pan", dsda_input_map_mouse_pan, 'p', -1, -1),
 
   INPUT_SETTING("input_repeat_message", dsda_input_repeat_message, 0, -1, -1),
 
@@ -656,6 +679,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_menu_enter", dsda_input_menu_enter, KEYD_ENTER, -1, DSDA_CONTROLLER_BUTTON_A),
   INPUT_SETTING("input_menu_escape", dsda_input_menu_escape, KEYD_ESCAPE, -1, DSDA_CONTROLLER_BUTTON_START),
   INPUT_SETTING("input_menu_clear", dsda_input_menu_clear, KEYD_DEL, -1, DSDA_CONTROLLER_BUTTON_BACK),
+  INPUT_SETTING("input_menu_reset", dsda_input_menu_reset, 'r', -1, DSDA_CONTROLLER_BUTTON_Y),
 
   INPUT_SETTING("input_iddqd", dsda_input_iddqd, 0, -1, -1),
   INPUT_SETTING("input_buddha", dsda_input_buddha, 0, -1, -1),
@@ -675,6 +699,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_iddt", dsda_input_iddt, 0, -1, -1),
   INPUT_SETTING("input_ponce", dsda_input_ponce, 0, -1, -1),
   INPUT_SETTING("input_shazam", dsda_input_shazam, 0, -1, -1),
+  INPUT_SETTING("input_inventory", dsda_input_inventory, 0, -1, -1),
   INPUT_SETTING("input_chicken", dsda_input_chicken, 0, -1, -1),
   INPUT_SETTING("input_idmusrr", dsda_input_idmusrr, 0, -1, -1),
   INPUT_SETTING("input_camera", dsda_input_camera, 0, -1, -1),
@@ -1060,10 +1085,10 @@ const char* M_CheckWritableDir(const char *dir)
     return NULL;
   }
 
-  if (len + 1 > base_len)
+  if (len + 2 > base_len)
   {
-    base_len = len + 1;
-    base = Z_Malloc(len + 1);
+    base_len = len + 2;
+    base = Z_Realloc(base, base_len);
   }
 
   if (base)
@@ -1157,6 +1182,30 @@ const char *M_strcasestr(const char *haystack, const char *needle)
 static inline int is_boundary(char c)
 {
     return c == '\0' || isspace((unsigned char)c) || ispunct((unsigned char)c);
+}
+
+dboolean M_StringContainsWord(const char *haystack, const char *needle)
+{
+    const char *p = haystack;
+    const size_t needle_len = strlen(needle);
+
+    if (!needle_len)
+    {
+        return false;
+    }
+
+    while ((p = M_strcasestr(p, needle)))
+    {
+        if ((p == haystack || is_boundary(p[-1])) &&
+            is_boundary(p[needle_len]))
+        {
+            return true;
+        }
+
+        p += needle_len;
+    }
+
+    return false;
 }
 
 static char *M_StringReplaceEx(const char *haystack, const char *needle,

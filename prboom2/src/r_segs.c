@@ -103,6 +103,10 @@ static int64_t  topstep;    // [PN] WiggleFix
 static int64_t  bottomfrac; // R_WiggleFix
 static int64_t  bottomstep; // [PN] WiggleFix
 
+// [AR] Only use DDA for projected walls spanning at least 1/16 of the view
+// Improves performance quite a bit, while not being visually noticeable
+#define DDA_MIN_SPAN (viewwidth / 16)
+
 // [PN] Sub-pixel stable DDA for rw_scale/topfrac/bottomfrac
 //
 // Integer division used for rw_scalestep leaves a remainder. Accumulating the
@@ -122,6 +126,27 @@ static int64_t  rw_worldtopcorr;
 static int64_t  rw_worldbottomcorr;
 static int64_t  rw_worldhighcorr;
 static int64_t  rw_worldlowcorr;
+
+// [PN] Shared sub-pixel DDA step for solid and masked wall passes.
+// Returns +1 / -1 when error compensation must be applied this column.
+static inline int R_DDACompStep (int64_t *const err, const int64_t rem,
+                                 const int64_t span)
+{
+    *err += rem;
+
+    if (*err >= span)
+    {
+        *err -= span;
+        return 1;
+    }
+    else if (*err <= -span)
+    {
+        *err += span;
+        return -1;
+    }
+
+    return 0;
+}
 
 static int      *maskedtexturecol; // dropoff overflow
 
@@ -300,14 +325,14 @@ const lighttable_t** GetLightTable(int lightlevel)
   int lightnum;
 
   // Enhanced Light Amp - Allow dark areas to be seen
-  if (NYAN_LITEAMP && (lightlevel <= 64))
+  if (nyan_liteamp && (lightlevel <= 64))
     lightlevel = 64;
 
   R_AddContrast(curline, &lightlevel);
 
   lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
 
-  if (NYAN_LITEAMP)
+  if (nyan_liteamp)
     lightnum += NYAN_LITESCALE;
 
   return scalelight[CLAMP(lightnum, 0, LIGHTLEVELS - 1)];
@@ -371,7 +396,7 @@ static void R_ApplyBottomLight(side_t *side)
 
 static void R_ApplyLightColormap(draw_column_vars_t *dcvars, fixed_t scale)
 {
-  if (!fixedcolormap || NYAN_LITEAMP)
+  if (!fixedcolormap || nyan_liteamp)
   {
     int index = (int)(((int64_t) scale * 160 / wide_centerx) >> (LIGHTSCALESHIFT));
     if (index >= MAXLIGHTSCALE)
@@ -395,6 +420,10 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   const rpatch_t *patch;
   R_DrawColumn_f colfunc;
   draw_column_vars_t dcvars;
+  int64_t masked_scalerem;
+  int64_t masked_scaleerr;
+  int64_t masked_scalespan64;
+  int masked_scalespan;
 
   R_SetDefaultDrawColumnVars(&dcvars);
 
@@ -430,6 +459,36 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
   rw_scalestep = ds->scalestep;
   spryscale = ds->scale1 + (x1 - ds->x1)*rw_scalestep;
+
+  // [PN] Sub-pixel stable DDA for masked pass (transparent upper/mid).
+  // Keeps masked columns aligned with solid-pass scale stepping.
+  masked_scalerem = 0;
+  masked_scaleerr = 0;
+  masked_scalespan64 = 0;
+  masked_scalespan = ds->x2 - ds->x1;
+
+  if (masked_scalespan >= DDA_MIN_SPAN)
+  {
+      const int64_t delta = (int64_t)ds->scale2 - (int64_t)ds->scale1;
+      const int64_t step64 = delta / (int64_t)masked_scalespan;
+      const int advance = x1 - ds->x1;
+
+      masked_scalerem = delta - step64 * (int64_t)masked_scalespan;
+      masked_scalespan64 = (int64_t)masked_scalespan;
+
+      if (advance > 0 && masked_scalerem)
+      {
+          int i;
+
+          for (i = 0; i < advance; ++i)
+          {
+              spryscale += R_DDACompStep(&masked_scaleerr,
+                                          masked_scalerem,
+                                          masked_scalespan64);
+          }
+      }
+  }
+
   mfloorclip = ds->sprbottomclip;
   mceilingclip = ds->sprtopclip;
 
@@ -452,7 +511,8 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   patch = R_TextureCompositePatchByNum(texnum);
 
   // draw the columns
-  for (dcvars.x = x1 ; dcvars.x <= x2 ; dcvars.x++, spryscale += rw_scalestep)
+  for (dcvars.x = x1 ; dcvars.x <= x2 ; dcvars.x++)
+  {
     if (maskedtexturecol[dcvars.x] != INT_MAX) // dropoff overflow
       {
         fixed_t texturecolumn;
@@ -474,7 +534,8 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
             (int64_t) dcvars.texturemid * spryscale;
           if (t + (int64_t) textureheight[texnum] * spryscale < 0 ||
               t > (int64_t) SCREENHEIGHT << FRACBITS*2)
-            continue;        // skip if the texture is out of screen's range
+            goto next_column; // [PN] Keep DDA progression even if this column is skipped.
+
           sprtopscreen = (int64_t)(t >> FRACBITS); // R_WiggleFix
         }
 
@@ -503,6 +564,17 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
         maskedtexturecol[dcvars.x] = INT_MAX; // dropoff overflow
       }
+
+next_column:
+    spryscale += rw_scalestep;
+
+    if (masked_scalerem)
+    {
+        spryscale += R_DDACompStep(&masked_scaleerr,
+                                    masked_scalerem,
+                                    masked_scalespan64);
+    }
+  }
 
   curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things */
 }
@@ -601,7 +673,7 @@ static void R_RenderSegLoop (void)
       dcvars.prevsource = R_GetTextureColumn(tex_patch, specific_texturecolumn-1);
       dcvars.nextsource = R_GetTextureColumn(tex_patch, specific_texturecolumn+1);
       dcvars.texheight = midtexheight;
-      if (!fixedcolormap || NYAN_LITEAMP)
+      if (!fixedcolormap || nyan_liteamp)
         R_ApplyMidLight(curline->sidedef);
       R_ApplyLightColormap(&dcvars, rw_scale);
       colfunc(&dcvars);
@@ -634,7 +706,7 @@ static void R_RenderSegLoop (void)
           dcvars.prevsource = R_GetTextureColumn(tex_patch,specific_texturecolumn-1);
           dcvars.nextsource = R_GetTextureColumn(tex_patch,specific_texturecolumn+1);
           dcvars.texheight = toptexheight;
-          if (!fixedcolormap || NYAN_LITEAMP)
+          if (!fixedcolormap || nyan_liteamp)
             R_ApplyTopLight(curline->sidedef);
           R_ApplyLightColormap(&dcvars, rw_scale);
           colfunc(&dcvars);
@@ -672,7 +744,7 @@ static void R_RenderSegLoop (void)
           dcvars.prevsource = R_GetTextureColumn(tex_patch, specific_texturecolumn-1);
           dcvars.nextsource = R_GetTextureColumn(tex_patch, specific_texturecolumn+1);
           dcvars.texheight = bottomtexheight;
-          if (!fixedcolormap || NYAN_LITEAMP)
+          if (!fixedcolormap || nyan_liteamp)
             R_ApplyBottomLight(curline->sidedef);
           R_ApplyLightColormap(&dcvars, rw_scale);
           colfunc(&dcvars);
@@ -708,26 +780,15 @@ static void R_RenderSegLoop (void)
     // This removes the tiny right-edge drift/jitter on long walls.
     if (rw_scalerem)
     {
-        rw_scaleerr += rw_scalerem;
+        const int dda = R_DDACompStep(&rw_scaleerr, rw_scalerem, rw_scalespan64);
 
-        if (rw_scaleerr >= rw_scalespan64)
+        if (dda)
         {
-            rw_scaleerr -= rw_scalespan64;
-            rw_scale += 1;
-            topfrac -= rw_worldtopcorr;
-            bottomfrac -= rw_worldbottomcorr;
-            if (have_pixhigh) pixhigh -= rw_worldhighcorr;
-            if (have_pixlow)  pixlow  -= rw_worldlowcorr;
-        }
-
-        else if (rw_scaleerr <= -rw_scalespan64)
-        {
-            rw_scaleerr += rw_scalespan64;
-            rw_scale -= 1;
-            topfrac += rw_worldtopcorr;
-            bottomfrac += rw_worldbottomcorr;
-            if (have_pixhigh) pixhigh += rw_worldhighcorr;
-            if (have_pixlow)  pixlow  += rw_worldlowcorr;
+            rw_scale += dda;
+            topfrac    -= dda * rw_worldtopcorr;
+            bottomfrac -= dda * rw_worldbottomcorr;
+            if (have_pixhigh) pixhigh -= dda * rw_worldhighcorr;
+            if (have_pixlow)  pixlow  -= dda * rw_worldlowcorr;
         }
     }
   }
@@ -855,7 +916,8 @@ void R_StoreWallRange(const int start, const int stop)
 
     ds_p->scale2 = (fixed_t)scale2;
     ds_p->scalestep = rw_scalestep = (fixed_t)step64;
-    rw_scalerem = delta - step64 * (int64_t)rw_scalespan;
+    if (rw_scalespan >= DDA_MIN_SPAN)
+      rw_scalerem = delta - step64 * (int64_t)rw_scalespan;
   }
   else
   {

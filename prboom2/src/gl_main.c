@@ -253,6 +253,24 @@ static int C_DECL dicmp_visible_subsectors_by_pic(const void *a, const void *b)
          (*((const subsector_t *const *)a))->sector->floorpic;
 }
 
+static int gld_MapSkyTexture(sector_t *sector)
+{
+  int sky = sector->floorsky;
+
+  if (sky & PL_SKYFLAT_LINE)
+  {
+    const line_t *line = &lines[sky & ~PL_SKYFLAT_LINE];
+    const side_t *side = &sides[line->sidenum[0]];
+
+    return texturetranslation[side->toptexture];
+  }
+
+  if (sky & PL_SKYFLAT_SECTOR)
+    return sky & ~PL_SKYFLAT_SECTOR;
+
+  return texturetranslation[skytexture];
+}
+
 static int visible_subsectors_count_prev = -1;
 void gld_ResetTexturedAutomap(void)
 {
@@ -368,6 +386,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   {
     subsector_t *sub = visible_subsectors[i];
     int ssidx = (int)(sub - subsectors);
+    dboolean sky_flat;
 
     if (sub->sector->bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
       sub->sector->bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
@@ -378,10 +397,21 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
       continue;
     }
     
-    swirling_flat = P_IsSwirlingFlat(sub->sector->floorpic);
-    gl_flat_index = swirling_flat ? P_FlatIndexFromLump(sub->sector->floorpic) : flattranslation[sub->sector->floorpic];
+    sky_flat = sub->sector->floorpic == skyflatnum;
 
-    gltexture = gld_RegisterFlat(gl_flat_index, true, V_IsUILightmodeIndexed());
+    if (sky_flat)
+    {
+      gltexture = gld_RegisterTexture(gld_MapSkyTexture(sub->sector), true, true, V_IsUILightmodeIndexed(), false);
+      swirling_flat = false;
+    }
+    else
+    {
+      swirling_flat = P_IsSwirlingFlat(sub->sector->floorpic);
+      gl_flat_index = swirling_flat ? P_FlatIndexFromLump(sub->sector->floorpic) : flattranslation[sub->sector->floorpic];
+
+      gltexture = gld_RegisterFlat(gl_flat_index, true, V_IsUILightmodeIndexed());
+    }
+
     if (gltexture)
     {
       sector_t tempsec;
@@ -395,6 +425,8 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
       if (swirling_flat)
         gld_BindSwirlFlat(gltexture, false, 0);
+      else if (sky_flat)
+        gld_BindTexture(gltexture, 0, false);
       else
         gld_BindFlat(gltexture, 0);
 
@@ -405,7 +437,8 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
                   sec->floor_yoffs ||
                   sec->floor_rotation ||
                   sec->floor_xscale != FRACUNIT ||
-                  sec->floor_yscale != FRACUNIT;
+                  sec->floor_yscale != FRACUNIT ||
+                  sky_flat;
 
       if (transform)
       {
@@ -423,6 +456,14 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
         glMatrixMode(GL_TEXTURE);
         glPushMatrix();
+
+        if (sky_flat)
+        {
+          glScalef(64.0f / gltexture->realtexwidth,
+                   64.0f / gltexture->realtexheight,
+                   1.0f);
+        }
+
         glScalef(xscale, yscale, 1.f);
         glTranslatef(uoffs, voffs, 0.f);
         glRotatef(-rotation, 0.f, 0.f, 1.f);
@@ -635,7 +676,7 @@ void gld_EndFuzz()
   glsl_PopFuzzShader();
 }
 
-void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, float clip_top, float clip_bottom, float clip_left, float clip_right, int cm, int fade_alpha, enum patch_translation_e flags)
+void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
@@ -677,18 +718,18 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
     return;
 
   // Clamp crop values if they exceed patch size
-  if (clip_left + clip_right >= gltexture->width)
-    clip_left = clip_right = 0;
+  if (crop.left + crop.right >= gltexture->width)
+    crop.left = crop.right = 0;
 
-  if (clip_top + clip_bottom >= gltexture->height)
-    clip_top = clip_bottom = 0;
+  if (crop.top + crop.bottom >= gltexture->height)
+    crop.top = crop.bottom = 0;
 
   // Calculate crop factors
   {
-    crop_u1 = ((float)clip_left / gltexture->realtexwidth) * gltexture->scalexfac;
-    crop_u2 = ((float)(gltexture->realtexwidth - clip_right) / gltexture->realtexwidth) * gltexture->scalexfac;
-    crop_v1 = ((float)clip_top / gltexture->realtexheight) * gltexture->scaleyfac;
-    crop_v2 = ((float)(gltexture->realtexheight - clip_bottom) / gltexture->realtexheight) * gltexture->scaleyfac;
+    crop_u1 = ((float)crop.left / gltexture->realtexwidth) * gltexture->scalexfac;
+    crop_u2 = ((float)(gltexture->realtexwidth - crop.right) / gltexture->realtexwidth) * gltexture->scalexfac;
+    crop_v1 = ((float)crop.top / gltexture->realtexheight) * gltexture->scaleyfac;
+    crop_v2 = ((float)(gltexture->realtexheight - crop.bottom) / gltexture->realtexheight) * gltexture->scaleyfac;
 
     crop_width  = gltexture->realtexwidth  * (crop_u2 - crop_u1);
     crop_height = gltexture->realtexheight * (crop_v2 - crop_v1);
@@ -772,9 +813,9 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   }
 }
 
-void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, int clip_top, int clip_bottom, int clip_left, int clip_right, int cm, int alpha, enum patch_translation_e flags)
+void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, patch_crop_t crop, int cm, int alpha, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, (float)clip_top, (float)clip_bottom, (float)clip_left, (float)clip_right, cm, alpha, flags);
+  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, V_PatchCropToFloat(crop), cm, alpha, flags);
 }
 
 void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags)
@@ -856,6 +897,7 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
 {
   int sx, sy, w, h;
   int scaled_x, scaled_y;
+  patch_crop_t crop = {0};
 
   w = R_NumPatchWidth(lump);
   h = R_NumPatchHeight(lump);
@@ -870,14 +912,33 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
       int remaining_width = (x + width) - sx;
       int patch_draw_width = MIN(w, remaining_width);
 
-      int clip_right  = w - patch_draw_width;
-      int clip_bottom = h - patch_draw_height;
+      crop.right  = w - patch_draw_width;
+      crop.bottom = h - patch_draw_height;
 
       scaled_x = sx;
       scaled_y = sy;
 
-      gld_DrawNumPatch(scaled_x, scaled_y, lump, false, false, 0, clip_bottom, 0, clip_right, CR_DEFAULT, 100, flags);
+      gld_DrawNumPatch(scaled_x, scaled_y, lump, false, false, crop, CR_DEFAULT, 100, flags);
     }
+  }
+}
+
+static void gld_AddMapLinePoints(float x0, float y0, float x1, float y1, float thickness, color_rgb_t color, unsigned char a)
+{
+  // Skip endpoints for lines smaller than 1px
+  if (thickness * 2.0f * MIN(gl_scale_x, gl_scale_y) <= 1.0f)
+    return;
+
+  for (int i = 0; i < 2; ++i)
+  {
+    map_point_t *point = M_ArrayGetNewItem(&map_line_points, sizeof(*point));
+
+    point->x = i ? x1 : x0;
+    point->y = i ? y1 : y0;
+    point->r = color.r;
+    point->g = color.g;
+    point->b = color.b;
+    point->a = a;
   }
 }
 
@@ -886,7 +947,7 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
   color_rgb_t color;
   unsigned char a;
   map_line_t *line;
-  float thickness, length, extend;
+  float thickness, length;
   float dx, dy, px, py;
 
   // Set line thickness
@@ -904,18 +965,12 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
   dy = y1 - y0;
 
   length = sqrtf(dx * dx + dy * dy);
+
   if (length == 0.0f)
     return;
 
   dx /= length;
   dy /= length;
-
-  // Extend quads a bit to fix weird gaps
-  extend = 1.0f; // adjustable
-  x0 -= dx * extend;
-  y0 -= dy * extend;
-  x1 += dx * extend;
-  y1 += dy * extend;
 
   px = -dy * thickness;
   py = dx * thickness;
@@ -940,6 +995,9 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
     line->point[i].b = color.b;
     line->point[i].a = a;
   }
+
+  // Add end points
+  gld_AddMapLinePoints(x0, y0, x1, y1, thickness, color, a);
 }
 
 void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
@@ -1580,7 +1638,7 @@ void gld_AddWall(seg_t *seg)
     return;
 
   // Enhanced Light Amp - Allow dark areas to be seen
-  if(NYAN_LITEAMP && (frontsector->lightlevel <= 64))
+  if(nyan_liteamp && (frontsector->lightlevel <= 64))
     frontsector->lightlevel = 64;
 
   base_lightlevel = frontsector->lightlevel + gld_GetGunFlashLight();
@@ -2084,7 +2142,7 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     return;
 
   // Enhanced Light Amp - Allow dark areas to be seen
-  if(NYAN_LITEAMP && (plane->lightlevel <= 64))
+  if(nyan_liteamp && (plane->lightlevel <= 64))
     plane->lightlevel = 64;
     
   swirling_flat = P_IsSwirlingFlat(plane->picnum);
@@ -2563,7 +2621,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   // [crispy] randomly flip corpse, blood and death animation sprites
   if (dsda_AllowMirroredCorpses() &&
       (thing->flags_extra & MFX_MIRROREDCORPSE) &&
-      !(thing->flags & MF_SHOOTABLE) &&
+      !(thing->flags & (MF_SHOOTABLE | MF_SPECIAL)) &&
       (thing->intflags & MIF_FLIP))
   {
     flip = !flip;
@@ -2658,7 +2716,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   else
   {
     // Enhanced Light Amp - Allow dark areas to be seen
-    if(NYAN_LITEAMP && (lightlevel <= 64))
+    if(nyan_liteamp && (lightlevel <= 64))
       lightlevel = 64;
 
     sprite.light = gld_CalcLightLevel(lightlevel+gld_GetGunFlashLight());

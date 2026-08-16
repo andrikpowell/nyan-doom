@@ -18,6 +18,8 @@
 #include "doomdef.h"
 #include "hu_lib.h"
 #include "lprintf.h"
+#include "m_menu.h"
+#include "st_stuff.h"
 #include "w_wad.h"
 #include "v_video.h"
 
@@ -95,6 +97,12 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_exhud_line_activation] = { "exhud_line_activation", CR_GRAY },
   [dsda_tc_exhud_local_time] = { "exhud_local_time", CR_GRAY },
   [dsda_tc_exhud_free_text] = { "exhud_free_text", CR_GRAY },
+  [dsda_tc_exhud_status_all_kills] = { "exhud_status_all_kills", CR_RED },
+  [dsda_tc_exhud_status_all_items] = { "exhud_status_all_items", CR_LIGHTBLUE },
+  [dsda_tc_exhud_status_all_secrets] = { "exhud_status_all_secrets", CR_GREEN },
+  [dsda_tc_exhud_status_raven_all_kills] = { "exhud_status_raven_all_kills", CR_RED },
+  [dsda_tc_exhud_status_raven_all_items] = { "exhud_status_raven_all_items", CR_PURPLE },
+  [dsda_tc_exhud_status_raven_all_secrets] = { "exhud_status_raven_all_secrets", CR_GREEN },
   [dsda_tc_exhud_status_invul] = { "exhud_powerup_invul", CR_GREEN },
   [dsda_tc_exhud_status_invis] = { "exhud_powerup_invis", CR_LIGHTBLUE },
   [dsda_tc_exhud_status_suit] = { "exhud_powerup_suit", CR_GRAY },
@@ -116,6 +124,7 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_hud_secret_message] = { "hud_secret_message", CR_GOLD },
   [dsda_tc_hud_obituary] = { "hud_obituary", CR_BRICK },
   [dsda_tc_map_coords] = { "map_coords", CR_GREEN },
+  [dsda_tc_map_time_label] = { "map_time_label", CR_RED },
   [dsda_tc_map_time_level] = { "map_time_level", CR_GRAY },
   [dsda_tc_map_time_total] = { "map_time_total", CR_GRAY },
   [dsda_tc_map_title] = { "map_title", CR_GOLD },
@@ -123,6 +132,12 @@ dsda_text_color_t dsda_text_colors[] = {
   [dsda_tc_map_totals_label] = { "map_totals_label", CR_RED },
   [dsda_tc_map_totals_value] = { "map_totals_value", CR_GRAY },
   [dsda_tc_map_totals_max] = { "map_totals_max", CR_LIGHTBLUE },
+  [dsda_tc_map_icon_kills] = { "map_icon_kills", CR_RED },
+  [dsda_tc_map_icon_items] = { "map_icon_items", CR_BLUE },
+  [dsda_tc_map_icon_secrets] = { "map_icon_secrets", CR_GREEN },
+  [dsda_tc_map_raven_icon_kills] = { "map_raven_icon_kills", CR_RED },
+  [dsda_tc_map_raven_icon_items] = { "map_raven_icon_items", CR_PURPLE },
+  [dsda_tc_map_raven_icon_secrets] = { "map_raven_icon_secrets", CR_GREEN },
   [dsda_tc_inter_split_normal] = { "inter_split_normal", CR_GRAY },
   [dsda_tc_inter_split_good] = { "inter_split_good", CR_GREEN },
   [dsda_tc_inter_split_best] = { "inter_split_best", CR_GOLD },
@@ -157,6 +172,8 @@ dsda_text_color_t dsda_text_colors[] = {
   { NULL },
 };
 
+static dboolean textcolor_defaults_initialized;
+static int textcolor_defaults[sizeof(dsda_text_colors) / sizeof(dsda_text_colors[0])];
 static int textcolor_def_count = (sizeof(dsda_text_colors) / sizeof(dsda_text_colors[0])) - 1;
 
 const char* dsda_TextColor(dsda_text_color_index_t i) {
@@ -165,6 +182,16 @@ const char* dsda_TextColor(dsda_text_color_index_t i) {
 
 int dsda_TextCR(dsda_text_color_index_t i) {
   return dsda_text_colors[i].color_range;
+}
+
+void dsda_InitTextColorDefaults(void)
+{
+  int i;
+
+  for (i = 0; i < textcolor_def_count; i++)
+    textcolor_defaults[i] = dsda_text_colors[i].color_range;
+
+  textcolor_defaults_initialized = true;
 }
 
 void dsda_RefreshTextColors(void) {
@@ -180,6 +207,9 @@ void dsda_RefreshTextColors(void) {
   dsda_text_colors[dsda_tc_orig].color_str[0] = '\x1b';
   dsda_text_colors[dsda_tc_orig].color_str[1] = HUlib_ColorReset();
   dsda_text_colors[dsda_tc_orig].color_str[2] = '\0';
+
+  if (!textcolor_defaults_initialized)
+    dsda_InitTextColorDefaults();
 }
 
 static int dsda_ClampCR(int cr)
@@ -199,6 +229,16 @@ int dsda_TextColorConfig(int config_id)
   return dsda_text_colors[i].color_range;
 }
 
+int dsda_DefaultTextColorConfig(int config_id)
+{
+  const int i = config_id;
+
+  if (i <= dsda_tc_orig || i >= textcolor_def_count)
+    return CR_DEFAULT;
+
+  return textcolor_defaults[i];
+}
+
 void dsda_UpdateTextColorCR(dsda_text_color_index_t i, int cr)
 {
   if (i <= dsda_tc_orig || i >= textcolor_def_count)
@@ -216,6 +256,8 @@ void dsda_UpdateTextColorCR(dsda_text_color_index_t i, int cr)
 void dsda_UpdateTextColorConfig(int config_id, int cr)
 {
   dsda_UpdateTextColorCR(config_id, cr);
+  M_LoadTextColors();
+  ST_LoadTextColors();
 }
 
 void dsda_LoadTextColorEntries(const char* def, int parm) {

@@ -61,7 +61,7 @@ The in-game console offers extra tools for advanced users, including adjusting p
   - exit the current level via the secret exit (go to intermission screen)
 - `level.finale`
   - exit the current level (show finale) [note that vanilla finale matches secret finale]
-- `level.exit_secret`
+- `level.finale_secret`
   - exit the current level via the secret exit (show secret finale)
 - `game.quit`
   - quit the game immediately (no prompt)
@@ -127,10 +127,11 @@ The in-game console offers extra tools for advanced users, including adjusting p
 
 #### Line Manipulation
 - Line activation (use / cross / shoot)
-  - `player.activate_line <line_id>`
-  - `target.activate_line <line_id>`
-  - `mobj.activate_line <mobj_index> <line_id>`
-  - `boss.activate_line <mobj_index> <line_id>`
+  - "line_side" is optional. front sidedef = 0, back sidedef = 1.
+  - `player.activate_line <line_id> <line_side>`
+  - `target.activate_line <line_id> <line_side>`
+  - `mobj.activate_line <mobj_index> <line_id> <line_side>`
+  - `boss.activate_line <mobj_index> <line_id> <line_side>`
     - activates the line with the boss action flag set
 
 #### State Manipulation
@@ -225,7 +226,6 @@ See the [build mode guide](./build_mode.md) for more info.
 - `killem`
 - `hom`
 - `tntka`
-- `idk`
 - `smart`
 - `pitch`
 - `fast`

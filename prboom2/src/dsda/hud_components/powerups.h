@@ -38,6 +38,7 @@ typedef struct dsda_powerup_s {
   const char *heretic_lump;
   const char *hexen_lump;
   int color;
+  int raven_color;
 } dsda_powerup_t;
 
 typedef enum {
@@ -53,7 +54,7 @@ typedef struct {
 extern const dsda_powerup_t powerups[];
 extern int dsda_powerup_count;
 
-extern void dsda_SortPowerups(player_t *player, int *idx, int *n, dsda_powerup_view_t view);
+extern void dsda_SortPowerups(player_t *player, int *idx, int *n, dsda_powerup_view_t view, dboolean reverse);
 extern int dsda_NormalizePowerupTics(const dsda_powerup_t *powerup, int tics);
 
 extern dsda_powerup_label_t dsda_PowerupLabel(const dsda_powerup_t *powerup);

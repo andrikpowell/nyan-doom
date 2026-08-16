@@ -78,6 +78,10 @@ static void wipe_BindScreens(void)
   screens[WIPE_SRC]  = wipe_scr_start;
   screens[WIPE_DST]  = wipe_scr_end;
   screens[WIPE_TEMP] = wipe_scr;
+
+  screens[WIPE_SRC].not_on_heap = true;
+  screens[WIPE_DST].not_on_heap = true;
+  screens[WIPE_TEMP].not_on_heap = true;
 }
 
 static fixed_t wipe_GetFrac(void)
@@ -191,7 +195,7 @@ static dboolean wipe_updateMelt(int ticks)
           done = false;
         }
         else if (prevy[col] < wipe_rows) {
-          int dy = (prevy[col] < 16) ? prevy[col] + 1 : 8;
+          int dy = (prevy[col] < 16) ? prevy[col] + 1 : 8 * dsda_WipeScreenSpeed();
           curry[col] = MIN(prevy[col] + dy, wipe_rows);
           done = false;
         }

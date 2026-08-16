@@ -44,6 +44,7 @@ enum column_pipeline_e {
   RDC_PIPELINE_ALT_TL,     // reverse translucency
   RDC_PIPELINE_ALT_TRTL,   // translated + reverse translucency
   RDC_PIPELINE_DOUBLESKY,
+  RDC_PIPELINE_SKY_COLOR_CAP,
   RDC_PIPELINE_FUZZ,
   RDC_PIPELINE_FUZZ_SCALED,
   RDC_PIPELINE_MAXPIPELINES,
@@ -82,16 +83,20 @@ typedef struct draw_column_vars_s
   int                 edgeslope; // OR'ed RDRAW_EDGESLOPE_*
   // 1 if R_DrawColumn* is currently drawing a masked column, otherwise 0
   int                 drawingmasked;
-  dboolean            isplayersprite; // [AR] mark weapon sprite
+  patch_crop_t crop;     // [AR] Patch cropping
   unsigned int        flags; //e6y: for detect patches ind colfunc()
-  int clip_top;     // New!
-  int clip_bottom;  // New!
+
+  // [AR] mark weapon sprite
+  dboolean            isplayersprite;
+  int                 pspritepostheight;
 
   // heretic
   int baseclip;
 
-  // hexen double sky
-  const byte *source2;
+  // Sky
+  const byte *source2;      // hexen double sky
+  byte skycolor;            // [Woof] color above sky textures
+  const byte *sky_tranmap;  // [Woof] color above sky textures
 } draw_column_vars_t;
 
 void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars);
@@ -117,6 +122,7 @@ typedef struct {
   fixed_t cosine;
   fixed_t planeheight;
   const lighttable_t **planezlight;
+  const lighttable_t *minzlight; // the darkest a colormap can get
 } draw_span_vars_t;
 
 typedef struct {

@@ -256,6 +256,9 @@ static void dsda_DrawComponent(void) {
 
     for (i = 0; i < NUMCARDS; ++i)
       if (player->cards[i]) {
+        if (key_patch_num[i] == LUMP_NOT_FOUND)
+          continue;
+
         V_DrawShadowedNumPatch(x, y, key_patch_num[i], CR_DEFAULT, local->component.vpt);
         x += R_NumPatchWidth(key_patch_num[i]) + 4;
       }
@@ -292,7 +295,7 @@ void dsda_InitKeysHC(int x_offset, int y_offset, int vpt, int* args, int arg_cou
     int i;
 
     for (i = 0; i < NUMCARDS; ++i)
-      key_patch_num[i] = R_NumPatchForSpriteIndex(HEXEN_SPR_KEY1 + i);
+      key_patch_num[i] = R_SafeNumPatchForSpriteIndex(HEXEN_SPR_KEY1 + i);
   }
   else
   {

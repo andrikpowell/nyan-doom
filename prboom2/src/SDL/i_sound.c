@@ -53,9 +53,11 @@
 
 #include "z_zone.h"
 
+#include "i_glob.h"
 #include "m_swap.h"
 #include "i_sound.h"
 #include "i_sndfile.h"
+#include "m_file.h"
 #include "m_misc.h"
 #include "w_wad.h"
 #include "lprintf.h"
@@ -72,7 +74,9 @@
 #include "e6y.h"
 
 #include "dsda/ambient.h"
+#include "dsda/configuration.h"
 #include "dsda/settings.h"
+#include "dsda/utility.h"
 
 static dboolean registered_non_rw = false;
 
@@ -132,7 +136,138 @@ static int pitched_sounds;
 int snd_samplerate; // samples per second
 static int snd_samplecount;
 
-static const char *snd_midiplayer;
+static const char* snd_midiplayer;
+static const char** soundfont_list;
+static int soundfont_count;
+static char* current_soundfont;
+
+static const char* I_GetInternalSoundfont(void)
+{
+  return dsda_DefaultStringConfig(dsda_config_snd_soundfont);
+}
+
+static dboolean I_IsInternalSoundfont(const char* soundfont)
+{
+  return !soundfont || !soundfont[0] || !strcasecmp(soundfont, I_GetInternalSoundfont());
+}
+
+static const char* I_GetSoundfontFolder(dboolean createdir)
+{
+  const char* configured_dir = dsda_StringConfig(dsda_config_snd_soundfont_dir);
+  static char* default_soundfont_dir;
+  const char* soundfont_dir;
+
+  if (configured_dir && configured_dir[0])
+    soundfont_dir = configured_dir;
+  else
+  {
+    if (!default_soundfont_dir)
+    {
+      const char* configdir = I_ConfigDir();
+      int len = snprintf(NULL, 0, "%s/soundfonts", configdir);
+
+      default_soundfont_dir = Z_Malloc(len + 1);
+      snprintf(default_soundfont_dir, len + 1, "%s/soundfonts", configdir);
+    }
+
+    soundfont_dir = default_soundfont_dir;
+  }
+
+  if (createdir && M_MakeDir(soundfont_dir, false))
+  {
+    lprintf(LO_WARN, "I_GetSoundfontFolder: unable to create soundfont directory %s\n", soundfont_dir);
+    return NULL;
+  }
+
+  return soundfont_dir;
+}
+
+static void I_AddSoundfontToList(const char* soundfont)
+{
+  soundfont_list = Z_Realloc(soundfont_list, sizeof(*soundfont_list) * (soundfont_count + 2));
+  soundfont_list[soundfont_count++] = Z_Strdup(soundfont);
+  soundfont_list[soundfont_count] = NULL;
+}
+
+void I_InitSoundfontList(void)
+{
+  const char* soundfont_folder;
+  const char* filename;
+  glob_t* glob;
+
+  if (soundfont_list)
+    return;
+
+  I_AddSoundfontToList(I_GetInternalSoundfont());
+
+  soundfont_folder = I_GetSoundfontFolder(true);
+  if (!soundfont_folder)
+    return;
+
+  glob = I_StartMultiGlob(soundfont_folder, GLOB_FLAG_NOCASE | GLOB_FLAG_SORTED, "*.sf2", "*.sf3", NULL);
+
+  while ((filename = I_NextGlob(glob)))
+    I_AddSoundfontToList(dsda_BaseName(filename));
+
+  I_EndGlob(glob);
+}
+
+const char** I_GetSoundfontList(void)
+{
+  I_InitSoundfontList();
+
+  return soundfont_list;
+}
+
+const char* I_GetSoundfontFile(const char* soundfont)
+{
+  static char* soundfont_file_path;
+  const char* soundfont_folder;
+  int len;
+
+  if (I_IsInternalSoundfont(soundfont))
+    return NULL;
+
+  if (M_FileExists(soundfont))
+    return soundfont;
+
+  soundfont_folder = I_GetSoundfontFolder(false);
+  len = snprintf(NULL, 0, "%s/%s", soundfont_folder, soundfont);
+
+  if (soundfont_file_path)
+    Z_Free(soundfont_file_path);
+
+  soundfont_file_path = Z_Malloc(len + 1);
+  snprintf(soundfont_file_path, len + 1, "%s/%s", soundfont_folder, soundfont);
+
+  if (M_FileExists(soundfont_file_path))
+    return soundfont_file_path;
+
+  lprintf(LO_WARN, "I_GetSoundfontFile: unable to find soundfont %s. Using internal soundfont.\n", soundfont);
+  dsda_HackStringConfig(dsda_config_snd_soundfont, I_GetInternalSoundfont(), true); // No callbacks, to avoid recursion cases
+
+  return NULL;
+}
+
+static const char* I_GetSoundfontConfig(void)
+{
+  const char* soundfont = dsda_StringConfig(dsda_config_snd_soundfont);
+
+  if (I_IsInternalSoundfont(soundfont))
+    return I_GetInternalSoundfont();
+
+  return soundfont;
+}
+
+static void I_SetCurrentSoundfont(void)
+{
+  const char* soundfont = I_GetSoundfontConfig();
+
+  if (current_soundfont)
+    Z_Free(current_soundfont);
+
+  current_soundfont = Z_Strdup(soundfont);
+}
 
 void I_InitSoundParams(void)
 {
@@ -1074,6 +1209,14 @@ static const void *music_handle = NULL;
 
 static void *mus2mid_conversion_data = NULL;
 
+static void I_InitMusicPlayers(void)
+{
+  int i;
+
+  for (i = 0; music_players[i]; i++)
+    music_player_was_init[i] = music_players[i]->init(snd_samplerate);
+}
+
 void I_ShutdownMusic(void)
 {
   int i;
@@ -1094,14 +1237,85 @@ void I_ShutdownMusic(void)
 
 void I_InitMusic(void)
 {
-  int i;
   musmutex = SDL_CreateMutex ();
 
+  I_InitSoundfontList();
+
   // todo not so greedy
-  for (i = 0; music_players[i]; i++)
-    music_player_was_init[i] = music_players[i]->init (snd_samplerate);
+  I_InitMusicPlayers();
+  I_SetCurrentSoundfont();
 
   I_AtExit(I_ShutdownMusic, true, "I_ShutdownMusic", exit_priority_normal);
+}
+
+void I_ReinitMusic(void)
+{
+  int i;
+
+  if (nomusicparm || !musmutex)
+    return;
+
+  S_StopMusic();
+
+  for (i = 0; music_players[i]; i++)
+  {
+    if (music_player_was_init[i])
+    {
+      music_players[i]->shutdown();
+      music_player_was_init[i] = false;
+    }
+  }
+
+  I_InitMusicPlayers();
+  I_SetCurrentSoundfont();
+  S_RestartMusic();
+}
+
+static dboolean I_ReloadSoundfont(void)
+{
+  int i;
+  dboolean result = false;
+
+  if (nomusicparm || !musmutex)
+    return false;
+
+  for (i = 0; music_players[i]; i++)
+  {
+    if (music_players[i] == &fl_player && music_player_was_init[i])
+    {
+      SDL_LockMutex(musmutex);
+      result = fl_reload_soundfont();
+      SDL_UnlockMutex(musmutex);
+      break;
+    }
+  }
+
+  return result;
+}
+
+void M_ChangeSoundfont(void)
+{
+  const char* soundfont = I_GetSoundfontConfig();
+
+  if (current_soundfont && !strcmp(soundfont, current_soundfont))
+    return;
+
+  if (!musmutex)
+  {
+    I_SetCurrentSoundfont();
+    return;
+  }
+
+  if (I_ReloadSoundfont())
+  {
+    I_SetCurrentSoundfont();
+    return;
+  }
+
+  lprintf(LO_WARN, "M_ChangeSoundfont: unable to reload soundfont; keeping current soundfont.\n");
+
+  if (current_soundfont)
+    dsda_HackStringConfig(dsda_config_snd_soundfont, current_soundfont, true);
 }
 
 // Derived value (not saved, accounts for muted music)

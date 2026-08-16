@@ -355,6 +355,12 @@ int dsda_HexenBossAction(mobj_t* mo) {
   return false; // TODO
 }
 
+int dsda_HexenHasBossActionTag(int* result, mobj_t* mo, int tag) {
+  *result = false;
+
+  return false;
+}
+
 int dsda_HexenMapLumpName(const char** name, int episode, int map) {
   return false; // TODO
 }

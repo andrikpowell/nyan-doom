@@ -4,6 +4,8 @@ HUD configurations are stored in the NYANHUD lump. These defaults can be changed
 
 NYANHUD is very similar to DSDAHUD, but does include extra widgets, thus is incompatible with DSDA-Doom.
 
+Multiple NYANHUD lumps can be stacked similar to UMAPINFO or DEHACKED. Note that the entire hud blocks will be replaced by the most recent version. This also applies to the `full` variants.
+
 Options marked with 😸 are Nyan exclusive.
 
 ## Specification
@@ -67,6 +69,14 @@ Here's an example of a `full` customisable hud:
 ```
 doom full 5 "boom classic"
 health_text 2 8 bottom_left 1
+```
+
+By default Nyan Doom comes with a NYANHUD with multiple huds *(~5 or 6 depending on game type)*. If you would like to limit the amount of default huds, you can use the command `clearhud` in the full hud defintion.
+
+Here's an example of a `full` cleared hud:
+```
+doom full 2 "modern"
+clearhud
 ```
 
 ## NYANHUD Components
@@ -187,6 +197,9 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
 ### Automap
 - `map_time`: shows the level / total time
   - Uses the message font
+  - Supports 2 arguments: `always_show_total show_labels`
+    - 😸 `always_show_total`: always show the total time
+    - 😸 `show_labels`: shows the "M" "T" labels
 - `map_coordinates`: shows the player's position
   - Uses the message font
 - `map_title`: shows the current map's title

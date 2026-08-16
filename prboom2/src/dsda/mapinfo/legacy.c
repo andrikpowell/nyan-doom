@@ -628,6 +628,75 @@ int dsda_LegacyBossAction(mobj_t* mo) {
   return false;
 }
 
+int dsda_LegacyHasBossActionTag(int* result, mobj_t* mo, int tag) {
+  if (heretic) {
+    static const mobjtype_t boss_type[5] = {
+      HERETIC_MT_HEAD,
+      HERETIC_MT_MINOTAUR,
+      HERETIC_MT_SORCERER2,
+      HERETIC_MT_HEAD,
+      HERETIC_MT_MINOTAUR
+    };
+
+    *result = tag == 666 &&
+              gamemap == 8 &&
+              gameepisode >= 1 &&
+              gameepisode <= 5 &&
+              mo->type == boss_type[gameepisode - 1];
+
+    return true;
+  }
+
+  if (gamemode == commercial) {
+    if (gamemap != 7)
+      return true;
+
+    if (tag == 666)
+      *result = !!(mo->flags2 & MF2_MAP07BOSS1);
+    else if (tag == 667)
+      *result = !!(mo->flags2 & MF2_MAP07BOSS2);
+
+    return true;
+  }
+
+  if (tag != 666)
+    return true;
+
+  if (comp[comp_666] && gameepisode < 4) {
+    if (gamemap != 8)
+      return true;
+
+    *result = !(mo->flags2 & MF2_E1M8BOSS) || gameepisode == 1;
+    return true;
+  }
+
+  switch (gameepisode) {
+    case 1:
+      *result = gamemap == 8 && !!(mo->flags2 & MF2_E1M8BOSS);
+      break;
+
+    case 2:
+      *result = gamemap == 8 && !!(mo->flags2 & MF2_E2M8BOSS);
+      break;
+
+    case 3:
+      *result = gamemap == 8 && !!(mo->flags2 & MF2_E3M8BOSS);
+      break;
+
+    case 4:
+      if (gamemap == 6)
+        *result = !!(mo->flags2 & MF2_E4M6BOSS);
+      else if (gamemap == 8)
+        *result = !!(mo->flags2 & MF2_E4M8BOSS);
+      break;
+
+    default:
+      break;
+  }
+
+  return true;
+}
+
 int dsda_LegacyMapLumpName(const char** name, int episode, int map) {
   *name = VANILLA_MAP_LUMP_NAME(episode, map);
 

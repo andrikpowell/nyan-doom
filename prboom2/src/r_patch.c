@@ -581,6 +581,72 @@ static void removePostFromColumn(rcolumn_t *column, int post) {
   column->numPosts--;
 }
 
+// [AR] Add support for post-less patches.
+// Vanilla Heretic was less strict with sky patches, so you could
+// have very tall patches (420), which were unbroken by posts.
+// This fixes the sky in Anathema (Heretic).
+// https://www.doomworld.com/vb/thread/159116
+
+//---------------------------------------------------------------------------
+static dboolean R_isDirectTallPatch(int patchNum, const patch_t *patch)
+{
+  int x;
+  int width = LittleShort(patch->width);
+  int height = LittleShort(patch->height);
+  int lumpLength = W_LumpLength(patchNum);
+
+  if (height <= 255)
+    return false;
+
+  for (x = 0; x < width; x++)
+  {
+    int ofs = LittleLong(patch->columnofs[x]) + 3;
+
+    if (ofs < 8 + width * 4)
+      return false;
+    if (ofs + height > lumpLength)
+      return false;
+    if (x > 0 && LittleLong(patch->columnofs[x]) -
+                 LittleLong(patch->columnofs[x - 1]) != height)
+      return false;
+  }
+
+  return true;
+}
+
+//---------------------------------------------------------------------------
+dboolean R_IsDirectTallPatchLump(int lumpnum)
+{
+  const patch_t *patch;
+
+  if (lumpnum == LUMP_NOT_FOUND)
+    return false;
+
+  patch = (const patch_t *)W_LumpByNum(lumpnum);
+
+  return R_isDirectTallPatch(lumpnum, patch);
+}
+
+//---------------------------------------------------------------------------
+static int R_DirectTallTextureHeight(texture_t *texture)
+{
+  int i;
+  int height;
+
+  height = texture->height;
+
+  for (i=0; i<texture->patchcount; i++)
+  {
+    texpatch_t *texpatch = &texture->patches[i];
+    const patch_t *patch = (const patch_t*)W_LumpByNum(texpatch->patch);
+
+    if (texpatch->direct)
+      height = MAX(height, LittleShort(patch->height));
+  }
+
+  return height;
+}
+
 //---------------------------------------------------------------------------
 static void createTextureCompositePatch(int id) {
   rpatch_t *composite_patch;
@@ -617,6 +683,12 @@ static void createTextureCompositePatch(int id) {
   composite_patch->topoffset = 0;
   composite_patch->flags = 0;
 
+  if (texture->direct)
+  {
+    composite_patch->height = R_DirectTallTextureHeight(texture);
+    composite_patch->flags |= PATCH_DIRECTTALL;
+  }
+
   // work out how much memory we need to allocate for this patch's data
   pixelDataSize = (composite_patch->width * composite_patch->height + 4) & ~3;
   columnsDataSize = sizeof(rcolumn_t) * composite_patch->width;
@@ -639,6 +711,14 @@ static void createTextureCompositePatch(int id) {
         break;
 
       countsInColumn[tx].patches++;
+
+      // [AR] Add support for post-less patches.
+      if (texpatch->direct)
+      {
+        countsInColumn[tx].posts++;
+        numPostsTotal++;
+        continue;
+      }
 
       oldColumn = (const column_t *)((const byte *)oldPatch + LittleLong(oldPatch->columnofs[x]));
       while (oldColumn->topdelta != 0xff) {
@@ -692,6 +772,44 @@ static void createTextureCompositePatch(int id) {
         continue;
       if (tx >= composite_patch->width)
         break;
+
+      // [AR] Add support for post-less patches.
+      if (texpatch->direct)
+      {
+        rpost_t *post = &composite_patch->columns[tx].posts[countsInColumn[tx].posts_used];
+        const byte *source = (const byte *)oldPatch + LittleLong(oldPatch->columnofs[x]) + 3;
+
+        oy = countsInColumn[tx].patches > 1 ? texpatch->originy : 0;
+        count = LittleShort(oldPatch->height);
+
+        // set up the post's data
+        post->topdelta = oy;
+        post->length = count;
+        if ((post->topdelta + post->length) > composite_patch->height) {
+          if (post->topdelta > composite_patch->height)
+            post->length = 0;
+          else
+            post->length = composite_patch->height - post->topdelta;
+        }
+        if (post->topdelta < 0) {
+          if ((post->topdelta + post->length) <= 0)
+            post->length = 0;
+          else
+            post->length -= post->topdelta;
+          post->topdelta = 0;
+        }
+        post->slope = 0;
+
+        // fill in the post's pixels
+        for (y=0; y<post->length; y++) {
+          int ty = post->topdelta + y;
+          StorePixel(composite_patch, tx, ty, source[y]);
+        }
+
+        countsInColumn[tx].posts_used++;
+        assert(countsInColumn[tx].posts_used <= countsInColumn[tx].posts);
+        continue;
+      }
 
       oldColumn = (const column_t *)((const byte *)oldPatch + LittleLong(oldPatch->columnofs[x]));
 

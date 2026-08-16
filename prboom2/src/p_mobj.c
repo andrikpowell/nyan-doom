@@ -1962,7 +1962,7 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   }
 
   // [crispy] randomly flip corpse, blood and death animation sprites
-  if (mobj->flags_extra & MFX_MIRROREDCORPSE && !(mobj->flags & MF_SHOOTABLE))
+  if (mobj->flags_extra & MFX_MIRROREDCORPSE && !(mobj->flags & (MF_SHOOTABLE | MF_SPECIAL)))
   {
     if (Nyan_Random() & 1)
       mobj->intflags |= MIF_FLIP;
@@ -2735,7 +2735,7 @@ mobj_t* P_SpawnMapThing (const mapthing_t* mthing, int index)
   // spawn it
 spawnit:
 
-  if (heretic && i == HERETIC_MT_WMACE)
+  if (heretic && gamemode != shareware && i == HERETIC_MT_WMACE)
   {
     P_AddMaceSpot(mthing);
     return NULL;

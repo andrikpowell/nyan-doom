@@ -483,6 +483,22 @@ int dsda_BossAction(mobj_t* mo) {
   return false;
 }
 
+int dsda_HasBossActionTag(mobj_t* mo, int tag) {
+  int bossaction = false;
+
+  if (dsda_DoomHasBossActionTag(&bossaction, mo, tag))
+    return bossaction;
+
+  if (dsda_HexenHasBossActionTag(&bossaction, mo, tag))
+    return bossaction;
+
+  if (dsda_UHasBossActionTag(&bossaction, mo->type, tag))
+    return bossaction;
+
+  dsda_LegacyHasBossActionTag(&bossaction, mo, tag);
+  return bossaction;
+}
+
 const char* dsda_MapLumpName(int episode, int map) {
   const char* name;
 

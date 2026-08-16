@@ -191,34 +191,83 @@ static void dsda_LoadCRLumps(byte* buffer) {
   }
 }
 
-static int dsda_GetShadowIndex(const byte *playpal) {
-  double best_L = 999.0;
-  int best_i = 0;
+static double dsda_GetCRBrightness(const byte *playpal, int index) {
+  double length;
 
-  for (int i = 0; i < 256; ++i) {
-    double L = dsda_PaletteEntryLightness(playpal, i);
-    if (L < best_L) {
-      best_L = L;
-      best_i = i;
+  length = dsda_PaletteEntryLightness(playpal, index) / 100.0;
+  length -= cr_font.light_lower_bound;
+  length *= cr_font.multiplier;
+  if (length < 0)
+    length = 0;
+  if (length > 1)
+    length = 1;
+
+  // This is the exhud font bright value
+  if (index == 176)
+    length = 1;
+
+  return length;
+}
+
+static byte dsda_BestCRColor(const byte *playpal, int target_r, int target_g, int target_b) {
+  int check_i;
+  int best_i = 0;
+  int best_dist = INT_MAX;
+
+  for (check_i = 0; check_i < 768; check_i += 3) {
+    int dist;
+    int dist_r, dist_g, dist_b;
+    int avg_r;
+
+    avg_r = (target_r + playpal[check_i + 0]) / 2;
+    dist_r = target_r - playpal[check_i + 0];
+    dist_g = target_g - playpal[check_i + 1];
+    dist_b = target_b - playpal[check_i + 2];
+
+    // This equation seems to fix issues with red-dominant translation,
+    // e.g., aaliens CR_BRICK, which has artifacts in the second equation.
+    //
+    // I experimented with more "sophisticated" approaches,
+    // but they don't seem to do well with common palettes.
+    if (target_r > target_g && target_r > target_b)
+      dist = (((512 + avg_r) * dist_r * dist_r) >> 8) +
+             4 * dist_g * dist_g +
+             (((767 - avg_r) * dist_b * dist_b) >> 8);
+    else
+      dist = dist_r * dist_r +
+             dist_g * dist_g +
+             dist_b * dist_b;
+
+    if (dist < best_dist) {
+      best_dist = dist;
+      best_i = check_i / 3;
     }
   }
 
   return best_i;
 }
 
+typedef struct {
+  int offset;
+  double brightness;
+} cr_variants_t;
+
+static const cr_variants_t cr_variants[] = {
+  { 0,          1.0 }, // normal
+  { CR_DARKEN,  0.5 }, // dark
+  { CR_LIGHTEN, 1.4 }, // light
+};
+
 byte* dsda_GenerateCRTable(void) {
   int cr_i;
   int orig_i;
-  int check_i;
+  int variant_i;
   byte* buffer;
   const byte* playpal;
-  int dark_i;
-  int shadow_i;
 
   dsda_LoadCRLump();
 
-  playpal = W_LumpByName("PLAYPAL");
-  shadow_i = dsda_GetShadowIndex(playpal);
+  playpal = V_GetPlaypal();
 
   buffer = Z_Malloc(256 * CR_LIMIT);
 
@@ -226,91 +275,48 @@ byte* dsda_GenerateCRTable(void) {
 
   for (orig_i = 0; orig_i < 256; ++orig_i) {
     double length;
-    int index;
 
-    length = dsda_PaletteEntryLightness(playpal, orig_i) / 100.0;
-    length -= cr_font.light_lower_bound;
-    length *= cr_font.multiplier;
-    if (length < 0)
-      length = 0;
-    if (length > 1)
-      length = 1;
+    length = dsda_GetCRBrightness(playpal, orig_i);
 
-    // This is the exhud font bright value
-    if (orig_i == 176)
-      length = 1;
+    for (variant_i = 0; variant_i < arrlen(cr_variants); ++variant_i) {
+      const cr_variants_t *variant = &cr_variants[variant_i];
 
-    for (dark_i = 0; dark_i < 2; ++dark_i) {
-      for (cr_i = 0; cr_i < CR_DARKEN; ++cr_i) {
+      for (cr_i = 0; cr_i < CR_HUD_LIMIT; ++cr_i) {
+        int index;
         int target_r, target_g, target_b;
-        int best_i = 0;
-        int best_dist = INT_MAX;
 
-        target_r = cr_range[cr_i].r1 +
-                  (int) (length * (cr_range[cr_i].r2 - cr_range[cr_i].r1));
-        target_g = cr_range[cr_i].g1 +
-                  (int) (length * (cr_range[cr_i].g2 - cr_range[cr_i].g1));
-        target_b = cr_range[cr_i].b1 +
-                  (int) (length * (cr_range[cr_i].b2 - cr_range[cr_i].b1));
-
-        if (dark_i) {
-          target_r /= 2;
-          target_g /= 2;
-          target_b /= 2;
+        // Preserve the source hue when brightening without a color translation.
+        if (variant->offset == CR_LIGHTEN && cr_i == CR_DEFAULT) {
+          target_r = playpal[orig_i * 3 + 0];
+          target_g = playpal[orig_i * 3 + 1];
+          target_b = playpal[orig_i * 3 + 2];
+        }
+        else {
+          target_r = cr_range[cr_i].r1 +
+                    (int) (length * (cr_range[cr_i].r2 - cr_range[cr_i].r1));
+          target_g = cr_range[cr_i].g1 +
+                    (int) (length * (cr_range[cr_i].g2 - cr_range[cr_i].g1));
+          target_b = cr_range[cr_i].b1 +
+                    (int) (length * (cr_range[cr_i].b2 - cr_range[cr_i].b1));
         }
 
-        for (check_i = 0; check_i < 768; check_i += 3) {
-          int dist;
-          int dist_r, dist_g, dist_b;
-          int avg_r;
+        target_r = (int)(target_r * variant->brightness);
+        target_g = (int)(target_g * variant->brightness);
+        target_b = (int)(target_b * variant->brightness);
 
-          avg_r = (target_r + playpal[check_i + 0]) / 2;
-          dist_r = target_r - playpal[check_i + 0];
-          dist_g = target_g - playpal[check_i + 1];
-          dist_b = target_b - playpal[check_i + 2];
-
-          // This equation seems to fix issues with red-dominant translation,
-          // e.g., aaliens CR_BRICK, which has artifacts in the second equation.
-          //
-          // I experimented with more "sophisticated" approaches,
-          // but they don't seem to do well with common palettes.
-          if (target_r > target_g && target_r > target_b)
-            dist = (((512 + avg_r) * dist_r * dist_r) >> 8) +
-                  4 * dist_g * dist_g +
-                  (((767 - avg_r) * dist_b * dist_b) >> 8);
-          else
-            dist = dist_r * dist_r +
-                  dist_g * dist_g +
-                  dist_b * dist_b;
-
-          if (dist < best_dist) {
-            best_dist = dist;
-            best_i = check_i / 3;
-          }
-        }
-
-        index = (dark_i ? CR_DARKEN * 256 : 0) + cr_i * 256 + orig_i;
+        index = (variant->offset + cr_i) * 256 + orig_i;
 
         // Make sure CR is setup correctly
         if (index >= (256 * CR_LIMIT))
           I_Error("CR buffer overflow at index %d (limit %d)", index, 256 * CR_LIMIT);
 
-        buffer[index] = best_i;
-      }
-
-      // Add CR_SHADOW (darkest index of playpal)
-      if (!dark_i)
-      {
-        index = (CR_SHADOW * 256 + orig_i);
-
-        // Make sure CR is setup correctly
-        if (index >= (256 * CR_LIMIT))
-          I_Error("CR buffer overflow at index %d (limit %d)", index, 256 * CR_LIMIT);
-
-        buffer[index] = shadow_i;
+        buffer[index] = dsda_BestCRColor(playpal, target_r, target_g, target_b);
       }
     }
   }
+
+  // Add CR_SHADOW (darkest index of playpal)
+  memset(buffer + CR_SHADOW * 256, playpal_darkest, 256);
 
   dsda_LoadCRLumps(buffer);
 

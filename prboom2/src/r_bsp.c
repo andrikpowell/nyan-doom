@@ -390,6 +390,7 @@ static void R_AddLine (seg_t *line)
   angle_t  span;
   angle_t  tspan;
   static sector_t tempsec;     // killough 3/8/98: ceiling/water hack
+  dboolean clipped_right = false;
 
   curline = line;
 
@@ -496,6 +497,7 @@ static void R_AddLine (seg_t *line)
       if (tspan >= span)
         return;
       angle2 = 0-clipangle;
+      clipped_right = true;
     }
 
   // The seg is in the view range,
@@ -507,6 +509,10 @@ static void R_AddLine (seg_t *line)
   // killough 1/31/98: Here is where "slime trails" can SOMETIMES occur:
   x1 = viewangletox[angle1];
   x2 = viewangletox[angle2];
+
+  // Fix HOM line at right of view for weird resolutions
+  if (clipped_right)
+    x2 = viewwidth;
 
   // Does not cross a pixel?
   if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness

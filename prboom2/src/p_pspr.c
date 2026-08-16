@@ -90,6 +90,26 @@ static const int recoil_values[] = {    // phares
   80  // wp_supershotgun
 };
 
+// Weapon switching speed
+switch_speed_t switch_speed;
+static fixed_t dsda_getWeaponSpeed(void)
+{
+  if (allow_incompatibility && !netgame && switch_speed != WEAPON_SPEED_DEFAULT)
+  {
+      if (switch_speed == WEAPON_SPEED_SLOW)
+          return FRACUNIT*3;  // 0.5x speed
+      else if (switch_speed == WEAPON_SPEED_FAST)
+          return FRACUNIT*9;  // 1.5x speed
+      else if (switch_speed == WEAPON_SPEED_FASTER)
+          return FRACUNIT*12; // 2x speed
+      else if (switch_speed == WEAPON_SPEED_INSTANT)
+          return FRACUNIT*128;
+  }
+
+  // normal speed
+  return RAISESPEED; // same as LOWERSPEED
+}
+
 //
 // P_SetPsprite
 //
@@ -387,6 +407,27 @@ int P_AmmoPercent(player_t *player, int weapon)
     return 0;
 
   return player->ammo[ammo_i] * 100 / player->maxammo[ammo_i];
+}
+
+static statenum_t P_GetReadyWeaponState(const player_t *player)
+{
+  if (player->powers[pw_weaponlevel2])
+    return wpnlev2info[player->readyweapon].readystate;
+  else if (player->pclass)
+  {
+    // Timon's Axe uses a separate glowing ready loop when powered
+    if (player->pclass == PCLASS_FIGHTER && player->readyweapon == wp_second
+        && player->ammo[MANA_1])
+    {
+      return HEXEN_S_FAXEREADY_G;
+    }
+    else
+    {
+      return hexen_weaponinfo[player->readyweapon][player->pclass].readystate;
+    }
+  }
+  else
+    return weaponinfo[player->readyweapon].readystate;
 }
 
 //
@@ -699,7 +740,7 @@ void A_Lower(player_t *player, pspdef_t *psp)
   }
   else
   {
-      psp->sy += LOWERSPEED;
+      psp->sy += dsda_getWeaponSpeed();
   }
 
   // Is already down.
@@ -740,7 +781,7 @@ void A_Raise(player_t *player, pspdef_t *psp)
 
   CHECK_WEAPON_CODEPOINTER("A_Raise", player);
 
-  psp->sy -= RAISESPEED;
+  psp->sy -= dsda_getWeaponSpeed();
 
   if (psp->sy > WEAPONTOP)
     return;
@@ -750,22 +791,7 @@ void A_Raise(player_t *player, pspdef_t *psp)
   // The weapon has been raised all the way,
   //  so change to the ready state.
 
-  if (player->powers[pw_weaponlevel2])
-    newstate = wpnlev2info[player->readyweapon].readystate;
-  else if (player->pclass)
-  {
-    if (player->pclass == PCLASS_FIGHTER && player->readyweapon == wp_second
-        && player->ammo[MANA_1])
-    {
-      newstate = HEXEN_S_FAXEREADY_G;
-    }
-    else
-    {
-      newstate = hexen_weaponinfo[player->readyweapon][player->pclass].readystate;
-    }
-  }
-  else
-    newstate = weaponinfo[player->readyweapon].readystate;
+  newstate = P_GetReadyWeaponState(player);
 
   P_SetPsprite(player, ps_weapon, newstate);
 }

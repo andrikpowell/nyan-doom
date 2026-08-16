@@ -255,8 +255,8 @@ int dsda_PlayerMessageIsYellow(void) {
 
 typedef struct
 {
-  const char * const *deh_string;
-  const char *word;
+  const char* const *deh_string;
+  const char* word;
   int cm;
 } dsda_msg_color_rule_t;
 
@@ -337,30 +337,110 @@ static const dsda_msg_color_rule_t msg_color_rules[] =
     { &s_TXT_MANA_BOTH, "Combined", CR_RED    },
 };
 
-static const dsda_msg_color_rule_t *dsda_GetColorRuleForMessage(const char *str)
+static const dsda_msg_color_rule_t any_key_color[] =
+{
+  { NULL, "gray",       CR_GRAY      },
+  { NULL, "grey",       CR_GRAY      },
+  { NULL, "green",      CR_GREEN     },
+  { NULL, "brown",      CR_BROWN     },
+  { NULL, "gold",       CR_GOLD      },
+  { NULL, "red",        CR_RED       },
+  { NULL, "blue",       CR_BLUE      },
+  { NULL, "orange",     CR_ORANGE    },
+  { NULL, "yellow",     CR_GOLD      },
+  { NULL, "black",      CR_BLACK     },
+  { NULL, "purple",     CR_PURPLE    },
+  { NULL, "white",      CR_WHITE     },
+};
+
+static const char* const *any_key_color_messages[] =
+{
+  // Doom
+  &s_GOTBLUECARD,
+  &s_GOTBLUESKUL,
+  &s_GOTREDCARD,
+  &s_GOTREDSKULL,
+  &s_GOTYELWCARD,
+  &s_GOTYELWSKUL,
+  &s_PD_BLUEC,
+  &s_PD_BLUEK,
+  &s_PD_BLUEO,
+  &s_PD_BLUES,
+  &s_PD_REDC,
+  &s_PD_REDK,
+  &s_PD_REDO,
+  &s_PD_REDS,
+  &s_PD_YELLOWC,
+  &s_PD_YELLOWK,
+  &s_PD_YELLOWO,
+  &s_PD_YELLOWS,
+
+  // Heretic
+  &s_HERETIC_TXT_GOTBLUEKEY,
+  &s_HERETIC_TXT_GOTYELLOWKEY,
+  &s_HERETIC_TXT_GOTGREENKEY,
+  &s_HERETIC_TXT_NEEDBLUEKEY,
+  &s_HERETIC_TXT_NEEDYELLOWKEY,
+  &s_HERETIC_TXT_NEEDGREENKEY,
+};
+
+static const dsda_msg_color_rule_t *dsda_AnyKeyMessageColor(const char* str)
+{
+  int i;
+
+  for (i = 0; i < arrlen(any_key_color); ++i)
+    if (M_StringContainsWord(str, any_key_color[i].word))
+      return &any_key_color[i];
+
+  return NULL;
+}
+
+static const dsda_msg_color_rule_t *dsda_GetColoredMessage(const char* str, int i)
+{
+  int j;
+
+  // Smarter "Any Color" key messages
+  for (j = 0; j < arrlen(any_key_color_messages); ++j)
+  {
+    if (msg_color_rules[i].deh_string == any_key_color_messages[j])
+    {
+      const dsda_msg_color_rule_t *key_color = dsda_AnyKeyMessageColor(str);
+
+      if (key_color)
+        return key_color;
+
+      break;
+    }
+  }
+
+  // fall back to generic key color rules (i.e. Woof)
+  return &msg_color_rules[i];
+}
+
+static const dsda_msg_color_rule_t *dsda_GetColorRuleForMessage(const char* str)
 {
   int i;
 
   for (i = 0; i < arrlen(msg_color_rules); ++i)
   {
-    const char *rule_str = *msg_color_rules[i].deh_string;
+    const char* rule_str = *msg_color_rules[i].deh_string;
 
     if (!rule_str || !str)
         continue;
 
     // if string matches exactly
     if (str == rule_str)
-        return &msg_color_rules[i];
+      return dsda_GetColoredMessage(str, i);
 
     // Match prefix (ignore trailing '\n')
     if (strncmp(str, rule_str, strlen(rule_str)) == 0)
-        return &msg_color_rules[i];
+      return dsda_GetColoredMessage(str, i);
   }
 
   return NULL;
 }
 
-const char *dsda_ColorizeMessage(const char *str)
+const char* dsda_ColorizeMessage(const char* str)
 {
   static char buf[1024];
 

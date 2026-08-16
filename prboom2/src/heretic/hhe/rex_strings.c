@@ -254,6 +254,7 @@ hhe_strs hhe_strlookup[] = {
     { {     0,     0,     0 }, &s_STSTR_MUS, "STSTR_MUS" },
     { {     0,     0,     0 }, &s_STSTR_NOMUS, "STSTR_NOMUS" },
     { {     0,     0,     0 }, &savegamename, "SAVEGAMENAME" },  // Ty 05/03/98
+    { {     0,     0,     0 }, &s_HUSTR_SECRETFOUND, "HUSTR_SECRETFOUND" },
 
   // Extra strings (not in hehacked)
     { {     0,     0,     0,}, &s_HERETIC_MNU_CHOOSESKILL, "MNU_CHOOSESKILL" },

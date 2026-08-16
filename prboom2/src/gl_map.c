@@ -227,3 +227,29 @@ void gld_DrawMapLines(void)
     glDisableClientState(GL_COLOR_ARRAY);
   }
 }
+
+void gld_DrawMapLinePoints(void)
+{
+  if (map_line_points.count > 0)
+  {
+    map_point_t *points = (map_point_t *)map_line_points.data;
+    float point_size = AM_GetLineWeight() * MIN(gl_scale_x, gl_scale_y);
+
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+
+    glVertexPointer(2, GL_FLOAT, sizeof(map_point_t), &points[0].x);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(map_point_t), &points[0].r);
+
+    glEnable(GL_POINT_SMOOTH);
+    glPointSize(MAX(1.0f, point_size));
+    glDrawArrays(GL_POINTS, 0, map_line_points.count);
+    glPointSize(1.0f);
+    glDisable(GL_POINT_SMOOTH);
+
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+  }
+}

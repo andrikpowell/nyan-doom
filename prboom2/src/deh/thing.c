@@ -551,6 +551,10 @@ static void deh_procThing(DEHFILE *fpin, char *line)
 
       switch (ix)
       {
+        case DEH_MOBJINFO_BLOODCOLOR:
+          *deh_mobjinfo.edited_bloodcolor = true;
+          break;
+
         case DEH_MOBJINFO_OBITUARY:
         {
           char *stripped_string = ptr_lstrip(strval);

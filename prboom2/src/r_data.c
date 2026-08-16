@@ -248,6 +248,7 @@ static void R_InitTextures (void)
 
       texture->width = LittleShort(mtexture->width);
       texture->height = LittleShort(mtexture->height);
+      texture->direct = false;
       texture->patchcount = LittleShort(mtexture->patchcount);
 
         /* Mattias Engdeg�rd emailed me of the following explenation of
@@ -290,19 +291,36 @@ static void R_InitTextures (void)
       mpatch = mtexture->patches;
       patch = texture->patches;
 
-      for (j=0 ; j<texture->patchcount ; j++, mpatch++, patch++)
+      for (j=0 ; j<texture->patchcount ; j++, mpatch++)
         {
+          int patchindex = LittleShort(mpatch->patch);
+
+          // Check if patch is in PNAMES bounds
+          if (patchindex < 0 || patchindex >= nummappatches)
+            {
+              lprintf(LO_WARN, "\nR_InitTextures: Texture %.8s references patch index %d outside PNAMES table (%d entries)",
+                      texture->name, patchindex, nummappatches);
+              continue;
+            }
+
           patch->originx = LittleShort(mpatch->originx);
           patch->originy = LittleShort(mpatch->originy);
-          patch->patch = patchlookup[LittleShort(mpatch->patch)];
+          patch->patch = patchlookup[patchindex];
+          patch->direct = R_IsDirectTallPatchLump(patch->patch);
+          if (patch->direct)
+            texture->direct = true;
           if (patch->patch == -1)
             {
               //jff 8/3/98 use logical output routine
               lprintf(LO_ERROR,"\nR_InitTextures: Missing patch %d in texture %.8s",
-                     LittleShort(mpatch->patch), texture->name); // killough 4/17/98
+                     patchindex, texture->name); // killough 4/17/98
               ++errors;
             }
+
+          ++patch;
         }
+
+      texture->patchcount = (short)(patch - texture->patches);
 
       for (j=1; j*2 <= texture->width; j<<=1)
         ;
@@ -652,12 +670,29 @@ void R_SetSpriteByNum(patchnum_t *patchnum, int lump)
   patchnum->lumpnum = lump;
 }
 
+static void R_ErrorMissingSpriteFrames(const char *func, spritenum_t item)
+{
+  if (item < 0 || item >= num_sprites)
+    I_Error("%s: sprite index %d out of range", func, item);
+
+  if (sprnames[item])
+    I_Error("%s: sprite %.4s has no frames; expected %.4sA0",
+            func, sprnames[item], sprnames[item]);
+
+  I_Error("%s: sprite index %d has no frames", func, item);
+}
+
 int R_SetSpriteByIndex(patchnum_t *patchnum, spritenum_t item)
 {
   int result = false;
-  if (item < num_sprites)
+  if (item >= 0 && item < num_sprites)
   {
-    int lump = firstspritelump + sprites[item].spriteframes->lump[0];
+    int lump;
+
+    if (!sprites[item].spriteframes)
+      R_ErrorMissingSpriteFrames("R_SetSpriteByIndex", item);
+
+    lump = firstspritelump + sprites[item].spriteframes->lump[0];
     R_SetSpriteByNum(patchnum, lump);
     result = true;
   }
@@ -671,7 +706,20 @@ int R_NumPatchForSpriteIndex(spritenum_t item)
     return -1;
   }
 
+  if (!sprites[item].spriteframes)
+    R_ErrorMissingSpriteFrames("R_NumPatchForSpriteIndex", item);
+
   return firstspritelump + sprites[item].spriteframes->lump[0];
+}
+
+int R_SafeNumPatchForSpriteIndex(spritenum_t item)
+{
+  if (item < 0 || item >= num_sprites || !sprites[item].spriteframes)
+  {
+    return LUMP_NOT_FOUND;
+  }
+
+  return R_NumPatchForSpriteIndex(item);
 }
 
 int R_SetSpriteByName(patchnum_t *patchnum, const char *name)

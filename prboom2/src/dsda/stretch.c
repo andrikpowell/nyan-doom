@@ -127,15 +127,17 @@ double dsda_MinimapYCorrection(void)
 
 static void EvaluateExTextScale(void) {
   double scale = dsda_IntConfig(dsda_config_ex_text_scale) / 100.0;
+  double ratio_y = dsda_IntConfig(dsda_config_ex_text_ratio_height) / 100.0;
   int base_width;
   int base_height;
 
   if (!scale) scale = 1.0;
+  if (!ratio_y) ratio_y = 1.0;
 
   dsda_GetPatchScaling(&base_width, &base_height);
 
   ex_text_scale_x = (double)base_width / 320.0 * scale;
-  ex_text_scale_y = (double)base_height / 200.0 * scale;
+  ex_text_scale_y = (double)base_height / 200.0 * scale * ratio_y;
 
   ex_text_screenwidth      = (int)(320 * ex_text_scale_x);
   ex_text_screenheight     = (int)(200 * ex_text_scale_y);

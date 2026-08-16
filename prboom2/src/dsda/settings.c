@@ -375,6 +375,10 @@ dboolean dsda_WipeAtFullSpeed(void) {
   return dsda_IntConfig(dsda_config_wipe_at_full_speed);
 }
 
+dboolean dsda_DrawNearbySprites(void) {
+  return allow_incompatibility && dsda_IntConfig(dsda_config_draw_nearby_sprites);
+}
+
 int dsda_ShowAliveMonsters(void) {
   return dsda_IntConfig(dsda_config_show_alive_monsters);
 }
@@ -470,8 +474,12 @@ void dsda_SkipNextWipe(void) {
 
 // In raven, strict mode does not affect this setting
 dboolean dsda_RenderWipeScreen(void) {
-  return raven ? dsda_TransientIntConfig(dsda_config_render_wipescreen) :
-                 dsda_IntConfig(dsda_config_render_wipescreen);
+  return raven ? (dsda_TransientIntConfig(dsda_config_render_wipescreen) > 0) :
+                 (dsda_IntConfig(dsda_config_render_wipescreen) > 0);
+}
+
+int dsda_WipeScreenSpeed(void) {
+  return !allow_incompatibility ? 1 : dsda_IntConfig(dsda_config_render_wipescreen);
 }
 
 dboolean dsda_PendingSkipWipe(void) {

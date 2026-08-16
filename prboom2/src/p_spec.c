@@ -54,6 +54,7 @@
 #include "p_inter.h"
 #include "p_enemy.h"
 #include "s_sound.h"
+#include "s_advsound.h"
 #include "sounds.h"
 #include "i_sound.h"
 #include "m_bbox.h"                                         // phares 3/20/98
@@ -75,6 +76,7 @@
 #include "dsda/messenger.h"
 #include "dsda/scroll.h"
 #include "dsda/skill_info.h"
+#include "dsda/text_color.h"
 #include "dsda/thing_id.h"
 #include "dsda/utility.h"
 
@@ -294,7 +296,7 @@ void P_InitPicAnims (void)
 {
   int         i;
   const animdef_t *animdefs; //jff 3/23/98 pointer to animation lump
-  int         lump = -1;
+  int         lump = LUMP_NOT_FOUND;
   //  Init animation
 
   if (map_format.animdefs)
@@ -305,22 +307,23 @@ void P_InitPicAnims (void)
 
   if (heretic)
   {
-    lump = W_CheckNumForName("ANIMATED");
+    lump = W_GetAnimatedOrSwitchesLump("ANIMATED");
 
-    if (lump != LUMP_NOT_FOUND && lumpinfo[lump].source != source_port_wad)
+    // Heretic keeps using built-in animdefs unless an IWAD/PWAD lump exists
+    if (W_LumpNumExists(lump) && !W_LumpNumInPortWad(lump))
       animdefs = (const animdef_t *) W_LumpByNum(lump);
     else
       animdefs = heretic_animdefs;
   }
   else
   {
-    lump = W_GetNumForName("ANIMATED"); // cph - new wad lump handling
+    lump = W_GetAnimatedOrSwitchesLump("ANIMATED"); // cph - new wad lump handling
     //jff 3/23/98 read from predefined or wad lump instead of table
     animdefs = (const animdef_t *)W_LumpByNum(lump);
   }
 
   lastanim = anims;
-  for (i=0 ; animdefs[i].istexture != -1 ; i++)
+  for (i=0 ; animdefs[i].istexture != LUMP_NOT_FOUND ; i++)
   {
     // 1/11/98 killough -- removed limit by array-doubling
     if (lastanim >= anims + maxanims)
@@ -334,7 +337,7 @@ void P_InitPicAnims (void)
     if (animdefs[i].istexture)
     {
       // different episode ?
-      if (R_CheckTextureNumForName(animdefs[i].startname) == -1)
+      if (R_CheckTextureNumForName(animdefs[i].startname) == LUMP_NOT_FOUND)
           continue;
 
       lastanim->picnum = R_TextureNumForName (animdefs[i].endname);
@@ -1243,6 +1246,9 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
   player_t *player;
   const char *message = NULL;
   int sfx = sfx_None;
+  int blink_blue = KEYBLINK_NONE;
+  int blink_yellow = KEYBLINK_NONE;
+  int blink_red = KEYBLINK_NONE;
   dboolean successful = true;
 
   if (!mo || !mo->player)
@@ -1259,6 +1265,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_REDC : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_red = KEYBLINK_CARD;
         successful = false;
       }
       break;
@@ -1267,6 +1274,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_BLUEC : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_CARD;
         successful = false;
       }
       break;
@@ -1275,6 +1283,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_YELLOWC : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_yellow = KEYBLINK_CARD;
         successful = false;
       }
       break;
@@ -1283,6 +1292,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_REDS : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_red = KEYBLINK_SKULL;
         successful = false;
       }
       break;
@@ -1291,6 +1301,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_BLUES : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_SKULL;
         successful = false;
       }
       break;
@@ -1299,6 +1310,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_YELLOWS : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_yellow = KEYBLINK_SKULL;
         successful = false;
       }
       break;
@@ -1314,6 +1326,9 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_ANY : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_EITHER;
+        blink_yellow = KEYBLINK_EITHER;
+        blink_red = KEYBLINK_EITHER;
         successful = false;
       }
       break;
@@ -1329,6 +1344,9 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_ALL6 : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_BOTH;
+        blink_yellow = KEYBLINK_BOTH;
+        blink_red = KEYBLINK_BOTH;
         successful = false;
       }
       break;
@@ -1338,6 +1356,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_REDK : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_red = KEYBLINK_BOTH;
         successful = false;
       }
       break;
@@ -1347,6 +1366,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_BLUEK : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_blue = KEYBLINK_BOTH;
         successful = false;
       }
       break;
@@ -1356,6 +1376,7 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_YELLOWK : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_yellow = KEYBLINK_BOTH;
         successful = false;
       }
       break;
@@ -1368,6 +1389,9 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
       {
         message = legacy ? s_PD_ALL3 : NULL;
         sfx = legacy ? sfx_oof : sfx_None;
+        blink_red = KEYBLINK_EITHER;
+        blink_yellow = KEYBLINK_EITHER;
+        blink_blue = KEYBLINK_EITHER;
         successful = false;
       }
     default:
@@ -1377,6 +1401,11 @@ dboolean P_CheckKeys(mobj_t *mo, zdoom_lock_t lock, dboolean legacy)
   if (message)
   {
     dsda_AddPlayerColoredMessage(message, player);
+  }
+
+  if (legacy)
+  {
+    ST_SetKeyBlink(player, blink_blue, blink_yellow, blink_red);
   }
 
   if (sfx != sfx_None)
@@ -1533,12 +1562,82 @@ int P_CheckTag(line_t *line)
 
     case 48:                // Scrolling walls
     case 85:
+    case 2057:              // ID24 Music changers
+    case 2058:
+    case 2059:
+    case 2060:
+    case 2061:
+    case 2062:
+    case 2063:
+    case 2064:
+    case 2065:
+    case 2066:
+    case 2067:
+    case 2068:
+    case 2087:
+    case 2088:
+    case 2089:
+    case 2090:
+    case 2091:
+    case 2092:
+    case 2093:
+    case 2094:
+    case 2095:
+    case 2096:
+    case 2097:
+    case 2098:
       return 1;   // zero tag allowed
 
     default:
       break;
   }
   return 0;       // zero tag not allowed
+}
+
+dboolean P_IsManualDoor(line_t* line)
+{
+  if (!line->backsector)
+    return false;
+
+  if (map_format.hexen)
+  {
+    if (line->special_args[0])
+      return false;
+
+    switch (line->special)
+    {
+      case zl_door_open:
+      case zl_door_raise:
+      case zl_door_locked_raise:
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  if (line->tag)
+    return false;
+
+  switch (line->special)
+  {
+    case 1:
+    case 26:
+    case 27:
+    case 28:
+    case 31:
+    case 32:
+    case 33:
+    case 34:
+      return true;
+
+    case 117:
+    case 118:
+      return !heretic;
+
+    default:
+      return false;
+  }
 }
 
 static const damage_t no_damage = { 0 };
@@ -1624,7 +1723,7 @@ static const char* dsda_GetSecretMessage(void)
     is_percent = (secret_format == 2);
 
     if (is_default)
-      return "A secret is revealed!";
+      return s_HUSTR_SECRETFOUND;
 
     for (int i = 0; i < g_maxplayers; ++i) {
       if (playeringame[i]) {
@@ -1637,9 +1736,29 @@ static const char* dsda_GetSecretMessage(void)
     else if (is_percent)
       sprintf(secret_message, "%d%% secrets revealed!", !totalsecret ? 100 : secretcount * 100 / totalsecret);
     else // fallback
-      sprintf(secret_message, "A secret is revealed!");
+      sprintf(secret_message, "%s", s_HUSTR_SECRETFOUND);
 
     return secret_message;
+}
+
+int P_GetMilestoneSound(int config_id)
+{
+  dboolean config = dsda_IntConfig(config_id);
+
+  if (config == 0)
+    return 0;
+
+  if (raven)
+    return g_sfx_secret;
+
+  if (config == 1)
+  {
+    dboolean sound_exist = !(I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0);
+
+    return sound_exist ? g_sfx_secret : g_sfx_secret_subtle;
+  }
+
+  return g_sfx_secret_subtle;
 }
 
 #define SECRET_MESSAGE_TICS ((int)(2.5*TICRATE))
@@ -1648,13 +1767,16 @@ void P_PlayerAnnounceSecret(player_t *player, const char* message)
 {
   if (dsda_IntConfig(dsda_config_hudadd_secretarea)!=0)
   {
-    int sfx_id = raven ? g_sfx_secret : I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+    int sfx_id = P_GetMilestoneSound(dsda_config_secret_sfx);
     int cur_player = (int)(player - players);
 
     if(dsda_IntConfig(dsda_config_hudadd_secretarea)==2)
     {
-      dsda_AddAlert(message);
+      dsda_string_t secret_message;
+      dsda_StringPrintF(&secret_message, "%s%s", dsda_TextColor(dsda_tc_hud_secret_message), message);
+      dsda_AddAlert(secret_message.string);
       S_StartVoidSound(sfx_id);
+      dsda_FreeString(&secret_message);
     }
     else
     {
@@ -1665,9 +1787,9 @@ void P_PlayerAnnounceSecret(player_t *player, const char* message)
 
 #define MILESTONE_TICS ((int)(2.5*TICRATE))
 
-void P_PlayerAnnounceMilestone(player_t *player, const char* message)
+void P_PlayerAnnounceMilestone(player_t *player, const char* message, int config_id)
 {
-  int sfx_id = raven ? g_sfx_secret : I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+  int sfx_id = P_GetMilestoneSound(config_id);
   int cur_player = (int)(player - players);
 
   SetCustomMessage(cur_player, message, MILESTONE_TICS, sfx_id);
@@ -1693,7 +1815,7 @@ dboolean P_AnnounceSecretMilestone(void)
 
       if (dsda_IntConfig(dsda_config_secrets_milestone))
       {
-        P_PlayerAnnounceMilestone(&players[displayplayer], "All secrets revealed!");
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All secrets revealed!", dsda_config_secrets_milestone_sfx);
         return true;
       }
     }
@@ -1722,7 +1844,7 @@ dboolean P_AnnounceItemMilestone(void)
 
       if (dsda_IntConfig(dsda_config_items_milestone))
       {
-        P_PlayerAnnounceMilestone(&players[displayplayer], "All items collected!");
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All items collected!", dsda_config_items_milestone_sfx);
         return true;
       }
     }
@@ -1760,7 +1882,7 @@ dboolean P_AnnounceKillMilestone(void)
 
       if (dsda_IntConfig(dsda_config_kills_milestone))
       {
-        P_PlayerAnnounceMilestone(&players[displayplayer], "All enemies killed!");
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All enemies killed!", dsda_config_kills_milestone_sfx);
         return true;
       }
     }
@@ -1883,6 +2005,71 @@ void P_CrossHexenSpecialLine(line_t *line, int side, mobj_t *thing, dboolean bos
   {
     P_ActivateLine(line, thing, side, SPAC_PCROSS);
   }
+}
+
+//
+// EV_ChangeMusic() -- ID24 Music Changers
+//
+// Generic solution for changing the currently playing music during play time.
+// There are four type of music changing behavior, all of them available in all
+// six major activation triggers (W1, WR, S1, SR, G1, GR) totalling 24 lines.
+// All specials can be triggered from either side of the line being activated.
+// Of the four categories, there are two conditions:
+//
+//  1. If the given music lump will loop or not
+//  2. If it will reset to the map's default when no music lump is defined
+//
+// Giving the four resulting categories:
+// * Change music and make it loop only if a track is defined.
+// * Change music and make it play only once and stop all music after.
+// * Change music and make it loop, reset to looping default if no track
+//    defined.
+// * Change music and make it play only once, reset to looping default if no
+//    track defined.
+//
+
+void EV_ChangeMusic(line_t *line, int side)
+{
+  dboolean once = false;
+  dboolean loops = false;
+  dboolean resets = false;
+
+  int music = side ? line->backmusic : line->frontmusic;
+
+  switch (line->special)
+  {
+    case 2057: case 2059: case 2061: case 2063:
+    case 2065: case 2067: case 2087: case 2089:
+    case 2091: case 2093: case 2095: case 2097:
+      once = true;
+      break;
+  }
+
+  switch (line->special)
+  {
+    case 2057: case 2058: case 2059: case 2060:
+    case 2061: case 2062: case 2087: case 2088:
+    case 2089: case 2090: case 2091: case 2092:
+      loops = true;
+      break;
+  }
+
+  switch (line->special)
+  {
+    case 2087: case 2088: case 2089: case 2090:
+    case 2091: case 2092: case 2093: case 2094:
+    case 2095: case 2096: case 2097: case 2098:
+      resets = true;
+      break;
+  }
+
+  if (music)
+    S_ChangeMusInfoMusic(music, loops);
+  else if (resets)
+    S_ChangeMusInfoMusic(musinfo.items[0], true); // Always loops when defaulting
+
+  if (once)
+    line->special = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2506,6 +2693,12 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       EV_DoFloor(line,raiseFloorTurbo);
       break;
 
+    case 2057: case 2063: case 2087: case 2093:
+    case 2058: case 2064: case 2088: case 2094:
+      // ID24 Music Changers
+      EV_ChangeMusic(line, side);
+      break;
+
       // Extended walk triggers
 
       // jff 1/29/98 added new linedef types to fill all functions out so that
@@ -2853,7 +3046,7 @@ void P_CrossZDoomSpecialLine(line_t *line, int side, mobj_t *thing, dboolean bos
 // impacted. Change is qualified by demo_compatibility.
 //
 
-void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line)
+void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
 {
   //jff 02/04/98 add check here for generalized linedef
   if (!demo_compatibility)
@@ -2995,6 +3188,17 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line)
         P_ChangeSwitchTexture(line,0);
       break;
 
+    // ID24 Music Changers
+    case 2061: case 2067: case 2091: case 2097:
+      P_ChangeSwitchTexture(line,0);
+      EV_ChangeMusic(line, side);
+      break;
+
+    case 2062: case 2068: case 2092: case 2098:
+      P_ChangeSwitchTexture(line,1);
+      EV_ChangeMusic(line, side);
+      break;
+
     //jff 1/30/98 added new gun linedefs here
     // killough 1/31/98: added demo_compatibility check, added inner switch
 
@@ -3025,9 +3229,9 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line)
   }
 }
 
-void P_ShootHexenSpecialLine(mobj_t *thing, line_t *line)
+void P_ShootHexenSpecialLine(mobj_t *thing, line_t *line, int side)
 {
-  P_ActivateLine(line, thing, 0, SPAC_IMPACT);
+  P_ActivateLine(line, thing, 0, SPAC_IMPACT); // Ignore side for now
 }
 
 int disable_nuke;  // killough 12/98: nukage disabling cheat
@@ -3987,8 +4191,12 @@ static void P_InitSectorSpecials(void)
 
   sector = sectors;
   for (i = 0; i < numsectors; i++, sector++)
+  {
+    sector->spawn_special = sector->special;
+
     if (sector->special)
       map_format.init_sector_special(sector, i);
+  }
 }
 
 static void P_InitButtons(void)
@@ -5520,6 +5728,11 @@ void P_CrossHereticSpecialLine(line_t * line, int side, mobj_t * thing, dboolean
             break;
         case 98:               // Lower Floor (TURBO)
             EV_DoFloor(line, turboLower);
+            break;
+        case 2057: case 2063: case 2087: case 2093:
+        case 2058: case 2064: case 2088: case 2094:
+            // ID24 Music Changers
+            EV_ChangeMusic(line, side);
             break;
     }
 }

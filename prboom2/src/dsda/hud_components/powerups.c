@@ -44,6 +44,10 @@ static int dsda_PowerupGroup(const dsda_powerup_t *p, int tics)
   return POWERUP_NORMAL;
 }
 
+static int dsda_GetAllKills(player_t *p)       { return dsda_IsAllKills(); }
+static int dsda_GetAllItems(player_t *p)       { return hexen ? false : dsda_IsAllItems(); }
+static int dsda_GetAllSecrets(player_t *p)     { return hexen ? false : dsda_IsAllSecrets(); }
+
 static int dsda_GetStrength(player_t *p)       { return p->powers[pw_strength]; }
 static int dsda_GetAllMap(player_t *p)         { return p->powers[pw_allmap]; }
 static int dsda_GetInvis(player_t *p)          { return p->powers[pw_invisibility]; }
@@ -115,6 +119,45 @@ static int dsda_GetFlight(player_t *p) {
 }
 
 const dsda_powerup_t powerups[] = {
+  {
+    nyan_config_ex_timer_all_kills,
+    nyan_config_ex_status_all_kills,
+    dsda_GetAllKills,
+    LEVELTICS,
+    POWERUP_BLINK_DEFAULT,
+    "100% Kills",
+    "STFPKILL",
+    "STFRKIL2",
+    "STFRKIL3",
+    dsda_tc_exhud_status_all_kills,
+    dsda_tc_exhud_status_raven_all_kills
+  },
+  {
+    nyan_config_ex_timer_all_items,
+    nyan_config_ex_status_all_items,
+    dsda_GetAllItems,
+    LEVELTICS,
+    POWERUP_BLINK_DEFAULT,
+    "100% Items",
+    "STFPITEM",
+    "STFRITM2",
+    "STFRITM3",
+    dsda_tc_exhud_status_all_items,
+    dsda_tc_exhud_status_raven_all_items
+  },
+  {
+    nyan_config_ex_timer_all_secrets,
+    nyan_config_ex_status_all_secrets,
+    dsda_GetAllSecrets,
+    LEVELTICS,
+    POWERUP_BLINK_DEFAULT,
+    "100% Secrets",
+    "STFPSECR",
+    "STFRSCR2",
+    "STFRSCR3",
+    dsda_tc_exhud_status_all_secrets,
+    dsda_tc_exhud_status_raven_all_secrets
+  },
   {
     nyan_config_ex_timer_backpack,
     nyan_config_ex_status_backpack,
@@ -357,14 +400,22 @@ const char *dsda_PowerupIconLump(const dsda_powerup_t *powerup)
   return powerup->lump;
 }
 
+static int dsda_PowerupColor(const dsda_powerup_t *powerup)
+{
+  if (raven && powerup->raven_color)
+    return powerup->raven_color;
+
+  return powerup->color;
+}
+
 const char *dsda_PowerupTextColor(const dsda_powerup_t *powerup)
 {
-  return dsda_TextColor(powerup->color);
+  return dsda_TextColor(dsda_PowerupColor(powerup));
 }
 
 int dsda_PowerupCRColor(const dsda_powerup_t *powerup)
 {
-  return dsda_TextCR(powerup->color);
+  return dsda_TextCR(dsda_PowerupColor(powerup));
 }
 
 int dsda_PowerupIcon(const dsda_powerup_t *powerup, int tics)
@@ -434,7 +485,12 @@ static dboolean dsda_PowerupEnabled(const dsda_powerup_t *pwr, dsda_powerup_view
   return config && dsda_IntConfig(config);
 }
 
-void dsda_SortPowerups(player_t *player, int *idx, int *n, dsda_powerup_view_t view)
+static dboolean dsda_IsStatsPowerup(int i)
+{
+  return i == 0 || i == 1 || i == 2;
+}
+
+void dsda_SortPowerups(player_t *player, int *idx, int *n, dsda_powerup_view_t view, dboolean reverse)
 {
   static int previous_tics[arrlen(powerups)];
   static unsigned int activate_tics[arrlen(powerups)];
@@ -499,40 +555,48 @@ void dsda_SortPowerups(player_t *player, int *idx, int *n, dsda_powerup_view_t v
       cur_pwr = idx[j];                 // powerup currntly being sorted 
       prev_pwr = idx[sort_position];    // powerup currently occupying this slot
 
-      // Sort by powerup group first.
-      cur_group   = dsda_PowerupGroup(&powerups[cur_pwr], powerups[cur_pwr].tics(player));
-      prev_group  = dsda_PowerupGroup(&powerups[prev_pwr], powerups[prev_pwr].tics(player));
-
-      // If powerup is in a different group
-      if (cur_group != prev_group)
+      // Stats (K / I / S) come first
+      if (dsda_IsStatsPowerup(cur_pwr) || dsda_IsStatsPowerup(prev_pwr))
       {
-        // Longer-lasting powerups (permanent, level) sort higher
-        // temporary countdown powerups sort lower.
-        move_above = (cur_group < prev_group);
+        move_above = cur_pwr < prev_pwr;
       }
-
-      // If powerup is in same group
       else
       {
-        cur_tics_left = powerups[cur_pwr].tics(player);
-        prev_tics_left = powerups[prev_pwr].tics(player);
+        // Sort by powerup group first.
+        cur_group   = dsda_PowerupGroup(&powerups[cur_pwr], powerups[cur_pwr].tics(player));
+        prev_group  = dsda_PowerupGroup(&powerups[prev_pwr], powerups[prev_pwr].tics(player));
 
-        // Timed powerups sort by time remaining.
-        if (cur_group == POWERUP_NORMAL)
+        // If powerup is in a different group
+        if (cur_group != prev_group)
         {
-          if (cur_tics_left != prev_tics_left)
-            move_above = (cur_tics_left > prev_tics_left);
+          // Longer-lasting powerups (permanent, level) sort higher
+          // temporary countdown powerups sort lower.
+          move_above = (cur_group < prev_group);
         }
-        // Non-countdown powerups sort by activation order.
+
+        // If powerup is in same group
         else
         {
-          cur_tic  = activate_tics[cur_pwr];
-          prev_tic = activate_tics[prev_pwr];
+          cur_tics_left = powerups[cur_pwr].tics(player);
+          prev_tics_left = powerups[prev_pwr].tics(player);
 
-          // older powerups sort higher
-          // Newer powerups are pushed lower
-          if (cur_tic != 0 && prev_tic != 0 && cur_tic != prev_tic)
-            move_above = (cur_tic < prev_tic);
+          // Timed powerups sort by time remaining.
+          if (cur_group == POWERUP_NORMAL)
+          {
+            if (cur_tics_left != prev_tics_left)
+              move_above = (cur_tics_left > prev_tics_left);
+          }
+          // Non-countdown powerups sort by activation order.
+          else
+          {
+            cur_tic  = activate_tics[cur_pwr];
+            prev_tic = activate_tics[prev_pwr];
+
+            // older powerups sort higher
+            // Newer powerups are pushed lower
+            if (cur_tic != 0 && prev_tic != 0 && cur_tic != prev_tic)
+              move_above = (cur_tic < prev_tic);
+          }
         }
       }
 
@@ -549,6 +613,41 @@ void dsda_SortPowerups(player_t *player, int *idx, int *n, dsda_powerup_view_t v
 
       idx[i] = idx[sort_position];
       idx[sort_position] = saved;
+    }
+  }
+
+  // Resort when reversed
+  if (reverse)
+  {
+    int first = 0;
+    int last = *n - 1;
+
+    while (first < *n && dsda_IsStatsPowerup(idx[first]))
+      first++;
+
+    // Reverse stats only, so right-to-left drawing displays K I S
+    last = first - 1;
+
+    for (int i = 0; i < last - i; ++i)
+    {
+      int saved = idx[i];
+
+      idx[i] = idx[last - i];
+      idx[last - i] = saved;
+    }
+
+    // Reverse everything after stats normally
+    last = *n - 1;
+
+    while (first < last)
+    {
+      int saved = idx[first];
+
+      idx[first] = idx[last];
+      idx[last] = saved;
+
+      first++;
+      last--;
     }
   }
 }

@@ -37,6 +37,7 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "SDL.h"
 
@@ -120,8 +121,18 @@ unsigned char *I_GrabScreen(void)
 
   if (pixels && size)
   {
-    SDL_Rect screen = { 0, 0, renderW, renderH };
-    SDL_RenderReadPixels(sdl_renderer, &screen, SDL_PIXELFORMAT_RGB24, pixels, renderW * 3);
+    int dest_x, dest_y;
+    SDL_Rect screen = viewport_rect;
+
+    // software can include borderbox areas outside the game viewport
+    // keep those borderbox pixels black, but read the viewport pixels
+    memset(pixels, 0, size);
+
+    // to avoid screenshot drawing from the top left, center it (pad with borderboxes)
+    dest_x = screen.x * 3;
+    dest_y = screen.y * renderW * 3;
+
+    SDL_RenderReadPixels(sdl_renderer, &screen, SDL_PIXELFORMAT_RGB24, pixels + dest_x + dest_y, renderW * 3);
   }
 
   return pixels;

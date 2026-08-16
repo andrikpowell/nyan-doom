@@ -59,7 +59,6 @@ set(LUMPS
     lumps/soundfont/sndfont.lmp
     lumps/dsdacr.lmp
     lumps/nyanhud.lmp
-    lumps/nyantc.lmp
 )
 
 set(COLORMAPS
@@ -204,6 +203,9 @@ set(GRAPHICS
     graphics/fonta06.ppm
     graphics/fonta28.ppm
     graphics/fonta30.ppm
+    graphics/amkills.ppm
+    graphics/amitem.ppm
+    graphics/amsecr.ppm
     graphics/boxul.ppm
     graphics/boxuc.ppm
     graphics/boxur.ppm
@@ -217,6 +219,9 @@ set(GRAPHICS
     graphics/stkeys7.ppm
     graphics/stkeys8.ppm
     graphics/stcfn096.ppm
+    graphics/stfpkill.ppm
+    graphics/stfpitem.ppm
+    graphics/stfpsecr.ppm
     graphics/stfpinv.ppm
     graphics/stfpins.ppm
     graphics/stfpvis.ppm
@@ -241,13 +246,25 @@ set(GRAPHICS
     graphics/cross5.ppm
     graphics/cross6.ppm
     graphics/cross7.ppm
-    graphics/STBR123.ppm
+    graphics/nyanstb1.ppm
 )
 
 set(RAVEN_LUMPS
-    lumps/stbr124.lmp
-    lumps/stbr125.lmp
+    lumps/amkills2.lmp
+    lumps/amitem2.lmp
+    lumps/amsecr2.lmp
+    lumps/amkills3.lmp
+    lumps/amitem3.lmp
+    lumps/amsecr3.lmp
+    lumps/nyanstb2.lmp
+    lumps/nyanstb3.lmp
     lumps/h_palsel.lmp
+    lumps/stfrkil2.lmp
+    lumps/stfritm2.lmp
+    lumps/stfrscr2.lmp
+    lumps/stfrkil3.lmp
+    lumps/stfritm3.lmp
+    lumps/stfrscr3.lmp
     lumps/stfrtome.lmp
     lumps/stfrmor1.lmp
     lumps/stfrmor2.lmp
@@ -486,7 +503,7 @@ set(WAD_CMDLINE
 
 add_custom_command(
     OUTPUT ${WAD_DATA_PATH}
-    COMMAND nyan_rdatawad -I "${CMAKE_CURRENT_SOURCE_DIR}" ${WAD_CMDLINE} -o "${WAD_DATA_PATH}"
+    COMMAND $<TARGET_FILE:nyan_rdatawad> -I "${CMAKE_CURRENT_SOURCE_DIR}" ${WAD_CMDLINE} -o "${WAD_DATA_PATH}"
     DEPENDS nyan_rdatawad ${WAD_SRC}
     VERBATIM
 )

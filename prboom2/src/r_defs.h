@@ -183,6 +183,7 @@ typedef struct sector_s
   short ceilingpic;
   short lightlevel;
   short special;
+  short spawn_special;
   short tag;
 
   // [kb] For R_FixWiggle
@@ -345,6 +346,10 @@ typedef struct line_s
   int healthgroup;
   const byte* tranmap;
   float alpha;
+
+  // ID24 line specials
+  int frontmusic; // Front upper texture -- activated from the front side
+  int backmusic;  // Front lower texture -- activated from the back side
 } line_t;
 
 #define LINE_ARG_COUNT 5

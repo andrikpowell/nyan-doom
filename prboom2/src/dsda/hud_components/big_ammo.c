@@ -43,16 +43,16 @@ static int dsda_GetAmmoImage(ammotype_t ammo_type) {
     if (ammo_type == am_goldwand) return HERETIC_SPR_AMG1;
     else if (ammo_type == am_crossbow) return HERETIC_SPR_AMC2;
     else if (ammo_type == am_blaster) return HERETIC_SPR_AMB1;
-    else if (ammo_type == am_skullrod) return HERETIC_SPR_AMS1;
-    else if (ammo_type == am_phoenixrod) return HERETIC_SPR_AMP1;
-    else if (ammo_type == am_mace) return HERETIC_SPR_AMM1;
+    else if (gamemode != shareware && ammo_type == am_skullrod) return HERETIC_SPR_AMS1;
+    else if (gamemode != shareware && ammo_type == am_phoenixrod) return HERETIC_SPR_AMP1;
+    else if (gamemode != shareware && ammo_type == am_mace) return HERETIC_SPR_AMM1;
     else return 0;
   }
   else // Doom
   {
     if (ammo_type == am_clip) return SPR_CLIP;
     else if (ammo_type == am_shell) return SPR_SHEL;
-    else if (ammo_type == am_cell) return SPR_CELL;
+    else if (gamemode != shareware && ammo_type == am_cell) return SPR_CELL;
     else if (ammo_type == am_misl) return SPR_ROCK;
     else return 0;
   }
@@ -63,10 +63,10 @@ static int dsda_GetAmmoImage(ammotype_t ammo_type) {
 static void dsda_DoomAmmoPatchSpacing(void)
 {
   int lumps[] = {
-    R_NumPatchForSpriteIndex(dsda_GetAmmoImage(am_clip)),
-    R_NumPatchForSpriteIndex(dsda_GetAmmoImage(am_shell)),
-    R_NumPatchForSpriteIndex(dsda_GetAmmoImage(am_cell)),
-    R_NumPatchForSpriteIndex(dsda_GetAmmoImage(am_misl))
+    R_SafeNumPatchForSpriteIndex(dsda_GetAmmoImage(am_clip)),
+    R_SafeNumPatchForSpriteIndex(dsda_GetAmmoImage(am_shell)),
+    R_SafeNumPatchForSpriteIndex(dsda_GetAmmoImage(am_cell)),
+    R_SafeNumPatchForSpriteIndex(dsda_GetAmmoImage(am_misl))
   };
 
   patch_spacing_x = 0;
@@ -74,6 +74,9 @@ static void dsda_DoomAmmoPatchSpacing(void)
 
   for (int i = 0; i < sizeof(lumps) / sizeof(lumps[0]); ++i)
   {
+    if (lumps[i] == LUMP_NOT_FOUND)
+      continue;
+
     patch_spacing_x = MAX(patch_spacing_x, R_NumPatchWidth(lumps[i]));
     patch_spacing_y = MAX(patch_spacing_y, R_NumPatchHeight(lumps[i]));
   }
@@ -82,12 +85,12 @@ static void dsda_DoomAmmoPatchSpacing(void)
 static void dsda_HereticAmmoPatchSpacing(void)
 {
   int lumps[] = {
-    R_NumPatchForSpriteIndex(dsda_GetAmmoImage(am_goldwand)),
-    R_NumPatchForSpriteIndex(dsda_GetAmmoImage(am_crossbow)),
-    R_NumPatchForSpriteIndex(dsda_GetAmmoImage(am_blaster)),
-    R_NumPatchForSpriteIndex(dsda_GetAmmoImage(am_skullrod)),
-    R_NumPatchForSpriteIndex(dsda_GetAmmoImage(am_phoenixrod)),
-    R_NumPatchForSpriteIndex(dsda_GetAmmoImage(am_mace))
+    R_SafeNumPatchForSpriteIndex(dsda_GetAmmoImage(am_goldwand)),
+    R_SafeNumPatchForSpriteIndex(dsda_GetAmmoImage(am_crossbow)),
+    R_SafeNumPatchForSpriteIndex(dsda_GetAmmoImage(am_blaster)),
+    R_SafeNumPatchForSpriteIndex(dsda_GetAmmoImage(am_skullrod)),
+    R_SafeNumPatchForSpriteIndex(dsda_GetAmmoImage(am_phoenixrod)),
+    R_SafeNumPatchForSpriteIndex(dsda_GetAmmoImage(am_mace))
   };
 
   patch_spacing_x = 0;
@@ -95,6 +98,9 @@ static void dsda_HereticAmmoPatchSpacing(void)
 
   for (int i = 0; i < sizeof(lumps) / sizeof(lumps[0]); ++i)
   {
+    if (lumps[i] == LUMP_NOT_FOUND)
+      continue;
+
     patch_spacing_x = MAX(patch_spacing_x, R_NumPatchWidth(lumps[i]));
     patch_spacing_y = MAX(patch_spacing_y, R_NumPatchHeight(lumps[i]));
   }
@@ -104,7 +110,7 @@ static void dsda_DrawBigAmmoIcon(int x, int y, int lump, int flags) {
   int w, h;
   int shadow = raven ? SHADOW_ALWAYS_RAVEN : SHADOW_EXTRA;
 
-  if (!lump)
+  if (lump == LUMP_NOT_FOUND)
     return;
 
   w = R_NumPatchWidth(lump);
@@ -148,7 +154,7 @@ static void dsda_DrawComponent(void) {
     return;
 
   ammo = player->ammo[ammo_type];
-  lump = R_NumPatchForSpriteIndex(dsda_GetAmmoImage(ammo_type));
+  lump = R_SafeNumPatchForSpriteIndex(dsda_GetAmmoImage(ammo_type));
   cm = heretic ? CR_DEFAULT : dsda_TextCR(dsda_AmmoColorBig(player));
 
   lump_width = patch_spacing_x;

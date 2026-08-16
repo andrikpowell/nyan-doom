@@ -262,6 +262,6 @@ void dsda_TryPlaybackOneTick(ticcmd_t* cmd) {
     else
       G_CheckDemoStatus();
   }
-  else if (dsda_InputActive(dsda_input_join_demo) || dsda_InputJoyBActive(dsda_input_use))
+  else if (dsda_InputActive(dsda_input_join_demo) || (!menuactive && dsda_InputJoyBActive(dsda_input_use)))
     dsda_JoinDemo(cmd);
 }

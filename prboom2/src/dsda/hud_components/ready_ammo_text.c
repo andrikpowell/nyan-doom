@@ -134,8 +134,10 @@ static void dsda_UpdateComponentText(void) {
 
       if (dsda_WeaponNoAmmo(player, ammo_type))
         snprintf(local->value.msg, sizeof(local->value.msg), "%s N/A", ammo_cm);
-      else
+      else if (local->draw_boom_bar)
         snprintf(local->value.msg, sizeof(local->value.msg), "%s%d/%d", ammo_cm, player->ammo[ammo_type], player->maxammo[ammo_type]);
+      else
+        snprintf(local->value.msg, sizeof(local->value.msg), "%s%d", ammo_cm, player->ammo[ammo_type]);
     }
   }
 }

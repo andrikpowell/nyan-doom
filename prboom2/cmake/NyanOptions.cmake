@@ -20,6 +20,7 @@ option(ENABLE_PACKAGING "Enable creating CPack packages" ${nyan_is_top_project})
 option(STRICT_FIND "Fail configuration if an optional dependency is not found" OFF)
 option(SIMPLECHECKS "Enable checks which only impose significant overhead if a posible error is detected" ON)
 option(RANGECHECK "Enable internal range checking" OFF)
+option(NYAN_NIGHTLY "Mark as nightly for demos" OFF)
 
 option(CMAKE_FIND_PACKAGE_PREFER_CONFIG "Search for package config before using Find modules" ON)
 
