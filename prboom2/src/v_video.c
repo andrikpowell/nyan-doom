@@ -479,12 +479,15 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
     int    pitch = screens[scrn].pitch;
     int    w = patch->width;
     int    start_col, end_col;
+    int    y_start = y + crop.top;
+    int    y_end = y + patch->height - crop.bottom;
+    int    y_limit = (flags & VPT_STRETCH) ? 200 : SCREENHEIGHT;
 
     int TR = flags & VPT_COLOR;
     int TL = flags & VPT_TRANSMAP;
     int REVERSE_TL = flags & VPT_TRANSMAP_REVERSE;
 
-    if (y<0 || y+patch->height > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT)) {
+    if (y_start < 0 || y_end > y_limit) {
       // killough 1/19/98: improved error message:
       lprintf(LO_WARN, "V_DrawPatch: Patch (%d,%d)-(%d,%d) exceeds LFB in vertical direction (horizontal is clipped)\n"
               "Bad V_DrawPatch (flags=%u)", x, y, x+patch->width, y+patch->height, flags);
@@ -500,12 +503,14 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
       int screen_x = x + col;
       const int colindex = (flags & VPT_FLIP) ? (w - col) : (col);
       const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
-      byte *desttop = screens[scrn].data + y + screen_x * pitch;
+      byte *desttop;
 
       if (screen_x < 0)
         continue;
       if (screen_x >= SCREENWIDTH)
         break;
+
+      desttop = screens[scrn].data + y + screen_x * pitch;
 
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
@@ -520,7 +525,7 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
 
         // killough 2/21/98: Unrolled and performance-tuned
         source = column->pixels + draw_start;
-        dest = desttop + draw_start * pitch;
+        dest = desttop + draw_start;
         count = draw_end - draw_start;
 
      // both translucent and color translated
@@ -928,7 +933,6 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
       }
     }
 
-    R_ResetColumnBuffer();
     drawvars = olddrawvars;
 }
 
@@ -1102,6 +1106,10 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   v_patchinfo_t shadowinfo = {0};
   int shadow_x, shadow_y;
   int fuzz = flags & VPT_FUZZ;
+
+  // Avoid out-of-bounds errors for full transparent patches
+  if (patch->flags & PATCH_ISEMPTY)
+    return;
 
   // remove offsets
   if (!(flags & VPT_NOOFFSET))

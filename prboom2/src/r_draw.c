@@ -81,30 +81,6 @@ const byte *main_tranmap;     // killough 4/11/98
 // Source is the top of the column to scale.
 //
 
-// SoM: OPTIMIZE for ANYRES
-typedef enum
-{
-   COL_NONE,
-   COL_OPAQUE,
-   COL_TRANS,
-   COL_FLEXTRANS,
-   COL_FUZZ,
-   COL_FLEXADD
-} columntype_e;
-
-static int    temp_x = 0;
-static int    tempyl[4], tempyh[4];
-
-// e6y: resolution limitation is removed
-static byte           *tempbuf;
-
-static int    startx = 0;
-static int    temptype = COL_NONE;
-static int    commontop, commonbot;
-static const byte *temptranmap = NULL;
-// SoM 7-28-04: Fix the fuzz problem.
-static const byte   *tempfuzzmap;
-
 //
 // Spectre/Invisibility.
 //
@@ -150,6 +126,115 @@ int min_fuzzcellsize;
 int scaled_fuzzcellsize;
 int fuzz_cutoff = false;
 
+// Scaled software fuzz algorithm
+static void R_DrawFuzzColumn(draw_column_vars_t *dcvars, int cellsize, int *fuzzpos)
+{
+  const dboolean blocky_fuzz      = dsda_IntConfig(dsda_config_fuzzmode) == 0 || dsda_StrictMode();
+  const dboolean refraction_fuzz  = dsda_IntConfig(dsda_config_fuzzmode) == 1 && !dsda_StrictMode();
+  const dboolean shadow_fuzz      = dsda_IntConfig(dsda_config_fuzzmode) == 2 && !dsda_StrictMode();
+  int count = dcvars->yh - dcvars->yl + 1;
+  byte *dest;
+
+  if (count <= 0)
+  {
+    return;
+  }
+
+  if (shadow_fuzz)
+  {
+    dest = drawvars.topleft + dcvars->yl + dcvars->x * drawvars.pitch;
+
+    while (count--)
+    {
+      *dest = fullcolormap[8 * 256 + *dest];
+      dest++;
+    }
+    return;
+  }
+
+  if (blocky_fuzz || refraction_fuzz)
+  {
+    const int fuzz_end = dcvars->x + 1;
+    int fuzz_fill;
+    int lines;
+    int dark = FUZZDARK;
+    int offset = 0;
+
+    // Partly fill fuzz block to right edge
+    if (fuzz_end % cellsize)
+    {
+      if (fuzz_end != SCREENWIDTH)
+        return;
+
+      fuzz_fill = fuzz_end % cellsize;
+    }
+    // Fuzz fill normally
+    else
+    {
+      fuzz_fill = cellsize;
+    }
+
+    dest = drawvars.topleft + dcvars->yl + (fuzz_end - fuzz_fill) * drawvars.pitch;
+    lines = cellsize - (dcvars->yl % cellsize);
+
+    do
+    {
+      int mask;
+      const byte fuzz = refraction_fuzz ?
+        fullcolormap[dark + dest[offset]] :
+        fullcolormap[6 * 256 + dest[fuzzoffset[*fuzzpos]]];
+
+      count -= lines;
+
+      // if (count < 0)
+      // {
+      //    lines += count;
+      //    count = 0;
+      // }
+      mask = count >> (8 * sizeof(mask) - 1);
+      lines += count & mask;
+      count &= ~mask;
+
+      do
+      {
+        int i;
+        byte *rowdest = dest;
+
+        for (i = 0; i < fuzz_fill; ++i)
+          rowdest[i * drawvars.pitch] = fuzz;
+
+        ++dest;
+      } while (--lines);
+
+      ++*fuzzpos;
+
+      // Clamp table lookup index.
+      *fuzzpos &= (*fuzzpos - FUZZTABLE) >> (8 * sizeof(*fuzzpos) - 1);
+
+      if (refraction_fuzz)
+      {
+        dark = fuzzdark[*fuzzpos];
+        offset = fuzzoffset[*fuzzpos];
+      }
+
+      lines = cellsize;
+    } while (count);
+
+    // [crispy] if the line at the bottom had to be cut off,
+    // draw one extra line using only pixels of that line and the one above
+    if (fuzz_cutoff)
+    {
+      int i;
+      const byte fuzz = refraction_fuzz ?
+        fullcolormap[dark + dest[-1]] :
+        fullcolormap[6 * 256 + dest[-1]];
+
+      for (i = 0; i < fuzz_fill; ++i)
+        dest[i * drawvars.pitch] = fuzz;
+    }
+  }
+}
+
 // render pipelines
 #define RDC_STANDARD          1
 #define RDC_TRANSLUCENT       2 // translucent
@@ -184,107 +269,6 @@ dboolean R_StatusBarVisible(void)
   return R_PartialView() || automap_solid || dsda_FullAutomapHud();
 }
 
-//
-// Error functions that will abort if R_FlushColumns tries to flush
-// columns without a column type.
-//
-
-static void R_FlushWholeError(void)
-{
-   I_Error("R_FlushWholeColumns called without being initialized.\n");
-}
-
-static void R_FlushHTError(void)
-{
-   I_Error("R_FlushHTColumns called without being initialized.\n");
-}
-
-static void R_QuadFlushError(void)
-{
-   I_Error("R_FlushQuadColumn called without being initialized.\n");
-}
-
-static void (*R_FlushWholeColumns)(void) = R_FlushWholeError;
-static void (*R_FlushHTColumns)(void)    = R_FlushHTError;
-static void (*R_FlushQuadColumn)(void) = R_QuadFlushError;
-
-static void R_FlushColumns(void)
-{
-   if(temp_x != 4 || commontop >= commonbot)
-      R_FlushWholeColumns();
-   else
-   {
-      R_FlushHTColumns();
-      R_FlushQuadColumn();
-   }
-   temp_x = 0;
-}
-
-//
-// R_ResetColumnBuffer
-//
-// haleyjd 09/13/04: new function to call from main rendering loop
-// which gets rid of the unnecessary reset of various variables during
-// column drawing.
-//
-void R_ResetColumnBuffer(void)
-{
-   // haleyjd 10/06/05: this must not be done if temp_x == 0!
-   if(temp_x)
-      R_FlushColumns();
-   temptype = COL_NONE;
-   R_FlushWholeColumns = R_FlushWholeError;
-   R_FlushHTColumns    = R_FlushHTError;
-   R_FlushQuadColumn   = R_QuadFlushError;
-}
-
-#define R_DRAWCOLUMN_PIPELINE RDC_STANDARD
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuad
-#include "r_drawflush.inl"
-
-#define R_DRAWCOLUMN_PIPELINE RDC_DOUBLESKY
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeDoubleSky
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTDoubleSky
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadDoubleSky
-#include "r_drawflush.inl"
-
-#define R_DRAWCOLUMN_PIPELINE RDC_TRANSLUCENT
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL
-#include "r_drawflush.inl"
-
-#define R_DRAWCOLUMN_PIPELINE RDC_ALT_TL
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeAltTL
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTAltTL
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadAltTL
-#include "r_drawflush.inl"
-
-#define R_DRAWCOLUMN_PIPELINE RDC_ALT_TRTL
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeAltTRTL
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTAltTRTL
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadAltTRTL
-#include "r_drawflush.inl"
-
-#define R_DRAWCOLUMN_PIPELINE RDC_TRTL
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTRTL
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTRTL
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTRTL
-#include "r_drawflush.inl"
-
-#define R_DRAWCOLUMN_PIPELINE RDC_FUZZ
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz
-#include "r_drawflush.inl"
-
-#define R_DRAWCOLUMN_PIPELINE RDC_FUZZ_SCALED
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzzScaled
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzzScaled
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzzScaled
-#include "r_drawflush.inl"
 
 //
 // R_DrawColumn
@@ -297,6 +281,8 @@ void R_ResetColumnBuffer(void)
 // Thus a special case loop for very fast rendering can
 //  be used. It has also been used with Wolfenstein 3D.
 //
+// [AR] Direct transposed drawing replaces R_FlushColumns and R_ResetColumnBuffer.
+//
 
 byte *translationtables;
 
@@ -304,9 +290,6 @@ byte *translationtables;
 #define R_DRAWCOLUMN_PIPELINE_BASE RDC_STANDARD
 
 #define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawColumn ## postfix
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuad
 #include "r_drawcolpipeline.inl"
 
 #undef R_DRAWCOLUMN_PIPELINE_BASE
@@ -323,9 +306,6 @@ byte *translationtables;
 #define R_DRAWCOLUMN_PIPELINE_BASE RDC_DOUBLESKY
 
 #define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawDoubleSkyColumn ## postfix
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeDoubleSky
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTDoubleSky
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadDoubleSky
 #include "r_drawcolpipeline.inl"
 
 #undef R_DRAWCOLUMN_PIPELINE_BASE
@@ -347,9 +327,6 @@ byte *translationtables;
 #define R_DRAWCOLUMN_PIPELINE_BASE RDC_TRANSLUCENT
 
 #define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawTLColumn ## postfix
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL
 #include "r_drawcolpipeline.inl"
 
 #undef R_DRAWCOLUMN_PIPELINE_BASE
@@ -369,9 +346,6 @@ byte *translationtables;
 #define R_DRAWCOLUMN_PIPELINE_BASE RDC_TRANSLATED
 
 #define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawTranslatedColumn ## postfix
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuad
 #include "r_drawcolpipeline.inl"
 
 #undef R_DRAWCOLUMN_PIPELINE_BASE
@@ -386,9 +360,6 @@ byte *translationtables;
 #define R_DRAWCOLUMN_PIPELINE_BASE RDC_ALT_TL
 
 #define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawAltTLColumn ## postfix
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeAltTL
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTAltTL
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadAltTL
 #include "r_drawcolpipeline.inl"
 
 #undef R_DRAWCOLUMN_PIPELINE_BASE
@@ -404,9 +375,6 @@ byte *translationtables;
 #define R_DRAWCOLUMN_PIPELINE_BASE RDC_ALT_TRTL
 
 #define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawAltTRTLColumn ## postfix
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeAltTRTL
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTAltTRTL
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadAltTRTL
 #include "r_drawcolpipeline.inl"
 
 #undef R_DRAWCOLUMN_PIPELINE_BASE
@@ -422,9 +390,6 @@ byte *translationtables;
 #define R_DRAWCOLUMN_PIPELINE_BASE RDC_TRTL
 
 #define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawTRTLColumn ## postfix
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTRTL
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTRTL
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTRTL
 #include "r_drawcolpipeline.inl"
 
 #undef R_DRAWCOLUMN_PIPELINE_BASE
@@ -439,9 +404,6 @@ byte *translationtables;
 #define R_DRAWCOLUMN_PIPELINE_BASE RDC_SKY_COLOR_CAP
 
 #define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawSkyColorCapColumn ## postfix
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuad
 #include "r_drawcolpipeline.inl"
 
 #undef R_DRAWCOLUMN_PIPELINE_BASE
@@ -460,9 +422,6 @@ byte *translationtables;
 #define R_DRAWCOLUMN_PIPELINE_BASE RDC_FUZZ
 
 #define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawFuzzColumn ## postfix
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz
 #include "r_drawcolpipeline.inl"
 
 #undef R_DRAWCOLUMN_PIPELINE_BASE
@@ -478,9 +437,6 @@ byte *translationtables;
 #define R_DRAWCOLUMN_PIPELINE_BASE RDC_FUZZ_SCALED
 
 #define R_DRAWCOLUMN_FUNCNAME_COMPOSITE(postfix) R_DrawFuzzScaledColumn ## postfix
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzzScaled
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzzScaled
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzzScaled
 #include "r_drawcolpipeline.inl"
 
 #undef R_DRAWCOLUMN_PIPELINE_BASE
@@ -651,12 +607,7 @@ void R_InitBuffersRes(void)
   extern byte *solidcol;
 
   if (solidcol) Z_Free(solidcol);
-  if (tempbuf) Z_Free(tempbuf);
-
   solidcol = Z_Calloc(1, SCREENWIDTH * sizeof(*solidcol));
-  tempbuf = Z_Calloc(1, (SCREENHEIGHT * 4) * sizeof(*tempbuf));
-
-  temp_x = 0;
 }
 
 //
@@ -915,10 +866,12 @@ void R_FillBackScreen (void)
 }
 
 //
-// Copy a screen buffer.
+// R_CopyScreenBufferRect
+//
+// Copies a rectangle between transposed screen buffers.
 //
 
-static void R_CopyScreenBufferSection(int x, int y, int count)
+static void R_CopyScreenBufferRect(int x, int y, int width, int height)
 {
   if (V_IsSoftwareMode())
   {
@@ -929,9 +882,9 @@ static void R_CopyScreenBufferSection(int x, int y, int count)
     dest = screens[FG].data + y + x * screens[FG].pitch;
     src  = screens[BG].data + y + x * screens[BG].pitch;
 
-    for (i = 0; i < count; ++i)
+    for (i = 0; i < width; ++i)
     {
-      *dest = *src;
+      memcpy(dest, src, height);
       dest += screens[FG].pitch;
       src  += screens[BG].pitch;
     }
@@ -946,7 +899,7 @@ static void R_CopyScreenBufferSection(int x, int y, int count)
 
 void R_DrawViewBorder(void)
 {
-  int top, side, i;
+  int top, side;
 
   if (V_IsOpenGLMode()) {
     // proff 11/99: we don't have a backscreen in OpenGL from where we can copy this
@@ -957,8 +910,7 @@ void R_DrawViewBorder(void)
   // e6y: wide-res
   if (ratio_multiplier != ratio_scale || wide_offsety)
   {
-    for (i = (SCREENHEIGHT - ST_SCALED_HEIGHT); i < SCREENHEIGHT; i++)
-      R_CopyScreenBufferSection(0, i, SCREENWIDTH);
+    R_CopyScreenBufferRect(0, SCREENHEIGHT - ST_SCALED_HEIGHT, SCREENWIDTH, ST_SCALED_HEIGHT);
   }
 
   if ( viewheight >= ( SCREENHEIGHT - ST_SCALED_HEIGHT ))
@@ -968,18 +920,14 @@ void R_DrawViewBorder(void)
   side = (SCREENWIDTH - scaledviewwidth) / 2;
 
   // copy top
-  for (i = 0; i < top; i++)
-    R_CopyScreenBufferSection (0, i, SCREENWIDTH);
+  R_CopyScreenBufferRect(0, 0, SCREENWIDTH, top);
 
   // copy sides
-  for (i = top; i < (top + viewheight); i++) {
-    R_CopyScreenBufferSection (0, i, side);
-    R_CopyScreenBufferSection (viewwidth + side, i, side);
-  }
+  R_CopyScreenBufferRect(0, top, side, viewheight);
+  R_CopyScreenBufferRect(viewwidth + side, top, side, viewheight);
 
   // copy bottom
-  for (i = top + viewheight; i < (SCREENHEIGHT - ST_SCALED_HEIGHT); i++)
-    R_CopyScreenBufferSection (0, i, SCREENWIDTH);
+  R_CopyScreenBufferRect(0, top + viewheight, SCREENWIDTH, SCREENHEIGHT - ST_SCALED_HEIGHT - top - viewheight);
 }
 
 void R_SetFuzzPos(int fp)
@@ -1004,15 +952,11 @@ int R_GetFuzzPosScaled()
 
 void R_ResetFuzzCol(int height)
 {
-  R_ResetColumnBuffer();
-
   fuzzpos = (fuzzpos + (height / fuzzcellsize)) % FUZZTABLE;
 }
 
 void R_ResetFuzzColScaled(int height)
 {
-  R_ResetColumnBuffer();
-
   scaledfuzzpos = (scaledfuzzpos + (height / scaled_fuzzcellsize)) % FUZZTABLE;
 }
 

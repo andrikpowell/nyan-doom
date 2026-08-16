@@ -85,7 +85,8 @@ typedef struct drawsegs_xrange_s
   int count;
 } drawsegs_xrange_t;
 
-#define DS_RANGES_COUNT 3
+#define DS_RANGE_LEVELS 6
+#define DS_RANGES_COUNT ((1 << DS_RANGE_LEVELS) - 1)
 static drawsegs_xrange_t drawsegs_xranges[DS_RANGES_COUNT];
 
 static drawseg_xrange_item_t *drawsegs_xrange;
@@ -1551,7 +1552,22 @@ void R_SortVisSprites (void)
 // R_DrawSprite
 //
 
-static void R_DrawSprite (vissprite_t* spr)
+// [R&R] Skip masked-seg setup when no columns remain to draw
+// Avoids unnecessary texture, lighting, and scale setup
+// This improved midtex performance on "Eye Juice" map10
+static void R_RenderMaskedSegRangeIfNeeded(drawseg_t *ds, int x1, int x2)
+{
+  int x;
+
+  for (x = x1; x <= x2; x++)
+    if (ds->maskedtexturecol[x] != INT_MAX)
+      break;
+
+  if (x <= x2)
+    R_RenderMaskedSegRange(ds, x1, x2);
+}
+
+static void R_DrawSprite (vissprite_t* spr, int clip_level)
 {
   drawseg_t *ds;
   int     x;
@@ -1559,6 +1575,7 @@ static void R_DrawSprite (vissprite_t* spr)
   int     r2;
   fixed_t scale;
   fixed_t lowscale;
+  int clip_overlaps = 0;
 
   for (x = spr->x1 ; x<=spr->x2 ; x++)
     clipbot[x] = -2;
@@ -1575,15 +1592,19 @@ static void R_DrawSprite (vissprite_t* spr)
   // e6y: optimization
   if (drawsegs_xrange_size)
   {
-    const drawseg_xrange_item_t *last = &drawsegs_xrange[drawsegs_xrange_count - 1];
-    drawseg_xrange_item_t *curr = &drawsegs_xrange[-1];
-    while (++curr <= last)
+    const drawseg_xrange_item_t *curr = drawsegs_xrange;
+    const drawseg_xrange_item_t *last = curr + drawsegs_xrange_count;
+    while (curr < last)
     {
       // determine if the drawseg obscures the sprite
       if (curr->x1 > spr->x2 || curr->x2 < spr->x1)
+      {
+        curr++;
         continue;      // does not cover sprite
+      }
 
       ds = curr->user;
+      clip_overlaps++;
 
       if (ds->scale1 > ds->scale2)
       {
@@ -1603,8 +1624,9 @@ static void R_DrawSprite (vissprite_t* spr)
         {
           r1 = ds->x1 < spr->x1 ? spr->x1 : ds->x1;
           r2 = ds->x2 > spr->x2 ? spr->x2 : ds->x2;
-          R_RenderMaskedSegRange(ds, r1, r2);
+          R_RenderMaskedSegRangeIfNeeded(ds, r1, r2);
         }
+        curr++;
         continue;               // seg is behind sprite
       }
 
@@ -1623,6 +1645,8 @@ static void R_DrawSprite (vissprite_t* spr)
         for (x=r1 ; x<=r2 ; x++)
           if (cliptop[x] == -2)
             cliptop[x] = ds->sprtopclip[x];
+
+      curr++;
     }
   }
 
@@ -1689,11 +1713,22 @@ static void R_DrawSprite (vissprite_t* spr)
 // R_DrawMasked
 //
 
+static int R_DrawSegRangeRegion(int x, int regions)
+{
+  int region = x * regions / viewwidth;
+
+  if (region < 0)
+    return 0;
+  if (region >= regions)
+    return regions - 1;
+
+  return region;
+}
+
 void R_DrawMasked(void)
 {
   int i;
   drawseg_t *ds;
-  int cx = SCREENWIDTH / 2;
 
   R_SortVisSprites();
 
@@ -1720,25 +1755,30 @@ void R_DrawMasked(void)
     {
       if (ds->silhouette || ds->maskedtexturecol)
       {
-        drawsegs_xranges[0].items[drawsegs_xranges[0].count].x1 = ds->x1;
-        drawsegs_xranges[0].items[drawsegs_xranges[0].count].x2 = ds->x2;
-        drawsegs_xranges[0].items[drawsegs_xranges[0].count].user = ds;
+        // [AR] Replace the old two-half xrange split with up to 32 screen regions.
+        // This improved sprite performance on D2ICO.wad MAP23.
 
-        // e6y: ~13% of speed improvement on sunder.wad map10
-        if (ds->x1 < cx)
-        {
-          drawsegs_xranges[1].items[drawsegs_xranges[1].count] =
-            drawsegs_xranges[0].items[drawsegs_xranges[0].count];
-          drawsegs_xranges[1].count++;
-        }
-        if (ds->x2 >= cx)
-        {
-          drawsegs_xranges[2].items[drawsegs_xranges[2].count] =
-            drawsegs_xranges[0].items[drawsegs_xranges[0].count];
-          drawsegs_xranges[2].count++;
-        }
+        drawseg_xrange_item_t item;
+        int level;
 
-        drawsegs_xranges[0].count++;
+        item.x1 = ds->x1;
+        item.x2 = ds->x2;
+        item.user = ds;
+
+        for (level = 0; level < DS_RANGE_LEVELS; level++)
+        {
+          const int regions = 1 << level;
+          const int offset = regions - 1;
+          const int first = R_DrawSegRangeRegion(ds->x1, regions);
+          const int last = R_DrawSegRangeRegion(ds->x2, regions);
+          int region;
+
+          for (region = first; region <= last; region++)
+          {
+            drawsegs_xranges[offset + region].items[
+              drawsegs_xranges[offset + region].count++] = item;
+          }
+        }
       }
     }
   }
@@ -1750,24 +1790,27 @@ void R_DrawMasked(void)
   for (i = num_vissprite ;--i>=0; )
   {
     vissprite_t* spr = vissprite_ptrs[i];
+    int level;
+    int range = 0;
 
-    if (spr->x2 < cx)
+    // Use the smallest screen region containing the sprite
+    for (level = DS_RANGE_LEVELS - 1; level > 0; level--)
     {
-      drawsegs_xrange = drawsegs_xranges[1].items;
-      drawsegs_xrange_count = drawsegs_xranges[1].count;
-    }
-    else if (spr->x1 >= cx)
-    {
-      drawsegs_xrange = drawsegs_xranges[2].items;
-      drawsegs_xrange_count = drawsegs_xranges[2].count;
-    }
-    else
-    {
-      drawsegs_xrange = drawsegs_xranges[0].items;
-      drawsegs_xrange_count = drawsegs_xranges[0].count;
+      const int regions = 1 << level;
+      const int first = R_DrawSegRangeRegion(spr->x1, regions);
+      const int last = R_DrawSegRangeRegion(spr->x2, regions);
+
+      if (first == last)
+      {
+        range = regions - 1 + first;
+        break;
+      }
     }
 
-    R_DrawSprite(vissprite_ptrs[i]);
+    drawsegs_xrange = drawsegs_xranges[range].items;
+    drawsegs_xrange_count = drawsegs_xranges[range].count;
+
+    R_DrawSprite(spr, level);
   }
 
   // render any remaining masked mid textures
