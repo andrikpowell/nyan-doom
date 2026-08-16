@@ -166,9 +166,6 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 // do nothing else when drawin fuzz columns
 #else
   {
-    // Framebuffer destination address.
-    dest = drawvars.topleft + dcvars->yl + dcvars->x * drawvars.pitch;
-
     const byte          *source = dcvars->source;
 
 #if (R_DRAWCOLUMN_PIPELINE & RDC_DOUBLESKY)
@@ -183,16 +180,21 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
     const byte          *translation = dcvars->translation;
 #endif
 
-    count++;
-
-// [Woof] Draw sky with color on top
 #if (R_DRAWCOLUMN_SKY_COLOR_CAP)
     const byte sky_cap_color = dcvars->skycolor;
     const byte sky_texture_color = GETCOL(0);
     const byte fade_50 = dcvars->sky_tranmap[sky_texture_color * 256 + sky_cap_color];
     const byte fade_25 = dcvars->sky_tranmap[fade_50 * 256 + sky_cap_color];
     int n;
+#endif
 
+    // Framebuffer destination address.
+    dest = drawvars.topleft + dcvars->yl + dcvars->x * drawvars.pitch;
+
+    count++;
+
+// [Woof] Draw sky with color on top
+#if (R_DRAWCOLUMN_SKY_COLOR_CAP)
     if (frac < -2 * FRACUNIT)
     {
       n = (-frac - 2 * FRACUNIT + fracstep - 1) / fracstep;

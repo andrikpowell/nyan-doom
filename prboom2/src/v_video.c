@@ -1316,7 +1316,6 @@ static void V_FillRectTrans8(int scrn, int x, int y, int width, int height, byte
 {
   const byte *transmap;
   byte* dest;
-  int pitch = screens[scrn].pitch;
 
   transmap = dsda_TranMap_Custom(P_ConvertTrans(trans));
 
