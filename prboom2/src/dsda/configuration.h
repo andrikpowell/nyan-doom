@@ -503,6 +503,7 @@ enum {
   dsda_config_analog_look_acceleration,
   dsda_config_swap_analogs,
   dsda_config_invert_analog_look,
+  nyan_config_show_startup,
   nyan_config_show_endoom,
   nyan_config_export_endoom,
   dsda_config_ansi_endoom,

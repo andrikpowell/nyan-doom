@@ -98,6 +98,7 @@
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
 #include "dsda/gameinfo.h"
+#include "dsda/startup.h"
 #include "dsda/mobjinfo.h"
 #include "dsda/options.h"
 #include "dsda/pause.h"
@@ -2308,6 +2309,9 @@ static void D_DoomMainSetup(void)
 
   if (!(dsda_Flag(dsda_arg_nodraw) && dsda_Flag(dsda_arg_nosound)))
     I_InitGraphics();
+
+  // Draw STARTUP / LOADING
+  dsda_Startup(doomverstr);
 
   // NSM
   arg = dsda_Arg(dsda_arg_viddump);
