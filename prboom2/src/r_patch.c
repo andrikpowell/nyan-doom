@@ -466,6 +466,10 @@ static void createPatch(int id) {
     }
   }
 
+  // Mark fully transparent patches
+  if (numPostsTotal == 0)
+    patch->flags |= PATCH_ISEMPTY;
+
   postsDataSize = numPostsTotal * sizeof(rpost_t);
 
   // allocate our data chunk

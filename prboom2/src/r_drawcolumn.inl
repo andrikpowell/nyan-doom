@@ -32,7 +32,6 @@
 #define R_DRAWCOLUMN_TRANSLUCENT (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT || R_DRAWCOLUMN_PIPELINE & RDC_TRTL )
 #define R_DRAWCOLUMN_TRANSLUCENT_REVERSE ( R_DRAWCOLUMN_PIPELINE & RDC_ALT_TRTL || R_DRAWCOLUMN_PIPELINE & RDC_ALT_TL)
 
-#define R_DRAWCOLUMN_ANY_TRANSLUCENT (R_DRAWCOLUMN_TRANSLUCENT || R_DRAWCOLUMN_TRANSLUCENT_REVERSE)
 #define R_DRAWCOLUMN_FUZZ (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ || R_DRAWCOLUMN_PIPELINE & RDC_FUZZ_SCALED)
 #define R_DRAWCOLUMN_SKY_COLOR_CAP (R_DRAWCOLUMN_PIPELINE & RDC_SKY_COLOR_CAP)
 
@@ -61,12 +60,12 @@
 #define GETCOL(frac) GETCOL_DEPTH(source[(frac)>>FRACBITS])
 #endif
 
-#if (R_DRAWCOLUMN_ANY_TRANSLUCENT)
-#define COLTYPE (COL_TRANS)
-#elif (R_DRAWCOLUMN_FUZZ)
-#define COLTYPE (COL_FUZZ)
-#else
-#define COLTYPE (COL_OPAQUE)
+#if R_DRAWCOLUMN_TRANSLUCENT
+#define R_COLUMN_COLOR(color) (tranmap[((*dest) << 8) + (color)])
+#elif R_DRAWCOLUMN_TRANSLUCENT_REVERSE
+#define R_COLUMN_COLOR(color) (tranmap[(*dest) + ((color) << 8)])
+#else // Opaque
+#define R_COLUMN_COLOR(color) (color)
 #endif
 
 static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
@@ -114,7 +113,11 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
   if (dcvars->x >= SCREENWIDTH
       || dcvars->yl < 0
       || dcvars->yh >= SCREENHEIGHT)
+#if R_DRAWCOLUMN_FUZZ
+    I_Error("R_DrawFuzzColumn: %i to %i at %i", dcvars->yl, dcvars->yh, dcvars->x);
+#else
     I_Error("R_DrawColumn: %i to %i at %i", dcvars->yl, dcvars->yh, dcvars->x);
+#endif
 #endif
 
 #if (!(R_DRAWCOLUMN_FUZZ))
@@ -152,48 +155,16 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
     }
   }
 
-  // Framebuffer destination address.
-   // SoM: MAGIC
-   {
-      // haleyjd: reordered predicates
-      if(temp_x == 4 ||
-         (temp_x && (temptype != COLTYPE || temp_x + startx != dcvars->x)))
-         R_FlushColumns();
-
-      if(!temp_x)
-      {
-         startx = dcvars->x;
-         tempyl[0] = commontop = dcvars->yl;
-         tempyh[0] = commonbot = dcvars->yh;
-         temptype = COLTYPE;
-#if (R_DRAWCOLUMN_ANY_TRANSLUCENT)
-         temptranmap = tranmap;
-#elif (R_DRAWCOLUMN_FUZZ)
-         tempfuzzmap = fullcolormap; // SoM 7-28-04: Fix the fuzz problem.
-#endif
-         R_FlushWholeColumns = R_FLUSHWHOLE_FUNCNAME;
-         R_FlushHTColumns    = R_FLUSHHEADTAIL_FUNCNAME;
-         R_FlushQuadColumn   = R_FLUSHQUAD_FUNCNAME;
-#if (!(R_DRAWCOLUMN_FUZZ))
-         dest = &tempbuf[dcvars->yl << 2];
-#endif
-      } else {
-         tempyl[temp_x] = dcvars->yl;
-         tempyh[temp_x] = dcvars->yh;
-
-         if(dcvars->yl > commontop)
-            commontop = dcvars->yl;
-         if(dcvars->yh < commonbot)
-            commonbot = dcvars->yh;
-#if (!(R_DRAWCOLUMN_FUZZ))
-         dest = &tempbuf[(dcvars->yl << 2) + temp_x];
-#endif
-      }
-      temp_x += 1;
-   }
+// Draw scaled fuzz directly into the transposed framebuffer
+#if R_DRAWCOLUMN_FUZZ
+  #if (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ_SCALED)
+    R_DrawFuzzColumn(dcvars, scaled_fuzzcellsize, &scaledfuzzpos);
+  #else
+    R_DrawFuzzColumn(dcvars, fuzzcellsize, &fuzzpos);
+  #endif
 
 // do nothing else when drawin fuzz columns
-#if (!(R_DRAWCOLUMN_FUZZ))
+#else
   {
     const byte          *source = dcvars->source;
     const dboolean      vanilla_power_of_two = (dcvars->flags & DRAW_COLUMN_WALLTEXTURE) && dsda_VanillaTextureEmulation();
@@ -210,16 +181,21 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
     const byte          *translation = dcvars->translation;
 #endif
 
-    count++;
-
-// [Woof] Draw sky with color on top
 #if (R_DRAWCOLUMN_SKY_COLOR_CAP)
     const byte sky_cap_color = dcvars->skycolor;
     const byte sky_texture_color = GETCOL(0);
     const byte fade_50 = dcvars->sky_tranmap[sky_texture_color * 256 + sky_cap_color];
     const byte fade_25 = dcvars->sky_tranmap[fade_50 * 256 + sky_cap_color];
     int n;
+#endif
 
+    // Framebuffer destination address.
+    dest = drawvars.topleft + dcvars->yl + dcvars->x * drawvars.pitch;
+
+    count++;
+
+// [Woof] Draw sky with color on top
+#if (R_DRAWCOLUMN_SKY_COLOR_CAP)
     if (frac < -2 * FRACUNIT)
     {
       n = (-frac - 2 * FRACUNIT + fracstep - 1) / fracstep;
@@ -229,8 +205,8 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
       count -= n;
       while (n--)
       {
-        *dest = sky_cap_color;
-        dest += 4;
+        *dest = R_COLUMN_COLOR(sky_cap_color);
+        dest++;
         frac += fracstep;
       }
 
@@ -247,8 +223,8 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
       count -= n;
       while (n--)
       {
-        *dest = fade_25;
-        dest += 4;
+        *dest = R_COLUMN_COLOR(fade_25);
+        dest++;
         frac += fracstep;
       }
 
@@ -265,8 +241,8 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
       count -= n;
       while (n--)
       {
-        *dest = fade_50;
-        dest += 4;
+        *dest = R_COLUMN_COLOR(fade_50);
+        dest++;
         frac += fracstep;
       }
 
@@ -290,22 +266,37 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
       while (count--) {
         const fixed_t pspritefrac = CLAMP(frac, 0, maxfrac);
 
-        *dest = GETCOL(pspritefrac);
-        dest += 4;
+        *dest = R_COLUMN_COLOR(GETCOL(pspritefrac));
+        dest++;
         frac += fracstep;
       }
+    // [R&R] Masked posts are already clipped and don't need texture wrapping
+    // Better performance for opaque midtexs and sprites
+#if ((R_DRAWCOLUMN_PIPELINE & RDC_STANDARD) && !(R_DRAWCOLUMN_PIPELINE & RDC_NOCOLMAP))
+    } else if (dcvars->drawingmasked) {
+      while ((count -= 2) >= 0) {
+        *dest = colormap[source[frac >> FRACBITS]];
+        dest++;
+        frac += fracstep;
+        *dest = colormap[source[frac >> FRACBITS]];
+        dest++;
+        frac += fracstep;
+      }
+      if (count & 1)
+        *dest = colormap[source[frac >> FRACBITS]];
+#endif
     } else if (dcvars->texheight == 128 || vanilla_power_of_two) {
       #define FIXEDT_128MASK ((127<<FRACBITS)|0xffff)
       while(count--) {
-        *dest = GETCOL(frac & FIXEDT_128MASK);
-        dest += 4;
+        *dest = R_COLUMN_COLOR(GETCOL(frac & FIXEDT_128MASK));
+        dest++;
         frac += fracstep;
       }
     } else if (dcvars->texheight == 0) {
       /* cph - another special case */
       while (count--) {
-        *dest = GETCOL(frac);
-        dest += 4;
+        *dest = R_COLUMN_COLOR(GETCOL(frac));
+        dest++;
         frac += fracstep;
       }
     } else {
@@ -313,15 +304,15 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
       if (! (dcvars->texheight & heightmask) ) { // power of 2 -- killough
         fixed_t fixedt_heightmask = (heightmask<<FRACBITS)|0xffff;
         while ((count-=2)>=0) { // texture height is a power of 2 -- killough
-          *dest = GETCOL(frac & fixedt_heightmask);
-          dest += 4;
+          *dest = R_COLUMN_COLOR(GETCOL(frac & fixedt_heightmask));
+          dest++;
           frac += fracstep;
-          *dest = GETCOL(frac & fixedt_heightmask);
-          dest += 4;
+          *dest = R_COLUMN_COLOR(GETCOL(frac & fixedt_heightmask));
+          dest++;
           frac += fracstep;
         }
         if (count & 1)
-          *dest = GETCOL(frac & fixedt_heightmask);
+          *dest = R_COLUMN_COLOR(GETCOL(frac & fixedt_heightmask));
       } else {
         heightmask++;
         heightmask <<= FRACBITS;
@@ -338,8 +329,8 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 
           // heightmask is the Tutti-Frutti fix -- killough
 
-          *dest = GETCOL(frac);
-          dest += 4;
+          *dest = R_COLUMN_COLOR(GETCOL(frac));
+          dest++;
           if ((frac += fracstep) >= (int)heightmask)
             frac -= heightmask;
         }
@@ -352,11 +343,10 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 #undef GETCOL_MAPPED
 #undef GETCOL_DEPTH
 #undef GETCOL
-#undef COLTYPE
+#undef R_COLUMN_COLOR
 #undef R_DRAWCOLUMN_TRANSLATED
 #undef R_DRAWCOLUMN_TRANSLUCENT
 #undef R_DRAWCOLUMN_TRANSLUCENT_REVERSE
-#undef R_DRAWCOLUMN_ANY_TRANSLUCENT
 #undef R_DRAWCOLUMN_FUZZ
 #undef R_DRAWCOLUMN_SKY_COLOR_CAP
 #undef R_DRAWCOLUMN_FUNCNAME

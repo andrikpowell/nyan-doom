@@ -580,7 +580,6 @@ set(DOOMMUSIC_SOURCES
 set(EXTRA_FILES
     r_drawcolpipeline.inl
     r_drawcolumn.inl
-    r_drawflush.inl
 )
 
 set(NYAN_SOURCES

@@ -113,6 +113,13 @@ static int *spanstart = NULL;                // killough 2/8/98
 
 static fixed_t *cachedheight = NULL;
 
+// [R&R] Cache plane values per row for transposed drawing
+static int64_t *plane_xstep = NULL;
+static int64_t *plane_ystep = NULL;
+static int64_t *plane_xbase = NULL;
+static int64_t *plane_ybase = NULL;
+static const byte **plane_colormap = NULL;
+
 // e6y: resolution limitation is removed
 fixed_t *yslope = NULL;
 fixed_t *distscale = NULL;
@@ -125,6 +132,12 @@ void R_InitPlanesRes(void)
 
   if (cachedheight) Z_Free(cachedheight);
 
+  if (plane_xstep) Z_Free(plane_xstep);
+  if (plane_ystep) Z_Free(plane_ystep);
+  if (plane_xbase) Z_Free(plane_xbase);
+  if (plane_ybase) Z_Free(plane_ybase);
+  if (plane_colormap) Z_Free(plane_colormap);
+
   if (yslope) Z_Free(yslope);
   if (distscale) Z_Free(distscale);
 
@@ -133,6 +146,12 @@ void R_InitPlanesRes(void)
   spanstart = Z_Calloc(1, SCREENHEIGHT * sizeof(*spanstart));
 
   cachedheight = Z_Calloc(1, SCREENHEIGHT * sizeof(*cachedheight));
+
+  plane_xstep = Z_Calloc(1, SCREENHEIGHT * sizeof(*plane_xstep));
+  plane_ystep = Z_Calloc(1, SCREENHEIGHT * sizeof(*plane_ystep));
+  plane_xbase = Z_Calloc(1, SCREENHEIGHT * sizeof(*plane_xbase));
+  plane_ybase = Z_Calloc(1, SCREENHEIGHT * sizeof(*plane_ybase));
+  plane_colormap = Z_Calloc(1, SCREENHEIGHT * sizeof(*plane_colormap));
 
   yslope = Z_Calloc(1, SCREENHEIGHT * sizeof(*yslope));
   distscale = Z_Calloc(1, SCREENWIDTH * sizeof(*distscale));
@@ -248,6 +267,163 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
 
   if (V_IsSoftwareMode())
     R_DrawSpan(dsvars);
+}
+
+//
+// R_DrawPlaneColumns
+//
+// [R&R] Draw planes vertically for the transposed framebuffer
+// Use R_MapPlane's fixed-point mapping and lighting with R&R's vertical rasterizer
+//
+static void R_DrawPlaneColumns(const visplane_t *pl, draw_span_vars_t *dsvars)
+{
+  // [R&R] Scale the interpolation interval with resolution.
+  const int leap = SCREENHEIGHT >= 566 ? 16 : SCREENHEIGHT >= 283 ? 8 : 4;
+  int x, y;
+  int miny = viewheight;
+  int maxy = -1;
+
+  for (x = pl->minx; x <= pl->maxx; x++)
+  {
+    if (pl->top[x] != SHRT_MAX && pl->top[x] <= pl->bottom[x])
+    {
+      if (pl->top[x] < miny)
+        miny = pl->top[x];
+      if (pl->bottom[x] > maxy)
+        maxy = pl->bottom[x];
+    }
+  }
+
+  for (y = miny; y <= maxy; y++)
+  {
+    int64_t den;
+    fixed_t distance;
+    fixed_t xstep, ystep, xbase, ybase;
+    unsigned index;
+
+    if (y == centery)
+    {
+      plane_colormap[y] = NULL;
+      continue;
+    }
+
+    den = (int64_t)FRACUNIT * FRACUNIT * D_abs(centery - y);
+    distance = FixedMul(dsvars->planeheight, yslope[y]);
+
+    xstep = (fixed_t)((int64_t)dsvars->sine * dsvars->planeheight * viewfocratio / den);
+    ystep = (fixed_t)((int64_t)dsvars->cosine * dsvars->planeheight * viewfocratio / den);
+    xbase = dsvars->xoffs + FixedMul(dsvars->cosine, distance);
+    ybase = dsvars->yoffs - FixedMul(dsvars->sine, distance);
+
+    // Keep full precision until the texture coordinates
+    plane_xstep[y] = (int64_t)xstep * dsvars->xscale;
+    plane_ystep[y] = (int64_t)ystep * dsvars->yscale;
+    plane_xbase[y] = (int64_t)xbase * dsvars->xscale;
+    plane_ybase[y] = (int64_t)ybase * dsvars->yscale;
+
+    if (fixedcolormap && !nyan_liteamp)
+    {
+      plane_colormap[y] = fixedcolormap;
+    }
+    else
+    {
+      const int lightshift = nyan_liteamp ? NYAN_LIGHTZSHIFT : LIGHTZSHIFT;
+
+      index = distance >> lightshift;
+      if (index >= MAXLIGHTZ)
+        index = MAXLIGHTZ - 1;
+
+      plane_colormap[y] = dsvars->planezlight[index];
+
+      if (nyan_liteamp && dsvars->minzlight && plane_colormap[y] > dsvars->minzlight)
+        plane_colormap[y] = dsvars->minzlight;
+    }
+  }
+
+  for (x = pl->minx; x <= pl->maxx; x++)
+  {
+    byte *dest;
+    const fixed_t xoffset = x - centerx;
+    fixed_t block_xfrac = 0;
+    fixed_t block_yfrac = 0;
+    dboolean block_start_valid = false;
+    int remaining;
+
+    if (pl->top[x] == SHRT_MAX || pl->top[x] > pl->bottom[x])
+      continue;
+
+    y = pl->top[x];
+    dest = drawvars.topleft + y + x * drawvars.pitch;
+    remaining = pl->bottom[x] - y + 1;
+
+    while ((remaining > leap) && (y != centery) && (y + leap != centery) && ((y < centery) == (y + leap < centery)))
+    {
+      fixed_t xfrac, yfrac, nextxfrac, nextyfrac;
+      fixed_t xfracstep, yfracstep;
+      int count = leap;
+
+      if (!block_start_valid)
+      {
+        block_xfrac = (fixed_t)((plane_xbase[y] + xoffset * plane_xstep[y]) >> FRACBITS);
+        block_yfrac = (fixed_t)((plane_ybase[y] + xoffset * plane_ystep[y]) >> FRACBITS);
+        block_start_valid = true;
+      }
+
+      xfrac = block_xfrac;
+      yfrac = block_yfrac;
+      nextxfrac = (fixed_t)((plane_xbase[y + leap] + xoffset * plane_xstep[y + leap]) >> FRACBITS);
+      nextyfrac = (fixed_t)((plane_ybase[y + leap] + xoffset * plane_ystep[y + leap]) >> FRACBITS);
+
+      if (leap == 16)
+      {
+        xfracstep = (nextxfrac - xfrac) / 16;
+        yfracstep = (nextyfrac - yfrac) / 16;
+      }
+      else if (leap == 8)
+      {
+        xfracstep = (nextxfrac - xfrac) / 8;
+        yfracstep = (nextyfrac - yfrac) / 8;
+      }
+      else
+      {
+        xfracstep = (nextxfrac - xfrac) / 4;
+        yfracstep = (nextyfrac - yfrac) / 4;
+      }
+
+      do
+      {
+        const int spot = ((xfrac >> 16) & 63) | ((yfrac >> 10) & 4032);
+
+        *dest = plane_colormap[y][dsvars->source[spot]];
+
+        y++;
+        dest++;
+        xfrac += xfracstep;
+        yfrac += yfracstep;
+      } while (--count);
+
+      block_xfrac = nextxfrac;
+      block_yfrac = nextyfrac;
+      remaining -= leap;
+    }
+
+    // Draw the tail from exact R_MapPlane values instead of interpolating
+    while (remaining--)
+    {
+      fixed_t xfrac, yfrac;
+      int spot;
+
+      xfrac = (fixed_t)((plane_xbase[y] + xoffset * plane_xstep[y]) >> FRACBITS);
+      yfrac = (fixed_t)((plane_ybase[y] + xoffset * plane_ystep[y]) >> FRACBITS);
+      spot = ((xfrac >> 16) & 63) | ((yfrac >> 10) & 4032);
+
+      if (plane_colormap[y])
+        *dest = plane_colormap[y][dsvars->source[spot]];
+
+      y++;
+      dest++;
+    }
+  }
 }
 
 //
@@ -816,11 +992,18 @@ static void R_DoDrawPlane(visplane_t *pl)
         dsvars.minzlight = zlight[minlight][MAXLIGHTZ - 1];
       }
 
-      pl->top[pl->minx-1] = pl->top[stop] = SHRT_MAX; // dropoff overflow
+      if (V_IsSoftwareMode())
+      {
+        R_DrawPlaneColumns(pl, &dsvars);
+      }
+      else // OpenGL
+      {
+        pl->top[pl->minx-1] = pl->top[stop] = SHRT_MAX; // dropoff overflow
 
-      for (x = pl->minx ; x <= stop ; x++)
-         R_MakeSpans(x,pl->top[x-1],pl->bottom[x-1],
-                     pl->top[x],pl->bottom[x], &dsvars);
+        for (x = pl->minx ; x <= stop ; x++)
+           R_MakeSpans(x,pl->top[x-1],pl->bottom[x-1],
+                       pl->top[x],pl->bottom[x], &dsvars);
+      }
     }
   }
 }

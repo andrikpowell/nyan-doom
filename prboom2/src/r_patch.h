@@ -48,6 +48,7 @@ typedef enum {
   PATCH_REPEAT          = 0x00000002,
   PATCH_HASHOLES        = 0x00000004,
   PATCH_DIRECTTALL      = 0x00000008,
+  PATCH_ISEMPTY         = 0x00000010,
 } rpatch_flag_t;
 
 typedef struct {
