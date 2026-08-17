@@ -43,6 +43,7 @@ static int is_opengl = false;
 #define FONT_HEIGHT 288
 #define SCREEN_COLS 80
 #define SCREEN_ROWS 25
+#define HEADER_ROWS 2
 
 static GLuint gl_texture = 0;
 static int glwindow_w = 0;
@@ -59,6 +60,7 @@ static SDL_Surface *screenbuffer;
 static unsigned char *screendata;
 static SDL_Renderer *renderer;
 static SDL_Texture *texture_upscaled;
+static const char *header_title;
 
 // Current input mode.
 static txt_input_mode_t input_mode = TXT_INPUT_NORMAL;
@@ -95,6 +97,25 @@ static const SDL_Color ega_colors[] =
     {0xfe, 0xfe, 0x54, 0xff},          // 14: Yellow
     {0xfe, 0xfe, 0xfe, 0xff},          // 15: Bright white
 };
+
+static int HeaderHeight(void)
+{
+    return header_title && *header_title ? HEADER_ROWS * FONT_CHAR_H : 0;
+}
+
+void TXT_SetHeader(const char *title)
+{
+    header_title = title;
+}
+
+void TXT_SetColor(txt_color_t color, int r, int g, int b)
+{
+    SDL_Color c = {r, g, b, 0xff};
+
+    SDL_LockSurface(screenbuffer);
+    SDL_SetPaletteColors(screenbuffer->format->palette, &c, color, 1);
+    SDL_UnlockSurface(screenbuffer);
+}
 
 //
 // Initialize text mode screen
@@ -133,7 +154,7 @@ int TXT_Init(void)
     font = &normal_font;
 
     screen_image_w = TXT_SCREEN_W * font->w;
-    screen_image_h = TXT_SCREEN_H * font->h;
+    screen_image_h = TXT_SCREEN_H * font->h + HeaderHeight();
 
     // try to initialize high dpi rendering.
     flags |= SDL_WINDOW_ALLOW_HIGHDPI;
@@ -170,7 +191,7 @@ int TXT_Init(void)
     // 8->32 bit (or whatever depth) color conversions for us.
     screenbuffer = SDL_CreateRGBSurface(0,
                                         TXT_SCREEN_W * font->w,
-                                        TXT_SCREEN_H * font->h,
+                                        screen_image_h,
                                         8, 0, 0, 0, 0);
 
     // Set width and height of the logical viewport for automatic scaling.
@@ -215,11 +236,43 @@ void TXT_Shutdown(void)
     screendata = NULL;
     SDL_FreeSurface(screenbuffer);
     screenbuffer = NULL;
+    header_title = NULL;
 }
 
 unsigned char *TXT_GetScreenData(void)
 {
     return screendata;
+}
+
+static void DrawHeader(void)
+{
+    int length, start_x;
+    int x, y;
+    unsigned char *pixels;
+
+    if (!HeaderHeight())
+        return;
+
+    pixels = screenbuffer->pixels;
+    memset(pixels, TXT_COLOR_HEADER_BACKGROUND, HeaderHeight() * screenbuffer->pitch);
+    length = (int)strlen(header_title);
+    if (length > TXT_SCREEN_W)
+        length = TXT_SCREEN_W;
+    start_x = (TXT_SCREEN_W - length) / 2;
+
+    for (x = 0; x < length; ++x)
+    {
+        const unsigned char *glyph = font->data + (unsigned char)header_title[x] * font->h;
+
+        for (y = 0; y < (int)font->h; ++y)
+        {
+            int column;
+            unsigned char *destination = pixels + (HeaderHeight() - font->h) / 2 * screenbuffer->pitch + y * screenbuffer->pitch + (start_x + x) * font->w;
+
+            for (column = 0; column < (int)font->w; ++column)
+                destination[column] = glyph[y] & (1 << column) ? TXT_COLOR_HEADER_FOREGROUND : TXT_COLOR_HEADER_BACKGROUND;
+        }
+    }
 }
 
 static inline void UpdateCharacter(int x, int y)
@@ -254,7 +307,7 @@ static inline void UpdateCharacter(int x, int y)
     bit = 0;
 
     s = ((unsigned char *) screenbuffer->pixels)
-      + (y * font->h * screenbuffer->pitch)
+      + ((y * font->h + HeaderHeight()) * screenbuffer->pitch)
       + (x * font->w);
 
     for (y1=0; y1<font->h; ++y1)
@@ -318,6 +371,8 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h)
     int y_end;
 
     SDL_LockSurface(screenbuffer);
+
+    DrawHeader();
 
     x_end = LimitToRange(x + w, 0, TXT_SCREEN_W);
     y_end = LimitToRange(y + h, 0, TXT_SCREEN_H);
@@ -383,7 +438,7 @@ void TXT_UpdateScreen(void)
 static void GL_TXT_SetupOrtho(int w, int h)
 {
     const int logical_width = SCREEN_COLS * FONT_CHAR_W;
-    const int logical_height = SCREEN_ROWS * FONT_CHAR_H;
+    const int logical_height = SCREEN_ROWS * FONT_CHAR_H + HeaderHeight();
     float scale, scale_x, scale_y;
     float scaled_width, scaled_height;
     float offset_x, offset_y;
@@ -417,7 +472,7 @@ int GL_TXT_Init(void)
     font = &normal_font;
 
     screen_image_w = TXT_SCREEN_W * font->w;
-    screen_image_h = TXT_SCREEN_H * font->h;
+    screen_image_h = TXT_SCREEN_H * font->h + HeaderHeight();
 
     screenbuffer = SDL_CreateRGBSurface(0, screen_image_w, screen_image_h, 8, 0, 0, 0, 0);
     if (!screenbuffer)
@@ -447,6 +502,21 @@ int GL_TXT_Init(void)
     return 1;
 }
 
+static void GL_TXT_SetPixel(GLubyte *texture_data, int tex_w2, int x, int y, SDL_Color color)
+{
+    int dx, dy;
+
+    for (dy = 0; dy < 2; ++dy)
+        for (dx = 0; dx < 2; ++dx)
+        {
+            int idx = (((y * 2 + dy) * tex_w2) + x * 2 + dx) * 4;
+            texture_data[idx + 0] = color.r;
+            texture_data[idx + 1] = color.g;
+            texture_data[idx + 2] = color.b;
+            texture_data[idx + 3] = 255;
+        }
+}
+
 void GL_TXT_UpdateScreen(void)
 {
     static GLubyte *texture_data;
@@ -459,7 +529,7 @@ void GL_TXT_UpdateScreen(void)
 
     texture_data = NULL;
     tex_w = TXT_SCREEN_W * FONT_CHAR_W;
-    tex_h = TXT_SCREEN_H * FONT_CHAR_H;
+    tex_h = TXT_SCREEN_H * FONT_CHAR_H + HeaderHeight();
 
     // We will scale software image by 2x
     // then scale back down for sharpness
@@ -468,6 +538,31 @@ void GL_TXT_UpdateScreen(void)
 
     if (!texture_data)
         texture_data = malloc(tex_w2 * tex_h2 * 4);
+
+    if (HeaderHeight())
+    {
+        int length = (int)strlen(header_title);
+        int start_x;
+
+        if (length > TXT_SCREEN_W)
+            length = TXT_SCREEN_W;
+
+        start_x = (TXT_SCREEN_W - length) * FONT_CHAR_W / 2;
+
+        for (int y = 0; y < HeaderHeight(); ++y)
+            for (int x = 0; x < tex_w; ++x)
+                GL_TXT_SetPixel(texture_data, tex_w2, x, y, screenbuffer->format->palette->colors[TXT_COLOR_HEADER_BACKGROUND]);
+
+        for (int i = 0; i < length; ++i)
+        {
+            const unsigned char *glyph = font->data + (unsigned char)header_title[i] * FONT_CHAR_H;
+
+            for (int y = 0; y < (int)FONT_CHAR_H; ++y)
+                for (int x = 0; x < (int)FONT_CHAR_W; ++x)
+                    if (glyph[y] & (1 << x))
+                        GL_TXT_SetPixel(texture_data, tex_w2, start_x + i * FONT_CHAR_W + x, (HeaderHeight() - FONT_CHAR_H) / 2 + y, screenbuffer->format->palette->colors[TXT_COLOR_HEADER_FOREGROUND]);
+        }
+    }
 
     for (int y = 0; y < TXT_SCREEN_H; y++) {
         for (int x = 0; x < TXT_SCREEN_W; x++) {
@@ -506,17 +601,8 @@ void GL_TXT_UpdateScreen(void)
                     GLubyte g = bit ? fg_col.g : bg_col.g;
                     GLubyte b = bit ? fg_col.b : bg_col.b;
 
-                    int dst_x = x * FONT_CHAR_W * 2 + cx * 2;
-                    int dst_y = y * FONT_CHAR_H * 2 + cy * 2;
-                    for (int dy = 0; dy < 2; dy++)
-                        for (int dx = 0; dx < 2; dx++)
-                        {
-                            int idx = ((dst_y + dy) * tex_w2 + (dst_x + dx)) * 4;
-                            texture_data[idx + 0] = r;
-                            texture_data[idx + 1] = g;
-                            texture_data[idx + 2] = b;
-                            texture_data[idx + 3] = 255;
-                        }
+                    SDL_Color color = { r, g, b, 255 };
+                    GL_TXT_SetPixel(texture_data, tex_w2, x * FONT_CHAR_W + cx, HeaderHeight() + y * FONT_CHAR_H + cy, color);
                 }
             }
         }

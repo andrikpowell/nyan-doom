@@ -271,6 +271,8 @@ set(COMMON_SRC
     dsda/skill_info.h
     dsda/skip.c
     dsda/skip.h
+    dsda/startup.c
+    dsda/startup.h
     dsda/sndinfo.c
     dsda/sndinfo.h
     dsda/spawn_number.c

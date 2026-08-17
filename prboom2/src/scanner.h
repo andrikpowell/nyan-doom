@@ -84,6 +84,7 @@ class Scanner
 		bool		StringMatch(const char *target);
 		void		MustGetInteger();
 		void		MustGetFloat();
+		void		MustGetColor(int &r, int &g, int &b);
 		void		MustGetString();
 		void		ExpandState();
 		void		SkipLine();

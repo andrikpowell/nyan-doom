@@ -4965,6 +4965,7 @@ setup_menu_t gen_misc_settings[] = {
   EMPTY_LINE,
   { "Skip Quit Prompt", S_YESNO, m_conf, g_all, G2_X, dsda_config_skip_quit_prompt },
   { "Play Quit Sound", S_YESNO | S_NYAN, m_conf, g_doom, G2_X, dsda_config_quit_sounds },
+  { "Show Startup", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_show_startup },
   { "Show Endoom", S_CHOICE | S_NYAN, m_conf, g_all, G2_X, nyan_config_show_endoom, 0, endoom_list },
 
   PREV_PAGE(gen_gamesim_settings),
