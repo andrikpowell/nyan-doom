@@ -453,8 +453,9 @@ static int vanilla_texture_emulation = -1;
 static dboolean dsda_GetVanillaTextureEmulation(void) {
   int config = dsda_IntConfig(nyan_config_vanilla_texture_emulation);
 
-  // This is the user-set complevel, not the gamesim complevel
-  dboolean vanilla_complevel = dsda_IntConfig(dsda_config_default_complevel) <= finaldoom_compatibility;
+  // This is the menu complevel, not the gamesim complevel
+  dboolean vanilla_complevel = M_GetComplevel() <= finaldoom_compatibility;
+  dboolean limit_removing = (limitremoving && !hexen);
 
   if (config == EMULATE_TEXTURE_OFF)
     return false;
@@ -466,7 +467,7 @@ static dboolean dsda_GetVanillaTextureEmulation(void) {
     return vanilla_complevel;
 
   else if (config == EMULATE_TEXTURE_VANILLA)
-    return vanilla_complevel && !limitremoving;
+    return vanilla_complevel && !limit_removing;
 
   return false;
 }
