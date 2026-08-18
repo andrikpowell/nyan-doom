@@ -17,7 +17,7 @@ jobs:
       matrix:
         config:
           - name: "MSVC x64"
-            os: windows-latest
+            os: windows-2022
             build_type: "Release"
             vcpkg: true
             triplet: x64-windows-static-release
@@ -29,6 +29,22 @@ jobs:
               -A x64
               -DCMAKE_TOOLCHAIN_FILE="${env:VCPKG_INSTALLATION_ROOT}\scripts\buildsystems\vcpkg.cmake"
               -DVCPKG_TARGET_TRIPLET=x64-windows-static-release
+              -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+              -DCMAKE_IGNORE_PATH="C:/Strawberry/perl/bin;C:/Strawberry/c/lib"
+
+          - name: "MSVC x86"
+            os: windows-2022
+            build_type: "Release"
+            vcpkg: true
+            triplet: x86-windows-static
+            shell: pwsh
+            package_name: "msvc_x86"
+            release: true
+            artifact-path: build/*.zip
+            extra_options: >-
+              -A Win32
+              -DCMAKE_TOOLCHAIN_FILE="${env:VCPKG_INSTALLATION_ROOT}\scripts\buildsystems\vcpkg.cmake"
+              -DVCPKG_TARGET_TRIPLET=x86-windows-static
               -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
               -DCMAKE_IGNORE_PATH="C:/Strawberry/perl/bin;C:/Strawberry/c/lib"
 
