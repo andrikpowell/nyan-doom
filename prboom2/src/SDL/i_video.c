@@ -135,12 +135,8 @@ static void I_LogSoftwareRenderer(void)
 {
   SDL_RendererInfo info = { 0 };
   SDL_DisplayMode desktop_mode = { 0 };
-  SDL_Rect target = {
-    (SCREENWIDTH  - ACTUALHEIGHT) / 2,
-    (ACTUALHEIGHT - SCREENWIDTH) / 2,
-     ACTUALHEIGHT,
-     SCREENWIDTH
-  };
+  SDL_Rect target = { 0, 0, ACTUALHEIGHT, SCREENWIDTH };
+  SDL_Point center = { SCREENWIDTH / 2, SCREENWIDTH / 2 };
   int display_index;
   int window_width = 0, window_height = 0;
   int output_width = 0, output_height = 0;
@@ -161,10 +157,12 @@ static void I_LogSoftwareRenderer(void)
           desktop_mode.w, desktop_mode.h, desktop_mode.refresh_rate);
   lprintf(LO_INFO,
           "Software display: window=%dx%d, output=%dx%d, logical=%dx%d, "
-          "target=(%d,%d,%d,%d), integer_scale=%d, fullscreen=%d, exclusive=%d\n",
+          "target=(%d,%d,%d,%d), center=(%d,%d), "
+          "integer_scale=%d, fullscreen=%d, exclusive=%d\n",
           window_width, window_height, output_width, output_height,
           logical_width, logical_height,
           target.x, target.y, target.w, target.h,
+          center.x, center.y,
           SDL_RenderGetIntegerScale(sdl_renderer),
           desired_fullscreen, exclusive_fullscreen);
 }
@@ -677,12 +675,8 @@ static int newpal = 0;
 
 void I_FinishUpdate (void)
 {
-  SDL_Rect target = {
-    (SCREENWIDTH  - ACTUALHEIGHT) / 2,
-    (ACTUALHEIGHT - SCREENWIDTH) / 2,
-     ACTUALHEIGHT,
-     SCREENWIDTH
-  };
+  SDL_Rect target = { 0, 0, ACTUALHEIGHT, SCREENWIDTH };
+  SDL_Point center = { SCREENWIDTH / 2, SCREENWIDTH / 2 };
   void *texture_pixels;
   int texture_pitch;
 
@@ -751,7 +745,7 @@ void I_FinishUpdate (void)
   SDL_RenderClear(sdl_renderer);
 
   // [AR] Rotate and flip for transposed rendering
-  SDL_RenderCopyEx(sdl_renderer, sdl_texture, &src_rect, &target, 90.0, NULL, SDL_FLIP_VERTICAL);
+  SDL_RenderCopyEx(sdl_renderer, sdl_texture, &src_rect, &target, 90.0, &center, SDL_FLIP_VERTICAL);
 
   I_HandleCapture();
 
