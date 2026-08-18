@@ -697,7 +697,7 @@ static void createTextureCompositePatch(int id) {
   int numPostsUsedSoFar;
   int edgeSlope;
   count_t *countsInColumn;
-  vanilla_data_t vanillaData;
+  vanilla_data_t vanillaData = { 0 };
   dboolean tutti_frutti = dsda_VanillaTextureEmulation();
 
 #ifdef RANGECHECK
