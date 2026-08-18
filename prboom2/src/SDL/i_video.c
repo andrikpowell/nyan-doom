@@ -130,13 +130,13 @@ SDL_Rect src_rect = { 0, 0, 0, 0 };       // Drawn pixels, independent of window
 SDL_Rect window_rect = { 0, 0, 0, 0 };    // Physical window
 SDL_Rect renderer_rect = { 0, 0, 0, 0 };  // The window, but with HiDPI accounted
 SDL_Rect viewport_rect = { 0, 0, 0, 0 };  // The renderer, but without the black bars
+static SDL_Rect software_target;
+static SDL_Point software_center;
 
 static void I_LogSoftwareRenderer(void)
 {
   SDL_RendererInfo info = { 0 };
   SDL_DisplayMode desktop_mode = { 0 };
-  SDL_Rect target = { 0, 0, ACTUALHEIGHT, SCREENWIDTH };
-  SDL_Point center = { SCREENWIDTH / 2, SCREENWIDTH / 2 };
   int display_index;
   int window_width = 0, window_height = 0;
   int output_width = 0, output_height = 0;
@@ -161,8 +161,9 @@ static void I_LogSoftwareRenderer(void)
           "integer_scale=%d, fullscreen=%d, exclusive=%d\n",
           window_width, window_height, output_width, output_height,
           logical_width, logical_height,
-          target.x, target.y, target.w, target.h,
-          center.x, center.y,
+          software_target.x, software_target.y,
+          software_target.w, software_target.h,
+          software_center.x, software_center.y,
           SDL_RenderGetIntegerScale(sdl_renderer),
           desired_fullscreen, exclusive_fullscreen);
 }
@@ -675,8 +676,6 @@ static int newpal = 0;
 
 void I_FinishUpdate (void)
 {
-  SDL_Rect target = { 0, 0, ACTUALHEIGHT, SCREENWIDTH };
-  SDL_Point center = { SCREENWIDTH / 2, SCREENWIDTH / 2 };
   void *texture_pixels;
   int texture_pitch;
 
@@ -745,7 +744,7 @@ void I_FinishUpdate (void)
   SDL_RenderClear(sdl_renderer);
 
   // [AR] Rotate and flip for transposed rendering
-  SDL_RenderCopyEx(sdl_renderer, sdl_texture, &src_rect, &target, 90.0, &center, SDL_FLIP_VERTICAL);
+  SDL_RenderCopyEx(sdl_renderer, sdl_texture, &src_rect, &software_target, 90.0, &software_center, SDL_FLIP_VERTICAL);
 
   I_HandleCapture();
 
@@ -1396,6 +1395,12 @@ void I_UpdateVideoMode(void)
 
     SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, ACTUALHEIGHT);
     SDL_RenderSetLogicalSize(sdl_renderer, SCREENWIDTH, ACTUALHEIGHT);
+
+    // Keep the rotated target inside the SDL software viewport.
+    software_target.x = software_target.y = 0;
+    software_target.w = ACTUALHEIGHT;
+    software_target.h = SCREENWIDTH;
+    software_center.x = software_center.y = SCREENWIDTH / 2;
 
     // [FG] force integer scales
     SDL_RenderSetIntegerScale(sdl_renderer, integer_scaling);
