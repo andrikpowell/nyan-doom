@@ -89,6 +89,7 @@ SkyBoxParams_t SkyBox;
 static SkyBoxParams_t *SkyBoxes;
 static int num_skyboxes;
 static int max_skyboxes;
+static dboolean sky_stencil_ready;
 
 void gld_InitSky(void)
 {
@@ -106,6 +107,7 @@ void gld_InitFrameSky(void)
   SkyBox.wall.gltexlayer = NULL;
   SkyBox.x_offset_layer = 0;
   num_skyboxes = 0;
+  sky_stencil_ready = false;
 }
 
 static void gld_DrawFakeSkyStrips(int skybox_index)
@@ -123,6 +125,8 @@ static void gld_DrawFakeSkyStrips(int skybox_index)
   glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // no graphics
   gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
 
+  // Instead of drawing per wall, draw per dome
+  glBegin(GL_QUADS);
   for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
   {
     GLWall* wall = gld_drawinfo.items[GLDIT_SWALL][i].item.wall;
@@ -131,13 +135,12 @@ static void gld_DrawFakeSkyStrips(int skybox_index)
     if (skybox_index >= 0 && wall->skybox_index != skybox_index)
       continue;
 
-    glBegin(GL_TRIANGLE_STRIP);
     glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
     glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
-    glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
     glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
-    glEnd();
+    glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
   }
+  glEnd();
 
   gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -895,12 +898,20 @@ static void RenderDome(SkyBoxParams_t *sky, int skylayer)
   GLSkyVBO *vbo;
   int vbosize;
   dboolean rebuild_sky;
-  float sky_offset      = skylayer ? sky->x_offset_layer  : sky->x_offset;
-  GLTexture *gltexture  = skylayer ? sky->wall.gltexlayer : sky->wall.gltexture;
-  GLSkyVBO *vbo_layer = gld_GetSkyVBOs(gltexture, sky->y_offset, sky->wall.flag, skylayer);
+  float sky_offset;
+  GLTexture *gltexture;
+  GLSkyVBO *vbo_layer;
 
-  if (!sky || !gltexture)
+  if (!sky)
     return;
+
+  sky_offset = skylayer ? sky->x_offset_layer : sky->x_offset;
+  gltexture = skylayer ? sky->wall.gltexlayer : sky->wall.gltexture;
+
+  if (!gltexture)
+    return;
+
+  vbo_layer = gld_GetSkyVBOs(gltexture, sky->y_offset, sky->wall.flag, skylayer);
 
   if (invul_cm && frame_fixedcolormap == INVERSECOLORMAP)
     vbo = &vbo_layer[1];
@@ -1061,12 +1072,19 @@ void gld_DrawDomeSkyBox(int skylayer)
   if (num_skyboxes > 1 && gl_use_stencil)
   {
     glEnable(GL_STENCIL_TEST);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-    for (i = 0; i < num_skyboxes; ++i)
+    // Reuse same stencil for double skies
+    if (!sky_stencil_ready)
     {
-      glStencilFunc(GL_ALWAYS, i + 1, ~0);
-      gld_DrawFakeSkyStrips(i);
+      glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+      for (i = 0; i < num_skyboxes; ++i)
+      {
+        glStencilFunc(GL_ALWAYS, i + 1, ~0);
+        gld_DrawFakeSkyStrips(i);
+      }
+
+      sky_stencil_ready = true;
     }
 
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
