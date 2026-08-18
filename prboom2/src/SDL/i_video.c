@@ -124,6 +124,7 @@ static SDL_Surface *texture_surface;
 SDL_Window *sdl_window;
 SDL_Renderer *sdl_renderer;
 SDL_Texture *sdl_texture;
+static SDL_Texture *sdl_texture_fallback;
 static SDL_GLContext sdl_glcontext;
 unsigned int windowid = 0;
 SDL_Rect src_rect = { 0, 0, 0, 0 };       // Drawn pixels, independent of window size
@@ -712,8 +713,37 @@ void I_FinishUpdate (void)
   // Make sure the pillarboxes are kept clear each frame.
   SDL_RenderClear(sdl_renderer);
 
-  // [AR] Rotate and flip for transposed rendering
-  SDL_RenderCopyEx(sdl_renderer, sdl_texture, &src_rect, &target, 90.0, NULL, SDL_FLIP_VERTICAL);
+  // SDL software presentation on older systems can crop and offset the
+  // fullscreen frame. Rotate in a square texture first to keep it centered.
+  if (sdl_texture_fallback)
+  {
+    SDL_Rect rotation_target = {
+      (SCREENWIDTH - ACTUALHEIGHT) / 2,
+      0,
+      ACTUALHEIGHT,
+      SCREENWIDTH
+    };
+    SDL_Rect rotation_source = {
+      0,
+      (SCREENWIDTH - ACTUALHEIGHT) / 2,
+      SCREENWIDTH,
+      ACTUALHEIGHT
+    };
+
+    SDL_SetRenderTarget(sdl_renderer, sdl_texture_fallback);
+    SDL_RenderSetLogicalSize(sdl_renderer, SCREENWIDTH, SCREENWIDTH);
+    SDL_RenderClear(sdl_renderer);
+    SDL_RenderCopyEx(sdl_renderer, sdl_texture, &src_rect, &rotation_target, 90.0, NULL, SDL_FLIP_VERTICAL);
+    SDL_SetRenderTarget(sdl_renderer, NULL);
+    SDL_RenderSetLogicalSize(sdl_renderer, SCREENWIDTH, ACTUALHEIGHT);
+    SDL_RenderClear(sdl_renderer);
+    SDL_RenderCopy(sdl_renderer, sdl_texture_fallback, &rotation_source, NULL);
+  }
+  else
+  {
+    // [AR] Rotate and flip for transposed rendering
+    SDL_RenderCopyEx(sdl_renderer, sdl_texture, &src_rect, &target, 90.0, NULL, SDL_FLIP_VERTICAL);
+  }
 
   I_HandleCapture();
 
@@ -741,6 +771,7 @@ void I_ShutdownSDL(void)
   if (screen) SDL_FreeSurface(screen);
   if (buffer) SDL_FreeSurface(buffer);
   if (texture_surface) SDL_FreeSurface(texture_surface);
+  if (sdl_texture_fallback) SDL_DestroyTexture(sdl_texture_fallback);
   if (sdl_texture) SDL_DestroyTexture(sdl_texture);
   if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
   if (sdl_window) SDL_DestroyWindow(sdl_window);
@@ -1273,6 +1304,7 @@ void I_UpdateVideoMode(void)
     if (screen) SDL_FreeSurface(screen);
     if (buffer) SDL_FreeSurface(buffer);
     if (texture_surface) SDL_FreeSurface(texture_surface);
+    if (sdl_texture_fallback) SDL_DestroyTexture(sdl_texture_fallback);
     if (sdl_texture) SDL_DestroyTexture(sdl_texture);
     if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(sdl_window);
@@ -1283,6 +1315,7 @@ void I_UpdateVideoMode(void)
     screen = NULL;
     buffer = NULL;
     texture_surface = NULL;
+    sdl_texture_fallback = NULL;
     sdl_texture = NULL;
   }
 
@@ -1351,6 +1384,7 @@ void I_UpdateVideoMode(void)
   else
   {
     int flags = SDL_RENDERER_TARGETTEXTURE;
+    SDL_RendererInfo info;
 
     if (render_vsync)
       flags |= SDL_RENDERER_PRESENTVSYNC;
@@ -1389,6 +1423,14 @@ void I_UpdateVideoMode(void)
 
     if(screen == NULL || buffer == NULL || sdl_texture == NULL || texture_surface == NULL) {
       I_Error("Couldn't set %dx%d video mode [%s]", SCREENWIDTH, SCREENHEIGHT, SDL_GetError());
+    }
+
+    if (SDL_GetRendererInfo(sdl_renderer, &info) == 0 && (info.flags & SDL_RENDERER_SOFTWARE))
+    {
+      sdl_texture_fallback = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, SCREENWIDTH, SCREENWIDTH);
+
+      if (!sdl_texture_fallback)
+        I_Error("Couldn't create software rotation texture [%s]", SDL_GetError());
     }
   }
 
