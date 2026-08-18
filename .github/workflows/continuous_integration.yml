@@ -17,7 +17,7 @@ jobs:
       matrix:
         config:
           - name: "MSVC x64"
-            os: windows-latest
+            os: windows-2022
             build_type: "Release"
             vcpkg: true
             triplet: x64-windows-static-release
