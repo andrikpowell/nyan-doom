@@ -131,6 +131,44 @@ SDL_Rect window_rect = { 0, 0, 0, 0 };    // Physical window
 SDL_Rect renderer_rect = { 0, 0, 0, 0 };  // The window, but with HiDPI accounted
 SDL_Rect viewport_rect = { 0, 0, 0, 0 };  // The renderer, but without the black bars
 
+static void I_LogSoftwareRenderer(void)
+{
+  SDL_RendererInfo info = { 0 };
+  SDL_DisplayMode desktop_mode = { 0 };
+  SDL_Rect target = {
+    (SCREENWIDTH  - ACTUALHEIGHT) / 2,
+    (ACTUALHEIGHT - SCREENWIDTH) / 2,
+     ACTUALHEIGHT,
+     SCREENWIDTH
+  };
+  int display_index;
+  int window_width = 0, window_height = 0;
+  int output_width = 0, output_height = 0;
+  int logical_width = 0, logical_height = 0;
+
+  SDL_GetRendererInfo(sdl_renderer, &info);
+  SDL_GetWindowSize(sdl_window, &window_width, &window_height);
+  SDL_GetRendererOutputSize(sdl_renderer, &output_width, &output_height);
+  SDL_RenderGetLogicalSize(sdl_renderer, &logical_width, &logical_height);
+
+  display_index = SDL_GetWindowDisplayIndex(sdl_window);
+  if (display_index >= 0)
+    SDL_GetDesktopDisplayMode(display_index, &desktop_mode);
+
+  lprintf(LO_INFO,
+          "Software renderer: %s, flags=0x%x, display=%d, desktop=%dx%d@%d\n",
+          info.name ? info.name : "unknown", info.flags, display_index,
+          desktop_mode.w, desktop_mode.h, desktop_mode.refresh_rate);
+  lprintf(LO_INFO,
+          "Software display: window=%dx%d, output=%dx%d, logical=%dx%d, "
+          "target=(%d,%d,%d,%d), integer_scale=%d, fullscreen=%d, exclusive=%d\n",
+          window_width, window_height, output_width, output_height,
+          logical_width, logical_height,
+          target.x, target.y, target.w, target.h,
+          SDL_RenderGetIntegerScale(sdl_renderer),
+          desired_fullscreen, exclusive_fullscreen);
+}
+
 void *I_GetSDLWindow(void)
 {
     return sdl_window;
@@ -1429,6 +1467,8 @@ void I_UpdateVideoMode(void)
 
   if (V_IsSoftwareMode())
   {
+    I_LogSoftwareRenderer();
+
     lprintf(LO_DEBUG, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen && screen->pixels ? "SDL buffer" : "own buffer", screen && SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
 
     // Get the info needed to render to the display
