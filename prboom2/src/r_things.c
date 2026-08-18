@@ -1575,7 +1575,6 @@ static void R_DrawSprite (vissprite_t* spr, int clip_level)
   int     r2;
   fixed_t scale;
   fixed_t lowscale;
-  int clip_overlaps = 0;
 
   for (x = spr->x1 ; x<=spr->x2 ; x++)
     clipbot[x] = -2;
@@ -1604,7 +1603,6 @@ static void R_DrawSprite (vissprite_t* spr, int clip_level)
       }
 
       ds = curr->user;
-      clip_overlaps++;
 
       if (ds->scale1 > ds->scale2)
       {
