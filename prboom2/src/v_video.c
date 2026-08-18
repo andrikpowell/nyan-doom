@@ -338,14 +338,14 @@ static void FUNC_V_FillRaw(int lump, int scrn, int x, int y, int lumpwidth, int 
     else
       data = W_LumpByNum(lump);
 
-    for (sy = 0; sy < h; ++sy)
+    for (sx = 0; sx < w; ++sx)
     {
-      src_y_offset = (int)((sy + yoff) / ratio_y) % lumpheight;
-      row = data + src_y_offset * lumpwidth;
+      src_x_offset = (int)((sx + xoff) / ratio_x) % lumpwidth;
 
-      for (sx = 0; sx < w; ++sx)
+      for (sy = 0; sy < h; ++sy)
       {
-        src_x_offset = (int)((sx + xoff) / ratio_x) % lumpwidth;
+        src_y_offset = (int)((sy + yoff) / ratio_y) % lumpheight;
+        row = data + src_y_offset * lumpwidth;
         dest[sx * pitch + sy] = row[src_x_offset];
       }
     }
@@ -1196,15 +1196,12 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 
   shademap = V_ShadeColormap(shade);
 
-  for (iy = y; iy < y + height; ++iy)
+  for (ix = x; ix < x + width; ++ix)
   {
-    dest = screens[FG].data + iy + x * screens[FG].pitch;
+    dest = screens[FG].data + y + ix * screens[FG].pitch;
 
-    for (ix = x; ix < x + width; ++ix)
-    {
-      *dest = shademap[*dest];
-      dest += screens[FG].pitch;
-    }
+    for (iy = 0; iy < height; ++iy)
+      dest[iy] = shademap[dest[iy]];
   }
 }
 
@@ -1316,21 +1313,19 @@ static void V_FillRectTrans8(int scrn, int x, int y, int width, int height, byte
 {
   const byte *transmap;
   byte* dest;
+  int ix, iy;
 
   transmap = dsda_TranMap_Custom(P_ConvertTrans(trans));
 
   if (!transmap)
     return;
 
-  for (int iy = y; iy < y + height; ++iy)
+  for (ix = x; ix < x + width; ++ix)
   {
-    dest = screens[scrn].data + iy + x * screens[scrn].pitch;
+    dest = screens[scrn].data + y + ix * screens[scrn].pitch;
 
-    for (int ix = 0; ix < width; ++ix)
-    {
-      *dest = transmap[(*dest << 8) | colour];
-      dest += screens[scrn].pitch;
-    }
+    for (iy = 0; iy < height; ++iy)
+      dest[iy] = transmap[(dest[iy] << 8) | colour];
   }
 }
 
@@ -1359,16 +1354,28 @@ void FUNC_V_FillRectShaded(int x, int y, int w, int h, int start_shade, int end_
   int blocks = vertical ? h : w;
   if (blocks <= 1) return;
 
-  for (int j = 0; j < h; j++)
+  for (int i = 0; i < w; i++)
   {
-    dest = screens[FG].data + (y + j) + x * pitch;
-    for (int i = 0; i < w; i++)
-    {
-      int block_size = vertical ? j : i;
-      int shade = start_shade + ((end_shade - start_shade) * block_size) / (blocks - 1);
+    dest = screens[FG].data + y + (x + i) * pitch;
 
+    // Split gradients to avoid extra column shade calculations
+    if (vertical)
+    {
+      for (int j = 0; j < h; j++)
+      {
+        int shade = start_shade + ((end_shade - start_shade) * j) / (blocks - 1);
+        const byte *shades = V_ShadeColormap(9 + shade * 2);
+
+        dest[j] = shades[dest[j]];
+      }
+    }
+    else
+    {
+      int shade = start_shade + ((end_shade - start_shade) * i) / (blocks - 1);
       const byte *shades = V_ShadeColormap(9 + shade * 2);
-      dest[i] = shades[dest[i]];
+
+      for (int j = 0; j < h; j++)
+        dest[j] = shades[dest[j]];
     }
   }
 }
@@ -1977,7 +1984,7 @@ extern SDL_Surface *screen;
 //
 static void V_PlotPixelWu8_1px(int x, int y, byte color, int weight)
 {
-  unsigned int bg_color = screens[FG].data[x+screens[FG].pitch*y];
+  unsigned int bg_color = screens[FG].data[y + screens[FG].pitch * x];
   unsigned int *fg2rgb = Col2RGB8[weight];
   unsigned int *bg2rgb = Col2RGB8[64 - weight];
   unsigned int fg = fg2rgb[color];
