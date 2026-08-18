@@ -167,6 +167,7 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 #else
   {
     const byte          *source = dcvars->source;
+    const dboolean      vanilla_power_of_two = (dcvars->flags & DRAW_COLUMN_WALLTEXTURE) && dsda_VanillaTextureEmulation();
 
 #if (R_DRAWCOLUMN_PIPELINE & RDC_DOUBLESKY)
     const byte          *source2 = dcvars->source2;
@@ -284,7 +285,7 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
       if (count & 1)
         *dest = colormap[source[frac >> FRACBITS]];
 #endif
-    } else if (dcvars->texheight == 128) {
+    } else if (dcvars->texheight == 128 || vanilla_power_of_two) {
       #define FIXEDT_128MASK ((127<<FRACBITS)|0xffff)
       while(count--) {
         *dest = R_COLUMN_COLOR(GETCOL(frac & FIXEDT_128MASK));

@@ -74,6 +74,7 @@
 #include <assert.h>
 
 #include "dsda/palette.h"
+#include "dsda/settings.h"
 
 // posts are runs of non masked source pixels
 typedef struct
@@ -107,6 +108,9 @@ typedef struct
 static rpatch_t *patches = 0;
 
 static rpatch_t *texture_composites = 0;
+
+// Switch between tutti-frutti and normal textures
+static dboolean composites_need_flush = false;
 
 // indices of two duplicate PLAYPAL entries, second is -1 if none found
 static int playpal_transparent, playpal_duplicate;
@@ -160,6 +164,21 @@ void R_FlushAllPatches(void) {
         Z_Free(texture_composites[i].data);
     Z_Free(texture_composites);
     texture_composites = NULL;
+    composites_need_flush = false;
+  }
+}
+
+// Needed to refresh tutti-frutti
+void R_FlushAllCompositeTextures(void) {
+  int i;
+
+  if (texture_composites && composites_need_flush)
+  {
+    for (i=0; i<numtextures; i++)
+      if (texture_composites[i].data)
+        Z_Free(texture_composites[i].data);
+    memset(texture_composites, 0, sizeof(rpatch_t) * numtextures);
+    composites_need_flush = false;
   }
 }
 
@@ -498,6 +517,10 @@ static void createPatch(int id) {
     patch->columns[x].numPosts = numPostsInColumn[x];
     patch->columns[x].posts = patch->posts + numPostsUsedSoFar;
 
+    // setup vanilla data
+    patch->columns[x].vanilla_pixels = (const byte *)oldColumn + 3;
+    patch->columns[x].patch_count = 1;
+
     while (oldColumn->topdelta != 0xff) {
       int len = oldColumn->length;
 
@@ -553,6 +576,9 @@ typedef struct {
   unsigned short posts;
   unsigned short posts_used;
 } count_t;
+
+// includes Tutti-Frutti / Medusa code
+#include "r_patch_vanilla.inl"
 
 static void switchPosts(rpost_t *post1, rpost_t *post2) {
   rpost_t dummy;
@@ -662,6 +688,7 @@ static void createTextureCompositePatch(int id) {
   int i, x, y;
   int oy, count;
   int pixelDataSize;
+  int pixelDataSizeWithArtifacts;
   int columnsDataSize;
   int postsDataSize;
   int dataSize;
@@ -670,6 +697,8 @@ static void createTextureCompositePatch(int id) {
   int numPostsUsedSoFar;
   int edgeSlope;
   count_t *countsInColumn;
+  vanilla_data_t vanillaData = { 0 };
+  dboolean tutti_frutti = dsda_VanillaTextureEmulation();
 
 #ifdef RANGECHECK
   if (id >= numtextures)
@@ -695,6 +724,7 @@ static void createTextureCompositePatch(int id) {
 
   // work out how much memory we need to allocate for this patch's data
   pixelDataSize = (composite_patch->width * composite_patch->height + 4) & ~3;
+  pixelDataSizeWithArtifacts = pixelDataSize;
   columnsDataSize = sizeof(rcolumn_t) * composite_patch->width;
 
   // count the number of posts in each column
@@ -735,15 +765,30 @@ static void createTextureCompositePatch(int id) {
 
   postsDataSize = numPostsTotal * sizeof(rpost_t);
 
+  // Reserve extra texture data for vanilla artifacts / overflows
+  if (tutti_frutti)
+  {
+    R_CalculateVanillaDataSize(texture, composite_patch, countsInColumn, pixelDataSize, &vanillaData);
+    pixelDataSizeWithArtifacts = vanillaData.pixelDataSizeWithArtifacts;
+  }
+
   // allocate our data chunk
-  dataSize = pixelDataSize + columnsDataSize + postsDataSize;
+  dataSize = pixelDataSizeWithArtifacts + columnsDataSize + postsDataSize;
   composite_patch->data = (unsigned char*) Z_Malloc(dataSize);
   memset(composite_patch->data, 0, dataSize);
 
   // set out pixel, column, and post pointers into our data array
   composite_patch->pixels = composite_patch->data;
-  composite_patch->columns = (rcolumn_t*)((unsigned char*)composite_patch->pixels + pixelDataSize);
+  composite_patch->columns = (rcolumn_t*)((unsigned char*)composite_patch->pixels + pixelDataSizeWithArtifacts);
   composite_patch->posts = (rpost_t*)((unsigned char*)composite_patch->columns + columnsDataSize);
+
+  // set up tutti-frutti pointers
+  if (tutti_frutti)
+  {
+    vanillaData.vanilla_composite.pixels = composite_patch->pixels + vanillaData.pixelCount + vanillaData.pixelPadding;
+    vanillaData.vanilla_composite.padding = vanillaData.vanilla_composite.pixels + vanillaData.vanilla_composite.pixelDataSize;
+    vanillaData.tutti_patch.pixels = vanillaData.vanilla_composite.padding + vanillaData.vanilla_composite.pixelPadding;
+  }
 
   // sanity check that we've got all the memory allocated we need
   assert((((byte*)composite_patch->posts + numPostsTotal*sizeof(rpost_t)) - (byte*)composite_patch->data) == dataSize);
@@ -759,8 +804,16 @@ static void createTextureCompositePatch(int id) {
       composite_patch->columns[x].pixels = composite_patch->pixels + (x*composite_patch->height);
       composite_patch->columns[x].numPosts = countsInColumn[x].posts;
       composite_patch->columns[x].posts = composite_patch->posts + numPostsUsedSoFar;
+
+      // setup vanilla data
+      composite_patch->columns[x].vanilla_pixels = NULL;
+      composite_patch->columns[x].patch_count = countsInColumn[x].patches;
+
       numPostsUsedSoFar += countsInColumn[x].posts;
   }
+
+  if (tutti_frutti)
+    R_InitVanillaColumns(composite_patch, texture, countsInColumn, &vanillaData);
 
   // fill in the pixels, posts, and columns
   for (i=0; i<texture->patchcount; i++) {
@@ -816,6 +869,9 @@ static void createTextureCompositePatch(int id) {
       }
 
       oldColumn = (const column_t *)((const byte *)oldPatch + LittleLong(oldPatch->columnofs[x]));
+
+      if (tutti_frutti)
+        R_AddTuttiFruttiPatchArtifacts(composite_patch, texture, countsInColumn, &vanillaData.tutti_patch, patchNum, oldPatch, oldColumn, tx);
 
       {
         // tiling
@@ -911,6 +967,9 @@ static void createTextureCompositePatch(int id) {
     }
   }
 
+  if (tutti_frutti)
+    R_AddVanillaCompositeArtifacts(composite_patch, texture, countsInColumn, &vanillaData.vanilla_composite);
+
   for (x=0; x<texture->width; x++) {
     rcolumn_t *column;
 
@@ -945,7 +1004,11 @@ static void createTextureCompositePatch(int id) {
 
   FillEmptySpace(composite_patch);
 
+  if (tutti_frutti)
+    R_FillTuttiFruttiOverflow(composite_patch, &vanillaData);
+
   Z_Free(countsInColumn);
+  composites_need_flush = true;
 }
 
 //---------------------------------------------------------------------------

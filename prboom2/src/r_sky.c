@@ -92,7 +92,7 @@ static byte R_GetSkyTextureColor(int tex)
   // [FG] count colors
   for (i = 0; i < width; ++i)
   {
-    const byte pixel = R_GetTextureColumn(patch, i)[0];
+    const byte pixel = R_GetTextureColumn(patch, i, false)[0];
     colors[i].r = playpal[3 * pixel + 0];
     colors[i].g = playpal[3 * pixel + 1];
     colors[i].b = playpal[3 * pixel + 2];

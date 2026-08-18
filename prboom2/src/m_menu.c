@@ -2262,27 +2262,42 @@ static dboolean M_DependantDisabled(const setup_menu_t* s)
   return false;
 }
 
+int M_GetComplevel(void) {
+  if (doom_v11 || raven)
+    return 0;
+
+  if (dsda_Arg(dsda_arg_complevel)->found)
+    return dsda_Arg(dsda_arg_complevel)->value.v_int;
+
+  if (complvl != -1)
+    return complvl;
+
+  return dsda_IntConfig(dsda_config_default_complevel);
+}
+
 static dboolean M_ComplevelDisabled(const setup_menu_t* s)
 {
   if (s->config_id == dsda_config_default_complevel)
   {
+    dboolean set_complevel = false;
+    int menu_complevel = M_GetComplevel();
+
     // Disable for certain games
     if (doom_v11 || raven)
-    {
-      dsda_UpdateIntConfig(dsda_config_default_complevel, 0, false);
-      return true;
-    }
+      set_complevel++;
 
     // Disable when complevel is found via arg or lump
     if (dsda_Arg(dsda_arg_complevel)->found)
-    {
-      dsda_UpdateIntConfig(dsda_config_default_complevel, dsda_Arg(dsda_arg_complevel)->value.v_int, false);
-      return true;
-    }
+      set_complevel++;
+
     // COMPLVL Lump
     else if (complvl != -1)
+      set_complevel++;
+
+    // Update menu complevel
+    if (set_complevel)
     {
-      dsda_UpdateIntConfig(dsda_config_default_complevel, complvl, false);
+      dsda_UpdateIntConfig(dsda_config_default_complevel, menu_complevel, false);
       return true;
     }
   }
@@ -6060,14 +6075,22 @@ setup_menu_t comp_options_settings[] = {
 };
 
 #define CP_X 230
-static const char *over_under_list[] =
-  { "Off", "Player", "All things", NULL };
+static const char *over_under_list[] = { "Off", "Player", "All things", NULL };
+
+static const char *texture_emulation_list[] =
+{
+  [EMULATE_TEXTURE_OFF] = "Off",
+  [EMULATE_TEXTURE_VANILLA] = "Vanilla",
+  [EMULATE_TEXTURE_LIMIT] = "Limit-Removing",
+  [EMULATE_TEXTURE_ALL] = "Forced",
+  NULL
+};
 
 setup_menu_t comp_emulation_settings[] = {
   { "Limit-Removing", S_YESNO | S_NORESET | S_NYAN, m_conf, g_all, CP_X, dsda_config_limit_removing },
   FUNC_DEPEND("Overflows", S_CENTER, g_all, CP_X, M_Sub_Overflows, dsda_config_limit_removing, false),
   EMPTY_LINE,
-  TITLE("Mapping Error Fixes", CP_X),
+  { "Vanilla Texture Emulation", S_CHOICE | S_NYAN, m_conf, g_all, CP_X, nyan_config_vanilla_texture_emulation, 0, texture_emulation_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
   { "Lindefs w/o Tags Apply Locally", S_YESNO | S_NYAN, m_conf, g_all, CP_X, dsda_config_comperr_zerotag },
   { "Use Passes Thru All Special Lines", S_YESNO, m_conf, g_all, CP_X, dsda_config_comperr_passuse },
   { "Walk Under Solid Hanging Bodies", S_YESNO, m_conf, g_all, CP_X, dsda_config_comperr_hangsolid },
