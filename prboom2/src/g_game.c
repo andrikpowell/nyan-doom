@@ -3236,6 +3236,7 @@ void G_InitNew(int skill, int episode, int map, dboolean prepare)
   dsda_ResetCommandHistory();
   automap_full = false;
   dsda_UpdateGameSkill(skill);
+  dsda_UpdateVanillaTextureEmulation();
   dsda_UpdateGameMap(episode, map);
 
   totalleveltimes = 0; // cph

@@ -448,6 +448,62 @@ dboolean dsda_PlayQuitSounds(void) {
   return dsda_IntConfig(dsda_config_quit_sounds) && !raven;
 }
 
+static int vanilla_texture_emulation = -1;
+
+static dboolean dsda_GetVanillaTextureEmulation(void) {
+  int config = dsda_IntConfig(nyan_config_vanilla_texture_emulation);
+
+  // This is the menu complevel, not the gamesim complevel
+  dboolean vanilla_complevel = M_GetComplevel() <= finaldoom_compatibility;
+  dboolean limit_removing = (limitremoving && !hexen);
+
+  if (config == EMULATE_TEXTURE_OFF)
+    return false;
+
+  if (config == EMULATE_TEXTURE_ALL)
+    return true;
+
+  else if (config == EMULATE_TEXTURE_LIMIT)
+    return vanilla_complevel;
+
+  else if (config == EMULATE_TEXTURE_VANILLA)
+    return vanilla_complevel && !limit_removing;
+
+  return false;
+}
+
+void dsda_UpdateVanillaTextureEmulation(void)
+{
+  dboolean new_vanilla_texture_emulation = dsda_GetVanillaTextureEmulation();
+
+  if (new_vanilla_texture_emulation == vanilla_texture_emulation)
+    return;
+
+  vanilla_texture_emulation = new_vanilla_texture_emulation;
+
+  // Update textures
+  R_FlushAllCompositeTextures();
+}
+
+dboolean dsda_VanillaTextureEmulation(void) {
+  if (vanilla_texture_emulation == -1)
+    dsda_UpdateVanillaTextureEmulation();
+
+  return vanilla_texture_emulation;
+}
+
+void dsda_UpdateLimitRemoving(void)
+{
+  void dsda_AlterGameFlags(void);
+
+  dsda_AlterGameFlags();
+  dsda_UpdateVanillaTextureEmulation();
+}
+
+void dsda_UpdateMenuComplevel(void) {
+  dsda_UpdateVanillaTextureEmulation();
+}
+
 int dsda_reveal_map;
 
 int dsda_RevealAutomap(void) {

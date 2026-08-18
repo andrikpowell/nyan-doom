@@ -151,12 +151,15 @@ void dsda_InitExHud(void);
 void dsda_UpdateFreeText(void);
 void dsda_ResetAirControl(void);
 void dsda_AlterGameFlags(void);
+void dsda_UpdateLimitRemoving(void);
 void dsda_RefreshPistolStart(void);
 void dsda_RefreshAlwaysPistolStart(void);
 void S_ToggleRandomMusic(void);
 void dsda_UpdateTranMap(void);
 void cht_UpdateCheats(void);
 void R_UpdateFuzzSize(void);
+void dsda_UpdateVanillaTextureEmulation(void);
+void dsda_UpdateMenuComplevel(void);
 void M_RefreshGameSpecificMenuOptions(void);
 
 void dsda_TrackConfigFeatures(void) {
@@ -258,7 +261,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_default_complevel] = {
     "default_compatibility_level", dsda_config_default_complevel,
-    dsda_config_int, 0, mbf21_compatibility, { mbf21_compatibility }
+    dsda_config_int, 0, mbf21_compatibility, { mbf21_compatibility }, NULL, NOT_STRICT, dsda_UpdateMenuComplevel
   },
   [dsda_config_default_skill] = {
     "default_skill", dsda_config_default_skill,
@@ -1583,7 +1586,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_limit_removing] = {
     "dsda_limit_removing", dsda_config_limit_removing,
-    CONF_BOOL(0), NULL, NOT_STRICT, dsda_AlterGameFlags
+    CONF_BOOL(0), NULL, NOT_STRICT, dsda_UpdateLimitRemoving
   },
   [dsda_config_always_pistol_start] = {
     "dsda_always_pistol_start", dsda_config_always_pistol_start,
@@ -1744,6 +1747,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_fuzzscale] = {
     "dsda_fuzzscale", dsda_config_fuzzscale,
     dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(0), R_UpdateFuzzSize
+  },
+  [nyan_config_vanilla_texture_emulation] = {
+    "nyan_vanilla_texture_emulation", nyan_config_vanilla_texture_emulation,
+    dsda_config_int, EMULATE_TEXTURE_OFF, EMULATE_TEXTURE_ALL, { EMULATE_TEXTURE_OFF }, NULL, NOT_STRICT, dsda_UpdateVanillaTextureEmulation
   },
   [dsda_config_multiple_area_maps] = {
     "dsda_multiple_area_maps", dsda_config_multiple_area_maps,
