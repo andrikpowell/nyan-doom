@@ -578,7 +578,7 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
             } while ((count-=4)>=0);
           if (count+=4)
             do {
-              *dest = transmap[*dest+colortr[*source<<8]];
+              *dest = transmap[*dest + (colortr[*source] << 8)];
               source++;
               dest++;
             } while (--count);
