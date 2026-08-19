@@ -211,7 +211,8 @@ static dboolean sub_exhud_active = false;
 static dboolean sub_status_widgets_active = false;
 static dboolean sub_crosshair_active = false;
 static dboolean sub_overflows_active = false;
-static dboolean sub_automap_things_active = false;
+static dboolean sub_automap_opengl_active = false;
+static dboolean sub_color_active = false;
 
 extern const char* g_menu_flat;
 extern int g_menu_save_page_size;
@@ -415,7 +416,23 @@ static void M_Sub_ExHud(void);
 static void M_Sub_StatusWidgets(void);
 static void M_Sub_Crosshair(void);
 static void M_Sub_Overflows(void);
-static void M_Sub_AutoMapThings(void);
+static void M_Sub_AutoMapOpenGL(void);
+static void M_Sub_ColorAutomap(void);
+static void M_Sub_ColorMessages(void);
+static void M_Sub_ColorStatusBar(void);
+static void M_Sub_ColorIntermission(void);
+static void M_Sub_ColorExHud(void);
+static void M_Sub_ColorPowerups(void);
+static void M_Sub_ColorSmallArmor(void);
+static void M_Sub_ColorSmallHealth(void);
+static void M_Sub_ColorSmallAmmo(void);
+static void M_Sub_ColorSmallWeapon(void);
+static void M_Sub_ColorSpeed(void);
+static void M_Sub_ColorCommand(void);
+static void M_Sub_ColorCoordinates(void);
+static void M_Sub_ColorRenderStats(void);
+static void M_Sub_ColorTracker(void);
+static void M_Sub_ColorMenu(void);
 
 static void M_Sub_DrawAdvAudio(void);
 static void M_Sub_DrawMouse(void);
@@ -429,7 +446,8 @@ static void M_Sub_DrawExHud(void);
 static void M_Sub_DrawStatusWidgets(void);
 static void M_Sub_DrawCrosshair(void);
 static void M_Sub_DrawOverflows(void);
-static void M_Sub_DrawAutoMapThings(void);
+static void M_Sub_DrawAutoMapOpenGL(void);
+static void M_Sub_DrawColor(void);
 
 menu_t SkillDef;                                              // phares 5/04/98
 
@@ -2051,6 +2069,16 @@ static menu_t SubStatbarColorDef =
   0
 };
 
+static menu_t SubColorDef =
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawColor,
+  34,5,      // skull drawn here
+  0
+};
+
 static menu_t SubObituaryDef =
 {
   generic_setup_end,
@@ -2161,12 +2189,12 @@ static menu_t AutoMapDef =
   0
 };
 
-static menu_t SubAutoMapThingsDef =
+static menu_t SubAutoMapOpenGLDef =
 {
   generic_setup_end,
   &GeneralDef,
   Generic_Setup,
-  M_Sub_DrawAutoMapThings,
+  M_Sub_DrawAutoMapOpenGL,
   34,5,      // skull drawn here
   0
 };
@@ -4531,16 +4559,15 @@ setup_menu_t auto_options_settings[] =
 {
   { "Locked doors blink", S_YESNO, m_conf, g_all, AU_X, dsda_config_map_blinking_locks },
   { "Show Secrets only after entering", S_YESNO, m_conf, g_all, AU_X, dsda_config_map_secret_after },
-  { "Cycle Level Title / Author", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_map_title_author_cycle },
-  { "Show Keys on Automap", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_map_show_keys },
-  { "Use Automap Hud for Fullscreen", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_full_automap_exhud },
-  { "Automap Stat Icons", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_map_stat_icons },
-  EMPTY_LINE,
   { "Grid cell size 8..256, -1 for auto", S_NUM, m_conf, g_all, AU_X, dsda_config_map_grid_size },
   { "Pan speed (1..32)", S_NUM, m_conf, g_all, AU_X, dsda_config_map_pan_speed },
   { "Zoom speed (1..32)", S_NUM, m_conf, g_all, AU_X, dsda_config_map_scroll_speed },
   { "Use mouse wheel for zooming", S_YESNO, m_conf, g_all, AU_X, dsda_config_map_wheel_zoom },
   { "Show Minimap", S_YESNO, m_conf, g_all, AU_X, dsda_config_show_minimap },
+  EMPTY_LINE,
+  { "Cycle Level Title / Author", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_map_title_author_cycle },
+  { "Always Show Keys on Automap", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_map_show_keys },
+  { "Use Automap Hud for Fullscreen", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_full_automap_exhud },
   EMPTY_LINE,
   TITLE("Components", AU_X),
   { "Stat Totals", S_YESNO, m_conf, g_all, AU_X, dsda_config_map_totals },
@@ -4568,18 +4595,18 @@ static const char *automap_linesize_list[] = { "Auto", "1x", "2x", "3x", "4x", "
 setup_menu_t auto_appearance_settings[] =
 {
   { "Lines Width", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_linesize, 0, automap_linesize_list },
-  { "Automap Markers", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_marker_style, 0, map_marker_style_list },
-  FUNC("Thing Appearance", S_CENTER | S_NYAN, AA_X, M_Sub_AutoMapThings),
+  { "Things appearance", S_CHOICE, m_conf, g_all, AA_X, dsda_config_map_things_appearance, 0, map_things_appearance_list },
+  { "Player Arrow Style", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_player_arrow, 0, map_player_arrow_list },
+  { "Show Thing Hitboxes", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_things_hitbox },
   EMPTY_LINE,
+  { "Automap Markers", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_marker_style, 0, map_marker_style_list },
+  { "Automap Stat Icons", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_stat_icons },
+  FUNC_DEPEND("OpenGL Options", S_CENTER | S_NYAN, g_all, AA_X, M_Sub_AutoMapOpenGL, dsda_config_videomode, OPENGL_MODE),
+  EMPTY_LINE,
+  TITLE("Background", AA_X),
   { "Automap background", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_background },
   { "Background shade", S_PERC | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_background_shade, 0, empty_list, EXCLUDE(dsda_config_automap_background, false) },
   { "Parallex Effect", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_parallax, 0, empty_list, EXCLUDE(dsda_config_automap_background, false) },
-  EMPTY_LINE,
-  TITLE_DEPEND("OpenGL Features", AA_X, dsda_config_videomode, OPENGL_MODE),
-  { "Textured automap", S_YESNO, m_conf, g_all, AA_X, dsda_config_map_textured, DEPEND_GL },
-  { "Textured automap", S_PERC, m_conf, g_all, AA_X, dsda_config_map_textured_trans, DEPEND_GL },
-  { "Textured automap on overlay", S_PERC, m_conf, g_all, AA_X, dsda_config_map_textured_overlay_trans, DEPEND_GL },
-  { "Lines on overlay", S_PERC, m_conf, g_all, AA_X, dsda_config_map_lines_overlay_trans, DEPEND_GL },
   EMPTY_LINE,
   TITLE("Trail", AA_X),
   { "Player Trail", S_YESNO, m_conf, g_all, AA_X, dsda_config_map_trail },
@@ -4707,37 +4734,38 @@ static void M_Automap(int choice)
 
 /////////////////////////////
 //
-// Sub Menu - Automap Thing Appearance
+// Sub Menu - Automap OpenGL Features
 
-static const char *automap_thing_pages[] =
+static const char *automap_opengl_pages[] =
 {
-  "Thing Appearance",
+  "OpenGL Options",
   NULL
 };
 
-setup_menu_t automap_thing_adv_settings[];
+setup_menu_t automap_opengl_adv_settings[];
 
-setup_menu_t* automap_thing_settings[] =
+setup_menu_t* automap_opengl_settings[] =
 {
-  automap_thing_adv_settings,
+  automap_opengl_adv_settings,
   NULL
 };
 
-setup_menu_t automap_thing_adv_settings[] = {
-  { "Things appearance", S_CHOICE, m_conf, g_all, AA_X, dsda_config_map_things_appearance, 0, map_things_appearance_list },
-  { "Player Arrow Style", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_player_arrow, 0, map_player_arrow_list },
-  { "Show Thing Hitboxes", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_things_hitbox },
+setup_menu_t automap_opengl_adv_settings[] = {
+  { "Textured automap", S_YESNO, m_conf, g_all, AA_X, dsda_config_map_textured, DEPEND_GL },
+  { "Textured automap", S_PERC, m_conf, g_all, AA_X, dsda_config_map_textured_trans, DEPEND_GL },
+  { "Textured automap on overlay", S_PERC, m_conf, g_all, AA_X, dsda_config_map_textured_overlay_trans, DEPEND_GL },
+  { "Lines on overlay", S_PERC, m_conf, g_all, AA_X, dsda_config_map_lines_overlay_trans, DEPEND_GL },
   { "GL Nice Icons", S_YESNO, m_conf, g_all, AA_X, dsda_config_map_things_nice, DEPEND_GL },
 
   FINAL_ENTRY
 };
 
-static void M_Sub_AutoMapThings(void)
+static void M_Sub_AutoMapOpenGL(void)
 {
-  M_EnterSubSetup(&SubAutoMapThingsDef, &sub_automap_things_active, automap_thing_settings[0]);
+  M_EnterSubSetup(&SubAutoMapOpenGLDef, &sub_automap_opengl_active, automap_opengl_settings[0]);
 }
 
-static void M_Sub_DrawAutoMapThings(void)
+static void M_Sub_DrawAutoMapOpenGL(void)
 {
   M_ChangeMenu(NULL, mnact_full);
 
@@ -4745,7 +4773,7 @@ static void M_Sub_DrawAutoMapThings(void)
 
   M_DrawTitle(2, "Automap", cr_title);
   M_DrawInstructions();
-  M_DrawTabs(automap_thing_pages, sizeof(automap_thing_pages), TABS_Y);
+  M_DrawTabs(automap_opengl_pages, sizeof(automap_opengl_pages), TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
 }
 
@@ -4946,9 +4974,13 @@ setup_menu_t gen_device_settings[] = {
   FINAL_ENTRY
 };
 
+static const char* artifact_desc_list[] = { "Off", "Full", "Names", "Descriptions", NULL };
+
 setup_menu_t gen_gamesim_settings[] = {
   { "Death Use Action", S_CHOICE, m_conf, g_all, G2_X, dsda_config_death_use_action, 0, death_use_strings },
   { "Rare Player Gib Death", S_YESNO | S_NYAN, m_conf, g_doom, G2_X, nyan_config_skullpop_easter_egg },
+  { "Randomly Mirrored Corpses", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_flip_corpses },
+  { "Artifact Descriptions", S_CHOICE | S_NYAN, m_conf, g_raven, G2_X, dsda_config_artifact_descriptions, 0, artifact_desc_list },
   { "Skip Ethereal Travel", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_skip_ethereal_travel },
   { "Simpler Puzzle Piece Use", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_simpler_puzzle_use },
   EMPTY_LINE,
@@ -4964,24 +4996,22 @@ setup_menu_t gen_gamesim_settings[] = {
   FINAL_ENTRY
 };
 
-static const char* artifact_desc_list[] = { "Off", "Full", "Names", "Descriptions", NULL };
 static const char* loading_disk_list[] = { "Off", "Disk", "CD-Rom", NULL };
 static const char* endoom_list[] = { "Off", "On", "Smart", NULL };
 
 setup_menu_t gen_misc_settings[] = {
   { "Enable Cheat Code Entry", S_YESNO, m_conf, g_all, G2_X, dsda_config_cheat_codes },
   { "Use Dehacked Cheats", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_deh_change_cheats },
-  { "Randomly Mirrored Corpses", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_flip_corpses },
-  { "Artifact Descriptions", S_CHOICE | S_NYAN, m_conf, g_raven, G2_X, dsda_config_artifact_descriptions, 0, artifact_desc_list },
   EMPTY_LINE,
   { "Autosave On Level Start", S_YESNO, m_conf, g_all, G2_X, dsda_config_auto_save },
   { "Organize My Save Files", S_YESNO, m_conf, g_all, G2_X, dsda_config_organized_saves },
+  EMPTY_LINE,
   { "Data Access Icon", S_CHOICE | S_NYAN, m_conf, g_doom, G2_X, nyan_config_loading_disk, 0, loading_disk_list },
+  { "Show Startup", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_show_startup },
+  { "Show Endoom", S_CHOICE | S_NYAN, m_conf, g_all, G2_X, nyan_config_show_endoom, 0, endoom_list },
   EMPTY_LINE,
   { "Skip Quit Prompt", S_YESNO, m_conf, g_all, G2_X, dsda_config_skip_quit_prompt },
   { "Play Quit Sound", S_YESNO | S_NYAN, m_conf, g_doom, G2_X, dsda_config_quit_sounds },
-  { "Show Startup", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_show_startup },
-  { "Show Endoom", S_CHOICE | S_NYAN, m_conf, g_all, G2_X, nyan_config_show_endoom, 0, endoom_list },
 
   PREV_PAGE(gen_gamesim_settings),
   NEXT_PAGE(gen_nyan_settings),
@@ -5263,8 +5293,8 @@ static const char* swirling_flat_list[] = { "Off", "Smart", "All", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Screen Wipe Effect", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_render_wipescreen, 0, wipe_screen_list },
-  { "Stretch Short Skies", S_YESNO, m_conf, g_doom, G_X, dsda_config_render_stretchsky, DEPEND_SW },
   { "Linear Sky Scrolling", S_YESNO, m_conf, g_all, G_X, dsda_config_render_linearsky, DEPEND_SW },
+  { "Stretch Short Skies", S_YESNO, m_conf, g_doom, G_X, dsda_config_render_stretchsky, DEPEND_SW },
   { "Quake Intensity", S_PERC, m_conf, g_all, G_X, dsda_config_quake_intensity },
   { "Fake Contrast", S_CHOICE, m_conf, g_all, G_X, dsda_config_fake_contrast_mode, 0, fake_contrast_list },
   { "Swirling Flats", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_swirling_flats, 0, swirling_flat_list },
@@ -5288,6 +5318,15 @@ static const char* fuzz_scale_list[] = { "Vanilla", "3/4", "1/2", NULL };
 static const char* colored_blood_list[] = { "Off", "On", "Forced", NULL };
 static const char* translucent_list[] = { "Off", "Default", "w/ Vanilla", NULL };
 
+static const char *texture_emulation_list[] =
+{
+  [EMULATE_TEXTURE_OFF] = "Off",
+  [EMULATE_TEXTURE_VANILLA] = "Vanilla",
+  [EMULATE_TEXTURE_LIMIT] = "Limit-Removing",
+  [EMULATE_TEXTURE_ALL] = "Forced",
+  NULL
+};
+
 setup_menu_t display_nyan_settings[] = {
   { "Colored Borderbox", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_colored_borderbox },
   { "Software Fuzz Mode", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_fuzzmode, 0, fuzz_mode_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
@@ -5297,6 +5336,9 @@ setup_menu_t display_nyan_settings[] = {
   EMPTY_LINE_ADV(g_doom),
   { "Colored Blood", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, nyan_config_colored_blood, 0, colored_blood_list },
   FUNC_EXCLUDE("Customize", S_CENTER | S_NYAN, g_doom, G_X, M_Sub_ColoredBlood, nyan_config_colored_blood, false),
+  EMPTY_LINE,
+  TITLE_DEPEND("Vanilla Emulation", G_X, dsda_config_videomode, SOFTWARE_MODE),
+  { "Vanilla Texture Emulation", S_CHOICE | S_NYAN, m_conf, g_all, G_X, nyan_config_vanilla_texture_emulation, 0, texture_emulation_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
   EMPTY_LINE,
   TITLE("Translucency", G_X),
   { "Translucent Sprites", S_CHOICE, m_conf, g_doom, G_X, dsda_config_translucent_sprites, 0, translucent_list },
@@ -5367,193 +5409,24 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
 };
 
 setup_menu_t display_color_settings[] = {
-  TITLE("Automap", G_X),
-  {"Map Title", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_title },
-  {"Map Author", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_author },
-  {"Map Totals Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_totals_label },
-  {"Map Totals Value", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_totals_value },
-  {"Map Totals Max", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_totals_max },
-  {"Map Time Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_time_label },
-  {"Map Time Level", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_time_level },
-  {"Map Time Total", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_time_total },
-  {"Map Coords", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_map_coords },
-  {"Kills Icon", S_CRCHOICE, m_conf, g_doom, G_X, dsda_tc_map_icon_kills },
-  {"Items Icon", S_CRCHOICE, m_conf, g_doom, G_X, dsda_tc_map_icon_items },
-  {"Secrets Icon", S_CRCHOICE, m_conf, g_doom, G_X, dsda_tc_map_icon_secrets },
-  {"Kills Icon", S_CRCHOICE, m_conf, g_raven, G_X, dsda_tc_map_raven_icon_kills },
-  {"Items Icon", S_CRCHOICE, m_conf, g_raven, G_X, dsda_tc_map_raven_icon_items },
-  {"Secrets Icon", S_CRCHOICE, m_conf, g_raven, G_X, dsda_tc_map_raven_icon_secrets },
+  FUNC("Menu", S_CENTER, G_X, M_Sub_ColorMenu),
+  FUNC("Automap", S_CENTER, G_X, M_Sub_ColorAutomap),
+  FUNC("Messages", S_CENTER, G_X, M_Sub_ColorMessages),
+  FUNC("Status Bar", S_CENTER, G_X, M_Sub_ColorStatusBar),
+  FUNC("Intermission", S_CENTER, G_X, M_Sub_ColorIntermission),
   EMPTY_LINE,
-  
-  TITLE("Messages", G_X),
-  {"Message", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_hud_message },
-  {"Secret Message", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_hud_secret_message },
-  {"Announce Map Title", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_hud_announce_message },
-  {"Announce Map Author", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_hud_announce_author },
-  {"Obituaries", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_hud_obituary },
-  EMPTY_LINE,
-
-  TITLE("Status Bar", G_X),
-  {"Health Bad", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_health_bad },
-  {"Health Warning", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_health_warning },
-  {"Health Ok", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_health_ok },
-  {"Health Super", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_health_super },
-  {"Armor Zero", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_armor_zero },
-  {"Armor One", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_armor_one },
-  {"Armor Two", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_armor_two },
-  {"Armor Hexen", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_armor_hexen },
-  {"Ammo Out", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_ammo_out },
-  {"Ammo Bad", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_ammo_bad },
-  {"Ammo Warning", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_ammo_warning },
-  {"Ammo Ok", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_ammo_ok },
-  {"Ammo Full", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_stbar_ammo_full },
-  EMPTY_LINE,
-
-  TITLE("Intermission", G_X),
-  {"Level Split Normal", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_inter_split_normal },
-  {"Level Split Good", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_inter_split_good },
-  {"Level Split Best", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_inter_split_best },
-  {"Event Split", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_event_split },
-  EMPTY_LINE,
-
-  TITLE("Exhud", G_X),
-  {"Time Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_time_label },
-  {"Level Time", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_level_time },
-  {"Total Time", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_total_time },
-  {"Demo Length", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_demo_length },
-  {"Totals STS Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_totals_sts_label },
-  {"Totals Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_totals_label },
-  {"Totals Value", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_totals_value },
-  {"Totals Max", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_totals_max },
-  {"Keys Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_keys_label },
-  {"Free Text", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_free_text },
-  {"Local Time", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_local_time },
-  {"Attempts", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_attempts },
-  EMPTY_LINE,
-
-  TITLE("Powerups", G_X),
-  {"All Kills", S_CRCHOICE, m_conf, g_doom, G_X, dsda_tc_exhud_status_all_kills },
-  {"All Items", S_CRCHOICE, m_conf, g_doom, G_X, dsda_tc_exhud_status_all_items },
-  {"All Secrets", S_CRCHOICE, m_conf, g_doom, G_X, dsda_tc_exhud_status_all_secrets },
-  {"All Kills", S_CRCHOICE, m_conf, g_raven, G_X, dsda_tc_exhud_status_raven_all_kills },
-  {"All Items", S_CRCHOICE, m_conf, g_raven, G_X, dsda_tc_exhud_status_raven_all_items },
-  {"All Secrets", S_CRCHOICE, m_conf, g_raven, G_X, dsda_tc_exhud_status_raven_all_secrets },
-  {"Armor One", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_armor_one },
-  {"Armor Two", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_armor_two },
-  {"Berserk", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_berserk },
-  {"Area Map", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_allmap },
-  {"Backpack", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_backpack },
-  {"Radition Suit", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_suit },
-  {"Invisibility", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_invis },
-  {"Light Amp / Torch", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_light },
-  {"Invulerability", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_invul },
-  {"Flight", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_flight },
-  {"Tome of Power", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_tome },
-  {"Morph", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_morph },
-  {"Boots of Speed", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_speed },
-  {"Maulotaur", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_maulotaur },
-  {"Powerup Blink", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_status_blink },
-  EMPTY_LINE,
-
-  TITLE("Small Armor", G_X),
-  {"Armor Zero", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_armor_zero },
-  {"Armor One", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_armor_one },
-  {"Armor Two", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_armor_two },
-  {"Armor Hexen", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_armor_hexen },
-  EMPTY_LINE,
-
-  TITLE("Small Health", G_X),
-  {"Health Bad", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_health_bad },
-  {"Health Warning", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_health_warning },
-  {"Health Ok", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_health_ok },
-  {"Health Super", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_health_super },
-  {"Health Super Dark", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_health_super_dark },
-  EMPTY_LINE,
-
-  TITLE("Small Ammo", G_X),
-  {"Ammo Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_ammo_label },
-  {"Ammo Mana1", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_ammo_mana1 },
-  {"Ammo Mana2", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_ammo_mana2 },
-  {"Ammo Value", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_ammo_value },
-  {"Ammo Out", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_ammo_out },
-  {"Ammo Bad", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_ammo_bad },
-  {"Ammo Warning", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_ammo_warning },
-  {"Ammo Ok", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_ammo_ok },
-  {"Ammo Full", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_ammo_full },
-  EMPTY_LINE,
-
-  TITLE("Small Weapon", G_X),
-  {"Weapon Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_weapon_label },
-  {"Weapon Owned", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_weapon_owned },
-  {"Weapon Berserk", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_weapon_berserk },
-  {"Weapon Value", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_weapon_value },
-  {"Weapon Out", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_weapon_out },
-  {"Weapon Bad", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_weapon_bad },
-  {"Weapon Warning", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_weapon_warning },
-  {"Weapon Ok", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_weapon_ok },
-  {"Weapon Full", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_weapon_full },
-  EMPTY_LINE,
-
-  TITLE("Speed", G_X),
-  {"Speed Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_speed_label },
-  {"Speed Slow", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_speed_slow },
-  {"Speed Normal", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_speed_normal },
-  {"Speed Fast", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_speed_fast },
-  EMPTY_LINE,
-
-  TITLE("Command Display", G_X),
-  {"Command Entry", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_command_entry },
-  {"Command Queue", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_command_queue },
-  EMPTY_LINE,
-
-  TITLE("Coordinate Display", G_X),
-  {"Coords Base", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_coords_base },
-  {"Coords MF50", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_coords_mf50 },
-  {"Coords SR40", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_coords_sr40 },
-  {"Coords SR50", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_coords_sr50 },
-  {"Coords Fast", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_coords_fast },
-  {"Line Activation", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_line_activation },
-  EMPTY_LINE,
-
-  TITLE("Render Stats", G_X),
-  {"FPS Bad", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_fps_bad },
-  {"FPS Fine", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_fps_fine },
-  {"Render Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_render_label },
-  {"Render Good", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_render_good },
-  {"Render Bad", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_render_bad },
-  EMPTY_LINE,
-
-  TITLE("Tracker", G_X),
-  {"Line Special", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_line_special },
-  {"Line Normal", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_line_normal },
-  {"Line Close", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_line_close },
-  {"Line Far", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_line_far },
-  {"Sector Active", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_sector_active },
-  {"Sector Special", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_sector_special },
-  {"Sector Normal", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_sector_normal },
-  {"Mobj Alive", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_mobj_alive },
-  {"Mobj Dead", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_mobj_dead },
-  {"Player Damage", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_player_damage },
-  {"Player Neutral", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_exhud_player_neutral },
-  EMPTY_LINE,
-
-  TITLE("Menu", G_X),
-  //{"Logo", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_logo },
-  {"Title", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_title },
-  {"Tab", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_tab },
-  {"Tab Highlight", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_tab_highlight },
-  {"Label", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_label },
-  {"Label Highlight", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_label_highlight },
-  {"Label Edit", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_label_edit },
-  {"Value", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_value },
-  {"Value Highlight", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_value_highlight },
-  {"Value Edit", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_value_edit },
-  {"Info Highlight", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_info_highlight },
-  {"Info Edit", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_info_edit },
-  {"Warning", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_warning },
-  {"Scrollbar", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_scrollbar },
-  //{"Nyan Feature", S_CRCHOICE, m_conf, g_all, G_X, dsda_tc_menu_nyan_feature },
-  EMPTY_LINE,
+  TITLE("ExHUD Components", G_X),
+  FUNC("ExHUD", S_CENTER, G_X, M_Sub_ColorExHud),
+  FUNC("Powerups", S_CENTER, G_X, M_Sub_ColorPowerups),
+  FUNC("Small Armor", S_CENTER, G_X, M_Sub_ColorSmallArmor),
+  FUNC("Small Health", S_CENTER, G_X, M_Sub_ColorSmallHealth),
+  FUNC("Small Ammo", S_CENTER, G_X, M_Sub_ColorSmallAmmo),
+  FUNC("Small Weapon", S_CENTER, G_X, M_Sub_ColorSmallWeapon),
+  FUNC("Speed", S_CENTER, G_X, M_Sub_ColorSpeed),
+  FUNC("Command Display", S_CENTER, G_X, M_Sub_ColorCommand),
+  FUNC("Coordinate Display", S_CENTER, G_X, M_Sub_ColorCoordinates),
+  FUNC("Render Stats", S_CENTER, G_X, M_Sub_ColorRenderStats),
+  FUNC("Tracker", S_CENTER, G_X, M_Sub_ColorTracker),
 
   PREV_PAGE(display_hud_settings),
   FINAL_ENTRY
@@ -6039,6 +5912,260 @@ static void M_Sub_DrawCrosshair(void)
 
 /////////////////////////////
 //
+// Sub Menu - Display Colors
+
+#define GC_X 180
+
+setup_menu_t color_menu_settings[] = {
+  //{"Logo", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_logo },
+  {"Title", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_title },
+  {"Tab", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_tab },
+  {"Tab Highlight", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_tab_highlight },
+  {"Label", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_label },
+  {"Label Highlight", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_label_highlight },
+  {"Label Edit", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_label_edit },
+  {"Value", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_value },
+  {"Value Highlight", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_value_highlight },
+  {"Value Edit", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_value_edit },
+  {"Info Highlight", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_info_highlight },
+  {"Info Edit", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_info_edit },
+  {"Warning", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_warning },
+  {"Scrollbar", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_scrollbar },
+  //{"Nyan Feature", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_menu_nyan_feature },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_automap_settings[] = {
+  {"Map Title", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_map_title },
+  {"Map Author", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_map_author },
+  {"Map Totals Label", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_map_totals_label },
+  {"Map Totals Value", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_map_totals_value },
+  {"Map Totals Max", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_map_totals_max },
+  {"Map Time Label", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_map_time_label },
+  {"Map Time Level", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_map_time_level },
+  {"Map Time Total", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_map_time_total },
+  {"Map Coords", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_map_coords },
+  {"Kills Icon", S_CRCHOICE, m_conf, g_doom, GC_X, dsda_tc_map_icon_kills },
+  {"Items Icon", S_CRCHOICE, m_conf, g_doom, GC_X, dsda_tc_map_icon_items },
+  {"Secrets Icon", S_CRCHOICE, m_conf, g_doom, GC_X, dsda_tc_map_icon_secrets },
+  {"Kills Icon", S_CRCHOICE, m_conf, g_raven, GC_X, dsda_tc_map_raven_icon_kills },
+  {"Items Icon", S_CRCHOICE, m_conf, g_raven, GC_X, dsda_tc_map_raven_icon_items },
+  {"Secrets Icon", S_CRCHOICE, m_conf, g_raven, GC_X, dsda_tc_map_raven_icon_secrets },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_messages_settings[] = {
+  {"Message", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_hud_message },
+  {"Secret Message", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_hud_secret_message },
+  {"Announce Map Title", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_hud_announce_message },
+  {"Announce Map Author", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_hud_announce_author },
+  {"Obituaries", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_hud_obituary },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_statusbar_settings[] = {
+  {"Health Bad", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_health_bad },
+  {"Health Warning", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_health_warning },
+  {"Health Ok", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_health_ok },
+  {"Health Super", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_health_super },
+  {"Armor Zero", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_armor_zero },
+  {"Armor One", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_armor_one },
+  {"Armor Two", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_armor_two },
+  {"Armor Hexen", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_armor_hexen },
+  {"Ammo Out", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_ammo_out },
+  {"Ammo Bad", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_ammo_bad },
+  {"Ammo Warning", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_ammo_warning },
+  {"Ammo Ok", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_ammo_ok },
+  {"Ammo Full", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_stbar_ammo_full },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_intermission_settings[] = {
+  {"Level Split Normal", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_inter_split_normal },
+  {"Level Split Good", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_inter_split_good },
+  {"Level Split Best", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_inter_split_best },
+  {"Event Split", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_event_split },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_exhud_settings[] = {
+  {"Time Label", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_time_label },
+  {"Level Time", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_level_time },
+  {"Total Time", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_total_time },
+  {"Demo Length", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_demo_length },
+  {"Totals STS Label", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_totals_sts_label },
+  {"Totals Label", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_totals_label },
+  {"Totals Value", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_totals_value },
+  {"Totals Max", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_totals_max },
+  {"Keys Label", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_keys_label },
+  {"Free Text", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_free_text },
+  {"Local Time", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_local_time },
+  {"Attempts", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_attempts },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_powerups_settings[] = {
+  {"All Kills", S_CRCHOICE, m_conf, g_doom, GC_X, dsda_tc_exhud_status_all_kills },
+  {"All Items", S_CRCHOICE, m_conf, g_doom, GC_X, dsda_tc_exhud_status_all_items },
+  {"All Secrets", S_CRCHOICE, m_conf, g_doom, GC_X, dsda_tc_exhud_status_all_secrets },
+  {"All Kills", S_CRCHOICE, m_conf, g_raven, GC_X, dsda_tc_exhud_status_raven_all_kills },
+  {"All Items", S_CRCHOICE, m_conf, g_raven, GC_X, dsda_tc_exhud_status_raven_all_items },
+  {"All Secrets", S_CRCHOICE, m_conf, g_raven, GC_X, dsda_tc_exhud_status_raven_all_secrets },
+  {"Armor One", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_armor_one },
+  {"Armor Two", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_armor_two },
+  {"Berserk", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_berserk },
+  {"Area Map", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_allmap },
+  {"Backpack", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_backpack },
+  {"Radition Suit", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_suit },
+  {"Invisibility", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_invis },
+  {"Light Amp / Torch", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_light },
+  {"Invulerability", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_invul },
+  {"Flight", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_flight },
+  {"Tome of Power", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_tome },
+  {"Morph", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_morph },
+  {"Boots of Speed", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_speed },
+  {"Maulotaur", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_maulotaur },
+  {"Powerup Blink", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_status_blink },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_small_armor_settings[] = {
+  {"Armor Zero", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_armor_zero },
+  {"Armor One", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_armor_one },
+  {"Armor Two", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_armor_two },
+  {"Armor Hexen", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_armor_hexen },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_small_health_settings[] = {
+  {"Health Bad", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_health_bad },
+  {"Health Warning", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_health_warning },
+  {"Health Ok", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_health_ok },
+  {"Health Super", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_health_super },
+  {"Health Super Dark", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_health_super_dark },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_small_ammo_settings[] = {
+  {"Ammo Label", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_ammo_label },
+  {"Ammo Mana1", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_ammo_mana1 },
+  {"Ammo Mana2", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_ammo_mana2 },
+  {"Ammo Value", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_ammo_value },
+  {"Ammo Out", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_ammo_out },
+  {"Ammo Bad", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_ammo_bad },
+  {"Ammo Warning", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_ammo_warning },
+  {"Ammo Ok", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_ammo_ok },
+  {"Ammo Full", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_ammo_full },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_small_weapon_settings[] = {
+  {"Weapon Label", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_weapon_label },
+  {"Weapon Owned", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_weapon_owned },
+  {"Weapon Berserk", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_weapon_berserk },
+  {"Weapon Value", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_weapon_value },
+  {"Weapon Out", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_weapon_out },
+  {"Weapon Bad", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_weapon_bad },
+  {"Weapon Warning", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_weapon_warning },
+  {"Weapon Ok", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_weapon_ok },
+  {"Weapon Full", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_weapon_full },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_speed_settings[] = {
+  {"Speed Label", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_speed_label },
+  {"Speed Slow", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_speed_slow },
+  {"Speed Normal", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_speed_normal },
+  {"Speed Fast", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_speed_fast },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_command_settings[] = {
+  {"Command Entry", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_command_entry },
+  {"Command Queue", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_command_queue },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_coordinates_settings[] = {
+  {"Coords Base", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_coords_base },
+  {"Coords MF50", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_coords_mf50 },
+  {"Coords SR40", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_coords_sr40 },
+  {"Coords SR50", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_coords_sr50 },
+  {"Coords Fast", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_coords_fast },
+  {"Line Activation", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_line_activation },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_render_stats_settings[] = {
+  {"FPS Bad", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_fps_bad },
+  {"FPS Fine", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_fps_fine },
+  {"Render Label", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_render_label },
+  {"Render Good", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_render_good },
+  {"Render Bad", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_render_bad },
+  FINAL_ENTRY
+};
+
+setup_menu_t color_tracker_settings[] = {
+  {"Line Special", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_line_special },
+  {"Line Normal", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_line_normal },
+  {"Line Close", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_line_close },
+  {"Line Far", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_line_far },
+  {"Sector Active", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_sector_active },
+  {"Sector Special", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_sector_special },
+  {"Sector Normal", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_sector_normal },
+  {"Mobj Alive", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_mobj_alive },
+  {"Mobj Dead", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_mobj_dead },
+  {"Player Damage", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_player_damage },
+  {"Player Neutral", S_CRCHOICE, m_conf, g_all, GC_X, dsda_tc_exhud_player_neutral },
+  FINAL_ENTRY
+};
+
+static const char *color_pages[] =
+{
+  NULL,
+  NULL
+};
+
+static void M_Sub_Color(const char *title, setup_menu_t *settings)
+{
+  static char color_page_title[64];
+
+  snprintf(color_page_title, sizeof(color_page_title), "%s Colors", title);
+  color_pages[0] = color_page_title;
+  M_EnterSubSetup(&SubColorDef, &sub_color_active, settings);
+}
+
+static void M_Sub_ColorAutomap(void)     { M_Sub_Color("Automap", color_automap_settings); }
+static void M_Sub_ColorMessages(void)    { M_Sub_Color("Messages", color_messages_settings); }
+static void M_Sub_ColorStatusBar(void)   { M_Sub_Color("Status Bar", color_statusbar_settings); }
+static void M_Sub_ColorIntermission(void){ M_Sub_Color("Intermission", color_intermission_settings); }
+static void M_Sub_ColorExHud(void)       { M_Sub_Color("ExHUD", color_exhud_settings); }
+static void M_Sub_ColorPowerups(void)    { M_Sub_Color("Powerups", color_powerups_settings); }
+static void M_Sub_ColorSmallArmor(void)  { M_Sub_Color("Small Armor", color_small_armor_settings); }
+static void M_Sub_ColorSmallHealth(void) { M_Sub_Color("Small Health", color_small_health_settings); }
+static void M_Sub_ColorSmallAmmo(void)   { M_Sub_Color("Small Ammo", color_small_ammo_settings); }
+static void M_Sub_ColorSmallWeapon(void) { M_Sub_Color("Small Weapon", color_small_weapon_settings); }
+static void M_Sub_ColorSpeed(void)       { M_Sub_Color("Speed", color_speed_settings); }
+static void M_Sub_ColorCommand(void)     { M_Sub_Color("Command Display", color_command_settings); }
+static void M_Sub_ColorCoordinates(void) { M_Sub_Color("Coordinate Display", color_coordinates_settings); }
+static void M_Sub_ColorRenderStats(void) { M_Sub_Color("Render Stats", color_render_stats_settings); }
+static void M_Sub_ColorTracker(void)     { M_Sub_Color("Tracker", color_tracker_settings); }
+static void M_Sub_ColorMenu(void)        { M_Sub_Color("Menu", color_menu_settings); }
+
+static void M_Sub_DrawColor(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "Display", cr_title);
+  M_DrawInstructions();
+  M_DrawTabs(color_pages, sizeof(color_pages), TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
 // Compatibility.
 
 static const char *comp_pages[] =
@@ -6077,20 +6204,11 @@ setup_menu_t comp_options_settings[] = {
 #define CP_X 230
 static const char *over_under_list[] = { "Off", "Player", "All things", NULL };
 
-static const char *texture_emulation_list[] =
-{
-  [EMULATE_TEXTURE_OFF] = "Off",
-  [EMULATE_TEXTURE_VANILLA] = "Vanilla",
-  [EMULATE_TEXTURE_LIMIT] = "Limit-Removing",
-  [EMULATE_TEXTURE_ALL] = "Forced",
-  NULL
-};
-
 setup_menu_t comp_emulation_settings[] = {
   { "Limit-Removing", S_YESNO | S_NORESET | S_NYAN, m_conf, g_all, CP_X, dsda_config_limit_removing },
   FUNC_DEPEND("Overflows", S_CENTER, g_all, CP_X, M_Sub_Overflows, dsda_config_limit_removing, false),
   EMPTY_LINE,
-  { "Vanilla Texture Emulation", S_CHOICE | S_NYAN, m_conf, g_all, CP_X, nyan_config_vanilla_texture_emulation, 0, texture_emulation_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
+  TITLE("Mapping Error Fixes", CP_X),
   { "Lindefs w/o Tags Apply Locally", S_YESNO | S_NYAN, m_conf, g_all, CP_X, dsda_config_comperr_zerotag },
   { "Use Passes Thru All Special Lines", S_YESNO, m_conf, g_all, CP_X, dsda_config_comperr_passuse },
   { "Walk Under Solid Hanging Bodies", S_YESNO, m_conf, g_all, CP_X, dsda_config_comperr_hangsolid },
@@ -7474,7 +7592,8 @@ void M_LeaveSetupMenu(void)
   sub_status_widgets_active = false;
   sub_crosshair_active = false;
   sub_overflows_active = false;
-  sub_automap_things_active = false;
+  sub_automap_opengl_active = false;
+  sub_color_active = false;
 
   // special types
   colorbox_active = false;
