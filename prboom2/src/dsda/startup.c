@@ -736,9 +736,6 @@ void dsda_Startup(const char* game_name)
 {
   dsda_startup_type_t type;
 
-  if (nodrawers || started_demo || !dsda_IntConfig(nyan_config_show_startup))
-    return;
-
   startup_shown = false;
   startup_skipped = false;
 

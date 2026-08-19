@@ -2311,7 +2311,15 @@ static void D_DoomMainSetup(void)
     I_InitGraphics();
 
   // Draw STARTUP / LOADING
-  dsda_Startup(doomverstr);
+  if (dsda_IntConfig(nyan_config_show_startup))
+  {
+    if (nodrawers || started_demo)
+    {
+      // skip startup
+    }
+    else
+      dsda_Startup(doomverstr);
+  }
 
   // NSM
   arg = dsda_Arg(dsda_arg_viddump);
