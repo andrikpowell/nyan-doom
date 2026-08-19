@@ -4206,7 +4206,7 @@ static void AM_drawCrosshair(int color)
   }
 }
 
-static void AM_DrawGLMapLines(void)
+static void AM_FlushGLMapLines(void)
 {
   gld_DrawMapLines();
   gld_DrawMapLinePoints();
@@ -4375,26 +4375,29 @@ void AM_Drawer (dboolean minimap)
 
   // Draw map lines before the crosshair
   if (V_IsOpenGLMode())
-  {
-    AM_DrawGLMapLines();
-  }
+    AM_FlushGLMapLines();
 
-  AM_drawCrosshair(mapcolor_p->hair);   //jff 1/7/98 default crosshair color
+  AM_drawMarks();
 
+  // OpenGL - Draw vector markers above map lines
+  // and then draw Nice things
   if (V_IsOpenGLMode())
   {
+    AM_FlushGLMapLines();
+
 #if defined(HAVE_LIBSDL2_IMAGE)
     if (map_opengl_nice_things)
     {
       gld_DrawNiceThings(f_x, f_y, f_w, f_h);
     }
 #endif
-
-    // Draw crosshair above nice things
-    AM_DrawGLMapLines();
   }
 
-  AM_drawMarks();
+  AM_drawCrosshair(mapcolor_p->hair); //jff 1/7/98 default crosshair color
+
+  // OpenGL - Draw crosshair above markers and nice things
+  if (V_IsOpenGLMode())
+    AM_FlushGLMapLines();
 
   V_EndAutomapDraw();
 }
