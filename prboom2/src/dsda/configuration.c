@@ -1758,7 +1758,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_multiple_area_maps] = {
     "dsda_multiple_area_maps", dsda_config_multiple_area_maps,
-    CONF_BOOL(1), NULL, STRICT_INT(0)
+    CONF_BOOL(0), NULL, STRICT_INT(0)
   },
   [dsda_config_doomguy_angry_face_fix] = {
     "dsda_doomguy_angry_face_fix", dsda_config_doomguy_angry_face_fix,
