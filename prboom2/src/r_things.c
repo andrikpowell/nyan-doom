@@ -1287,11 +1287,6 @@ static void R_DrawPSprite (pspdef_t *psp)
     topoffset = patch->topoffset<<FRACBITS;
   }
 
-  // off the side
-  // [AR] this is fine for software, but opengl needs unclipped x1 (gx1) for drawing quad
-  if (x2 < 0 || x1 > viewwidth)
-    return;
-
   // store information in a vissprite
   vis = &avis;
   vis->mobjflags = MF_PLAYERSPRITE;
@@ -1310,8 +1305,8 @@ static void R_DrawPSprite (pspdef_t *psp)
   // Move the weapon down for 1280x1024.
   vis->texturemid -= psprite_offset;
 
-  vis->x1 = x1 < 0 ? 0 : x1;
-  vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
+  vis->x1 = x1;
+  vis->x2 = x2;
 
   // [AR] opengl weapon alignment
   vis->gx1 = gx1;
@@ -1330,9 +1325,6 @@ static void R_DrawPSprite (pspdef_t *psp)
       vis->xiscale = pspriteiscale;
       vis->startfrac = 0;
     }
-
-  if (vis->x1 > x1)
-    vis->startfrac += vis->xiscale*(vis->x1-x1);
 
   vis->patch = lump;
 
@@ -1432,6 +1424,22 @@ static void R_DrawPSprite (pspdef_t *psp)
 
   if (dsda_CameraMode())
     return;
+
+  // [AR] Clip bounds after interpolation
+
+  // off the side
+  // [AR] this is fine for software, but opengl needs unclipped x1 (gx1) for drawing quad
+  if (vis->x2 < 0 || vis->x1 >= viewwidth)
+    return;
+
+  if (vis->x1 < 0)
+  {
+    vis->startfrac -= vis->xiscale * vis->x1;
+    vis->x1 = 0;
+  }
+
+  if (vis->x2 >= viewwidth)
+    vis->x2 = viewwidth - 1;
 
   // proff 11/99: don't use software stuff in OpenGL
   if (V_IsSoftwareMode())
