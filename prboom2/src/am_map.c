@@ -829,26 +829,45 @@ static void AM_AddMousePan(int x, int y)
 //
 // AM_SetScale
 //
-static void AM_SetScale(void)
+typedef enum
 {
+  AM_SCALE_RESET,
+  AM_SCALE_KEEP
+} am_scale_t;
+
+static void AM_SetScale(dboolean keep_scale)
+{
+  fixed_t a, b;
+  fixed_t scale_w, scale_h;
+  fixed_t old_m_w = m_w;
+
+  scale_w = SCREENWIDTH << FRACBITS;
+  scale_h = (SCREENHEIGHT - ST_SCALED_HEIGHT) << FRACBITS;
+
+  a = FixedDiv(scale_w, max_w);
+  b = FixedDiv(scale_h, max_h);
+  min_scale_mtof = a < b ? a : b;
+  max_scale_mtof = FixedDiv(scale_h, 2 * PLAYERRADIUS);
+
+  mapxstart = mapystart = 0;
+
+  if (keep_scale)
   {
-    fixed_t a, b;
-    fixed_t scale_w, scale_h;
-
-    scale_w = SCREENWIDTH << FRACBITS;
-    scale_h = (SCREENHEIGHT - ST_SCALED_HEIGHT) << FRACBITS;
-
-    a = FixedDiv(scale_w, max_w);
-    b = FixedDiv(scale_h, max_h);
-    min_scale_mtof = a < b ? a : b;
-    max_scale_mtof = FixedDiv(scale_h, 2 * PLAYERRADIUS);
-    mapxstart = mapystart = 0;
+    // Keep current zoom when changing resolution / renderer
+    if (automap_full && old_m_w > 0)
+    {
+      scale_mtof = FixedDiv(f_w << FRACBITS, old_m_w);
+      scale_mtof = CLAMP(scale_mtof, min_scale_mtof, max_scale_mtof);
+      scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+    }
   }
-
-  scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
-  if (scale_mtof > max_scale_mtof)
-    scale_mtof = min_scale_mtof;
-  scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+  else
+  {
+    scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
+    if (scale_mtof > max_scale_mtof)
+      scale_mtof = min_scale_mtof;
+    scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+  }
 }
 
 //
@@ -968,19 +987,8 @@ static void AM_initVariables(void)
 
 void AM_SetResolution(void)
 {
-  fixed_t old_m_w = m_w;
-
   AM_SetPosition();
-  AM_SetScale();
-
-  // Keep current zoom when changing renderer
-  if (automap_full && old_m_w > 0)
-  {
-    scale_mtof = FixedDiv(f_w << FRACBITS, old_m_w);
-    scale_mtof = CLAMP(scale_mtof, min_scale_mtof, max_scale_mtof);
-    scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
-  }
-
+  AM_SetScale(AM_SCALE_KEEP);
   AM_activateNewScale();
 }
 
@@ -1127,7 +1135,7 @@ void AM_Start(dboolean open_full_automap)
   if (lastlevel != gamemap || lastepisode != gameepisode)
   {
     AM_findMinMaxBoundaries();
-    AM_SetScale();
+    AM_SetScale(AM_SCALE_RESET);
     lastlevel = gamemap;
     lastepisode = gameepisode;
     last_full_automap = true;
