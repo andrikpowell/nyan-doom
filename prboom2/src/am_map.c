@@ -968,8 +968,19 @@ static void AM_initVariables(void)
 
 void AM_SetResolution(void)
 {
+  fixed_t old_m_w = m_w;
+
   AM_SetPosition();
   AM_SetScale();
+
+  // Keep current zoom when changing renderer
+  if (automap_full && old_m_w > 0)
+  {
+    scale_mtof = FixedDiv(f_w << FRACBITS, old_m_w);
+    scale_mtof = CLAMP(scale_mtof, min_scale_mtof, max_scale_mtof);
+    scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+  }
+
   AM_activateNewScale();
 }
 
@@ -1003,7 +1014,7 @@ static void AM_SetMinimapScale(void)
 
 void AM_RefreshMinimap(void)
 {
-  if (!dsda_ShowMinimap())
+  if (!dsda_ShowMinimap() || automap_full)
     return;
 
   // Refresh Minimap Coordinates / scale / center
