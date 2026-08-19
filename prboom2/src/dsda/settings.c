@@ -492,6 +492,10 @@ dboolean dsda_VanillaTextureEmulation(void) {
   return vanilla_texture_emulation;
 }
 
+dboolean dsda_VanillaSpriteLimit(void) {
+  return dsda_IntConfig(nyan_config_vanilla_sprite_emulation);
+}
+
 void dsda_UpdateLimitRemoving(void)
 {
   void dsda_AlterGameFlags(void);

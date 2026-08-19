@@ -1752,6 +1752,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_vanilla_texture_emulation", nyan_config_vanilla_texture_emulation,
     dsda_config_int, EMULATE_TEXTURE_OFF, EMULATE_TEXTURE_ALL, { EMULATE_TEXTURE_OFF }, NULL, NOT_STRICT, dsda_UpdateVanillaTextureEmulation
   },
+  [nyan_config_vanilla_sprite_emulation] = {
+    "nyan_vanilla_sprite_emulation", nyan_config_vanilla_sprite_emulation,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
   [dsda_config_multiple_area_maps] = {
     "dsda_multiple_area_maps", dsda_config_multiple_area_maps,
     CONF_BOOL(1), NULL, STRICT_INT(0)

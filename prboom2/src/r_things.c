@@ -379,7 +379,8 @@ static void R_InitSpriteDefs(const char * const * namelist)
 //
 
 static vissprite_t *vissprites, **vissprite_ptrs;  // killough
-static int num_vissprite, num_vissprite_alloc, num_vissprite_ptrs;
+static int num_vissprite, num_vissprite_total, num_vissprite_alloc, num_vissprite_ptrs;
+static vissprite_t overflow_vissprite;
 
 //
 // R_InitSprites
@@ -402,6 +403,7 @@ void R_InitSprites(const char * const *namelist)
 void R_ClearSprites (void)
 {
   num_vissprite = 0;            // killough
+  num_vissprite_total = 0;
 }
 
 //
@@ -410,6 +412,11 @@ void R_ClearSprites (void)
 
 static vissprite_t *R_NewVisSprite(void)
 {
+  ++num_vissprite_total;
+
+  if (dsda_VanillaSpriteLimit() && num_vissprite >= 128)
+    return &overflow_vissprite;
+
   if (num_vissprite >= num_vissprite_alloc)             // killough
     {
       size_t num_vissprite_alloc_prev = num_vissprite_alloc;
@@ -1035,7 +1042,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
     }
   }
 
-  if (dsda_DrawNearbySprites())
+  if (dsda_DrawNearbySprites() && !dsda_VanillaSpriteLimit())
   {
     if (V_IsOpenGLMode())
       return;
@@ -1799,7 +1806,7 @@ void R_DrawMasked(void)
 
   // draw all vissprites back to front
 
-  dsda_RecordVisSprites(num_vissprite);
+  dsda_RecordVisSprites(num_vissprite_total);
 
   for (i = num_vissprite ;--i>=0; )
   {

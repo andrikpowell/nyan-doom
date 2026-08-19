@@ -84,6 +84,7 @@ dboolean dsda_PowerupHideTimes(void);
 dboolean dsda_AllowBlockmapFix(void);
 dboolean dsda_PlayQuitSounds(void);
 dboolean dsda_VanillaTextureEmulation();
+dboolean dsda_VanillaSpriteLimit(void);
 void dsda_UpdateVanillaTextureEmulation(void);
 void dsda_UpdateLimitRemoving(void);
 void dsda_UpdateMenuComplevel(void);

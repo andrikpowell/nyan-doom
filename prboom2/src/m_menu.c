@@ -5339,6 +5339,7 @@ setup_menu_t display_nyan_settings[] = {
   EMPTY_LINE,
   TITLE_DEPEND("Vanilla Emulation", G_X, dsda_config_videomode, SOFTWARE_MODE),
   { "Vanilla Texture Emulation", S_CHOICE | S_NYAN, m_conf, g_all, G_X, nyan_config_vanilla_texture_emulation, 0, texture_emulation_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
+  { "Sprite Limit Emulation", S_YESNO | S_NYAN, m_conf, g_all, G_X, nyan_config_vanilla_sprite_emulation, 0, empty_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
   EMPTY_LINE,
   TITLE("Translucency", G_X),
   { "Translucent Sprites", S_CHOICE, m_conf, g_doom, G_X, dsda_config_translucent_sprites, 0, translucent_list },
