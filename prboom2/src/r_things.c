@@ -470,8 +470,8 @@ void R_DrawMaskedColumn(
       const rpost_t *post = &column->posts[i];
 
       // calculate unclipped screen coordinates for post
-      topscreen = sprtopscreen + spryscale*post->topdelta;
-      bottomscreen = topscreen + spryscale*post->length;
+      topscreen = sprtopscreen + (int64_t)spryscale*post->topdelta;
+      bottomscreen = topscreen + (int64_t)spryscale*post->length;
 
       dcvars->yl = (int)((topscreen+FRACUNIT-1)>>FRACBITS);
       dcvars->yh = (int)((bottomscreen-1)>>FRACBITS);
