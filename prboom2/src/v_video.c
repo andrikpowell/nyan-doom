@@ -1668,6 +1668,8 @@ static void V_PlotPixel8_1px(int x, int y, byte color) {
   screens[FG].data[y+screens[FG].pitch*x] = color;
 }
 
+#define FRACMASK (FRACUNIT - 1)
+
 static void V_PlotCircle8(int cx, int cy, int thickness, byte color)
 {
   fixed_t radius, radius_sq;
@@ -1676,7 +1678,7 @@ static void V_PlotCircle8(int cx, int cy, int thickness, byte color)
 
   radius = thickness * FRACUNIT / 2;
   radius_sq = (fixed_t)(((int64_t)radius * radius) >> FRACBITS);
-  row_radius = (radius + FRACUNIT - 1) >> FRACBITS;
+  row_radius = (radius + FRACMASK) >> FRACBITS;
 
   for (dy = -row_radius; dy <= row_radius; ++dy)
   {
@@ -1997,12 +1999,7 @@ static void V_PlotPixelWu8_1px(int x, int y, byte color, int weight)
 // Change rendering path based on thickness
 static void V_PlotPixelWu8(int x, int y, byte color, int weight)
 {
-  int thickness = AM_GetLineWeight();
-
-  if (thickness > 1)
-    V_PlotCircle8(x, y, thickness, color);
-  else
-    V_PlotPixelWu8_1px(x, y, color, weight);
+  V_PlotPixelWu8_1px(x, y, color, weight);
 }
 
 //
@@ -2104,6 +2101,205 @@ void WRAP_V_DrawLineWu_1px(fline_t *fl, int color)
 
   // draw last pixel
   PUTDOT(fl->b.x, fl->b.y, color);
+}
+
+#define PLOT_PIXEL_CLIPPED(x, y, color) \
+  do { \
+    if ((unsigned)(x) < (unsigned)screens[FG].width && \
+        (unsigned)(y) < (unsigned)screens[FG].height) \
+      V_PlotPixel8_1px((x), (y), (color)); \
+  } while (0)
+
+#define PLOT_WU_CLIPPED(x, y, color, weight) \
+  do { \
+    if ((unsigned)(x) < (unsigned)screens[FG].width && \
+        (unsigned)(y) < (unsigned)screens[FG].height) \
+      V_PlotPixelWu8_1px((x), (y), (color), (weight)); \
+  } while (0)
+
+// Slightly based on Woof's multisampling thick lines, but tweaked to work with our Wu method
+static void WRAP_V_DrawLineWu_Thick(fline_t *fl, int color, int weight)
+{
+  int x1 = fl->a.x;
+  int y1 = fl->a.y;
+  int x2 = fl->b.x;
+  int y2 = fl->b.y;
+
+  int dx, dy;
+  int xpxl1, xpxl2;
+  int ypxl1, ypxl2;
+  int width_int;
+  int x;
+
+  fixed_t gradient;
+  fixed_t width;
+  fixed_t intery;
+  fixed_t yend;
+  fixed_t fpart;
+  fixed_t rfpart;
+
+  dboolean steep;
+
+  steep = D_abs(y2 - y1) > D_abs(x2 - x1);
+
+  // Swap axes for steep lines
+  if (steep)
+  {
+    int temp;
+
+    temp = x1; x1 = y1; y1 = temp;
+    temp = x2; x2 = y2; y2 = temp;
+  }
+
+  // Always draw left to right
+  if (x1 > x2)
+  {
+    int temp;
+
+    temp = x1; x1 = x2; x2 = temp;
+    temp = y1; y1 = y2; y2 = temp;
+  }
+
+  dx = x2 - x1;
+  dy = y2 - y1;
+
+  // Round caps
+  if (!dx)
+  {
+    V_PlotCircle8(fl->a.x, fl->a.y, weight, (byte)color);
+    return;
+  }
+
+  gradient = (fixed_t)(((int64_t)dy << FRACBITS) / dx);
+
+  width = (fixed_t)(weight * sqrt(1.0 + (double)dy * dy / ((double)dx * dx)) * FRACUNIT);
+  width_int = width >> FRACBITS;
+
+  if (width_int < 1)
+    width_int = 1;
+
+  //
+  // First endpoint
+  //
+
+  xpxl1 = x1;
+  yend = (y1 << FRACBITS) - ((width - FRACUNIT) >> 1);
+
+  ypxl1 = yend >> FRACBITS;
+
+  fpart = yend & FRACMASK;
+  rfpart = FRACUNIT - fpart;
+
+  if (steep)
+  {
+    int x = ypxl1;
+    int y = xpxl1;
+    int i;
+
+    PLOT_WU_CLIPPED(x, y, color, (int)(((int64_t)rfpart * 32) >> FRACBITS));
+
+    for (i = 1; i < width_int; ++i)
+      PLOT_PIXEL_CLIPPED(x + i, y, color);
+
+    PLOT_WU_CLIPPED(x + width_int, y, color, (int)(((int64_t)fpart * 32) >> FRACBITS));
+  }
+  else
+  {
+    int x = xpxl1;
+    int y = ypxl1;
+    int i;
+
+    PLOT_WU_CLIPPED(x, y, color, (int)(((int64_t)rfpart * 32) >> FRACBITS));
+
+    for (i = 1; i < width_int; ++i)
+      PLOT_PIXEL_CLIPPED(x, y + i, color);
+
+    PLOT_WU_CLIPPED(x, y + width_int, color, (int)(((int64_t)fpart * 32) >> FRACBITS));
+  }
+
+  intery = yend + gradient;
+
+  //
+  // Second endpoint
+  //
+
+  xpxl2 = x2;
+
+  yend = (y2 << FRACBITS) - ((width - FRACUNIT) >> 1);
+
+  ypxl2 = yend >> FRACBITS;
+
+  fpart = yend & FRACMASK;
+  rfpart = FRACUNIT - fpart;
+
+  if (steep)
+  {
+    int sx = ypxl2;
+    int sy = xpxl2;
+    int i;
+
+    PLOT_WU_CLIPPED(sx, sy, color, (int)(((int64_t)rfpart * 32) >> FRACBITS));
+
+    for (i = 1; i < width_int; ++i)
+      PLOT_PIXEL_CLIPPED(sx + i, sy, color);
+
+    PLOT_WU_CLIPPED(sx + width_int, sy, color, (int)(((int64_t)fpart * 32) >> FRACBITS));
+  }
+  else
+  {
+    int sx = xpxl2;
+    int sy = ypxl2;
+    int i;
+
+    PLOT_WU_CLIPPED(sx, sy, color, (int)(((int64_t)rfpart * 32) >> FRACBITS));
+
+    for (i = 1; i < width_int; ++i)
+      PLOT_PIXEL_CLIPPED(sx, sy + i, color);
+
+    PLOT_WU_CLIPPED(sx, sy + width_int, color, (int)(((int64_t)fpart * 32) >> FRACBITS));
+  }
+
+  //
+  // Main body
+  //
+
+  for (x = xpxl1 + 1; x < xpxl2; ++x)
+  {
+    int y;
+    int i;
+    int weight1;
+    int weight2;
+
+    y = intery >> FRACBITS;
+
+    fpart = intery & FRACMASK;
+    rfpart = FRACUNIT - fpart;
+
+    // Convert to Wu 64
+    weight1 = (int)(((int64_t)rfpart * 64) >> FRACBITS);
+    weight2 = (int)(((int64_t)fpart * 64)  >> FRACBITS);
+
+    if (steep)
+    {
+      PLOT_WU_CLIPPED(y, x, color, weight1);
+
+      for (i = 1; i < width_int; ++i)
+        PLOT_PIXEL_CLIPPED(y + i, x, color);
+
+      PLOT_WU_CLIPPED(y + width_int, x, color, weight2);
+    }
+    else
+    {
+      PLOT_WU_CLIPPED(x, y, color, weight1);
+
+      for (i = 1; i < width_int; ++i)
+        PLOT_PIXEL_CLIPPED(x, y + i, color);
+
+      PLOT_WU_CLIPPED(x, y + width_int, color, weight2);
+    }
+
+    intery += gradient;
+  }
 }
 
 // Change rendering path based on thickness
