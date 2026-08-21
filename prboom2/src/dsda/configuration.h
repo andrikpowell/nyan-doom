@@ -143,6 +143,7 @@ enum {
   nyan_config_item_bonus_flash,
   nyan_config_flip_corpses,
   nyan_config_skullpop_easter_egg,
+  nyan_config_classic_idchoppers,
   nyan_config_colored_blood,
   nyan_config_colored_blood_baron,
   nyan_config_colored_blood_knight,

@@ -160,6 +160,7 @@ static void cheat_strip();
 static void cheat_killonsight();
 static void cheat_reveal_lock();
 static void cheat_reveal_lockx(char *buf);
+static void cheat_choppers_nyan();
 
 //-----------------------------------------------------------------------------
 //
@@ -186,7 +187,7 @@ static void cheat_reveal_lockx(char *buf);
 
 cheatseq_t cheat[] = {
   CHEAT("idmus",      NULL,   "Change music",     cht_always, cht_any, cheat_mus, -2, false),
-  CHEAT("idchoppers", NULL,   "Chainsaw",         not_demo, cht_doom, cheat_choppers, 0, false),
+  CHEAT("idchoppers", NULL,   "Chainsaw",         not_demo, cht_doom, cheat_choppers_nyan, 0, false),
   CHEAT("iddqd",      NULL,   "God mode",         not_classic_demo, cht_doom, cheat_god, 0, false),
   CHEAT("idkfa",      NULL,   "Ammo & Keys",      not_demo, cht_doom, cheat_kfa, 0, false),
   CHEAT("idfa",       NULL,   "Ammo",             not_demo, cht_doom, cheat_fa, 0, false),
@@ -365,6 +366,38 @@ static void cheat_choppers()
   plyr->weaponowned[wp_chainsaw] = true;
   plyr->powers[pw_invulnerability] = true;
   dsda_AddMessage(s_STSTR_CHOPPERS);
+}
+
+// [NYAN] Choppers Cheat
+static void cheat_choppers_nyan()
+{
+  if (dsda_ClassicChoppers())
+    RETURN(cheat_choppers());
+
+  // Nyan cheat active?
+  if (plyr->cheats & CF_CHOPPERS)
+  {
+    // If no chainsaw (pistol start), add back chainsaw and keep effect
+    if (!plyr->weaponowned[wp_chainsaw])
+    {
+      plyr->weaponowned[wp_chainsaw] = true;
+      if (plyr->readyweapon != wp_chainsaw) // swap
+        plyr->pendingweapon = wp_chainsaw;
+      dsda_AddMessage("I Love Chainsaws!");
+    }
+    else // disable effect
+    {
+      plyr->cheats &= ~CF_CHOPPERS;
+      dsda_AddMessage("No More Good Chainsaw...");
+    }
+  }
+  else
+  {
+    cheat_choppers();
+    plyr->cheats |= CF_CHOPPERS;
+    if (plyr->readyweapon != wp_chainsaw) // swap
+      plyr->pendingweapon = wp_chainsaw;
+  }
 }
 
 static void cheat_buddha(void)

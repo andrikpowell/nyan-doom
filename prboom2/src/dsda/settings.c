@@ -391,6 +391,10 @@ dboolean dsda_DisableHorizAutoaim(void) {
   return dsda_IntConfig(dsda_config_disable_horiz_autoaim) && allow_incompatibility;
 }
 
+dboolean dsda_ClassicChoppers(void) {
+  return dsda_IntConfig(nyan_config_classic_idchoppers) || !allow_incompatibility || raven;
+}
+
 int dsda_EnhancedDoomOverUnder(void) {
   if (map_format.zdoom || !allow_incompatibility)
     return false;

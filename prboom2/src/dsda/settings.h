@@ -75,6 +75,7 @@ dboolean dsda_WipeAtFullSpeed(void);
 int dsda_WipeScreenSpeed(void);
 dboolean dsda_ShowAutomapKeys(void);
 dboolean dsda_DisableHorizAutoaim(void);
+dboolean dsda_ClassicChoppers(void);
 int dsda_EnhancedDoomOverUnder(void);
 dboolean dsda_DrawNearbySprites(void);
 int dsda_ShowAliveMonsters(void);

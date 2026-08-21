@@ -886,6 +886,9 @@ void A_Saw(player_t *player, pspdef_t *psp)
   int slope, damage, range;
   angle_t angle;
   int t;
+  dboolean sawcheat = !dsda_ClassicChoppers() && player &&
+                      player->readyweapon == wp_chainsaw &&
+                      player->cheats & CF_CHOPPERS;
 
   CHECK_WEAPON_CODEPOINTER("A_Saw", player);
 
@@ -897,6 +900,12 @@ void A_Saw(player_t *player, pspdef_t *psp)
 
   // Use meleerange + 1 so that the puff doesn't skip the flash
   range = (mbf21 ? player->mo->info->meleerange : MELEERANGE) + 1;
+
+  if (sawcheat)
+  {
+    damage = damage * (player->powers[pw_strength] ? 4 : 2);
+    range = range * 5 / 4;
+  }
 
   /* killough 8/2/98: make autoaiming prefer enemies */
   if (!mbf_features ||

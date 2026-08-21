@@ -2107,6 +2107,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_skullpop_easter_egg", nyan_config_skullpop_easter_egg,
     CONF_BOOL(0), NULL, STRICT_INT(0)
   },
+  [nyan_config_classic_idchoppers] = {
+    "nyan_classic_idchoppers", nyan_config_classic_idchoppers,
+    CONF_BOOL(0)
+  },
   [nyan_config_colored_blood] = {
     "nyan_colored_blood", nyan_config_colored_blood,
     dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT, deh_changeColoredBlood
