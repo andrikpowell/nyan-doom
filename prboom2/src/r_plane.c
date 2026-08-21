@@ -278,7 +278,10 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
 static void R_DrawPlaneColumns(const visplane_t *pl, draw_span_vars_t *dsvars)
 {
   // [R&R] Scale the interpolation interval with resolution.
-  const int leap = SCREENHEIGHT >= 566 ? 16 : SCREENHEIGHT >= 283 ? 8 : 4;
+  const int leap =
+    SCREENHEIGHT >= 566  ?  (1 << 4) :
+    SCREENHEIGHT >= 283  ?  (1 << 3) : 
+                            (1 << 2);
   int x, y;
   int miny = viewheight;
   int maxy = -1;
@@ -374,22 +377,8 @@ static void R_DrawPlaneColumns(const visplane_t *pl, draw_span_vars_t *dsvars)
       nextxfrac = (fixed_t)((plane_xbase[y + leap] + xoffset * plane_xstep[y + leap]) >> FRACBITS);
       nextyfrac = (fixed_t)((plane_ybase[y + leap] + xoffset * plane_ystep[y + leap]) >> FRACBITS);
 
-      if (leap == 16)
-      {
-        xfracstep = (nextxfrac - xfrac) / 16;
-        yfracstep = (nextyfrac - yfrac) / 16;
-      }
-      else if (leap == 8)
-      {
-        xfracstep = (nextxfrac - xfrac) / 8;
-        yfracstep = (nextyfrac - yfrac) / 8;
-      }
-      else
-      {
-        xfracstep = (nextxfrac - xfrac) / 4;
-        yfracstep = (nextyfrac - yfrac) / 4;
-      }
-
+      xfracstep = (nextxfrac - xfrac) / leap;
+      yfracstep = (nextyfrac - yfrac) / leap;
       do
       {
         const int spot = ((xfrac >> 16) & 63) | ((yfrac >> 10) & 4032);

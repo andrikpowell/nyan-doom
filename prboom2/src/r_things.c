@@ -457,6 +457,7 @@ void R_DrawMaskedColumn(
   int64_t     topscreen; // R_WiggleFix
   int64_t     bottomscreen; // R_WiggleFix
   fixed_t basetexturemid = dcvars->texturemid;
+  dboolean tutti_frutti = false;
 
   colheight = 0;
 
@@ -466,12 +467,18 @@ void R_DrawMaskedColumn(
   if (dcvars->flags & DRAW_COLUMN_MEDUSA)
     dcvars->texheight = column->posts[0].length;
 
+  if ((dcvars->flags & DRAW_COLUMN_WALLTEXTURE) && dsda_VanillaTextureEmulation())
+    tutti_frutti = true;
+
   for (i=0; i<column->numPosts; i++) {
       const rpost_t *post = &column->posts[i];
 
       // calculate unclipped screen coordinates for post
       topscreen = sprtopscreen + (int64_t)spryscale*post->topdelta;
       bottomscreen = topscreen + (int64_t)spryscale*post->length;
+
+      // get full height of playersprite
+      dcvars->pspritepostheight = dcvars->isplayersprite ? post->length : 0;
 
       dcvars->yl = (int)((topscreen+FRACUNIT-1)>>FRACBITS);
       dcvars->yh = (int)((bottomscreen-1)>>FRACBITS);
@@ -488,7 +495,6 @@ void R_DrawMaskedColumn(
       // killough 3/2/98, 3/27/98: Failsafe against overflow/crash:
       if (dcvars->yl >= 0 && dcvars->yl <= dcvars->yh && dcvars->yh < viewheight)
         {
-          dboolean tutti_frutti = (dcvars->flags & DRAW_COLUMN_WALLTEXTURE) && dsda_VanillaTextureEmulation();
 
           if (tutti_frutti)
           {
@@ -504,7 +510,6 @@ void R_DrawMaskedColumn(
           }
 
           dcvars->texturemid = basetexturemid - (post->topdelta<<FRACBITS);
-          dcvars->pspritepostheight = dcvars->isplayersprite ? post->length : 0;
 
           dcvars->edgeslope = post->slope;
           // Drawn by either R_DrawColumn
