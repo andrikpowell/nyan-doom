@@ -731,6 +731,8 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_rewind", dsda_input_rewind, 0, -1, -1),
   INPUT_SETTING("input_cycle_profile", dsda_input_cycle_profile, 0, -1, -1),
   INPUT_SETTING("input_cycle_palette", dsda_input_cycle_palette, 0, -1, -1),
+  INPUT_SETTING("input_cycle_exhud_stats", dsda_input_cycle_exhud_stats, 0, -1, -1),
+  INPUT_SETTING("input_cycle_map_stats", dsda_input_cycle_map_stats, 0, -1, -1),
   INPUT_SETTING("input_command_display", dsda_input_command_display, 0, -1, -1),
   INPUT_SETTING("input_strict_mode", dsda_input_strict_mode, 0, -1, -1),
   INPUT_SETTING("input_console", dsda_input_console, 0, -1, -1),

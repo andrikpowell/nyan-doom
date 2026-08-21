@@ -4249,6 +4249,8 @@ setup_menu_t keys_toggles_settings[] = {
   TITLE("Cycle", MS_X),
   { "Cycle Input Profile",  S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_cycle_profile },
   { "Cycle Palette",        S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_cycle_palette },
+  { "Cycle ExHud Stats", S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_cycle_exhud_stats },
+  { "Cycle Map Stats", S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_cycle_map_stats },
 
   PREV_PAGE(keys_misc_settings),
   NEXT_PAGE(keys_menus_settings),
@@ -5724,7 +5726,7 @@ setup_menu_t* exhud_settings[] =
 };
 
 static const char* stat_format_list[] = { "ratio", "percent", "count", "remaining", "boolean", "dsda classic", NULL };
-static const char* automap_stat_format_list[] = { "Match Hud", "ratio", "percent", "count", "remaining", "boolean", "dsda classic", NULL };
+static const char* automap_stat_format_list[] = { "Match ExHud", "ratio", "percent", "count", "remaining", "boolean", "dsda classic", NULL };
 
 setup_menu_t exhud_gen_settings[] = {
   { "Use Extended Hud", S_YESNO, m_conf, g_all, G_X, dsda_config_exhud },
@@ -8485,6 +8487,20 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
     dsda_CyclePlayPal();
     doom_printf("Palette %s", dsda_PlayPalData()->lump_name);
     S_StartVoidSound(g_sfx_swtchn);
+    return true;
+  }
+
+  if (dsda_InputActivated(dsda_input_cycle_exhud_stats))
+  {
+    dsda_CycleConfig(dsda_config_exhud_stats_format, true);
+    doom_printf("ExHud Stats Format: %s", stat_format_list[dsda_IntConfig(dsda_config_exhud_stats_format)]);
+    return true;
+  }
+
+  if (dsda_InputActivated(dsda_input_cycle_map_stats))
+  {
+    dsda_CycleConfig(dsda_config_automap_stats_format, true);
+    doom_printf("Map Stats Format: %s", automap_stat_format_list[dsda_IntConfig(dsda_config_automap_stats_format)]);
     return true;
   }
 
