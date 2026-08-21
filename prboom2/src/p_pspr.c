@@ -903,7 +903,7 @@ void A_Saw(player_t *player, pspdef_t *psp)
 
   if (sawcheat)
   {
-    damage = damage * (player->powers[pw_strength] ? 4 : 2);
+    damage = damage * (player->powers[pw_strength] ? 8 : 4);
     range = range * 5 / 4;
   }
 
