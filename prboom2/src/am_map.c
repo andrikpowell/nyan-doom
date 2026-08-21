@@ -425,6 +425,7 @@ static fixed_t m_x2, m_y2;   // UR x,y window location on the map (map coords)
 static fixed_t prev_m_x, prev_m_y;
 
 static mpoint_t m_paninc2; // [crispy] mouse map panning
+static mpoint_t m_paninc_target; // movement for current tic
 
 //
 // width/height of window on map (map coords)
@@ -784,26 +785,15 @@ static void AM_changeWindowLoc(void)
 {
   fixed_t incx, incy;
 
-  // keyboard
   if (movement_smooth)
   {
-    incx = FixedMul(m_paninc.x, tic_vars.frac);
-    incy = FixedMul(m_paninc.y, tic_vars.frac);
+    incx = FixedMul(m_paninc_target.x, tic_vars.frac);
+    incy = FixedMul(m_paninc_target.y, tic_vars.frac);
   }
   else
   {
-    incx = m_paninc.x;
-    incy = m_paninc.y;
-  }
-
-  // Mouse
-  if (m_paninc2.x || m_paninc2.y)
-  {
-    incx += m_paninc2.x;
-    incy += m_paninc2.y;
-
-    m_paninc2.x = 0;
-    m_paninc2.y = 0;
+    incx = m_paninc_target.x;
+    incy = m_paninc_target.y;
   }
 
   AM_moveWindowLoc(prev_m_x, prev_m_y, incx, incy);
@@ -2127,6 +2117,13 @@ void AM_Ticker (void)
   prev_m_y = m_y;
   prev_mapxstart = mapxstart;
   prev_mapystart = mapystart;
+
+  m_paninc_target.x = m_paninc.x + m_paninc2.x;
+  m_paninc_target.y = m_paninc.y + m_paninc2.y;
+
+  // Mouse input
+  m_paninc2.x = 0;
+  m_paninc2.y = 0;
 
   if (stop_zooming && leveltime - zoom_leveltime != 1)
     AM_StopZooming();
@@ -4361,7 +4358,7 @@ void AM_Drawer (dboolean minimap)
     AM_changeWindowScale();
 
   // Change x,y location
-  if (m_paninc.x || m_paninc.y || m_paninc2.x || m_paninc2.y)
+  if (m_paninc_target.x || m_paninc_target.y)
     AM_changeWindowLoc();
 
   AM_setFrameVariables();
