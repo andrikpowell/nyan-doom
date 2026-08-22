@@ -111,6 +111,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_show_messages),
   MIGRATED_SETTING(dsda_config_colorize_messages),
   MIGRATED_SETTING(dsda_config_fade_messages),
+  MIGRATED_SETTING(dsda_config_composite_time_hours),
   MIGRATED_SETTING(dsda_config_exhud_stats_format),
   MIGRATED_SETTING(dsda_config_automap_stats_format),
   MIGRATED_SETTING(dsda_config_secret_format),

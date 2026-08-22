@@ -61,6 +61,7 @@ enum {
   dsda_config_show_messages,
   dsda_config_colorize_messages,
   dsda_config_fade_messages,
+  dsda_config_composite_time_hours,
   dsda_config_exhud_stats_format,
   dsda_config_automap_stats_format,
   dsda_config_secret_format,

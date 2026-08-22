@@ -5728,6 +5728,7 @@ setup_menu_t* exhud_settings[] =
 
 static const char* stat_format_list[] = { "ratio", "percent", "count", "remaining", "boolean", "dsda classic", NULL };
 static const char* automap_stat_format_list[] = { "Match ExHud", "ratio", "percent", "count", "remaining", "boolean", "dsda classic", NULL };
+static const char* composite_time_format_list[] = { "minutes", "hours & minutes", NULL };
 
 setup_menu_t exhud_gen_settings[] = {
   { "Use Extended Hud", S_YESNO, m_conf, g_all, G_X, dsda_config_exhud },
@@ -5738,6 +5739,7 @@ setup_menu_t exhud_gen_settings[] = {
   { "Show Free Text", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_free_text_active },
   { "Show Target's Health", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_target_health },
   EMPTY_LINE,
+  { "Composite Time Format", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_composite_time_hours, 0, composite_time_format_list },
   { "Level Stat Format", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_exhud_stats_format, 0, stat_format_list },
   { "Automap Level Stat Format", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_automap_stats_format, 0, automap_stat_format_list },
   FINAL_ENTRY
