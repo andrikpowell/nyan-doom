@@ -2313,7 +2313,7 @@ static void D_DoomMainSetup(void)
   // Draw STARTUP / LOADING
   if (dsda_IntConfig(nyan_config_show_startup))
   {
-    if (nodrawers || started_demo)
+    if (nodrawers || started_demo || autostart)
     {
       // skip startup
     }
