@@ -571,6 +571,26 @@ static void R_InterpolationGetData(thinker_t *th,
     *posptr2 = ((elevator_t *)th)->sector;
   }
   else
+  if (th->function == T_BuildPillar)
+  {
+    *type1 = INTERP_SectorFloor;
+    *posptr1 = ((pillar_t *)th)->sector;
+    *type2 = INTERP_SectorCeiling;
+    *posptr2 = ((pillar_t *)th)->sector;
+  }
+  else
+  if (th->function == T_FloorWaggle)
+  {
+    *type1 = INTERP_SectorFloor;
+    *posptr1 = ((planeWaggle_t *)th)->sector;
+  }
+  else
+  if (th->function == T_CeilingWaggle)
+  {
+    *type1 = INTERP_SectorCeiling;
+    *posptr1 = ((planeWaggle_t *)th)->sector;
+  }
+  else
   if (th->function == dsda_UpdateSideScroller || th->function == dsda_UpdateControlSideScroller)
   {
     *type1 = INTERP_WallPanning;
