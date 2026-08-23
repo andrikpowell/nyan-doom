@@ -51,6 +51,7 @@
 #include "dsda/settings.h"
 
 #include "hexen/a_action.h"
+#include "hexen/po_man.h"
 
 int movement_smooth;
 dboolean weapon_smooth;
@@ -62,7 +63,8 @@ typedef enum
   INTERP_SectorCeiling,
   INTERP_WallPanning,
   INTERP_FloorPanning,
-  INTERP_CeilingPanning
+  INTERP_CeilingPanning,
+  INTERP_Polyobj
 } interpolation_type_e;
 
 typedef struct
@@ -227,6 +229,75 @@ void R_ResetViewInterpolation ()
   NoInterpolateView = true;
 }
 
+//
+// Polyobject Interpolation
+//
+
+static void R_CopyPolyobjectInterpToOld (int i)
+{
+    int j;
+    polyobj_t *po = curipos[i].address;
+
+    for (j = 0; j < po->numsegs; ++j)
+    {
+      po->INTERP_OldPts[j] = *po->segs[j]->v1;
+      po->INTERP_OldAngles[j] = po->segs[j]->pangle;
+    }
+}
+
+static void R_CopyPolyobjectBakToInterp (int i)
+{
+    int j;
+    polyobj_t *po = curipos[i].address;
+
+    for (j = 0; j < po->numsegs; ++j)
+    {
+      *po->segs[j]->v1 = po->INTERP_BakPts[j];
+      po->segs[j]->pangle = po->INTERP_BakAngles[j];
+    }
+}
+
+static void R_DoPolyobjectInterpolation(int i, fixed_t smoothratio)
+{
+    int j;
+    polyobj_t *po = curipos[i].address;
+
+    for (j = 0; j < po->numsegs; ++j)
+    {
+      po->INTERP_BakPts[j] = *po->segs[j]->v1;
+      po->INTERP_BakAngles[j] = po->segs[j]->pangle;
+    }
+
+    for (j = 0; j < po->numsegs; ++j)
+    {
+      vertex_t *vertex = po->segs[j]->v1;
+
+      vertex->x = po->INTERP_OldPts[j].x + FixedMul(po->INTERP_BakPts[j].x - po->INTERP_OldPts[j].x, smoothratio);
+      vertex->y = po->INTERP_OldPts[j].y + FixedMul(po->INTERP_BakPts[j].y - po->INTERP_OldPts[j].y, smoothratio);
+      vertex->px = vertex->x;
+      vertex->py = vertex->y;
+    }
+
+    for (j = 0; j < po->numsegs; ++j)
+    {
+      po->segs[j]->pangle = po->INTERP_OldAngles[j] +
+        FixedMul(po->INTERP_BakAngles[j] - po->INTERP_OldAngles[j], smoothratio);
+    }
+}
+
+static polyobj_t *R_PolyobjForTag(int tag)
+{
+  int i;
+
+  for (i = 0; i < po_NumPolyobjs; ++i)
+  {
+    if (polyobjs[i].tag == tag)
+      return &polyobjs[i];
+  }
+
+  return NULL;
+}
+
 static void R_CopyInterpToOld (int i)
 {
   switch (curipos[i].type)
@@ -248,6 +319,9 @@ static void R_CopyInterpToOld (int i)
   case INTERP_CeilingPanning:
     oldipos[i][0] = ((sector_t*)curipos[i].address)->ceiling_xoffs;
     oldipos[i][1] = ((sector_t*)curipos[i].address)->ceiling_yoffs;
+    break;
+  case INTERP_Polyobj:
+    R_CopyPolyobjectInterpToOld(i);
     break;
   }
 }
@@ -273,6 +347,9 @@ static void R_CopyBakToInterp (int i)
   case INTERP_CeilingPanning:
     ((sector_t*)curipos[i].address)->ceiling_xoffs = bakipos[i][0];
     ((sector_t*)curipos[i].address)->ceiling_yoffs = bakipos[i][1];
+    break;
+  case INTERP_Polyobj:
+    R_CopyPolyobjectBakToInterp(i);
     break;
   }
 }
@@ -302,6 +379,9 @@ static void R_DoAnInterpolation (int i, fixed_t smoothratio)
   case INTERP_CeilingPanning:
     adr1 = &((sector_t*)curipos[i].address)->ceiling_xoffs;
     adr2 = &((sector_t*)curipos[i].address)->ceiling_yoffs;
+    break;
+  case INTERP_Polyobj:
+    R_DoPolyobjectInterpolation(i, smoothratio);
     break;
 
  default:
@@ -363,6 +443,19 @@ static void R_SetInterpolation(interpolation_type_e type, void *posptr)
     curipos = (interpolation_t*)Z_Realloc(curipos, sizeof(*curipos) * interpolations_max);
   }
 
+  if (type == INTERP_Polyobj)
+  {
+    polyobj_t *po = posptr;
+
+    if (!po->INTERP_OldPts)
+    {
+      po->INTERP_OldPts     = Z_MallocLevel(po->numsegs * sizeof(*po->INTERP_OldPts));
+      po->INTERP_OldAngles  = Z_MallocLevel(po->numsegs * sizeof(*po->INTERP_OldAngles));
+      po->INTERP_BakPts     = Z_MallocLevel(po->numsegs * sizeof(*po->INTERP_BakPts));
+      po->INTERP_BakAngles  = Z_MallocLevel(po->numsegs * sizeof(*po->INTERP_BakAngles));
+    }
+  }
+
   i = NULL;
   switch (type)
   {
@@ -380,6 +473,9 @@ static void R_SetInterpolation(interpolation_type_e type, void *posptr)
     break;
   case INTERP_CeilingPanning:
     i = &(((sector_t*)posptr)->INTERP_CeilingPanning);
+    break;
+  case INTERP_Polyobj:
+    i = &(((polyobj_t*)posptr)->INTERP_Polyobj);
     break;
   }
 
@@ -419,6 +515,9 @@ static void R_StopInterpolation(interpolation_type_e type, void *posptr)
   case INTERP_CeilingPanning:
     i = &(((sector_t*)posptr)->INTERP_CeilingPanning);
     break;
+  case INTERP_Polyobj:
+    i = &(((polyobj_t*)posptr)->INTERP_Polyobj);
+    break;
   }
 
   if (i != NULL && (*i) != 0)
@@ -451,6 +550,9 @@ static void R_StopInterpolation(interpolation_type_e type, void *posptr)
       break;
     case INTERP_CeilingPanning:
       j = &(((sector_t*)posptr_last)->INTERP_CeilingPanning);
+      break;
+    case INTERP_Polyobj:
+      j = &(((polyobj_t*)posptr_last)->INTERP_Polyobj);
       break;
     }
 
@@ -494,6 +596,11 @@ void R_StopAllInterpolations(void)
   {
     sides[i].INTERP_WallPanning = 0;
   }
+
+  for(i = 0; i < po_NumPolyobjs; i++)
+  {
+    polyobjs[i].INTERP_Polyobj = 0;
+  }
 }
 
 void R_RestoreInterpolations(void)
@@ -529,6 +636,12 @@ void R_ActivateSectorInterpolations()
       R_SetInterpolation (INTERP_SectorFloor, sec);
     if (sec->ceilingdata)
       R_SetInterpolation (INTERP_SectorCeiling, sec);
+  }
+
+  for (i = 0; i < po_NumPolyobjs; ++i)
+  {
+    if (polyobjs[i].specialdata)
+      R_SetInterpolation(INTERP_Polyobj, &polyobjs[i]);
   }
 }
 
@@ -589,6 +702,18 @@ static void R_InterpolationGetData(thinker_t *th,
   {
     *type1 = INTERP_SectorCeiling;
     *posptr1 = ((planeWaggle_t *)th)->sector;
+  }
+  else
+  if (th->function == T_PolyDoor)
+  {
+    *type1 = INTERP_Polyobj;
+    *posptr1 = R_PolyobjForTag(((polydoor_t *)th)->polyobj);
+  }
+  else
+  if (th->function == T_RotatePoly || th->function == T_MovePoly)
+  {
+    *type1 = INTERP_Polyobj;
+    *posptr1 = R_PolyobjForTag(((polyevent_t *)th)->polyobj);
   }
   else
   if (th->function == dsda_UpdateSideScroller || th->function == dsda_UpdateControlSideScroller)
