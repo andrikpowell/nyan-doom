@@ -66,6 +66,7 @@
 #include "m_menu.h"
 #include "m_random.h"
 #include "i_main.h"
+#include "i_richpresence.h"
 #include "i_system.h"
 #include "i_sound.h"
 #include "i_video.h"
@@ -2309,6 +2310,8 @@ static void D_DoomMainSetup(void)
 
   if (!(dsda_Flag(dsda_arg_nodraw) && dsda_Flag(dsda_arg_nosound)))
     I_InitGraphics();
+
+  I_UpdateDiscordPresence("Playing", doomverstr);
 
   // Draw STARTUP / LOADING
   if (dsda_IntConfig(nyan_config_show_startup))

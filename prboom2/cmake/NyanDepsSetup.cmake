@@ -28,6 +28,11 @@ if(WITH_XMP)
     list(APPEND VCPKG_MANIFEST_FEATURES "libxmp")
 endif()
 
+option(WITH_DISCORD_RPC "Use discord-rpc if available" ON)
+if(WITH_DISCORD_RPC)
+    list(APPEND VCPKG_MANIFEST_FEATURES "discord-rpc")
+endif()
+
 if(CMAKE_TOOLCHAIN_FILE MATCHES "vcpkg.cmake$")
   option(VCPKG_APPLOCAL_DEPS "Copy dependencies in the output directory" ON)
   option(X_VCPKG_APPLOCAL_DEPS_INSTALL "Copy dependencies during installation" ON)
