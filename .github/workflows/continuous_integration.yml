@@ -110,7 +110,11 @@ jobs:
           sudo apt-get update
           sudo apt-get upgrade
           sudo apt-get install -y \
+            autoconf \
+            autoconf-archive \
+            automake \
             gcc \
+            libtool \
             ninja-build \
             pkg-config \
             libxmp-dev \
