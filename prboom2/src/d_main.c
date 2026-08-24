@@ -891,6 +891,7 @@ void D_StartTitle (void)
 {
   gameaction = ga_nothing;
   in_game = false;
+  I_UpdateDiscordPresence("Playing", doomverstr);
   demosequence = -1;
   D_AdvanceDemo();
 }
