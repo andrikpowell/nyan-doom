@@ -40,6 +40,9 @@
 #endif
 
 #include <assert.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 #include "SDL.h"
 
 #include "am_map.h"
@@ -2706,6 +2709,211 @@ int V_BestColor(const unsigned char *palette, int r, int g, int b)
   }
 
   return bestcolor;
+}
+
+//
+// V_BestColor
+//
+// Adapted from zdoom -- thanks to Randy Heit.
+//
+// This gets colors from a string (hex or RGB)
+// It also understands X11 color names used by ZDoom
+// This is required for STARTUP color support
+//
+static int V_ParseZDoomHex(const char *hex)
+{
+  int result = 0;
+  const char *start = hex;
+
+  while (*hex)
+  {
+    result <<= 4;
+    if (*hex >= '0' && *hex <= '9')
+      result += *hex - '0';
+    else if (*hex >= 'a' && *hex <= 'f')
+      result += 10 + *hex - 'a';
+    else if (*hex >= 'A' && *hex <= 'F')
+      result += 10 + *hex - 'A';
+    else
+    {
+      lprintf(LO_WARN, "Bad hex number: %s\n", start);
+      return 0;
+    }
+    ++hex;
+  }
+
+  return result;
+}
+
+static dboolean V_ZDoomColorNameMatches(const char *candidate, size_t length, const char *name)
+{
+  size_t i;
+
+  if (length != strlen(name))
+    return false;
+
+  for (i = 0; i < length; ++i)
+    if (tolower((unsigned char)candidate[i]) != tolower((unsigned char)name[i]))
+      return false;
+
+  return true;
+}
+
+static dboolean V_ZDoomGetColorStringByName(const char *name, int color[3])
+{
+  int lump = W_CheckNumForName("X11R6RGB");
+  const char *cursor;
+  const char *end;
+
+  if (lump == LUMP_NOT_FOUND)
+  {
+    lprintf(LO_WARN, "X11R6RGB lump not found\n");
+    return false;
+  }
+
+  cursor = W_LumpByNum(lump);
+  end = cursor + W_LumpLength(lump);
+
+  while (cursor < end)
+  {
+    const char *line_end = cursor;
+    const char *name_start;
+    const char *name_end;
+    int component;
+
+    while (line_end < end && *line_end != '\n')
+      ++line_end;
+    while (cursor < line_end && *cursor <= ' ')
+      ++cursor;
+
+    if (cursor == line_end || *cursor == '!')
+    {
+      cursor = line_end + (line_end < end);
+      continue;
+    }
+
+    for (component = 0; component < 3; ++component)
+    {
+      int value = 0;
+
+      while (cursor < line_end && *cursor <= ' ')
+        ++cursor;
+      if (cursor == line_end || !isdigit((unsigned char)*cursor))
+        break;
+      while (cursor < line_end && isdigit((unsigned char)*cursor))
+      {
+        value = value * 10 + *cursor - '0';
+        ++cursor;
+      }
+      color[component] = value;
+    }
+
+    if (component != 3)
+    {
+      lprintf(LO_WARN, "X11R6RGB lump is corrupt\n");
+      return false;
+    }
+
+    while (cursor < line_end && *cursor <= ' ')
+      ++cursor;
+    name_start = cursor;
+    name_end = line_end;
+    while (name_end > name_start && name_end[-1] <= ' ')
+      --name_end;
+
+    if (V_ZDoomColorNameMatches(name_start, name_end - name_start, name))
+      return true;
+
+    cursor = line_end + (line_end < end);
+  }
+
+  return false;
+}
+
+void V_ZDoomGetColor(const char *string, int *red, int *green, int *blue)
+{
+  int color[3];
+  char value[3] = { 0, 0, 0 };
+  const char *p = string;
+  int i;
+
+  if (V_ZDoomGetColorStringByName(p, color))
+  {
+    *red = color[0];
+    *green = color[1];
+    *blue = color[2];
+    return;
+  }
+
+  if (*p == '#')
+  {
+    size_t length = strlen(p);
+
+    if (length == 7)
+    {
+      for (i = 0; i < 3; ++i)
+      {
+        value[0] = p[1 + i * 2];
+        value[1] = p[2 + i * 2];
+        color[i] = V_ParseZDoomHex(value);
+      }
+    }
+    else if (length == 4)
+    {
+      for (i = 0; i < 3; ++i)
+      {
+        value[0] = value[1] = p[1 + i];
+        color[i] = V_ParseZDoomHex(value);
+      }
+    }
+    else
+      color[0] = color[1] = color[2] = 0;
+  }
+  else if (strlen(p) == 6)
+  {
+    char *end;
+    long packed = strtol(p, &end, 16);
+
+    if (!*end)
+    {
+      color[0] = (packed >> 16) & 0xff;
+      color[1] = (packed >> 8) & 0xff;
+      color[2] = packed & 0xff;
+    }
+    else
+      goto spaced;
+  }
+  else
+  {
+  spaced:
+    for (i = 0; i < 3; ++i)
+    {
+      int length = 0;
+
+      while (*p <= ' ' && *p)
+        ++p;
+      while (*p > ' ')
+      {
+        if (length < 2)
+          value[length] = *p;
+        ++length;
+        ++p;
+      }
+
+      if (!length)
+        color[i] = 0;
+      else
+      {
+        if (length == 1)
+          value[1] = value[0];
+        color[i] = V_ParseZDoomHex(value);
+      }
+    }
+  }
+
+  *red = color[0];
+  *green = color[1];
+  *blue = color[2];
 }
 
 // Alt-Enter: fullscreen <-> windowed

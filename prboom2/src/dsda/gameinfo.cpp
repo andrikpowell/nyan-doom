@@ -23,6 +23,7 @@ extern "C" {
 #include "lprintf.h"
 #include "z_zone.h"
 #include "doomstat.h"
+#include "v_video.h"
 }
 
 #include "scanner.h"
@@ -89,10 +90,12 @@ static void dsda_ParseGameInfoLine(Scanner &scanner) {
   }
   else if (!stricmp(scanner.string, "STARTUPCOLORS")) {
     scanner.MustGetToken('=');
-    scanner.MustGetColor(gameinfo.startup_foreground.r, gameinfo.startup_foreground.g, gameinfo.startup_foreground.b);
+    scanner.MustGetString();
+    V_ZDoomGetColor(scanner.string, &gameinfo.startup_foreground.r, &gameinfo.startup_foreground.g, &gameinfo.startup_foreground.b);
 
     scanner.MustGetToken(',');
-    scanner.MustGetColor(gameinfo.startup_background.r, gameinfo.startup_background.g, gameinfo.startup_background.b);
+    scanner.MustGetString();
+    V_ZDoomGetColor(scanner.string, &gameinfo.startup_background.r, &gameinfo.startup_background.g, &gameinfo.startup_background.b);
 
     gameinfo.startup_colors_set = true;
   }

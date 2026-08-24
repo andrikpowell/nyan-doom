@@ -470,6 +470,7 @@ void V_ClearBorderbox(const char* lump, int screenfill);
 void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags);
 
 int V_BestColor(const unsigned char *palette, int r, int g, int b);
+void V_ZDoomGetColor(const char *string, int *r, int *g, int *b);
 
 // [FG] colored blood and gibs
 int V_BloodColor(int blood);

@@ -619,27 +619,6 @@ void Scanner::MustGetFloat()
 	if (!ScanFloat()) Error(TK_FloatConst);
 }
 
-void Scanner::MustGetColor(int &red, int &green, int &blue)
-{
-	unsigned int r, g, b;
-	const char *p;
-
-	MustGetString();
-	p = string;
-	if (*p == '#')
-		++p;
-
-	if (strlen(p) == 6 && sscanf(p, "%2x%2x%2x", &r, &g, &b) == 3)
-	{
-		red = r;
-		green = g;
-		blue = b;
-		return;
-	}
-
-	ErrorF("Expected hexadecimal RGB color");
-}
-
 void Scanner::MustGetString()
 {
 	if (!CheckString())
