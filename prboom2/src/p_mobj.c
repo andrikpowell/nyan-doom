@@ -1316,7 +1316,9 @@ void P_MobjThinker (mobj_t* mobj)
 
   mobj->PrevX = mobj->x;
   mobj->PrevY = mobj->y;
-  mobj->PrevZ = mobj->z;
+  if (!(mobj->intflags & MIF_NOINTERPOLATEZ))
+    mobj->PrevZ = mobj->z;
+  mobj->intflags &= ~MIF_NOINTERPOLATEZ;
 
   // momentum movement
   BlockingMobj = NULL;
@@ -3197,7 +3199,9 @@ void P_BlasterMobjThinker(mobj_t * mobj)
 
     mobj->PrevX = mobj->x;
     mobj->PrevY = mobj->y;
-    mobj->PrevZ = mobj->z;
+    if (!(mobj->intflags & MIF_NOINTERPOLATEZ))
+        mobj->PrevZ = mobj->z;
+    mobj->intflags &= ~MIF_NOINTERPOLATEZ;
 
     // Handle movement
     if (mobj->momx || mobj->momy || (mobj->z != mobj->floorz) || mobj->momz)
