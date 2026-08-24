@@ -115,7 +115,6 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
   - The "Apply multisampling" automap option is disabled for hexen
   - Some of the more advanced features are not implemented for hexen yet, and using them may cause crashes or other odd behaviour.
   - Some menus extend over the hud.
-  - Monster counter doesn't work as expected, due to cluster format (ex hud / levelstat)
  
 </details>
 
@@ -127,6 +126,7 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
 - [Doom-in-Hexen Support](./docs/doom_in_hexen.md)
 - [UDMF Support](./docs/udmf.md)
 - [MAPINFO Support](./docs/mapinfo.md)
+- [Partial ID24 Support](./docs/id24.md)
 
 ### Standards
 - [MBF21 v1.4](https://github.com/kraflab/mbf21)
