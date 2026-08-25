@@ -42,7 +42,7 @@ struct gameinfo_t {
 
 static gameinfo_t gameinfo;
 
-static void dsda_ParseGameInfoLine(Scanner &scanner) {
+static void dsda_ParseGameInfoLine(Scanner &scanner, dboolean parse_iwad_only) {
 
   if (!scanner.CheckString()) {
     scanner.GetNextToken();
@@ -58,6 +58,11 @@ static void dsda_ParseGameInfoLine(Scanner &scanner) {
       Z_Free(iwadlump);
 
     iwadlump = Z_Strdup(scanner.string);
+  }
+  // On initial pass, do not read anything but IWAD.
+  // On second pass, we then have access to nyan-doom.wad for STARTUP colours.
+  else if (parse_iwad_only) {
+    scanner.SkipLine();
   }
   else if (!stricmp(scanner.string, "STARTUPSONG")) {
     scanner.MustGetToken('=');
@@ -101,7 +106,10 @@ static void dsda_ParseGameInfoLine(Scanner &scanner) {
   }
 }
 
+// [AR] Called twice: first to determine the IWAD, then to parse the full GAMEINFO.
+// STARTUP colors are parsed later because they may require X11R6RGB from nyan-doom.wad.
 void dsda_LoadGameInfo(void) {
+  dboolean parse_iwad_only = !MainLumpCache;
   int lump;
 
   if (gameinfo.loaded)
@@ -112,14 +120,15 @@ void dsda_LoadGameInfo(void) {
   if (lump == LUMP_NOT_FOUND)
     return;
 
-  gameinfo.loaded = true;
+  if (!parse_iwad_only)
+    gameinfo.loaded = true;
 
   Scanner scanner((const char*) W_LumpByNum(lump), W_LumpLength(lump));
 
   scanner.SetErrorCallback(I_Error);
 
   while (scanner.TokensLeft())
-    dsda_ParseGameInfoLine(scanner);
+    dsda_ParseGameInfoLine(scanner, parse_iwad_only);
 }
 
 // these colour default values are the same as ZDoom
