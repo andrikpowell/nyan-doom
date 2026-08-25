@@ -53,6 +53,7 @@ int dsda_DeathUseNothingInDemo(void)
 static int dsda_DeathUseAction(void)
 {
   dboolean force_death_use = demorecording && !dsda_DeathUseNothingInDemo();
+  // TODO: possible "allow respawn" mapinfo flag
   dboolean mapinfo_respawn = skill_info.flags & SI_PLAYER_RESPAWN;
 
   if (demoplayback || force_death_use || mapinfo_respawn)

@@ -59,11 +59,13 @@ dboolean dsda_AllowCasualExCmdFeatures(void) {
 
 dboolean dsda_AllowJumping(void) {
   return (allow_incompatibility && dsda_IntConfig(dsda_config_allow_jumping))
+         // TODO: possible "allow jumping" mapinfo flag
          || dsda_AllowCasualExCmdFeatures();
 }
 
 dboolean dsda_FreeAim(void) {
   return ((allow_incompatibility || dsda_AllowCasualExCmdFeatures())
+         // TODO: possible "allow freelook" mapinfo flag
          && dsda_IntConfig(dsda_config_freelook));
 }
 

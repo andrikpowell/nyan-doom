@@ -124,6 +124,8 @@ const skill_info_t hexen_skill_infos[5] = {
   },
 };
 
+// TODO: possible future cross-port standard for custom skill definitions
+// one day... maybe, one day...
 int num_skills = 5;
 skill_info_t* skill_infos;
 
