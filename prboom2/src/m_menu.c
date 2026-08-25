@@ -5009,6 +5009,9 @@ setup_menu_t gen_misc_settings[] = {
   { "Autosave On Level Start", S_YESNO, m_conf, g_all, G2_X, dsda_config_auto_save },
   { "Organize My Save Files", S_YESNO, m_conf, g_all, G2_X, dsda_config_organized_saves },
   EMPTY_LINE,
+#ifdef HAVE_DISCORD_RPC
+  { "Discord Rich Presence", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_discord_presence },
+#endif
   { "Data Access Icon", S_CHOICE | S_NYAN, m_conf, g_doom, G2_X, nyan_config_loading_disk, 0, loading_disk_list },
   { "Show Startup", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_show_startup },
   { "Show Endoom", S_CHOICE | S_NYAN, m_conf, g_all, G2_X, nyan_config_show_endoom, 0, endoom_list },

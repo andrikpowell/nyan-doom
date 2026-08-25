@@ -150,6 +150,7 @@ enum {
   nyan_config_colored_blood_knight,
   nyan_config_colored_blood_caco,
   nyan_config_colored_blood_spectre,
+  nyan_config_discord_presence,
   nyan_config_loading_disk,
   dsda_config_script_0,
   dsda_config_script_1,

@@ -22,6 +22,7 @@
 #include "i_richpresence.h"
 #include "lprintf.h"
 
+#include "dsda/configuration.h"
 #include "dsda/gameinfo.h"
 
 #ifdef HAVE_DISCORD_RPC
@@ -107,6 +108,14 @@ void I_UpdateDiscordPresence(const char *curstate, const char *curstatus)
 
   const char *curappid = DEFAULT_DISCORD_APP_ID;
   DiscordRichPresence presence = {0};
+
+  if (!dsda_IntConfig(nyan_config_discord_presence))
+  {
+    if (initialized)
+      Discord_ClearPresence();
+
+    return;
+  }
 
   if (!initialized)
   {
