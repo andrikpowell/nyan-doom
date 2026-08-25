@@ -199,10 +199,6 @@ void dsda_InitSkills(void) {
   int original_skills;
   dboolean clear_skills;
 
-  // Check for / parse new skill lumps
-  dsda_LoadSkillLump();
-  dsda_CheckCustomSkill();
-
   clear_skills = (doom_mapinfo.num_skills && doom_mapinfo.skills_cleared);
   original_skills = !doom_v11 ? 5 : 4;
 
@@ -447,9 +443,6 @@ void dsda_AlterGameFlags(void)
 }
 
 void dsda_LoadSkillLump(void) {
-  //if (started_demo)
-    //return;
-
   if (raven || doom_v11 || netgame || dsda_UseMapinfo())
     return;
 
@@ -458,9 +451,6 @@ void dsda_LoadSkillLump(void) {
 }
 
 void dsda_CheckCustomSkill(void) {
-  //if (started_demo)
-    //return;
-
   if (!allow_incompatibility || netgame)
     return;
 

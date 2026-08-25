@@ -2141,8 +2141,21 @@ static void D_DoomMainSetup(void)
 
   G_ReloadDefaults();
 
-  lprintf(LO_DEBUG, "N_InitAnimateLumps: Loading NYAN Animate lumps.\n");
-  N_InitAnimateLumps();
+  // Check for mapinfo
+  dsda_LoadWadPreferences();
+
+  // Check for / parse new skill lumps
+  dsda_LoadSkillLump();
+  dsda_CheckCustomSkill();
+
+  if (uvplus)
+    lprintf(LO_INFO, "Detected NYANSKLG lump. UV Plus difficulty enabled.\n");
+
+  if (!raven)
+  {
+    lprintf(LO_DEBUG, "N_InitAnimateLumps: Loading NYAN Animate lumps.\n");
+    N_InitAnimateLumps();
+  }
 
   if (limitremoving_arg)
     lprintf(LO_INFO, "Limit-removing detected. Overflows disabled\n");
@@ -2277,13 +2290,9 @@ static void D_DoomMainSetup(void)
   lprintf(LO_DEBUG, "R_Init: Init DOOM refresh daemon - ");
   R_Init();
 
-  dsda_LoadWadPreferences();
   dsda_LoadMapInfo();
   dsda_InitSkills();
   dsda_InitGameModifiers(); // Set game modifiers based off args / persistent cfgs
-
-  if (uvplus)
-    lprintf(LO_INFO, "Detected NYANSKLG lump. UV Plus difficulty enabled.\n");
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_DEBUG, "\nP_Init: Init Playloop state.\n");
