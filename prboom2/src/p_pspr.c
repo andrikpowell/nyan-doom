@@ -94,7 +94,7 @@ static const int recoil_values[] = {    // phares
 switch_speed_t switch_speed;
 static fixed_t dsda_getWeaponSpeed(void)
 {
-  if (allow_incompatibility && !netgame && switch_speed != WEAPON_SPEED_DEFAULT)
+  if (casual_play && !netgame && switch_speed != WEAPON_SPEED_DEFAULT)
   {
       if (switch_speed == WEAPON_SPEED_SLOW)
           return FRACUNIT*3;  // 0.5x speed
@@ -330,7 +330,7 @@ int P_SwitchWeapon(player_t *player)
     currentweapon = newweapon = wp_nochange;
 
   // Support for strip cheat (and Heretic IDKFA)
-  check_first_weapon = allow_incompatibility ? player->weaponowned[wp_pistol] : true;
+  check_first_weapon = casual_play ? player->weaponowned[wp_pistol] : true;
 
   // killough 2/8/98: follow preferences and fix BFG/SSG bugs
 
@@ -2495,7 +2495,7 @@ static dboolean Heretic_P_CheckAmmo(player_t * player)
     int count;
 
     // Support for strip cheat (and Heretic IDKFA)
-    check_first_weapon = allow_incompatibility ? player->weaponowned[wp_goldwand] : true;
+    check_first_weapon = casual_play ? player->weaponowned[wp_goldwand] : true;
 
     ammo = wpnlev1info[player->readyweapon].ammo;
     if (player->powers[pw_weaponlevel2] && !deathmatch)

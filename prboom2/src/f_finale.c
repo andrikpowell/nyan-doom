@@ -85,7 +85,7 @@ int UMAPINFO_Text;
 
 static int dsda_SkipInterText(void)
 {
-  if (allow_incompatibility && dsda_IntConfig(nyan_config_skip_default_text))
+  if (casual_play && dsda_IntConfig(nyan_config_skip_default_text))
     return dsda_CheckInterText();
   
   return false;
@@ -337,7 +337,7 @@ float Get_TextSpeed(void)
 dboolean F_ShowCast(void)
 {
   return gamemap == 30 ||
-         (gamemission == pack_nerve && allow_incompatibility && gamemap == 8) ||
+         (gamemission == pack_nerve && casual_play && gamemap == 8) ||
          dsda_FinaleShortcut();
 }
 
@@ -354,7 +354,7 @@ void F_Ticker(void)
     return;
   }
 
-  if (!demo_compatibility || allow_incompatibility) // Allow for textscreen skip for Doom 1 + wait for Doom 2
+  if (!demo_compatibility || casual_play) // Allow for textscreen skip for Doom 1 + wait for Doom 2
     WI_checkForAccelerate();  // killough 3/28/98: check for acceleration
   else
     if (gamemode == commercial && finalecount > 50) // check for skipping
@@ -383,7 +383,7 @@ void F_Ticker(void)
               F_StartPostFinale();
           }
         else   // you must press a button to continue in Doom 2
-          if ((!demo_compatibility || allow_incompatibility) && midstage)
+          if ((!demo_compatibility || casual_play) && midstage)
             {
               next_level = true;
             }

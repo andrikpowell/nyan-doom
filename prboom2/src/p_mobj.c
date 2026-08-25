@@ -716,7 +716,7 @@ fixed_t P_MobjGravity(mobj_t* mo)
 
 void P_AutoCorrectLookDir(player_t* player)
 {
-  if (allow_incompatibility && dsda_MouseLook())
+  if (casual_play && dsda_MouseLook())
   {
     return;
   }
@@ -2111,7 +2111,7 @@ void P_RemoveMobj (mobj_t* mobj)
   // CPhipps - only leave dead references in old demos; I hope lxdoom_1 level
   // demos are rare and don't rely on this. I hope.
 
-  if (compatibility_level >= lxdoom_1_compatibility || allow_incompatibility) {
+  if (compatibility_level >= lxdoom_1_compatibility || casual_play) {
     P_SetTarget(&mobj->target,    NULL);
     P_SetTarget(&mobj->tracer,    NULL);
     P_SetTarget(&mobj->lastenemy, NULL);

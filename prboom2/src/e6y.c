@@ -219,7 +219,7 @@ int G_ReloadLevel(void)
   int result = false;
 
   if ((gamestate == GS_LEVEL || gamestate == GS_INTERMISSION) &&
-      allow_incompatibility &&
+      casual_play &&
       !menuactive)
   {
     int epsd = gameepisode;
@@ -249,7 +249,7 @@ int G_GotoNextLevel(void)
   dsda_NextMap(&epsd, &map);
 
   if ((gamestate == GS_LEVEL) &&
-    allow_incompatibility &&
+    casual_play &&
     !menuactive)
   {
     G_DeferedInitNew(gameskill, epsd, map);
@@ -267,7 +267,7 @@ int G_GotoPrevLevel(void)
   dsda_PrevMap(&epsd, &map);
 
   if ((gamestate == GS_LEVEL) &&
-    allow_incompatibility &&
+    casual_play &&
     !menuactive)
   {
     G_DeferedInitNew(gameskill, epsd, map);

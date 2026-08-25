@@ -251,7 +251,7 @@ dboolean dsda_SwitchWhenAmmoRunsOut(void) {
 }
 
 dboolean dsda_BerserkPreferred(void) {
-  return allow_incompatibility && dsda_IntConfig(dsda_config_switch_berserk_preferred);
+  return casual_play && dsda_IntConfig(dsda_config_switch_berserk_preferred);
 }
 
 dboolean dsda_SkipQuitPrompt(void) {
@@ -344,25 +344,25 @@ dboolean dsda_PowerPalette(void) {
 }
 
 dboolean dsda_EffectPalette(void) {
-  if (!allow_incompatibility || dsda_StrictMode()) return true;
+  if (!casual_play || dsda_StrictMode()) return true;
 
   return dsda_IntConfig(dsda_config_palette_oneffects);
 }
 
 dboolean dsda_PainPaletteReduced(void) {
-  if (!allow_incompatibility || dsda_StrictMode()) return false;
+  if (!casual_play || dsda_StrictMode()) return false;
 
   return dsda_IntConfig(dsda_config_palette_ondamage) > 1;
 }
 
 dboolean dsda_PickupPaletteReduced(void) {
-  if (!allow_incompatibility || dsda_StrictMode()) return false;
+  if (!casual_play || dsda_StrictMode()) return false;
 
   return dsda_IntConfig(dsda_config_palette_onbonus) > 1;;
 }
 
 dboolean dsda_EffectPaletteReduced(void) {
-  if (!allow_incompatibility || dsda_StrictMode()) return false;
+  if (!casual_play || dsda_StrictMode()) return false;
 
   return dsda_IntConfig(dsda_config_palette_oneffects) > 1;
 }
@@ -376,7 +376,7 @@ dboolean dsda_WipeAtFullSpeed(void) {
 }
 
 dboolean dsda_DrawNearbySprites(void) {
-  return allow_incompatibility && dsda_IntConfig(dsda_config_draw_nearby_sprites);
+  return casual_play && dsda_IntConfig(dsda_config_draw_nearby_sprites);
 }
 
 int dsda_ShowAliveMonsters(void) {
@@ -384,26 +384,26 @@ int dsda_ShowAliveMonsters(void) {
 }
 
 dboolean dsda_ShowAutomapKeys(void) {
-  return dsda_IntConfig(dsda_config_map_show_keys) && allow_incompatibility;
+  return dsda_IntConfig(dsda_config_map_show_keys) && casual_play;
 }
 
 dboolean dsda_DisableHorizAutoaim(void) {
-  return dsda_IntConfig(dsda_config_disable_horiz_autoaim) && allow_incompatibility;
+  return dsda_IntConfig(dsda_config_disable_horiz_autoaim) && casual_play;
 }
 
 dboolean dsda_ClassicChoppers(void) {
-  return dsda_IntConfig(nyan_config_classic_idchoppers) || !allow_incompatibility || raven;
+  return dsda_IntConfig(nyan_config_classic_idchoppers) || !casual_play || raven;
 }
 
 int dsda_EnhancedDoomOverUnder(void) {
-  if (map_format.zdoom || !allow_incompatibility)
+  if (map_format.zdoom || !casual_play)
     return false;
 
   return dsda_IntConfig(dsda_config_enhanced_doom_over_under);
 }
 
 int dsda_TranslucencyPercent(void) {
-  if (!allow_incompatibility) return 66;
+  if (!casual_play) return 66;
 
   return dsda_IntConfig(dsda_config_tran_filter_pct);
 }
@@ -445,7 +445,7 @@ dboolean dsda_PowerupHideTimes(void) {
 }
 
 dboolean dsda_AllowBlockmapFix(void) {
-  return dsda_IntConfig(dsda_config_blockmap_fix) && !dsda_StrictMode() && allow_incompatibility;
+  return dsda_IntConfig(dsda_config_blockmap_fix) && !dsda_StrictMode() && casual_play;
 }
 
 dboolean dsda_PlayQuitSounds(void) {
@@ -543,7 +543,7 @@ dboolean dsda_RenderWipeScreen(void) {
 }
 
 int dsda_WipeScreenSpeed(void) {
-  return !allow_incompatibility ? 1 : dsda_IntConfig(dsda_config_render_wipescreen);
+  return !casual_play ? 1 : dsda_IntConfig(dsda_config_render_wipescreen);
 }
 
 dboolean dsda_PendingSkipWipe(void) {
@@ -560,11 +560,11 @@ dboolean dsda_SkipWipe(void) {
 }
 
 dboolean dsda_MultipleAreaMaps(void) {
-  return dsda_IntConfig(dsda_config_multiple_area_maps) && !dsda_StrictMode() && allow_incompatibility;
+  return dsda_IntConfig(dsda_config_multiple_area_maps) && !dsda_StrictMode() && casual_play;
 }
 
 dboolean dsda_SimplerPuzzleUse(void) {
-  return dsda_IntConfig(dsda_config_hexen_simpler_puzzle_use) && !dsda_StrictMode() && allow_incompatibility;
+  return dsda_IntConfig(dsda_config_hexen_simpler_puzzle_use) && !dsda_StrictMode() && casual_play;
 }
 
 dboolean dsda_FullAutomapHud(void) {

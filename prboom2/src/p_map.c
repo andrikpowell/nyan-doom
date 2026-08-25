@@ -2783,7 +2783,7 @@ void P_UseXboxEasterEgg(intercept_t* in)
   int linelen;
   int frontside;
 
-  if (raven || bfgedition || !allow_incompatibility)
+  if (raven || bfgedition || !casual_play)
     return;
 
   if (gamemission == doom2)
@@ -4114,7 +4114,7 @@ void P_BounceWall(mobj_t * mo)
                    PT_ADDLINES, PTR_BounceTraverse);
 
     // Set Bestslideline to avoid crash
-    if (allow_incompatibility)
+    if (casual_play)
     {
       P_InitSlideLine();
     }

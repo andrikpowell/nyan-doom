@@ -402,7 +402,7 @@ static void cheat_choppers_nyan()
 
 static void cheat_buddha(void)
 {
-  if (!allow_incompatibility)
+  if (!casual_play)
     return;
 
   plyr->cheats ^= CF_BUDDHA;
@@ -499,7 +499,7 @@ static void cheat_god()
 
 void cheat_killonsight(void)
 {
-  if (!allow_incompatibility) return;
+  if (!casual_play) return;
 
   plyr->cheats ^= CF_BASILISK;
   if (plyr->cheats & CF_BASILISK)
@@ -1939,7 +1939,7 @@ static void cheat_notarget()
 
 static void cheat_camera()
 {
-  if (!allow_incompatibility)
+  if (!casual_play)
     RETURN(dsda_AddMessage("Camera Mode Not Allowed"));
 
   plyr->cheats ^= CF_CAMERA;

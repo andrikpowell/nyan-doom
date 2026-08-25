@@ -1297,7 +1297,7 @@ static void G_DoLoadLevel (void)
 
   // automatic pistol start when advancing from one level to the next
   if (pistolstart && !skill_loadout)
-    if (allow_incompatibility)
+    if (casual_play)
       G_PlayerReborn(0);
 
   // Custom Skill - Reset Pistol Start from Loadout
