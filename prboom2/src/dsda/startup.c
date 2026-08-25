@@ -39,6 +39,16 @@
 
 #include "textscreen/fonts/normal.h"
 
+#define PROGRESS_STEP_DURATION_MS 25
+
+static void dsda_WaitForProgressStep(unsigned int start_time)
+{
+  unsigned int elapsed;
+
+  while ((elapsed = SDL_GetTicks() - start_time) < PROGRESS_STEP_DURATION_MS)
+    I_uSleep((PROGRESS_STEP_DURATION_MS - elapsed) * 1000);
+}
+
 //
 // HEXEN STARTUP
 //
@@ -417,17 +427,12 @@ static void Hexen_InitStartup(void)
 
 static void Hexen_DrawProgressNotch(void)
 {
-  if (!startup_active || notch_position >= MAX_NOTCHES || StartupSkipped())
-    return;
-
   DrawBlock(notch_bitmap, PROGRESS_X + notch_position * NOTCH_W, PROGRESS_Y, NOTCH_W, NOTCH_H, true);
 
   if (hexen)
     S_StartVoidSound(hexen_sfx_startup_tick);
 
   ++notch_position;
-
-  I_uSleep(15000);
 }
 
 static void Hexen_FinishStartup(void)
@@ -452,7 +457,16 @@ void dsda_HexenStartup(void)
 
   // Draw progress bar
   for (int i = 0; i < MAX_NOTCHES; ++i)
+  {
+    unsigned int start_time;
+
+    if (!startup_active || StartupSkipped())
+      break;
+
+    start_time = SDL_GetTicks();
     Hexen_DrawProgressNotch();
+    dsda_WaitForProgressStep(start_time);
+  }
 
   Hexen_FinishStartup();
 }
@@ -705,15 +719,17 @@ void dsda_HereticStartup(void)
   for (i = 0; i < THERM_LENGTH; ++i)
   {
     int offset;
+    unsigned int start_time;
 
     if (StartupSkipped())
       break;
 
+    start_time = SDL_GetTicks();
     offset = ((THERM_Y * TEXT_W) + THERM_X + i) * 2;
     screen[offset] = 0xdb;
     screen[offset + 1] = 0x2a;
     TXT_UpdateScreen();
-    I_uSleep(15000);
+    dsda_WaitForProgressStep(start_time);
   }
 
   TXT_Shutdown();
