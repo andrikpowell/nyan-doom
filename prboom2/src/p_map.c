@@ -2779,6 +2779,7 @@ static int P_LineLength(line_t *line)
 
 void P_UseXboxEasterEgg(intercept_t* in)
 {
+  line_t *line;
   int linenum;
   int linelen;
   int frontside;
@@ -2799,15 +2800,16 @@ void P_UseXboxEasterEgg(intercept_t* in)
     return;
   }
 
-  linenum = (int)(in->d.line - lines);
-  linelen = P_LineLength(in->d.line);
-  frontside = P_PointOnLineSide (usething->x, usething->y, in->d.line) == 0;   // front side only
+  line = in->d.line;
+  linenum = (int)(line - lines);
+  linelen = P_LineLength(line);
+  frontside = P_PointOnLineSide (usething->x, usething->y, line) == 0;   // front side only
 
-  if (usething->player && frontside)
+  if (frontside)
   {
     if (gamemission == doom2 &&
         linelen == 32 &&
-        (linenum = 302 ||   // 1.666
+        (linenum == 302 ||   // 1.666
         linenum == 283))    // 1.9
     {
       doom_printf("You have been betrayed.");
