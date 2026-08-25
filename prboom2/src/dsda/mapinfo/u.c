@@ -497,7 +497,7 @@ int dsda_UPrepareFinale(int* result) {
 void dsda_ULoadMapInfo(void) {
   int p;
 
-  if (dsda_Flag(dsda_arg_nomapinfo) || dsda_UseMapinfo() || raven)
+  if (dsda_Flag(dsda_arg_nomapinfo) || raven)
     return;
 
   p = -1;
@@ -610,10 +610,6 @@ int dsda_UAirControl(fixed_t* air_control) {
 }
 
 int dsda_UInitSky(void) {
-  return false;
-}
-
-int dsda_UMapFlags(map_info_flags_t* flags) {
   return false;
 }
 
