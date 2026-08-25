@@ -2923,6 +2923,32 @@ dboolean PTR_UseTraverse (intercept_t* in)
           true : false;
 }
 
+static dboolean PTR_UseTraverse_10(intercept_t *in)
+{
+  line_t *line = in->d.line;
+
+  if (!line->special)
+  {
+    P_LineOpening(line, NULL);
+
+    if (line_opening.range <= 0)
+    {
+      S_StartSound(usething, sfx_noway);
+      return false;
+    }
+
+    return true;
+  }
+
+  // Doom 1.0 did not allow special lines to be used from the back side
+  if (P_PointOnLineSide(usething->x, usething->y, line) == 1)
+    return false;
+
+  P_UseSpecialLine(usething, line, 0, false);
+
+  return false;
+}
+
 // Returns false if a "oof" sound should be made because of a blocking
 // linedef. Makes 2s middles which are impassable, as well as 2s uppers
 // and lowers which block the player, cause the sound effect when the
@@ -2961,12 +2987,23 @@ void P_UseLines (player_t*  player)
 
   usething = player->mo;
 
-  angle = player->mo->angle >> ANGLETOFINESHIFT;
-
   x1 = player->mo->x;
   y1 = player->mo->y;
-  x2 = x1 + (USERANGE>>FRACBITS)*finecosine[angle];
-  y2 = y1 + (USERANGE>>FRACBITS)*finesine[angle];
+
+  if (v10_compatibility)
+  {
+    angle = player->mo->angle >> ANGLETOCOARSESHIFT;
+    x2 = x1 + (USERANGE>>FRACBITS)*coarsecosine[angle];
+    y2 = y1 + (USERANGE>>FRACBITS)*coarsesine[angle];
+    P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES, PTR_UseTraverse_10);
+    return;
+  }
+  else
+  {
+    angle = player->mo->angle >> ANGLETOFINESHIFT;
+    x2 = x1 + (USERANGE>>FRACBITS)*finecosine[angle];
+    y2 = y1 + (USERANGE>>FRACBITS)*finesine[angle];
+  }
 
   // old code:
   //

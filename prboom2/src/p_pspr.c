@@ -674,10 +674,20 @@ void A_WeaponReady(player_t *player, pspdef_t *psp)
   // bob the weapon based on movement speed
   if (!player->morphTics)
   {
-    int angle = (128 * leveltime) & FINEMASK;
-    psp->sx = FRACUNIT + FixedMul(player->bob, finecosine[angle]);
-    angle &= FINEANGLES / 2 - 1;
-    psp->sy = WEAPONTOP + FixedMul(player->bob, finesine[angle]);
+    if (v10_compatibility)
+    {
+      int angle = (4 * gametic) & COARSEMASK;
+      psp->sx = FRACUNIT + FixedMul(player->bob, coarsecosine[angle]);
+      angle &= COARSEANGLES / 2 - 1;
+      psp->sy = WEAPONTOP + FixedMul(player->bob, coarsesine[angle]);
+    }
+    else
+    {
+      int angle = (128 * leveltime) & FINEMASK;
+      psp->sx = FRACUNIT + FixedMul(player->bob, finecosine[angle]);
+      angle &= FINEANGLES / 2 - 1;
+      psp->sy = WEAPONTOP + FixedMul(player->bob, finesine[angle]);
+    }
   }
 }
 
@@ -1056,9 +1066,31 @@ void A_FirePlasma(player_t *player, pspdef_t *psp)
 //e6y static
 fixed_t bulletslope;
 
+static void P_BulletSlope_10(mobj_t *mo)
+{
+    angle_t angle = mo->angle;
+
+    bulletslope = P_AimLineAttack(mo, angle, 16 * 64 * FRACUNIT, 0);
+
+    if (!linetarget)
+    {
+      angle += 1 << 26;
+      bulletslope = P_AimLineAttack(mo, angle, 16 * 64 * FRACUNIT, 0);
+
+      if (!linetarget)
+      {
+        angle -= 2 << 26;
+        bulletslope = P_AimLineAttack(mo, angle, 16 * 64 * FRACUNIT, 0);
+      }
+    }
+}
+
 static void P_BulletSlope(mobj_t *mo)
 {
   aim_t aim;
+
+  if (old_compatibility)
+    RETURN(P_BulletSlope_10(mo));
 
   dsda_PlayerAimBad(mo, mo->angle, &aim, mbf_features ? MF_FRIEND : 0);
 
