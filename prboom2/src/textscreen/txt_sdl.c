@@ -46,6 +46,7 @@ static int is_opengl = false;
 #define HEADER_ROWS 2
 
 static GLuint gl_texture = 0;
+static GLubyte *gl_texture_data;
 static int glwindow_w = 0;
 static int glwindow_h = 0;
 
@@ -226,11 +227,22 @@ int TXT_Init(void)
 void TXT_Shutdown(void)
 {
     if (is_opengl)
+    {
         if (gl_texture != 0)
         {
             glDeleteTextures(1, &gl_texture);
             gl_texture = 0;
         }
+
+        free(gl_texture_data);
+        gl_texture_data = NULL;
+    }
+
+    if (texture_upscaled != NULL)
+    {
+        SDL_DestroyTexture(texture_upscaled);
+        texture_upscaled = NULL;
+    }
 
     free(screendata);
     screendata = NULL;
@@ -395,6 +407,12 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h)
     // the screen; find a more efficient way to do it.
     screentx = SDL_CreateTextureFromSurface(renderer, screenbuffer);
 
+    if (screentx == NULL)
+    {
+        lprintf(LO_ERROR, "Failed to create text screen texture: %s\n", SDL_GetError());
+        return;
+    }
+
     SDL_RenderClear(renderer);
     GetDestRect(&rect);
 
@@ -519,7 +537,6 @@ static void GL_TXT_SetPixel(GLubyte *texture_data, int tex_w2, int x, int y, SDL
 
 void GL_TXT_UpdateScreen(void)
 {
-    static GLubyte *texture_data;
     int tex_w, tex_h, tex_w2, tex_h2;
 
     glClearColor(0, 0, 0, 1);
@@ -527,7 +544,6 @@ void GL_TXT_UpdateScreen(void)
 
     SDL_LockSurface(screenbuffer);
 
-    texture_data = NULL;
     tex_w = TXT_SCREEN_W * FONT_CHAR_W;
     tex_h = TXT_SCREEN_H * FONT_CHAR_H + HeaderHeight();
 
@@ -536,8 +552,8 @@ void GL_TXT_UpdateScreen(void)
     tex_w2 = tex_w * 2;
     tex_h2 = tex_h * 2;
 
-    if (!texture_data)
-        texture_data = malloc(tex_w2 * tex_h2 * 4);
+    if (!gl_texture_data)
+        gl_texture_data = malloc(tex_w2 * tex_h2 * 4);
 
     if (HeaderHeight())
     {
@@ -551,7 +567,7 @@ void GL_TXT_UpdateScreen(void)
 
         for (int y = 0; y < HeaderHeight(); ++y)
             for (int x = 0; x < tex_w; ++x)
-                GL_TXT_SetPixel(texture_data, tex_w2, x, y, screenbuffer->format->palette->colors[TXT_COLOR_HEADER_BACKGROUND]);
+                GL_TXT_SetPixel(gl_texture_data, tex_w2, x, y, screenbuffer->format->palette->colors[TXT_COLOR_HEADER_BACKGROUND]);
 
         for (int i = 0; i < length; ++i)
         {
@@ -560,7 +576,7 @@ void GL_TXT_UpdateScreen(void)
             for (int y = 0; y < (int)FONT_CHAR_H; ++y)
                 for (int x = 0; x < (int)FONT_CHAR_W; ++x)
                     if (glyph[y] & (1 << x))
-                        GL_TXT_SetPixel(texture_data, tex_w2, start_x + i * FONT_CHAR_W + x, (HeaderHeight() - FONT_CHAR_H) / 2 + y, screenbuffer->format->palette->colors[TXT_COLOR_HEADER_FOREGROUND]);
+                        GL_TXT_SetPixel(gl_texture_data, tex_w2, start_x + i * FONT_CHAR_W + x, (HeaderHeight() - FONT_CHAR_H) / 2 + y, screenbuffer->format->palette->colors[TXT_COLOR_HEADER_FOREGROUND]);
         }
     }
 
@@ -602,7 +618,7 @@ void GL_TXT_UpdateScreen(void)
                     GLubyte b = bit ? fg_col.b : bg_col.b;
 
                     SDL_Color color = { r, g, b, 255 };
-                    GL_TXT_SetPixel(texture_data, tex_w2, x * FONT_CHAR_W + cx, HeaderHeight() + y * FONT_CHAR_H + cy, color);
+                    GL_TXT_SetPixel(gl_texture_data, tex_w2, x * FONT_CHAR_W + cx, HeaderHeight() + y * FONT_CHAR_H + cy, color);
                 }
             }
         }
@@ -617,12 +633,12 @@ void GL_TXT_UpdateScreen(void)
         glBindTexture(GL_TEXTURE_2D, gl_texture);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_w2, tex_h2, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture_data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_w2, tex_h2, 0, GL_RGBA, GL_UNSIGNED_BYTE, gl_texture_data);
     }
     else
     {
         glBindTexture(GL_TEXTURE_2D, gl_texture);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tex_w2, tex_h2, GL_RGBA, GL_UNSIGNED_BYTE, texture_data);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tex_w2, tex_h2, GL_RGBA, GL_UNSIGNED_BYTE, gl_texture_data);
     }
 
     // Draw 2x texture (image) normal size in window
