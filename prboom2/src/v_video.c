@@ -1182,6 +1182,36 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   }
 }
 
+
+//
+// V_ClipToScreen
+//
+// Transposed buffer now causes some functions to overwrite the x
+// So we need to adjust this now
+static dboolean V_ClipToScreen(int scrn, int *x, int *y, int *width, int *height)
+{
+  if (*x < 0)
+  {
+    *width += *x;
+    *x = 0;
+  }
+
+  if (*y < 0)
+  {
+    *height += *y;
+    *y = 0;
+  }
+
+  if (*x >= screens[scrn].width || *y >= screens[scrn].height ||
+      *width <= 0 || *height <= 0)
+    return false;
+
+  *width = MIN(*width, screens[scrn].width - *x);
+  *height = MIN(*height, screens[scrn].height - *y);
+
+  return true;
+}
+
 //
 // FUNC_V_DrawShaded
 //
@@ -1196,6 +1226,9 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
   byte* dest;
   const byte *shademap;
   int ix, iy;
+
+  if (!V_ClipToScreen(FG, &x, &y, &width, &height))
+    return;
 
   shademap = V_ShadeColormap(shade);
 
@@ -1334,6 +1367,9 @@ static void V_FillRectTrans8(int scrn, int x, int y, int width, int height, byte
 
 static void FUNC_V_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, int trans)
 {
+  if (!V_ClipToScreen(scrn, &x, &y, &width, &height))
+    return;
+
   if (!dsda_MenuTranslucency() || trans >= 99)
     V_FillRect8(scrn, x, y, width, height, colour);
   else
@@ -2002,6 +2038,10 @@ static void V_PlotPixelWu8_1px(int x, int y, byte color, int weight)
 // Change rendering path based on thickness
 static void V_PlotPixelWu8(int x, int y, byte color, int weight)
 {
+  if ((unsigned)x >= (unsigned)screens[FG].width ||
+      (unsigned)y >= (unsigned)screens[FG].height)
+    return;
+
   V_PlotPixelWu8_1px(x, y, color, weight);
 }
 
