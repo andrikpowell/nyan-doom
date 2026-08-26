@@ -410,6 +410,8 @@ set(COMMON_SRC
     info.h
     i_capture.c
     i_capture.h
+    i_richpresence.c
+    i_richpresence.h
     i_glob.c
     i_glob.h
     i_main.h

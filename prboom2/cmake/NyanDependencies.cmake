@@ -77,6 +77,11 @@ if(WITH_PORTMIDI)
   endif()
 endif()
 
+if(WITH_DISCORD_RPC)
+  include(NyanDiscordRPC)
+  set(HAVE_DISCORD_RPC TRUE)
+endif()
+
 # Before SDL 2.24.x, all SDL2::* targets were created in autotools builds, even if the underlying library wasn't built.
 # So wrap all this in our interface library
 add_library(nyan_SDL2 INTERFACE IMPORTED)
@@ -132,6 +137,7 @@ target_link_libraries(nyan_dependencies
   $<$<BOOL:${HAVE_LIBFLUIDSYNTH}>:FluidSynth::libfluidsynth>
   $<$<BOOL:${HAVE_LIBVORBISFILE}>:Vorbis::vorbisfile>
   $<$<BOOL:${HAVE_LIBPORTMIDI}>:PortMidi::portmidi>
+  $<$<BOOL:${HAVE_DISCORD_RPC}>:DiscordRPC::discord-rpc>
 
   $<$<BOOL:${HAVE_LIBSDL2_IMAGE}>:$<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>>
   $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>

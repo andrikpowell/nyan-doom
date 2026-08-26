@@ -897,6 +897,21 @@ int dsda_LegacyHUTitle(dsda_string_t* str) {
   return true;
 }
 
+int dsda_LegacyDiscordTitle(dsda_string_t* str) {
+  dsda_string_t generic_title;
+
+  dsda_InitString(&generic_title, NULL);
+
+  if (dsda_LegacyGenericMapname(&generic_title, gameepisode, gamemap)) {
+    dsda_StringPrintF(str, "PWAD %s", generic_title.string);
+    dsda_FreeString(&generic_title);
+    return true;
+  }
+
+  dsda_FreeString(&generic_title);
+  return dsda_LegacyHUTitle(str);
+}
+
 int dsda_LegacySkyTexture(int skynum, int* sky) {
   if (heretic) {
     static const char *sky_lump_names[5] = {

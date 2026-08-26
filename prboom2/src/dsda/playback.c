@@ -240,6 +240,7 @@ void dsda_JoinDemo(ticcmd_t* cmd) {
     dsda_QueueJoin();
 
   dsda_MergeExDemoFeatures();
+  G_UpdateDiscordPresence();
 }
 
 void dsda_TryPlaybackOneTick(ticcmd_t* cmd) {

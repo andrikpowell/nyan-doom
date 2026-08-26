@@ -28,6 +28,12 @@
     "zlib"
   ],
   "features": {
+    "discord-rpc": {
+      "description": "Build with Discord Rich Presence support",
+      "dependencies": [
+        "discord-rpc"
+      ]
+    },
     "fluidsynth": {
       "description": "Build with FluidSynth support",
       "dependencies": [

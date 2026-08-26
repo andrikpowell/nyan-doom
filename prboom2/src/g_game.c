@@ -52,6 +52,7 @@
 #include "d_net.h"
 #include "f_finale.h"
 #include "i_video.h"
+#include "i_richpresence.h"
 #include "m_file.h"
 #include "m_misc.h"
 #include "m_menu.h"
@@ -1231,6 +1232,25 @@ static void G_ResetInventory(player_t *p)
   G_SetInitialInventory(p);
 }
 
+void G_UpdateDiscordPresence(void)
+{
+  dsda_string_t title;
+  dsda_string_t discord_title;
+
+  dsda_MapTitleforDiscord(&title);
+  dsda_InitString(&discord_title, NULL);
+
+  if (reelplayback) // Internal Demos
+    dsda_StringCat(&discord_title, "Playing");
+  else if (demorecording)
+    dsda_StringCat(&discord_title, "Recording demo");
+  else if (userplayback)
+    dsda_StringCat(&discord_title, "Watching demo");
+  I_UpdateDiscordPresence(discord_title.string ? discord_title.string : title.string, doomverstr);
+  dsda_FreeString(&discord_title);
+  dsda_FreeString(&title);
+}
+
 //
 // G_DoLoadLevel
 //
@@ -1314,6 +1334,7 @@ static void G_DoLoadLevel (void)
     SN_StopAllSequences();
 
   P_SetupLevel (gameepisode, gamemap, 0, gameskill);
+  G_UpdateDiscordPresence();
   if (!demoplayback) // Don't switch views if playing a demo
     displayplayer = consoleplayer;    // view the guy you are playing
 

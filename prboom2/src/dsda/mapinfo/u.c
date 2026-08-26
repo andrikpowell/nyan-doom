@@ -583,7 +583,10 @@ int dsda_UMapAuthor(const char** author) {
 }
 
 int dsda_UHUTitle(dsda_string_t* str) {
+  char* p;
   const char* s;
+  dsda_string_t label;
+  dboolean default_label;
 
   if (!gamemapinfo || !gamemapinfo->levelname)
     return false;
@@ -593,10 +596,20 @@ int dsda_UHUTitle(dsda_string_t* str) {
   else
     s = gamemapinfo->mapname;
 
-  if (s == gamemapinfo->mapname || strcmp(s, "-") != 0)
-    dsda_StringPrintF(str, "%s: %s",s, gamemapinfo->levelname);
+  dsda_InitString(&label, s);
+  default_label = (s == gamemapinfo->mapname);
+
+  // Uppercase for Discord
+  if (default_label)
+    for (p = label.string; *p; ++p)
+      *p = toupper((unsigned char)*p);
+
+  if (default_label || strcmp(label.string, "-") != 0)
+    dsda_StringPrintF(str, "%s: %s", label.string, gamemapinfo->levelname);
   else
     dsda_StringPrintF(str, "%s", gamemapinfo->levelname);
+
+  dsda_FreeString(&label);
 
   return true;
 }

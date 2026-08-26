@@ -529,6 +529,19 @@ void dsda_HUTitle(dsda_string_t* str) {
   dsda_LegacyHUTitle(str);
 }
 
+void dsda_MapTitleforDiscord(dsda_string_t* str) {
+  if (dsda_DoomHUTitle(str))
+    return;
+
+  if (dsda_HexenHUTitle(str))
+    return;
+
+  if (dsda_UHUTitle(str))
+    return;
+
+  dsda_LegacyDiscordTitle(str);
+}
+
 const char* dsda_MapAuthor(void) {
   const char* author;
 

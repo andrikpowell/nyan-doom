@@ -2135,6 +2135,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_colored_blood_spectre", nyan_config_colored_blood_spectre,
     CONF_CR_BLOOD(1), NULL, NOT_STRICT, deh_changeColoredBlood
   },
+  [nyan_config_discord_presence] = {
+    "nyan_discord_presence", nyan_config_discord_presence,
+    CONF_BOOL(1), NULL, NOT_STRICT, G_UpdateDiscordPresence
+  },
   [nyan_config_loading_disk] = {
     "nyan_loading_disk", nyan_config_loading_disk,
     dsda_config_int, 0, 2, { 1 }, NULL, NOT_STRICT
