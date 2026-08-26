@@ -248,7 +248,6 @@ enum {
   MIF_SPAWNED_BY_DSPARIL    = (1<<5),
   MIF_FLIP                  = (1<<6),
   MIF_FAKE                  = (1<<7), // Not a real thing, transient (e.g., for cheats)
-  MIF_NOINTERPOLATEZ        = (1<<8), // [AR] Prevent mobj thinker from overwriting an updated PrevZ (example: lift thinker)
 };
 
 // heretic
