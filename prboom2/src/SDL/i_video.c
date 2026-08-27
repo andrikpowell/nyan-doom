@@ -646,8 +646,6 @@ void I_FinishUpdate (void)
      ACTUALHEIGHT,
      SCREENWIDTH
   };
-  void *texture_pixels;
-  int texture_pitch;
 
   if (V_IsOpenGLMode()) {
     // proff 04/05/2000: swap OpenGL buffers
@@ -685,30 +683,14 @@ void I_FinishUpdate (void)
     newpal = NO_PALETTE_CHANGE;
   }
 
-  // Convert directly into the texture to avoid copying the frame twice
-  // This saved about 0.7 ms per frame at 2560x1440 in testing
-  if (SDL_LockTexture(sdl_texture, &src_rect, &texture_pixels, &texture_pitch) == 0)
-  {
-    texture_surface->pixels = texture_pixels;
-    texture_surface->pitch = texture_pitch;
+  // Blit from the paletted 8-bit screen buffer to the intermediate
+  // 32-bit RGBA buffer that we can load into the texture.
+  if (SDL_LowerBlit(screen, &src_rect, buffer, &src_rect) < 0)
+    I_Error("Couldn't convert software framebuffer [%s]", SDL_GetError());
 
-    // Convert the paletted framebuffer into the streaming texture.
-    SDL_LowerBlit(screen, &src_rect, texture_surface, &src_rect);
-
-    // Finish updating the streaming texture.
-    SDL_UnlockTexture(sdl_texture);
-  }
-
-  // Keep the fallback in case the texture can't be locked
-  else
-  {
-    // Blit from the paletted 8-bit screen buffer to the intermediate
-    // 32-bit RGBA buffer that we can load into the texture.
-    SDL_LowerBlit(screen, &src_rect, buffer, &src_rect);
-
-    // Update the intermediate texture with the contents of the RGBA buffer.
-    SDL_UpdateTexture(sdl_texture, &src_rect, buffer->pixels, buffer->pitch);
-  }
+  // Update the intermediate texture with the contents of the RGBA buffer.
+  if (SDL_UpdateTexture(sdl_texture, &src_rect, buffer->pixels, buffer->pitch) < 0)
+    I_Error("Couldn't update software texture [%s]", SDL_GetError());
 
   // Make sure the pillarboxes are kept clear each frame.
   SDL_RenderClear(sdl_renderer);
