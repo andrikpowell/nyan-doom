@@ -337,6 +337,8 @@ set(COMMON_SRC
     f_wipe.h
     g_game.c
     g_game.h
+    weapon_switch.c
+    weapon_switch.h
     g_overflow.c
     g_overflow.h
     heretic/hhe/ammo.c

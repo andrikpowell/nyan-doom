@@ -46,6 +46,7 @@
 #include "d_event.h"
 #include "smooth.h"
 #include "g_game.h"
+#include "weapon_switch.h"
 #include "lprintf.h"
 #include "e6y.h"//e6y
 
@@ -114,8 +115,52 @@ static fixed_t dsda_getWeaponSpeed(void)
 // P_SetPsprite
 //
 
+static statenum_t P_WeaponRaiseState(const player_t *player, weapontype_t weapon)
+{
+  // Hexen
+  if (hexen && player->pclass)
+  {
+    // Special fighter axe condition
+    if (player->pclass == PCLASS_FIGHTER && weapon == wp_second &&
+        player->ammo[MANA_1])
+      return HEXEN_S_FAXEUP_G;
+
+    return hexen_weaponinfo[weapon][player->pclass].upstate;
+  }
+
+  // Heretic level 2
+  if (player->powers[pw_weaponlevel2])
+    return wpnlev2info[weapon].upstate;
+
+  // Doom + Heretic
+  return weaponinfo[weapon].upstate;
+}
+
+static statenum_t P_WeaponLowerState(const player_t *player, weapontype_t weapon)
+{
+  // Hexen
+  if (hexen && player->pclass)
+    return hexen_weaponinfo[weapon][player->pclass].downstate;
+
+  // Heretic level 2
+  if (player->powers[pw_weaponlevel2])
+    return wpnlev2info[weapon].downstate;
+
+  // Doom + Heretic
+  return weaponinfo[weapon].downstate;
+}
+
 void P_SetPsprite(player_t *player, int position, statenum_t stnum)
 {
+  // Track raising / lowering state
+  if (position == ps_weapon)
+  {
+    if (stnum == P_WeaponRaiseState(player, player->readyweapon))
+      player->switching = weapswitch_raising;
+    else if (stnum == P_WeaponLowerState(player, player->readyweapon))
+      player->switching = weapswitch_lowering;
+  }
+
   P_SetPspritePtr(player, &player->psprites[position], stnum);
 }
 
@@ -191,27 +236,7 @@ static void P_BringUpWeapon(player_t *player)
   if (player->pendingweapon >= NUMWEAPONS)
     lprintf(LO_WARN, "P_BringUpWeapon: weaponinfo overrun has occurred.\n");
 
-  if (player->pclass)
-  {
-    if (player->pclass == PCLASS_FIGHTER && player->pendingweapon == wp_second
-        && player->ammo[MANA_1])
-    {
-      newstate = HEXEN_S_FAXEUP_G;
-    }
-    else
-    {
-      newstate = hexen_weaponinfo[player->pendingweapon][player->pclass].upstate;
-    }
-  }
-  else if (player->powers[pw_weaponlevel2])
-  {
-    newstate = wpnlev2info[player->pendingweapon].upstate;
-  }
-  else
-  {
-    newstate = weaponinfo[player->pendingweapon].upstate;
-  }
-
+  newstate = P_WeaponRaiseState(player, player->pendingweapon);
   player->pendingweapon = wp_nochange;
   // killough 12/98: prevent pistol from starting visibly at bottom of screen:
   player->psprites[ps_weapon].sy =
@@ -312,6 +337,8 @@ int P_SwitchWeapon(player_t *player)
   int check_first_weapon;
   int currentweapon, newweapon;
   int i;
+
+  G_NextWeaponReset(player->readyweapon);
 
   // [XA] use fixed behavior for mbf21. no need
   // for a discrete compat option for this, as
@@ -579,20 +606,7 @@ static void P_FireWeapon(player_t *player)
 
 void P_DropWeapon(player_t *player)
 {
-  statenum_t newstate;
-  if (player->powers[pw_weaponlevel2])
-  {
-    newstate = wpnlev2info[player->readyweapon].downstate;
-  }
-  else if (player->pclass)
-  {
-    newstate = hexen_weaponinfo[player->readyweapon][player->pclass].downstate;
-  }
-  else
-  {
-    newstate = weaponinfo[player->readyweapon].downstate;
-  }
-  P_SetPsprite(player, ps_weapon, newstate);
+  P_SetPsprite(player, ps_weapon, P_WeaponLowerState(player, player->readyweapon));
 }
 
 //
@@ -641,16 +655,11 @@ void A_WeaponReady(player_t *player, pspdef_t *psp)
   if (player->pendingweapon != wp_nochange || !player->health)
   {
     // change weapon (pending weapon should already be validated)
-    statenum_t newstate;
-    if (player->powers[pw_weaponlevel2])
-      newstate = wpnlev2info[player->readyweapon].downstate;
-    else if (player->pclass)
-      newstate = hexen_weaponinfo[player->readyweapon][player->pclass].downstate;
-    else
-      newstate = weaponinfo[player->readyweapon].downstate;
-    P_SetPsprite(player, ps_weapon, newstate);
+    P_SetPsprite(player, ps_weapon, P_WeaponLowerState(player, player->readyweapon));
     return;
   }
+  else
+    player->switching = weapswitch_none;
 
   // check for fire
   //  the missile launcher and bfg do not auto fire

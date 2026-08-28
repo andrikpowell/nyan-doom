@@ -125,7 +125,7 @@ static void P_AutoSwitchWeapon(player_t *player, weapontype_t weapon)
 
   if (!autoswitch) return;
 
-  player->pendingweapon = weapon;
+  player->pendingweapon = player->nextweapon = weapon;
 }
 
 //
