@@ -414,6 +414,14 @@ static void I_GetEvent(void)
           dsda_PollGameControllerButtons();
         break;
 
+      case SDL_CONTROLLERDEVICEADDED:
+        dsda_GameControllerAdded(Event->cdevice.which);
+        break;
+
+      case SDL_CONTROLLERDEVICEREMOVED:
+        dsda_GameControllerRemoved(Event->cdevice.which);
+        break;
+
       case SDL_TEXTINPUT:
         event.type = ev_text;
         event.text = Event->text.text;

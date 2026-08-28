@@ -226,10 +226,84 @@ void dsda_InitGameControllerParameters(void) {
   right_trigger.sensitivity = 1;
 }
 
-void dsda_InitGameController(void) {
-  int num_joysticks;
+static void dsda_CloseGameController(void)
+{
+  if (!game_controller)
+    return;
 
+  lprintf(LO_INFO, "%s Disconnected\n", SDL_GameControllerName(game_controller));
+  SDL_GameControllerClose(game_controller);
   game_controller = NULL;
+}
+
+static dboolean dsda_OpenGameController(int device_index)
+{
+  if (device_index < 0 || device_index >= SDL_NumJoysticks() || !SDL_IsGameController(device_index))
+  {
+    return false;
+  }
+
+  game_controller = SDL_GameControllerOpen(device_index);
+
+  if (!game_controller)
+  {
+    lprintf(LO_ERROR, "dsda_OpenGameController: error opening game controller %d: %s\n", device_index + 1, SDL_GetError());
+    return false;
+  }
+
+  lprintf(LO_INFO, "%s Connected\n", SDL_GameControllerName(game_controller));
+  return true;
+}
+
+static void dsda_OpenAvailableGameController(void)
+{
+  int preferred_index;
+  int num_joysticks;
+  int i;
+
+  if (!use_game_controller || game_controller)
+    return;
+
+  num_joysticks = SDL_NumJoysticks();
+  preferred_index = use_game_controller - 1;
+
+  if (preferred_index < num_joysticks && dsda_OpenGameController(preferred_index))
+    return;
+
+  for (i = 0; i < num_joysticks; ++i)
+  {
+    if (i != preferred_index && dsda_OpenGameController(i))
+      return;
+  }
+}
+
+void dsda_GameControllerAdded(int device_index)
+{
+  if (device_index < 0 || !use_game_controller || game_controller)
+    return;
+
+  dsda_OpenAvailableGameController();
+}
+
+void dsda_GameControllerRemoved(int instance_id)
+{
+  SDL_Joystick *joystick;
+
+  if (!game_controller)
+    return;
+
+  joystick = SDL_GameControllerGetJoystick(game_controller);
+
+  if (SDL_JoystickInstanceID(joystick) != instance_id)
+    return;
+
+  dsda_CloseGameController();
+  dsda_OpenAvailableGameController();
+}
+
+void dsda_InitGameController(void) {
+  dsda_CloseGameController();
+
   use_game_controller =
     dsda_IntConfig(dsda_config_use_game_controller) && !dsda_Flag(dsda_arg_nojoy);
 
@@ -237,29 +311,11 @@ void dsda_InitGameController(void) {
     return;
 
   dsda_InitGameControllerParameters();
-  SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
-
-  num_joysticks = SDL_NumJoysticks();
-
-  if (use_game_controller > num_joysticks) {
-    lprintf(LO_WARN, "dsda_InitGameController: invalid joystick %d\n",
-            use_game_controller);
+  if (!(SDL_WasInit(SDL_INIT_GAMECONTROLLER) & SDL_INIT_GAMECONTROLLER) && SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) < 0)
+  {
+    lprintf(LO_ERROR, "dsda_InitGameController: %s\n", SDL_GetError());
     return;
   }
 
-  if (!SDL_IsGameController(use_game_controller - 1)) {
-    lprintf(LO_WARN, "dsda_InitGameController: unsupported joystick %d\n",
-            use_game_controller);
-    return;
-  }
-
-  game_controller = SDL_GameControllerOpen(use_game_controller - 1);
-
-  if (!game_controller) {
-    lprintf(LO_ERROR, "dsda_InitGameController: error opening game controller %d\n",
-            use_game_controller);
-    return;
-  }
-
-  lprintf(LO_DEBUG, "Opened game controller %s\n", SDL_GameControllerName(game_controller));
+  dsda_OpenAvailableGameController();
 }
