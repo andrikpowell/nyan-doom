@@ -753,7 +753,9 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   {
     extern dboolean boom_weapon_state_injection;
+    extern dboolean mbf21_weapon_ammo_depleted[MAX_MAXPLAYERS];
     static dboolean done_autoswitch = false;
+    dboolean boom_weapon_switch_no_ammo;
 
     if (!players[consoleplayer].attackdown)
     {
@@ -762,6 +764,11 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
     G_NextWeaponResendCmd();
     nextweapon_cmd = false;
+
+    // [AR] Fix Boom's "Autoswitch When Ammo Runs Out"
+    // For MBF21 weapons with custom refire states
+    boom_weapon_switch_no_ammo = players[consoleplayer].attackdown ||
+                                 mbf21_weapon_ammo_depleted[consoleplayer];
 
     // Toggle between the top 2 favorite weapons.                   // phares
     // If not currently aiming one of these, switch to              // phares
@@ -778,7 +785,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     if (
       (
         !demo_compatibility &&
-        players[consoleplayer].attackdown && // killough
+        boom_weapon_switch_no_ammo && // killough
         !P_CheckAmmo(&players[consoleplayer]) &&
         (
           (
@@ -855,6 +862,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
           newweapon = G_AdjustWeaponSelection(&players[consoleplayer], newweapon, players[consoleplayer].readyweapon);
       }
     }
+
+    mbf21_weapon_ammo_depleted[consoleplayer] = false;
   }
 
   if (newweapon != wp_nochange && players[consoleplayer].chickenTics == 0)
