@@ -1148,7 +1148,7 @@ static void R_SetupWeaponBob(pspdef_t *psp, fixed_t *psp_sx, fixed_t *psp_sy)
                                              viewplayer->readyweapon == wp_first));
 
     // [crispy] don't center vertically during lowering and raising states
-    const dboolean raise_or_lower = (psp->state->action == A_Lower || psp->state->action == A_Raise);
+    const dboolean raise_or_lower = (viewplayer->switching != weapswitch_none);
 
     // [AR] Instead of checking weaponready directly, check if player is idle instead.
     const dboolean weapon_ready_state = !raise_or_lower && !viewplayer->attackdown;
@@ -1176,7 +1176,7 @@ static void R_SetupWeaponBob(pspdef_t *psp, fixed_t *psp_sx, fixed_t *psp_sy)
         last_sy = psp->sy;
         *psp_sy = 32 * FRACUNIT;
       }
-      else if (psp->state->action == A_Lower)
+      else if (viewplayer->switching == weapswitch_lowering)
       {
         // We want to move smoothly from where we were
         *psp_sy -= (last_sy - 32 * FRACUNIT);
