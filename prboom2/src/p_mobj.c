@@ -1289,6 +1289,33 @@ static dboolean P_KillOnSight(mobj_t *mo)
 }
 
 //
+// P_MobjInterpolation
+//
+
+static dboolean mobj_interp_capture;
+
+void P_UpdateMobjInterpolations(void)
+{
+  mobj_interp_capture = !mobj_interp_capture;
+}
+
+// [AR] Save mobj interpolation once per tic
+// This fixes out-of-sync thinker order of operations (i.e. lift thinkers)
+void P_MobjInterpolation(mobj_t *mobj)
+{
+  dboolean captured = !!(mobj->intflags & MIF_INTERP_CAPTURE);
+
+  if (captured == mobj_interp_capture)
+    return;
+
+  mobj->PrevX = mobj->x;
+  mobj->PrevY = mobj->y;
+  mobj->PrevZ = mobj->z;
+
+  mobj->intflags ^= MIF_INTERP_CAPTURE;
+}
+
+//
 // P_MobjThinker
 //
 
@@ -1314,9 +1341,7 @@ void P_MobjThinker (mobj_t* mobj)
     return;
   }
 
-  mobj->PrevX = mobj->x;
-  mobj->PrevY = mobj->y;
-  mobj->PrevZ = mobj->z;
+  P_MobjInterpolation(mobj);
 
   // momentum movement
   BlockingMobj = NULL;
@@ -2000,6 +2025,9 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   mobj->PrevX = mobj->x;
   mobj->PrevY = mobj->y;
   mobj->PrevZ = mobj->z;
+
+  if (mobj_interp_capture)
+    mobj->intflags |= MIF_INTERP_CAPTURE;
 
   mobj->thinker.function = P_MobjThinker;
 
@@ -3195,9 +3223,7 @@ void P_BlasterMobjThinker(mobj_t * mobj)
     fixed_t z;
     dboolean changexy;
 
-    mobj->PrevX = mobj->x;
-    mobj->PrevY = mobj->y;
-    mobj->PrevZ = mobj->z;
+    P_MobjInterpolation(mobj);
 
     // Handle movement
     if (mobj->momx || mobj->momy || (mobj->z != mobj->floorz) || mobj->momz)

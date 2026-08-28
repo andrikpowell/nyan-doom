@@ -1973,6 +1973,8 @@ dboolean P_ThingHeightClip (mobj_t* thing)
 {
   dboolean   onfloor;
 
+  P_MobjInterpolation(thing);
+
   onfloor = (thing->z == thing->floorz);
 
   P_CheckPosition (thing, thing->x, thing->y);
