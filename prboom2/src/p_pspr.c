@@ -496,6 +496,17 @@ dboolean P_CheckAmmo(player_t *player)
 // have to worry about any compatibility shenanigans.
 //
 
+// [AR] Fix Boom's "Autoswitch When Ammo Runs Out"
+// For MBF21 weapons with custom refire states
+dboolean mbf21_weapon_ammo_depleted[MAX_MAXPLAYERS];
+
+static void P_MBF21CheckAmmoDepleted(player_t *player, ammotype_t type)
+{
+  if (dsda_SwitchWhenAmmoRunsOut() &&
+      player->ammo[type] < weaponinfo[player->readyweapon].ammopershot)
+    mbf21_weapon_ammo_depleted[player - players] = true;
+}
+
 void P_SubtractAmmo(struct player_s *player, int vanilla_amount)
 {
   int amount;
@@ -1483,6 +1494,9 @@ void A_ConsumeAmmo(player_t *player, pspdef_t *psp)
     player->ammo[type] -= amount;
   else
     player->ammo[type] = 0;
+
+  // [AR] Fix PrBoom's Autoswitch When Ammo Runs Out
+  P_MBF21CheckAmmoDepleted(player, type);
 }
 
 //
