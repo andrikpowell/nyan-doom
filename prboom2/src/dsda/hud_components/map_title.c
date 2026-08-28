@@ -83,7 +83,7 @@ static void dsda_UpdateMapTitleFade(void)
   if (first_phase)
   {
     if (titleCounter <= fade_tics)
-      local->component.text.fade_alpha = dsda_MessageFadeOut(titleCounter, true);
+      local->component.text.fade_alpha = dsda_MessageFadeOut(titleCounter);
   }
   // fade in, fade out
   else
@@ -91,9 +91,9 @@ static void dsda_UpdateMapTitleFade(void)
     int elapsed = titleTime - titleCounter;
 
     if (elapsed < fade_tics)
-      local->component.text.fade_alpha = dsda_MessageFadeIn(elapsed, true);
+      local->component.text.fade_alpha = dsda_MessageFadeIn(elapsed);
     else if (titleCounter <= fade_tics)
-      local->component.text.fade_alpha = dsda_MessageFadeOut(titleCounter, true);
+      local->component.text.fade_alpha = dsda_MessageFadeOut(titleCounter);
   }
 }
 

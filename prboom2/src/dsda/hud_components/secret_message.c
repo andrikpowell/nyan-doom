@@ -64,7 +64,7 @@ void dsda_UpdateSecretMessageHC(void* data) {
   if (local->center)
     HUlib_setTextXCenter(&local->component.text);
 
-  local->component.text.fade_alpha = dsda_MessageFadeOut(HU_SecretMessageTics(), false);
+  local->component.text.fade_alpha = dsda_MessageFadeOut(HU_SecretMessageTics());
 }
 
 void dsda_DrawSecretMessageHC(void* data) {

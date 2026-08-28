@@ -45,6 +45,7 @@ dboolean dsda_SwitchWhenAmmoRunsOut(void);
 dboolean dsda_BerserkPreferred(void);
 dboolean dsda_SkipQuitPrompt(void);
 dboolean dsda_PlayQuicksaveSFX(void);
+dboolean dsda_UIFadeEffects(void);
 dboolean dsda_FadeMessages(void);
 dboolean dsda_TrackSplits(void);
 dboolean dsda_ShowSplitData(void);

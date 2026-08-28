@@ -471,6 +471,7 @@ enum {
   dsda_config_palette_onpowers,
   dsda_config_palette_oneffects,
   dsda_config_enhanced_liteamp,
+  nyan_config_ui_fade_effects,
   dsda_config_colored_borderbox,
   dsda_config_render_wipescreen,
   dsda_config_render_screen_multiply,

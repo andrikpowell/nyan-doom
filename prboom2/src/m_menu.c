@@ -5334,6 +5334,7 @@ static const char *texture_emulation_list[] =
 };
 
 setup_menu_t display_nyan_settings[] = {
+  { "UI Fade Effects", S_YESNO | S_NYAN, m_conf, g_all, G_X, nyan_config_ui_fade_effects },
   { "Colored Borderbox", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_colored_borderbox },
   { "Software Fuzz Mode", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_fuzzmode, 0, fuzz_mode_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
   { "Fuzz Scale at Distance", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_fuzzscale, 0, fuzz_scale_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
@@ -5397,12 +5398,17 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   FINAL_ENTRY
 };
 
+DEPEND_LIST(fade_messages_list,
+  DEP(nyan_config_ui_fade_effects, true),
+  DEP(dsda_config_show_messages, true)
+);
+
 setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
   TITLE("Messages", G_X),
   { "Show Messages", S_YESNO, m_conf, g_all, G_X, dsda_config_show_messages },
   { "Colorize Messages", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_colorize_messages, 0, empty_list, DEPEND(dsda_config_show_messages, true) },
-  { "Fade Messages", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_fade_messages, 0, empty_list, DEPEND(dsda_config_show_messages, true)  },
+  { "Fade Messages", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_fade_messages, 0, empty_list, DEPEND_MULTI(fade_messages_list) },
   FUNC("Announcements", S_CENTER | S_NYAN, G_X, M_Sub_Announce),
   FUNC("Obituaries", S_CENTER | S_NYAN, G_X, M_Sub_Obituary),
   EMPTY_LINE,
