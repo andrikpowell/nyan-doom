@@ -219,6 +219,25 @@ set(GRAPHICS
     graphics/stkeys6.ppm
     graphics/stkeys7.ppm
     graphics/stkeys8.ppm
+    # Weapon carousel graphics from Woof, drawn by Julia Nechaevskaya
+    graphics/smbfgg0.ppm
+    graphics/smbfgg1.ppm
+    graphics/smcsaw0.ppm
+    graphics/smcsaw1.ppm
+    graphics/smfist0.ppm
+    graphics/smfist1.ppm
+    graphics/smlaun0.ppm
+    graphics/smlaun1.ppm
+    graphics/smmgun0.ppm
+    graphics/smmgun1.ppm
+    graphics/smpisg0.ppm
+    graphics/smpisg1.ppm
+    graphics/smplas0.ppm
+    graphics/smplas1.ppm
+    graphics/smsgn20.ppm
+    graphics/smsgn21.ppm
+    graphics/smshot0.ppm
+    graphics/smshot1.ppm
     graphics/stcfn096.ppm
     graphics/stfpkill.ppm
     graphics/stfpitem.ppm

@@ -460,6 +460,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_blockmap_fix),
   MIGRATED_SETTING(dsda_config_organize_failed_demos),
   MIGRATED_SETTING(dsda_config_demo_end_quit),
+  MIGRATED_SETTING(dsda_config_weapon_carousel),
   MIGRATED_SETTING(dsda_config_artifact_descriptions),
   MIGRATED_SETTING(dsda_config_hexen_skip_ethereal_travel),
   MIGRATED_SETTING(dsda_config_hexen_simpler_puzzle_use),

@@ -679,6 +679,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
    "dsda_artifact_descriptions", dsda_config_artifact_descriptions,
     dsda_config_int, 0, 3, { 1 }
   },
+  [dsda_config_weapon_carousel] = {
+    "dsda_weapon_carousel", dsda_config_weapon_carousel,
+    CONF_BOOL(1)
+  },
   [dsda_config_hexen_skip_ethereal_travel] = {
    "dsda_hexen_skip_ethereal_travel", dsda_config_hexen_skip_ethereal_travel,
    CONF_BOOL(1), NULL, STRICT_INT(0)

@@ -270,6 +270,10 @@ dboolean dsda_FadeMessages(void) {
   return dsda_UIFadeEffects() && dsda_IntConfig(dsda_config_fade_messages);
 }
 
+dboolean dsda_WeaponCarousel(void) {
+  return dsda_IntConfig(dsda_config_weapon_carousel);
+}
+
 dboolean dsda_TrackSplits(void) {
   return demorecording || (demoplayback && dsda_Flag(dsda_arg_track_playback));
 }

@@ -4983,6 +4983,7 @@ setup_menu_t gen_gamesim_settings[] = {
   { "Death Use Action", S_CHOICE, m_conf, g_all, G2_X, dsda_config_death_use_action, 0, death_use_strings },
   { "Rare Player Gib Death", S_YESNO | S_NYAN, m_conf, g_doom, G2_X, nyan_config_skullpop_easter_egg },
   { "Randomly Mirrored Corpses", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_flip_corpses },
+  { "Weapon Carousel", S_YESNO | S_NYAN, m_conf, g_doom, G2_X, dsda_config_weapon_carousel },
   { "Artifact Descriptions", S_CHOICE | S_NYAN, m_conf, g_raven, G2_X, dsda_config_artifact_descriptions, 0, artifact_desc_list },
   { "Skip Ethereal Travel", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_skip_ethereal_travel },
   { "Simpler Puzzle Piece Use", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_simpler_puzzle_use },
