@@ -95,6 +95,7 @@
 #include "dsda/key_frame.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
+#include "dsda/mouse.h"
 #include "dsda/playback.h"
 #include "dsda/skip.h"
 #include "dsda/stretch.h"
@@ -801,6 +802,27 @@ static int HU_MouseDemoProgressBarHeight(int collapsed_h)
   demobar_h = demobar_anim_start_h + height_change * (int)elapsed / (int)animate_time;
 
   return demobar_h;
+}
+
+dboolean HU_MouseOnDemoProgressBar(int *position_x)
+{
+  int mouse_x;
+  int mouse_y;
+
+  if (!dsda_IntConfig(dsda_config_playback_mouse_controls) ||
+      !demoplayback || timingdemo || walkcamera.type || viewport_rect.h <= 0)
+    return false;
+
+  dsda_GetMousePosition(&mouse_x, &mouse_y);
+  mouse_y = mouse_y * ACTUALHEIGHT / viewport_rect.h;
+
+  if (!mouse_x || mouse_y <= ACTUALHEIGHT - ST_SCALED_HEIGHT / 6)
+    return false;
+
+  if (position_x)
+    *position_x = mouse_x;
+
+  return true;
 }
 
 int HU_DrawDemoProgress(int force)
