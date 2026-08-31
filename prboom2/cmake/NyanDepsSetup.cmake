@@ -3,11 +3,6 @@ if(WITH_FLUIDSYNTH)
     list(APPEND VCPKG_MANIFEST_FEATURES "fluidsynth")
 endif()
 
-option(WITH_IMAGE "Use SDL2_image if available" ON)
-if(WITH_IMAGE)
-    list(APPEND VCPKG_MANIFEST_FEATURES "sdl2-image")
-endif()
-
 option(WITH_MAD "Use libmad if available" ON)
 if(WITH_MAD)
     list(APPEND VCPKG_MANIFEST_FEATURES "libmad")
@@ -26,6 +21,11 @@ endif()
 option(WITH_XMP "Use libxmp if available" ON)
 if(WITH_XMP)
     list(APPEND VCPKG_MANIFEST_FEATURES "libxmp")
+endif()
+
+option(WITH_SPNG "Use libspng if available" ON)
+if(WITH_SPNG)
+    list(APPEND VCPKG_MANIFEST_FEATURES "libspng")
 endif()
 
 option(WITH_DISCORD_RPC "Use discord-rpc if available" ON)

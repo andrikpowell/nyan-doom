@@ -99,8 +99,8 @@ jobs:
             ${{ matrix.config.msys-env }}-libvorbis
             ${{ matrix.config.msys-env }}-portmidi
             ${{ matrix.config.msys-env }}-SDL2
-            ${{ matrix.config.msys-env }}-SDL2_image
             ${{ matrix.config.msys-env }}-SDL2_mixer
+            ${{ matrix.config.msys-env }}-libspng
             ${{ matrix.config.msys-env }}-libsndfile
             ${{ matrix.config.msys-env }}-libzip
 
@@ -125,7 +125,6 @@ jobs:
             libmad0-dev \
             libportmidi-dev \
             libsdl2-dev \
-            libsdl2-image-dev \
             libsdl2-mixer-dev \
             libvorbis-dev \
             libsndfile1-dev \

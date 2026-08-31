@@ -13,7 +13,7 @@ brew "mad"
 brew "portmidi"
 brew "sdl3"
 brew "sdl2-compat"
-brew "sdl2_image"
+brew "libspng"
 brew "sdl2_mixer"
 
 # Packaging tools

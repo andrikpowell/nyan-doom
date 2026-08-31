@@ -2913,13 +2913,11 @@ static void AM_DrawBossActionThings(void)
   if (!mapcolor_p->tagfinder || TAG_FINDER_BLINK_OFF)
     return;
 
-#if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
       return;
   }
-#endif
 
   for (th = thinkercap.next; th != &thinkercap; th = th->next)
   {
@@ -2967,13 +2965,11 @@ static void AM_drawPlayers(void)
   fixed_t scale;
   fixed_t box_scale = 0;
 
-#if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
       return;
   }
-#endif
 
   if (map_things_appearance == map_things_appearance_scaled)
     scale = (CLAMP(plr->mo->radius, 4<<FRACBITS, 256<<FRACBITS)>>FRACTOMAPBITS);
@@ -3692,13 +3688,11 @@ static void AM_drawThings(void)
   int lineguylines = NUMTHINTRIANGLEGUYLINES;
   int showkeys = skill_info.flags & SI_EASY_KEY || dsda_ShowAutomapKeys();
 
-#if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
       RETURN(AM_DrawNiceThings());
   }
-#endif
 
   if (!showkeys && dsda_RevealAutomap() != 2)
     return;
@@ -4027,13 +4021,11 @@ static void AM_drawMarks(void)
   if (map_trail_mode && dsda_RevealAutomap())
     AM_drawPlayerTrail();
 
-#if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
       return;
   }
-#endif
 
   for (i = 0; i < markpointnum; i++) // killough 2/22/98: remove automap mark limit
   {
@@ -4401,12 +4393,10 @@ void AM_Drawer (dboolean minimap)
   {
     AM_FlushGLMapLines();
 
-#if defined(HAVE_LIBSDL2_IMAGE)
     if (map_opengl_nice_things)
     {
       gld_DrawNiceThings(f_x, f_y, f_w, f_h);
     }
-#endif
   }
 
   AM_drawCrosshair(mapcolor_p->hair); //jff 1/7/98 default crosshair color

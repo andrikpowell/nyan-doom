@@ -35,13 +35,6 @@ if(SndFile_VERSION VERSION_GREATER_EQUAL "1.1.0")
    set(HAVE_SNDFILE_MPEG TRUE)
 endif()
 
-if(WITH_IMAGE)
-  find_package(SDL2_image ${nyan_strict_keyword})
-  if(SDL2_image_FOUND)
-    set(HAVE_LIBSDL2_IMAGE TRUE)
-  endif()
-endif()
-
 if(WITH_MAD)
   find_package(mad ${nyan_strict_keyword})
   if(mad_FOUND)
@@ -74,6 +67,13 @@ if(WITH_PORTMIDI)
   find_package(PortMidi ${nyan_strict_keyword})
   if(PortMidi_FOUND)
     set(HAVE_LIBPORTMIDI TRUE)
+  endif()
+endif()
+
+if(WITH_SPNG)
+  find_package(SPNG ${nyan_strict_keyword})
+  if(SPNG_FOUND)
+    set(HAVE_LIBSPNG TRUE)
   endif()
 endif()
 
@@ -137,9 +137,9 @@ target_link_libraries(nyan_dependencies
   $<$<BOOL:${HAVE_LIBFLUIDSYNTH}>:FluidSynth::libfluidsynth>
   $<$<BOOL:${HAVE_LIBVORBISFILE}>:Vorbis::vorbisfile>
   $<$<BOOL:${HAVE_LIBPORTMIDI}>:PortMidi::portmidi>
+  $<$<BOOL:${HAVE_LIBSPNG}>:$<IF:$<TARGET_EXISTS:spng::spng>,spng::spng,spng::spng_static>>
   $<$<BOOL:${HAVE_DISCORD_RPC}>:DiscordRPC::discord-rpc>
 
-  $<$<BOOL:${HAVE_LIBSDL2_IMAGE}>:$<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>>
   $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
 
   nyan::SDL2

@@ -23,12 +23,12 @@
 #cmakedefine HAVE_ASM_BYTEORDER_H
 #cmakedefine HAVE_DIRENT_H
 
-#cmakedefine HAVE_LIBSDL2_IMAGE
 #cmakedefine HAVE_LIBMAD
 #cmakedefine HAVE_LIBFLUIDSYNTH
 #cmakedefine HAVE_LIBXMP
 #cmakedefine HAVE_LIBVORBISFILE
 #cmakedefine HAVE_LIBPORTMIDI
+#cmakedefine HAVE_LIBSPNG
 #cmakedefine HAVE_DISCORD_RPC
 #cmakedefine HAVE_SNDFILE_MPEG
 

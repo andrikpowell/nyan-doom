@@ -2405,39 +2405,26 @@ SDL_Color V_GetPatchColor (int lumpnum)
   // Doom Patch format
   if (R_IsPatchLump(lumpnum))
   {
-    width = *((const int16_t *) lump);
-    width = LittleShort(width);
+    const rpatch_t *patch = R_PatchByNum(lumpnum);
 
-    for (x = 0; x < width; ++x) {
-      byte length;
-      byte entry;
-      const byte* p;
-      int32_t offset;
+    for (x = 0; x < patch->width; ++x) {
+      const rcolumn_t *column = &patch->columns[x];
+      int post;
 
       // Only calculate for the leftmost and rightmost 16 columns
-      if (width > 32 && x > 16 && x < width - 16)
+      if (patch->width > 32 && x > 16 && x < patch->width - 16)
         continue;
 
-      // Skip irrelevant data in the doom patch header
-      p = lump + 8 + 4 * x;
-      offset = *((const int32_t *) p);
-      p = lump + LittleLong(offset);
+      for (post = 0; post < column->numPosts; ++post) {
+        const rpost_t *p = &column->posts[post];
 
-      while (*p != 0xff) {
-        p++;
-        length = *p++;
-        p++;
-
-        // Get RGB values per pixel
-        for (y = 0; y < length; ++y) {
-          entry = *p++;
+        for (y = 0; y < p->length; ++y) {
+          byte entry = column->pixels[p->topdelta + y];
           r += playpal[3 * entry + 0];
           g += playpal[3 * entry + 1];
           b += playpal[3 * entry + 2];
           pixel_cnt++;
         }
-
-        p++;
       }
     }
   }

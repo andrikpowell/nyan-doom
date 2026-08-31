@@ -49,6 +49,12 @@
         "libmad"
       ]
     },
+    "libspng": {
+      "description": "Build with libspng support",
+      "dependencies": [
+        "libspng"
+      ]
+    },
     "libvorbis": {
       "description": "Build with vorbisfile support",
       "dependencies": [
@@ -68,12 +74,6 @@
       "description": "Build with PortMidi support",
       "dependencies": [
         "portmidi"
-      ]
-    },
-    "sdl2-image": {
-      "description": "Build with SDL2_image support",
-      "dependencies": [
-        "sdl2-image"
       ]
     }
   }

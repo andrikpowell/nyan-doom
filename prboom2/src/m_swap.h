@@ -87,6 +87,12 @@
                               (((unsigned short int)(x) & 0xff00) >> 8)))
 #endif
 
+#ifdef WORDS_BIGENDIAN
+#define SWAP_BE32(x) (x)
+#else
+#define SWAP_BE32(x) doom_swap_l(x)
+#endif
+
 /* Macros are named doom_XtoYT, where
  * X is thing to convert from, Y is thing to convert to, chosen from
  * n for network, h for host (i.e our machine's), w for WAD (Doom data files)
