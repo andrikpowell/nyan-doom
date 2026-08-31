@@ -150,7 +150,7 @@ static int GetPaletteIndex(int r, int g, int b)
 // this is important when reading untrusted files!
 #define PNG_MEM_LIMIT (1024 * 1024 * 64)
 
-dboolean InitPNG(png_t *png, void *buffer, int buffer_length)
+dboolean InitPNG(png_t *png, const void *buffer, int buffer_length)
 {
     spng_ctx *ctx = spng_ctx_new(0);
 
@@ -203,7 +203,13 @@ void FreePNG(png_t *png)
 dboolean DecodePNG(png_t *png)
 {
     struct spng_ihdr ihdr = {0};
-    int ret = spng_get_ihdr(png->ctx, &ihdr);
+    int ret;
+    int fmt;
+    size_t image_size;
+    byte *image;
+    const byte *playpal;
+
+    ret = spng_get_ihdr(png->ctx, &ihdr);
 
     if (ret)
     {
@@ -215,7 +221,6 @@ dboolean DecodePNG(png_t *png)
     png->width = ihdr.width;
     png->height = ihdr.height;
 
-    int fmt;
     switch (ihdr.color_type)
     {
         case SPNG_COLOR_TYPE_INDEXED:
@@ -230,7 +235,7 @@ dboolean DecodePNG(png_t *png)
             break;
     }
 
-    size_t image_size = 0;
+    image_size = 0;
     ret = spng_decoded_image_size(png->ctx, fmt, &image_size);
 
     if (ret)
@@ -240,7 +245,7 @@ dboolean DecodePNG(png_t *png)
         return false;
     }
 
-    byte *image = Z_Malloc(image_size);
+    image = Z_Malloc(image_size);
     ret = spng_decode_image(png->ctx, image, image_size, fmt, 0);
 
     if (ret)
@@ -251,7 +256,7 @@ dboolean DecodePNG(png_t *png)
         return false;
     }
 
-    byte *playpal = (byte *)V_GetPlaypal();
+    playpal = V_GetPlaypal();
 
     if (fmt == SPNG_FMT_RGB8)
     {
@@ -261,6 +266,8 @@ dboolean DecodePNG(png_t *png)
         uniform_quantizer_t q = {0};
 
         byte *roller = image;
+        byte translate[512];
+        byte *palette;
 
         for (size_t i = 0; i < indexed_size; ++i)
         {
@@ -273,8 +280,7 @@ dboolean DecodePNG(png_t *png)
 
         GetPalette(&q);
 
-        byte translate[512];
-        byte *palette = q.palette;
+        palette = q.palette;
         for (int i = 0; i < 512; ++i)
         {
             int r = *palette++;
@@ -310,6 +316,9 @@ dboolean DecodePNG(png_t *png)
         byte *roller = image;
 
         byte used_colors[256] = {0};
+        byte translate[512];
+        byte *palette;
+        int color_key;
         dboolean has_alpha = false;
 
         for (size_t i = 0; i < indexed_size; ++i)
@@ -329,20 +338,19 @@ dboolean DecodePNG(png_t *png)
 
         GetPalette(&q);
 
-        byte translate[512];
-        byte *palette = q.palette;
+        palette = q.palette;
         for (int i = 0; i < 512; ++i)
         {
             int r = *palette++;
             int g = *palette++;
             int b = *palette++;
-
             byte c = V_BestColor(playpal, r, g, b);
+
             used_colors[c] = 1;
             translate[i] = c;
         }
 
-        int color_key = NO_COLOR_KEY;
+        color_key = NO_COLOR_KEY;
 
         if (has_alpha)
         {
@@ -382,6 +390,10 @@ dboolean DecodePNG(png_t *png)
     else
     {
         struct spng_plte plte = {0};
+        byte *translate;
+        dboolean need_translation;
+        const byte *palette;
+
         ret = spng_get_plte(png->ctx, &plte);
 
         if (ret)
@@ -391,9 +403,9 @@ dboolean DecodePNG(png_t *png)
             return false;
         }
 
-        byte *translate = Z_Malloc(plte.n_entries);
-        dboolean need_translation = false;
-        byte *palette = playpal;
+        translate = Z_Malloc(plte.n_entries);
+        need_translation = false;
+        palette = playpal;
 
         for (size_t i = 0; i < plte.n_entries; ++i)
         {

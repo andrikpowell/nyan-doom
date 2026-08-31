@@ -504,7 +504,7 @@ static void createPNGPatch(int id)
   int result;
   int x;
 
-  if (!InitPNG(&png, (void *)W_LumpByNum(id), W_LumpLength(id)))
+  if (!InitPNG(&png, W_LumpByNum(id), W_LumpLength(id)))
     I_Error("createPNGPatch: Could not initialize %s", lumpinfo[id].name);
 
   spng_set_option(png.ctx, SPNG_KEEP_UNKNOWN_CHUNKS, 1);
