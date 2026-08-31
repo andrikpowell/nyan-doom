@@ -2514,7 +2514,7 @@ void P_PostProcessHereticSidedefSpecial(side_t *sd, const char *bottom, const ch
 
   sd->midtexture = R_SafeTextureNumForName(mid, i);
   sd->toptexture = R_SafeTextureNumForName(top, i);
-  sd->bottomtexture = R_SafeTextureNumForName(top, i);
+  sd->bottomtexture = R_SafeTextureNumForName(bottom, i);
 }
 
 void P_PostProcessHexenSidedefSpecial(side_t *sd, const char *bottom, const char *mid, const char *top, sector_t *sec, int i)
