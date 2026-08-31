@@ -60,6 +60,7 @@
 #include "dsda/excmd.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
+#include "dsda/line_special.h"
 
 #include "heretic/def.h"
 #include "hexen/dstrings.h"
@@ -1596,6 +1597,10 @@ void P_IterateCompatibleSpecHit(mobj_t *thing, fixed_t oldx, fixed_t oldy)
       if (oldside != P_PointOnLineSide(thing->x, thing->y, spechit[numspechit]))
         map_format.cross_special_line(spechit[numspechit], oldside, thing, false);
     }
+
+  // There are checks elsewhere for numspechit == 0, so we don't want to
+  // leave numspechit == -1.
+  numspechit = 0;
 }
 
 void P_IterateZDoomSpecHit(mobj_t *thing, fixed_t oldx, fixed_t oldy)
@@ -2470,6 +2475,9 @@ dboolean PTR_ShootTraverse (intercept_t* in)
       map_format.shoot_special_line(shootthing, li, side);
     }
 
+    if (map_format.zdoom && li->special == zl_line_horizon)
+      return false;
+
     if (li->flags & ML_TWOSIDED &&
         !(li->flags & (ML_BLOCKEVERYTHING | ML_BLOCKHITSCAN)))
     {  // crosses a two sided (really 2s) line
@@ -2855,7 +2863,7 @@ dboolean PTR_UseTraverse (intercept_t* in)
             sound = hexen_sfx_pig_active1;
             break;
           default:
-            sound = hexen_sfx_None;
+            sound = sfx_None;
             break;
         }
         S_StartMobjSound(usething, sound);
@@ -2890,7 +2898,7 @@ dboolean PTR_UseTraverse (intercept_t* in)
             sound = hexen_sfx_pig_active1;
             break;
           default:
-            sound = hexen_sfx_None;
+            sound = sfx_None;
             break;
         }
         S_StartMobjSound(usething, sound);
@@ -4373,7 +4381,7 @@ static int PuzzleUseThing;
 
 void dsda_PuzzleFailSound(mobj_t *mo)
 {
-  int sound = hexen_sfx_None;
+  int sound = sfx_None;
   if (mo->player)
   {
       switch (mo->player->pclass)
@@ -4388,7 +4396,7 @@ void dsda_PuzzleFailSound(mobj_t *mo)
               sound = hexen_sfx_puzzle_fail_mage;
               break;
           default:
-              sound = hexen_sfx_None;
+              sound = sfx_None;
               break;
       }
   }

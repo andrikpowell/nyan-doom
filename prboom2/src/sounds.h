@@ -279,7 +279,25 @@ typedef enum {
 
 typedef enum {
   sfx_None,
-  sfx_pistol,
+
+  // Optional menu/intermission sounds
+  sfx_mnuopn, // swtchn
+  sfx_mnucls, // swtchx
+  sfx_mnuact, // pistol
+  sfx_mnubak,
+  sfx_mnumov, // pstop
+  sfx_mnusli, // stnmov
+  sfx_mnusel, // itemup
+  sfx_mnuerr, // oof
+  sfx_inttic, // pistol
+  sfx_inttot, // barex
+  sfx_intnex, // sgcock
+  sfx_intnet, // pldeth
+  sfx_intdms, // slop
+
+  BASE_NUMSFX,
+
+  sfx_pistol = BASE_NUMSFX,
   sfx_shotgn,
   sfx_sgcock,
   sfx_dshtgn,
@@ -395,13 +413,14 @@ typedef enum {
   sfx_dgdth,
   sfx_dgpain,
 
-  //e6y
+  // DSDA
   sfx_secret,
   sfx_secret_subtle,
-  sfx_gibdth,
   
   // Nyan sfx
   sfx_idnut,
+  sfx_gibdth,
+
   // Everything from here to 500 is reserved
 
   /* Free sound effect slots for DEHEXTRA. Offset agreed upon with Eternity devs. -SH */
@@ -609,8 +628,7 @@ typedef enum {
   DOOM_NUMSFX,
 
   // heretic
-  heretic_sfx_None = 0,
-  heretic_sfx_gldhit,
+  heretic_sfx_gldhit = BASE_NUMSFX,
   heretic_sfx_gntful,
   heretic_sfx_gnthit,
   heretic_sfx_gntpow,
@@ -960,8 +978,7 @@ typedef enum {
   HERETIC_NUMSFX,
 
   // hexen
-  hexen_sfx_None = 0,
-  hexen_sfx_player_fighter_normal_death,    // class specific death screams
+  hexen_sfx_player_fighter_normal_death = BASE_NUMSFX, // class specific death screams
   hexen_sfx_player_fighter_crazy_death,
   hexen_sfx_player_fighter_extreme1_death,
   hexen_sfx_player_fighter_extreme2_death,

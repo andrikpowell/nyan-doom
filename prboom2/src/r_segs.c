@@ -56,6 +56,8 @@
 
 #include "dsda/configuration.h"
 #include "dsda/mapinfo.h"
+#include "dsda/line_special.h"
+#include "dsda/map_format.h"
 #include "dsda/render_stats.h"
 #include "dsda/settings.h"
 
@@ -1093,6 +1095,12 @@ void R_StoreWallRange(const int start, const int stop)
       ds_p->maskedtexturecol = maskedtexturecol = lastopening - rw_x;
       lastopening += rw_stopx - rw_x;
     }
+  }
+
+  if (map_format.zdoom && curline->linedef->special == zl_line_horizon)
+  {
+    rw_scale = ds_p->scale1 = ds_p->scale2 = rw_scalestep = 0;
+    midtexture = toptexture = bottomtexture = maskedtexture = 0;
   }
 
   // calculate rw_offset (only needed for textured lines)

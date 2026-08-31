@@ -491,7 +491,7 @@ static void dsda_InitHeretic(void) {
     mobjinfo[j].infighting_group = IG_DEFAULT;
     mobjinfo[j].projectile_group = PG_DEFAULT;
     mobjinfo[j].splash_group = SG_DEFAULT;
-    mobjinfo[j].ripsound = heretic_sfx_None;
+    mobjinfo[j].ripsound = sfx_None;
     mobjinfo[j].altspeed = NO_ALTSPEED;
     mobjinfo[j].meleerange = MELEERANGE;
 
@@ -698,7 +698,7 @@ static void dsda_InitHexen(void) {
     mobjinfo[j].infighting_group = IG_DEFAULT;
     mobjinfo[j].projectile_group = PG_DEFAULT;
     mobjinfo[j].splash_group = SG_DEFAULT;
-    mobjinfo[j].ripsound = hexen_sfx_None;
+    mobjinfo[j].ripsound = sfx_None;
     mobjinfo[j].altspeed = NO_ALTSPEED;
     mobjinfo[j].meleerange = MELEERANGE;
 

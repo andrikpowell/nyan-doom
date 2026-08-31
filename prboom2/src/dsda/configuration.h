@@ -433,6 +433,7 @@ enum {
   dsda_config_map_trail_size,
   dsda_config_map_player_arrow,
   dsda_config_map_marker_style,
+  dsda_config_map_traces,
   dsda_config_automap_overlay,
   dsda_config_automap_background,
   dsda_config_automap_background_shade,

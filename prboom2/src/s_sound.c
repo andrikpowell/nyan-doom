@@ -39,6 +39,7 @@
 
 #include "doomstat.h"
 #include "g_game.h"
+#include "doomtype.h"
 #include "s_sound.h"
 #include "s_advsound.h"
 #include "i_sound.h"
@@ -472,9 +473,16 @@ void S_LoopVoidSound(int sfx_id, int timeout)
   S_LoopSound(NULL, sfx_id, timeout);
 }
 
-void S_StartImportantVoidSound(int sfx_id)
+void S_StartOptionalSound(int sfx_id, int fallback_sfx_id, dboolean important)
 {
-  S_StartSoundAtVolume(NULL, sfx_id, raven ? 127 : sfx_volume, true, 0);
+  if (I_GetSfxLumpNum(&S_sfx[sfx_id]) != -1)
+  {
+    S_StartSoundAtVolume(NULL, sfx_id, raven ? 127 : sfx_volume, important, 0);
+  }
+  else if (fallback_sfx_id != -1) // Play a fallback?
+  {
+    S_StartSoundAtVolume(NULL, fallback_sfx_id, raven ? 127 : sfx_volume, important, 0);
+  }
 }
 
 void S_StartLineSound(line_t *line, degenmobj_t *soundorg, int sfx_id)
@@ -684,9 +692,6 @@ void S_ChangeMusic(int musicnum, int looping)
 
   music = &S_music[musicnum];
 
-  if (mus_playing == music)
-    return;
-
   // shutdown old music
   S_StopMusic();
 
@@ -783,10 +788,6 @@ void S_ChangeMusInfoMusic(int lumpnum, int looping)
     return;
 
   music = &S_music[mus_musinfo];
-
-  // Allow MUSINFO music to restart after MIDI player changes
-  if (music->lumpnum == lumpnum && mus_playing)
-    return;
 
   // shutdown old music
   S_StopMusic();
@@ -1211,7 +1212,7 @@ static void Raven_S_StartSoundAtVolume(void *_origin, int sound_id, int volume, 
   if (nosfxparm)
     return;
 
-  if (sound_id == heretic_sfx_None)
+  if (sound_id == sfx_None)
     return;
 
   if (origin == NULL)
@@ -1304,7 +1305,7 @@ void S_StartAmbientSound(void *_origin, int sound_id, int volume)
   if (nosfxparm)
     return;
 
-  if (sound_id == heretic_sfx_None || volume == 0)
+  if (sound_id == sfx_None || volume == 0)
     return;
 
   if (origin == NULL)

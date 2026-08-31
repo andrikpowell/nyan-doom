@@ -1,4 +1,4 @@
-<div align="center" markdown="1">
+<div align="center">
     <a href="https://github.com/andrikpowell/nyan-doom/"><img src="./prboom2/ICONS/nyan-doom.svg" alt="Nyan Doom Logo" width="200"/></a>
     <h1>Nyan Doom</h1>
     <h3>The most fuzzy, cuddly Doom port ever!</h3>
@@ -6,9 +6,9 @@
 
 <div align="center" markdown="1">
 
-[![Static Badge](https://img.shields.io/badge/Windows-grey)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Static Badge](https://img.shields.io/badge/macOS-grey?logo=apple)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Static Badge](https://img.shields.io/badge/Linux-grey?logo=linux)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![Windows](https://img.shields.io/badge/Windows-grey)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![macOS](https://img.shields.io/badge/macOS-grey?logo=apple)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![Linux](https://img.shields.io/badge/Linux-grey?logo=linux&logoColor=white)](https://github.com/andrikpowell/nyan-doom/releases/latest)
 <br>
 [![Release](https://img.shields.io/github/release/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/releases/latest)
 [![Latest Release](https://img.shields.io/github/release-date/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/releases/latest)
@@ -21,7 +21,7 @@
 [![Top Language](https://img.shields.io/github/languages/top/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom)
 <br>
 [![Stars](https://img.shields.io/github/stars/andrikpowell/nyan-doom.svg?style=flat&logo=github)](https://github.com/andrikpowell/nyan-doom/stargazers)
-[![Discord](https://img.shields.io/discord/1053356270767308810?style=flat&logo=discord&label=discord)](http://discordapp.com/invite/aXtCVYw83k)
+[![Discord](https://img.shields.io/discord/1053356270767308810?logoColor=white&logo=discord&label=Discord)](http://discordapp.com/invite/aXtCVYw83k)
 <br>
 
 </div>
@@ -39,7 +39,7 @@ It is called Nyan Doom, because I am a cat - *meow!*
 
 ## Downloads
 
-Available for Windows, macOS and Linux in [Releases](https://github.com/andrikpowell/nyan-doom/releases/latest)
+Available for Windows, Linux and macOS in [Releases](https://github.com/andrikpowell/nyan-doom/releases/latest)
 
 <details markdown="1">
   <summary>Download for Arch Linux</summary>
@@ -58,19 +58,30 @@ Available for Windows, macOS and Linux in [Releases](https://github.com/andrikpo
   > May be completely broken and unusable
 </details>
 
-## Key Features
-- New [animated background / menu element](./docs/animbg.md) lump support (for animated M_DOOM, TITLEPIC, INTERPIC, etc)
+## Nyan Features
+- [background / menu animation](./docs/animbg.md) lump support (for animated M_DOOM, TITLEPIC, INTERPIC, etc)
 - Native [widescreen](./docs/ws.md) lump support for widescreen assets (avoiding the need for separate asset WADs)
 - Support for [GAMEVERS](./docs/gamevers.md) lump in combination with [COMPLVL](./docs/complvl.md) to further specify Vanilla compatibility.
 - [Limit-Removing Support](./docs/limit_removing.md) for Vanilla style maps to ignore overflow errors (such as all-ghosts, etc)
 - Native "berserk" and "armour" elements on the statusbar *(Options > Display)*
-- Extended HUD "Status Widget" showing currently active powerups *(Options > Display)*
+- Extended HUD Status Widget/Timers showing currently active powerups with timers *(Options > Display)*
 - Savegame support for per-game modifiers (`pistol start`, `respawn`, `fast monsters`, etc)
-- Experimental "Light Amplification Visor" screen effect
-- In-depth "Boom Translucency" customization
+- Enhanced Light Amplification Visor
+- In-depth "Translucency" customization
 - Smarter "Colored Blood" option
-- Enhanced ENDOOM support
+- Enhanced ENDOOM / STARTUP support
 - All DSDA-Doom features... and more!
+
+## More Features
+- Heretic, Hexen, MBF21 and UDMF support
+- In-game console and scripting
+- Full controller support
+- Palette-based opengl renderer
+- Debugging features for testing
+- Various quality of life improvements
+- Strict mode for speedrunning
+- Advanced tools for TASing
+- Rewind
 
 ## Patch Notes
 - [v1.5](./patch_notes/v1.5.md)

@@ -155,7 +155,7 @@ int saved_fastparm;
 int saved_nomonsters;
 int saved_coop_spawns;
 
-void dsda_SaveGameModifiers(void)
+static void dsda_SaveGameModifiers(void)
 {
   saved_limitremoving = limitremoving;
   saved_pistolstart   = pistolstart;
@@ -165,7 +165,7 @@ void dsda_SaveGameModifiers(void)
   saved_coop_spawns   = coop_spawns;
 }
 
-void dsda_LoadGameModifiers(void)
+static void dsda_LoadGameModifiers(void)
 {
   // when playing / recording demos, do not touch configs
   if (!casual_play)
@@ -183,7 +183,7 @@ void dsda_LoadGameModifiers(void)
   dsda_UpdateIntConfig(dsda_config_coop_spawns,saved_coop_spawns,true);
 }
 
-void dsda_ArchiveGameModifiers(void)
+static void dsda_ArchiveGameModifiers(void)
 {
   dsda_SaveGameModifiers();
 
@@ -195,7 +195,7 @@ void dsda_ArchiveGameModifiers(void)
   P_SAVE_X(saved_coop_spawns);
 }
 
-void dsda_UnArchiveGameModifiers(void)
+static void dsda_UnArchiveGameModifiers(void)
 {
   P_LOAD_X(saved_limitremoving);
   P_LOAD_X(saved_pistolstart);
@@ -207,14 +207,14 @@ void dsda_UnArchiveGameModifiers(void)
   dsda_LoadGameModifiers();
 }
 
-void dsda_ArchiveHexenStats(void)
+static void dsda_ArchiveHexenStats(void)
 {
   if (!hexen) return;
 
   SV_StoreHexenMapStats();
 }
 
-void dsda_UnArchiveHexenStats(void)
+static void dsda_UnArchiveHexenStats(void)
 {
   if (!hexen) return;
 
@@ -223,7 +223,7 @@ void dsda_UnArchiveHexenStats(void)
 
 skill_info_t saved_custom_skill;
 
-void dsda_ArchiveCustomSkill(void)
+static void dsda_ArchiveCustomSkill(void)
 {
   // don't store info if normal skill
   if (gameskill != (num_skills - 1))
@@ -234,7 +234,7 @@ void dsda_ArchiveCustomSkill(void)
   P_SAVE_X(saved_custom_skill);
 }
 
-void dsda_UnArchiveCustomSkill(void)
+static void dsda_UnArchiveCustomSkill(void)
 {
   // don't store info if normal skill
   if (gameskill != (num_skills - 1))
