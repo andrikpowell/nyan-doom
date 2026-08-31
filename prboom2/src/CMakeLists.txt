@@ -208,6 +208,8 @@ set(COMMON_SRC
     dsda/hud_components/tracker.h
     dsda/hud_components/weapon_text.c
     dsda/hud_components/weapon_text.h
+    dsda/hud_components/weapon_carousel.c
+    dsda/hud_components/weapon_carousel.h
     dsda/id_list.c
     dsda/id_list.h
     dsda/input.c
@@ -337,6 +339,8 @@ set(COMMON_SRC
     f_wipe.h
     g_game.c
     g_game.h
+    weapon_switch.c
+    weapon_switch.h
     g_overflow.c
     g_overflow.h
     heretic/hhe/ammo.c

@@ -679,6 +679,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
    "dsda_artifact_descriptions", dsda_config_artifact_descriptions,
     dsda_config_int, 0, 3, { 1 }
   },
+  [dsda_config_weapon_carousel] = {
+    "dsda_weapon_carousel", dsda_config_weapon_carousel,
+    CONF_BOOL(1)
+  },
   [dsda_config_hexen_skip_ethereal_travel] = {
    "dsda_hexen_skip_ethereal_travel", dsda_config_hexen_skip_ethereal_travel,
    CONF_BOOL(1), NULL, STRICT_INT(0)
@@ -1992,6 +1996,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_enhanced_liteamp] = {
     "enhanced_liteamp", dsda_config_enhanced_liteamp,
     CONF_BOOL(0), NULL, STRICT_INT(0)
+  },
+  [nyan_config_ui_fade_effects] = {
+    "nyan_ui_fade_effects", nyan_config_ui_fade_effects,
+    CONF_BOOL(1), NULL, NOT_STRICT, dsda_UpdateTranMap
   },
   [dsda_config_colored_borderbox] = {
     "dsda_colored_borderbox", dsda_config_colored_borderbox,

@@ -262,9 +262,16 @@ dboolean dsda_PlayQuicksaveSFX(void) {
   return dsda_IntConfig(dsda_config_quicksave_sfx);
 }
 
+dboolean dsda_UIFadeEffects(void) {
+  return dsda_IntConfig(nyan_config_ui_fade_effects);
+}
 
 dboolean dsda_FadeMessages(void) {
-  return dsda_IntConfig(dsda_config_fade_messages);
+  return dsda_UIFadeEffects() && dsda_IntConfig(dsda_config_fade_messages);
+}
+
+dboolean dsda_WeaponCarousel(void) {
+  return dsda_IntConfig(dsda_config_weapon_carousel);
 }
 
 dboolean dsda_TrackSplits(void) {

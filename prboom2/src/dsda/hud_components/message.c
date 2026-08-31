@@ -78,7 +78,7 @@ void dsda_UpdateMessageHC(void* data) {
   if (BOTTOM_ALIGNMENT(local->component.text.flags & VPT_ALIGN_MASK))
     HUlib_AdjustBottomOffset_MultiLine(&local->component.text, local->y_offset, local->ratio, local->vpt);
 
-  local->component.text.fade_alpha = dsda_MessageFadeOut(dsda_MessageTics(), false);
+  local->component.text.fade_alpha = dsda_MessageFadeOut(dsda_MessageTics());
 }
 
 void dsda_DrawMessageHC(void* data) {
