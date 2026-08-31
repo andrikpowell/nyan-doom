@@ -70,12 +70,6 @@
       "dependencies": [
         "portmidi"
       ]
-    },
-    "sdl2-image": {
-      "description": "Build with SDL2_image support",
-      "dependencies": [
-        "sdl2-image"
-      ]
     }
   }
 }

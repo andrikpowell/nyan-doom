@@ -1074,11 +1074,7 @@ void M_DoScreenShot (const char* fname)
 #define SCREENSHOT_DIR "."
 #endif
 
-#ifdef HAVE_LIBSDL2_IMAGE
 #define SCREENSHOT_EXT ".png"
-#else
-#define SCREENSHOT_EXT ".bmp"
-#endif
 
 const char* M_CheckWritableDir(const char *dir)
 {

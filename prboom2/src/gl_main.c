@@ -226,9 +226,7 @@ void gld_Init(int width, int height)
   gld_FlushTextures(); // TODO: should this be here?
   M_ChangeSkyMode();
 
-#ifdef HAVE_LIBSDL2_IMAGE
   gld_InitMapPics();
-#endif
 
   // Create FBO object and associated render targets
   gld_InitFBO();
