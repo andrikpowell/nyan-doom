@@ -118,7 +118,7 @@ static fixed_t dsda_getWeaponSpeed(void)
 static statenum_t P_WeaponRaiseState(const player_t *player, weapontype_t weapon)
 {
   // Hexen
-  if (hexen && player->pclass)
+  if (hexen && player->pclass && weapon < HEXEN_NUMWEAPONS)
   {
     // Special fighter axe condition
     if (player->pclass == PCLASS_FIGHTER && weapon == wp_second &&
@@ -139,7 +139,7 @@ static statenum_t P_WeaponRaiseState(const player_t *player, weapontype_t weapon
 static statenum_t P_WeaponLowerState(const player_t *player, weapontype_t weapon)
 {
   // Hexen
-  if (hexen && player->pclass)
+  if (hexen && player->pclass && weapon < HEXEN_NUMWEAPONS)
     return hexen_weaponinfo[weapon][player->pclass].downstate;
 
   // Heretic level 2
