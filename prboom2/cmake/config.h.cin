@@ -28,6 +28,7 @@
 #cmakedefine HAVE_LIBXMP
 #cmakedefine HAVE_LIBVORBISFILE
 #cmakedefine HAVE_LIBPORTMIDI
+#cmakedefine HAVE_LIBSPNG
 #cmakedefine HAVE_DISCORD_RPC
 #cmakedefine HAVE_SNDFILE_MPEG
 

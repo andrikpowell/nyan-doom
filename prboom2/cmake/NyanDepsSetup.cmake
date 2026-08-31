@@ -23,6 +23,11 @@ if(WITH_XMP)
     list(APPEND VCPKG_MANIFEST_FEATURES "libxmp")
 endif()
 
+option(WITH_SPNG "Use libspng if available" ON)
+if(WITH_SPNG)
+    list(APPEND VCPKG_MANIFEST_FEATURES "libspng")
+endif()
+
 option(WITH_DISCORD_RPC "Use discord-rpc if available" ON)
 if(WITH_DISCORD_RPC)
     list(APPEND VCPKG_MANIFEST_FEATURES "discord-rpc")
