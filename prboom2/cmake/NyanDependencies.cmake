@@ -25,6 +25,7 @@ find_package(SDL2_mixer REQUIRED)
 find_package(SndFile 1.0.29 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(libzip REQUIRED)
+find_package(SPNG CONFIG REQUIRED)
 
 # ZLIB 1.3.2 static now requires explicit ZLIBSTATIC
 if(NOT TARGET ZLIB::ZLIB AND TARGET ZLIB::ZLIBSTATIC)
@@ -139,6 +140,7 @@ target_link_libraries(nyan_dependencies
   $<$<BOOL:${HAVE_LIBPORTMIDI}>:PortMidi::portmidi>
   $<$<BOOL:${HAVE_DISCORD_RPC}>:DiscordRPC::discord-rpc>
 
+  $<IF:$<TARGET_EXISTS:spng::spng>,spng::spng,spng::spng_static>
   $<$<BOOL:${HAVE_LIBSDL2_IMAGE}>:$<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>>
   $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
 

@@ -58,6 +58,10 @@
 **---------------------------------------------------------------------------
 */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "z_zone.h"
 #include "doomstat.h"
 #include "w_wad.h"
@@ -72,6 +76,8 @@
 #include "r_patch.h"
 #include "v_video.h"
 #include <assert.h>
+
+#include "r_png.h"
 
 #include "dsda/palette.h"
 #include "dsda/settings.h"
@@ -352,6 +358,9 @@ dboolean R_IsPatchLump(int lumpnum)
 
   size = W_LumpLength(lumpnum);
 
+  if (R_IsPNGLump(lumpnum))
+    return true;
+
   // minimum length of a valid Doom patch
   if (size < 13)
     return false;
@@ -396,6 +405,143 @@ static void StorePixel(rpatch_t *patch, int x, int y, byte color)
   patch->pixels[x * patch->height + y] = color;
 }
 
+static void R_LinearToTransPatch(rpatch_t *patch, const byte *data,
+                                 int color_key, const byte *translate)
+{
+  int *numPostsInColumn;
+  int pixelDataSize, columnsDataSize, postsDataSize, dataSize;
+  int numPostsTotal = 0;
+  int postsUsed = 0;
+  int x, y;
+
+  numPostsInColumn = Z_Malloc(sizeof(*numPostsInColumn) * patch->width);
+
+  for (x = 0; x < patch->width; ++x)
+  {
+    dboolean inPost = false;
+
+    numPostsInColumn[x] = 0;
+    for (y = 0; y < patch->height; ++y)
+    {
+      const dboolean opaque = color_key == NO_COLOR_KEY ||
+                              data[y * patch->width + x] != color_key;
+
+      if (opaque && !inPost)
+      {
+        ++numPostsInColumn[x];
+        inPost = true;
+      }
+      else if (!opaque)
+        inPost = false;
+    }
+
+    numPostsTotal += numPostsInColumn[x];
+  }
+
+  pixelDataSize = (patch->width * patch->height + 4) & ~3;
+  columnsDataSize = sizeof(rcolumn_t) * patch->width;
+  postsDataSize = sizeof(rpost_t) * numPostsTotal;
+  dataSize = pixelDataSize + columnsDataSize + postsDataSize;
+  patch->data = Z_Malloc(dataSize);
+  memset(patch->data, 0, dataSize);
+  patch->pixels = patch->data;
+  patch->columns = (rcolumn_t *)(patch->data + pixelDataSize);
+  patch->posts = (rpost_t *)((byte *)patch->columns + columnsDataSize);
+  memset(patch->pixels, playpal_transparent, patch->width * patch->height);
+
+  if (!numPostsTotal)
+    patch->flags |= PATCH_ISEMPTY;
+
+  for (x = 0; x < patch->width; ++x)
+  {
+    patch->columns[x].pixels = patch->pixels + x * patch->height;
+    patch->columns[x].vanilla_pixels = patch->columns[x].pixels;
+    patch->columns[x].numPosts = numPostsInColumn[x];
+    patch->columns[x].posts = patch->posts + postsUsed;
+    patch->columns[x].patch_count = 1;
+
+    y = 0;
+    while (y < patch->height)
+    {
+      int top;
+
+      while (y < patch->height && color_key != NO_COLOR_KEY &&
+             data[y * patch->width + x] == color_key)
+        ++y;
+
+      if (y == patch->height)
+        break;
+
+      top = y;
+      while (y < patch->height &&
+             (color_key == NO_COLOR_KEY ||
+              data[y * patch->width + x] != color_key))
+      {
+        const byte pixel = data[y * patch->width + x];
+        StorePixel(patch, x, y, translate ? translate[pixel] : pixel);
+        ++y;
+      }
+
+      patch->posts[postsUsed].topdelta = top;
+      patch->posts[postsUsed].length = y - top;
+      patch->posts[postsUsed].slope = 0;
+      ++postsUsed;
+    }
+  }
+
+  if (color_key != NO_COLOR_KEY)
+    patch->flags |= PATCH_HASHOLES | PATCH_ISNOTTILEABLE;
+
+  Z_Free(numPostsInColumn);
+}
+
+
+static void createPNGPatch(int id)
+{
+  png_t png = {0};
+  struct spng_trns trns = {0};
+  rpatch_t *patch = &patches[id];
+  int result;
+  int x;
+
+  if (!InitPNG(&png, (void *)W_LumpByNum(id), W_LumpLength(id)))
+    I_Error("createPNGPatch: Could not initialize %s", lumpinfo[id].name);
+
+  spng_set_option(png.ctx, SPNG_KEEP_UNKNOWN_CHUNKS, 1);
+  png.color_key = -1;
+
+  result = spng_get_trns(png.ctx, &trns);
+  if (result && result != SPNG_ECHUNKAVAIL)
+  {
+    FreePNG(&png);
+    I_Error("createPNGPatch: spng_get_trns %s", spng_strerror(result));
+  }
+
+  for (x = 0; x < (int)trns.n_type3_entries; ++x)
+    if (trns.type3_alpha[x] < 255)
+    {
+      png.color_key = x;
+      break;
+    }
+
+  if (!DecodePNG(&png) || png.width <= 0 || png.height <= 0 ||
+      png.width > 16384 || png.height > 16384)
+  {
+    FreePNG(&png);
+    I_Error("createPNGPatch: Could not decode %s", lumpinfo[id].name);
+  }
+
+  patch->width = png.width;
+  patch->height = png.height;
+  patch->widthmask = 0;
+  GetPNGOffsets(png.ctx, &patch->leftoffset, &patch->topoffset);
+  patch->flags = 0;
+
+  R_LinearToTransPatch(patch, png.image, png.color_key, png.translate);
+  FillEmptySpace(patch);
+  FreePNG(&png);
+}
+
 //---------------------------------------------------------------------------
 static void createPatch(int id) {
   rpatch_t *patch;
@@ -417,6 +563,12 @@ static void createPatch(int id) {
   if (id >= numlumps)
     I_Error("createPatch: %i >= numlumps", id);
 #endif
+
+  if (R_IsPNGLump(patchNum))
+  {
+    createPNGPatch(id);
+    return;
+  }
 
   if (!R_IsPatchLump(patchNum))
   {

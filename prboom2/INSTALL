@@ -2,7 +2,7 @@ Basic Installation (ZIP, tarball, Git)
 ==================
 Prerequisites
 
-1. To compile Nyan-Doom, you need at least SDL2. For various extensions and optional features, the following are also required:
+1. To compile Nyan-Doom, you need SDL2 and libspng (for PNG graphics). For various extensions and optional features, the following are also required:
    - SDL2_image (for high-res textures in OpenGL and PNG screenshots)
    - For music support, some or all of:
      * SDL2_mixer (MIDI, TiMidity)
@@ -24,7 +24,7 @@ On a typical Fedora system, these commands may be sufficient:
 `dnf install cmake git gcc gcc-g++`
 
 As well as the following:
-`sudo dnf install SDL2_mixer-devel SDL2_image-devel mesa-libGLU-devel libzip-devel libzip-tools zlib-static libvorbis-devel libmad-devel libxmp-devel portmidi-devel fluidsynth-devel`
+`sudo dnf install SDL2_mixer-devel SDL2_image-devel libspng-devel mesa-libGLU-devel libzip-devel libzip-tools zlib-static libvorbis-devel libmad-devel libxmp-devel portmidi-devel fluidsynth-devel`
 
 2. Clone the repository and navigate to the directory containing the Nyan-Doom distribution (the directory this file is in, prboom2).
 `git clone https://github.com/andrikpowell/nyan-doom.git`

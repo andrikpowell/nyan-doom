@@ -25,6 +25,7 @@
         "opusfile"
       ]
     },
+    "libspng",
     "zlib"
   ],
   "features": {
