@@ -44,6 +44,7 @@ dboolean R_IsPNGLump(int lumpnum);
 dboolean InitPNG(png_t *png, const void *buffer, int buffer_length);
 void FreePNG(png_t *png);
 dboolean DecodePNG(png_t *png);
+dboolean DecodePNG_RGBA(png_t *png);
 void GetPNGOffsets(spng_ctx *ctx, int *leftoffset, int *topoffset);
 
 #endif

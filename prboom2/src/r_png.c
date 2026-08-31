@@ -441,3 +441,45 @@ dboolean DecodePNG(png_t *png)
 
     return true;
 }
+
+dboolean DecodePNG_RGBA(png_t *png)
+{
+    struct spng_ihdr ihdr = {0};
+    size_t image_size;
+    byte *image;
+    int ret;
+
+    ret = spng_get_ihdr(png->ctx, &ihdr);
+    if (ret)
+    {
+        lprintf(LO_ERROR, "DecodePNG_RGBA: spng_get_ihdr %s\n",
+                spng_strerror(ret));
+        return false;
+    }
+
+    ret = spng_decoded_image_size(png->ctx, SPNG_FMT_RGBA8, &image_size);
+    if (ret)
+    {
+        lprintf(LO_ERROR, "DecodePNG_RGBA: spng_decoded_image_size %s\n",
+                spng_strerror(ret));
+        return false;
+    }
+
+    image = Z_Malloc(image_size);
+    ret = spng_decode_image(png->ctx, image, image_size, SPNG_FMT_RGBA8,
+                            SPNG_DECODE_TRNS);
+    if (ret)
+    {
+        lprintf(LO_ERROR, "DecodePNG_RGBA: spng_decode_image %s\n",
+                spng_strerror(ret));
+        Z_Free(image);
+        return false;
+    }
+
+    png->width = (int)ihdr.width;
+    png->height = (int)ihdr.height;
+    png->image = image;
+    png->image_size = image_size;
+
+    return true;
+}
