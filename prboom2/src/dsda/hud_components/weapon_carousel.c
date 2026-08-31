@@ -239,7 +239,6 @@ static void DrawWeaponIcon(const local_component_t* c, int x, weapon_icon_t icon
   char lump_name[9] = {0};
   const char *name;
   int color;
-  int xx, yy;
   int flags;
 
   // later to add dehacked carousel names
@@ -264,10 +263,7 @@ static void DrawWeaponIcon(const local_component_t* c, int x, weapon_icon_t icon
   if (color != CR_DEFAULT)
     flags |= VPT_COLOR;
 
-  xx = x - R_NamePatchWidth(lump_name) / 2;
-  yy = c->component.y;
-
-  V_DrawMenuFadeNamePatch(xx, yy, lump_name, color, c->fade_alpha, flags);
+  V_DrawMenuFadeNamePatch(x, c->component.y, lump_name, color, c->fade_alpha, flags);
 }
 
 static int CalcOffset(local_component_t* c)
