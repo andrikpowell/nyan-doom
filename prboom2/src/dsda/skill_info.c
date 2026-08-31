@@ -247,6 +247,16 @@ void dsda_InitGameModifiers(void)
   dsda_ResetGameModifiers();
 }
 
+// During demo recording/playback only use args, else use cfgs
+static void dsda_ResetGameModifiers(void)
+{
+  pistolstart = (allow_incompatibility ? dsda_IntConfig(dsda_config_pistol_start)     : false);   // pistolstart not allowed in demos
+  respawnparm = (allow_incompatibility ? dsda_IntConfig(dsda_config_respawn_monsters) : dsda_Flag(dsda_arg_respawn));
+  fastparm    = (allow_incompatibility ? dsda_IntConfig(dsda_config_fast_monsters)    : dsda_Flag(dsda_arg_fast));
+  nomonsters  = (allow_incompatibility ? dsda_IntConfig(dsda_config_no_monsters)      : dsda_Flag(dsda_arg_nomonsters));
+  coop_spawns = (allow_incompatibility ? dsda_IntConfig(dsda_config_coop_spawns)      : dsda_Flag(dsda_arg_coop_spawns));
+}
+
 // if "Pistol Start" is disabled, disable "Always Pistol Start" (avoid impossible condition)
 void dsda_RefreshPistolStart(void)
 {
@@ -273,16 +283,6 @@ void dsda_RefreshAlwaysPistolStart(void)
 
   // Refresh pistolstart status
   dsda_ResetGameModifiers();
-}
-
-// During demo recording/playback only use args, else use cfgs
-void dsda_ResetGameModifiers(void)
-{
-  pistolstart = (allow_incompatibility ? dsda_IntConfig(dsda_config_pistol_start)     : false);   // pistolstart not allowed in demos
-  respawnparm = (allow_incompatibility ? dsda_IntConfig(dsda_config_respawn_monsters) : dsda_Flag(dsda_arg_respawn));
-  fastparm    = (allow_incompatibility ? dsda_IntConfig(dsda_config_fast_monsters)    : dsda_Flag(dsda_arg_fast));
-  nomonsters  = (allow_incompatibility ? dsda_IntConfig(dsda_config_no_monsters)      : dsda_Flag(dsda_arg_nomonsters));
-  coop_spawns = (allow_incompatibility ? dsda_IntConfig(dsda_config_coop_spawns)      : dsda_Flag(dsda_arg_coop_spawns));
 }
 
 void dsda_RefreshGameSkill(void) {
