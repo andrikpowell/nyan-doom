@@ -227,6 +227,8 @@ void dsda_InitSkills(void) {
 // "Always Pistol Start" is the only persistent cfg (saved in cfg file)
 //
 
+static void dsda_ResetGameModifiers(void);
+
 void dsda_InitGameModifiers(void)
 {
   if (dsda_Flag(dsda_arg_pistol_start) || dsda_IntConfig(dsda_config_always_pistol_start))
@@ -239,6 +241,10 @@ void dsda_InitGameModifiers(void)
       dsda_UpdateIntConfig(dsda_config_no_monsters, true, true);
   if (dsda_Flag(dsda_arg_coop_spawns))
       dsda_UpdateIntConfig(dsda_config_coop_spawns, true, true);
+
+  // Pistol-start config can reset other modifier configs
+  // Explicitly refresh everything for configs to match args
+  dsda_ResetGameModifiers();
 }
 
 // if "Pistol Start" is disabled, disable "Always Pistol Start" (avoid impossible condition)
