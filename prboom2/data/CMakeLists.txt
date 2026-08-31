@@ -219,25 +219,6 @@ set(GRAPHICS
     graphics/stkeys6.ppm
     graphics/stkeys7.ppm
     graphics/stkeys8.ppm
-    # Weapon carousel graphics from Woof, drawn by Julia Nechaevskaya
-    graphics/smbfgg0.ppm
-    graphics/smbfgg1.ppm
-    graphics/smcsaw0.ppm
-    graphics/smcsaw1.ppm
-    graphics/smfist0.ppm
-    graphics/smfist1.ppm
-    graphics/smlaun0.ppm
-    graphics/smlaun1.ppm
-    graphics/smmgun0.ppm
-    graphics/smmgun1.ppm
-    graphics/smpisg0.ppm
-    graphics/smpisg1.ppm
-    graphics/smplas0.ppm
-    graphics/smplas1.ppm
-    graphics/smsgn20.ppm
-    graphics/smsgn21.ppm
-    graphics/smshot0.ppm
-    graphics/smshot1.ppm
     graphics/stcfn096.ppm
     graphics/stfpkill.ppm
     graphics/stfpitem.ppm
@@ -267,6 +248,49 @@ set(GRAPHICS
     graphics/cross6.ppm
     graphics/cross7.ppm
     graphics/nyanstb1.ppm
+)
+
+# Weapon carousel graphics from Woof, drawn by Julia Nechaevskaya
+set(CAROUSEL_GRAPHICS
+    graphics/smbfgg0.ppm
+    graphics/smbfgg1.ppm
+    graphics/smcsaw0.ppm
+    graphics/smcsaw1.ppm
+    graphics/smfist0.ppm
+    graphics/smfist1.ppm
+    graphics/smlaun0.ppm
+    graphics/smlaun1.ppm
+    graphics/smmgun0.ppm
+    graphics/smmgun1.ppm
+    graphics/smpisg0.ppm
+    graphics/smpisg1.ppm
+    graphics/smplas0.ppm
+    graphics/smplas1.ppm
+    graphics/smsgn20.ppm
+    graphics/smsgn21.ppm
+    graphics/smshot0.ppm
+    graphics/smshot1.ppm
+)
+
+set(CAROUSEL_PATCHES
+    "27,15,graphics/smbfgg0.ppm"
+    "27,15,graphics/smbfgg1.ppm"
+    "26,11,graphics/smcsaw0.ppm"
+    "26,11,graphics/smcsaw1.ppm"
+    "7,9,graphics/smfist0.ppm"
+    "7,9,graphics/smfist1.ppm"
+    "22,6,graphics/smlaun0.ppm"
+    "22,6,graphics/smlaun1.ppm"
+    "21,7,graphics/smmgun0.ppm"
+    "21,7,graphics/smmgun1.ppm"
+    "13,8,graphics/smpisg0.ppm"
+    "13,8,graphics/smpisg1.ppm"
+    "22,8,graphics/smplas0.ppm"
+    "22,8,graphics/smplas1.ppm"
+    "22,6,graphics/smsgn20.ppm"
+    "22,6,graphics/smsgn21.ppm"
+    "24,6,graphics/smshot0.ppm"
+    "24,6,graphics/smshot1.ppm"
 )
 
 set(RAVEN_LUMPS
@@ -502,6 +526,7 @@ set(WAD_SRC
     ${TABLES}
     ${SOUNDS}
     ${GRAPHICS}
+    ${CAROUSEL_GRAPHICS}
     ${RAVEN_LUMPS}
     ${HUD_LUMPS}
     ${FLATS}
@@ -515,6 +540,7 @@ set(WAD_CMDLINE
     -marker B_START -lumps ${TABLES} -marker B_END
     -sounds ${SOUNDS}
     -graphics ${GRAPHICS}
+    -sprites ${CAROUSEL_PATCHES}
     -lumps ${RAVEN_LUMPS}
     -lumps ${HUD_LUMPS}
     -marker FF_START -flats ${FLATS} -marker FF_END
