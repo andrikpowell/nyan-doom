@@ -46,7 +46,7 @@ target_compile_definitions(nyan_rdatawad
     "RD_IS_BIG_ENDIAN=${RD_IS_BIG_ENDIAN}"
 )
 
-# PrBoom-Plus internal WAD
+# Nyan Doom internal WAD
 
 set(PALETTE
     palette.rgb
@@ -56,10 +56,10 @@ set(LUMPS
     lumps/switches.lmp
     lumps/animated.lmp
     lumps/sndcurve.lmp
+    lumps/x11r6rgb.lmp
     lumps/soundfont/sndfont.lmp
     lumps/dsdacr.lmp
     lumps/nyanhud.lmp
-    lumps/x11r6rgb.lmp
 )
 
 set(COLORMAPS
