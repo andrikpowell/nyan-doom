@@ -105,7 +105,7 @@ static void dsda_CalculateFontBounds(const byte* playpal) {
 
       for (j = 0; j < length; ++j) {
         entry = *p++;
-        lightness = dsda_PaletteEntryLightness(playpal, entry) / 100.0;
+        lightness = dsda_PaletteEntryIntensity(playpal, entry);
         dsda_RegisterFontLightness(lightness);
       }
 
@@ -202,7 +202,7 @@ static void dsda_LoadCRLumps(byte* buffer) {
 static double dsda_GetCRBrightness(const byte *playpal, int index) {
   double length;
 
-  length = dsda_PaletteEntryLightness(playpal, index) / 100.0;
+  length = dsda_PaletteEntryIntensity(playpal, index);
   length -= cr_font.light_lower_bound;
   length *= cr_font.multiplier;
   if (length < 0)
