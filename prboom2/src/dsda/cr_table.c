@@ -113,7 +113,15 @@ static void dsda_CalculateFontBounds(const byte* playpal) {
     }
   }
 
-  cr_font.multiplier = 1.0 / (cr_font.light_upper_bound - cr_font.light_lower_bound);
+  // [AR] If font only has one color, use full intensity
+  if (cr_font.light_upper_bound <= cr_font.light_lower_bound) {
+    cr_font.light_lower_bound = 0.0;
+    cr_font.light_upper_bound = 1.0;
+    cr_font.multiplier = 1.0;
+  }
+  else {
+    cr_font.multiplier = 1.0 / (cr_font.light_upper_bound - cr_font.light_lower_bound);
+  }
 
   lprintf(LO_DEBUG, "Font Bounds: %lf:%lf x%lf\n",
           cr_font.light_lower_bound, cr_font.light_upper_bound, cr_font.multiplier);
