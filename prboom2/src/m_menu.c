@@ -5887,7 +5887,7 @@ setup_menu_t* crosshair_settings[] =
 };
 
 static const char *crosshair_str[] =
-  { "none", "cross", "angle", "dot", "small", "slim", "tiny", "big", NULL };
+  { "none", "cross", "angle", "dot", "small", "slim", "tiny", "big", "fancy 1", "fancy 2", NULL };
 
 #define HUD_X 245
 

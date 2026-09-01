@@ -248,6 +248,8 @@ set(GRAPHICS
     graphics/cross5.png
     graphics/cross6.png
     graphics/cross7.png
+    graphics/cross8.png
+    graphics/cross9.png
 
     # Weapon carousel graphics from Woof, drawn by Julia Nechaevskaya
     graphics/smbfgg0.png
