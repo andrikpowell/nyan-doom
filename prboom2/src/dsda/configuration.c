@@ -1444,7 +1444,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_hudadd_crosshair_target_color] = {
     "hudadd_crosshair_target_color", dsda_config_hudadd_crosshair_target_color,
-    CONF_CR(9), NULL, STRICT_INT(9)
+    CONF_CR(11), NULL, STRICT_INT(9)
   },
   [dsda_config_hud_displayed] = {
     "hud_displayed", dsda_config_hud_displayed,

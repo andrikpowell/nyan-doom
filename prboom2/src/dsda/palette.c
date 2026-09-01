@@ -104,6 +104,33 @@ static dboolean dsda_DuplicatePaletteEntry(const byte *playpal, int i, int j) {
   return true;
 }
 
+// [AR] When grayscale fonts were used, colours derived from the font were too dark
+// Use saturation to boost their intensity (fixes Heretic/Hexen dark colour translations)
+double dsda_PaletteEntryIntensity(const byte* playpal, int i) {
+  int r, g, b;
+  int brightest, darkest;
+  double value, lightness;
+  double saturation = 0.0;
+
+  r = playpal[i * 3 + 0];
+  g = playpal[i * 3 + 1];
+  b = playpal[i * 3 + 2];
+
+  brightest = MAX(MAX(r,g),b);
+  darkest   = MIN(MIN(r,g),b);
+
+  value = brightest / 255.0;
+  lightness = dsda_PaletteEntryLightness(playpal, i) / 100.0;
+
+  if (brightest)
+    saturation = (double)(brightest - darkest) / brightest;
+
+  if (value > lightness)
+    lightness += saturation * (value - lightness);
+
+  return lightness;
+}
+
 double dsda_PaletteEntryLightness(const byte *playpal, int i) {
   double L;
   byte pal_r, pal_g, pal_b;
