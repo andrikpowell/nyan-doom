@@ -4795,7 +4795,6 @@ int color_palette_y; // Y position of the cursor on the color palette
 static void M_DrawColPal(void)
 {
   int cpx, cpy;
-  const char* palsel;
 
   // Draw a background, border, and paint chips
 
@@ -4808,9 +4807,8 @@ static void M_DrawColPal(void)
 
   cpx = COLORPALXORIG+color_palette_x*(CHIP_SIZE)-1;
   cpy = COLORPALYORIG+color_palette_y*(CHIP_SIZE)-1;
-  palsel = raven ? "H_PALSEL" : "M_PALSEL";
   // proff 12/6/98: Drawing of colorchips completly changed for hi-res, it now uses a patch
-  V_DrawNamePatch(cpx,cpy,palsel,CR_DEFAULT,VPT_STRETCH); // PROFF_GL_FIX
+  V_DrawNamePatch(cpx,cpy,"M_PALSEL",CR_DEFAULT,VPT_STRETCH); // PROFF_GL_FIX
 }
 
 // The drawing part of the Automap Setup initialization. Draw the
