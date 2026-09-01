@@ -1,29 +1,37 @@
 * text=auto !eol
-prboom2/ICONS/Makefile.am eol=lf
-prboom2/ICONS/prboom-plus.bash -text
-prboom2/ICONS/prboom-plus.desktop -text
-prboom2/ICONS/prboom-plus.exe.manifest -text
 prboom2/ICONS/nyan-doom.ico -text
-prboom2/Makefile.am eol=lf
-prboom2/VisualC6/Doom.dsp eol=crlf
-prboom2/VisualC6/Doom.dsw eol=crlf
-prboom2/VisualC6/Makefile.am eol=lf
-prboom2/VisualC8/Doom.sln eol=crlf
-prboom2/VisualC8/Doom.vcproj eol=crlf
-prboom2/VisualC8/Makefile.am -text
-prboom2/autotools/ac_c_compile_flags.m4 eol=lf
-prboom2/autotools/ac_cpu_optimisations.m4 eol=lf
-prboom2/data/Makefile.am eol=lf
-prboom2/data/flats/-n0_tex-.ppm -text svneol=unset#unset
-prboom2/data/graphics/boxcc.png -text svneol=unset#application/octet-stream
-prboom2/data/graphics/boxcl.png -text svneol=unset#application/octet-stream
-prboom2/data/graphics/boxcr.png -text svneol=unset#application/octet-stream
-prboom2/data/graphics/boxlc.png -text svneol=unset#application/octet-stream
-prboom2/data/graphics/boxll.png -text svneol=unset#application/octet-stream
-prboom2/data/graphics/boxlr.png -text svneol=unset#application/octet-stream
-prboom2/data/graphics/boxuc.png -text svneol=unset#application/octet-stream
-prboom2/data/graphics/boxul.png -text svneol=unset#application/octet-stream
-prboom2/data/graphics/boxur.png -text svneol=unset#application/octet-stream
+prboom2/data/flats/-n0_tex-.ppm -text
+prboom2/data/graphics/boxcc.png -text
+prboom2/data/graphics/boxcl.png -text
+prboom2/data/graphics/boxcr.png -text
+prboom2/data/graphics/boxlc.png -text
+prboom2/data/graphics/boxll.png -text
+prboom2/data/graphics/boxlr.png -text
+prboom2/data/graphics/boxuc.png -text
+prboom2/data/graphics/boxul.png -text
+prboom2/data/graphics/boxur.png -text
+prboom2/data/graphics/nyanlogo.png
+prboom2/data/graphics/smbfgg0.png
+prboom2/data/graphics/smbfgg1.png
+prboom2/data/graphics/smcsaw0.png
+prboom2/data/graphics/smcsaw1.png
+prboom2/data/graphics/smfist0.png
+prboom2/data/graphics/smfist1.png
+prboom2/data/graphics/smlaun0.png
+prboom2/data/graphics/smlaun1.png
+prboom2/data/graphics/smmgun0.png
+prboom2/data/graphics/smmgun1.png
+prboom2/data/graphics/smpisg0.png
+prboom2/data/graphics/smpisg1.png
+prboom2/data/graphics/smplas0.png
+prboom2/data/graphics/smplas1.png
+prboom2/data/graphics/smsgn20.png
+prboom2/data/graphics/smsgn21.png
+prboom2/data/graphics/smshot0.png
+prboom2/data/graphics/smshot1.png
+prboom2/data/lumps/gls_fuzz.lmp
+prboom2/data/lumps/gls_main.lmp
+prboom2/data/lumps/gls_v.lmp
 prboom2/data/graphics/cross1.png -text
 prboom2/data/graphics/cross2.png -text
 prboom2/data/graphics/cross3.png -text
@@ -133,32 +141,17 @@ prboom2/data/graphics/fonta30.png -text
 prboom2/data/graphics/amkills.png -text
 prboom2/data/graphics/amitem.png -text
 prboom2/data/graphics/amsecr.png -text
-prboom2/data/graphics/m_accel.png -text
-prboom2/data/graphics/m_auto.png -text
 prboom2/data/graphics/m_butt1.png -text
 prboom2/data/graphics/m_butt2.png -text
 prboom2/data/graphics/m_colors.ppm -text
-prboom2/data/graphics/m_compat.png -text
-prboom2/data/graphics/m_enem.png -text
-prboom2/data/graphics/m_generl.png -text
-prboom2/data/graphics/m_horsen.png -text
-prboom2/data/graphics/m_keybnd.png -text
-prboom2/data/graphics/m_loksen.png -text
-prboom2/data/graphics/m_mess.png -text
 prboom2/data/graphics/m_palno.png -text
 prboom2/data/graphics/m_palsel.png -text
-prboom2/data/graphics/m_setup.png -text
-prboom2/data/graphics/m_stat.png -text
 prboom2/data/graphics/m_vbox.png -text
-prboom2/data/graphics/m_versen.png -text
-prboom2/data/graphics/m_weap.png -text
-prboom2/data/graphics/prboom.png -text
 prboom2/data/graphics/stcfn096.png -text
 prboom2/data/graphics/stkeys6.png -text
 prboom2/data/graphics/stkeys7.png -text
 prboom2/data/graphics/stkeys8.png -text
 prboom2/data/graphics/nyanstb1.png -text
-prboom2/data/graphics/sml_bln2.png -text
 prboom2/data/graphics/stfpkill.png -text
 prboom2/data/graphics/stfpitem.png -text
 prboom2/data/graphics/stfpsecr.png -text
@@ -205,19 +198,17 @@ prboom2/data/graphics/chxarms0.png -text
 prboom2/data/graphics/chxarms1.png -text
 prboom2/data/graphics/chxarms2.png -text
 prboom2/data/lumps/animated.lmp -text
-prboom2/data/lumps/b_end.lmp -text svneol=unset#application/octet-stream
-prboom2/data/lumps/b_start.lmp -text svneol=unset#application/octet-stream
+prboom2/data/lumps/b_end.lmp -text
+prboom2/data/lumps/b_start.lmp -text
 prboom2/data/lumps/bfgbex.lmp -text
-prboom2/data/lumps/c_end.lmp -text svneol=unset#application/octet-stream
-prboom2/data/lumps/c_start.lmp -text svneol=unset#application/octet-stream
+prboom2/data/lumps/c_end.lmp -text
+prboom2/data/lumps/c_start.lmp -text
 prboom2/data/lumps/chexdeh.lmp -text
 prboom2/data/lumps/dsdacr.lmp -text
 prboom2/data/lumps/nyanhud.lmp -text
 prboom2/data/lumps/x11r6rgb.lmp -text
-prboom2/data/lumps/gammatbl.lmp -text svneol=unset#application/octet-stream
-prboom2/data/lumps/glfp.lmp -text
+prboom2/data/lumps/gammatbl.lmp -text
 prboom2/data/lumps/glshadow.lmp -text
-prboom2/data/lumps/glvp.lmp -text
 prboom2/data/graphics/opengl/m_ammo.png -text
 prboom2/data/graphics/opengl/m_armour.png -text
 prboom2/data/graphics/opengl/m_arrow.png -text
@@ -241,7 +232,7 @@ prboom2/data/lumps/switches.lmp -text
 prboom2/data/lumps/tangtabl.lmp -text
 prboom2/data/lumps/tantoang.lmp -text
 prboom2/data/lumps/watermap.lmp -text
-prboom2/data/palette.rgb -text svneol=unset#unset
+prboom2/data/palette.rgb -text
 prboom2/data/sounds/dsdgact.wav -text
 prboom2/data/sounds/dsdgatk.wav -text
 prboom2/data/sounds/dsdgdth.wav -text
@@ -250,31 +241,38 @@ prboom2/data/sounds/dsdgsit.wav -text
 prboom2/data/sounds/dsgibdth.wav -text
 prboom2/data/sounds/dssecret.wav -text
 prboom2/data/sounds/dsnyanut.wav -text
-prboom2/data/sounds/free/dsdgact.wav -text
-prboom2/data/sounds/free/dsdgatk.wav -text
-prboom2/data/sounds/free/dsdgdth.wav -text
-prboom2/data/sounds/free/dsdgpain.wav -text
-prboom2/data/sounds/free/dsdgsit.wav -text
 prboom2/data/sprites/dogsa1.png -text
-prboom2/data/sprites/dogsa2a8.png -text
-prboom2/data/sprites/dogsa3a7.png -text
-prboom2/data/sprites/dogsa4a6.png -text
+prboom2/data/sprites/dogsa2.png -text
+prboom2/data/sprites/dogsa3.png -text
+prboom2/data/sprites/dogsa4.png -text
 prboom2/data/sprites/dogsa5.png -text
+prboom2/data/sprites/dogsa6.png -text
+prboom2/data/sprites/dogsa7.png -text
+prboom2/data/sprites/dogsa8.png -text
 prboom2/data/sprites/dogsb1.png -text
-prboom2/data/sprites/dogsb2b8.png -text
-prboom2/data/sprites/dogsb3b7.png -text
-prboom2/data/sprites/dogsb4b6.png -text
+prboom2/data/sprites/dogsb2.png -text
+prboom2/data/sprites/dogsb3.png -text
+prboom2/data/sprites/dogsb4.png -text
 prboom2/data/sprites/dogsb5.png -text
+prboom2/data/sprites/dogsb6.png -text
+prboom2/data/sprites/dogsb7.png -text
+prboom2/data/sprites/dogsb8.png -text
 prboom2/data/sprites/dogsc1.png -text
-prboom2/data/sprites/dogsc2c8.png -text
-prboom2/data/sprites/dogsc3c7.png -text
-prboom2/data/sprites/dogsc4c6.png -text
+prboom2/data/sprites/dogsc2.png -text
+prboom2/data/sprites/dogsc3.png -text
+prboom2/data/sprites/dogsc4.png -text
 prboom2/data/sprites/dogsc5.png -text
+prboom2/data/sprites/dogsc6.png -text
+prboom2/data/sprites/dogsc7.png -text
+prboom2/data/sprites/dogsc8.png -text
 prboom2/data/sprites/dogsd1.png -text
-prboom2/data/sprites/dogsd2d8.png -text
-prboom2/data/sprites/dogsd3d7.png -text
-prboom2/data/sprites/dogsd4d6.png -text
+prboom2/data/sprites/dogsd2.png -text
+prboom2/data/sprites/dogsd3.png -text
+prboom2/data/sprites/dogsd4.png -text
 prboom2/data/sprites/dogsd5.png -text
+prboom2/data/sprites/dogsd6.png -text
+prboom2/data/sprites/dogsd7.png -text
+prboom2/data/sprites/dogsd8.png -text
 prboom2/data/sprites/dogse1.png -text
 prboom2/data/sprites/dogse2.png -text
 prboom2/data/sprites/dogse3.png -text
@@ -313,64 +311,6 @@ prboom2/data/sprites/dogsk0.png -text
 prboom2/data/sprites/dogsl0.png -text
 prboom2/data/sprites/dogsm0.png -text
 prboom2/data/sprites/dogsn0.png -text
-prboom2/data/sprites/free/dogsa1.png -text
-prboom2/data/sprites/free/dogsa2a8.png -text
-prboom2/data/sprites/free/dogsa3a7.png -text
-prboom2/data/sprites/free/dogsa4a6.png -text
-prboom2/data/sprites/free/dogsa5.png -text
-prboom2/data/sprites/free/dogsb1.png -text
-prboom2/data/sprites/free/dogsb2b8.png -text
-prboom2/data/sprites/free/dogsb3b7.png -text
-prboom2/data/sprites/free/dogsb4b6.png -text
-prboom2/data/sprites/free/dogsb5.png -text
-prboom2/data/sprites/free/dogsc1.png -text
-prboom2/data/sprites/free/dogsc2c8.png -text
-prboom2/data/sprites/free/dogsc3c7.png -text
-prboom2/data/sprites/free/dogsc4c6.png -text
-prboom2/data/sprites/free/dogsc5.png -text
-prboom2/data/sprites/free/dogsd1.png -text
-prboom2/data/sprites/free/dogsd2d8.png -text
-prboom2/data/sprites/free/dogsd3d7.png -text
-prboom2/data/sprites/free/dogsd4d6.png -text
-prboom2/data/sprites/free/dogsd5.png -text
-prboom2/data/sprites/free/dogse1.png -text
-prboom2/data/sprites/free/dogse2.png -text
-prboom2/data/sprites/free/dogse3.png -text
-prboom2/data/sprites/free/dogse4.png -text
-prboom2/data/sprites/free/dogse5.png -text
-prboom2/data/sprites/free/dogse6.png -text
-prboom2/data/sprites/free/dogse7.png -text
-prboom2/data/sprites/free/dogse8.png -text
-prboom2/data/sprites/free/dogsf1.png -text
-prboom2/data/sprites/free/dogsf2.png -text
-prboom2/data/sprites/free/dogsf3.png -text
-prboom2/data/sprites/free/dogsf4.png -text
-prboom2/data/sprites/free/dogsf5.png -text
-prboom2/data/sprites/free/dogsf6.png -text
-prboom2/data/sprites/free/dogsf7.png -text
-prboom2/data/sprites/free/dogsf8.png -text
-prboom2/data/sprites/free/dogsg1.png -text
-prboom2/data/sprites/free/dogsg2.png -text
-prboom2/data/sprites/free/dogsg3.png -text
-prboom2/data/sprites/free/dogsg4.png -text
-prboom2/data/sprites/free/dogsg5.png -text
-prboom2/data/sprites/free/dogsg6.png -text
-prboom2/data/sprites/free/dogsg7.png -text
-prboom2/data/sprites/free/dogsg8.png -text
-prboom2/data/sprites/free/dogsh1.png -text
-prboom2/data/sprites/free/dogsh2.png -text
-prboom2/data/sprites/free/dogsh3.png -text
-prboom2/data/sprites/free/dogsh4.png -text
-prboom2/data/sprites/free/dogsh5.png -text
-prboom2/data/sprites/free/dogsh6.png -text
-prboom2/data/sprites/free/dogsh7.png -text
-prboom2/data/sprites/free/dogsh8.png -text
-prboom2/data/sprites/free/dogsi0.png -text
-prboom2/data/sprites/free/dogsj0.png -text
-prboom2/data/sprites/free/dogsk0.png -text
-prboom2/data/sprites/free/dogsl0.png -text
-prboom2/data/sprites/free/dogsm0.png -text
-prboom2/data/sprites/free/dogsn0.png -text
 prboom2/data/sprites/pls1a0.png -text
 prboom2/data/sprites/pls1b0.png -text
 prboom2/data/sprites/pls1c0.png -text
@@ -384,65 +324,5 @@ prboom2/data/sprites/pls2c0.png -text
 prboom2/data/sprites/pls2d0.png -text
 prboom2/data/sprites/pls2e0.png -text
 prboom2/data/sprites/tnt1a0.png -text
-prboom2/make-release.cmd -text
-prboom2/src/MAC/ANSIString.h -text
-prboom2/src/MAC/ANSIString.m -text
-prboom2/src/MAC/ConsoleController.h -text
-prboom2/src/MAC/ConsoleController.m -text
-prboom2/src/MAC/DrawerButton.h -text
-prboom2/src/MAC/DrawerButton.m -text
-prboom2/src/MAC/English.lproj/MainMenu.nib/classes.nib -text
-prboom2/src/MAC/English.lproj/MainMenu.nib/info.nib -text
-prboom2/src/MAC/English.lproj/MainMenu.nib/keyedobjects.nib -text
-prboom2/src/MAC/FileButtonController.h -text
-prboom2/src/MAC/FileButtonController.m -text
-prboom2/src/MAC/Image-DS_Store -text
-prboom2/src/MAC/Info.plist -text
-prboom2/src/MAC/Makefile.am -text
-prboom2/src/MAC/PrBoom.icns -text
-prboom2/src/MAC/PrBoom.sdef -text
-prboom2/src/MAC/Rakefile -text
-prboom2/src/MAC/ResolutionDataSource.h -text
-prboom2/src/MAC/ResolutionDataSource.m -text
-prboom2/src/MAC/SDLMain.h -text
-prboom2/src/MAC/SDLMain.m -text
-prboom2/src/MAC/TODO -text
-prboom2/src/MAC/UKFileWatcher.h -text
-prboom2/src/MAC/UKKQueue.h -text
-prboom2/src/MAC/UKKQueue.m -text
-prboom2/src/MAC/UKMainThreadProxy.h -text
-prboom2/src/MAC/UKMainThreadProxy.m -text
-prboom2/src/MAC/WadViewController.h -text
-prboom2/src/MAC/WadViewController.m -text
-prboom2/src/MAC/config.h -text
-prboom2/src/MAC/i_sound.m -text
-prboom2/src/MAC/i_system.m -text
-prboom2/src/MAC/macsupport.rb -text
-prboom2/src/MUSIC/Makefile.am eol=lf
-prboom2/src/MUSIC/dll/libogg-0.dll -text
-prboom2/src/MUSIC/dll/libvorbis-0.dll -text
-prboom2/src/MUSIC/dll/libvorbisfile-3.dll -text
-prboom2/src/MUSIC/dll/portmidi.dll -text
-prboom2/src/MUSIC/lib/dumb.lib -text
-prboom2/src/MUSIC/lib/dumbd.lib -text
-prboom2/src/MUSIC/lib/libfluidsynth.lib -text
-prboom2/src/MUSIC/lib/libmad.lib -text
-prboom2/src/MUSIC/lib/libmadd.lib -text
-prboom2/src/MUSIC/lib/libogg.lib -text
-prboom2/src/MUSIC/lib/libvorbis.lib -text
-prboom2/src/MUSIC/lib/libvorbisfile.lib -text
-prboom2/src/MUSIC/lib/portmidi.lib -text
-prboom2/src/Makefile.am eol=lf
-prboom2/src/SDL/Makefile.am eol=lf
-prboom2/src/SDL/SDL_windows.h -text
-prboom2/src/SDL/SDL_windows_main.c -text
-prboom2/src/TEXTSCREEN/Makefile.am -text
-prboom2/src/TEXTSCREEN/txt_largefont.h -text
 prboom2/src/gl_shader.c -text
-prboom2/tests/demo-testing.csv -text
-prboom2/tests/donut_av.wad -text
-prboom2/tests/heightlist_overflow.wad -text
-prboom2/tests/missed_back_side.zip -text
-prboom2/tests/sky.wad -text
-prboom2/tests/weaponinfo.wad -text
 .vs/CMakeWorkspaceSettings.json text eol=crlf
