@@ -1844,6 +1844,8 @@ dboolean P_ThingHeightClip (mobj_t* thing)
 {
   dboolean   onfloor;
 
+  P_MobjInterpolation(thing);
+
   onfloor = (thing->z == thing->floorz);
 
   P_CheckPosition (thing, thing->x, thing->y);
@@ -1865,11 +1867,7 @@ dboolean P_ThingHeightClip (mobj_t* thing)
       (thing->z - thing->floorz < 9 * FRACUNIT) ||
       (thing->flags & MF_NOGRAVITY)
     )
-    {
-      thing->PrevZ = thing->z;
       thing->z = thing->floorz;
-      thing->intflags |= MIF_NOINTERPOLATEZ;
-    }
 
     /* killough 11/98: Possibly upset balance of objects hanging off ledges */
     if (thing->intflags & MIF_FALLING && thing->gear >= MAXGEAR)
@@ -1880,11 +1878,7 @@ dboolean P_ThingHeightClip (mobj_t* thing)
     // don't adjust a floating monster unless forced to
 
     if (thing->z+thing->height > thing->ceilingz)
-    {
-      thing->PrevZ = thing->z;
       thing->z = thing->ceilingz - thing->height;
-      thing->intflags |= MIF_NOINTERPOLATEZ;
-    }
   }
 
   return thing->ceilingz - thing->floorz >= thing->height;
