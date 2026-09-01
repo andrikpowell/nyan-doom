@@ -39,8 +39,6 @@
 #include "p_map.h"
 #include "p_tick.h"
 #include "sounds.h"
-#include "st_stuff.h"
-#include "hu_stuff.h"
 #include "s_sound.h"
 #include "s_advsound.h"
 #include "info.h"
@@ -59,7 +57,6 @@
 #include "dsda/ambient.h"
 #include "dsda/excmd.h"
 #include "dsda/map_format.h"
-#include "dsda/mapinfo.h"
 #include "dsda/line_special.h"
 #include "dsda/settings.h"
 #include "dsda/skill_info.h"
@@ -68,7 +65,6 @@
 #include "dsda/tranmap.h"
 #include "dsda/utility.h"
 
-#include "heretic/def.h"
 #include "heretic/sb_bar.h"
 
 #include "hexen/po_man.h"
@@ -539,14 +535,14 @@ static void P_XYMovement (mobj_t* mo)
 
   if (
     mo->z > mo->floorz && !(mo->flags2 & MF2_ONMOBJ) && !(mo->flags & MF_FLY) &&
-    player && mo->player && map_info.air_control > 256
+    player && mo->player && map_aircontrol > 256
   )
   {
-    mo->momx = FixedMul(mo->momx, map_info.air_friction);
-    mo->momy = FixedMul(mo->momy, map_info.air_friction);
+    mo->momx = FixedMul(mo->momx, map_airfriction);
+    mo->momy = FixedMul(mo->momy, map_airfriction);
 
-    player->momx = FixedMul(player->momx, map_info.air_friction);
-    player->momy = FixedMul(player->momy, map_info.air_friction);
+    player->momx = FixedMul(player->momx, map_airfriction);
+    player->momy = FixedMul(player->momy, map_airfriction);
     return;
   }
 
@@ -1728,7 +1724,8 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
     if (type == g_mt_player)         // Except in old demos, players
       mobj->flags |= MF_FRIEND;    // are always friends.
 
-  if (map_info.flags & MI_PASSOVER && mobj->flags & MF_SOLID)
+  // TODO: possible mapinfo "passover" flag
+  if (mobj->flags & MF_SOLID)
     mobj->flags2 |= MF2_PASSMOBJ;
 
   mobj->health = P_MobjSpawnHealth(mobj);
@@ -1826,7 +1823,7 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
 
   //e6y
   mobj->friction = ORIG_FRICTION;                        // phares 3/17/98
-  mobj->gravity = map_info.gravity;
+  mobj->gravity = map_gravity;
   mobj->alpha = 1.f;
   mobj->index = -1;
 
@@ -2106,8 +2103,8 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
   else
     mobj = P_SpawnMobj(x,y,z, g_mt_player);
 
-  if (map_info.flags & MI_USE_PLAYER_START_Z)
-    mobj->z += mthing->height;
+  // TODO: possible "use player start z" mapinfo flag
+  //   mobj->z += mthing->height;
 
   if (map_format.zdoom)
     P_AdjustZLimits(mobj);
@@ -2432,9 +2429,9 @@ mobj_t* P_SpawnMapThing (const mapthing_t* mthing, int index)
   // check for players specially
   if ((player = P_TypeToPlayer(thingtype)) >= 0)
   {
-    if (map_info.flags & MI_FILTER_STARTS)
-      if (!P_ShouldSpawnMapThing(options))
-        return NULL;
+    // TODO: possible "filter starts" mapinfo flag
+    //   if (!P_ShouldSpawnMapThing(options))
+    //     return NULL;
 
     // killough 7/19/98: Marine's best friend :)
     if (
@@ -2603,7 +2600,7 @@ spawnit:
     if (mthing->gravity < 0)
       mobj->gravity = -mthing->gravity;
     else
-      mobj->gravity = FixedMul(map_info.gravity, mthing->gravity);
+      mobj->gravity = FixedMul(map_gravity, mthing->gravity);
   }
 
   mobj->alpha = mthing->alpha;
