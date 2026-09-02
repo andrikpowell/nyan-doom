@@ -1041,9 +1041,9 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_weaponbob_pct", dsda_config_weaponbob,
     dsda_config_int, 0, 4, { 4 }
   },
-  [dsda_config_viewbob_floor_jolt] = {
-    "dsda_viewbob_floor_jolt", dsda_config_viewbob_floor_jolt,
-    CONF_BOOL(0)
+  [dsda_config_fix_viewbob_floor_jolt] = {
+    "dsda_fix_viewbob_floor_jolt", dsda_config_fix_viewbob_floor_jolt,
+    CONF_BOOL(1)
   },
   [dsda_config_quake_intensity] = {
     "dsda_quake_intensity", dsda_config_quake_intensity,

@@ -130,8 +130,8 @@ int dsda_WeaponBob(void) {
   return dsda_IntConfig(dsda_config_weaponbob);
 }
 
-dboolean dsda_ViewBobFloorJolt(void) {
-  return dsda_IntConfig(dsda_config_viewbob_floor_jolt);
+dboolean dsda_FixViewBobFloorJolt(void) {
+  return dsda_IntConfig(dsda_config_fix_viewbob_floor_jolt);
 }
 
 dboolean dsda_ShowMessages(void) {
