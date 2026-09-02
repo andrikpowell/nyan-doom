@@ -8658,7 +8658,8 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
 
   if (dsda_InputActivated(dsda_input_quicksave))
   {
-    S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+    if (dsda_PlayQuicksaveSFX())
+      S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
     M_QuickSave();
     return true;
   }
@@ -8672,7 +8673,8 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
 
   if (dsda_InputActivated(dsda_input_quickload))
   {
-    S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+    if (dsda_PlayQuicksaveSFX())
+      S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
     M_QuickLoad();
     return true;
   }
