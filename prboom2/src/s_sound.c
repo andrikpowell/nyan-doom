@@ -674,7 +674,7 @@ dboolean S_ChangeMusicByName(const char *name, dboolean looping)
   return true;
 }
 
-void S_ChangeMusic(int musicnum, int looping)
+void S_ChangeMusic(int musicnum, dboolean looping)
 {
   musicinfo_t *music;
 
@@ -691,6 +691,9 @@ void S_ChangeMusic(int musicnum, int looping)
     I_Error("S_ChangeMusic: Bad music number %d", musicnum);
 
   music = &S_music[musicnum];
+
+  if (mus_playing == music)
+      return;
 
   // shutdown old music
   S_StopMusic();
@@ -770,7 +773,7 @@ void S_RestartMusic(void)
   }
 }
 
-void S_ChangeMusInfoMusic(int lumpnum, int looping)
+void S_ChangeMusInfoMusic(int lumpnum, dboolean looping)
 {
   musicinfo_t *music;
 
@@ -788,6 +791,10 @@ void S_ChangeMusInfoMusic(int lumpnum, int looping)
     return;
 
   music = &S_music[mus_musinfo];
+
+  // Allow MUSINFO music to restart after MIDI player changes
+  if (music->lumpnum == lumpnum && mus_playing)
+    return;
 
   // shutdown old music
   S_StopMusic();
