@@ -256,7 +256,7 @@ void P_CalcHeight (player_t* player)
 
   offgroundtics = onground ? 0 : offgroundtics + 1;
 
-  if (!onground && !raven && offgroundtics > AIRBOBFADETICS)
+  if (!onground && !raven && (offgroundtics > AIRBOBFADETICS || dsda_ViewBobFloorJolt()) )
   {
     player->viewz = player->mo->z + g_viewheight;
 
