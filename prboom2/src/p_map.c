@@ -165,9 +165,8 @@ dboolean PIT_StompThing (mobj_t* thing)
 
   // monsters don't stomp things except on boss level
   // killough 8/9/98: make consistent across all levels
-  if (!telefrag &&
-      !(map_info.flags & MI_ALLOW_MONSTER_TELEFRAGS) &&
-      !(tmthing->flags2 & MF2_TELESTOMP))
+  // TODO: possible "monster telefrag" mapinfo flag
+  if (!telefrag && !(tmthing->flags2 & MF2_TELESTOMP))
     return false;
 
   P_DamageMobjBy (thing, tmthing, tmthing, 10000, MOD_Telefrag); // Stomp!
@@ -3067,7 +3066,8 @@ dboolean PIT_RadiusAttack (mobj_t* thing)
 
   dist = dx > dy ? dx : dy;
 
-  if (map_info.flags & MI_EXPLODE_IN_3D &&
+  // TODO: possible "3d explosion" mapinfo flag
+  if (map_format.zdoom &&
       (bomb.spot->z < thing->z || bomb.spot->z >= thing->z + thing->height))
   {
     fixed_t dz;
@@ -3117,7 +3117,8 @@ dboolean PIT_RadiusAttack (mobj_t* thing)
 
     P_DamageMobj (thing, bomb.spot, bomb.source, damage);
 
-    if (map_info.flags & MI_VERTICAL_EXPLOSION_THRUST && !(bomb.flags & BF_HORIZONTAL))
+    // TODO: possible "vertical explosion thrust" mapinfo flag
+    if (map_format.zdoom && !(bomb.flags & BF_HORIZONTAL))
     {
       fixed_t thrust;
       fixed_t dxy, dz;
@@ -4206,8 +4207,8 @@ static void CheckForPushSpecial(line_t * line, int side, mobj_t * mobj)
         }
         else if (mobj->flags2 & MF2_IMPACT)
         {
-            if (map_info.flags & MI_MISSILES_ACTIVATE_IMPACT_LINES ||
-                !(mobj->flags & MF_MISSILE) ||
+            // TODO: possible "missile activates impact lines" mapinfo flag
+            if (!(mobj->flags & MF_MISSILE) ||
                 !mobj->target)
             {
               P_ActivateLine(line, mobj, side, SPAC_IMPACT);

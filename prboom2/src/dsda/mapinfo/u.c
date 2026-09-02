@@ -241,7 +241,7 @@ int dsda_UCheckInterText(void)
       return false;
 
     // Disable check for ZDoom (MAPINFO)
-    if (netgame || map_format.zdoom || dsda_UseMapinfo())
+    if (netgame || map_format.zdoom)
       return false;
 
     // '-' means that any default intermission was cleared.
@@ -529,9 +529,6 @@ int dsda_UBossAction(mobj_t* mo) {
   if (!P_CheckBossDeath(mo))
     return true;
 
-  if (map_format.zdoom)
-    I_Error("UMAPINFO boss actions are incompatible with this map format (use MAPINFO)");
-
   for (i = 0; i < gamemapinfo->numbossactions; i++) {
     if (gamemapinfo->bossactions[i].type == mo->type) {
       junk = *lines;
@@ -651,9 +648,6 @@ int dsda_UPrepareIntermission(int* result) {
     dsda_LegacyParTime(&wminfo.fake_partime, &wminfo.modified_partime);
   }
 
-  if (map_format.zdoom && leave_data.map > 0)
-    I_Error("UMAPINFO maps are incompatible with this exit (use MAPINFO)");
-
   if (secretexit)
     next = gamemapinfo->nextsecret;
 
@@ -718,7 +712,7 @@ int dsda_UPrepareFinale(int* result) {
 void dsda_ULoadMapInfo(void) {
   int p;
 
-  if (dsda_Flag(dsda_arg_nomapinfo) || dsda_UseMapinfo() || raven)
+  if (dsda_Flag(dsda_arg_nomapinfo) || raven)
     return;
 
   p = -1;
@@ -841,10 +835,6 @@ int dsda_UAirControl(fixed_t* air_control) {
 }
 
 int dsda_UInitSky(void) {
-  return false;
-}
-
-int dsda_UMapFlags(map_info_flags_t* flags) {
   return false;
 }
 
