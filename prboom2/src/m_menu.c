@@ -727,7 +727,7 @@ static void M_DrawReadThis1(void)
 {
   inhelpscreens = true;
   // Allows use of HELP2 screen for PWADs under DOOM 1
-  if (pwad_help2_check || doom_v11 || gamemode == shareware)
+  if (pwad_help2_check || old_compatibility || gamemode == shareware)
     M_DrawAd();
   else
     M_DrawCredits();
@@ -2291,7 +2291,7 @@ static dboolean M_DependantDisabled(const setup_menu_t* s)
 }
 
 int M_GetComplevel(void) {
-  if (doom_v11 || raven)
+  if (old_compatibility || raven)
     return 0;
 
   if (dsda_Arg(dsda_arg_complevel)->found)
@@ -2311,7 +2311,7 @@ static dboolean M_ComplevelDisabled(const setup_menu_t* s)
     int menu_complevel = M_GetComplevel();
 
     // Disable for certain games
-    if (doom_v11 || raven)
+    if (old_compatibility || raven)
       set_complevel++;
 
     // Disable when complevel is found via arg or lump
@@ -7168,7 +7168,7 @@ static void M_InitExtendedHelp(void)
             if (raven) {
               ExtHelpDef.prevMenu  = &InfoDef4; /* previous menu */
               InfoMenu4[0].routine = M_ExtHelp;
-            } else if (pwad_help2_check || doom_v11 || gamemode == shareware) {
+            } else if (pwad_help2_check || old_compatibility || gamemode == shareware) {
               ExtHelpDef.prevMenu  = &ReadDef2; /* previous menu */
               ReadMenu2[0].routine = M_ExtHelp;
             } else {
@@ -7409,7 +7409,7 @@ static void M_DrawAd (void)
 {
   M_ChangeMenu(NULL, mnact_full);
 
-  if (pwad_help2_check || doom_v11 || gamemode == shareware)
+  if (pwad_help2_check || old_compatibility || gamemode == shareware)
   {
     V_ClearBorder(help2);
     V_DrawNamePatchAnimateFS(0, 0, help2, CR_DEFAULT, VPT_STRETCH);
@@ -9815,7 +9815,7 @@ static void M_InitHelp(void)
 
     // If shareware or PWAD HELP2, use ad screen (w/ offset)
     // with HELP1 screen, else cut to only HELP1 screen
-    if (pwad_help2_check || doom_v11 || gamemode == shareware)
+    if (pwad_help2_check || old_compatibility || gamemode == shareware)
       ReadDef1.y = 15;
     else
     {
@@ -9828,8 +9828,8 @@ static void M_InitHelp(void)
 
 static void M_InitCompStr(void)
 {
-  if (doom_v11)
-    gen_compstrings[1] = "Doom v1.0/1.1";
+  if (old_compatibility)
+    gen_compstrings[1] = v10_compatibility ? "Doom v1.0" : "Doom v1.1";
 
   if (raven)
   {

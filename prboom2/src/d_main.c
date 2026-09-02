@@ -89,6 +89,7 @@
 
 #include "dsda/args.h"
 #include "dsda/configuration.h"
+#include "dsda/compatibility.h"
 #include "dsda/demo.h"
 #include "dsda/exdemo.h"
 #include "dsda/features.h"
@@ -636,7 +637,6 @@ static const char *pagename; // CPhipps - const
 dboolean bfgedition = 0;
 dboolean unityedition = 0;
 dboolean freedm = 0;
-dboolean doom_v11 = 0;
 
 //
 // D_PageTicker
@@ -662,7 +662,7 @@ static dboolean dsda_SimpleDemoLoop(void)
   int pwaddemos = W_PWADLumpNameExists2("DEMO1");
   int pwadmaps = W_PWADMapsExist();
 
-  if ((pwadmaps && !pwaddemos) || dsda_IsBlankPWADLump("DEMO1") || doom_v11)
+  if ((pwadmaps && !pwaddemos) || dsda_IsBlankPWADLump("DEMO1"))
     return true;
 
   return false;
@@ -670,7 +670,7 @@ static dboolean dsda_SimpleDemoLoop(void)
 
 static dboolean dsda_ForcePWADCredit(void)
 {
-  if (doom_v11)
+  if (old_compatibility)
     return true;
 
   if (W_PWADLumpNameExists(credit))
@@ -969,6 +969,8 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
     dboolean freedm_lmp = false;
     dboolean stbar_left = false;
     dboolean stbar_right = false;
+    dboolean doom_v10 = false;
+    dboolean doom_v11 = false;
     FILE* fp;
 
     // Identify IWAD correctly
@@ -1040,6 +1042,13 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
           if (!strncmp(fileinfo[length].name,"STMBARR",7))
             stbar_right = true;
         }
+
+        if (stbar_left && stbar_right && sw >= 9 && rg == 0)
+        {
+          static const char doom_v10_iwad_md5[] = "90facab21eede7981be10790e3f82da2";
+          doom_v10 = dsda_CheckFileChecksum(iwadname, doom_v10_iwad_md5);
+        }
+
         Z_Free(fileinfo);
 
       }
@@ -1056,8 +1065,13 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
       unityedition++;
     if (freedm_lmp)
       freedm++;
-    if (stbar_left && stbar_right)
+    if (stbar_left && stbar_right && !doom_v10)
       doom_v11++;
+
+    if (doom_v10)
+      old_compat_level = old_10_compatibility;
+    else if (doom_v11)
+      old_compat_level = old_11_compatibility;
 
     // Determine game mode from levels present
     // Must be a full set for whichever mode is present
@@ -1785,13 +1799,13 @@ static void EvaluateDoomVerStr(void)
     Z_Free (tempverstr);
   }
 
-  if (doom_v11)
+  if (old_compatibility)
   {
     char *tempverstr;
-    const char v11verstr[]=" v1.0/1.1";
-    tempverstr = Z_Malloc(sizeof(char) * (strlen(doomverstr)+strlen(v11verstr)+1));
+    const char *oldverstr = v10_compatibility ? " v1.0" : " v1.1";
+    tempverstr = Z_Malloc(sizeof(char) * (strlen(doomverstr)+strlen(oldverstr)+1));
     strcpy (tempverstr, doomverstr);
-    strcat (tempverstr, v11verstr);
+    strcat (tempverstr, oldverstr);
     doomverstr = Z_Strdup (tempverstr);
     Z_Free (tempverstr);
   }
@@ -2209,13 +2223,14 @@ static void D_DoomMainSetup(void)
     }
   }
 
-  // Doom v1.1 - No demo support
-  if (!raven && doom_v11)
+  // Doom v1.0/v1.1 - No demo support
+  if (!raven && old_compatibility)
   {
-    lprintf(LO_INFO, "NOTICE: Doom v1.0/1.1 support is purely for historical purposes, thus demo support is disabled.\n");
+    const char* version = v10_compatibility ? "0" : "1";
+    lprintf(LO_INFO, "NOTICE: Doom v1.%s support is purely for historical purposes, thus demo support is disabled.\n", version);
 
     if (started_demo)
-      I_Error("Doom v1.0/1.1 IWAD is not supported for demo recording or playback.");
+      I_Error("Doom v1.%s IWAD is not supported for demo recording or playback.", version);
   }
 
   // process deh files from autoload directory before deh in wads from -file parameter

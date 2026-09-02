@@ -141,4 +141,19 @@ inline static fixed_t DegToSlope(fixed_t a)
     return AngleToSlope(-(int)FixedToAngle(-a));
 }
 
+//
+// Doom v1.0/v1.1
+//
+
+#define COARSEANGLES            256
+#define COARSEMASK              (COARSEANGLES-1)
+
+// 0x100000000 to 0x0100
+#define ANGLETOCOARSESHIFT    	24
+
+// Effective size is 320.
+extern fixed_t coarsesine[5*COARSEANGLES/4];
+extern fixed_t coarsecosine[COARSEANGLES];
+void R_ChangeTrigTablesToDoom_10(void);
+
 #endif

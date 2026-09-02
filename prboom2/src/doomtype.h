@@ -122,6 +122,13 @@ typedef unsigned char byte;
 #endif
 
 typedef enum {
+  // normal_compatibility = 0
+  old_10_compatibility = 1,       /* Doom v1.0 */
+  old_11_compatibility,           /* Doom v1.1 */
+} complevel_old_t_e;
+typedef int complevel_old_t;
+
+typedef enum {
   doom_12_compatibility,   /* Doom v1.2 */
   doom_1666_compatibility, /* Doom v1.666 */
   doom2_19_compatibility,  /* Doom & Doom 2 v1.9 */

@@ -146,7 +146,7 @@ void deh_applyCompatibility(void)
       mobjinfo[MT_SKULL].flags &= ~(MF_COUNTKILL);
   }
 
-  if (doom_v11)
+  if (old_compatibility)
   {
     int i;
 

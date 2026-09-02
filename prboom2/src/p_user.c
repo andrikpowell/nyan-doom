@@ -159,6 +159,14 @@ void P_ForwardThrust(player_t* player,angle_t angle,fixed_t move)
 
 void P_Thrust(player_t* player,angle_t angle,fixed_t move)
 {
+  if (v10_compatibility)
+  {
+    angle >>= ANGLETOCOARSESHIFT;
+    player->mo->momx += FixedMul(move, coarsecosine[angle]);
+    player->mo->momy += FixedMul(move, coarsesine[angle]);
+    return;
+  }
+
   angle >>= ANGLETOFINESHIFT;
 
   map_format.player_thrust(player, angle, move);
@@ -264,9 +272,18 @@ void P_CalcHeight (player_t* player)
     return;
   }
 
-  angle = (FINEANGLES / 20 * leveltime) & FINEMASK;
   bob = player->bob * dsda_ViewBob() / 4;
-  bob = FixedMul(bob / 2, finesine[angle]);
+
+  if (old_compatibility)
+  {
+    angle = (12 * gametic) & COARSEMASK;
+    bob = FixedMul(bob / 2, coarsesine[angle]);
+  }
+  else
+  {
+    angle = (FINEANGLES / 20 * leveltime) & FINEMASK;
+    bob = FixedMul(bob / 2, finesine[angle]);
+  }
 
   // Disable viewbob in Camera Mode
   if (dsda_CameraMode())
@@ -364,6 +381,50 @@ void P_FreeAim_VerticalThrust(player_t* player, fixed_t move)
   // (fixes insane flyheight changes when looking directly up or down)
   if (player->flyheight > 10)   player->flyheight = 10;
   if (player->flyheight < -10)  player->flyheight = -10;
+}
+
+void P_MovePlayer_10 (player_t* player, dboolean justattacked)
+{
+  ticcmd_t *cmd;
+  mobj_t *mo;
+  fixed_t forwardmove, sidemove;
+  fixed_t cmd_move_scale;
+
+  P_HandleExCmdLook(player);
+
+  cmd = &player->cmd;
+  mo = player->mo;
+  mo->angle += cmd->angleturn << 16;
+
+  if (demo_smoothturns && player == &players[displayplayer])
+  {
+    R_SmoothPlaying_Add(cmd->angleturn << 16);
+  }
+
+  onground = (mo->z <= mo->floorz || mo->flags2 & MF2_ONMOBJ);
+
+  if ((player->mo->flags & MF_FLY) && player == &players[consoleplayer] && upmove != 0)
+  {
+    mo->momz = upmove << 8;
+  }
+
+  cmd_move_scale = 900;
+  forwardmove = cmd->forwardmove * cmd_move_scale;
+  sidemove = cmd->sidemove * cmd_move_scale;
+
+  // Need to set this manually, as 0xc800 doesn't divide cleanly by 900
+  if (justattacked)
+      forwardmove = 0xc800;
+
+  if (forwardmove && onground)
+    P_Thrust (player, player->mo->angle, forwardmove);
+
+  if (sidemove && onground)
+    P_Thrust (player, player->mo->angle-ANG90, sidemove);
+
+  if (forwardmove || sidemove)
+    if (player->mo->state == &states[S_PLAY])
+      P_SetMobjState (player->mo, S_PLAY_RUN1);
 }
 
 void P_MovePlayer (player_t* player)
@@ -649,6 +710,7 @@ void P_PlayerThink (player_t* player)
 {
   ticcmd_t*    cmd;
   weapontype_t newweapon;
+  dboolean old_justattacked = false;
   int floorType;
 
   if (movement_smooth)
@@ -677,6 +739,8 @@ void P_PlayerThink (player_t* player)
     cmd->angleturn = 0;
     cmd->forwardmove = 0xc800 / 512;
     cmd->sidemove = 0;
+    if (old_compatibility)
+      old_justattacked = true;
     player->mo->flags &= ~MF_JUSTATTACKED;
   }
 
@@ -712,7 +776,10 @@ void P_PlayerThink (player_t* player)
     player->mo->reactiontime--;
   else
   {
-    P_MovePlayer(player);
+    if (old_compatibility)
+      P_MovePlayer_10(player, old_justattacked);
+    else
+      P_MovePlayer(player);
 
     if (hexen)
     {

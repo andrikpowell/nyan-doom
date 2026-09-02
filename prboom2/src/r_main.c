@@ -857,6 +857,8 @@ void R_Init (void)
   // current column draw function
   lprintf(LO_DEBUG, "\nR_LoadTrigTables: ");
   R_LoadTrigTables();
+  if (v10_compatibility)
+    R_ChangeTrigTablesToDoom_10();
   lprintf(LO_DEBUG, "\nR_InitData: ");
   R_InitData();
   R_SetViewSize();
