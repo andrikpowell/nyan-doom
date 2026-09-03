@@ -292,7 +292,7 @@ mline_t thingbox_guy[] =
 #undef R
 #define NUMTHINGBOXGUYLINES (sizeof(thingbox_guy)/sizeof(mline_t))
 
-int automap_active;
+int automap_full;
 int automap_overlay;
 int automap_rotate;
 int automap_follow;
@@ -627,7 +627,7 @@ static void AM_SetScale(dboolean keep_scale)
   if (keep_scale)
   {
     // Keep current zoom when changing resolution / renderer
-    if (automap_active && old_m_w > 0)
+    if (automap_full && old_m_w > 0)
     {
       scale_mtof = FixedDiv(f_w << FRACBITS, old_m_w);
       scale_mtof = BETWEEN(min_scale_mtof, max_scale_mtof, scale_mtof);
@@ -648,7 +648,7 @@ static void AM_SetScale(dboolean keep_scale)
 //
 void AM_SetPosition(void)
 {
-  if (automap_active)
+  if (automap_full)
   {
     f_x = f_y = 0;
     f_w = SCREENWIDTH;
@@ -767,7 +767,7 @@ static void AM_SetMinimapScale(void)
 
 void AM_RefreshMinimap(void)
 {
-  if (!dsda_ShowMinimap() || automap_active)
+  if (!dsda_ShowMinimap() || automap_full)
     return;
 
   // Refresh Minimap Coordinates / scale / center
@@ -847,7 +847,7 @@ void AM_ExchangeScales(int full_automap, int *last_full_automap)
 //
 void AM_Stop (dboolean minimap)
 {
-  automap_active = false;
+  automap_full = false;
 
   if (minimap && dsda_ShowMinimap())
     AM_Start(false);
@@ -863,14 +863,14 @@ void AM_Stop (dboolean minimap)
 //
 // Passed nothing, returns nothing
 //
-void AM_Start(dboolean full_automap)
+void AM_Start(dboolean open_full_automap)
 {
   static int lastlevel = -1, lastepisode = -1;
   static int last_full_automap;
 
   AM_InitParams();
 
-  automap_active = full_automap;
+  automap_full = open_full_automap;
 
   AM_SetPosition();
 
@@ -883,9 +883,9 @@ void AM_Start(dboolean full_automap)
     last_full_automap = true;
   }
 
-  AM_ExchangeScales(full_automap, &last_full_automap);
+  AM_ExchangeScales(open_full_automap, &last_full_automap);
 
-  if (dsda_ShowMinimap() && !full_automap)
+  if (dsda_ShowMinimap() && !open_full_automap)
     AM_RefreshMinimap();
 
   AM_initVariables();
@@ -2929,11 +2929,11 @@ static void AM_setFrameVariables(void)
 void AM_Drawer (dboolean minimap)
 {
   // if no automap
-  if (!automap_active && !minimap)
+  if (!automap_full && !minimap)
     return;
 
   // if minimap + overlay + no fade
-  if (automap_active && automap_overlay == 2 && minimap)
+  if (automap_full && automap_overlay == 2 && minimap)
     return;
 
   V_BeginAutomapDraw();

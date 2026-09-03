@@ -5595,7 +5595,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
 
   if (dsda_InputActivated(dsda_input_zoomout))
   {
-    if (automap_active)
+    if (automap_full)
       return false;
     M_SizeDisplay(0);
     S_StartOptionalSound(sfx_mnusli, g_sfx_stnmov, true);
@@ -5604,7 +5604,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
 
   if (dsda_InputActivated(dsda_input_zoomin))
   {
-    if (automap_active)
+    if (automap_full)
       return false;
     M_SizeDisplay(1);
     S_StartOptionalSound(sfx_mnusli, g_sfx_stnmov, true);
@@ -5712,7 +5712,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
 
   if (dsda_InputActivated(dsda_input_hud))   // heads-up mode
   {
-    if (automap_active)              // jff 2/22/98
+    if (automap_full)                // jff 2/22/98
       return false;                  // HUD mode control
     M_SizeDisplay(2);
     return true;

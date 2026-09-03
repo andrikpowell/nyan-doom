@@ -448,8 +448,8 @@ void D_Display (fixed_t frac)
     dboolean redrawborderstuff;
 
     // Work out if the player view is visible, and if there is a border
-    viewactive = automap_off && !inhelpscreens;
-    isborder = viewactive ? R_PartialView() : (!inhelpscreens && automap_active);
+    viewactive = !inhelpscreens && !automap_solid;
+    isborder = viewactive ? R_PartialView() : (!inhelpscreens && automap_full);
 
     if (oldgamestate != GS_LEVEL || must_fill_back_screen) {
       must_fill_back_screen = false;
@@ -503,7 +503,7 @@ void D_Display (fixed_t frac)
     use_boom_cm=false;
     frame_fixedcolormap = 0;
 
-    if (automap_active)
+    if (automap_full)
     {
       AM_Drawer(false);
     }
