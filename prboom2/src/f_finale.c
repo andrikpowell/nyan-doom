@@ -1076,7 +1076,7 @@ static void F_DrawEndPatches (void)
   if (finalecount < 1180)
   {
     // CPhipps - patch drawing updated
-    V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, "END0", CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchAnimate((320-13*8)/2, (200-8*8)/2, "END0", CR_DEFAULT, VPT_STRETCH);
     laststage = 0;
     return;
   }
@@ -1092,7 +1092,7 @@ static void F_DrawEndPatches (void)
 
   snprintf(name, sizeof name, "END%i", stage);
   // CPhipps - patch drawing updated
-  V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, name, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatchAnimate((320-13*8)/2, (200-8*8)/2, name, CR_DEFAULT, VPT_STRETCH);
 }
 
 #define R_PatchAnimateByName(name) (R_PatchByNum(N_GetPatchAnimateNum(name, false)))

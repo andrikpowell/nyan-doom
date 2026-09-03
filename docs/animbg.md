@@ -33,6 +33,7 @@ The `start` lumps should be placed *above* or *before* the `end` lumps in the WA
 | PFUB1          | S_PFUB1                 | E_PFUB1                 |
 | PFUB2          | S_PFUB2                 | E_PFUB2                 |
 | ENDPIC         | S_ENDPIC                | E_ENDPIC                |
+| END0-6         | S_END0-6                | E_END0-6                |
 
 ### Animated Boom Patches
 
