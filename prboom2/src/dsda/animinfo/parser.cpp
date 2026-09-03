@@ -15,7 +15,6 @@
 //	NYAN ANIMINFO Parser
 //
 
-#include <limits.h>
 #include <string.h>
 #include <vector>
 
@@ -27,6 +26,9 @@ extern "C"
 #include "m_misc.h"
 #include "w_wad.h"
 }
+
+// ~30 minutes max
+#define ANIMINFO_MAX_TICS 65535
 
 typedef struct
 {
@@ -58,8 +60,8 @@ static int ParsePositiveInteger(Scanner &scanner, const char** text, const char*
     {
         int digit = **text - '0';
 
-        if (value > (INT_MAX - digit) / 10)
-            scanner.ErrorF("ANIMINFO: lump '%s': %s exceeds INT_MAX", lump_name, property);
+        if (value > (ANIMINFO_MAX_TICS - digit) / 10)
+            scanner.ErrorF("ANIMINFO: lump '%s': %s exceeds maximum of %d tics", lump_name, property, ANIMINFO_MAX_TICS);
 
         value = value * 10 + digit;
         (*text)++;
