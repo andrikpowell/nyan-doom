@@ -470,7 +470,7 @@ void P_UnArchiveMap(void)
   P_LOAD_X(automap_full);
 
   if (automap_full)
-    AM_Start(true);
+    AM_Start(AM_OPEN_FULLAUTOMAP);
 
   P_LOAD_X(markpointnum);
 

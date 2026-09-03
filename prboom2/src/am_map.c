@@ -850,7 +850,7 @@ void AM_Stop (dboolean minimap)
   automap_full = false;
 
   if (minimap && dsda_ShowMinimap())
-    AM_Start(false);
+    AM_Start(AM_OPEN_MINIMAP);
 }
 
 //
@@ -1091,7 +1091,7 @@ dboolean AM_Responder
   {
     if (dsda_InputActivated(dsda_input_map))
     {
-      AM_Start(true);
+      AM_Start(AM_OPEN_FULLAUTOMAP);
       return true;
     }
   }
