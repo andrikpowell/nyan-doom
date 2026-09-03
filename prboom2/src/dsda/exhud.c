@@ -770,7 +770,7 @@ void dsda_RefreshExHudMinimap(void) {
     if (components[exhud_minimap].initialized)
       components[exhud_minimap].update(components[exhud_minimap].data);
 
-    if (in_game && gamestate == GS_LEVEL)
+    if (in_game && gamestate == GS_LEVEL && !automap_active)
       AM_Start(false);
   }
   else
