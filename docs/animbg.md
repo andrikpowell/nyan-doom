@@ -2,6 +2,8 @@
 
 Nyan Doom supports new animated background and menu graphics via specific lumps.
 
+For fully customisable animation ranges, frame sequences, and duration, see [ANIMINFO](animinfo.md).
+
 Only when both `start` and `end` animation lumps are present for a single entry, will those animation lumps take priority over the `original` lumps. Any lumps in-between the `start` and `end` lumps will also be included in the animation. Animations run at the same speed as the Menu Selector (`M_SKULL1/2`).
 
 Note there are no [widescreen](ws.md) versions for these animated lumps as they take priority over widescreen lumps. The lump priority is: `start/end animations` > `widescreen` > `original`.

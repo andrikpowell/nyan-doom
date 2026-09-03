@@ -52,6 +52,8 @@ set(COMMON_SRC
     dsda/analysis.h
     dsda/animinfo.cpp
     dsda/animinfo.h
+    dsda/animinfo/parser.cpp
+    dsda/animinfo/parser.h
     dsda/library.h
     dsda/args.c
     dsda/args.h
