@@ -127,6 +127,7 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
 - [UDMF Support](./docs/udmf.md)
 - [MAPINFO Support](./docs/mapinfo.md)
 - [ANIMINFO Support](./docs/animinfo.md)
+- [Obituary Support](./docs/obituaries.md)
 - [Partial ID24 Support](./docs/id24.md)
 
 ### Standards

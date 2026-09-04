@@ -15,6 +15,8 @@ The following Vanilla Hehacked features are supported:
 - Thing
 - Weapon
 
+Thing blocks and REX `[STRINGS]` blocks support custom [obituaries](obituaries.md).
+
 ## HeHackEd Versioning
 
 Nyan Doom supports Hehacked patches for Heretic `1.0`, `1.2`, and `1.3`. In order to get around the lack of version detection, Nyan Doom uses an auto-detect system to "vote" on which version a hehacked patch is most likely for. If undetected, Heretic will default to the latest (currently `1.3`).
