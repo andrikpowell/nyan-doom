@@ -70,7 +70,7 @@ A range animation displays every lump from `startpic` through `endpic`, in wad-d
 | --- | --- |
 | **type = "range";** | Selects a range animation. |
 | **tics = "\<Tics\>";** | Sets one fixed duration for every frame. The value must be positive. |
-| **tics = "rand(\<Min\>,\<Max\>)";** | Randomizes each frame duration inclusively between two numbers. `Min` must not exceed `Max`. |
+| **tics = "rand(\<Min\>, \<Max\>)";** | Randomizes each frame duration inclusively between two numbers. `Min` must not exceed `Max`. Whitespace is allowed between `()`. |
 | **startpic = "\<LumpName\>";** | Sets the first lump in the animation range. Required. |
 | **endpic = "\<LumpName\>";** | Sets the last lump in the animation range. Required. |
 
@@ -85,7 +85,7 @@ animate =
 {
   type = "sequence";
   pic = "S_TITLEP"; tics = "4";
-  pic = "TITLEPIC"; tics = "rand(8,30)";
+  pic = "TITLEPIC"; tics = "rand(8, 30)";
   pic = "E_TITLEP"; tics = "10";
 };
 ```
@@ -97,7 +97,7 @@ A sequence animation lists its animation frame-by-frame. Every `pic` must be fol
 | **type = "sequence";** | Selects a sequence animation. |
 | **pic = "\<LumpName\>";** | Adds the lump as the next frame. At least one frame is required. |
 | **tics = "\<Tics\>";** | Sets the frame's fixed duration. |
-| **tics = "rand(\<Min\>,\<Max\>)";** | Randomizes the frame's duration between two positive values. The duration is selected once when that frame begins. |
+| **tics = "rand(\<Min\>, \<Max\>)";** | Randomizes the frame's duration between two positive values. The duration is selected once when that frame begins. Whitespace is allowed between `()`. |
 
 ## Full ANIMINFO Example
 
@@ -113,7 +113,7 @@ lump "TITLEPIC"
   {
     type = "sequence";
     pic = "S_TITLEP"; tics = "4";
-    pic = "TITLEPIC"; tics = "rand(8,30)";
+    pic = "TITLEPIC"; tics = "rand(8, 30)";
     pic = "TITLEP2"; tics = "4";
     pic = "TITLEP3"; tics = "7";
     pic = "TITLEP4"; tics = "22";

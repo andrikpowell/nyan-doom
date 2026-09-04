@@ -73,6 +73,37 @@ static int ParsePositiveInteger(Scanner &scanner, const char** text, const char*
     return value;
 }
 
+static void NextNonWhitespace(const char** text)
+{
+    while (**text == ' ' || **text == '\t' || **text == '\r' || **text == '\n')
+        (*text)++;
+}
+
+static animinfo_tics_t ParseRandomTics(Scanner &scanner, const char* text, const char* lump_name)
+{
+    animinfo_tics_t tics;
+
+    text += 5;
+    NextNonWhitespace(&text);
+    tics.min = ParsePositiveInteger(scanner, &text, lump_name, "rand minimum");
+    NextNonWhitespace(&text);
+    if (*text != ',')
+        scanner.ErrorF("ANIMINFO: lump '%s': invalid rand minimum", lump_name);
+
+    ++text;
+    NextNonWhitespace(&text);
+    tics.max = ParsePositiveInteger(scanner, &text, lump_name, "rand maximum");
+    NextNonWhitespace(&text);
+    if (*text != ')' || text[1] != '\0')
+        scanner.ErrorF("ANIMINFO: lump '%s': invalid rand maximum", lump_name);
+
+    if (tics.max < tics.min)
+        scanner.ErrorF("ANIMINFO: lump '%s': 'rand(min,max)' requires min <= max", lump_name);
+
+    tics.mode = ANIM_TICS_RANDOM;
+    return tics;
+}
+
 static animinfo_tics_t ParseTics(Scanner &scanner, const char* lump_name)
 {
     animinfo_tics_t tics;
@@ -95,23 +126,12 @@ static animinfo_tics_t ParseTics(Scanner &scanner, const char* lump_name)
     }
 
     // Parse random tic range
-    if (strncmp(text, "rand(", 5))
-        scanner.ErrorF("ANIMINFO: lump '%s': 'tics' must be a quoted integer or rand(min,max)", lump_name);
+    if (!strncmp(text, "rand(", 5))
+        return ParseRandomTics(scanner, text, lump_name);
 
-    text += 5;
-    tics.min = ParsePositiveInteger(scanner, &text, lump_name, "rand minimum");
-    if (*text != ',')
-        scanner.ErrorF("ANIMINFO: lump '%s': invalid rand minimum", lump_name);
+    // not a valid tic value, throw error
+    scanner.ErrorF("ANIMINFO: lump '%s': 'tics' must be a quoted integer or \"rand(min,max)\"", lump_name);
 
-    ++text;
-    tics.max = ParsePositiveInteger(scanner, &text, lump_name, "rand maximum");
-    if (*text != ')' || text[1] != '\0')
-        scanner.ErrorF("ANIMINFO: lump '%s': invalid rand maximum", lump_name);
-
-    if (tics.max < tics.min)
-        scanner.ErrorF("ANIMINFO: lump '%s': 'rand(min,max)' requires min <= max", lump_name);
-
-    tics.mode = ANIM_TICS_RANDOM;
     return tics;
 }
 
