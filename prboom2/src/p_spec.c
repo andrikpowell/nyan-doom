@@ -1744,21 +1744,26 @@ static const char* dsda_GetSecretMessage(void)
 int P_GetMilestoneSound(int config_id)
 {
   int config = dsda_IntConfig(config_id);
+  int fallback_sfx;
+  dboolean sound_exist = false;
 
   if (config == 0)
     return 0;
 
-  if (raven)
-    return g_sfx_secret;
+  fallback_sfx  = raven ? hexen ? hexen_sfx_chat :
+                                  heretic_sfx_chat :
+                                  sfx_itmbk;
 
   if (config == 1)
   {
-    dboolean sound_exist = !(I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0);
+    sound_exist = !(I_GetSfxLumpNum(&S_sfx[sfx_secret]) < 0);
 
-    return sound_exist ? g_sfx_secret : g_sfx_secret_subtle;
+    return sound_exist ? sfx_secret : fallback_sfx;
   }
 
-  return g_sfx_secret_subtle;
+  sound_exist = !(I_GetSfxLumpNum(&S_sfx[sfx_secret_subtle]) < 0);
+
+  return sound_exist ? sfx_secret_subtle : fallback_sfx;
 }
 
 #define SECRET_MESSAGE_TICS ((int)(2.5*TICRATE))

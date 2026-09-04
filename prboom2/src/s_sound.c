@@ -148,6 +148,11 @@ static mobj_t* GetSoundListener(void);
 static void Heretic_S_StopSound(void *_origin);
 static void Raven_S_StartSoundAtVolume(void *_origin, int sound_id, int volume, int loop_timeout);
 
+static dboolean S_IsSecretSound(int sfx_id)
+{
+  return sfx_id == sfx_secret || sfx_id == sfx_secret_subtle;
+}
+
 void S_ResetSfxVolume(void)
 {
   snd_SfxVolume = dsda_IntConfig(dsda_config_sfx_volume);
@@ -337,7 +342,7 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume, dboolean impor
     return;
 
   // killough 4/25/98
-  if (sfx_id == g_sfx_secret || sfx_id == g_sfx_secret_subtle)
+  if (S_IsSecretSound(sfx_id))
     params.sfx_class = sfx_class_secret;
   else if (sfx_id == g_sfx_idnut)
     params.sfx_class = sfx_class_idnut;
@@ -1248,7 +1253,7 @@ static void Raven_S_StartSoundAtVolume(void *_origin, int sound_id, int volume, 
   params.priority = sfx->priority;
   params.priority *= (10 - (dist / dist_adjust));
 
-  params.sfx_class = sfx_class_none;
+  params.sfx_class = S_IsSecretSound(sound_id) ? sfx_class_secret : sfx_class_none;
 
   cnum = Raven_S_getChannel(listener, origin, sfx, &params);
   if (cnum == channel_not_found)

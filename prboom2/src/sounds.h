@@ -62,8 +62,10 @@ typedef struct {
 //
 
 struct sfxinfo_struct;
+struct portsfxinfo_struct;
 
 typedef struct sfxinfo_struct sfxinfo_t;
+typedef struct portsfxinfo_struct sfx_port_info_t;
 
 struct sfxinfo_struct {
 
@@ -90,6 +92,23 @@ struct sfxinfo_struct {
 
   // hexen
   const char *tagname;
+
+  int parallel_tic;
+  int parallel_count;
+};
+
+struct portsfxinfo_struct {
+  const char *doom_name; // up to 6-character name
+  const char *heretic_name;
+  const char *hexen_name;
+
+  int priority;         // Sfx priority
+  sfxinfo_t *link;      // referenced sound if a link
+  int pitch;            // pitch if a link
+  void *data;           // sound data
+  int lumpnum;          // lump number of sfx
+  int numchannels;      // heretic - total number of channels a sound type may occupy
+  const char *tagname;  // hexen
 
   int parallel_tic;
   int parallel_count;
@@ -274,26 +293,65 @@ typedef enum {
 } musicenum_t;
 
 //
+// Port specific / optional sfx
+//
+
+typedef enum {
+  port_sfx_None,
+
+  // DSDA
+  port_sfx_secret,
+  port_sfx_secret_subtle,
+  
+  // Nyan sfx
+  port_sfx_idnut,
+  port_sfx_gibdth,
+
+  // Optional menu/intermission sounds
+  port_sfx_mnuopn, // swtchn
+  port_sfx_mnucls, // swtchx
+  port_sfx_mnuact, // pistol
+  port_sfx_mnubak,
+  port_sfx_mnumov, // pstop
+  port_sfx_mnusli, // stnmov
+  port_sfx_mnusel, // itemup
+  port_sfx_mnuerr, // oof
+  port_sfx_inttic, // pistol
+  port_sfx_inttot, // barex
+  port_sfx_intnex, // sgcock
+  port_sfx_intnet, // pldeth
+  port_sfx_intdms, // slop
+  NUM_PORT_SFX,
+} sfx_port_enum_t;
+
+int dsda_PortSFXIndex(int port_sfx_id);
+
+#define sfx_secret        (dsda_PortSFXIndex(port_sfx_secret))
+#define sfx_secret_subtle (dsda_PortSFXIndex(port_sfx_secret_subtle))
+#define sfx_idnut         (dsda_PortSFXIndex(port_sfx_idnut))
+#define sfx_gibdth        (dsda_PortSFXIndex(port_sfx_gibdth))
+
+#define sfx_mnuopn (dsda_PortSFXIndex(port_sfx_mnuopn))
+#define sfx_mnucls (dsda_PortSFXIndex(port_sfx_mnucls))
+#define sfx_mnuact (dsda_PortSFXIndex(port_sfx_mnuact))
+#define sfx_mnubak (dsda_PortSFXIndex(port_sfx_mnubak))
+#define sfx_mnumov (dsda_PortSFXIndex(port_sfx_mnumov))
+#define sfx_mnusli (dsda_PortSFXIndex(port_sfx_mnusli))
+#define sfx_mnusel (dsda_PortSFXIndex(port_sfx_mnusel))
+
+#define sfx_mnuerr (dsda_PortSFXIndex(port_sfx_mnuerr))
+#define sfx_inttic (dsda_PortSFXIndex(port_sfx_inttic))
+#define sfx_inttot (dsda_PortSFXIndex(port_sfx_inttot))
+#define sfx_intnex (dsda_PortSFXIndex(port_sfx_intnex))
+#define sfx_intnet (dsda_PortSFXIndex(port_sfx_intnet))
+#define sfx_intdms (dsda_PortSFXIndex(port_sfx_intdms))
+
+//
 // Identifiers for all sfx in game.
 //
 
 typedef enum {
   sfx_None,
-
-  // Optional menu/intermission sounds
-  sfx_mnuopn, // swtchn
-  sfx_mnucls, // swtchx
-  sfx_mnuact, // pistol
-  sfx_mnubak,
-  sfx_mnumov, // pstop
-  sfx_mnusli, // stnmov
-  sfx_mnusel, // itemup
-  sfx_mnuerr, // oof
-  sfx_inttic, // pistol
-  sfx_inttot, // barex
-  sfx_intnex, // sgcock
-  sfx_intnet, // pldeth
-  sfx_intdms, // slop
 
   BASE_NUMSFX,
 
@@ -413,13 +471,7 @@ typedef enum {
   sfx_dgdth,
   sfx_dgpain,
 
-  // DSDA
-  sfx_secret,
-  sfx_secret_subtle,
-  
-  // Nyan sfx
-  sfx_idnut,
-  sfx_gibdth,
+  DOOM_SFX_END = sfx_dgpain,
 
   // Everything from here to 500 is reserved
 
@@ -772,6 +824,8 @@ typedef enum {
   heretic_sfx_amb9,
   heretic_sfx_amb10,
   heretic_sfx_amb11,
+
+  HERETIC_SFX_END = heretic_sfx_amb11,
 
   /* Free sound effect slots for DEHEXTRA. Offset agreed upon with Eternity devs. -SH */
   heretic_sfx_fre000 = 500,
@@ -1222,6 +1276,9 @@ typedef enum {
   hexen_sfx_fireball,
   hexen_sfx_puppybeat,
   hexen_sfx_mysticincant,
+
+  HEXEN_SFX_END = hexen_sfx_mysticincant,
+
   HEXEN_NUMSFX
 } sfxenum_t;
 
@@ -1234,6 +1291,7 @@ extern sfxinfo_t heretic_S_sfx[];
 extern musicinfo_t heretic_S_music[];
 
 extern sfxinfo_t doom_S_sfx[];
+extern sfx_port_info_t port_S_sfx[];
 extern musicinfo_t doom_S_music[];
 
 extern sfxinfo_t* S_sfx;
