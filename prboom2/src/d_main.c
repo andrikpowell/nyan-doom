@@ -112,6 +112,7 @@
 #include "dsda/skill_info.h"
 #include "dsda/skip.h"
 #include "dsda/sndinfo.h"
+#include "dsda/sfx.h"
 #include "dsda/time.h"
 #include "dsda/utility.h"
 #include "dsda/wad_stats.h"
@@ -149,6 +150,11 @@ dboolean fastparm;       // working -fast
 dboolean pistolstart;
 
 dboolean randomclass;
+
+int map_colormap;
+fixed_t map_gravity;
+fixed_t map_aircontrol;
+fixed_t map_airfriction;
 
 dboolean singletics = false; // debug flag to cancel adaptiveness
 
@@ -1236,18 +1242,11 @@ static char *FindIWADFile(void)
 static dboolean FileMatchesIWAD(const char *name)
 {
   int i;
-  int name_length;
+  const char *base_name = dsda_BaseName(name);
 
-  name_length = (int)strlen(name);
   for (i = 0; i < nstandard_iwads; ++i)
   {
-    int iwad_length;
-
-    iwad_length = (int)strlen(standard_iwads[i]);
-    if (
-      name_length >= iwad_length &&
-      !stricmp(name + name_length - iwad_length, standard_iwads[i])
-    )
+    if (!stricmp(base_name, standard_iwads[i]))
       return true;
   }
 
@@ -1986,7 +1985,7 @@ static void IdentifyVersion (void)
 
 static void D_DoomMainSetup(void)
 {
-  int p;
+  int p, slot = -1;
   dsda_arg_t *arg;
   dboolean autoload;
   const char* DehackedLump;
@@ -2264,8 +2263,9 @@ static void D_DoomMainSetup(void)
   }
 
   PostProcessDehacked();
+  dsda_AppendPortSFX(); // must come before dsda_LoadSndInfo()
   dsda_AppendZDoomMobjInfo();
-  dsda_ApplyDefaultMapFormat();
+  dsda_ApplyBinaryMapFormat();
 
   deh_InitNyanTweaks();
 
@@ -2354,10 +2354,19 @@ static void D_DoomMainSetup(void)
     dsda_SetDemoBaseName(arg->value.v_string);
     dsda_InitDemoRecording();
   }
+  else
+  {
+    arg = dsda_Arg(dsda_arg_loadgame);
+    if (arg->found)
+    {
+      slot = arg->value.v_int;
+      G_LoadGame(slot, true);
+    }
+  }
 
   dsda_ExecutePlaybackOptions();
 
-  if (!userdemo)
+  if (slot == -1 && !userdemo)
   {
     if (autostart || netgame)
     {

@@ -433,11 +433,11 @@ void P_MovePlayer (player_t* player)
           P_FreeAim_VerticalThrust(player,cmd->forwardmove*movefactor);
         }
       }
-      else if (map_info.air_control)
+      else if (map_aircontrol)
       {
         int friction, movefactor = P_GetMoveFactor(mo, &friction);
 
-        movefactor = FixedMul(movefactor, map_info.air_control);
+        movefactor = FixedMul(movefactor, map_aircontrol);
 
         if (cmd->forwardmove)
         {
@@ -1496,7 +1496,7 @@ void Raven_P_MovePlayer(player_t * player)
           if (onground || player->mo->flags2 & MF2_FLY)
               P_ForwardThrust(player, player->mo->angle, cmd->forwardmove * 2048);
           else if (hexen)
-              P_ForwardThrust(player, player->mo->angle, map_info.air_control);
+              P_ForwardThrust(player, player->mo->angle, map_aircontrol);
         }
 
         if (cmd->sidemove)
@@ -1504,7 +1504,7 @@ void Raven_P_MovePlayer(player_t * player)
           if (onground || player->mo->flags2 & MF2_FLY)
               P_Thrust(player, player->mo->angle - ANG90, cmd->sidemove * 2048);
           else if (hexen)
-              P_Thrust(player, player->mo->angle, map_info.air_control);
+              P_Thrust(player, player->mo->angle, map_aircontrol);
         }
     }
 

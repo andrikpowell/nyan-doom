@@ -15,6 +15,8 @@
 //	DSDA Config
 //
 
+#include <errno.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "am_map.h"
@@ -1840,6 +1842,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "map_marker_style", dsda_config_map_marker_style,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
+  [dsda_config_map_traces] = {
+    "map_traces", dsda_config_map_traces,
+    CONF_BOOL(0)
+  },
   [dsda_config_automap_overlay] = {
     "automap_overlay", dsda_config_automap_overlay,
     dsda_config_int, 0, 2, { 0 }, &automap_overlay
@@ -2057,7 +2063,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_gl_fade_mode] = {
     "gl_fade_mode", dsda_config_gl_fade_mode,
-    dsda_config_int, 0, 1, { 0 }
+    dsda_config_int, 0, 2, { 0 }
   },
   [dsda_config_tran_filter_pct] = {
     "tran_filter_pct", dsda_config_tran_filter_pct,
@@ -2389,9 +2395,18 @@ static void dsda_ParseConfigArg(int arg_id, dboolean persist) {
       conf = &dsda_config[id];
       if (conf->type == dsda_config_int) {
         int value;
+        char* str_end;
 
-        if (sscanf(key_value[1], "%i", &value) != 1)
-          I_Error("Config variable \"%s\" requires an integer value", key_value[0]);
+        errno = 0;
+        value = strtol(key_value[1], &str_end, 0);
+        if (errno != 0) {
+          I_Error("Config variable \"%s\" requires an integer value (was \"%s\", err \"%s\")",
+              key_value[0], key_value[1], strerror(errno));
+        }
+        if (*str_end != '\0') {
+          I_Error("Value for config variable \"%s\" was not converted into an integer in its entirety (was \"%s\")",
+          key_value[0], key_value[1]);
+        }
 
         dsda_InitIntConfig(conf, value, persist);
       }

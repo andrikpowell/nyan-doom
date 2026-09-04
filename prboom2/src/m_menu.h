@@ -83,6 +83,7 @@ void M_DrawCredits(void);
 void M_DrawCreditsDynamic(void);    // killough 11/98
 
 int M_Highlight(int override);
+int M_MenuMouseHovered(int index);
 
 void M_DrawTabs(const char **pages, int m, int y);
 dboolean M_CurrentSelectedItem(int item);

@@ -76,6 +76,11 @@ static arg_config_t arg_config[dsda_arg_count] = {
     "loads additional deh files",
     arg_string_array, AT_LEAST_ONE_STRING,
   },
+  [dsda_arg_loadgame] = {
+    "-loadgame", NULL, NULL, NULL,
+    "loads the given savegame slot",
+    arg_int, 0, 118,
+  },
   [dsda_arg_playdemo] = {
     "-playdemo", NULL, NULL, NULL,
     "plays the given demo file",
@@ -699,11 +704,6 @@ static arg_config_t arg_config[dsda_arg_count] = {
   [dsda_arg_reset_monsterspawner_params_after_loading] = {
     "-reset_monsterspawner_params_after_loading", NULL, NULL, NULL,
     "sets a special flag to compensate for sync errors in certain demos",
-    arg_null,
-  },
-  [dsda_arg_debug_mapinfo] = {
-    "-debug_mapinfo", NULL, NULL, NULL,
-    "turns on mapinfo parsing in doom (temporary arg for testing)",
     arg_null,
   },
 };

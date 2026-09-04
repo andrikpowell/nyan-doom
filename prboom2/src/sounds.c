@@ -135,9 +135,38 @@ musicinfo_t doom_S_music[] = {
 // Information about all the sfx
 //
 
+sfx_port_info_t port_S_sfx[] = {
+    { "dsnone", NULL, NULL, 0, 0, -1, 0, 0, 0, "" },
+
+    // DSDA
+    { "dssecret", "secret", "secret", 60, 0, -1, 0, 0, 0, "" }, // Secret
+    { "dssecre2", "secret2", "secret2", 60, 0, -1, 0, 0, 0, "" }, // Subtle Secret
+    
+    // Nyan
+    { "dsnyanut", NULL, NULL, 60, 0, -1, 0, 0, 0, "" }, // IDNUT
+    { "dsgibdth", NULL, NULL, 60, 0, -1, 0, 0, 0, "" }, // Gib Death
+
+    // Optional menu/intermission sounds
+    { "dsmnuopn", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnucls", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnuact", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnubak", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnumov", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnusli", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnusel", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnuerr", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsinttic", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsinttot", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsintnex", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsintnet", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsintdms", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+};
+
 sfxinfo_t doom_S_sfx[] = {
   // S_sfx[0] needs to be a dummy for odd reasons.
   { "dsnone", 0, 0, -1, 0, 0, 0, "" },
+
+  // Doom sounds
   { "dspistol", 64, 0, -1, 0, 0, 0, "" },
   { "dsshotgn", 64, 0, -1, 0, 0, 0, "" },
   { "dssgcock", 64, 0, -1, 0, 0, 0, "" },
@@ -254,13 +283,6 @@ sfxinfo_t doom_S_sfx[] = {
   { "dsdgdth", 70, 0, -1, 0, 0, 0, "" },
   { "dsdgpain", 96, 0, -1, 0, 0, 0, "" },
 
-  //e6y
-  { "dssecret", 60, 0, -1, 0, 0, 0, "" },
-  { "dsitmbk", 60, 0, -1, 0, 0, 0, "" },
-  { "dsgibdth", 60, 0, -1, 0, 0, 0, "" },
-  
-  // Nyan
-  { "dsnyanut", 60, 0, -1, 0, 0, 0, "" },
   // Everything from here up to 500 is reserved for future use.
 
   // Free slots for DEHEXTRA. Priorities should be overridden by user.
@@ -787,7 +809,7 @@ sfxinfo_t doom_disambiguated_sfx[] = {
 
   DISAMBIGUATED_SFX(sfx_dgpain, "dog/pain"),
 
-  DISAMBIGUATED_SFX(sfx_secret, "misc/secret"),
+  //DISAMBIGUATED_SFX(sfx_secret, "misc/secret"),
 
-  DISAMBIGUATED_SFX(sfx_gibdth, "misc/gibdth"),
+  //DISAMBIGUATED_SFX(sfx_gibdth, "misc/gibdth"),
 };

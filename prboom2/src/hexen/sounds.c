@@ -30,6 +30,8 @@ musicinfo_t hexen_S_music[HEXEN_NUMMUSIC] = {
 
 sfxinfo_t hexen_S_sfx[] = {
     { "", 0, 0, 0, 0, 0, 0, "" },
+
+    // Hexen sounds
     { "", 256, 0, 1, 0, 0, 2, "PlayerFighterNormalDeath" },
     { "", 256, 0, 1, 0, 0, 2, "PlayerFighterCrazyDeath" },
     { "", 256, 0, 1, 0, 0, 2, "PlayerFighterExtreme1Death" },

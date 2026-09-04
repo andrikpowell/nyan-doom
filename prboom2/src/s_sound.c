@@ -39,6 +39,7 @@
 
 #include "doomstat.h"
 #include "g_game.h"
+#include "doomtype.h"
 #include "s_sound.h"
 #include "s_advsound.h"
 #include "i_sound.h"
@@ -146,6 +147,11 @@ static int AmbChan = -1;
 static mobj_t* GetSoundListener(void);
 static void Heretic_S_StopSound(void *_origin);
 static void Raven_S_StartSoundAtVolume(void *_origin, int sound_id, int volume, int loop_timeout);
+
+static dboolean S_IsSecretSound(int sfx_id)
+{
+  return sfx_id == sfx_secret || sfx_id == sfx_secret_subtle;
+}
 
 void S_ResetSfxVolume(void)
 {
@@ -318,7 +324,7 @@ void S_ResetAdjustments(void) {
   adjust_volume = 0;
 }
 
-void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume, int loop_timeout)
+void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume, dboolean important, int loop_timeout)
 {
   int cnum;
   sfx_params_t params;
@@ -336,12 +342,11 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume, int loop_timeo
     return;
 
   // killough 4/25/98
-  if (sfx_id == g_sfx_secret || sfx_id == g_sfx_secret_subtle)
+  if (S_IsSecretSound(sfx_id))
     params.sfx_class = sfx_class_secret;
   else if (sfx_id == g_sfx_idnut)
     params.sfx_class = sfx_class_idnut;
-  else if (sfx_id & PICKUP_SOUND ||
-      sfx_id == sfx_oof ||
+  else if (important || sfx_id & PICKUP_SOUND || sfx_id == sfx_oof ||
       (compatibility_level >= prboom_2_compatibility && sfx_id == sfx_noway))
     params.sfx_class = sfx_class_important;
   else
@@ -473,6 +478,18 @@ void S_LoopVoidSound(int sfx_id, int timeout)
   S_LoopSound(NULL, sfx_id, timeout);
 }
 
+void S_StartOptionalSound(int sfx_id, int fallback_sfx_id, dboolean important)
+{
+  if (I_GetSfxLumpNum(&S_sfx[sfx_id]) != -1)
+  {
+    S_StartSoundAtVolume(NULL, sfx_id, raven ? 127 : sfx_volume, important, 0);
+  }
+  else if (fallback_sfx_id != -1) // Play a fallback?
+  {
+    S_StartSoundAtVolume(NULL, fallback_sfx_id, raven ? 127 : sfx_volume, important, 0);
+  }
+}
+
 void S_StartLineSound(line_t *line, degenmobj_t *soundorg, int sfx_id)
 {
   if (line && line->frontsector && line->frontsector->flags & SECF_SILENT)
@@ -483,12 +500,12 @@ void S_StartLineSound(line_t *line, degenmobj_t *soundorg, int sfx_id)
 
 void S_StartSound(void *origin, int sfx_id)
 {
-  S_StartSoundAtVolume(origin, sfx_id, raven ? 127 : sfx_volume, 0);
+  S_StartSoundAtVolume(origin, sfx_id, raven ? 127 : sfx_volume, false, 0);
 }
 
 void S_LoopSound(void *origin, int sfx_id, int timeout)
 {
-  S_StartSoundAtVolume(origin, sfx_id, raven ? 127 : sfx_volume, timeout);
+  S_StartSoundAtVolume(origin, sfx_id, raven ? 127 : sfx_volume, false, timeout);
 }
 
 void S_StopSound(void *origin)
@@ -662,7 +679,7 @@ dboolean S_ChangeMusicByName(const char *name, dboolean looping)
   return true;
 }
 
-void S_ChangeMusic(int musicnum, int looping)
+void S_ChangeMusic(int musicnum, dboolean looping)
 {
   musicinfo_t *music;
 
@@ -681,7 +698,7 @@ void S_ChangeMusic(int musicnum, int looping)
   music = &S_music[musicnum];
 
   if (mus_playing == music)
-    return;
+      return;
 
   // shutdown old music
   S_StopMusic();
@@ -761,7 +778,7 @@ void S_RestartMusic(void)
   }
 }
 
-void S_ChangeMusInfoMusic(int lumpnum, int looping)
+void S_ChangeMusInfoMusic(int lumpnum, dboolean looping)
 {
   musicinfo_t *music;
 
@@ -1207,7 +1224,7 @@ static void Raven_S_StartSoundAtVolume(void *_origin, int sound_id, int volume, 
   if (nosfxparm)
     return;
 
-  if (sound_id == heretic_sfx_None)
+  if (sound_id == sfx_None)
     return;
 
   if (origin == NULL)
@@ -1236,7 +1253,7 @@ static void Raven_S_StartSoundAtVolume(void *_origin, int sound_id, int volume, 
   params.priority = sfx->priority;
   params.priority *= (10 - (dist / dist_adjust));
 
-  params.sfx_class = sfx_class_none;
+  params.sfx_class = S_IsSecretSound(sound_id) ? sfx_class_secret : sfx_class_none;
 
   cnum = Raven_S_getChannel(listener, origin, sfx, &params);
   if (cnum == channel_not_found)
@@ -1300,7 +1317,7 @@ void S_StartAmbientSound(void *_origin, int sound_id, int volume)
   if (nosfxparm)
     return;
 
-  if (sound_id == heretic_sfx_None || volume == 0)
+  if (sound_id == sfx_None || volume == 0)
     return;
 
   if (origin == NULL)

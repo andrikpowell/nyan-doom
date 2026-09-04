@@ -496,14 +496,15 @@ void MN_Drawer(void)
 
   for (i = 0; i < max; i++)
   {
-    dboolean selected = (i == itemOn);
+    dboolean mouse = M_MenuMouseHovered(i);
+    dboolean selected = (i == itemOn) || mouse;
     const char *text = currentMenu->menuitems[i].alttext;
     int text_sml = text && (currentMenu->menuitems[i].flags == MENUF_OPTLUMP);
     int color = CR_DEFAULT;
 
     // Lighten current item
     if (selected)
-      color += M_Highlight(false);
+      color += M_Highlight(mouse);
 
     if (text_sml) {  // use small font for custom skill
       y += 6;        // add some padding (looks bad otherwise)
@@ -710,17 +711,21 @@ static void MN_DrawFileSlots(int x, int y, int menu)
   for (i = 0; i < g_menu_save_page_size; i++)
   {
     dboolean selected = M_FileBoxSelected(menu, i);
-    int color = CR_DEFAULT;
+    int textcolor = M_FileTextColor(menu, i);
+    int box_hover = CR_DEFAULT;
     int flags = VPT_STRETCH;
 
     if (selected)
-      color += M_Highlight(false);
+    {
+      box_hover += M_Highlight(selected);
+      textcolor += M_Highlight(selected);
+    }
 
-    if (color != CR_DEFAULT)
+    if (box_hover != CR_DEFAULT)
       flags |= VPT_COLOR;
 
-    V_DrawMenuNamePatch(x, y, "M_FSLOT", color, flags);
-    MN_DrTextAColor(savegamestrings[i], x + 5, y + 5, M_FileTextColor(menu, i));
+    V_DrawMenuNamePatch(x, y, "M_FSLOT", box_hover, flags);
+    MN_DrTextAColor(savegamestrings[i], x + 5, y + 5, textcolor);
     y += ITEM_HEIGHT;
   }
 

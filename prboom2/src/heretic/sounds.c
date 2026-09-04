@@ -84,6 +84,8 @@ musicinfo_t heretic_S_music[] = {
 
 sfxinfo_t heretic_S_sfx[] = {
     { "", 0, 0, -1, 0, 0, 0, "" },
+
+    // Heretic sounds
     { "gldhit", 32, 0, -1, 0, 0, 2, "" },
     { "gntful", 32, 0, -1, 0, 0, -1, "" },
     { "gnthit", 32, 0, -1, 0, 0, -1, "" },

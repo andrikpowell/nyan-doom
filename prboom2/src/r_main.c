@@ -1046,7 +1046,7 @@ static void R_SetupFrame (player_t *player)
   else if (dsda_MapFadeTable()) // Hexen Fog - fadetable
     cm = FADETABLE;
   else
-    cm = map_info.default_colormap;
+    cm = map_colormap;
 
   //e6y: save previous and current colormap
   boom_cm = cm;
