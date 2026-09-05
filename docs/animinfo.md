@@ -18,7 +18,7 @@ Every ANIMINFO lump must begin with exactly one metadata block. ANIMINFO lumps a
 metadata "ANIMINFO"
 {
   version = "1.0.0";
-};
+}
 ```
 
 The metadata block must be first, at the top in the lump, and may occur only once.
@@ -36,14 +36,14 @@ lump "TITLEPIC"
 {
   animate = clear;
   widepic = "W_TITLEP";
-};
+}
 ```
 
 Defines replacements for a graphic lump.
 
 | Property | Description |
 | --- | --- |
-| **animate = { _properties_ };** | Defines a range or sequence animation. A later `animate` property replaces the earlier animation definition. |
+| **animate = { _properties_ }** | Defines a range or sequence animation. A later `animate` property replaces the earlier animation definition. |
 | **widepic = "\<LumpName\>";** | Specifies what lump to use for the widescreen replacement. |
 | **animate = clear;** | Disables animation for this lump, including automatic `S_`/`E_` detection. |
 | **widepic = clear;** | Disables widescreen for this lump, including automatic `W_` detection. |
@@ -61,7 +61,7 @@ animate =
   tics = 4;
   startpic = "S_HELP";
   endpic = "E_HELP";
-};
+}
 ```
 
 A range animation displays every lump from `startpic` through `endpic`, in wad-directory order. This format is not compatible with directory-type formats like `pk3` and is only supported by `wad` files. The start lump must come before the end lump.
@@ -87,7 +87,7 @@ animate =
   pic = "S_TITLEP"; tics = 4;
   pic = "TITLEPIC"; tics = rand(8, 30);
   pic = "E_TITLEP"; tics = 10;
-};
+}
 ```
 
 A sequence animation lists its animation frame-by-frame. Every `pic` must be followed by its own `tics` property. Timing is not inherited from the previous frame.
@@ -105,7 +105,7 @@ A sequence animation lists its animation frame-by-frame. Every `pic` must be fol
 metadata "ANIMINFO"
 {
   version = "1.0.0";
-};
+}
 
 lump "TITLEPIC"
 {
@@ -121,9 +121,9 @@ lump "TITLEPIC"
     pic = "TITLEP6"; tics = 5;
     pic = "TITLEP10"; tics = 8;
     pic = "E_TITLEP"; tics = 10;
-  };
+  }
   widepic = "W_TITLEP";
-};
+}
 
 lump "HELP"
 {
@@ -133,9 +133,9 @@ lump "HELP"
     tics = 4;
     startpic = "S_HELP";
     endpic = "E_HELP";
-  };
+  }
   widepic = "W_HELP";
-};
+}
 
 lump "CREDIT"
 {
@@ -145,9 +145,9 @@ lump "CREDIT"
     tics = 4;
     startpic = "S_CREDIT";
     endpic = "E_CREDIT";
-  };
+  }
   widepic = "W_CREDIT";
-};
+}
 ```
 
 ## Nyan Doom's Default Animation System

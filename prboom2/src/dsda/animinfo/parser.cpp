@@ -265,7 +265,6 @@ static void ParseAnimateBlock(Scanner &scanner, animinfo_entry_t* entry, const c
     }
 
     entry->animation_override = true;
-    scanner.MustGetToken(';');
 }
 
 static void ParseMetadataBlock(Scanner &scanner)
@@ -297,8 +296,6 @@ static void ParseMetadataBlock(Scanner &scanner)
 
     if (!version_defined)
         scanner.ErrorF("ANIMINFO: 'metadata' requires a 'version' property");
-
-    scanner.MustGetToken(';');
 }
 
 static void ParseLumpBlock(Scanner &scanner)
@@ -353,7 +350,6 @@ static void ParseLumpBlock(Scanner &scanner)
         }
     }
 
-    scanner.MustGetToken(';');
     entry.frames = frames.empty() ? NULL : frames.data();
     entry.num_frames = (int)frames.size();
     N_ApplyAnimInfo(&entry);
