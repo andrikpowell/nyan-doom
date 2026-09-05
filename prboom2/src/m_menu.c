@@ -4483,6 +4483,7 @@ setup_menu_t weap_pref_settings[] =  // Weapons Settings screen
   { "Weapon Bob", S_THERMO | S_PERC_RANGE, m_conf, g_all, WP1_X, dsda_config_weaponbob },
   EMPTY_LINE,
   { "Weapon Attack Alignment", S_CHOICE, m_conf, g_all, WP_X, dsda_config_weapon_attack_alignment, 0, weapon_attack_alignment_strings },
+  { "Weapon Freelook Tilt", S_YESNO | S_NYAN, m_conf, g_all, WP_X, nyan_config_weapon_freelook_tilt },
   { "Hide Weapon", S_YESNO, m_conf, g_all, WP_X, dsda_config_hide_weapon },
 
   NEXT_PAGE(weap_priority_settings),

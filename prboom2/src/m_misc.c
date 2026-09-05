@@ -451,6 +451,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_ssg_on_arms),
   MIGRATED_SETTING(dsda_config_viewbob),
   MIGRATED_SETTING(dsda_config_weaponbob),
+  MIGRATED_SETTING(nyan_config_weapon_freelook_tilt),
   MIGRATED_SETTING(dsda_config_quake_intensity),
   MIGRATED_SETTING(dsda_config_swirling_flats),
   MIGRATED_SETTING(dsda_config_draw_nearby_sprites),
