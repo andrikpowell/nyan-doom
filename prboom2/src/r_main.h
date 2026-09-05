@@ -67,6 +67,7 @@ extern int wide_centerx;
 
 // proff 11/06/98: Added for high-res
 extern fixed_t  projectiony;
+extern fixed_t  lightfocallength;
 extern int      validcount;
 extern int      validcount2;
 // e6y: Added for more precise flats drawing

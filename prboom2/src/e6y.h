@@ -68,7 +68,7 @@ extern char demo_len_st[80];
 
 extern int mouse_handler;
 
-extern int gl_render_fov;
+extern int render_fov;
 extern float gl_render_ratio;
 extern float gl_render_fovratio;
 extern float gl_render_fovy;
@@ -108,7 +108,8 @@ int G_GotoPrevLevel(void);
 
 void M_ChangeSkyMode(void);
 
-void M_ChangeFOV(void);
+void gld_ChangeFOV(void);
+void gld_ChangeRenderFOV(float set_fov);
 
 void M_ChangeSpeed(void);
 void M_ChangeScreenMultipleFactor(void);

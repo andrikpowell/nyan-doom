@@ -271,7 +271,7 @@ enum {
   dsda_config_mapcolor_hexen_trail_2,
   dsda_config_gl_skymode,
   dsda_config_gl_render_multisampling,
-  dsda_config_gl_render_fov,
+  dsda_config_render_fov,
   dsda_config_gl_health_bar,
   dsda_config_gl_usevbo,
   dsda_config_gl_fade_mode,

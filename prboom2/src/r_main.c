@@ -100,6 +100,7 @@ int wide_centerx;
 
 fixed_t  focallength;
 fixed_t  focallengthy;
+fixed_t  lightfocallength;
 fixed_t  globaluclip, globaldclip;
 fixed_t  centerxfrac, centeryfrac;
 fixed_t  yaspectmul;
@@ -372,7 +373,7 @@ static void R_InitTextureMapping (void)
 {
   int i,x,angle;
   double linearskyfactor;
-  FieldOfView = FIELDOFVIEW;
+  FieldOfView = (int)(render_fov * FINEANGLES / 360.0f);
 
   // For widescreen displays, increase the FOV so that the middle part of the
   // screen that would be visible on a 4:3 display has the requested FOV.
@@ -392,6 +393,9 @@ static void R_InitTextureMapping (void)
 
   focallength = FixedDiv(centerxfrac, finetangent[FINEANGLES/4 + FieldOfView/2]);
   focallengthy = Scale(centerxfrac, yaspectmul, finetangent[FINEANGLES/4 + FieldOfView/2]);
+  lightfocallength = focallength;
+  projection = focallength;
+  projectiony = focallengthy;
 
   for (i=0 ; i<FINEANGLES/2 ; i++)
     {
@@ -796,8 +800,6 @@ void R_ExecuteSetViewSize (void)
   //e6y: added for GL
   pspritexscale_f = (float)wide_centerx / 160.0f;
   pspriteyscale_f = (((float)cheight * viewwidth) / (float)SCREENWIDTH) / 200.0f;
-
-  skyiscale = (fixed_t)(((uint64_t)FRACUNIT * SCREENWIDTH * 200) / (viewwidth * SCREENHEIGHT));
 
 	// [RH] Sky height fix for screens not 200 (or 240) pixels tall
 	R_InitSkyMap();

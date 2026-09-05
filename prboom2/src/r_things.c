@@ -695,7 +695,7 @@ int r_near_clip_plane = MINZ;
 void R_SetClipPlanes(void)
 {
   // thing is behind view plane?
-  if ((V_IsOpenGLMode()) && (HaveMouseLook() || (gl_render_fov > FOV90)))
+  if ((V_IsOpenGLMode()) && (HaveMouseLook() || (render_fov > FOV90)))
   {
     r_near_clip_plane = -(FRACUNIT * 80);
   }

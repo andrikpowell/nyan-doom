@@ -9880,7 +9880,7 @@ void M_Init(void)
   //e6y
   M_ChangeSpeed();
   M_ChangeSkyMode();
-  M_ChangeFOV();
+  gld_ChangeFOV();
 
   M_ChangeDemoSmoothTurns();
 

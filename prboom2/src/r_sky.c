@@ -35,6 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 #include <stdlib.h>
+#include <math.h>
 
 #include "r_sky.h"
 #include "r_main.h"
@@ -170,6 +171,36 @@ byte R_GetSkyColor(int texturenum)
 }
 
 //
+// R_UpdateSkyScale
+// Moved out of R_InitSkyMap.
+//
+void R_UpdateSkyScale(void)
+{
+  int skyheight;
+
+  if (!textureheight)
+    return;
+
+  if (viewwidth != 0 && viewheight != 0)
+  {
+    //skyiscale = 200 * FRACUNIT / freelookviewheight;
+    skyiscale = (fixed_t)(((uint64_t)FRACUNIT * SCREENWIDTH * 200) / (viewwidth * SCREENHEIGHT));
+    // line below is from zdoom, but it works incorrectly with prboom
+    // with widescreen resolutions (eg 1280x720) by some reasons
+    //skyiscale = (fixed_t)((int64_t)skyiscale * FieldOfView / 2048);
+
+    // [AR] Update sky with zoom fov
+    skyiscale = (fixed_t)(skyiscale * tan(DEG2RAD(render_fov) / 2.0));
+
+    if (skystretch)
+    {
+      skyheight = textureheight[skytexture] >> FRACBITS;
+      skyiscale = (fixed_t)((int64_t)skyiscale * skyheight / SKYSTRETCH_HEIGHT);
+    }
+  }
+}
+
+//
 // R_InitSkyMap
 // Called whenever the view size changes.
 //
@@ -183,10 +214,6 @@ void R_InitSkyMap(void)
   {
     skystretch = false;
     skytexturemid = (raven ? 200 : 100) * FRACUNIT;
-    if (viewwidth != 0)
-    {
-      skyiscale = (fixed_t)(((uint64_t)FRACUNIT * SCREENWIDTH * 200) / (viewwidth * SCREENHEIGHT));
-    }
   }
   else
   {
@@ -222,18 +249,8 @@ void R_InitSkyMap(void)
       skytexturemid = (200 - skyheight) << FRACBITS;
     }
 
-    if (viewwidth != 0 && viewheight != 0)
-    {
-      //skyiscale = 200 * FRACUNIT / freelookviewheight;
-      skyiscale = (fixed_t)(((uint64_t)FRACUNIT * SCREENWIDTH * 200) / (viewwidth * SCREENHEIGHT));
-      // line below is from zdoom, but it works incorrectly with prboom
-      // with widescreen resolutions (eg 1280x720) by some reasons
-      //skyiscale = (fixed_t)((int64_t)skyiscale * FieldOfView / 2048);
-    }
-
     if (skystretch)
     {
-      skyiscale = (fixed_t)((int64_t)skyiscale * skyheight / SKYSTRETCH_HEIGHT);
       skytexturemid = (int)((int64_t)skytexturemid * skyheight / SKYSTRETCH_HEIGHT);
     }
     else
@@ -241,4 +258,6 @@ void R_InitSkyMap(void)
       skytexturemid = 100*FRACUNIT;
     }
   }
+
+  R_UpdateSkyScale();
 }
