@@ -695,7 +695,7 @@ int r_near_clip_plane = MINZ;
 void R_SetClipPlanes(void)
 {
   // thing is behind view plane?
-  if ((V_IsOpenGLMode()) && (HaveMouseLook() || (gl_render_fov > FOV90)))
+  if ((V_IsOpenGLMode()) && (HaveMouseLook() || (render_fov > FOV90)))
   {
     r_near_clip_plane = -(FRACUNIT * 80);
   }
@@ -1235,6 +1235,55 @@ static int Full_Raven_PSpriteSY[NUMCLASSES][NUMWEAPONS] = {
   {10 * FRACUNIT, 10 * FRACUNIT, 10 * FRACUNIT, 10 * FRACUNIT} // Pig
 };
 
+static fixed_t R_WeaponZoomOffset(void)
+{
+  float offset = render_fov_current - render_fov;
+
+  return offset < 0.0f ? (fixed_t)(offset * FRACUNIT / 2.0f) : 0;
+}
+
+static float R_UpperWeaponOffset(pspdef_t *psp)
+{
+  dboolean state_offset;
+  float pitch_upper_offset;
+
+  state_offset = hexen ? psp->state->misc2 :
+                         psp->state->misc1;
+
+  pitch_upper_offset = R_StatusBarVisible() &&
+                       !state_offset ? 12.0f : 0.0f;
+
+  // Account for heretic / hexen weapon alignments
+  if (raven && pitch_upper_offset > 0.0f)
+  {
+    pitch_upper_offset -= (float)Full_Raven_PSpriteSY[viewplayer->pclass][players[consoleplayer].readyweapon] / FRACUNIT;
+
+    if (pitch_upper_offset < 0.0f)
+      pitch_upper_offset = 0.0f;
+  }
+
+  return pitch_upper_offset;
+}
+
+static fixed_t R_WeaponPitchOffset(pspdef_t *psp)
+{
+  const float max_offset = 12.0f;
+  float offset;
+  float upper_offset;
+
+  if (!dsda_IntConfig(nyan_config_weapon_freelook_tilt))
+    return 0;
+
+  offset = (R_StatusBarVisible() ? 0.0f : -4.0f) +
+    (float)(int)viewpitch / (float)ANG1 / 30.0f * max_offset;
+  upper_offset = R_UpperWeaponOffset(psp);
+
+  if (offset < -max_offset) offset = -max_offset;
+  if (offset > upper_offset) offset = upper_offset;
+
+  return (fixed_t)(offset * FRACUNIT);
+}
+
 static void R_DrawPSprite (pspdef_t *psp)
 {
   int           x1, x2;
@@ -1306,6 +1355,12 @@ static void R_DrawPSprite (pspdef_t *psp)
   {
     vis->texturemid -= Full_Raven_PSpriteSY[viewplayer->pclass][players[consoleplayer].readyweapon];
   }
+
+  // [AR] Lower weapon based on zoom
+  vis->texturemid += R_WeaponZoomOffset();
+
+  // [AR] Move weapon based on view pitch
+  vis->texturemid += R_WeaponPitchOffset(psp);
 
   // Move the weapon down for 1280x1024.
   vis->texturemid -= psprite_offset;

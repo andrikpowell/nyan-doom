@@ -58,8 +58,8 @@ Available for Windows, Linux and macOS in [Releases](https://github.com/andrikpo
   > May be completely broken and unusable
 </details>
 
-## Nyan Features
-- [background / menu animation](./docs/animbg.md) lump support (for animated M_DOOM, TITLEPIC, INTERPIC, etc)
+## Key Features
+- New [animated background / menu element](./docs/animinfo.md) lump support (for animated M_DOOM, TITLEPIC, INTERPIC, etc)
 - Native [widescreen](./docs/ws.md) lump support for widescreen assets (avoiding the need for separate asset WADs)
 - Support for [GAMEVERS](./docs/gamevers.md) lump in combination with [COMPLVL](./docs/complvl.md) to further specify Vanilla compatibility.
 - [Limit-Removing Support](./docs/limit_removing.md) for Vanilla style maps to ignore overflow errors (such as all-ghosts, etc)
@@ -137,6 +137,8 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
 - [Doom-in-Hexen Support](./docs/doom_in_hexen.md)
 - [UDMF Support](./docs/udmf.md)
 - [MAPINFO Support](./docs/mapinfo.md)
+- [ANIMINFO Support](./docs/animinfo.md)
+- [Obituary Support](./docs/obituaries.md)
 - [Partial ID24 Support](./docs/id24.md)
 
 ### Standards

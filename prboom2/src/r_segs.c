@@ -402,7 +402,7 @@ static void R_ApplyLightColormap(draw_column_vars_t *dcvars, fixed_t scale)
 {
   if (!fixedcolormap || nyan_liteamp)
   {
-    int index = (int)(((int64_t) scale * 160 / wide_centerx) >> (LIGHTSCALESHIFT));
+    int index = (int)(((int64_t) scale * (160 << FRACBITS) / lightfocallength) >> (LIGHTSCALESHIFT));
     if (index >= MAXLIGHTSCALE)
         index = MAXLIGHTSCALE - 1;
     dcvars->colormap = walllights[index];

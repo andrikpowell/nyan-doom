@@ -2526,7 +2526,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   const rpatch_t* patch;
 
   int frustum_culling = HaveMouseLook();
-  int mlook = HaveMouseLook() || (gl_render_fov > FOV90);
+  int mlook = HaveMouseLook() || (render_fov > FOV90);
 
   if (R_ViewInterpolation())
   {

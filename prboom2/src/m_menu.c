@@ -2922,9 +2922,14 @@ static int M_ThermoDisplayValue(const setup_menu_t *s)
   int value = dsda_IntConfig(s->config_id);
 
   if (upper_limit == INT_MAX)
-    return CLAMP(value, lower_limit, display_limit);
+    return CLAMP(value, lower_limit, display_limit) - lower_limit;
 
-  return CLAMP(value, lower_limit, upper_limit);
+  return CLAMP(value, lower_limit, upper_limit) - lower_limit;
+}
+
+static int M_ThermoDisplayRange(const setup_menu_t *s)
+{
+  return M_ThermoDisplayUpperLimit(s) - dsda_LowerLimitConfig(s->config_id) + 1;
 }
 
 static int M_ThermoEditUpperLimit(const setup_menu_t *s)
@@ -3500,7 +3505,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
   if (flags & S_THERMO)
   {
     dboolean selected = flags & S_HILITE;
-    M_DrawThermo(x, y, 8, M_ThermoDisplayUpperLimit(s) + 1, M_ThermoDisplayValue(s), selected, true);
+    M_DrawThermo(x, y, 8, M_ThermoDisplayRange(s), M_ThermoDisplayValue(s), selected, true);
 
     x += 80;
     y += 3;
@@ -4436,6 +4441,7 @@ setup_menu_t keys_game_settings[] =  // Key Binding screen strings
   { "Smaller View",      S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_zoomout },
   { "Screenshot",        S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_screenshot },
   { "Repeat Message",    S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_repeat_message },
+  { "Toggle Zoom",       S_INPUT|S_NYAN, m_scrn, g_all, KB_X, 0, dsda_input_zoom },
 
   PREV_PAGE(keys_automap_settings),
   NEXT_PAGE(keys_misc_settings),
@@ -4725,6 +4731,7 @@ setup_menu_t weap_pref_settings[] =  // Weapons Settings screen
   { "Weapon Bob", S_THERMO | S_PERC_RANGE, m_conf, g_all, WP1_X, dsda_config_weaponbob },
   EMPTY_LINE,
   { "Weapon Attack Alignment", S_CHOICE, m_conf, g_all, WP_X, dsda_config_weapon_attack_alignment, 0, weapon_attack_alignment_strings },
+  { "Weapon Freelook Tilt", S_YESNO | S_NYAN, m_conf, g_all, WP_X, nyan_config_weapon_freelook_tilt },
   { "Hide Weapon", S_YESNO, m_conf, g_all, WP_X, dsda_config_hide_weapon },
 
   NEXT_PAGE(weap_priority_settings),
@@ -5161,6 +5168,8 @@ setup_menu_t gen_video_settings[] = {
   { "Aspect Ratio", S_CHOICE, m_conf, g_all, G_X, dsda_config_render_aspect, 0, render_aspects_list },
   { "Fullscreen Video mode", S_YESNO, m_conf, g_all, G_X, dsda_config_use_fullscreen },
   { "Exclusive Fullscreen", S_YESNO, m_conf, g_all, G_X, dsda_config_exclusive_fullscreen },
+  { "Field of View", S_THERMO | S_NYAN, m_conf, g_all, G_X, dsda_config_render_fov },
+  { "Zoom FOV", S_THERMO | S_NYAN, m_conf, g_all, G_X, dsda_config_zoom_fov },
   EMPTY_LINE,
   TITLE("FPS", G_X),
   { "Vertical Sync", S_YESNO, m_conf, g_all, G_X, dsda_config_render_vsync },
@@ -10170,7 +10179,7 @@ void M_Init(void)
   //e6y
   M_ChangeSpeed();
   M_ChangeSkyMode();
-  M_ChangeFOV();
+  gld_ChangeFOV();
 
   M_ChangeDemoSmoothTurns();
 

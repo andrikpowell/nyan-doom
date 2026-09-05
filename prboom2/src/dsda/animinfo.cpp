@@ -17,11 +17,10 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <assert.h>
 
-#include "scanner.h"
 #include "animinfo.h"
+#include "dsda/animinfo/parser.h"
 
 extern "C"
 {
@@ -51,14 +50,17 @@ static size_t n_maxanims;
 
 // ANIMINFO functions
 static animate_t* N_GetOrCreateAnimByLumpnum(int lumpnum);
+static animate_t* N_FindAnimByLumpnum(int lumpnum);
 static void N_AnimClearAnimate(animate_t *a);
-static void N_AnimSetRange(animate_t *a, int start, int end, int tics);
-static void N_AnimSetSequence(animate_t *a, const anim_frame_t *f, int num);
+static void N_AnimSetRange(animate_t *a, int start, int end, int tics, int oscillate);
+static void N_AnimSetSequence(animate_t *a, const anim_frame_t *f, int num, int oscillate);
+static void N_LoadAnimInfo(void);
 
 // Main functions
 static void N_CombinePrefixedLump(char out[9], const char *prefix, const char *name);
 static int  N_CheckNumForPrefixedName(const char *prefix, const char *base);
 static void N_AddPatchAnimateLump(const char* lump, const char* slump, const char* elump, int speed);
+static int  N_AddPatchAnimateNum(const char* lump);
 
 //      ==================================================
 //                    MAIN ANIMATION LOGIC
@@ -68,6 +70,17 @@ static void N_AddPatchAnimateLump(const char* lump, const char* slump, const cha
 static size_t N_AnimCount(void)
 {
     return (n_anims && n_lastanim) ? (size_t)(n_lastanim - n_anims) : 0;
+}
+
+static animate_t* N_FindAnimByLumpnum(int lumpnum)
+{
+    size_t used = N_AnimCount();
+
+    for (size_t i = 0; i < used; i++)
+        if (n_anims[i].lump == lumpnum)
+            return &n_anims[i];
+
+    return NULL;
 }
 
 //
@@ -101,6 +114,9 @@ static int N_GetFrameTics(const anim_frame_t *f)
     return f->tics_min;
 }
 
+#define SEQ_FORWARD 1
+#define SEQ_BACKWARD -1
+
 static void N_TickSequence(void)
 {
     for (size_t i = 0; i < N_AnimCount(); i++)
@@ -126,8 +142,20 @@ static void N_TickSequence(void)
 
             if (a->seq_remaining <= 0)
             {
-                a->seq_index++;
-                if (a->seq_index >= a->num_frames) a->seq_index = 0;
+                if (a->oscillate && a->num_frames > 1)
+                {
+                    if (a->seq_direction > 0 && a->seq_index >= a->num_frames - 1)
+                        a->seq_direction = SEQ_BACKWARD;
+                    else if (a->seq_direction < 0 && a->seq_index <= 0)
+                        a->seq_direction = SEQ_FORWARD;
+
+                    a->seq_index += a->seq_direction;
+                }
+                else
+                {
+                    a->seq_index++;
+                    if (a->seq_index >= a->num_frames) a->seq_index = 0;
+                }
             }
         }
     }
@@ -169,6 +197,8 @@ static void N_AnimClearAnimate(animate_t *a)
     a->num_frames    = 0;
     a->seq_index     = 0;
     a->seq_remaining = 0;
+    a->seq_direction = SEQ_FORWARD;
+    a->oscillate     = false;
 
     a->type = ANIM_NONE;
 }
@@ -202,7 +232,7 @@ static int N_CheckAnimateCycle(int SLump, int ELump)
     return false;
 }
 
-static void N_AnimSetRange(animate_t *a, int start, int end, int tics)
+static void N_AnimSetRange(animate_t *a, int start, int end, int tics, int oscillate)
 {
     N_AnimClearAnimate(a);
 
@@ -211,31 +241,32 @@ static void N_AnimSetRange(animate_t *a, int start, int end, int tics)
     a->endpic     = end;
     a->tics       = tics;
     a->validcycle = N_CheckAnimateCycle(start, end) && tics > 0;
+    a->oscillate  = oscillate;
 }
 
 //
 // Animation - Sequence
 //
 
-static void N_CheckBadFrame(anim_frame_t *f)
+static void N_CheckBadFrame(animate_t *a, anim_frame_t *f, int frame)
 {
     if (f->mode == ANIM_TICS_RANDOM)
     {
         if (f->tics_min <= 0 || f->tics_max < f->tics_min)
-            I_Error("ANIMINFO: rand(min,max) tics must be > 0");
+            I_Error("ANIMINFO: lump '%.8s': frame %d rand(min,max) tics must be > 0", W_LumpName(a->lump), frame + 1);
     }
     else
     {
         if (f->tics_min <= 0)
-            I_Error("ANIMINFO: tics must be > 0");
+            I_Error("ANIMINFO: lump '%.8s': frame %d tics must be > 0", W_LumpName(a->lump), frame + 1);
         f->tics_max = f->tics_min;
     }
 }
 
-static void N_AnimSetSequence(animate_t *a, const anim_frame_t *frames, int num)
+static void N_AnimSetSequence(animate_t *a, const anim_frame_t *frames, int num, int oscillate)
 {
     if (num <= 0)
-        I_Error("ANIMINFO: sequence must have at least 1 frame");
+        I_Error("ANIMINFO: lump '%.8s': sequence must have at least 1 frame", W_LumpName(a->lump));
 
     N_AnimClearAnimate(a);
 
@@ -244,9 +275,10 @@ static void N_AnimSetSequence(animate_t *a, const anim_frame_t *frames, int num)
     a->frames = (anim_frame_t*)Z_Malloc(num * sizeof(*a->frames));
     memcpy(a->frames, frames, num * sizeof(*a->frames));
     a->num_frames = num;
+    a->oscillate = oscillate;
 
     for (int i = 0; i < num; i++)
-        N_CheckBadFrame(&a->frames[i]);
+        N_CheckBadFrame(a, &a->frames[i], i);
 }
 
 //
@@ -255,15 +287,27 @@ static void N_AnimSetSequence(animate_t *a, const anim_frame_t *frames, int num)
 //
 //
 
-void N_InitAnimateLumps(void) {
-    if (!raven) {
-        animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
-        widescreenLumps = dsda_IntConfig(nyan_config_enable_widescreen_lumps);
+static void N_LoadAnimInfo(void)
+{
+    int p = LUMP_NOT_FOUND;
 
-        // Add default "weird" lumps
-        N_AddPatchAnimateLump("M_SKULL1", "S_SKULL", "E_SKULL", 8);
-        N_AddPatchAnimateLump("M_DOOM", "S_DOOM", "E_DOOM", 8);
+    while ((p = W_ListNumFromName("ANIMINFO", p)) >= 0)
+    {
+        const unsigned char *lump = (const unsigned char *)W_LumpByNum(p);
+        ParseAnimInfo(lump, W_LumpLength(p), I_Error);
     }
+}
+
+void N_InitAnimateLumps(void)
+{
+    animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
+    widescreenLumps = dsda_IntConfig(nyan_config_enable_widescreen_lumps);
+
+    // Add default "weird" lumps
+    N_AddPatchAnimateLump("M_SKULL1", "S_SKULL", "E_SKULL", 8);
+    N_AddPatchAnimateLump("M_DOOM", "S_DOOM", "E_DOOM", 8);
+
+    N_LoadAnimInfo();
 }
 
 void N_ReloadAnimateLumps(void)
@@ -271,6 +315,37 @@ void N_ReloadAnimateLumps(void)
     if (!raven) {
         animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
         widescreenLumps = dsda_IntConfig(nyan_config_enable_widescreen_lumps);
+    }
+}
+
+void N_ApplyAnimInfo(const animinfo_entry_t *entry)
+{
+    animate_t *a = N_FindAnimByLumpnum(entry->lump);
+
+    if (!a && !entry->animation_override)
+    {
+        char lump_name[9];
+
+        memcpy(lump_name, W_LumpName(entry->lump), 8);
+        lump_name[8] = '\0';
+        N_AddPatchAnimateNum(lump_name);
+    }
+
+    a = N_GetOrCreateAnimByLumpnum(entry->lump);
+
+    if (entry->animation_override)
+    {
+        if (entry->type == ANIM_RANGE)
+            N_AnimSetRange(a, entry->startpic, entry->endpic, entry->tics, entry->oscillate);
+        else if (entry->type == ANIM_SEQUENCE)
+            N_AnimSetSequence(a, entry->frames, entry->num_frames, entry->oscillate);
+        else
+            N_AnimClearAnimate(a);
+    }
+
+    if (entry->widepic_override)
+    {
+        a->widepic = (entry->widepic == LUMP_NOT_FOUND) ? WIDEPIC_CLEAR : entry->widepic;
     }
 }
 
@@ -299,7 +374,7 @@ static void N_AddPatchAnimateLump(const char* lump, const char* slump, const cha
         return;
 
     a = N_GetOrCreateAnimByLumpnum(lumpnum);
-    N_AnimSetRange(a, start, end, speed);
+    N_AnimSetRange(a, start, end, speed, false);
 }
 
 static int N_AddPatchAnimateNum(const char* lump)
@@ -350,7 +425,21 @@ static int N_GetAnimateRange(int aninum)
     int SLump = n_anims[aninum].startpic;
     int ELump = n_anims[aninum].endpic;
     int speed = n_anims[aninum].tics;
-    int frame = (AnimateTime / speed) % (ELump - SLump + 1);
+    int num_frames = ELump - SLump + 1;
+    int frame;
+
+    if (n_anims[aninum].oscillate && num_frames > 1)
+    {
+        int double_frames = 2 * (num_frames - 1);
+        frame = (AnimateTime / speed) % double_frames;
+
+        if (frame >= num_frames)
+            frame = double_frames - frame;
+    }
+    else
+    {
+        frame = (AnimateTime / speed) % num_frames;
+    }
 
     return SLump + frame;
 }
@@ -393,14 +482,10 @@ static void N_ExtendAnimateLimit(void)
 
 static animate_t* N_GetOrCreateAnimByLumpnum(int lumpnum)
 {
-    size_t i;
-    size_t used = N_AnimCount();
-    animate_t *a;
-
     // Find existing
-    for (i = 0; i < used; i++)
-        if (n_anims[i].lump == lumpnum)
-            return &n_anims[i];
+    animate_t *a = N_FindAnimByLumpnum(lumpnum);
+
+    if (a) return a;
 
     // Create new
     N_ExtendAnimateLimit();

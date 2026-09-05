@@ -61,12 +61,14 @@ extern fixed_t  yaspectmul;
 extern fixed_t  viewheightfrac; //e6y: for correct cliping of things
 extern fixed_t  projection;
 extern fixed_t  skyiscale;
+extern float render_fov_current;
 // e6y: wide-res
 extern int wide_centerx;
 #define RMUL (1.6f/1.333333f)
 
 // proff 11/06/98: Added for high-res
 extern fixed_t  projectiony;
+extern fixed_t  lightfocallength;
 extern int      validcount;
 extern int      validcount2;
 // e6y: Added for more precise flats drawing
@@ -157,6 +159,7 @@ void R_Init(void);                           // Called by startup code.
 int R_ViewSize(void);
 void R_SetViewSize(void);              // Called by M_Responder.
 void R_ExecuteSetViewSize(void);             // cph - called by D_Display to complete a view resize
+void R_ToggleZoom(void);
 dboolean R_FullView(void);
 dboolean R_PartialView(void);
 dboolean R_StatusBarVisible(void);

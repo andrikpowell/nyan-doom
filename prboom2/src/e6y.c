@@ -108,7 +108,8 @@ int demo_tics_count;
 char demo_len_st[80];
 
 int mouse_handler;
-int gl_render_fov = 90;
+int render_fov = 90;
+float gl_render_fov_current = 90.0f;
 
 camera_t walkcamera;
 
@@ -331,7 +332,7 @@ float gl_render_multiplier;
 
 void M_ChangeAspectRatio(void)
 {
-  M_ChangeFOV();
+  gld_ChangeFOV();
 
   R_SetViewSize();
 }
@@ -343,11 +344,13 @@ void M_ChangeStretch(void)
   R_SetViewSize();
 }
 
-void M_ChangeFOV(void)
+void gld_ChangeRenderFOV(float set_fov)
 {
   float f1, f2;
   dsda_arg_t* arg;
   int gl_render_aspect_width, gl_render_aspect_height;
+
+  gl_render_fov_current = set_fov;
 
   arg = dsda_Arg(dsda_arg_aspect);
   if (
@@ -375,11 +378,11 @@ void M_ChangeFOV(void)
     }
   }
 
-  gl_render_fovy = (float)(2 * RAD2DEG(atan(tan(DEG2RAD(gl_render_fov) / 2) / gl_render_fovratio)));
+  gl_render_fovy = (float)(2 * RAD2DEG(atan(tan(DEG2RAD(set_fov) / 2) / gl_render_fovratio)));
 
-  screen_skybox_zplane = 320.0f/2.0f/(float)tan(DEG2RAD(gl_render_fov/2));
+  screen_skybox_zplane = 320.0f/2.0f/(float)tan(DEG2RAD(set_fov/2));
 
-  f1 = (float)(320.0f / 200.0f * (float)gl_render_fov / (float)FOV90 - 0.2f);
+  f1 = (float)(320.0f / 200.0f * set_fov / (float)FOV90 - 0.2f);
   f2 = (float)tan(DEG2RAD(gl_render_fovy)/2.0f);
   if (f1-f2<1)
     skyUpAngle = (float)-RAD2DEG(asin(f1-f2));
@@ -388,7 +391,12 @@ void M_ChangeFOV(void)
 
   skyUpShift = (float)tan(DEG2RAD(gl_render_fovy)/2.0f);
 
-  skyscale = 1.0f / (float)tan(DEG2RAD(gl_render_fov / 2));
+  skyscale = 1.0f / (float)tan(DEG2RAD(render_fov) / 2);
+}
+
+void gld_ChangeFOV(void)
+{
+  gld_ChangeRenderFOV((float)render_fov);
 }
 
 float viewPitch;
