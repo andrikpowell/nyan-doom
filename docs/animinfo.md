@@ -58,7 +58,7 @@ ANIMINFO supports range and sequence animations. Every animation block requires 
 animate =
 {
   type = "range";
-  tics = "4";
+  tics = 4;
   startpic = "S_HELP";
   endpic = "E_HELP";
 };
@@ -69,8 +69,8 @@ A range animation displays every lump from `startpic` through `endpic`, in wad-d
 | Property | Description |
 | --- | --- |
 | **type = "range";** | Selects a range animation. |
-| **tics = "\<Tics\>";** | Sets one fixed duration for every frame. The value must be positive. |
-| **tics = "rand(\<Min\>, \<Max\>)";** | Randomizes each frame duration inclusively between two numbers. `Min` must not exceed `Max`. Whitespace is allowed between `()`. |
+| **tics = \<Tics\>;** | Sets one fixed duration for every frame. The value must be positive. |
+| **tics = rand(\<Min\>, \<Max\>);** | Randomizes each frame duration inclusively between two numbers. `Min` must not exceed `Max`. Whitespace is allowed between `()`. |
 | **startpic = "\<LumpName\>";** | Sets the first lump in the animation range. Required. |
 | **endpic = "\<LumpName\>";** | Sets the last lump in the animation range. Required. |
 
@@ -84,9 +84,9 @@ The limit for tic values is 65,535 tics (~30 minutes).
 animate =
 {
   type = "sequence";
-  pic = "S_TITLEP"; tics = "4";
-  pic = "TITLEPIC"; tics = "rand(8, 30)";
-  pic = "E_TITLEP"; tics = "10";
+  pic = "S_TITLEP"; tics = 4;
+  pic = "TITLEPIC"; tics = rand(8, 30);
+  pic = "E_TITLEP"; tics = 10;
 };
 ```
 
@@ -96,8 +96,8 @@ A sequence animation lists its animation frame-by-frame. Every `pic` must be fol
 | --- | --- |
 | **type = "sequence";** | Selects a sequence animation. |
 | **pic = "\<LumpName\>";** | Adds the lump as the next frame. At least one frame is required. |
-| **tics = "\<Tics\>";** | Sets the frame's fixed duration. |
-| **tics = "rand(\<Min\>, \<Max\>)";** | Randomizes the frame's duration between two positive values. The duration is selected once when that frame begins. Whitespace is allowed between `()`. |
+| **tics = \<Tics\>;** | Sets the frame's fixed duration. |
+| **tics = rand(\<Min\>, \<Max\>);** | Randomizes the frame's duration between two positive values. The duration is selected once when that frame begins. Whitespace is allowed between `()`. |
 
 ## Full ANIMINFO Example
 
@@ -112,15 +112,15 @@ lump "TITLEPIC"
   animate =
   {
     type = "sequence";
-    pic = "S_TITLEP"; tics = "4";
-    pic = "TITLEPIC"; tics = "rand(8, 30)";
-    pic = "TITLEP2"; tics = "4";
-    pic = "TITLEP3"; tics = "7";
-    pic = "TITLEP4"; tics = "22";
-    pic = "TITLEP5"; tics = "45";
-    pic = "TITLEP6"; tics = "5";
-    pic = "TITLEP10"; tics = "8";
-    pic = "E_TITLEP"; tics = "10";
+    pic = "S_TITLEP"; tics = 4;
+    pic = "TITLEPIC"; tics = rand(8, 30);
+    pic = "TITLEP2"; tics = 4;
+    pic = "TITLEP3"; tics = 7;
+    pic = "TITLEP4"; tics = 22;
+    pic = "TITLEP5"; tics = 45;
+    pic = "TITLEP6"; tics = 5;
+    pic = "TITLEP10"; tics = 8;
+    pic = "E_TITLEP"; tics = 10;
   };
   widepic = "W_TITLEP";
 };
@@ -130,7 +130,7 @@ lump "HELP"
   animate =
   {
     type = "range";
-    tics = "4";
+    tics = 4;
     startpic = "S_HELP";
     endpic = "E_HELP";
   };
@@ -142,7 +142,7 @@ lump "CREDIT"
   animate =
   {
     type = "range";
-    tics = "4";
+    tics = 4;
     startpic = "S_CREDIT";
     endpic = "E_CREDIT";
   };

@@ -44,58 +44,28 @@ typedef enum
 
 static animinfo_version_t version;
 
-static int IsDigit(char c)
+static int ParsePositiveInteger(Scanner &scanner, const char* lump_name, const char* property)
 {
-    return c >= '0' && c <= '9';
-}
+    scanner.MustGetInteger();
 
-static int ParsePositiveInteger(Scanner &scanner, const char** text, const char* lump_name, const char* property)
-{
-    int value = 0;
-
-    if (!IsDigit(**text))
-        scanner.ErrorF("ANIMINFO: lump '%s': invalid %s", lump_name, property);
-
-    while (IsDigit(**text))
-    {
-        int digit = **text - '0';
-
-        if (value > (ANIMINFO_MAX_TICS - digit) / 10)
-            scanner.ErrorF("ANIMINFO: lump '%s': %s exceeds maximum of %d tics", lump_name, property, ANIMINFO_MAX_TICS);
-
-        value = value * 10 + digit;
-        (*text)++;
-    }
-
-    if (!value)
+    if (scanner.number <= 0)
         scanner.ErrorF("ANIMINFO: lump '%s': %s must be positive", lump_name, property);
 
-    return value;
+    if (scanner.number > ANIMINFO_MAX_TICS)
+        scanner.ErrorF("ANIMINFO: lump '%s': %s exceeds maximum of %d tics", lump_name, property, ANIMINFO_MAX_TICS);
+
+    return scanner.number;
 }
 
-static void NextNonWhitespace(const char** text)
-{
-    while (**text == ' ' || **text == '\t' || **text == '\r' || **text == '\n')
-        (*text)++;
-}
-
-static animinfo_tics_t ParseRandomTics(Scanner &scanner, const char* text, const char* lump_name)
+static animinfo_tics_t ParseRandomTics(Scanner &scanner, const char* lump_name)
 {
     animinfo_tics_t tics;
 
-    text += 5;
-    NextNonWhitespace(&text);
-    tics.min = ParsePositiveInteger(scanner, &text, lump_name, "rand minimum");
-    NextNonWhitespace(&text);
-    if (*text != ',')
-        scanner.ErrorF("ANIMINFO: lump '%s': invalid rand minimum", lump_name);
-
-    ++text;
-    NextNonWhitespace(&text);
-    tics.max = ParsePositiveInteger(scanner, &text, lump_name, "rand maximum");
-    NextNonWhitespace(&text);
-    if (*text != ')' || text[1] != '\0')
-        scanner.ErrorF("ANIMINFO: lump '%s': invalid rand maximum", lump_name);
+    scanner.MustGetToken('(');
+    tics.min = ParsePositiveInteger(scanner, lump_name, "rand minimum");
+    scanner.MustGetToken(',');
+    tics.max = ParsePositiveInteger(scanner, lump_name, "rand maximum");
+    scanner.MustGetToken(')');
 
     if (tics.max < tics.min)
         scanner.ErrorF("ANIMINFO: lump '%s': 'rand(min,max)' requires min <= max", lump_name);
@@ -107,18 +77,16 @@ static animinfo_tics_t ParseRandomTics(Scanner &scanner, const char* text, const
 static animinfo_tics_t ParseTics(Scanner &scanner, const char* lump_name)
 {
     animinfo_tics_t tics;
-    const char* text;
-
-    scanner.MustGetToken(TK_StringConst);
-    text = scanner.string;
 
     // Parse single tic value
-    if (IsDigit(*text))
+    if (scanner.CheckToken(TK_IntConst))
     {
-        int value = ParsePositiveInteger(scanner, &text, lump_name, "fixed 'tics'");
+        int value = scanner.number;
 
-        if (*text != '\0')
-            scanner.ErrorF("ANIMINFO: lump '%s': invalid fixed 'tics'", lump_name);
+        if (value <= 0)
+            scanner.ErrorF("ANIMINFO: lump '%s': fixed 'tics' must be positive", lump_name);
+        if (value > ANIMINFO_MAX_TICS)
+            scanner.ErrorF("ANIMINFO: lump '%s': fixed 'tics' exceeds maximum of %d tics", lump_name, ANIMINFO_MAX_TICS);
 
         tics.mode = ANIM_TICS_FIXED;
         tics.min = tics.max = value;
@@ -126,11 +94,10 @@ static animinfo_tics_t ParseTics(Scanner &scanner, const char* lump_name)
     }
 
     // Parse random tic range
-    if (!strncmp(text, "rand(", 5))
-        return ParseRandomTics(scanner, text, lump_name);
+    if (scanner.CheckToken(TK_Identifier) && scanner.StringMatch("rand"))
+        return ParseRandomTics(scanner, lump_name);
 
-    // not a valid tic value, throw error
-    scanner.ErrorF("ANIMINFO: lump '%s': 'tics' must be a quoted integer or \"rand(min,max)\"", lump_name);
+    scanner.ErrorF("ANIMINFO: lump '%s': 'tics' must be a positive integer or rand(min, max)", lump_name);
 
     return tics;
 }
