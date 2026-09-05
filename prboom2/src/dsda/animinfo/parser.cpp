@@ -170,7 +170,7 @@ static void ParseAnimateBlock(Scanner &scanner, animinfo_entry_t* entry, const c
         if (scanner.StringMatch("type"))
         {
             scanner.MustGetToken('=');
-            scanner.MustGetToken(TK_StringConst);
+            scanner.MustGetToken(TK_Identifier);
             if (!stricmp(scanner.string, "range"))
                 type = ANIM_RANGE;
             else if (!stricmp(scanner.string, "sequence"))

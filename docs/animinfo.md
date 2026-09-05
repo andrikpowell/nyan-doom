@@ -57,7 +57,7 @@ ANIMINFO supports range and sequence animations. Every animation block requires 
 ```c
 animate =
 {
-  type = "range";
+  type = range;
   tics = 4;
   startpic = "S_HELP";
   endpic = "E_HELP";
@@ -68,7 +68,7 @@ A range animation displays every lump from `startpic` through `endpic`, in wad-d
 
 | Property | Description |
 | --- | --- |
-| **type = "range";** | Selects a range animation. |
+| **type = range;** | Selects a range animation. |
 | **tics = \<Tics\>;** | Sets one fixed duration for every frame. The value must be positive. |
 | **tics = rand(\<Min\>, \<Max\>);** | Randomizes each frame duration inclusively between two numbers. `Min` must not exceed `Max`. Whitespace is allowed between `()`. |
 | **startpic = "\<LumpName\>";** | Sets the first lump in the animation range. Required. |
@@ -83,7 +83,7 @@ The limit for tic values is 65,535 tics (~30 minutes).
 ```c
 animate =
 {
-  type = "sequence";
+  type = sequence;
   pic = "S_TITLEP"; tics = 4;
   pic = "TITLEPIC"; tics = rand(8, 30);
   pic = "E_TITLEP"; tics = 10;
@@ -94,7 +94,7 @@ A sequence animation lists its animation frame-by-frame. Every `pic` must be fol
 
 | Property | Description |
 | --- | --- |
-| **type = "sequence";** | Selects a sequence animation. |
+| **type = sequence;** | Selects a sequence animation. |
 | **pic = "\<LumpName\>";** | Adds the lump as the next frame. At least one frame is required. |
 | **tics = \<Tics\>;** | Sets the frame's fixed duration. |
 | **tics = rand(\<Min\>, \<Max\>);** | Randomizes the frame's duration between two positive values. The duration is selected once when that frame begins. Whitespace is allowed between `()`. |
@@ -111,7 +111,7 @@ lump "TITLEPIC"
 {
   animate =
   {
-    type = "sequence";
+    type = sequence;
     pic = "S_TITLEP"; tics = 4;
     pic = "TITLEPIC"; tics = rand(8, 30);
     pic = "TITLEP2"; tics = 4;
@@ -129,7 +129,7 @@ lump "HELP"
 {
   animate =
   {
-    type = "range";
+    type = range;
     tics = 4;
     startpic = "S_HELP";
     endpic = "E_HELP";
@@ -141,7 +141,7 @@ lump "CREDIT"
 {
   animate =
   {
-    type = "range";
+    type = range;
     tics = 4;
     startpic = "S_CREDIT";
     endpic = "E_CREDIT";
