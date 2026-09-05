@@ -1235,6 +1235,13 @@ static int Full_Raven_PSpriteSY[NUMCLASSES][NUMWEAPONS] = {
   {10 * FRACUNIT, 10 * FRACUNIT, 10 * FRACUNIT, 10 * FRACUNIT} // Pig
 };
 
+static fixed_t R_WeaponZoomOffset(void)
+{
+  float offset = render_fov_current - render_fov;
+
+  return offset < 0.0f ? (fixed_t)(offset * FRACUNIT / 2.0f) : 0;
+}
+
 static void R_DrawPSprite (pspdef_t *psp)
 {
   int           x1, x2;
@@ -1306,6 +1313,9 @@ static void R_DrawPSprite (pspdef_t *psp)
   {
     vis->texturemid -= Full_Raven_PSpriteSY[viewplayer->pclass][players[consoleplayer].readyweapon];
   }
+
+  // [AR] Lower weapon based on zoom
+  vis->texturemid += R_WeaponZoomOffset();
 
   // Move the weapon down for 1280x1024.
   vis->texturemid -= psprite_offset;

@@ -1342,6 +1342,15 @@ dboolean G_Responder (event_t* ev)
     return true;
   }
 
+  if (dsda_InputActivated(dsda_input_zoom))
+  {
+    if (gamestate == GS_LEVEL && casual_play)
+    {
+      R_ToggleZoom();
+      return true;
+    }
+  }
+
   // Events that make it here should reach into the game logic
   dsda_InputTrackGameEvent(ev);
 

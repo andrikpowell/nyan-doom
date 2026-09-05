@@ -519,6 +519,7 @@ enum {
   dsda_config_obituaries,
   dsda_config_extra_level_brightness,
   dsda_config_demo_end_quit,
+  dsda_config_zoom_fov,
   dsda_config_count,
 };
 

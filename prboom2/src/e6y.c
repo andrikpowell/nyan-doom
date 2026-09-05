@@ -108,6 +108,7 @@ char demo_len_st[80];
 
 int mouse_handler;
 int render_fov = 90;
+float gl_render_fov_current = 90.0f;
 
 camera_t walkcamera;
 
@@ -347,6 +348,8 @@ void gld_ChangeRenderFOV(float set_fov)
   float f1, f2;
   dsda_arg_t* arg;
   int gl_render_aspect_width, gl_render_aspect_height;
+
+  gl_render_fov_current = set_fov;
 
   arg = dsda_Arg(dsda_arg_aspect);
   if (

@@ -69,6 +69,7 @@ extern char demo_len_st[80];
 extern int mouse_handler;
 
 extern int render_fov;
+extern float gl_render_fov_current;
 extern float gl_render_ratio;
 extern float gl_render_fovratio;
 extern float gl_render_fovy;

@@ -190,7 +190,7 @@ void R_UpdateSkyScale(void)
     //skyiscale = (fixed_t)((int64_t)skyiscale * FieldOfView / 2048);
 
     // [AR] Update sky with zoom fov
-    skyiscale = (fixed_t)(skyiscale * tan(DEG2RAD(render_fov) / 2.0));
+    skyiscale = (fixed_t)(skyiscale * tan(DEG2RAD(render_fov_current) / 2.0));
 
     if (skystretch)
     {

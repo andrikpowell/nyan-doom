@@ -1208,6 +1208,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "render_fov", dsda_config_render_fov,
     dsda_config_int, 40, 140, { 90 }, &render_fov, NOT_STRICT, gld_ChangeFOV
   },
+  [dsda_config_zoom_fov] = {
+    "zoom_fov", dsda_config_zoom_fov,
+    dsda_config_int, 20, 90, { 40 }, NULL, NOT_STRICT
+  },
   [dsda_config_gl_health_bar] = {
     "gl_health_bar", dsda_config_gl_health_bar,
     CONF_BOOL(0), NULL, STRICT_INT(0)

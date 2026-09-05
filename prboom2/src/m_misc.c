@@ -206,6 +206,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_freelook_enhanced_flying),
   MIGRATED_SETTING(dsda_config_extra_level_brightness),
   MIGRATED_SETTING(dsda_config_render_fov),
+  MIGRATED_SETTING(dsda_config_zoom_fov),
 
   SETTING_HEADING("OpenGL settings"),
   MIGRATED_SETTING(dsda_config_gl_render_multisampling),
@@ -742,6 +743,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_console", dsda_input_console, 0, -1, -1),
   INPUT_SETTING("input_coordinate_display", dsda_input_coordinate_display, 0, -1, -1),
   INPUT_SETTING("input_fps", dsda_input_fps, 0, -1, -1),
+  INPUT_SETTING("input_zoom", dsda_input_zoom, 0, -1, -1),
   INPUT_SETTING("input_avj", dsda_input_avj, 0, -1, -1),
   INPUT_SETTING("input_exhud", dsda_input_exhud, 0, -1, -1),
   INPUT_SETTING("input_free_text", dsda_input_free_text, 0, -1, -1),
