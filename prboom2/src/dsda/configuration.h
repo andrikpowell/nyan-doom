@@ -271,7 +271,7 @@ enum {
   dsda_config_mapcolor_hexen_trail_2,
   dsda_config_gl_skymode,
   dsda_config_gl_render_multisampling,
-  dsda_config_gl_render_fov,
+  dsda_config_render_fov,
   dsda_config_gl_health_bar,
   dsda_config_gl_usevbo,
   dsda_config_gl_fade_mode,
@@ -408,6 +408,7 @@ enum {
   dsda_config_ssg_on_arms,
   dsda_config_viewbob,
   dsda_config_weaponbob,
+  nyan_config_weapon_freelook_tilt,
   dsda_config_quake_intensity,
   dsda_config_swirling_flats,
   dsda_config_draw_nearby_sprites,
@@ -519,6 +520,7 @@ enum {
   dsda_config_obituaries,
   dsda_config_extra_level_brightness,
   dsda_config_demo_end_quit,
+  dsda_config_zoom_fov,
   dsda_config_count,
 };
 

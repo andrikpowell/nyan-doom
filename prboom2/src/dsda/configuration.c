@@ -111,7 +111,7 @@ void I_ResetMusicVolume(void);
 void M_ChangeAllowFog(void);
 void gld_ResetShadowParameters(void);
 void gld_MultisamplingInit(void);
-void M_ChangeFOV(void);
+void gld_ChangeFOV(void);
 void I_InitMouse(void);
 void AccelChanging(void);
 void G_UpdateMouseSensitivity(void);
@@ -1204,9 +1204,13 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "gl_render_multisampling", dsda_config_gl_render_multisampling,
     dsda_config_int, 0, 8, { 0 }, NULL, CONF_EVEN, 0, gld_MultisamplingInit
   },
-  [dsda_config_gl_render_fov] = {
-    "gl_render_fov", dsda_config_gl_render_fov,
-    dsda_config_int, 20, 160, { 90 }, &gl_render_fov, NOT_STRICT, M_ChangeFOV
+  [dsda_config_render_fov] = {
+    "render_fov", dsda_config_render_fov,
+    dsda_config_int, 40, 140, { 90 }, &render_fov, NOT_STRICT, gld_ChangeFOV
+  },
+  [dsda_config_zoom_fov] = {
+    "zoom_fov", dsda_config_zoom_fov,
+    dsda_config_int, 20, 90, { 40 }, NULL, NOT_STRICT
   },
   [dsda_config_gl_health_bar] = {
     "gl_health_bar", dsda_config_gl_health_bar,
@@ -1735,6 +1739,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_weaponbob] = {
     "dsda_weaponbob_pct", dsda_config_weaponbob,
     dsda_config_int, 0, 4, { 4 }
+  },
+  [nyan_config_weapon_freelook_tilt] = {
+    "nyan_weapon_freelook_tilt", nyan_config_weapon_freelook_tilt,
+    CONF_BOOL(0), NULL, NOT_STRICT
   },
   [dsda_config_quake_intensity] = {
     "dsda_quake_intensity", dsda_config_quake_intensity,

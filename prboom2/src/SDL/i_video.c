@@ -1509,7 +1509,7 @@ void I_UpdateVideoMode(void)
 
   if (V_IsOpenGLMode())
   {
-    M_ChangeFOV();
+    gld_ChangeFOV();
     deh_changeCompTranslucency();
 
     // elim - Sets up viewport sizing for render-to-texture scaling
