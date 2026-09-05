@@ -38,7 +38,7 @@
 #include "config.h"
 #endif
 
-#include <string.h>
+#include <stddef.h>
 
 #include "doomtype.h"
 #include "sounds.h"
@@ -130,6 +130,31 @@ musicinfo_t doom_S_music[] = {
   { "musinfo", NULL, 0 }
 };
 
+//
+// Port specific / optional sfx
+//
+
+sfx_port_info_t port_S_sfx[] = {
+    { "dsnone", NULL, NULL, 0, 0, -1, 0, 0, 0, "" },
+
+    // DSDA
+    { "dssecret", "secret", "secret", 60, 0, -1, 0, 0, 0, "" }, // Secret
+
+    // Optional menu/intermission sounds
+    { "dsmnuopn", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnucls", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnuact", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnubak", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnumov", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnusli", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnusel", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsmnuerr", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsinttic", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsinttot", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsintnex", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsintnet", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+    { "dsintdms", NULL, NULL, 60, 0, -1, 0, 0, 1, "" },
+};
 
 //
 // Information about all the sfx

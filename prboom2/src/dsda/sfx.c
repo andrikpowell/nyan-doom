@@ -33,7 +33,7 @@ static int deh_soundnames_size;
 static char** deh_soundnames;
 static byte* sfx_state;
 static int highest_index;
-static int game_sfx_end;
+static int game_base_sfx_end;
 
 static void dsda_ResetSFX(int from, int to) {
   int i;
@@ -133,14 +133,14 @@ sfxinfo_t* dsda_NewSFX(int* index) {
   return dsda_SFXAtIndex(*index);
 }
 
-void dsda_InitializeSFX(sfxinfo_t* source, int count, int sfx_end) {
+void dsda_InitializeSFX(sfxinfo_t* source, int count, int base_sfx_end) {
   int i;
   extern int hexen;
 
   num_sfx = count;
   highest_index = count - 1;
-  game_sfx_end = sfx_end;
   deh_soundnames_size = num_sfx + 1;
+  game_base_sfx_end = base_sfx_end;
 
   S_sfx = source;
 
@@ -164,11 +164,11 @@ void dsda_AppendPortSFX(void) {
   extern dboolean hexen;
 
   dsda_PrepAllocation();
-  dsda_EnsureCapacity(game_sfx_end + NUM_PORT_SFX - 1);
+  dsda_EnsureCapacity(game_base_sfx_end + NUM_PORT_SFX - 1);
 
   for (i = 1; i < NUM_PORT_SFX; ++i) {
     sfx_port_info_t *port_sfx = &port_S_sfx[i];
-    sfxinfo_t *sfx = &S_sfx[game_sfx_end + i];
+    sfxinfo_t *sfx = &S_sfx[game_base_sfx_end + i];
 
     // Doom name is fallback if heretic/hexen are NULL
     const char *name = port_sfx->doom_name;
@@ -190,25 +190,13 @@ void dsda_AppendPortSFX(void) {
     sfx->parallel_count = port_sfx->parallel_count;
   }
 
-  if (highest_index < game_sfx_end + NUM_PORT_SFX - 1)
-    highest_index = game_sfx_end + NUM_PORT_SFX - 1;
-
-  lprintf(
-    LO_INFO,
-    "Port SFX: game_end=%d secret=%d subtle=%d idnut=%d gibdth=%d optional=%d-%d\n",
-    game_sfx_end,
-    dsda_PortSFXIndex(port_sfx_secret),
-    dsda_PortSFXIndex(port_sfx_secret_subtle),
-    dsda_PortSFXIndex(port_sfx_idnut),
-    dsda_PortSFXIndex(port_sfx_gibdth),
-    dsda_PortSFXIndex(port_sfx_mnuopn),
-    dsda_PortSFXIndex(port_sfx_intdms)
-  );
+  if (highest_index < game_base_sfx_end + NUM_PORT_SFX - 1)
+    highest_index = game_base_sfx_end + NUM_PORT_SFX - 1;
 }
 
 int dsda_PortSFXIndex(int port_sfx_id)
 {
-  return game_sfx_end + port_sfx_id;
+  return game_base_sfx_end + port_sfx_id;
 }
 
 void dsda_FreeDehSFX(void) {

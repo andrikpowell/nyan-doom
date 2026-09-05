@@ -62,10 +62,8 @@ typedef struct {
 //
 
 struct sfxinfo_struct;
-struct portsfxinfo_struct;
 
 typedef struct sfxinfo_struct sfxinfo_t;
-typedef struct portsfxinfo_struct sfx_port_info_t;
 
 struct sfxinfo_struct {
 
@@ -97,10 +95,14 @@ struct sfxinfo_struct {
   int parallel_count;
 };
 
+struct portsfxinfo_struct;
+
+typedef struct portsfxinfo_struct sfx_port_info_t;
+
 struct portsfxinfo_struct {
   const char *doom_name; // up to 6-character name
-  const char *heretic_name;
-  const char *hexen_name;
+  const char *heretic_name; // 8-character name
+  const char *hexen_name;   // 8-character name
 
   int priority;         // Sfx priority
   sfxinfo_t *link;      // referenced sound if a link
@@ -471,7 +473,7 @@ typedef enum {
   sfx_dgdth,
   sfx_dgpain,
 
-  DOOM_SFX_END = sfx_dgpain,
+  DOOM_BASESFX_END = sfx_dgpain,
 
   // Everything from here to 500 is reserved
 
@@ -825,7 +827,7 @@ typedef enum {
   heretic_sfx_amb10,
   heretic_sfx_amb11,
 
-  HERETIC_SFX_END = heretic_sfx_amb11,
+  HERETIC_BASESFX_END = heretic_sfx_amb11,
 
   /* Free sound effect slots for DEHEXTRA. Offset agreed upon with Eternity devs. -SH */
   heretic_sfx_fre000 = 500,
@@ -1277,7 +1279,7 @@ typedef enum {
   hexen_sfx_puppybeat,
   hexen_sfx_mysticincant,
 
-  HEXEN_SFX_END = hexen_sfx_mysticincant,
+  HEXEN_BASESFX_END = hexen_sfx_mysticincant,
 
   HEXEN_NUMSFX
 } sfxenum_t;
@@ -1293,6 +1295,9 @@ extern musicinfo_t heretic_S_music[];
 extern sfxinfo_t doom_S_sfx[];
 extern sfx_port_info_t port_S_sfx[];
 extern musicinfo_t doom_S_music[];
+
+// DSDA sound effects
+extern sfx_port_info_t port_S_sfx[];
 
 extern sfxinfo_t* S_sfx;
 extern int num_sfx;

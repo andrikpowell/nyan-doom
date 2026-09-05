@@ -2263,7 +2263,7 @@ static void D_DoomMainSetup(void)
   }
 
   PostProcessDehacked();
-  dsda_AppendPortSFX(); // must come before dsda_LoadSndInfo()
+  dsda_AppendPortSFX();
   dsda_AppendZDoomMobjInfo();
   dsda_ApplyBinaryMapFormat();
 
