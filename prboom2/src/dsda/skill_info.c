@@ -287,7 +287,15 @@ void dsda_UpdateCustomSkill(int custom_skill_num) {
 // "Always Pistol Start" is the only persistent cfg (saved in cfg file)
 //
 
-static void dsda_ResetGameModifiers(void);
+// During demo recording/playback only use args, else use cfgs
+static void dsda_ResetGameModifiers(void)
+{
+  pistolstart = (casual_play ? dsda_IntConfig(dsda_config_pistol_start)     : false);   // pistolstart not allowed in demos
+  respawnparm = (casual_play ? dsda_IntConfig(dsda_config_respawn_monsters) : dsda_Flag(dsda_arg_respawn));
+  fastparm    = (casual_play ? dsda_IntConfig(dsda_config_fast_monsters)    : dsda_Flag(dsda_arg_fast));
+  nomonsters  = (casual_play ? dsda_IntConfig(dsda_config_no_monsters)      : dsda_Flag(dsda_arg_nomonsters));
+  coop_spawns = (casual_play ? dsda_IntConfig(dsda_config_coop_spawns)      : dsda_Flag(dsda_arg_coop_spawns));
+}
 
 void dsda_InitGameModifiers(void)
 {
@@ -305,17 +313,6 @@ void dsda_InitGameModifiers(void)
   // Pistol-start config can reset other modifier configs
   // Explicitly refresh everything for configs to match args
   dsda_ResetGameModifiers();
-}
-
-// During demo recording/playback only use args, else use cfgs
-static void dsda_ResetGameModifiers(void)
-{
-  pistolstart   = (casual_play ? dsda_IntConfig(dsda_config_pistol_start)      : false);   // pistolstart not allowed in demos
-  limitremoving = (casual_play ? dsda_IntConfig(dsda_config_limit_removing)    : dsda_Flag(dsda_arg_limitremoving));
-  respawnparm   = (casual_play ? dsda_IntConfig(dsda_config_respawn_monsters)  : dsda_Flag(dsda_arg_respawn));
-  fastparm      = (casual_play ? dsda_IntConfig(dsda_config_fast_monsters)     : dsda_Flag(dsda_arg_fast));
-  nomonsters    = (casual_play ? dsda_IntConfig(dsda_config_no_monsters)       : dsda_Flag(dsda_arg_nomonsters));
-  coop_spawns   = (casual_play ? dsda_IntConfig(dsda_config_coop_spawns)       : dsda_Flag(dsda_arg_coop_spawns));
 }
 
 // if "Pistol Start" is disabled, disable "Always Pistol Start" (avoid impossible condition)
