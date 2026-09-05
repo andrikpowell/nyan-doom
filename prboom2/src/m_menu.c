@@ -2834,9 +2834,14 @@ static int M_ThermoDisplayValue(const setup_menu_t *s)
   int value = dsda_IntConfig(s->config_id);
 
   if (upper_limit == INT_MAX)
-    return CLAMP(value, lower_limit, display_limit);
+    return CLAMP(value, lower_limit, display_limit) - lower_limit;
 
-  return CLAMP(value, lower_limit, upper_limit);
+  return CLAMP(value, lower_limit, upper_limit) - lower_limit;
+}
+
+static int M_ThermoDisplayRange(const setup_menu_t *s)
+{
+  return M_ThermoDisplayUpperLimit(s) - dsda_LowerLimitConfig(s->config_id) + 1;
 }
 
 static int M_ThermoEditUpperLimit(const setup_menu_t *s)
@@ -3437,7 +3442,7 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
 
     value = dsda_IntConfig(s->config_id);
 
-    M_DrawThermo(x, y, 8, M_ThermoDisplayUpperLimit(s) + 1, M_ThermoDisplayValue(s), selected, true);
+    M_DrawThermo(x, y, 8, M_ThermoDisplayRange(s), M_ThermoDisplayValue(s), selected, true);
     M_FormatMenuSetting(s, value);
 
     M_ChoiceBlinkingArrowRight(s, x + 80, y + 3, color);
