@@ -34,6 +34,7 @@ typedef struct
     int tics;
     const anim_frame_t *frames;
     int num_frames;
+    int oscillate;
 
     int widepic;
 

@@ -178,6 +178,12 @@ static void ParseAnimateBlock(Scanner &scanner, animinfo_entry_t* entry, const c
             else
                 scanner.ErrorF("ANIMINFO: lump '%s': unknown animation type '%s'", lump_name, scanner.string);
         }
+        else if (scanner.StringMatch("oscillate"))
+        {
+            scanner.MustGetToken('=');
+            scanner.MustGetToken(TK_BoolConst);
+            entry->oscillate = scanner.boolean;
+        }
         else if (scanner.StringMatch("pic"))
         {
             anim_frame_t frame = { 0 };
