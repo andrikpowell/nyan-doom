@@ -16,6 +16,8 @@
 //
 
 #include <string.h>
+#include <errno.h>
+#include <stdlib.h>
 
 #include "doomstat.h"
 #include "m_menu.h"
@@ -96,6 +98,26 @@ static int dsda_ParseGameversLump(void) {
     return false;
 }
 
+static int dsda_ComplvlStrToNum(const char* data, size_t length) {
+  if (length == 7 && !strncasecmp("vanilla", data, 7)) {
+    if (gamemode == commercial) {
+      if (gamemission == pack_plut || gamemission == pack_tnt)
+        return 4;
+      else
+        return 2;
+    }
+    else
+      return 3;
+  }
+  else if (length == 4 && !strncasecmp("boom", data, 4))
+    return 9;
+  else if (length == 3 && !strncasecmp("mbf", data, 3))
+    return 11;
+  else if (length == 5 && !strncasecmp("mbf21", data, 5))
+    return 21;
+  return -1;
+}
+
 static int dsda_WadCompatibilityLevel(void) {
   static int last_numwadfiles = -1;
 
@@ -114,32 +136,15 @@ static int dsda_WadCompatibilityLevel(void) {
           length = W_LumpLength(num);
           data = W_LumpByNum(num);
 
-          if (length == 7 && !strncasecmp("vanilla", data, 7)) {
-            gamever = dsda_ParseGameversLump();
-
-            if (complvl == -1) {
-                if (gamemode == commercial)
-                      if (gamemission == pack_plut || gamemission == pack_tnt)
-                          complvl = 4;
-                      else
-                          complvl = 2;
-                  else
-                      complvl = 3;
-            }
-          }
-          else if (length == 4 && !strncasecmp("boom", data, 4))
-              complvl = 9;
-          else if (length == 3 && !strncasecmp("mbf", data, 3))
-              complvl = 11;
-          else if (length == 5 && !strncasecmp("mbf21", data, 5))
-              complvl = 21;
+          complvl = dsda_ComplvlStrToNum(data, length);
+          gamever = dsda_ParseGameversLump();
 
           lumps = (gamever ? "COMPLVL and GAMEVERS" : "COMPLVL");
           limit = (limitremoving_lmp ? " (limit-removing)" : "");
 
           lprintf(LO_INFO, "Detected %s lump: %i%s\n", lumps, complvl, limit);
       }
-}
+  }
 
   return complvl;
 }
@@ -147,7 +152,6 @@ static int dsda_WadCompatibilityLevel(void) {
 int dsda_CompatibilityLevel(void) {
   int level;
   dsda_arg_t* complevel_arg;
-  dsda_arg_t* lr_arg;
 
   if (raven) return doom_12_compatibility;
 
@@ -157,22 +161,38 @@ int dsda_CompatibilityLevel(void) {
 
   complevel_arg = dsda_Arg(dsda_arg_complevel);
 
-  // Set Limit-Removing from arg
-  lr_arg = dsda_Arg(dsda_arg_limitremoving);
-  if ((lr_arg->count || limitremoving_arg) &&
-      (complevel_arg->value.v_int < boom_compatibility_compatibility))
-  {
-    dsda_UpdateIntConfig(dsda_config_limit_removing, 1, true);
-    limitremoving = true;
+  if (complevel_arg->count) {
+    const char* arg_val = complevel_arg->value.v_string;
+    char* str_end;
+    errno = 0;
+    level = strtol(arg_val, &str_end, 0);
+    if (errno == 0 && (*str_end == '\0' || (*str_end == 'r' && str_end[1] == '\0'))) {
+      // Limit-removing
+      if (*str_end == 'r') {
+        if (level < 0 || level > 6) {
+          I_Error("Complevel '%s' is invalid: only complevels 0-6 may use 'r' (limit-removing).", arg_val);
+        }
+        limitremoving_arg = true;
+      }
+      // Normal
+      if (level >= -1 && level < MAX_COMPATIBILITY_LEVEL) {
+        return level;
+      }
+    } else {
+      level = dsda_ComplvlStrToNum(arg_val, strlen(arg_val));
+      if (level != -1) {
+        return level;
+      }
+    }
+    I_Error("-complevel value of \"%s\" did not match any known complevel.", arg_val);
   }
 
-  if (complevel_arg->count)
-    return complevel_arg->value.v_int;
+  if (!demoplayback) {
+    level = dsda_WadCompatibilityLevel();
 
-  level = dsda_WadCompatibilityLevel();
-
-  if (level >= 0)
-    return level;
+    if (level >= 0)
+      return level;
+  }
 
   return UNSPECIFIED_COMPLEVEL;
 }
@@ -191,6 +211,10 @@ int dsda_WeaponBob(void) {
 
 dboolean dsda_CameraMode(void) {
   return (players[consoleplayer].cheats & CF_CAMERA);
+}
+
+dboolean dsda_FixViewBobFloorJolt(void) {
+  return dsda_IntConfig(dsda_config_fix_viewbob_floor_jolt);
 }
 
 dboolean dsda_ShowMessages(void) {

@@ -698,7 +698,7 @@ void S_ChangeMusic(int musicnum, dboolean looping)
   music = &S_music[musicnum];
 
   if (mus_playing == music)
-      return;
+    return;
 
   // shutdown old music
   S_StopMusic();

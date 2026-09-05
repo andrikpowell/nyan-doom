@@ -990,7 +990,7 @@ static void AM_ResetTagHighlight(void)
   highlight.y = INT_MIN;
 }
 
-void AM_UpdateMinimapCoordinates(void)
+static void AM_UpdateMinimapCoordinates(void)
 {
   if (dsda_ShowMinimap())
   {

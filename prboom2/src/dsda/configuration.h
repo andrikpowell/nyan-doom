@@ -409,6 +409,7 @@ enum {
   dsda_config_viewbob,
   dsda_config_weaponbob,
   nyan_config_weapon_freelook_tilt,
+  dsda_config_fix_viewbob_floor_jolt,
   dsda_config_quake_intensity,
   dsda_config_swirling_flats,
   dsda_config_draw_nearby_sprites,

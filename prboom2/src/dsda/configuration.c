@@ -1746,6 +1746,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_weapon_freelook_tilt", nyan_config_weapon_freelook_tilt,
     CONF_BOOL(0), NULL, NOT_STRICT
   },
+  [dsda_config_fix_viewbob_floor_jolt] = {
+    "dsda_fix_viewbob_floor_jolt", dsda_config_fix_viewbob_floor_jolt,
+    CONF_BOOL(1)
+  },
   [dsda_config_quake_intensity] = {
     "dsda_quake_intensity", dsda_config_quake_intensity,
     dsda_config_int, 0, 400, { 100 }

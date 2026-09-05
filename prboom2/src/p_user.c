@@ -75,6 +75,8 @@
 #define MAXBOB  0x100000
 
 dboolean onground; // whether player is on ground or in air
+int offgroundtics; // how many tics player has been in air
+#define AIRBOBFADETICS 4 // num tics to scale bobbing to 0 in midair
 
 // heretic
 int newtorch;      // used in the torch flicker effect.
@@ -193,7 +195,7 @@ static void P_Bob(player_t *player, angle_t angle, fixed_t move)
 void P_CalcHeight (player_t* player)
 {
   int     angle;
-  fixed_t bob;
+  fixed_t bob, totalviewoffset;
 
   // Regular movement bobbing
   // (needs to be calculated for gun swing
@@ -254,7 +256,9 @@ void P_CalcHeight (player_t* player)
     player->bob = FRACUNIT / 2;
   }
 
-  if (!onground && !raven)
+  offgroundtics = onground ? 0 : offgroundtics + 1;
+
+  if (!onground && !raven && (offgroundtics > AIRBOBFADETICS || !dsda_FixViewBobFloorJolt()) )
   {
     player->viewz = player->mo->z + g_viewheight;
 
@@ -274,7 +278,7 @@ void P_CalcHeight (player_t* player)
 
   // move viewheight
 
-  if (player->playerstate == PST_LIVE)
+  if (player->playerstate == PST_LIVE && (onground || raven) )
   {
     player->viewheight += player->deltaviewheight;
 
@@ -305,7 +309,12 @@ void P_CalcHeight (player_t* player)
   }
   else
   {
-    player->viewz = player->mo->z + player->viewheight + bob;
+    totalviewoffset = player->viewheight + bob - g_viewheight;
+
+    if (!onground && !raven)
+      totalviewoffset = totalviewoffset * (AIRBOBFADETICS + 1 - offgroundtics) / AIRBOBFADETICS;
+
+    player->viewz = player->mo->z + g_viewheight + totalviewoffset;
   }
 
   if (player->playerstate != PST_DEAD && player->mo->z <= player->mo->floorz)
