@@ -107,7 +107,8 @@ int demo_tics_count;
 char demo_len_st[80];
 
 int mouse_handler;
-int gl_render_fov = 90;
+int render_fov = 90;
+float gl_render_fov_current = 90.0f;
 
 camera_t walkcamera;
 
@@ -219,7 +220,7 @@ int G_ReloadLevel(void)
   int result = false;
 
   if ((gamestate == GS_LEVEL || gamestate == GS_INTERMISSION) &&
-      allow_incompatibility &&
+      casual_play &&
       !menuactive)
   {
     int epsd = gameepisode;
@@ -249,7 +250,7 @@ int G_GotoNextLevel(void)
   dsda_NextMap(&epsd, &map);
 
   if ((gamestate == GS_LEVEL) &&
-    allow_incompatibility &&
+    casual_play &&
     !menuactive)
   {
     G_DeferedInitNew(gameskill, epsd, map);
@@ -267,7 +268,7 @@ int G_GotoPrevLevel(void)
   dsda_PrevMap(&epsd, &map);
 
   if ((gamestate == GS_LEVEL) &&
-    allow_incompatibility &&
+    casual_play &&
     !menuactive)
   {
     G_DeferedInitNew(gameskill, epsd, map);
@@ -330,7 +331,7 @@ float gl_render_multiplier;
 
 void M_ChangeAspectRatio(void)
 {
-  M_ChangeFOV();
+  gld_ChangeFOV();
 
   R_SetViewSize();
 }
@@ -342,11 +343,13 @@ void M_ChangeStretch(void)
   R_SetViewSize();
 }
 
-void M_ChangeFOV(void)
+void gld_ChangeRenderFOV(float set_fov)
 {
   float f1, f2;
   dsda_arg_t* arg;
   int gl_render_aspect_width, gl_render_aspect_height;
+
+  gl_render_fov_current = set_fov;
 
   arg = dsda_Arg(dsda_arg_aspect);
   if (
@@ -374,11 +377,11 @@ void M_ChangeFOV(void)
     }
   }
 
-  gl_render_fovy = (float)(2 * RAD2DEG(atan(tan(DEG2RAD(gl_render_fov) / 2) / gl_render_fovratio)));
+  gl_render_fovy = (float)(2 * RAD2DEG(atan(tan(DEG2RAD(set_fov) / 2) / gl_render_fovratio)));
 
-  screen_skybox_zplane = 320.0f/2.0f/(float)tan(DEG2RAD(gl_render_fov/2));
+  screen_skybox_zplane = 320.0f/2.0f/(float)tan(DEG2RAD(set_fov/2));
 
-  f1 = (float)(320.0f / 200.0f * (float)gl_render_fov / (float)FOV90 - 0.2f);
+  f1 = (float)(320.0f / 200.0f * set_fov / (float)FOV90 - 0.2f);
   f2 = (float)tan(DEG2RAD(gl_render_fovy)/2.0f);
   if (f1-f2<1)
     skyUpAngle = (float)-RAD2DEG(asin(f1-f2));
@@ -387,7 +390,12 @@ void M_ChangeFOV(void)
 
   skyUpShift = (float)tan(DEG2RAD(gl_render_fovy)/2.0f);
 
-  skyscale = 1.0f / (float)tan(DEG2RAD(gl_render_fov / 2));
+  skyscale = 1.0f / (float)tan(DEG2RAD(render_fov) / 2);
+}
+
+void gld_ChangeFOV(void)
+{
+  gld_ChangeRenderFOV((float)render_fov);
 }
 
 float viewPitch;
@@ -438,7 +446,7 @@ int I_MessageBox(const char* text, unsigned int type)
   {
     HWND current_hwnd = GetForegroundWindow();
     wchar_t *wtext = ConvertUtf8ToWide(text);
-    wchar_t *wpackage = ConvertUtf8ToWide(PROJECT_NAME);
+    wchar_t *wpackage = ConvertUtf8ToWide(PROJECT_STRING);
     result = MessageBoxW(GetDesktopWindow(), wtext, wpackage, type|MB_TASKMODAL|MB_TOPMOST);
     Z_Free(wtext);
     Z_Free(wpackage);
@@ -752,17 +760,72 @@ int levelstarttic;
 
 int force_singletics_to = 0;
 
-int HU_DrawDemoProgress(int force)
+static int demobar_h;
+static int demobar_anim_start_h;
+static int demobar_anim_end_h;
+static unsigned int demobar_anim_start_time;
+
+static void HU_ResetMouseDemoProgressBar(void)
+{
+  demobar_h = 0;
+  demobar_anim_start_h = 0;
+  demobar_anim_end_h = 0;
+  demobar_anim_start_time = 0;
+}
+
+static dboolean HU_MouseDemoProgressBar(int bar_h, int collapsed_h)
 {
   extern int mouse_hide_timer;
+  return (mouse_hide_timer > 0) || (bar_h > collapsed_h);
+}
+
+static int HU_MouseDemoProgressBarHeight(int collapsed_h)
+{
+  extern int mouse_hide_timer;
+  const unsigned int animate_time = 128;
+  const unsigned int current_time = SDL_GetTicks();
+
+  const dboolean demobar_expanded = (mouse_hide_timer > 0);
+  const int demobar_end_h = demobar_expanded ? (ST_SCALED_HEIGHT / 6) : collapsed_h;
+
+  unsigned int elapsed;
+  int height_change;
+
+  if (!demobar_anim_start_time || demobar_anim_end_h != demobar_end_h)
+  {
+    demobar_anim_start_time = current_time;
+    demobar_anim_start_h = demobar_h;
+    demobar_anim_end_h = demobar_end_h;
+  }
+
+  elapsed = current_time - demobar_anim_start_time;
+  if (elapsed >= animate_time)
+  {
+    demobar_h = demobar_end_h;
+    return demobar_h;
+  }
+
+  height_change = demobar_anim_end_h - demobar_anim_start_h;
+  demobar_h = demobar_anim_start_h + height_change * (int)elapsed / (int)animate_time;
+
+  return demobar_h;
+}
+
+int HU_DrawDemoProgress(int force)
+{
   static unsigned int last_update = 0;
   static int prev_len = -1;
 
   int len, tics_count, diff;
   unsigned int tick, max_period;
+  int bar_h = 0;
+  dboolean mouse_demo_progress_bar = false;
 
   if (gamestate == GS_DEMOSCREEN || !demoplayback)
+  {
+    HU_ResetMouseDemoProgressBar();
     return false;
+  }
 
   tics_count = demo_tics_count * demo_playerscount;
   len = MIN(SCREENWIDTH, (int)((int64_t)SCREENWIDTH * dsda_DemoTic() / tics_count));
@@ -786,7 +849,15 @@ int HU_DrawDemoProgress(int force)
 
   prev_len = len;
 
-  if (dsda_IntConfig(dsda_config_playback_mouse_controls) && mouse_hide_timer > 0 && !timingdemo && !walkcamera.type)
+  if (dsda_IntConfig(dsda_config_playback_mouse_controls) && !timingdemo && !walkcamera.type)
+  {
+    const int collapsed_h = dsda_IntConfig(dsda_config_hudadd_demoprogressbar) ? 4 : 0;
+
+    bar_h = HU_MouseDemoProgressBarHeight(collapsed_h);
+    mouse_demo_progress_bar = HU_MouseDemoProgressBar(bar_h, collapsed_h);
+  }
+
+  if (mouse_demo_progress_bar)
   {
     extern auto_kf_t* auto_key_frames;
     extern int auto_kf_size;
@@ -795,7 +866,6 @@ int HU_DrawDemoProgress(int force)
     extern dsda_key_frame_t quick_kf;
     int x;
 
-    int bar_h = ST_SCALED_HEIGHT / 6;
     int bar_y = SCREENHEIGHT - bar_h;
     int inner_h = bar_h * 2/3;
     int inner_y = SCREENHEIGHT - bar_h + (bar_h - inner_h) / 2;

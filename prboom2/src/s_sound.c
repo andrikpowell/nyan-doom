@@ -336,7 +336,7 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume, int loop_timeo
     return;
 
   // killough 4/25/98
-  if (sfx_id == g_sfx_secret)
+  if (sfx_id == g_sfx_secret || sfx_id == g_sfx_secret_subtle)
     params.sfx_class = sfx_class_secret;
   else if (sfx_id == g_sfx_idnut)
     params.sfx_class = sfx_class_idnut;
@@ -780,7 +780,8 @@ void S_ChangeMusInfoMusic(int lumpnum, int looping)
 
   music = &S_music[mus_musinfo];
 
-  if (music->lumpnum == lumpnum)
+  // Allow MUSINFO music to restart after MIDI player changes
+  if (music->lumpnum == lumpnum && mus_playing)
     return;
 
   // shutdown old music

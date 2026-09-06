@@ -111,7 +111,7 @@ void I_ResetMusicVolume(void);
 void M_ChangeAllowFog(void);
 void gld_ResetShadowParameters(void);
 void gld_MultisamplingInit(void);
-void M_ChangeFOV(void);
+void gld_ChangeFOV(void);
 void I_InitMouse(void);
 void AccelChanging(void);
 void G_UpdateMouseSensitivity(void);
@@ -121,6 +121,7 @@ void M_ChangeShorttics(void);
 void I_InitSoundParams(void);
 void S_Init(void);
 void M_ChangeMIDIPlayer(void);
+void M_ChangeSoundfont(void);
 void HU_InitCrosshair(void);
 void HU_InitThresholds(void);
 void dsda_InitAutoKeyFrames(void);
@@ -141,7 +142,7 @@ void R_SetViewSize(void);
 void M_ChangeApplyPalette(void);
 void M_ChangeStretch(void);
 void M_ChangeAspectRatio(void);
-void dsda_RefreshLinearSky(void);
+void dsda_RefreshSky(void);
 void deh_changeCompTranslucency(void);
 void deh_changeBonusFlash(void);
 void deh_changeColoredBlood(void);
@@ -150,12 +151,15 @@ void dsda_InitExHud(void);
 void dsda_UpdateFreeText(void);
 void dsda_ResetAirControl(void);
 void dsda_AlterGameFlags(void);
+void dsda_UpdateLimitRemoving(void);
 void dsda_RefreshPistolStart(void);
 void dsda_RefreshAlwaysPistolStart(void);
 void S_ToggleRandomMusic(void);
 void dsda_UpdateTranMap(void);
 void cht_UpdateCheats(void);
 void R_UpdateFuzzSize(void);
+void dsda_UpdateVanillaTextureEmulation(void);
+void dsda_UpdateMenuComplevel(void);
 void M_RefreshGameSpecificMenuOptions(void);
 
 void dsda_TrackConfigFeatures(void) {
@@ -260,7 +264,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_default_complevel] = {
     "default_compatibility_level", dsda_config_default_complevel,
-    dsda_config_int, 0, mbf21_compatibility, { mbf21_compatibility }
+    dsda_config_int, 0, mbf21_compatibility, { mbf21_compatibility }, NULL, NOT_STRICT, dsda_UpdateMenuComplevel
   },
   [dsda_config_default_skill] = {
     "default_skill", dsda_config_default_skill,
@@ -404,6 +408,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_fade_messages", dsda_config_fade_messages,
     CONF_BOOL(1), NULL, NOT_STRICT, dsda_UpdateTranMap
   },
+  [dsda_config_composite_time_hours] = {
+    "dsda_composite_time_hours", dsda_config_composite_time_hours,
+    dsda_config_int, 0, 1, { 0 }, NULL, NOT_STRICT
+  },
   [dsda_config_exhud_stats_format] = {
     "dsda_exhud_stats_format", dsda_config_exhud_stats_format,
     dsda_config_int, 0, 5, { 0 }, NULL, NOT_STRICT
@@ -416,6 +424,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_secret_format", dsda_config_secret_format,
     dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT
   },
+  [dsda_config_secret_sfx] = {
+    "dsda_secret_sfx", dsda_config_secret_sfx,
+    dsda_config_int, 0, 2, { 1 }, NULL, NOT_STRICT
+  },
   [dsda_config_kills_milestone] = {
     "dsda_kills_milestone", dsda_config_kills_milestone,
     CONF_BOOL(0), NULL, NOT_STRICT
@@ -427,6 +439,18 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_secrets_milestone] = {
     "dsda_secrets_milestone", dsda_config_secrets_milestone,
     CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [dsda_config_kills_milestone_sfx] = {
+    "dsda_kills_milestone_sfx", dsda_config_kills_milestone_sfx,
+    dsda_config_int, 0, 2, { 2 }, NULL, NOT_STRICT
+  },
+  [dsda_config_items_milestone_sfx] = {
+    "dsda_items_milestone_sfx", dsda_config_items_milestone_sfx,
+    dsda_config_int, 0, 2, { 2 }, NULL, NOT_STRICT
+  },
+  [dsda_config_secrets_milestone_sfx] = {
+    "dsda_secrets_milestone_sfx", dsda_config_secrets_milestone_sfx,
+    dsda_config_int, 0, 2, { 1 }, NULL, NOT_STRICT
   },
   [dsda_config_target_health] = {
     "dsda_target_health", dsda_config_target_health,
@@ -485,6 +509,18 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [nyan_config_ex_status_blinking] = {
     "nyan_ex_status_blinking", nyan_config_ex_status_blinking,
     CONF_BOOL(1), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_status_all_kills] = {
+    "nyan_ex_status_all_kills", nyan_config_ex_status_all_kills,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_status_all_items] = {
+    "nyan_ex_status_all_items", nyan_config_ex_status_all_items,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_status_all_secrets] = {
+    "nyan_ex_status_all_secrets", nyan_config_ex_status_all_secrets,
+    CONF_BOOL(0), NULL, NOT_STRICT
   },
   [nyan_config_ex_status_armor] = {
     "nyan_ex_status_armor", nyan_config_ex_status_armor,
@@ -545,6 +581,18 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [nyan_config_ex_timer_blinking] = {
     "nyan_ex_timer_blinking", nyan_config_ex_timer_blinking,
     CONF_BOOL(1), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_timer_all_kills] = {
+    "nyan_ex_timer_all_kills", nyan_config_ex_timer_all_kills,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_timer_all_items] = {
+    "nyan_ex_timer_all_items", nyan_config_ex_timer_all_items,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
+  [nyan_config_ex_timer_all_secrets] = {
+    "nyan_ex_timer_all_secrets", nyan_config_ex_timer_all_secrets,
+    CONF_BOOL(0), NULL, NOT_STRICT
   },
   [nyan_config_ex_timer_hide_duration] = {
     "nyan_ex_timer_hide_duration", nyan_config_ex_timer_hide_duration,
@@ -634,6 +682,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
    "dsda_artifact_descriptions", dsda_config_artifact_descriptions,
     dsda_config_int, 0, 3, { 1 }
   },
+  [dsda_config_weapon_carousel] = {
+    "dsda_weapon_carousel", dsda_config_weapon_carousel,
+    CONF_BOOL(1)
+  },
   [dsda_config_hexen_skip_ethereal_travel] = {
    "dsda_hexen_skip_ethereal_travel", dsda_config_hexen_skip_ethereal_travel,
    CONF_BOOL(1), NULL, STRICT_INT(0)
@@ -648,6 +700,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [nyan_config_gradual_menu_fade] = {
     "nyan_gradual_menu_fade", nyan_config_gradual_menu_fade,
+    CONF_BOOL(1)
+  },
+  [nyan_config_extra_menu_highlights] = {
+    "nyan_extra_menu_highlights", nyan_config_extra_menu_highlights,
     CONF_BOOL(1)
   },
   [nyan_config_skip_default_text] = {
@@ -1163,9 +1219,13 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "gl_render_multisampling", dsda_config_gl_render_multisampling,
     dsda_config_int, 0, 8, { 0 }, NULL, CONF_EVEN, 0, gld_MultisamplingInit
   },
-  [dsda_config_gl_render_fov] = {
-    "gl_render_fov", dsda_config_gl_render_fov,
-    dsda_config_int, 20, 160, { 90 }, &gl_render_fov, NOT_STRICT, M_ChangeFOV
+  [dsda_config_render_fov] = {
+    "render_fov", dsda_config_render_fov,
+    dsda_config_int, 40, 140, { 90 }, &render_fov, NOT_STRICT, gld_ChangeFOV
+  },
+  [dsda_config_zoom_fov] = {
+    "zoom_fov", dsda_config_zoom_fov,
+    dsda_config_int, 20, 90, { 40 }, NULL, NOT_STRICT
   },
   [dsda_config_gl_health_bar] = {
     "gl_health_bar", dsda_config_gl_health_bar,
@@ -1194,6 +1254,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_mouse_sensitivity_mlook] = {
     "mouse_sensitivity_mlook", dsda_config_mouse_sensitivity_mlook,
     dsda_config_int, 0, INT_MAX, { 10 }, NULL, NOT_STRICT, G_UpdateMouseSensitivity
+  },
+  [dsda_config_mouse_sensitivity_automap] = {
+    "mouse_sensitivity_automap", dsda_config_mouse_sensitivity_automap,
+    dsda_config_int, 0, INT_MAX, { 10 }, NULL, NOT_STRICT, AM_InitParams
   },
   [dsda_config_mouse_stutter_correction] = {
     "mouse_stutter_correction", dsda_config_mouse_stutter_correction,
@@ -1289,6 +1353,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_snd_soundfont] = {
     "snd_soundfont", dsda_config_snd_soundfont,
+    CONF_STRING("internal"), NULL, NOT_STRICT, M_ChangeSoundfont
+  },
+  [dsda_config_snd_soundfont_dir] = {
+    "snd_soundfont_dir", dsda_config_snd_soundfont_dir,
     CONF_STRING("")
   },
   [dsda_config_mus_fluidsynth_chorus] = {
@@ -1393,7 +1461,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_hudadd_crosshair_target_color] = {
     "hudadd_crosshair_target_color", dsda_config_hudadd_crosshair_target_color,
-    CONF_CR(9), NULL, STRICT_INT(9)
+    CONF_CR(11), NULL, STRICT_INT(9)
   },
   [dsda_config_hud_displayed] = {
     "hud_displayed", dsda_config_hud_displayed,
@@ -1466,6 +1534,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_auto_key_frame_timeout] = {
     "dsda_auto_key_frame_timeout", dsda_config_auto_key_frame_timeout,
     dsda_config_int, 0, 25, { 10 }, NULL, STRICT_INT(0), dsda_InitAutoKeyFrames
+  },
+  [dsda_config_auto_key_frame_timeout_block] = {
+    "dsda_auto_key_frame_timeout_block", dsda_config_auto_key_frame_timeout_block,
+    CONF_BOOL(1)
   },
   [dsda_config_auto_save] = {
     "dsda_config_auto_save", dsda_config_auto_save,
@@ -1541,7 +1613,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_limit_removing] = {
     "dsda_limit_removing", dsda_config_limit_removing,
-    CONF_BOOL(0), NULL, NOT_STRICT, dsda_AlterGameFlags
+    CONF_BOOL(0), NULL, NOT_STRICT, dsda_UpdateLimitRemoving
   },
   [dsda_config_always_pistol_start] = {
     "dsda_always_pistol_start", dsda_config_always_pistol_start,
@@ -1663,6 +1735,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_switch_weapon_on_pickup", dsda_config_switch_weapon_on_pickup,
     CONF_BOOL(1), NULL, STRICT_INT(1)
   },
+  [dsda_config_switch_speed] = {
+    "dsda_switch_speed", dsda_config_switch_speed, dsda_config_int, WEAPON_SPEED_SLOW, WEAPON_SPEED_INSTANT,
+    { WEAPON_SPEED_DEFAULT }, (int*) &switch_speed, STRICT_INT(WEAPON_SPEED_DEFAULT)
+  },
   [dsda_config_switch_berserk_preferred] = {
     "dsda_switch_berserk_preferred", dsda_config_switch_berserk_preferred,
     CONF_BOOL(0), NULL, STRICT_INT(0)
@@ -1678,6 +1754,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_weaponbob] = {
     "dsda_weaponbob_pct", dsda_config_weaponbob,
     dsda_config_int, 0, 4, { 4 }
+  },
+  [nyan_config_weapon_freelook_tilt] = {
+    "nyan_weapon_freelook_tilt", nyan_config_weapon_freelook_tilt,
+    CONF_BOOL(0), NULL, NOT_STRICT
   },
   [dsda_config_quake_intensity] = {
     "dsda_quake_intensity", dsda_config_quake_intensity,
@@ -1699,9 +1779,21 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_fuzzscale", dsda_config_fuzzscale,
     dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(0), R_UpdateFuzzSize
   },
+  [nyan_config_vanilla_texture_emulation] = {
+    "nyan_vanilla_texture_emulation", nyan_config_vanilla_texture_emulation,
+    dsda_config_int, EMULATE_TEXTURE_OFF, EMULATE_TEXTURE_ALL, { EMULATE_TEXTURE_OFF }, NULL, NOT_STRICT, dsda_UpdateVanillaTextureEmulation
+  },
+  [nyan_config_vanilla_sprite_emulation] = {
+    "nyan_vanilla_sprite_emulation", nyan_config_vanilla_sprite_emulation,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
   [dsda_config_multiple_area_maps] = {
     "dsda_multiple_area_maps", dsda_config_multiple_area_maps,
-    CONF_BOOL(1), NULL, STRICT_INT(0)
+    CONF_BOOL(0), NULL, STRICT_INT(0)
+  },
+  [dsda_config_doomguy_angry_face_fix] = {
+    "dsda_doomguy_angry_face_fix", dsda_config_doomguy_angry_face_fix,
+    CONF_BOOL(1)
   },
   [dsda_config_blockmap_fix] = {
     "dsda_blockmap_fix", dsda_config_blockmap_fix,
@@ -1725,6 +1817,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_full_automap_exhud] = {
     "dsda_full_automap_exhud", dsda_config_full_automap_exhud,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
+  [dsda_config_map_stat_icons] = {
+    "dsda_map_stat_icons", dsda_config_map_stat_icons,
     CONF_BOOL(1), NULL, NOT_STRICT
   },
   [dsda_config_map_coordinates] = {
@@ -1773,7 +1869,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_automap_background] = {
     "automap_background", dsda_config_automap_background,
-    dsda_config_int, 0, 2, { 1 }, &autopage_active
+    CONF_BOOL(1), &autopage_active
   },
   [dsda_config_automap_background_shade] = {
     "automap_background_shade", dsda_config_automap_background_shade,
@@ -1794,6 +1890,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_automap_follow] = {
     "automap_follow", dsda_config_automap_follow,
     CONF_BOOL(1), &automap_follow
+  },
+  [dsda_config_automap_mouse_pan] = {
+    "automap_mouse_pan", dsda_config_automap_mouse_pan,
+    CONF_BOOL(1), &automap_mouse_pan
   },
   [dsda_config_automap_grid] = {
     "automap_grid", dsda_config_automap_grid,
@@ -1920,13 +2020,17 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "enhanced_liteamp", dsda_config_enhanced_liteamp,
     CONF_BOOL(0), NULL, STRICT_INT(0)
   },
+  [nyan_config_ui_fade_effects] = {
+    "nyan_ui_fade_effects", nyan_config_ui_fade_effects,
+    CONF_BOOL(1), NULL, NOT_STRICT, dsda_UpdateTranMap
+  },
   [dsda_config_colored_borderbox] = {
     "dsda_colored_borderbox", dsda_config_colored_borderbox,
     CONF_BOOL(1)
   },
   [dsda_config_render_wipescreen] = {
     "render_wipescreen", dsda_config_render_wipescreen,
-    CONF_BOOL(1), NULL, STRICT_INT(1)
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1)
   },
   [dsda_config_render_screen_multiply] = {
     "render_screen_multiply", dsda_config_render_screen_multiply,
@@ -1964,11 +2068,11 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_render_stretchsky] = {
     "render_stretchsky", dsda_config_render_stretchsky,
-    CONF_BOOL(1), NULL, NOT_STRICT, M_ChangeSkyMode
+    CONF_BOOL(0), NULL, NOT_STRICT, M_ChangeSkyMode
   },
   [dsda_config_render_linearsky] = {
     "render_linearsky", dsda_config_render_linearsky,
-    CONF_BOOL(0), NULL, NOT_STRICT, dsda_RefreshLinearSky
+    CONF_BOOL(0), NULL, NOT_STRICT, dsda_RefreshSky
   },
   [dsda_config_aspect_ratio_correction] = {
     "aspect_ratio_correction", dsda_config_aspect_ratio_correction,
@@ -2034,6 +2138,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_flip_corpses", nyan_config_flip_corpses,
     CONF_BOOL(0), NULL, STRICT_INT(0)
   },
+  [nyan_config_skullpop_easter_egg] = {
+    "nyan_skullpop_easter_egg", nyan_config_skullpop_easter_egg,
+    CONF_BOOL(0), NULL, STRICT_INT(0)
+  },
+  [nyan_config_classic_idchoppers] = {
+    "nyan_classic_idchoppers", nyan_config_classic_idchoppers,
+    CONF_BOOL(0)
+  },
   [nyan_config_colored_blood] = {
     "nyan_colored_blood", nyan_config_colored_blood,
     dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT, deh_changeColoredBlood
@@ -2054,6 +2166,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_colored_blood_spectre", nyan_config_colored_blood_spectre,
     CONF_CR_BLOOD(1), NULL, NOT_STRICT, deh_changeColoredBlood
   },
+  [nyan_config_discord_presence] = {
+    "nyan_discord_presence", nyan_config_discord_presence,
+    CONF_BOOL(1), NULL, NOT_STRICT, G_UpdateDiscordPresence
+  },
   [nyan_config_loading_disk] = {
     "nyan_loading_disk", nyan_config_loading_disk,
     dsda_config_int, 0, 2, { 1 }, NULL, NOT_STRICT
@@ -2063,36 +2179,36 @@ dsda_config_t dsda_config[dsda_config_count] = {
     dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0)
   },
   [dsda_config_left_analog_deadzone] = {
-    "left_analog_deadzone", dsda_config_left_analog_deadzone,
-    dsda_config_int, 0, 16384, { 6556 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+    "dsda_left_analog_deadzone", dsda_config_left_analog_deadzone,
+    dsda_config_int, 0, 50, { 20 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_right_analog_deadzone] = {
-    "right_analog_deadzone", dsda_config_right_analog_deadzone,
-    dsda_config_int, 0, 16384, { 6556 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+    "dsda_right_analog_deadzone", dsda_config_right_analog_deadzone,
+    dsda_config_int, 0, 50, { 20 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_left_trigger_deadzone] = {
-    "left_trigger_deadzone", dsda_config_left_trigger_deadzone,
-    dsda_config_int, 0, 16384, { 6556 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+    "dsda_left_trigger_deadzone", dsda_config_left_trigger_deadzone,
+    dsda_config_int, 0, 50, { 20 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_right_trigger_deadzone] = {
-    "right_trigger_deadzone", dsda_config_right_trigger_deadzone,
-    dsda_config_int, 0, 16384, { 6556 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+    "dsda_right_trigger_deadzone", dsda_config_right_trigger_deadzone,
+    dsda_config_int, 0, 50, { 20 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
-  [dsda_config_left_analog_sensitivity_x] = {
-    "left_analog_sensitivity_x", dsda_config_left_analog_sensitivity_x,
-    dsda_config_int, 0, 16384, { 100 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+  [dsda_config_analog_strafe_sensitivity_x] = {
+    "dsda_analog_strafe_sensitivity", dsda_config_analog_strafe_sensitivity_x,
+    dsda_config_int, 0, 40, { 10 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
-  [dsda_config_left_analog_sensitivity_y] = {
-    "left_analog_sensitivity_y", dsda_config_left_analog_sensitivity_y,
-    dsda_config_int, 0, 16384, { 100 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+  [dsda_config_analog_forward_sensitivity_y] = {
+    "dsda_analog_forward_sensitivity", dsda_config_analog_forward_sensitivity_y,
+    dsda_config_int, 0, 40, { 10 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
-  [dsda_config_right_analog_sensitivity_x] = {
-    "right_analog_sensitivity_x", dsda_config_right_analog_sensitivity_x,
-    dsda_config_int, 0, 16384, { 1536 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+  [dsda_config_analog_turn_sensitivity_x] = {
+    "dsda_analog_turn_speed", dsda_config_analog_turn_sensitivity_x,
+    dsda_config_int, 0, 720, { 240 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
-  [dsda_config_right_analog_sensitivity_y] = {
-    "right_analog_sensitivity_y", dsda_config_right_analog_sensitivity_y,
-    dsda_config_int, 0, 16384, { 768 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
+  [dsda_config_analog_look_sensitivity_y] = {
+    "dsda_analog_look_speed", dsda_config_analog_look_sensitivity_y,
+    dsda_config_int, 0, 720, { 135 }, NULL, NOT_STRICT, dsda_InitGameControllerParameters
   },
   [dsda_config_analog_look_acceleration] = {
     "analog_look_acceleration", dsda_config_analog_look_acceleration,
@@ -2106,9 +2222,13 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "invert_analog_look", dsda_config_invert_analog_look,
     CONF_BOOL(0),
   },
+  [nyan_config_show_startup] = {
+    "show_startup", nyan_config_show_startup,
+    CONF_BOOL(1),
+  },
   [nyan_config_show_endoom] = {
     "show_endoom", nyan_config_show_endoom,
-    dsda_config_int, 0, 2, { 1 }
+    dsda_config_int, 0, 2, { 2 }
   },
   [nyan_config_export_endoom] = {
     "export_endoom", nyan_config_export_endoom,
@@ -2374,6 +2494,14 @@ const char* dsda_UpdateStringConfig(dsda_config_identifier_t id, const char* val
     dsda_config[id].onUpdate();
 
   return dsda_StringConfig(id);
+}
+
+int dsda_DefaultIntConfig(dsda_config_identifier_t id) {
+  return dsda_config[id].default_value.v_int;
+}
+
+const char* dsda_DefaultStringConfig(dsda_config_identifier_t id) {
+  return dsda_config[id].default_value.v_string;
 }
 
 // No callbacks, to avoid recursion cases

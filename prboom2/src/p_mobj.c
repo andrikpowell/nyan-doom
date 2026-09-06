@@ -716,7 +716,7 @@ fixed_t P_MobjGravity(mobj_t* mo)
 
 void P_AutoCorrectLookDir(player_t* player)
 {
-  if (allow_incompatibility && dsda_MouseLook())
+  if (casual_play && dsda_MouseLook())
   {
     return;
   }
@@ -1289,6 +1289,33 @@ static dboolean P_KillOnSight(mobj_t *mo)
 }
 
 //
+// P_MobjInterpolation
+//
+
+static dboolean mobj_interp_capture;
+
+void P_UpdateMobjInterpolations(void)
+{
+  mobj_interp_capture = !mobj_interp_capture;
+}
+
+// [AR] Save mobj interpolation once per tic
+// This fixes out-of-sync thinker order of operations (i.e. lift thinkers)
+void P_MobjInterpolation(mobj_t *mobj)
+{
+  dboolean captured = !!(mobj->intflags & MIF_INTERP_CAPTURE);
+
+  if (captured == mobj_interp_capture)
+    return;
+
+  mobj->PrevX = mobj->x;
+  mobj->PrevY = mobj->y;
+  mobj->PrevZ = mobj->z;
+
+  mobj->intflags ^= MIF_INTERP_CAPTURE;
+}
+
+//
 // P_MobjThinker
 //
 
@@ -1314,9 +1341,7 @@ void P_MobjThinker (mobj_t* mobj)
     return;
   }
 
-  mobj->PrevX = mobj->x;
-  mobj->PrevY = mobj->y;
-  mobj->PrevZ = mobj->z;
+  P_MobjInterpolation(mobj);
 
   // momentum movement
   BlockingMobj = NULL;
@@ -1962,7 +1987,7 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   }
 
   // [crispy] randomly flip corpse, blood and death animation sprites
-  if (mobj->flags_extra & MFX_MIRROREDCORPSE && !(mobj->flags & MF_SHOOTABLE))
+  if (mobj->flags_extra & MFX_MIRROREDCORPSE && !(mobj->flags & (MF_SHOOTABLE | MF_SPECIAL)))
   {
     if (Nyan_Random() & 1)
       mobj->intflags |= MIF_FLIP;
@@ -2000,6 +2025,9 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   mobj->PrevX = mobj->x;
   mobj->PrevY = mobj->y;
   mobj->PrevZ = mobj->z;
+
+  if (mobj_interp_capture)
+    mobj->intflags |= MIF_INTERP_CAPTURE;
 
   mobj->thinker.function = P_MobjThinker;
 
@@ -2109,7 +2137,7 @@ void P_RemoveMobj (mobj_t* mobj)
   // CPhipps - only leave dead references in old demos; I hope lxdoom_1 level
   // demos are rare and don't rely on this. I hope.
 
-  if (compatibility_level >= lxdoom_1_compatibility || allow_incompatibility) {
+  if (compatibility_level >= lxdoom_1_compatibility || casual_play) {
     P_SetTarget(&mobj->target,    NULL);
     P_SetTarget(&mobj->tracer,    NULL);
     P_SetTarget(&mobj->lastenemy, NULL);
@@ -3195,9 +3223,7 @@ void P_BlasterMobjThinker(mobj_t * mobj)
     fixed_t z;
     dboolean changexy;
 
-    mobj->PrevX = mobj->x;
-    mobj->PrevY = mobj->y;
-    mobj->PrevZ = mobj->z;
+    P_MobjInterpolation(mobj);
 
     // Handle movement
     if (mobj->momx || mobj->momy || (mobj->z != mobj->floorz) || mobj->momz)

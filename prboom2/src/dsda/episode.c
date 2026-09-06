@@ -53,7 +53,7 @@ void dsda_AddOriginalEpisodes(void) {
     dsda_AddEpisode("map01", HEXEN_CLASS_FIGHTER, NULL, 'f', true);
     dsda_AddEpisode("map01", HEXEN_CLASS_CLERIC, NULL, 'c', true);
     dsda_AddEpisode("map01", HEXEN_CLASS_MAGE, NULL, 'm', true);
-    if (allow_incompatibility)
+    if (casual_play)
       dsda_AddEpisode("map01", "RANDOM", NULL, 'r', true);
   }
   else if (gamemode != commercial && !chex_exe) {

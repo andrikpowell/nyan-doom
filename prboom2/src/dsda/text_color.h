@@ -94,6 +94,12 @@ enum {
   dsda_tc_exhud_line_activation,
   dsda_tc_exhud_local_time,
   dsda_tc_exhud_free_text,
+  dsda_tc_exhud_status_all_kills,
+  dsda_tc_exhud_status_all_items,
+  dsda_tc_exhud_status_all_secrets,
+  dsda_tc_exhud_status_raven_all_kills,
+  dsda_tc_exhud_status_raven_all_items,
+  dsda_tc_exhud_status_raven_all_secrets,
   dsda_tc_exhud_status_invul,
   dsda_tc_exhud_status_invis,
   dsda_tc_exhud_status_suit,
@@ -115,6 +121,7 @@ enum {
   dsda_tc_hud_secret_message,
   dsda_tc_hud_obituary,
   dsda_tc_map_coords,
+  dsda_tc_map_time_label,
   dsda_tc_map_time_level,
   dsda_tc_map_time_total,
   dsda_tc_map_title,
@@ -122,6 +129,12 @@ enum {
   dsda_tc_map_totals_label,
   dsda_tc_map_totals_value,
   dsda_tc_map_totals_max,
+  dsda_tc_map_icon_kills,
+  dsda_tc_map_icon_items,
+  dsda_tc_map_icon_secrets,
+  dsda_tc_map_raven_icon_kills,
+  dsda_tc_map_raven_icon_items,
+  dsda_tc_map_raven_icon_secrets,
   dsda_tc_inter_split_normal,
   dsda_tc_inter_split_good,
   dsda_tc_inter_split_best,
@@ -160,8 +173,10 @@ typedef int dsda_text_color_index_t;
 extern void dsda_LoadTextColorEntries(const char* def, int parm);
 extern void dsda_SaveTextColorEntries(FILE* f, int maxlen);
 extern int dsda_TextColorConfig(int config_id);
+extern int dsda_DefaultTextColorConfig(int config_id);
 extern void dsda_UpdateTextColorConfig(int config_id, int cr);
 
+void dsda_InitTextColorDefaults(void);
 void dsda_RefreshTextColors(void);
 const char* dsda_TextColor(dsda_text_color_index_t i);
 int dsda_TextCR(dsda_text_color_index_t i);

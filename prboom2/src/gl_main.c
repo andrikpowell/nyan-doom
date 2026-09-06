@@ -227,9 +227,7 @@ void gld_Init(int width, int height)
   M_ChangeSkyMode();
   gld_InitShadows();
 
-#ifdef HAVE_LIBSDL2_IMAGE
   gld_InitMapPics();
-#endif
 
   // Create FBO object and associated render targets
   gld_InitFBO();
@@ -252,6 +250,24 @@ static int C_DECL dicmp_visible_subsectors_by_pic(const void *a, const void *b)
 {
   return (*((const subsector_t *const *)b))->sector->floorpic -
          (*((const subsector_t *const *)a))->sector->floorpic;
+}
+
+static int gld_MapSkyTexture(sector_t *sector)
+{
+  int sky = sector->floorsky;
+
+  if (sky & PL_SKYFLAT_LINE)
+  {
+    const line_t *line = &lines[sky & ~PL_SKYFLAT_LINE];
+    const side_t *side = &sides[line->sidenum[0]];
+
+    return texturetranslation[side->toptexture];
+  }
+
+  if (sky & PL_SKYFLAT_SECTOR)
+    return sky & ~PL_SKYFLAT_SECTOR;
+
+  return texturetranslation[skytexture];
 }
 
 static int visible_subsectors_count_prev = -1;
@@ -369,6 +385,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   {
     subsector_t *sub = visible_subsectors[i];
     int ssidx = (int)(sub - subsectors);
+    dboolean sky_flat;
 
     if (sub->sector->bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
       sub->sector->bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
@@ -379,10 +396,21 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
       continue;
     }
     
-    swirling_flat = P_IsSwirlingFlat(sub->sector->floorpic);
-    gl_flat_index = swirling_flat ? P_FlatIndexFromLump(sub->sector->floorpic) : flattranslation[sub->sector->floorpic];
+    sky_flat = sub->sector->floorpic == skyflatnum;
 
-    gltexture = gld_RegisterFlat(gl_flat_index, true, V_IsUILightmodeIndexed());
+    if (sky_flat)
+    {
+      gltexture = gld_RegisterTexture(gld_MapSkyTexture(sub->sector), true, true, V_IsUILightmodeIndexed(), false);
+      swirling_flat = false;
+    }
+    else
+    {
+      swirling_flat = P_IsSwirlingFlat(sub->sector->floorpic);
+      gl_flat_index = swirling_flat ? P_FlatIndexFromLump(sub->sector->floorpic) : flattranslation[sub->sector->floorpic];
+
+      gltexture = gld_RegisterFlat(gl_flat_index, true, V_IsUILightmodeIndexed());
+    }
+
     if (gltexture)
     {
       sector_t tempsec;
@@ -396,6 +424,8 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
       if (swirling_flat)
         gld_BindSwirlFlat(gltexture, false, 0);
+      else if (sky_flat)
+        gld_BindTexture(gltexture, 0, false);
       else
         gld_BindFlat(gltexture, 0);
 
@@ -406,7 +436,8 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
                   sec->floor_yoffs ||
                   sec->floor_rotation ||
                   sec->floor_xscale != FRACUNIT ||
-                  sec->floor_yscale != FRACUNIT;
+                  sec->floor_yscale != FRACUNIT ||
+                  sky_flat;
 
       if (transform)
       {
@@ -424,6 +455,14 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
         glMatrixMode(GL_TEXTURE);
         glPushMatrix();
+
+        if (sky_flat)
+        {
+          glScalef(64.0f / gltexture->realtexwidth,
+                   64.0f / gltexture->realtexheight,
+                   1.0f);
+        }
+
         glScalef(xscale, yscale, 1.f);
         glTranslatef(uoffs, voffs, 0.f);
         glRotatef(-rotation, 0.f, 0.f, 1.f);
@@ -883,12 +922,31 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
   }
 }
 
+static void gld_AddMapLinePoints(float x0, float y0, float x1, float y1, float thickness, color_rgb_t color, unsigned char a)
+{
+  // Skip endpoints for lines smaller than 1px
+  if (thickness * 2.0f * MIN(gl_scale_x, gl_scale_y) <= 1.0f)
+    return;
+
+  for (int i = 0; i < 2; ++i)
+  {
+    map_point_t *point = M_ArrayGetNewItem(&map_line_points, sizeof(*point));
+
+    point->x = i ? x1 : x0;
+    point->y = i ? y1 : y0;
+    point->r = color.r;
+    point->g = color.g;
+    point->b = color.b;
+    point->a = a;
+  }
+}
+
 void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
 {
   color_rgb_t color;
   unsigned char a;
   map_line_t *line;
-  float thickness, length, extend;
+  float thickness, length;
   float dx, dy, px, py;
 
   // Set line thickness
@@ -906,18 +964,12 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
   dy = y1 - y0;
 
   length = sqrtf(dx * dx + dy * dy);
+
   if (length == 0.0f)
     return;
 
   dx /= length;
   dy /= length;
-
-  // Extend quads a bit to fix weird gaps
-  extend = 1.0f; // adjustable
-  x0 -= dx * extend;
-  y0 -= dy * extend;
-  x1 += dx * extend;
-  y1 += dy * extend;
 
   px = -dy * thickness;
   py = dx * thickness;
@@ -942,6 +994,9 @@ void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
     line->point[i].b = color.b;
     line->point[i].a = a;
   }
+
+  // Add end points
+  gld_AddMapLinePoints(x0, y0, x1, y1, thickness, color, a);
 }
 
 void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
@@ -1582,7 +1637,7 @@ void gld_AddWall(seg_t *seg)
     return;
 
   // Enhanced Light Amp - Allow dark areas to be seen
-  if(NYAN_LITEAMP && (frontsector->lightlevel <= 64))
+  if(nyan_liteamp && (frontsector->lightlevel <= 64))
     frontsector->lightlevel = 64;
 
   base_lightlevel = frontsector->lightlevel + gld_GetGunFlashLight();
@@ -2086,7 +2141,7 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     return;
 
   // Enhanced Light Amp - Allow dark areas to be seen
-  if(NYAN_LITEAMP && (plane->lightlevel <= 64))
+  if(nyan_liteamp && (plane->lightlevel <= 64))
     plane->lightlevel = 64;
     
   swirling_flat = P_IsSwirlingFlat(plane->picnum);
@@ -2472,7 +2527,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   const rpatch_t* patch;
 
   int frustum_culling = HaveMouseLook();
-  int mlook = HaveMouseLook() || (gl_render_fov > FOV90);
+  int mlook = HaveMouseLook() || (render_fov > FOV90);
 
   if (R_ViewInterpolation())
   {
@@ -2565,7 +2620,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   // [crispy] randomly flip corpse, blood and death animation sprites
   if (dsda_AllowMirroredCorpses() &&
       (thing->flags_extra & MFX_MIRROREDCORPSE) &&
-      !(thing->flags & MF_SHOOTABLE) &&
+      !(thing->flags & (MF_SHOOTABLE | MF_SPECIAL)) &&
       (thing->intflags & MIF_FLIP))
   {
     flip = !flip;
@@ -2660,7 +2715,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   else
   {
     // Enhanced Light Amp - Allow dark areas to be seen
-    if(NYAN_LITEAMP && (lightlevel <= 64))
+    if(nyan_liteamp && (lightlevel <= 64))
       lightlevel = 64;
 
     sprite.light = gld_CalcLightLevel(lightlevel+gld_GetGunFlashLight());

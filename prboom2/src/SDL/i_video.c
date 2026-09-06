@@ -106,7 +106,9 @@ static void ApplyWindowResize(SDL_Event *resize_event);
 static void ActivateMouse(void);
 static void DeactivateMouse(void);
 //static int AccelerateMouse(int val);
+static void UpdatePlaybackMouseTimer(void);
 static void I_ReadMouse(void);
+static dboolean MouseIsInWindow(void);
 static dboolean MouseShouldBeGrabbed();
 static void UpdateFocus(void);
 
@@ -121,6 +123,7 @@ static SDL_Surface *buffer;
 SDL_Window *sdl_window;
 SDL_Renderer *sdl_renderer;
 SDL_Texture *sdl_texture;
+static SDL_Texture *sdl_texture_fallback;
 static SDL_GLContext sdl_glcontext;
 unsigned int windowid = 0;
 SDL_Rect src_rect = { 0, 0, 0, 0 };       // Drawn pixels, independent of window size
@@ -410,6 +413,14 @@ static void I_GetEvent(void)
           dsda_PollGameControllerButtons();
         break;
 
+      case SDL_CONTROLLERDEVICEADDED:
+        dsda_GameControllerAdded(Event->cdevice.which);
+        break;
+
+      case SDL_CONTROLLERDEVICEREMOVED:
+        dsda_GameControllerRemoved(Event->cdevice.which);
+        break;
+
       case SDL_TEXTINPUT:
         event.type = ev_text;
         event.text = Event->text.text;
@@ -424,6 +435,10 @@ static void I_GetEvent(void)
           case SDL_WINDOWEVENT_FOCUS_GAINED:
           case SDL_WINDOWEVENT_FOCUS_LOST:
             UpdateFocus();
+            break;
+          case SDL_WINDOWEVENT_MOVED:
+            // update mouse cursor position
+            I_SetWindowRect();
             break;
           case SDL_WINDOWEVENT_SIZE_CHANGED:
             ApplyWindowResize(Event);
@@ -449,6 +464,9 @@ static void I_GetEvent(void)
 void I_StartTic (void)
 {
   I_GetEvent();
+
+  // Moved here so that playback bar can shrink when mouse is outside window
+  UpdatePlaybackMouseTimer();
 
   if (dsda_AllowMouse())
     I_ReadMouse();
@@ -629,6 +647,12 @@ static int newpal = 0;
 
 void I_FinishUpdate (void)
 {
+  SDL_Rect target = {
+    (SCREENWIDTH  - ACTUALHEIGHT) / 2,
+    (ACTUALHEIGHT - SCREENWIDTH) / 2,
+     ACTUALHEIGHT,
+     SCREENWIDTH
+  };
   if (V_IsOpenGLMode()) {
     // proff 04/05/2000: swap OpenGL buffers
     gld_Finish();
@@ -650,7 +674,7 @@ void I_FinishUpdate (void)
       h=screen->h;
       for (; h>0; h--)
       {
-        memcpy(dest,src,SCREENWIDTH); //e6y
+        memcpy(dest,src,SCREENHEIGHT); //e6y
         dest+=screen->pitch;
         src+=screens[FG].pitch;
       }
@@ -675,7 +699,37 @@ void I_FinishUpdate (void)
   // Make sure the pillarboxes are kept clear each frame.
   SDL_RenderClear(sdl_renderer);
 
-  SDL_RenderCopy(sdl_renderer, sdl_texture, &src_rect, NULL);
+  // SDL software presentation on older systems can crop and offset the
+  // fullscreen frame. Rotate in a square texture first to keep it centered.
+  if (sdl_texture_fallback)
+  {
+    SDL_Rect rotation_target = {
+      (SCREENWIDTH - ACTUALHEIGHT) / 2,
+      0,
+      ACTUALHEIGHT,
+      SCREENWIDTH
+    };
+    SDL_Rect rotation_source = {
+      0,
+      (SCREENWIDTH - ACTUALHEIGHT) / 2,
+      SCREENWIDTH,
+      ACTUALHEIGHT
+    };
+
+    SDL_SetRenderTarget(sdl_renderer, sdl_texture_fallback);
+    SDL_RenderSetLogicalSize(sdl_renderer, SCREENWIDTH, SCREENWIDTH);
+    SDL_RenderClear(sdl_renderer);
+    SDL_RenderCopyEx(sdl_renderer, sdl_texture, &src_rect, &rotation_target, 90.0, NULL, SDL_FLIP_VERTICAL);
+    SDL_SetRenderTarget(sdl_renderer, NULL);
+    SDL_RenderSetLogicalSize(sdl_renderer, SCREENWIDTH, ACTUALHEIGHT);
+    SDL_RenderClear(sdl_renderer);
+    SDL_RenderCopy(sdl_renderer, sdl_texture_fallback, &rotation_source, NULL);
+  }
+  else
+  {
+    // [AR] Rotate and flip for transposed rendering
+    SDL_RenderCopyEx(sdl_renderer, sdl_texture, &src_rect, &target, 90.0, NULL, SDL_FLIP_VERTICAL);
+  }
 
   I_HandleCapture();
 
@@ -702,6 +756,7 @@ void I_ShutdownSDL(void)
   if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
   if (screen) SDL_FreeSurface(screen);
   if (buffer) SDL_FreeSurface(buffer);
+  if (sdl_texture_fallback) SDL_DestroyTexture(sdl_texture_fallback);
   if (sdl_texture) SDL_DestroyTexture(sdl_texture);
   if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
   if (sdl_window) SDL_DestroyWindow(sdl_window);
@@ -983,19 +1038,20 @@ void I_CalculateRes(int width, int height)
     // It is extremally important for wiping in software.
     // I have ~20x improvement in speed with using 1056 instead of 1024 on Pentium4
     // and only ~10% for Core2Duo
+    // [AR] swap width + height for software transposed rendering
     if (nodrawers)
     {
-      SCREENPITCH = ((width + 15) & ~15) + 32;
+      SCREENPITCH = ((height + 15) & ~15) + 32;
     }
     else
     {
       unsigned int mintime = 100;
-      int w = (width+15) & ~15;
-      pitch1 = w;
-      pitch2 = w + 32;
+      int h = (height+15) & ~15;
+      pitch1 = h;
+      pitch2 = h + 32;
 
-      count1 = I_TestCPUCacheMisses(pitch1, SCREENHEIGHT, mintime);
-      count2 = I_TestCPUCacheMisses(pitch2, SCREENHEIGHT, mintime);
+      count1 = I_TestCPUCacheMisses(pitch1, SCREENWIDTH, mintime);
+      count2 = I_TestCPUCacheMisses(pitch2, SCREENWIDTH, mintime);
 
       lprintf(LO_DEBUG, "I_CalculateRes: trying to optimize screen pitch\n");
       lprintf(LO_DEBUG, " test case for pitch=%d is processed %d times for %d msec\n", pitch1, count1, mintime);
@@ -1140,7 +1196,7 @@ void I_InitScreenResolution(void)
 
 void I_SetWindowCaption(void)
 {
-  SDL_SetWindowTitle(NULL, PROJECT_NAME " " PROJECT_VERSION);
+  SDL_SetWindowTitle(NULL, PROJECT_STRING);
 }
 
 //
@@ -1232,6 +1288,7 @@ void I_UpdateVideoMode(void)
     if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
     if (screen) SDL_FreeSurface(screen);
     if (buffer) SDL_FreeSurface(buffer);
+    if (sdl_texture_fallback) SDL_DestroyTexture(sdl_texture_fallback);
     if (sdl_texture) SDL_DestroyTexture(sdl_texture);
     if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(sdl_window);
@@ -1241,6 +1298,7 @@ void I_UpdateVideoMode(void)
     sdl_glcontext = NULL;
     screen = NULL;
     buffer = NULL;
+    sdl_texture_fallback = NULL;
     sdl_texture = NULL;
   }
 
@@ -1299,7 +1357,7 @@ void I_UpdateVideoMode(void)
     gld_MultisamplingInit();
 
     sdl_window = SDL_CreateWindow(
-      PROJECT_NAME " " PROJECT_VERSION,
+      PROJECT_STRING,
       x, y,
       SCREENWIDTH * screen_multiply, ACTUALHEIGHT * screen_multiply,
       init_flags);
@@ -1309,12 +1367,13 @@ void I_UpdateVideoMode(void)
   else
   {
     int flags = SDL_RENDERER_TARGETTEXTURE;
+    SDL_RendererInfo info;
 
     if (render_vsync)
       flags |= SDL_RENDERER_PRESENTVSYNC;
 
     sdl_window = SDL_CreateWindow(
-      PROJECT_NAME " " PROJECT_VERSION,
+      PROJECT_STRING,
       x, y,
       SCREENWIDTH * screen_multiply, ACTUALHEIGHT * screen_multiply,
       init_flags);
@@ -1326,14 +1385,23 @@ void I_UpdateVideoMode(void)
     // [FG] force integer scales
     SDL_RenderSetIntegerScale(sdl_renderer, integer_scaling);
 
-    screen = SDL_CreateRGBSurface(0, SCREENWIDTH, SCREENHEIGHT, 8, 0, 0, 0, 0);
-    buffer = SDL_CreateRGBSurface(0, SCREENWIDTH, SCREENHEIGHT, 32, 0, 0, 0, 0);
+    // [AR] swap width + height for software transposed rendering
+    screen = SDL_CreateRGBSurface(0, SCREENHEIGHT, SCREENWIDTH, 8, 0, 0, 0, 0);
+    buffer = SDL_CreateRGBSurfaceWithFormat(0, SCREENHEIGHT, SCREENWIDTH, 32, SDL_PIXELFORMAT_ARGB8888);
     SDL_FillRect(buffer, NULL, 0);
 
-    sdl_texture = SDL_CreateTextureFromSurface(sdl_renderer, buffer);
+    sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREENHEIGHT, SCREENWIDTH);
 
-    if(screen == NULL) {
+    if(screen == NULL || buffer == NULL || sdl_texture == NULL) {
       I_Error("Couldn't set %dx%d video mode [%s]", SCREENWIDTH, SCREENHEIGHT, SDL_GetError());
+    }
+
+    if (SDL_GetRendererInfo(sdl_renderer, &info) == 0 && (info.flags & SDL_RENDERER_SOFTWARE))
+    {
+      sdl_texture_fallback = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, SCREENWIDTH, SCREENWIDTH);
+
+      if (!sdl_texture_fallback)
+        I_Error("Couldn't create software rotation texture [%s]", SDL_GetError());
     }
   }
 
@@ -1441,7 +1509,7 @@ void I_UpdateVideoMode(void)
 
   if (V_IsOpenGLMode())
   {
-    M_ChangeFOV();
+    gld_ChangeFOV();
     deh_changeCompTranslucency();
 
     // elim - Sets up viewport sizing for render-to-texture scaling
@@ -1449,8 +1517,9 @@ void I_UpdateVideoMode(void)
     dsda_GLSetRenderViewport();
   }
 
-  src_rect.w = SCREENWIDTH;
-  src_rect.h = SCREENHEIGHT;
+  // [AR] swap width + height for software transposed rendering
+  src_rect.w = V_IsSoftwareMode() ? SCREENHEIGHT : SCREENWIDTH;
+  src_rect.h = V_IsSoftwareMode() ? SCREENWIDTH  : SCREENHEIGHT;
 }
 
 static void ActivateMouse(void)
@@ -1493,6 +1562,12 @@ static void CorrectMouseStutter(int *x, int *y)
   y_remainder_old = y_remainder;
 }
 
+static void UpdatePlaybackMouseTimer(void)
+{
+  if (demoplayback && !menuactive && mouse_hide_timer > 0 && !dsda_SkipMode())
+    mouse_hide_timer--;
+}
+
 //
 // Read the change in mouse state to generate mouse motion events
 //
@@ -1505,6 +1580,10 @@ static void I_ReadMouse(void)
 
   //e6y: new mouse code
   UpdateGrab();
+
+  // Don't pull mouse away if outside window
+  if (demoplayback && !menuactive && !desired_fullscreen && !MouseIsInWindow())
+    return;
 
   if (window_focused)
   {
@@ -1528,12 +1607,31 @@ static void I_ReadMouse(void)
   }
 }
 
+static dboolean MouseIsInWindow(void)
+{
+  int mouse_x, mouse_y;
+
+  if (!sdl_window)
+    return false;
+
+  SDL_GetGlobalMouseState(&mouse_x, &mouse_y);
+
+  return mouse_x >= window_rect.x && mouse_x < window_rect.x + window_rect.w &&
+         mouse_y >= window_rect.y && mouse_y < window_rect.y + window_rect.h;
+}
+
 static dboolean MouseShouldBeGrabbed()
 {
   // never grab the mouse when in screensaver mode
 
   //if (screensaver_mode)
   //    return false;
+
+  // In windowed demo playback, only hide/grab the cursor while it's inside the window
+  if (demoplayback && !menuactive && !desired_fullscreen && !MouseIsInWindow())
+  {
+    return false;
+  }
 
   // if the window doesnt have focus, never grab it
   if (!window_focused)
@@ -1551,9 +1649,7 @@ static dboolean MouseShouldBeGrabbed()
   // during playback the mouse should be hidden when not moving
   if (demoplayback && !menuactive && mouse_hide_timer > 0)
   {
-    if (!dsda_SkipMode())
-      mouse_hide_timer--;
-
+    // moved hide playback bar timer logic to not be tied to "inside window" logic
     return false;
   }
 
@@ -1634,6 +1730,7 @@ static void ApplyWindowResize(SDL_Event *resize_event)
 
 void I_SetWindowRect()
 {
+  SDL_GetWindowPosition(sdl_window, &window_rect.x, &window_rect.y);
   SDL_GetWindowSize(sdl_window, &window_rect.w, &window_rect.h);
 
   if (V_IsOpenGLMode())

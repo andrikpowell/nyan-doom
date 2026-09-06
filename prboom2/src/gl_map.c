@@ -32,11 +32,9 @@
 #endif
 
 #include <math.h>
+#include <stdlib.h>
 
-#include "SDL.h"
-#ifdef HAVE_LIBSDL2_IMAGE
-#include "SDL_image.h"
-#endif
+#include "spng.h"
 
 #include "gl_opengl.h"
 #include "gl_intern.h"
@@ -92,30 +90,38 @@ void gld_InitMapPics(void)
     am_icons[i].lumpnum = lump;
     if (lump != LUMP_NOT_FOUND)
     {
-      SDL_Surface *surf = NULL;
-#ifdef HAVE_LIBSDL2_IMAGE
-      SDL_Surface *surf_raw;
+      spng_ctx *ctx = spng_ctx_new(0);
+      struct spng_ihdr ihdr = {0};
+      byte *pixels = NULL;
+      size_t size = 0;
+      int result = ctx ? spng_set_png_buffer(ctx, W_LumpByNum(lump), W_LumpLength(lump)) : SPNG_EMEM;
 
-      surf_raw = IMG_Load_RW(SDL_RWFromConstMem(W_LumpByNum(lump), W_LumpLength(lump)), true);
+      if (!result)
+        result = spng_get_ihdr(ctx, &ihdr);
+      if (!result)
+        result = spng_decoded_image_size(ctx, SPNG_FMT_RGBA8, &size);
+      if (!result)
+      {
+        pixels = Z_Malloc(size);
+        result = pixels ? spng_decode_image(ctx, pixels, size, SPNG_FMT_RGBA8,
+                                            SPNG_DECODE_TRNS) : SPNG_EMEM;
+      }
 
-      surf = SDL_ConvertSurface(surf_raw, &RGBAFormat, 0);
-      SDL_FreeSurface(surf_raw);
-#endif
-
-      if (surf)
+      if (!result)
       {
         glGenTextures(1, &am_icons[i].tex_id);
         glBindTexture(GL_TEXTURE_2D, am_icons[i].tex_id);
 
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surf->w, surf->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surf->pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ihdr.width, ihdr.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
-        SDL_FreeSurface(surf);
       }
+
+      Z_Free(pixels);
+      spng_ctx_free(ctx);
     }
 
     i++;
@@ -221,6 +227,32 @@ void gld_DrawMapLines(void)
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(map_point_t), &points[0].r);
 
     glDrawArrays(GL_QUADS, 0, map_lines.count * 4);
+
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+  }
+}
+
+void gld_DrawMapLinePoints(void)
+{
+  if (map_line_points.count > 0)
+  {
+    map_point_t *points = (map_point_t *)map_line_points.data;
+    float point_size = AM_GetLineWeight() * MIN(gl_scale_x, gl_scale_y);
+
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+
+    glVertexPointer(2, GL_FLOAT, sizeof(map_point_t), &points[0].x);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(map_point_t), &points[0].r);
+
+    glEnable(GL_POINT_SMOOTH);
+    glPointSize(MAX(1.0f, point_size));
+    glDrawArrays(GL_POINTS, 0, map_line_points.count);
+    glPointSize(1.0f);
+    glDisable(GL_POINT_SMOOTH);
 
     gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
     glDisableClientState(GL_VERTEX_ARRAY);

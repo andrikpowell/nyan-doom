@@ -483,6 +483,22 @@ int dsda_BossAction(mobj_t* mo) {
   return false;
 }
 
+int dsda_HasBossActionTag(mobj_t* mo, int tag) {
+  int bossaction = false;
+
+  if (dsda_DoomHasBossActionTag(&bossaction, mo, tag))
+    return bossaction;
+
+  if (dsda_HexenHasBossActionTag(&bossaction, mo, tag))
+    return bossaction;
+
+  if (dsda_UHasBossActionTag(&bossaction, mo->type, tag))
+    return bossaction;
+
+  dsda_LegacyHasBossActionTag(&bossaction, mo, tag);
+  return bossaction;
+}
+
 const char* dsda_MapLumpName(int episode, int map) {
   const char* name;
 
@@ -511,6 +527,19 @@ void dsda_HUTitle(dsda_string_t* str) {
     return;
 
   dsda_LegacyHUTitle(str);
+}
+
+void dsda_MapTitleforDiscord(dsda_string_t* str) {
+  if (dsda_DoomHUTitle(str))
+    return;
+
+  if (dsda_HexenHUTitle(str))
+    return;
+
+  if (dsda_UHUTitle(str))
+    return;
+
+  dsda_LegacyDiscordTitle(str);
 }
 
 const char* dsda_MapAuthor(void) {

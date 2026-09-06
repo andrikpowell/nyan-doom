@@ -112,6 +112,7 @@ typedef enum {
   dsda_input_map_overlay,
   dsda_input_map_textured,
   dsda_input_map_highlight_by_tag,
+  dsda_input_map_mouse_pan,
   dsda_input_repeat_message,
   dsda_input_speed_up,
   dsda_input_speed_down,
@@ -131,6 +132,7 @@ typedef enum {
   dsda_input_menu_enter,
   dsda_input_menu_escape,
   dsda_input_menu_clear,
+  dsda_input_menu_reset,
   dsda_input_help,
   dsda_input_cycle_profile,
   dsda_input_iddqd,
@@ -171,6 +173,8 @@ typedef enum {
   dsda_input_hexen_arti_bracers,
   dsda_input_avj,
   dsda_input_exhud,
+  dsda_input_cycle_exhud_stats,
+  dsda_input_cycle_map_stats,
   dsda_input_free_text,
   dsda_input_status_widget,
   dsda_input_timer_widget,
@@ -218,6 +222,7 @@ typedef enum {
   dsda_input_script_8,
   dsda_input_script_9,
   dsda_input_fps,
+  dsda_input_zoom,
   DSDA_INPUT_IDENTIFIER_COUNT
 } dsda_input_identifier_t;
 

@@ -2625,7 +2625,6 @@ static console_command_entry_t console_commands[] = {
   { "killem", console_BasicCheat, CF_DEMO },
   { "hom", console_BasicCheat, CF_DEMO },
   { "tntka", console_BasicCheat, CF_DEMO },
-  { "idk", console_BasicCheat, CF_DEMO },
 
   { "smart", console_BasicCheat, CF_DEMO },
   { "pitch", console_BasicCheat, CF_DEMO },

@@ -197,6 +197,9 @@ Unless otherwise specified, argument values are integers. For toggles, a 1 means
 ### Automap
 - `map_time`: shows the level / total time
   - Uses the message font
+  - Supports 2 arguments: `always_show_total show_labels`
+    - 😸 `always_show_total`: always show the total time
+    - 😸 `show_labels`: shows the "M" "T" labels
 - `map_coordinates`: shows the player's position
   - Uses the message font
 - `map_title`: shows the current map's title

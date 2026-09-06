@@ -65,6 +65,11 @@ void dsda_CyclePlayPal(void) {
   V_SetPlayPal(cycle_playpal_index);
 }
 
+int dsda_PlayPalIndex(void)
+{
+    return playpal_index;
+}
+
 void dsda_SetPlayPal(int index) {
   if (index < 0 || index >= NUMPALETTES)
     index = playpal_default;
@@ -97,6 +102,33 @@ static dboolean dsda_DuplicatePaletteEntry(const byte *playpal, int i, int j) {
       return false;
 
   return true;
+}
+
+// [AR] When grayscale fonts were used, colours derived from the font were too dark
+// Use saturation to boost their intensity (fixes Heretic/Hexen dark colour translations)
+double dsda_PaletteEntryIntensity(const byte* playpal, int i) {
+  int r, g, b;
+  int brightest, darkest;
+  double value, lightness;
+  double saturation = 0.0;
+
+  r = playpal[i * 3 + 0];
+  g = playpal[i * 3 + 1];
+  b = playpal[i * 3 + 2];
+
+  brightest = MAX(MAX(r,g),b);
+  darkest   = MIN(MIN(r,g),b);
+
+  value = brightest / 255.0;
+  lightness = dsda_PaletteEntryLightness(playpal, i) / 100.0;
+
+  if (brightest)
+    saturation = (double)(brightest - darkest) / brightest;
+
+  if (value > lightness)
+    lightness += saturation * (value - lightness);
+
+  return lightness;
 }
 
 double dsda_PaletteEntryLightness(const byte *playpal, int i) {

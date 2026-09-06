@@ -46,6 +46,7 @@ typedef struct
 {
   int originx, originy;  // Block origin, which has already accounted
   int patch;             // for the internal origin of the patch.
+  dboolean direct;       // [AR] patch uses direct tall column data.
 } texpatch_t;
 
 //
@@ -62,6 +63,7 @@ typedef struct
   unsigned  widthmask;
   // CPhipps - end of additions
   short width, height;
+  dboolean direct;       // [AR] texture has a direct tall patch.
   short patchcount;      // All the patches[patchcount] are drawn
   texpatch_t patches[1]; // back-to-front into the cached texture.
 } texture_t;
@@ -70,7 +72,7 @@ extern int numtextures;
 extern texture_t **textures;
 
 
-const byte *R_GetTextureColumn(const rpatch_t *texpatch, int col);
+const byte *R_GetTextureColumn(const rpatch_t *texpatch, int col, dboolean vanilla_tutti_frutti);
 
 
 // I/O, setting up the stuff.
@@ -105,5 +107,6 @@ int R_SetSpriteByIndex(patchnum_t *patchnum, spritenum_t item);
 int R_SetSpriteByName(patchnum_t *patchnum, const char *name);
 int R_SetPatchByName(patchnum_t *patchnum, const char *name);
 int R_NumPatchForSpriteIndex(spritenum_t item);
+int R_SafeNumPatchForSpriteIndex(spritenum_t item);
 
 #endif

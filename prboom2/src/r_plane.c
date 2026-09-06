@@ -113,6 +113,13 @@ static int *spanstart = NULL;                // killough 2/8/98
 
 static fixed_t *cachedheight = NULL;
 
+// [R&R] Cache plane values per row for transposed drawing
+static int64_t *plane_xstep = NULL;
+static int64_t *plane_ystep = NULL;
+static int64_t *plane_xbase = NULL;
+static int64_t *plane_ybase = NULL;
+static const byte **plane_colormap = NULL;
+
 // e6y: resolution limitation is removed
 fixed_t *yslope = NULL;
 fixed_t *distscale = NULL;
@@ -125,6 +132,12 @@ void R_InitPlanesRes(void)
 
   if (cachedheight) Z_Free(cachedheight);
 
+  if (plane_xstep) Z_Free(plane_xstep);
+  if (plane_ystep) Z_Free(plane_ystep);
+  if (plane_xbase) Z_Free(plane_xbase);
+  if (plane_ybase) Z_Free(plane_ybase);
+  if (plane_colormap) Z_Free(plane_colormap);
+
   if (yslope) Z_Free(yslope);
   if (distscale) Z_Free(distscale);
 
@@ -133,6 +146,12 @@ void R_InitPlanesRes(void)
   spanstart = Z_Calloc(1, SCREENHEIGHT * sizeof(*spanstart));
 
   cachedheight = Z_Calloc(1, SCREENHEIGHT * sizeof(*cachedheight));
+
+  plane_xstep = Z_Calloc(1, SCREENHEIGHT * sizeof(*plane_xstep));
+  plane_ystep = Z_Calloc(1, SCREENHEIGHT * sizeof(*plane_ystep));
+  plane_xbase = Z_Calloc(1, SCREENHEIGHT * sizeof(*plane_xbase));
+  plane_ybase = Z_Calloc(1, SCREENHEIGHT * sizeof(*plane_ybase));
+  plane_colormap = Z_Calloc(1, SCREENHEIGHT * sizeof(*plane_colormap));
 
   yslope = Z_Calloc(1, SCREENHEIGHT * sizeof(*yslope));
   distscale = Z_Calloc(1, SCREENWIDTH * sizeof(*distscale));
@@ -161,8 +180,8 @@ void R_InitPlanes (void)
 {
 }
 
-// Refresh "Linear Sky"
-void dsda_RefreshLinearSky (void)
+// Refresh Sky
+void dsda_RefreshSky (void)
 {
   xtoskyangle = dsda_IntConfig(dsda_config_render_linearsky) ? linearskyangle : xtoviewangle;
 }
@@ -209,15 +228,34 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
   dsvars->xfrac = FixedMul(dsvars->xfrac, dsvars->xscale);
   dsvars->yfrac = FixedMul(dsvars->yfrac, dsvars->yscale);
 
-  if (!(dsvars->colormap = fixedcolormap) || NYAN_LITEAMP)
+  // Normal dithered lighting
+  if (!(dsvars->colormap = fixedcolormap))
   {
-    int lightshift = NYAN_LITEAMP ? NYAN_LIGHTZSHIFT : LIGHTZSHIFT;
+    int lightshift = LIGHTZSHIFT;
     dsvars->z = distance;
     index = distance >> (lightshift);
     if (index >= MAXLIGHTZ )
       index = MAXLIGHTZ-1;
     dsvars->colormap = dsvars->planezlight[index];
   }
+
+  // Nyan lite amp
+  else if (nyan_liteamp)
+  {
+    int lightshift = NYAN_LIGHTZSHIFT;
+    dsvars->z = distance;
+    index = distance >> (lightshift);
+    if (index >= MAXLIGHTZ )
+      index = MAXLIGHTZ-1;
+    dsvars->colormap = dsvars->planezlight[index];
+
+    // do not allow dithered lighting to go darker than 64
+    if (dsvars->minzlight)
+      if (dsvars->colormap > dsvars->minzlight)
+        dsvars->colormap = dsvars->minzlight;
+  }
+
+  // fullbright
   else
   {
     dsvars->z = 0;
@@ -229,6 +267,152 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
 
   if (V_IsSoftwareMode())
     R_DrawSpan(dsvars);
+}
+
+//
+// R_DrawPlaneColumns
+//
+// [R&R] Draw planes vertically for the transposed framebuffer
+// Use R_MapPlane's fixed-point mapping and lighting with R&R's vertical rasterizer
+//
+static void R_DrawPlaneColumns(const visplane_t *pl, draw_span_vars_t *dsvars)
+{
+  // [R&R] Scale the interpolation interval with resolution.
+  const int leap =
+    SCREENHEIGHT >= 566  ?  (1 << 4) :
+    SCREENHEIGHT >= 283  ?  (1 << 3) : 
+                            (1 << 2);
+  int x, y;
+  int miny = viewheight;
+  int maxy = -1;
+
+  for (x = pl->minx; x <= pl->maxx; x++)
+  {
+    if (pl->top[x] != SHRT_MAX && pl->top[x] <= pl->bottom[x])
+    {
+      if (pl->top[x] < miny)
+        miny = pl->top[x];
+      if (pl->bottom[x] > maxy)
+        maxy = pl->bottom[x];
+    }
+  }
+
+  for (y = miny; y <= maxy; y++)
+  {
+    int64_t den;
+    fixed_t distance;
+    fixed_t xstep, ystep, xbase, ybase;
+    unsigned index;
+
+    if (y == centery)
+    {
+      plane_colormap[y] = NULL;
+      continue;
+    }
+
+    den = (int64_t)FRACUNIT * FRACUNIT * D_abs(centery - y);
+    distance = FixedMul(dsvars->planeheight, yslope[y]);
+
+    xstep = (fixed_t)((int64_t)dsvars->sine * dsvars->planeheight * viewfocratio / den);
+    ystep = (fixed_t)((int64_t)dsvars->cosine * dsvars->planeheight * viewfocratio / den);
+    xbase = dsvars->xoffs + FixedMul(dsvars->cosine, distance);
+    ybase = dsvars->yoffs - FixedMul(dsvars->sine, distance);
+
+    // Keep full precision until the texture coordinates
+    plane_xstep[y] = (int64_t)xstep * dsvars->xscale;
+    plane_ystep[y] = (int64_t)ystep * dsvars->yscale;
+    plane_xbase[y] = (int64_t)xbase * dsvars->xscale;
+    plane_ybase[y] = (int64_t)ybase * dsvars->yscale;
+
+    if (fixedcolormap && !nyan_liteamp)
+    {
+      plane_colormap[y] = fixedcolormap;
+    }
+    else
+    {
+      const int lightshift = nyan_liteamp ? NYAN_LIGHTZSHIFT : LIGHTZSHIFT;
+
+      index = distance >> lightshift;
+      if (index >= MAXLIGHTZ)
+        index = MAXLIGHTZ - 1;
+
+      plane_colormap[y] = dsvars->planezlight[index];
+
+      if (nyan_liteamp && dsvars->minzlight && plane_colormap[y] > dsvars->minzlight)
+        plane_colormap[y] = dsvars->minzlight;
+    }
+  }
+
+  for (x = pl->minx; x <= pl->maxx; x++)
+  {
+    byte *dest;
+    const fixed_t xoffset = x - centerx;
+    fixed_t block_xfrac = 0;
+    fixed_t block_yfrac = 0;
+    dboolean block_start_valid = false;
+    int remaining;
+
+    if (pl->top[x] == SHRT_MAX || pl->top[x] > pl->bottom[x])
+      continue;
+
+    y = pl->top[x];
+    dest = drawvars.topleft + y + x * drawvars.pitch;
+    remaining = pl->bottom[x] - y + 1;
+
+    while ((remaining > leap) && (y != centery) && (y + leap != centery) && ((y < centery) == (y + leap < centery)))
+    {
+      fixed_t xfrac, yfrac, nextxfrac, nextyfrac;
+      fixed_t xfracstep, yfracstep;
+      int count = leap;
+
+      if (!block_start_valid)
+      {
+        block_xfrac = (fixed_t)((plane_xbase[y] + xoffset * plane_xstep[y]) >> FRACBITS);
+        block_yfrac = (fixed_t)((plane_ybase[y] + xoffset * plane_ystep[y]) >> FRACBITS);
+        block_start_valid = true;
+      }
+
+      xfrac = block_xfrac;
+      yfrac = block_yfrac;
+      nextxfrac = (fixed_t)((plane_xbase[y + leap] + xoffset * plane_xstep[y + leap]) >> FRACBITS);
+      nextyfrac = (fixed_t)((plane_ybase[y + leap] + xoffset * plane_ystep[y + leap]) >> FRACBITS);
+
+      xfracstep = (nextxfrac - xfrac) / leap;
+      yfracstep = (nextyfrac - yfrac) / leap;
+      do
+      {
+        const int spot = ((xfrac >> 16) & 63) | ((yfrac >> 10) & 4032);
+
+        *dest = plane_colormap[y][dsvars->source[spot]];
+
+        y++;
+        dest++;
+        xfrac += xfracstep;
+        yfrac += yfracstep;
+      } while (--count);
+
+      block_xfrac = nextxfrac;
+      block_yfrac = nextyfrac;
+      remaining -= leap;
+    }
+
+    // Draw the tail from exact R_MapPlane values instead of interpolating
+    while (remaining--)
+    {
+      fixed_t xfrac, yfrac;
+      int spot;
+
+      xfrac = (fixed_t)((plane_xbase[y] + xoffset * plane_xstep[y]) >> FRACBITS);
+      yfrac = (fixed_t)((plane_ybase[y] + xoffset * plane_ystep[y]) >> FRACBITS);
+      spot = ((xfrac >> 16) & 63) | ((yfrac >> 10) & 4032);
+
+      if (plane_colormap[y])
+        *dest = plane_colormap[y][dsvars->source[spot]];
+
+      y++;
+      dest++;
+    }
+  }
 }
 
 //
@@ -442,7 +626,7 @@ static void R_DoDrawPlane(visplane_t *pl)
 {
   register int x;
   draw_column_vars_t dcvars;
-  R_DrawColumn_f colfunc = R_GetDrawColumnFunc(DoubleSky ? RDC_PIPELINE_DOUBLESKY : RDC_PIPELINE_STANDARD, RDRAW_FILTER_POINT);;
+  R_DrawColumn_f colfunc = R_GetDrawColumnFunc(DoubleSky ? RDC_PIPELINE_DOUBLESKY : RDC_PIPELINE_STANDARD, RDRAW_FILTER_POINT);
 
   R_SetDefaultDrawColumnVars(&dcvars);
 
@@ -551,6 +735,24 @@ static void R_DoDrawPlane(visplane_t *pl)
       // old code: dcvars.iscale = FRACUNIT*200/viewheight;
       dcvars.iscale = skyiscale;
 
+      // [Woof] Sky fade for short skies
+      if (!DoubleSky && dcvars.texheight >= 128)
+      {
+        // Make sure the fade-to-color effect doesn't happen too early
+        fixed_t diff = dcvars.texturemid - 100 * FRACUNIT;
+        if (diff < 0)
+        {
+          diff += textureheight[texture];
+          diff %= textureheight[texture];
+          dcvars.texturemid = 100 * FRACUNIT + diff;
+        }
+        dcvars.skycolor = dcvars.colormap[R_GetSkyColor(texture)];
+        dcvars.sky_tranmap = main_tranmap;
+        colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_SKY_COLOR_CAP, RDRAW_FILTER_POINT);
+      }
+
+      // heretic sky hack, return if true
+      if (heretic)
       {
         const rpatch_t *patch, *patch2;
 
@@ -580,14 +782,28 @@ static void R_DoDrawPlane(visplane_t *pl)
       tex_patch = tex_patch2 = R_TextureCompositePatchByNum(texture);
       if (DoubleSky) tex_patch2 = R_TextureCompositePatchByNum(texture2);
 
+      // [AR] Add support for post-less patches.
+      if ((tex_patch->flags & PATCH_DIRECTTALL) ||
+          (DoubleSky && (tex_patch2->flags & PATCH_DIRECTTALL)))
+      {
+        int skyheight;
+
+        if (DoubleSky)
+          skyheight = MIN(tex_patch->height, tex_patch2->height);
+        else
+          skyheight = tex_patch->height;
+
+        dcvars.texheight = skyheight;
+      }
+
       // killough 10/98: Use sky scrolling offset, and possibly flip picture
       for (x = pl->minx; (dcvars.x = x) <= pl->maxx; x++)
         if ((dcvars.yl = pl->top[x]) != SHRT_MAX && dcvars.yl <= (dcvars.yh = pl->bottom[x])) // dropoff overflow
         {
-          dcvars.source = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x])^flip) >> ANGLETOSKYSHIFT);
-          dcvars.prevsource = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x-1])^flip) >> ANGLETOSKYSHIFT);
-          dcvars.nextsource = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x+1])^flip) >> ANGLETOSKYSHIFT);
-          if (DoubleSky) dcvars.source2 = R_GetTextureColumn(tex_patch2, ((an2 + xtoskyangle[x])^flip) >> ANGLETOSKYSHIFT);
+          dcvars.source = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x])^flip) >> ANGLETOSKYSHIFT, false);
+          dcvars.prevsource = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x-1])^flip) >> ANGLETOSKYSHIFT, false);
+          dcvars.nextsource = R_GetTextureColumn(tex_patch, ((an + xtoskyangle[x+1])^flip) >> ANGLETOSKYSHIFT, false);
+          if (DoubleSky) dcvars.source2 = R_GetTextureColumn(tex_patch2, ((an2 + xtoskyangle[x])^flip) >> ANGLETOSKYSHIFT, false);
           colfunc(&dcvars);
         }
     }
@@ -727,14 +943,19 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       dsvars.planeheight = D_abs(pl->height-viewz);
 
-      if (NYAN_LITEAMP && pl->lightlevel <= 64)
-        pl->lightlevel = 64;
-
       // SoM 10/19/02: deep water colormap fix
-      if (fixedcolormap && !NYAN_LITEAMP)
+      if (fixedcolormap && !nyan_liteamp)
         light = (255  >> LIGHTSEGSHIFT);
       else
-        light = (pl->lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
+      {
+        int lightlevel = pl->lightlevel;
+
+        // Fixed lower lightlevels to 64
+        if (nyan_liteamp && lightlevel <= 64)
+          lightlevel = 64;
+
+        light = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
+      }
 
       if(light >= LIGHTLEVELS)
         light = LIGHTLEVELS-1;
@@ -744,11 +965,34 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       stop = pl->maxx + 1;
       dsvars.planezlight = zlight[light];
-      pl->top[pl->minx-1] = pl->top[stop] = SHRT_MAX; // dropoff overflow
+      dsvars.minzlight = NULL;
 
-      for (x = pl->minx ; x <= stop ; x++)
-         R_MakeSpans(x,pl->top[x-1],pl->bottom[x-1],
-                     pl->top[x],pl->bottom[x], &dsvars);
+      // Set darkest allowed colormap value (64)
+      if (nyan_liteamp)
+      {
+        int minlight = (64 >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT) + NYAN_LITESCALE;
+
+        if (minlight >= LIGHTLEVELS)
+          minlight = LIGHTLEVELS - 1;
+
+        if (minlight < 0)
+          minlight = 0;
+
+        dsvars.minzlight = zlight[minlight][MAXLIGHTZ - 1];
+      }
+
+      if (V_IsSoftwareMode())
+      {
+        R_DrawPlaneColumns(pl, &dsvars);
+      }
+      else // OpenGL
+      {
+        pl->top[pl->minx-1] = pl->top[stop] = SHRT_MAX; // dropoff overflow
+
+        for (x = pl->minx ; x <= stop ; x++)
+           R_MakeSpans(x,pl->top[x-1],pl->bottom[x-1],
+                       pl->top[x],pl->bottom[x], &dsvars);
+      }
     }
   }
 }

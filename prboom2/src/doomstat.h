@@ -203,6 +203,7 @@ extern int automap_full;
 extern int automap_overlay;
 extern int automap_rotate;
 extern int automap_follow;
+extern int automap_mouse_pan;
 extern int automap_grid;
 extern int autopage_active;
 extern int autopage_fade;
@@ -257,8 +258,8 @@ extern  dboolean demoplayback;
 extern  dboolean demorecording;
 extern  int demover;
 
-#define allow_incompatibility (!demorecording && !demoplayback)
-#define comperr(i) (default_comperr[i] && allow_incompatibility)
+#define casual_play (!demorecording && !demoplayback)
+#define comperr(i) (default_comperr[i] && casual_play)
 
 extern  dboolean userdemo;
 #define userplayback (demoplayback && userdemo)

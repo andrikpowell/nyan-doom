@@ -22,6 +22,7 @@ enum argtype
   ARG_PALETTE,
   ARG_MARKER,
   ARG_LUMP,
+  ARG_PNG,
   ARG_GRAPHIC,
   ARG_SOUND,
   ARG_FLAT,
@@ -37,6 +38,7 @@ static void ATTR((noreturn)) usage(int exitcode)
           "  -palette <rgbfile>\n"
           "  -marker <lumpname>\n"
           "  -lumps <file>...\n"
+          "  -pngs <pngfile>...\n"
           "  -graphics <ppmfile>...\n"
           "  -sounds <wavfile>...\n"
           "  -flats <ppmfile>...\n"
@@ -71,6 +73,8 @@ int main(int argc, char **argv)
         argtype = ARG_MARKER;
       else if (!strcmp(arg, "-lumps"))
         argtype = ARG_LUMP;
+      else if (!strcmp(arg, "-pngs"))
+        argtype = ARG_PNG;
       else if (!strcmp(arg, "-graphics"))
         argtype = ARG_GRAPHIC;
       else if (!strcmp(arg, "-sounds"))
@@ -110,6 +114,7 @@ int main(int argc, char **argv)
         break;
 
       case ARG_LUMP:
+      case ARG_PNG:
         {
           void *data = NULL;
           size_t size = read_or_die(&data, arg);

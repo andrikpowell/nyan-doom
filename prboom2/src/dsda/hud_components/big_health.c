@@ -48,6 +48,9 @@ static void dsda_HealthPatchSpacing(void)
 
   for (int i = 0; i < sizeof(lumps) / sizeof(lumps[0]); ++i)
   {
+    if (lumps[i] == LUMP_NOT_FOUND)
+      continue;
+
     patch_spacing_x = MAX(patch_spacing_x, R_NumPatchWidth(lumps[i]));
     patch_spacing_y = MAX(patch_spacing_y, R_NumPatchHeight(lumps[i]));
   }
@@ -62,7 +65,7 @@ static void dsda_DrawBigHealthIcon(int x, int y, int lump, int flags) {
   int w, h;
   int shadow = raven ? SHADOW_ALWAYS_RAVEN : SHADOW_EXTRA;
 
-  if (!lump)
+  if (lump == LUMP_NOT_FOUND)
     return;
 
   w = R_NumPatchWidth(lump);
@@ -142,16 +145,16 @@ void dsda_InitBigHealthHC(int x_offset, int y_offset, int vpt, int* args, int ar
   local->percent = (arg_count > 2) ? !!args[2] : false;
 
   if (heretic) {
-    health_lump = R_NumPatchForSpriteIndex(HERETIC_SPR_PTN1);
+    health_lump = R_SafeNumPatchForSpriteIndex(HERETIC_SPR_PTN1);
     strength_lump = health_lump;
   }
   else if (hexen) {
-    health_lump = R_NumPatchForSpriteIndex(HEXEN_SPR_PTN1);
+    health_lump = R_SafeNumPatchForSpriteIndex(HEXEN_SPR_PTN1);
     strength_lump = health_lump;
   }
   else {
-    health_lump = R_NumPatchForSpriteIndex(SPR_MEDI);
-    strength_lump = (gamemode != shareware) ? R_NumPatchForSpriteIndex(SPR_PSTR) : health_lump; // berserk doesn't exist in shareware
+    health_lump = R_SafeNumPatchForSpriteIndex(SPR_MEDI);
+    strength_lump = (gamemode != shareware) ? R_SafeNumPatchForSpriteIndex(SPR_PSTR) : health_lump; // berserk doesn't exist in shareware
   }
 
   patch_spacing = 6;

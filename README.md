@@ -6,17 +6,23 @@
 
 <div align="center" markdown="1">
 
-[![Static Badge](https://img.shields.io/badge/Windows-grey)]()
-[![Static Badge](https://img.shields.io/badge/macOS-grey?logo=apple)]()
-[![Static Badge](https://img.shields.io/badge/Linux-grey?logo=linux)]()
+[![Static Badge](https://img.shields.io/badge/Windows-grey)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![Static Badge](https://img.shields.io/badge/macOS-grey?logo=apple)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![Static Badge](https://img.shields.io/badge/Linux-grey?logo=linux)](https://github.com/andrikpowell/nyan-doom/releases/latest)
 <br>
 [![Release](https://img.shields.io/github/release/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Build Status](https://github.com/andrikpowell/nyan-doom/actions/workflows/continuous_integration.yml/badge.svg)](https://github.com/andrikpowell/nyan-doom/actions/workflows/continuous_integration.yml)
+[![Latest Release](https://img.shields.io/github/release-date/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![Downloads (latest)](https://img.shields.io/github/downloads/andrikpowell/nyan-doom/latest/total.svg?label=downloads)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![Downloads (total)](https://img.shields.io/github/downloads/andrikpowell/nyan-doom/total.svg?label=total%20downloads)](https://github.com/andrikpowell/nyan-doom/releases)
+<br>
+[![Commits Since](https://img.shields.io/github/commits-since/andrikpowell/nyan-doom/latest.svg)](https://github.com/andrikpowell/nyan-doom/commits/master)
+[![Last Commit](https://img.shields.io/github/last-commit/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/commits/master)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/andrikpowell/nyan-doom/continuous_integration.yml)](https://github.com/andrikpowell/nyan-doom/commits/master)
 [![Top Language](https://img.shields.io/github/languages/top/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom)
 <br>
-[![Downloads (total)](https://img.shields.io/github/downloads/andrikpowell/nyan-doom/total)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Downloads (latest)](https://img.shields.io/github/downloads/andrikpowell/nyan-doom/latest/total.svg)](https://github.com/andrikpowell/nyan-doom/releases/latest)
-[![Latest Release](https://img.shields.io/github/release-date/andrikpowell/nyan-doom.svg)](https://github.com/andrikpowell/nyan-doom/releases/latest)
+[![Stars](https://img.shields.io/github/stars/andrikpowell/nyan-doom.svg?style=flat&logo=github)](https://github.com/andrikpowell/nyan-doom/stargazers)
+[![Discord](https://img.shields.io/discord/1053356270767308810?style=flat&logo=discord&label=discord)](http://discordapp.com/invite/aXtCVYw83k)
+<br>
 
 </div>
 
@@ -28,6 +34,8 @@
 
 ## About the source port
 Nyan Doom is based on the DSDA-Doom source port, but adds many more quality-of-life and innovative features! If you like the DSDA-Doom, but wanted a few extra whistles and customisations, then this is the port for you!
+
+It is called Nyan Doom, because I am a cat - *meow!*
 
 ## Downloads
 
@@ -51,7 +59,7 @@ Available for Windows, macOS and Linux in [Releases](https://github.com/andrikpo
 </details>
 
 ## Key Features
-- New [animated background / menu element](./docs/animbg.md) lump support (for animated M_DOOM, TITLEPIC, INTERPIC, etc)
+- New [animated background / menu element](./docs/animinfo.md) lump support (for animated M_DOOM, TITLEPIC, INTERPIC, etc)
 - Native [widescreen](./docs/ws.md) lump support for widescreen assets (avoiding the need for separate asset WADs)
 - Support for [GAMEVERS](./docs/gamevers.md) lump in combination with [COMPLVL](./docs/complvl.md) to further specify Vanilla compatibility.
 - [Limit-Removing Support](./docs/limit_removing.md) for Vanilla style maps to ignore overflow errors (such as all-ghosts, etc)
@@ -65,7 +73,7 @@ Available for Windows, macOS and Linux in [Releases](https://github.com/andrikpo
 - All DSDA-Doom features... and more!
 
 ## Patch Notes
-- [v1.4](./patch_notes/v1.4.md)
+- [v1.5](./patch_notes/v1.5.md)
 
 ## Compiling
 
@@ -107,7 +115,6 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
   - The "Apply multisampling" automap option is disabled for hexen
   - Some of the more advanced features are not implemented for hexen yet, and using them may cause crashes or other odd behaviour.
   - Some menus extend over the hud.
-  - Monster counter doesn't work as expected, due to cluster format (ex hud / levelstat)
  
 </details>
 
@@ -119,6 +126,9 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
 - [Doom-in-Hexen Support](./docs/doom_in_hexen.md)
 - [UDMF Support](./docs/udmf.md)
 - [MAPINFO Support](./docs/mapinfo.md)
+- [ANIMINFO Support](./docs/animinfo.md)
+- [Obituary Support](./docs/obituaries.md)
+- [Partial ID24 Support](./docs/id24.md)
 
 ### Standards
 - [MBF21 v1.4](https://github.com/kraflab/mbf21)

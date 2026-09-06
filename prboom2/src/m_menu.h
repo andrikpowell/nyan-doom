@@ -82,8 +82,17 @@ void M_ResetMenu(void);      // killough 11/98: reset main menu ordering
 void M_DrawCredits(void);
 void M_DrawCreditsDynamic(void);    // killough 11/98
 
+int M_Highlight(int override);
+
 void M_DrawTabs(const char **pages, int m, int y);
-int M_GetCurrentPage(void);
+dboolean M_CurrentSelectedItem(int item);
+dboolean M_FileBoxSelected(int menu, int item);
+int M_FileTextColor(int menu, int item);
+
+typedef enum {
+  MN_LOAD,
+  MN_SAVE,
+} save_or_load_menu;
 
 typedef enum {
   g_null        = 0,
@@ -199,6 +208,7 @@ typedef struct menu_s
 #define MENU_ENTER     -7
 #define MENU_ESCAPE    -8
 #define MENU_CLEAR     -9
+#define MENU_RESET     -10
 
 void M_SetupNextMenu(menu_t *menudef);
 void M_DrawDelVerify(void);
@@ -207,6 +217,8 @@ void M_LeaveSetupMenu(void);
 void M_ClearMenus(void);
 
 void M_RefreshGameSpecificMenuOptions();
+void M_LoadTextColors(void);
+int M_GetComplevel(void);
 
 extern setup_menu_t auto_colors_settings[];
 extern setup_menu_t auto_heretic_colors_settings[];

@@ -168,7 +168,7 @@ void dsda_SaveGameModifiers(void)
 void dsda_LoadGameModifiers(void)
 {
   // when playing / recording demos, do not touch configs
-  if (!allow_incompatibility)
+  if (!casual_play)
     return;
 
   dsda_UpdateIntConfig(dsda_config_limit_removing,saved_limitremoving,true);

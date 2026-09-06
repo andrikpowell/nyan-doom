@@ -497,6 +497,30 @@ void P_UnArchiveRNG(void)
   P_LOAD_X(rng);
 }
 
+static am_tagfinder_state_t tagfinder;
+
+void P_ArchiveTagFinder(void)
+{
+  AM_GetTagFinderState(&tagfinder);
+  P_SAVE_X(tagfinder.sector);
+  P_SAVE_X(tagfinder.line);
+  P_SAVE_X(tagfinder.tag);
+  P_SAVE_X(tagfinder.thing);
+  P_SAVE_X(tagfinder.x);
+  P_SAVE_X(tagfinder.y);
+}
+
+void P_UnArchiveTagFinder(void)
+{
+  P_LOAD_X(tagfinder.sector);
+  P_LOAD_X(tagfinder.line);
+  P_LOAD_X(tagfinder.tag);
+  P_LOAD_X(tagfinder.thing);
+  P_LOAD_X(tagfinder.x);
+  P_LOAD_X(tagfinder.y);
+  AM_SetTagFinderState(&tagfinder);
+}
+
 // killough 2/22/98: Save/restore automap state
 // killough 2/22/98: Save/restore automap state
 void P_ArchiveMap(void)
@@ -511,6 +535,8 @@ void P_ArchiveMap(void)
     P_SAVE_X(markpoints[i].x);
     P_SAVE_X(markpoints[i].y);
   }
+
+  P_ArchiveTagFinder();
 }
 
 void P_UnArchiveMap(void)
@@ -537,6 +563,8 @@ void P_UnArchiveMap(void)
         AM_setMarkParams(i);
       }
     }
+
+  P_UnArchiveTagFinder();
 }
 
 void P_ArchiveThinkerSubclass(th_class class)

@@ -89,6 +89,7 @@ extern int g_sfx_oof;
 extern int g_sfx_menu;
 extern int g_sfx_respawn;
 extern int g_sfx_secret;
+extern int g_sfx_secret_subtle;
 extern int g_sfx_revive;
 extern int g_sfx_console;
 extern int g_sfx_idnut;

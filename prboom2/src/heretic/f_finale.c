@@ -126,7 +126,7 @@ dboolean Heretic_F_Responder(event_t * event)
 
 void Heretic_F_Ticker(void)
 {
-  if (allow_incompatibility)
+  if (casual_play)
     WI_checkForAccelerate();
 
   finalecount++;

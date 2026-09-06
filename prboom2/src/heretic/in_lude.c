@@ -209,7 +209,7 @@ static dboolean IN_AllowKexMaps(int episode)
 static dboolean IN_RetailIntermission(void)
 {
   // Demos must use retail behavior
-  if (!allow_incompatibility && gameepisode > 3)
+  if (!casual_play && gameepisode > 3)
     return true;
 
   // Retail behavior starts at episode 4 and continues onward,

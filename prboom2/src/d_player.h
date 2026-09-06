@@ -72,10 +72,11 @@ typedef enum
 #define CF_INFINITE_AMMO 0x004 // infinite ammo
 #define CF_NOTARGET      0x008 // monsters don't target
 #define CF_FLY           0x010 // flying player
-#define CF_NUT           0x020 // IDNUT
-#define CF_CAMERA        0x040 // Camera
-#define CF_BASILISK      0x080 // Basilisk cheat
-#define CF_BUDDHA        0x100 // Buddha
+#define CF_NUT           0x020 // [Nyan] IDNUT
+#define CF_CAMERA        0x040 // [Nyan] Camera
+#define CF_BASILISK      0x080 // [Nyan] Basilisk cheat
+#define CF_BUDDHA        0x100 // [Nyan] Buddha
+#define CF_CHOPPERS      0x200 // [Nyan] Choppers
 
 // heretic
 typedef struct
@@ -151,6 +152,13 @@ typedef enum
   KEYBLINK_EITHER,
 } keyblink_t;
 
+typedef enum
+{
+  weapswitch_none,
+  weapswitch_lowering,
+  weapswitch_raising,
+} weapswitch_t;
+
 //
 // Extended player object info: player_t
 //
@@ -189,6 +197,8 @@ typedef struct player_s
 
   // Is wp_nochange if not changing.
   weapontype_t        pendingweapon;
+  weapontype_t        nextweapon;
+  weapswitch_t        switching;
 
   dboolean           weaponowned[NUMWEAPONS];
   int                 ammo[NUMAMMO];

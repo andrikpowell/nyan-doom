@@ -143,6 +143,9 @@ typedef struct
   float skylayer_pitch;
   float skylayer_yaw;
   float skylayer_offset;
+
+  // Multiple skydomes
+  int skybox_index;
 } GLWall;
 
 typedef enum
@@ -442,7 +445,6 @@ typedef struct PalEntry_s
 } PalEntry_t;
 typedef struct SkyBoxParams_s
 {
-  int index;
   unsigned int type;
   GLWall wall;
   float x_offset, y_offset;
@@ -454,8 +456,9 @@ typedef struct SkyBoxParams_s
 extern SkyBoxParams_t SkyBox;
 extern GLfloat gl_whitecolor[];
 void gld_InitSky(void);
+void gld_CleanSkyData(void);
 void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int skytype);
-void gld_GetSkyCapColors(int skylayer);
+void gld_GetSkyCapColors(SkyBoxParams_t *skybox, int skylayer);
 void gld_InitFrameSky(void);
 void gld_DrawStripsSky(int skylayer);
 void gld_DrawScreenSkybox(void);

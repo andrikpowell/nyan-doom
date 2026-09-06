@@ -44,6 +44,24 @@ static axis_t right_trigger = { SDL_CONTROLLER_AXIS_TRIGGERRIGHT };
 
 static int swap_analogs;
 
+// Deadzone configs used to store raw SDL axis values (0-16384).
+// They now use a clearer 0-50% menu scale similar to Woof
+static int dsda_GameControllerDeadzone(int percent) {
+  return 32768 * percent / 100;
+}
+
+// In Woof, movement sensitivity is done using a multiplier (10 = 1.0x)
+// Use Woof's scale, and then scale back to SDL's (old DSDA) raw axis scale
+static int dsda_GameControllerMoveSensitivity(int sensitivity) {
+  return sensitivity * 10;
+}
+
+// In Woof, turn / look settings are configured as speed in degrees per second
+// Convert that to the raw per-tic turn scale back to SDL's (old DSDA) raw axis scale
+static int dsda_GameControllerLookSpeed(int speed) {
+  return speed * 32768 / 180 / 35; // 35 (TICRATE)
+}
+
 static const char* button_names[] = {
   [DSDA_CONTROLLER_BUTTON_A] = "pad a",
   [DSDA_CONTROLLER_BUTTON_B] = "pad b",
@@ -102,6 +120,14 @@ static void dsda_PollLeftStick(void) {
 
   if (ev.data1.f || ev.data2.f)
     D_PostEvent(&ev);
+
+  // analog for menus
+  {
+    ev.type = ev_menu_analog;
+
+    if (ev.data1.f || ev.data2.f)
+      D_PostEvent(&ev);
+  }
 }
 
 static void dsda_PollRightStick(void) {
@@ -172,28 +198,112 @@ void dsda_PollGameController(void) {
 }
 
 void dsda_InitGameControllerParameters(void) {
-  left_analog_x.deadzone = dsda_IntConfig(dsda_config_left_analog_deadzone);
-  left_analog_x.sensitivity = dsda_IntConfig(dsda_config_left_analog_sensitivity_x);
-  left_analog_y.deadzone = left_analog_x.deadzone;
-  left_analog_y.sensitivity = dsda_IntConfig(dsda_config_left_analog_sensitivity_y);
+  int move_x, move_y, look_x, look_y;
 
-  right_analog_x.deadzone = dsda_IntConfig(dsda_config_right_analog_deadzone);
-  right_analog_x.sensitivity = dsda_IntConfig(dsda_config_right_analog_sensitivity_x);
-  right_analog_y.deadzone = right_analog_x.deadzone;
-  right_analog_y.sensitivity = dsda_IntConfig(dsda_config_right_analog_sensitivity_y);
+  // Stick Sensitivity
+  move_x = dsda_GameControllerMoveSensitivity(dsda_IntConfig(dsda_config_analog_strafe_sensitivity_x));
+  move_y = dsda_GameControllerMoveSensitivity(dsda_IntConfig(dsda_config_analog_forward_sensitivity_y));
+  look_x = dsda_GameControllerLookSpeed(dsda_IntConfig(dsda_config_analog_turn_sensitivity_x));
+  look_y = dsda_GameControllerLookSpeed(dsda_IntConfig(dsda_config_analog_look_sensitivity_y));
 
-  left_trigger.deadzone = dsda_IntConfig(dsda_config_left_trigger_deadzone);
-  left_trigger.sensitivity = 1;
-  right_trigger.deadzone = dsda_IntConfig(dsda_config_right_trigger_deadzone);
-  right_trigger.sensitivity = 1;
-
+  // Swap sticks, but keep sensitivity for movement / looking
   swap_analogs = dsda_IntConfig(dsda_config_swap_analogs);
+  left_analog_x.sensitivity  = swap_analogs ? look_x : move_x;
+  left_analog_y.sensitivity  = swap_analogs ? look_y : move_y;
+  right_analog_x.sensitivity = swap_analogs ? move_x : look_x;
+  right_analog_y.sensitivity = swap_analogs ? move_y : look_y;
+
+  // Stick Deadzones (keep separated per left / right)
+  left_analog_x.deadzone = dsda_GameControllerDeadzone(dsda_IntConfig(dsda_config_left_analog_deadzone));
+  left_analog_y.deadzone = left_analog_x.deadzone;
+  right_analog_x.deadzone = dsda_GameControllerDeadzone(dsda_IntConfig(dsda_config_right_analog_deadzone));
+  right_analog_y.deadzone = right_analog_x.deadzone;
+
+  // Triggers
+  left_trigger.deadzone = dsda_GameControllerDeadzone(dsda_IntConfig(dsda_config_left_trigger_deadzone));
+  left_trigger.sensitivity = 1;
+  right_trigger.deadzone = dsda_GameControllerDeadzone(dsda_IntConfig(dsda_config_right_trigger_deadzone));
+  right_trigger.sensitivity = 1;
+}
+
+static void dsda_CloseGameController(void)
+{
+  if (!game_controller)
+    return;
+
+  lprintf(LO_INFO, "%s Disconnected\n", SDL_GameControllerName(game_controller));
+  SDL_GameControllerClose(game_controller);
+  game_controller = NULL;
+}
+
+static dboolean dsda_OpenGameController(int device_index)
+{
+  if (device_index < 0 || device_index >= SDL_NumJoysticks() || !SDL_IsGameController(device_index))
+  {
+    return false;
+  }
+
+  game_controller = SDL_GameControllerOpen(device_index);
+
+  if (!game_controller)
+  {
+    lprintf(LO_ERROR, "dsda_OpenGameController: error opening game controller %d: %s\n", device_index + 1, SDL_GetError());
+    return false;
+  }
+
+  lprintf(LO_INFO, "%s Connected\n", SDL_GameControllerName(game_controller));
+  return true;
+}
+
+static void dsda_OpenAvailableGameController(void)
+{
+  int preferred_index;
+  int num_joysticks;
+  int i;
+
+  if (!use_game_controller || game_controller)
+    return;
+
+  num_joysticks = SDL_NumJoysticks();
+  preferred_index = use_game_controller - 1;
+
+  if (preferred_index < num_joysticks && dsda_OpenGameController(preferred_index))
+    return;
+
+  for (i = 0; i < num_joysticks; ++i)
+  {
+    if (i != preferred_index && dsda_OpenGameController(i))
+      return;
+  }
+}
+
+void dsda_GameControllerAdded(int device_index)
+{
+  if (device_index < 0 || !use_game_controller || game_controller)
+    return;
+
+  dsda_OpenAvailableGameController();
+}
+
+void dsda_GameControllerRemoved(int instance_id)
+{
+  SDL_Joystick *joystick;
+
+  if (!game_controller)
+    return;
+
+  joystick = SDL_GameControllerGetJoystick(game_controller);
+
+  if (SDL_JoystickInstanceID(joystick) != instance_id)
+    return;
+
+  dsda_CloseGameController();
+  dsda_OpenAvailableGameController();
 }
 
 void dsda_InitGameController(void) {
-  int num_joysticks;
+  dsda_CloseGameController();
 
-  game_controller = NULL;
   use_game_controller =
     dsda_IntConfig(dsda_config_use_game_controller) && !dsda_Flag(dsda_arg_nojoy);
 
@@ -201,29 +311,11 @@ void dsda_InitGameController(void) {
     return;
 
   dsda_InitGameControllerParameters();
-  SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
-
-  num_joysticks = SDL_NumJoysticks();
-
-  if (use_game_controller > num_joysticks) {
-    lprintf(LO_WARN, "dsda_InitGameController: invalid joystick %d\n",
-            use_game_controller);
+  if (!(SDL_WasInit(SDL_INIT_GAMECONTROLLER) & SDL_INIT_GAMECONTROLLER) && SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) < 0)
+  {
+    lprintf(LO_ERROR, "dsda_InitGameController: %s\n", SDL_GetError());
     return;
   }
 
-  if (!SDL_IsGameController(use_game_controller - 1)) {
-    lprintf(LO_WARN, "dsda_InitGameController: unsupported joystick %d\n",
-            use_game_controller);
-    return;
-  }
-
-  game_controller = SDL_GameControllerOpen(use_game_controller - 1);
-
-  if (!game_controller) {
-    lprintf(LO_ERROR, "dsda_InitGameController: error opening game controller %d\n",
-            use_game_controller);
-    return;
-  }
-
-  lprintf(LO_DEBUG, "Opened game controller %s\n", SDL_GameControllerName(game_controller));
+  dsda_OpenAvailableGameController();
 }

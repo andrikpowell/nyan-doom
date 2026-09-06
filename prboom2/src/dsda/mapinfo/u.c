@@ -443,7 +443,7 @@ int dsda_UFTicker(void) {
   const int TEXTWAIT = 250;
   const int NEWTEXTWAIT = 1000;
 
-  if (!demo_compatibility || allow_incompatibility)
+  if (!demo_compatibility || casual_play)
     WI_checkForAccelerate();
   else {
     int i;
@@ -547,6 +547,28 @@ int dsda_UBossAction(mobj_t* mo) {
   return true;
 }
 
+int dsda_UHasBossActionTag(int* result, int type, int tag) {
+  int i;
+
+  if (!gamemapinfo || !gamemapinfo->numbossactions || map_format.zdoom)
+    return false;
+
+  if (gamemapinfo->numbossactions < 0)
+    return true;
+
+  for (i = 0; i < gamemapinfo->numbossactions; ++i)
+  {
+    if (gamemapinfo->bossactions[i].type == type &&
+        gamemapinfo->bossactions[i].tag == tag)
+    {
+      *result = true;
+      break;
+    }
+  }
+
+  return true;
+}
+
 int dsda_UMapLumpName(const char** name, int episode, int map) {
   return false;
 }
@@ -561,7 +583,10 @@ int dsda_UMapAuthor(const char** author) {
 }
 
 int dsda_UHUTitle(dsda_string_t* str) {
+  char* p;
   const char* s;
+  dsda_string_t label;
+  dboolean default_label;
 
   if (!gamemapinfo || !gamemapinfo->levelname)
     return false;
@@ -571,10 +596,20 @@ int dsda_UHUTitle(dsda_string_t* str) {
   else
     s = gamemapinfo->mapname;
 
-  if (s == gamemapinfo->mapname || strcmp(s, "-") != 0)
-    dsda_StringPrintF(str, "%s: %s",s, gamemapinfo->levelname);
+  dsda_InitString(&label, s);
+  default_label = (s == gamemapinfo->mapname);
+
+  // Uppercase for Discord
+  if (default_label)
+    for (p = label.string; *p; ++p)
+      *p = toupper((unsigned char)*p);
+
+  if (default_label || strcmp(label.string, "-") != 0)
+    dsda_StringPrintF(str, "%s: %s", label.string, gamemapinfo->levelname);
   else
     dsda_StringPrintF(str, "%s", gamemapinfo->levelname);
+
+  dsda_FreeString(&label);
 
   return true;
 }

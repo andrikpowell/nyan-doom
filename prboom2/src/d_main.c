@@ -66,6 +66,7 @@
 #include "m_menu.h"
 #include "m_random.h"
 #include "i_main.h"
+#include "i_richpresence.h"
 #include "i_system.h"
 #include "i_sound.h"
 #include "i_video.h"
@@ -98,6 +99,7 @@
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
 #include "dsda/gameinfo.h"
+#include "dsda/startup.h"
 #include "dsda/mobjinfo.h"
 #include "dsda/options.h"
 #include "dsda/pause.h"
@@ -310,7 +312,7 @@ static void D_Wipe(void)
 
     M_Drawer();                   // menu is drawn even on top of wipes
 
-    if (capturing_video && !dsda_SkipMode() && cap_wipescreen)
+    if (tics > 0 && capturing_video && !dsda_SkipMode() && cap_wipescreen)
     {
       I_QueueFrameCapture();
     }
@@ -889,6 +891,7 @@ void D_StartTitle (void)
 {
   gameaction = ga_nothing;
   in_game = false;
+  I_UpdateDiscordPresence("Playing", doomverstr);
   demosequence = -1;
   D_AdvanceDemo();
 }
@@ -2140,8 +2143,21 @@ static void D_DoomMainSetup(void)
 
   G_ReloadDefaults();
 
-  lprintf(LO_DEBUG, "N_InitAnimateLumps: Loading NYAN Animate lumps.\n");
-  N_InitAnimateLumps();
+  // Check for mapinfo
+  dsda_LoadWadPreferences();
+
+  // Check for / parse new skill lumps
+  dsda_LoadSkillLump();
+  dsda_CheckCustomSkill();
+
+  if (uvplus)
+    lprintf(LO_INFO, "Detected NYANSKLG lump. UV Plus difficulty enabled.\n");
+
+  if (!raven)
+  {
+    lprintf(LO_DEBUG, "N_InitAnimateLumps: Loading NYAN Animate lumps.\n");
+    N_InitAnimateLumps();
+  }
 
   if (limitremoving_arg)
     lprintf(LO_INFO, "Limit-removing detected. Overflows disabled\n");
@@ -2258,7 +2274,8 @@ static void D_DoomMainSetup(void)
 
   lprintf(LO_INFO, "\n"); // Separator after file loading
 
-  V_InitColorTranslation(); //jff 4/24/98 load color translation lumps
+  V_UpdateColorTranslation(); //jff 4/24/98 load color translation lumps
+  V_UpdateShadeColormap();    // Update dark overlay colormap
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_DEBUG, "M_Init: Init miscellaneous info.\n");
@@ -2275,13 +2292,9 @@ static void D_DoomMainSetup(void)
   lprintf(LO_DEBUG, "R_Init: Init DOOM refresh daemon - ");
   R_Init();
 
-  dsda_LoadWadPreferences();
   dsda_LoadMapInfo();
   dsda_InitSkills();
   dsda_InitGameModifiers(); // Set game modifiers based off args / persistent cfgs
-
-  if (uvplus)
-    lprintf(LO_INFO, "Detected NYANSKLG lump. UV Plus difficulty enabled.\n");
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_DEBUG, "\nP_Init: Init Playloop state.\n");
@@ -2307,6 +2320,19 @@ static void D_DoomMainSetup(void)
 
   if (!(dsda_Flag(dsda_arg_nodraw) && dsda_Flag(dsda_arg_nosound)))
     I_InitGraphics();
+
+  I_UpdateDiscordPresence("Playing", doomverstr);
+
+  // Draw STARTUP / LOADING
+  if (dsda_IntConfig(nyan_config_show_startup))
+  {
+    if (nodrawers || started_demo || autostart)
+    {
+      // skip startup
+    }
+    else
+      dsda_Startup(doomverstr);
+  }
 
   // NSM
   arg = dsda_Arg(dsda_arg_viddump);

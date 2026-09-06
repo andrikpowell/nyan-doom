@@ -85,7 +85,7 @@ int UMAPINFO_Text;
 
 static int dsda_SkipInterText(void)
 {
-  if (allow_incompatibility && dsda_IntConfig(nyan_config_skip_default_text))
+  if (casual_play && dsda_IntConfig(nyan_config_skip_default_text))
     return dsda_CheckInterText();
   
   return false;
@@ -337,7 +337,7 @@ float Get_TextSpeed(void)
 dboolean F_ShowCast(void)
 {
   return gamemap == 30 ||
-         (gamemission == pack_nerve && allow_incompatibility && gamemap == 8) ||
+         (gamemission == pack_nerve && casual_play && gamemap == 8) ||
          dsda_FinaleShortcut();
 }
 
@@ -354,7 +354,7 @@ void F_Ticker(void)
     return;
   }
 
-  if (!demo_compatibility || allow_incompatibility) // Allow for textscreen skip for Doom 1 + wait for Doom 2
+  if (!demo_compatibility || casual_play) // Allow for textscreen skip for Doom 1 + wait for Doom 2
     WI_checkForAccelerate();  // killough 3/28/98: check for acceleration
   else
     if (gamemode == commercial && finalecount > 50) // check for skipping
@@ -383,7 +383,7 @@ void F_Ticker(void)
               F_StartPostFinale();
           }
         else   // you must press a button to continue in Doom 2
-          if ((!demo_compatibility || allow_incompatibility) && midstage)
+          if ((!demo_compatibility || casual_play) && midstage)
             {
               next_level = true;
             }
@@ -1076,7 +1076,7 @@ static void F_DrawEndPatches (void)
   if (finalecount < 1180)
   {
     // CPhipps - patch drawing updated
-    V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, "END0", CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchAnimate((320-13*8)/2, (200-8*8)/2, "END0", CR_DEFAULT, VPT_STRETCH);
     laststage = 0;
     return;
   }
@@ -1092,7 +1092,7 @@ static void F_DrawEndPatches (void)
 
   snprintf(name, sizeof name, "END%i", stage);
   // CPhipps - patch drawing updated
-  V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, name, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatchAnimate((320-13*8)/2, (200-8*8)/2, name, CR_DEFAULT, VPT_STRETCH);
 }
 
 #define R_PatchAnimateByName(name) (R_PatchByNum(N_GetPatchAnimateNum(name, false)))

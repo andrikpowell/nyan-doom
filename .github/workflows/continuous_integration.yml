@@ -16,13 +16,13 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - name: "MSVC x64"
-            os: windows-latest
+          - name: "MSVC x64 (vcpkg)"
+            os: windows-2022
             build_type: "Release"
             vcpkg: true
             triplet: x64-windows-static-release
             shell: pwsh
-            package_name: "msvc_x64"
+            package_name: "windows_x64_msvc"
             release: true
             artifact-path: build/*.zip
             extra_options: >-
@@ -32,40 +32,51 @@ jobs:
               -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
               -DCMAKE_IGNORE_PATH="C:/Strawberry/perl/bin;C:/Strawberry/c/lib"
 
+          - name: "macOS universal (vcpkg)"
+            os: macos-latest
+            build_type: "Release"
+            vcpkg: true
+            triplet: arm64-osx
+            shell: bash
+            package_name: "mac_uni_static"
+            release: true
+            artifact-path: build/*.zip
+            extra_options: >-
+              -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake"
+              -DVCPKG_TARGET_TRIPLET=arm64-osx
+              -DCMAKE_INSTALL_PREFIX=/usr
+              -DVCPKG_LIBRARY_LINKAGE=static
+
           - name: "MSYS2 UCRT64"
             os: windows-latest
             build_type: "Release"
             extra_options: "-G Ninja"
-            package_name: "mingw_x64"
+            package_name: "windows_x64_mingw"
             shell: "msys2 {0}"
             msystem: ucrt64
             msys-env: mingw-w64-ucrt-x86_64
             artifact-path: build/*.zip
 
-          - name: "Linux GCC"
+          - name: "Linux GCC (vcpkg)"
             os: ubuntu-22.04
             build_type: "Release"
-            extra_options: "-G Ninja -DCMAKE_INSTALL_PREFIX=/usr"
+            vcpkg: true
+            triplet: x64-linux-release
+            extra_options: >-
+              -G Ninja
+              -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+              -DVCPKG_TARGET_TRIPLET=x64-linux-release
+              -DCMAKE_INSTALL_PREFIX=/usr
             release: true
             package_name: "linux_gcc"
             shell: bash
             artifact-path: build/*.appimage
 
-          - name: "macOS arm64 Clang"
+          - name: "macOS arm64 (brew)"
             os: macos-latest
             build_type: "Release"
             extra_options: "-G Ninja"
-            release: true
             package_name: "mac_arm64"
-            shell: bash
-            artifact-path: build/*.zip
-
-          - name: "macOS x64 Clang"
-            os: macos-15-intel
-            build_type: "Release"
-            extra_options: "-G Ninja"
-            release: true
-            package_name: "mac_x64"
             shell: bash
             artifact-path: build/*.zip
 
@@ -88,8 +99,8 @@ jobs:
             ${{ matrix.config.msys-env }}-libvorbis
             ${{ matrix.config.msys-env }}-portmidi
             ${{ matrix.config.msys-env }}-SDL2
-            ${{ matrix.config.msys-env }}-SDL2_image
             ${{ matrix.config.msys-env }}-SDL2_mixer
+            ${{ matrix.config.msys-env }}-libspng
             ${{ matrix.config.msys-env }}-libsndfile
             ${{ matrix.config.msys-env }}-libzip
 
@@ -99,7 +110,11 @@ jobs:
           sudo apt-get update
           sudo apt-get upgrade
           sudo apt-get install -y \
+            autoconf \
+            autoconf-archive \
+            automake \
             gcc \
+            libtool \
             ninja-build \
             pkg-config \
             libxmp-dev \
@@ -110,7 +125,6 @@ jobs:
             libmad0-dev \
             libportmidi-dev \
             libsdl2-dev \
-            libsdl2-image-dev \
             libsdl2-mixer-dev \
             libvorbis-dev \
             libsndfile1-dev \
@@ -123,17 +137,12 @@ jobs:
         if: runner.os == 'macOS'
         run: brew bundle
 
-      - name: Generate vcpkg cache key
-        if: ${{ matrix.config.vcpkg }}
-        shell: bash
-        run: echo "CACHE_KEY=vcpkg-${{ matrix.config.triplet }}-${{ hashFiles('prboom2/vcpkg.json') }}" >> $GITHUB_ENV 
-
       - name: Restore vcpkg cache
         if: ${{ matrix.config.vcpkg }}
         uses: actions/cache/restore@v4
         with:
           path: ${{ github.workspace }}/vcpkg_cache
-          key: ${{ env.CACHE_KEY }}
+          key: vcpkg-${{ matrix.config.triplet }}-${{ hashFiles('prboom2/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.config.triplet }}-
 
       - name: Configure
@@ -147,12 +156,36 @@ jobs:
       - name: Build
         run: cmake --build build --config ${{ matrix.config.build_type }}
 
+      - name: Configure macOS x64 (universal)
+        if: matrix.config.name == 'macOS universal (vcpkg)'
+        run: >-
+          cmake -S prboom2
+          -B build-x64
+          -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
+          -DSTRICT_FIND=ON
+          -DCMAKE_OSX_ARCHITECTURES=x86_64
+          -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x64-osx
+          -DCMAKE_INSTALL_PREFIX=/usr
+
+      - name: Build macOS x64 (universal)
+        if: matrix.config.name == 'macOS universal (vcpkg)'
+        run: cmake --build build-x64 --config ${{ matrix.config.build_type }}
+
+      - name: Lipo builds (universal)
+        if: matrix.config.name == 'macOS universal (vcpkg)'
+        run: |
+            lipo build/nyan-doom build-x64/nyan-doom -create -output nyan-doom
+            rm build/nyan-doom
+            mv nyan-doom build
+
       # Delete the old cache on hit to emulate a cache update.
       - name: Delete old vcpkg cache
         if: ${{ matrix.config.vcpkg }}
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
+          CACHE_KEY: vcpkg-${{ matrix.config.triplet }}-${{ hashFiles('prboom2/vcpkg.json') }}
         run: gh cache delete --repo ${{ github.repository }} ${{ env.CACHE_KEY }}
 
       - name: Save vcpkg cache
@@ -160,7 +193,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ${{ github.workspace }}/vcpkg_cache
-          key: ${{ env.CACHE_KEY }}
+          key: vcpkg-${{ matrix.config.triplet }}-${{ hashFiles('prboom2/vcpkg.json') }}
 
       - name: Package
         if: ${{ matrix.config.package_name }}

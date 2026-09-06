@@ -29,3 +29,6 @@ CMakePresets.json
 
 # clangd
 /.cache/
+
+# temp dir
+.tmp-*

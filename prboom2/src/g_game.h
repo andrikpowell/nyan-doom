@@ -62,6 +62,7 @@ void G_ReloadDefaults(void);     // killough 3/1/98: loads game defaults
 void G_RefreshFastMonsters(void); // killough 4/10/98: sets -fast parameters
 void G_DoNewGame(void);
 void G_DoReborn(int playernum);
+void G_UpdateDiscordPresence(void);
 void G_StartDemoPlayback(const byte *buffer, int length, int behaviour);
 void G_DoPlayDemo(void);
 void G_DoCompleted(void);

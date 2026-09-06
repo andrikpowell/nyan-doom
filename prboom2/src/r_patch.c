@@ -58,6 +58,10 @@
 **---------------------------------------------------------------------------
 */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "z_zone.h"
 #include "doomstat.h"
 #include "w_wad.h"
@@ -73,7 +77,10 @@
 #include "v_video.h"
 #include <assert.h>
 
+#include "r_png.h"
+
 #include "dsda/palette.h"
+#include "dsda/settings.h"
 
 // posts are runs of non masked source pixels
 typedef struct
@@ -107,6 +114,9 @@ typedef struct
 static rpatch_t *patches = 0;
 
 static rpatch_t *texture_composites = 0;
+
+// Switch between tutti-frutti and normal textures
+static dboolean composites_need_flush = false;
 
 // indices of two duplicate PLAYPAL entries, second is -1 if none found
 static int playpal_transparent, playpal_duplicate;
@@ -160,6 +170,21 @@ void R_FlushAllPatches(void) {
         Z_Free(texture_composites[i].data);
     Z_Free(texture_composites);
     texture_composites = NULL;
+    composites_need_flush = false;
+  }
+}
+
+// Needed to refresh tutti-frutti
+void R_FlushAllCompositeTextures(void) {
+  int i;
+
+  if (texture_composites && composites_need_flush)
+  {
+    for (i=0; i<numtextures; i++)
+      if (texture_composites[i].data)
+        Z_Free(texture_composites[i].data);
+    memset(texture_composites, 0, sizeof(rpatch_t) * numtextures);
+    composites_need_flush = false;
   }
 }
 
@@ -333,6 +358,9 @@ dboolean R_IsPatchLump(int lumpnum)
 
   size = W_LumpLength(lumpnum);
 
+  if (R_IsPNGLump(lumpnum))
+    return true;
+
   // minimum length of a valid Doom patch
   if (size < 13)
     return false;
@@ -377,6 +405,143 @@ static void StorePixel(rpatch_t *patch, int x, int y, byte color)
   patch->pixels[x * patch->height + y] = color;
 }
 
+static void R_LinearToTransPatch(rpatch_t *patch, const byte *data,
+                                 int color_key, const byte *translate)
+{
+  int *numPostsInColumn;
+  int pixelDataSize, columnsDataSize, postsDataSize, dataSize;
+  int numPostsTotal = 0;
+  int postsUsed = 0;
+  int x, y;
+
+  numPostsInColumn = Z_Malloc(sizeof(*numPostsInColumn) * patch->width);
+
+  for (x = 0; x < patch->width; ++x)
+  {
+    dboolean inPost = false;
+
+    numPostsInColumn[x] = 0;
+    for (y = 0; y < patch->height; ++y)
+    {
+      const dboolean opaque = color_key == NO_COLOR_KEY ||
+                              data[y * patch->width + x] != color_key;
+
+      if (opaque && !inPost)
+      {
+        ++numPostsInColumn[x];
+        inPost = true;
+      }
+      else if (!opaque)
+        inPost = false;
+    }
+
+    numPostsTotal += numPostsInColumn[x];
+  }
+
+  pixelDataSize = (patch->width * patch->height + 4) & ~3;
+  columnsDataSize = sizeof(rcolumn_t) * patch->width;
+  postsDataSize = sizeof(rpost_t) * numPostsTotal;
+  dataSize = pixelDataSize + columnsDataSize + postsDataSize;
+  patch->data = Z_Malloc(dataSize);
+  memset(patch->data, 0, dataSize);
+  patch->pixels = patch->data;
+  patch->columns = (rcolumn_t *)(patch->data + pixelDataSize);
+  patch->posts = (rpost_t *)((byte *)patch->columns + columnsDataSize);
+  memset(patch->pixels, playpal_transparent, patch->width * patch->height);
+
+  if (!numPostsTotal)
+    patch->flags |= PATCH_ISEMPTY;
+
+  for (x = 0; x < patch->width; ++x)
+  {
+    patch->columns[x].pixels = patch->pixels + x * patch->height;
+    patch->columns[x].vanilla_pixels = patch->columns[x].pixels;
+    patch->columns[x].numPosts = numPostsInColumn[x];
+    patch->columns[x].posts = patch->posts + postsUsed;
+    patch->columns[x].patch_count = 1;
+
+    y = 0;
+    while (y < patch->height)
+    {
+      int top;
+
+      while (y < patch->height && color_key != NO_COLOR_KEY &&
+             data[y * patch->width + x] == color_key)
+        ++y;
+
+      if (y == patch->height)
+        break;
+
+      top = y;
+      while (y < patch->height &&
+             (color_key == NO_COLOR_KEY ||
+              data[y * patch->width + x] != color_key))
+      {
+        const byte pixel = data[y * patch->width + x];
+        StorePixel(patch, x, y, translate ? translate[pixel] : pixel);
+        ++y;
+      }
+
+      patch->posts[postsUsed].topdelta = top;
+      patch->posts[postsUsed].length = y - top;
+      patch->posts[postsUsed].slope = 0;
+      ++postsUsed;
+    }
+  }
+
+  if (color_key != NO_COLOR_KEY)
+    patch->flags |= PATCH_HASHOLES | PATCH_ISNOTTILEABLE;
+
+  Z_Free(numPostsInColumn);
+}
+
+
+static void createPNGPatch(int id)
+{
+  png_t png = {0};
+  struct spng_trns trns = {0};
+  rpatch_t *patch = &patches[id];
+  int result;
+  int x;
+
+  if (!InitPNG(&png, W_LumpByNum(id), W_LumpLength(id)))
+    I_Error("createPNGPatch: Could not initialize %s", lumpinfo[id].name);
+
+  spng_set_option(png.ctx, SPNG_KEEP_UNKNOWN_CHUNKS, 1);
+  png.color_key = -1;
+
+  result = spng_get_trns(png.ctx, &trns);
+  if (result && result != SPNG_ECHUNKAVAIL)
+  {
+    FreePNG(&png);
+    I_Error("createPNGPatch: spng_get_trns %s", spng_strerror(result));
+  }
+
+  for (x = 0; x < (int)trns.n_type3_entries; ++x)
+    if (trns.type3_alpha[x] < 255)
+    {
+      png.color_key = x;
+      break;
+    }
+
+  if (!DecodePNG(&png) || png.width <= 0 || png.height <= 0 ||
+      png.width > 16384 || png.height > 16384)
+  {
+    FreePNG(&png);
+    I_Error("createPNGPatch: Could not decode %s", lumpinfo[id].name);
+  }
+
+  patch->width = png.width;
+  patch->height = png.height;
+  patch->widthmask = 0;
+  GetPNGOffsets(png.ctx, &patch->leftoffset, &patch->topoffset);
+  patch->flags = 0;
+
+  R_LinearToTransPatch(patch, png.image, png.color_key, png.translate);
+  FillEmptySpace(patch);
+  FreePNG(&png);
+}
+
 //---------------------------------------------------------------------------
 static void createPatch(int id) {
   rpatch_t *patch;
@@ -398,6 +563,12 @@ static void createPatch(int id) {
   if (id >= numlumps)
     I_Error("createPatch: %i >= numlumps", id);
 #endif
+
+  if (R_IsPNGLump(patchNum))
+  {
+    createPNGPatch(id);
+    return;
+  }
 
   if (!R_IsPatchLump(patchNum))
   {
@@ -447,6 +618,10 @@ static void createPatch(int id) {
     }
   }
 
+  // Mark fully transparent patches
+  if (numPostsTotal == 0)
+    patch->flags |= PATCH_ISEMPTY;
+
   postsDataSize = numPostsTotal * sizeof(rpost_t);
 
   // allocate our data chunk
@@ -493,6 +668,10 @@ static void createPatch(int id) {
     patch->columns[x].pixels = patch->pixels + (x*patch->height) + 0;
     patch->columns[x].numPosts = numPostsInColumn[x];
     patch->columns[x].posts = patch->posts + numPostsUsedSoFar;
+
+    // setup vanilla data
+    patch->columns[x].vanilla_pixels = (const byte *)oldColumn + 3;
+    patch->columns[x].patch_count = 1;
 
     while (oldColumn->topdelta != 0xff) {
       int len = oldColumn->length;
@@ -550,6 +729,9 @@ typedef struct {
   unsigned short posts_used;
 } count_t;
 
+// includes Tutti-Frutti / Medusa code
+#include "r_patch_vanilla.inl"
+
 static void switchPosts(rpost_t *post1, rpost_t *post2) {
   rpost_t dummy;
 
@@ -581,6 +763,72 @@ static void removePostFromColumn(rcolumn_t *column, int post) {
   column->numPosts--;
 }
 
+// [AR] Add support for post-less patches.
+// Vanilla Heretic was less strict with sky patches, so you could
+// have very tall patches (420), which were unbroken by posts.
+// This fixes the sky in Anathema (Heretic).
+// https://www.doomworld.com/vb/thread/159116
+
+//---------------------------------------------------------------------------
+static dboolean R_isDirectTallPatch(int patchNum, const patch_t *patch)
+{
+  int x;
+  int width = LittleShort(patch->width);
+  int height = LittleShort(patch->height);
+  int lumpLength = W_LumpLength(patchNum);
+
+  if (height <= 255)
+    return false;
+
+  for (x = 0; x < width; x++)
+  {
+    int ofs = LittleLong(patch->columnofs[x]) + 3;
+
+    if (ofs < 8 + width * 4)
+      return false;
+    if (ofs + height > lumpLength)
+      return false;
+    if (x > 0 && LittleLong(patch->columnofs[x]) -
+                 LittleLong(patch->columnofs[x - 1]) != height)
+      return false;
+  }
+
+  return true;
+}
+
+//---------------------------------------------------------------------------
+dboolean R_IsDirectTallPatchLump(int lumpnum)
+{
+  const patch_t *patch;
+
+  if (lumpnum == LUMP_NOT_FOUND)
+    return false;
+
+  patch = (const patch_t *)W_LumpByNum(lumpnum);
+
+  return R_isDirectTallPatch(lumpnum, patch);
+}
+
+//---------------------------------------------------------------------------
+static int R_DirectTallTextureHeight(texture_t *texture)
+{
+  int i;
+  int height;
+
+  height = texture->height;
+
+  for (i=0; i<texture->patchcount; i++)
+  {
+    texpatch_t *texpatch = &texture->patches[i];
+    const patch_t *patch = (const patch_t*)W_LumpByNum(texpatch->patch);
+
+    if (texpatch->direct)
+      height = MAX(height, LittleShort(patch->height));
+  }
+
+  return height;
+}
+
 //---------------------------------------------------------------------------
 static void createTextureCompositePatch(int id) {
   rpatch_t *composite_patch;
@@ -592,6 +840,7 @@ static void createTextureCompositePatch(int id) {
   int i, x, y;
   int oy, count;
   int pixelDataSize;
+  int pixelDataSizeWithArtifacts;
   int columnsDataSize;
   int postsDataSize;
   int dataSize;
@@ -600,6 +849,8 @@ static void createTextureCompositePatch(int id) {
   int numPostsUsedSoFar;
   int edgeSlope;
   count_t *countsInColumn;
+  vanilla_data_t vanillaData = { 0 };
+  dboolean tutti_frutti = dsda_VanillaTextureEmulation();
 
 #ifdef RANGECHECK
   if (id >= numtextures)
@@ -617,8 +868,15 @@ static void createTextureCompositePatch(int id) {
   composite_patch->topoffset = 0;
   composite_patch->flags = 0;
 
+  if (texture->direct)
+  {
+    composite_patch->height = R_DirectTallTextureHeight(texture);
+    composite_patch->flags |= PATCH_DIRECTTALL;
+  }
+
   // work out how much memory we need to allocate for this patch's data
   pixelDataSize = (composite_patch->width * composite_patch->height + 4) & ~3;
+  pixelDataSizeWithArtifacts = pixelDataSize;
   columnsDataSize = sizeof(rcolumn_t) * composite_patch->width;
 
   // count the number of posts in each column
@@ -640,6 +898,14 @@ static void createTextureCompositePatch(int id) {
 
       countsInColumn[tx].patches++;
 
+      // [AR] Add support for post-less patches.
+      if (texpatch->direct)
+      {
+        countsInColumn[tx].posts++;
+        numPostsTotal++;
+        continue;
+      }
+
       oldColumn = (const column_t *)((const byte *)oldPatch + LittleLong(oldPatch->columnofs[x]));
       while (oldColumn->topdelta != 0xff) {
         countsInColumn[tx].posts++;
@@ -651,15 +917,30 @@ static void createTextureCompositePatch(int id) {
 
   postsDataSize = numPostsTotal * sizeof(rpost_t);
 
+  // Reserve extra texture data for vanilla artifacts / overflows
+  if (tutti_frutti)
+  {
+    R_CalculateVanillaDataSize(texture, composite_patch, countsInColumn, pixelDataSize, &vanillaData);
+    pixelDataSizeWithArtifacts = vanillaData.pixelDataSizeWithArtifacts;
+  }
+
   // allocate our data chunk
-  dataSize = pixelDataSize + columnsDataSize + postsDataSize;
+  dataSize = pixelDataSizeWithArtifacts + columnsDataSize + postsDataSize;
   composite_patch->data = (unsigned char*) Z_Malloc(dataSize);
   memset(composite_patch->data, 0, dataSize);
 
   // set out pixel, column, and post pointers into our data array
   composite_patch->pixels = composite_patch->data;
-  composite_patch->columns = (rcolumn_t*)((unsigned char*)composite_patch->pixels + pixelDataSize);
+  composite_patch->columns = (rcolumn_t*)((unsigned char*)composite_patch->pixels + pixelDataSizeWithArtifacts);
   composite_patch->posts = (rpost_t*)((unsigned char*)composite_patch->columns + columnsDataSize);
+
+  // set up tutti-frutti pointers
+  if (tutti_frutti)
+  {
+    vanillaData.vanilla_composite.pixels = composite_patch->pixels + vanillaData.pixelCount + vanillaData.pixelPadding;
+    vanillaData.vanilla_composite.padding = vanillaData.vanilla_composite.pixels + vanillaData.vanilla_composite.pixelDataSize;
+    vanillaData.tutti_patch.pixels = vanillaData.vanilla_composite.padding + vanillaData.vanilla_composite.pixelPadding;
+  }
 
   // sanity check that we've got all the memory allocated we need
   assert((((byte*)composite_patch->posts + numPostsTotal*sizeof(rpost_t)) - (byte*)composite_patch->data) == dataSize);
@@ -675,8 +956,16 @@ static void createTextureCompositePatch(int id) {
       composite_patch->columns[x].pixels = composite_patch->pixels + (x*composite_patch->height);
       composite_patch->columns[x].numPosts = countsInColumn[x].posts;
       composite_patch->columns[x].posts = composite_patch->posts + numPostsUsedSoFar;
+
+      // setup vanilla data
+      composite_patch->columns[x].vanilla_pixels = NULL;
+      composite_patch->columns[x].patch_count = countsInColumn[x].patches;
+
       numPostsUsedSoFar += countsInColumn[x].posts;
   }
+
+  if (tutti_frutti)
+    R_InitVanillaColumns(composite_patch, texture, countsInColumn, &vanillaData);
 
   // fill in the pixels, posts, and columns
   for (i=0; i<texture->patchcount; i++) {
@@ -693,7 +982,48 @@ static void createTextureCompositePatch(int id) {
       if (tx >= composite_patch->width)
         break;
 
+      // [AR] Add support for post-less patches.
+      if (texpatch->direct)
+      {
+        rpost_t *post = &composite_patch->columns[tx].posts[countsInColumn[tx].posts_used];
+        const byte *source = (const byte *)oldPatch + LittleLong(oldPatch->columnofs[x]) + 3;
+
+        oy = countsInColumn[tx].patches > 1 ? texpatch->originy : 0;
+        count = LittleShort(oldPatch->height);
+
+        // set up the post's data
+        post->topdelta = oy;
+        post->length = count;
+        if ((post->topdelta + post->length) > composite_patch->height) {
+          if (post->topdelta > composite_patch->height)
+            post->length = 0;
+          else
+            post->length = composite_patch->height - post->topdelta;
+        }
+        if (post->topdelta < 0) {
+          if ((post->topdelta + post->length) <= 0)
+            post->length = 0;
+          else
+            post->length -= post->topdelta;
+          post->topdelta = 0;
+        }
+        post->slope = 0;
+
+        // fill in the post's pixels
+        for (y=0; y<post->length; y++) {
+          int ty = post->topdelta + y;
+          StorePixel(composite_patch, tx, ty, source[y]);
+        }
+
+        countsInColumn[tx].posts_used++;
+        assert(countsInColumn[tx].posts_used <= countsInColumn[tx].posts);
+        continue;
+      }
+
       oldColumn = (const column_t *)((const byte *)oldPatch + LittleLong(oldPatch->columnofs[x]));
+
+      if (tutti_frutti)
+        R_AddTuttiFruttiPatchArtifacts(composite_patch, texture, countsInColumn, &vanillaData.tutti_patch, patchNum, oldPatch, oldColumn, tx);
 
       {
         // tiling
@@ -789,6 +1119,9 @@ static void createTextureCompositePatch(int id) {
     }
   }
 
+  if (tutti_frutti)
+    R_AddVanillaCompositeArtifacts(composite_patch, texture, countsInColumn, &vanillaData.vanilla_composite);
+
   for (x=0; x<texture->width; x++) {
     rcolumn_t *column;
 
@@ -823,7 +1156,11 @@ static void createTextureCompositePatch(int id) {
 
   FillEmptySpace(composite_patch);
 
+  if (tutti_frutti)
+    R_FillTuttiFruttiOverflow(composite_patch, &vanillaData);
+
   Z_Free(countsInColumn);
+  composites_need_flush = true;
 }
 
 //---------------------------------------------------------------------------

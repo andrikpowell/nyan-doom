@@ -11,8 +11,9 @@ brew "libxmp"
 brew "libzip"
 brew "mad"
 brew "portmidi"
-brew "sdl2"
-brew "sdl2_image"
+brew "sdl3"
+brew "sdl2-compat"
+brew "libspng"
 brew "sdl2_mixer"
 
 # Packaging tools

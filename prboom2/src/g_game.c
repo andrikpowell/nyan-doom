@@ -52,6 +52,7 @@
 #include "d_net.h"
 #include "f_finale.h"
 #include "i_video.h"
+#include "i_richpresence.h"
 #include "m_file.h"
 #include "m_misc.h"
 #include "m_menu.h"
@@ -79,6 +80,7 @@
 #include "deh/strings.h"              // Ty 3/27/98 deh declarations
 #include "p_inter.h"
 #include "g_game.h"
+#include "weapon_switch.h"
 #include "lprintf.h"
 #include "i_main.h"
 #include "i_system.h"
@@ -217,45 +219,6 @@ fixed_t flyspeed[2]    = {1*256, 3*256};
 
 static int     turnheld;       // for accelerative turning
 
-// Set to -1 or +1 to switch to the previous or next weapon.
-
-static int next_weapon = 0;
-
-// Used for prev/next weapon keys.
-
-static const struct
-{
-  weapontype_t weapon;
-  weapontype_t weapon_num;
-} weapon_order_table[] = {
-  { wp_fist,         wp_fist },
-  { wp_chainsaw,     wp_fist },
-  { wp_pistol,       wp_pistol },
-  { wp_shotgun,      wp_shotgun },
-  { wp_supershotgun, wp_shotgun },
-  { wp_chaingun,     wp_chaingun },
-  { wp_missile,      wp_missile },
-  { wp_plasma,       wp_plasma },
-  { wp_bfg,          wp_bfg }
-};
-
-// HERETIC_TODO: dynamically set these
-// static const struct
-// {
-//     weapontype_t weapon;
-//     weapontype_t weapon_num;
-// } heretic_weapon_order_table[] = {
-//     { wp_staff,       wp_staff },
-//     { wp_gauntlets,   wp_staff },
-//     { wp_goldwand,    wp_goldwand },
-//     { wp_crossbow,    wp_crossbow },
-//     { wp_blaster,     wp_blaster },
-//     { wp_skullrod,    wp_skullrod },
-//     { wp_phoenixrod,  wp_phoenixrod },
-//     { wp_mace,        wp_mace },
-//     { wp_beak,        wp_beak },
-// };
-
 // mouse values are used once
 static int   mousex;
 static int   mousey;
@@ -392,90 +355,6 @@ void G_SetSpeed(dboolean reset)
   }
 }
 
-static dboolean WeaponSelectable(weapontype_t weapon)
-{
-  if (heretic)
-  {
-    if (gamemode == shareware)
-    {
-      if (weapon == wp_skullrod || weapon == wp_phoenixrod || weapon == wp_mace)
-        return false;
-    }
-
-    return weapon != wp_beak && players[consoleplayer].weaponowned[weapon];
-  }
-  else if (hexen)
-  {
-    return weapon < HEXEN_NUMWEAPONS && players[consoleplayer].weaponowned[weapon];
-  }
-
-  if (gamemode == shareware)
-  {
-    if (weapon == wp_plasma || weapon == wp_bfg)
-      return false;
-  }
-
-  // Can't select the super shotgun in Doom 1.
-  if (weapon == wp_supershotgun && gamemission == doom)
-  {
-    return false;
-  }
-
-  // Can't select a weapon if we don't own it.
-  if (!players[consoleplayer].weaponowned[weapon])
-  {
-    return false;
-  }
-
-  // Can't select the fist if we have the chainsaw, unless
-  // we also have the berserk pack.
-  if ((demo_compatibility)
-      && weapon == wp_fist
-      && players[consoleplayer].weaponowned[wp_chainsaw]
-      && !players[consoleplayer].powers[pw_strength])
-  {
-    return false;
-  }
-
-  return true;
-}
-
-static int G_NextWeapon(int direction)
-{
-  weapontype_t weapon;
-  int start_i, i, arrlen;
-
-  // Find index in the table.
-  if (players[consoleplayer].pendingweapon == wp_nochange)
-  {
-    weapon = players[consoleplayer].readyweapon;
-  }
-  else
-  {
-    weapon = players[consoleplayer].pendingweapon;
-  }
-
-  arrlen = sizeof(weapon_order_table) / sizeof(*weapon_order_table);
-  for (i = 0; i < arrlen; i++)
-  {
-    if (weapon_order_table[i].weapon == weapon)
-    {
-      break;
-    }
-  }
-
-  // Switch weapon. Don't loop forever.
-  start_i = i;
-  do
-  {
-    i += direction;
-    i = (i + arrlen) % arrlen;
-  }
-  while (i != start_i && !WeaponSelectable(weapon_order_table[i].weapon));
-
-  return weapon_order_table[i].weapon_num;
-}
-
 static double mouse_sensitivity_horiz;
 static double mouse_sensitivity_vert;
 static double mouse_sensitivity_mlook;
@@ -529,6 +408,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   int side;
   int newweapon;                                          // phares
   dboolean strict_input;
+  dboolean nextweapon_cmd = false;
 
   dsda_pclass_t *player_class = &pclass[players[consoleplayer].pclass];
 
@@ -873,12 +753,22 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   {
     extern dboolean boom_weapon_state_injection;
+    extern dboolean mbf21_weapon_ammo_depleted[MAX_MAXPLAYERS];
     static dboolean done_autoswitch = false;
+    dboolean boom_weapon_switch_no_ammo;
 
     if (!players[consoleplayer].attackdown)
     {
       done_autoswitch = false;
     }
+
+    G_NextWeaponResendCmd();
+    nextweapon_cmd = false;
+
+    // [AR] Fix Boom's "Autoswitch When Ammo Runs Out"
+    // For MBF21 weapons with custom refire states
+    boom_weapon_switch_no_ammo = players[consoleplayer].attackdown ||
+                                 mbf21_weapon_ammo_depleted[consoleplayer];
 
     // Toggle between the top 2 favorite weapons.                   // phares
     // If not currently aiming one of these, switch to              // phares
@@ -895,7 +785,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     if (
       (
         !demo_compatibility &&
-        players[consoleplayer].attackdown && // killough
+        boom_weapon_switch_no_ammo && // killough
         !P_CheckAmmo(&players[consoleplayer]) &&
         (
           (
@@ -918,102 +808,70 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     }
     else
     {                                 // phares 02/26/98: Added gamemode checks
-      if (next_weapon && players[consoleplayer].morphTics == 0)
+      if (G_NextWeaponDeactivate() && players[consoleplayer].morphTics == 0)
       {
-        newweapon = G_NextWeapon(next_weapon);
+        newweapon = G_NextWeaponTranslate(players[consoleplayer].nextweapon);
+        nextweapon_cmd = true;
       }
-      else if (hexen)
+      else // direct weapon keys
       {
-        newweapon =
-          dsda_InputActive(dsda_input_weapon1) ? wp_first :    // killough 5/2/98: reformatted
-          dsda_InputActive(dsda_input_weapon2) ? wp_second :
-          dsda_InputActive(dsda_input_weapon3) ? wp_third :
-          dsda_InputActive(dsda_input_weapon4) ? wp_fourth :
-          wp_nochange;
-      }
-      else if (heretic)
-      {
-        newweapon =
-          dsda_InputTickActivated(dsda_input_weapon1) ? wp_staff :
-          dsda_InputTickActivated(dsda_input_weapon2) ? wp_goldwand :
-          dsda_InputTickActivated(dsda_input_weapon3) ? wp_crossbow :
-          dsda_InputTickActivated(dsda_input_weapon4) ? wp_blaster :
-          dsda_InputTickActivated(dsda_input_weapon5) && gamemode != shareware ? wp_skullrod :
-          dsda_InputTickActivated(dsda_input_weapon6) && gamemode != shareware ? wp_phoenixrod :
-          dsda_InputTickActivated(dsda_input_weapon7) && gamemode != shareware ? wp_mace :
-          dsda_InputTickActivated(dsda_input_weapon8) ? wp_gauntlets :
-          wp_nochange;
-      }
-      else
-      {
-        newweapon =
-          dsda_InputTickActivated(dsda_input_weapon1) ? wp_fist :    // killough 5/2/98: reformatted
-          dsda_InputTickActivated(dsda_input_weapon2) ? wp_pistol :
-          dsda_InputTickActivated(dsda_input_weapon3) ? wp_shotgun :
-          dsda_InputTickActivated(dsda_input_weapon4) ? wp_chaingun :
-          dsda_InputTickActivated(dsda_input_weapon5) ? wp_missile :
-          dsda_InputTickActivated(dsda_input_weapon6) && gamemode != shareware ? wp_plasma :
-          dsda_InputTickActivated(dsda_input_weapon7) && gamemode != shareware ? wp_bfg :
-          dsda_InputTickActivated(dsda_input_weapon8) ? wp_chainsaw :
-          (!demo_compatibility && dsda_InputTickActivated(dsda_input_weapon9) && gamemode == commercial) ? wp_supershotgun :
-          wp_nochange;
-      }
-
-      // killough 3/22/98: For network and demo consistency with the
-      // new weapons preferences, we must do the weapons switches here
-      // instead of in p_user.c. But for old demos we must do it in
-      // p_user.c according to the old rules. Therefore demo_compatibility
-      // determines where the weapons switch is made.
-
-      // killough 2/8/98:
-      // Allow user to switch to fist even if they have chainsaw.
-      // Switch to fist or chainsaw based on preferences.
-      // Switch to shotgun or SSG based on preferences.
-
-      if (!demo_compatibility)
-      {
-        const player_t *player = &players[consoleplayer];
-
-        // only select chainsaw from '1' if it's owned, it's
-        // not already in use, and the player prefers it or
-        // the fist is already in use, or the player does not
-        // have the berserker strength.
-
-        // [AR] Add beserk priority option
-        if (newweapon==wp_fist && player->weaponowned[wp_chainsaw] &&
-            player->readyweapon!=wp_chainsaw)
+        if (hexen)
         {
-          dboolean prefer_berserk = dsda_BerserkPreferred() && player->powers[pw_strength];
-          dboolean prefer_chainsaw = !prefer_berserk && P_WeaponPreferred(wp_chainsaw, wp_fist);
-
-          if (player->readyweapon==wp_fist ||
-              !player->powers[pw_strength] ||
-              prefer_chainsaw)
-            newweapon = wp_chainsaw;
+          newweapon =
+            dsda_InputActive(dsda_input_weapon1) ? wp_first :    // killough 5/2/98: reformatted
+            dsda_InputActive(dsda_input_weapon2) ? wp_second :
+            dsda_InputActive(dsda_input_weapon3) ? wp_third :
+            dsda_InputActive(dsda_input_weapon4) ? wp_fourth :
+            wp_nochange;
+        }
+        else if (heretic)
+        {
+          newweapon =
+            dsda_InputTickActivated(dsda_input_weapon1) ? wp_staff :
+            dsda_InputTickActivated(dsda_input_weapon2) ? wp_goldwand :
+            dsda_InputTickActivated(dsda_input_weapon3) ? wp_crossbow :
+            dsda_InputTickActivated(dsda_input_weapon4) ? wp_blaster :
+            dsda_InputTickActivated(dsda_input_weapon5) && gamemode != shareware ? wp_skullrod :
+            dsda_InputTickActivated(dsda_input_weapon6) && gamemode != shareware ? wp_phoenixrod :
+            dsda_InputTickActivated(dsda_input_weapon7) && gamemode != shareware ? wp_mace :
+            dsda_InputTickActivated(dsda_input_weapon8) ? wp_gauntlets :
+            wp_nochange;
+        }
+        else
+        {
+          newweapon =
+            dsda_InputTickActivated(dsda_input_weapon1) ? wp_fist :    // killough 5/2/98: reformatted
+            dsda_InputTickActivated(dsda_input_weapon2) ? wp_pistol :
+            dsda_InputTickActivated(dsda_input_weapon3) ? wp_shotgun :
+            dsda_InputTickActivated(dsda_input_weapon4) ? wp_chaingun :
+            dsda_InputTickActivated(dsda_input_weapon5) ? wp_missile :
+            dsda_InputTickActivated(dsda_input_weapon6) && gamemode != shareware ? wp_plasma :
+            dsda_InputTickActivated(dsda_input_weapon7) && gamemode != shareware ? wp_bfg :
+            dsda_InputTickActivated(dsda_input_weapon8) ? wp_chainsaw :
+            (!demo_compatibility && dsda_InputTickActivated(dsda_input_weapon9) && gamemode == commercial) ? wp_supershotgun :
+            wp_nochange;
         }
 
-        // Select SSG from '3' only if it's owned and the player
-        // does not have a shotgun, or if the shotgun is already
-        // in use, or if the SSG is not already in use and the
-        // player prefers it.
+        // killough 3/22/98: For network and demo consistency with the
+        // new weapons preferences, we must do the weapons switches here
+        // instead of in p_user.c. But for old demos we must do it in
+        // p_user.c according to the old rules. Therefore demo_compatibility
+        // determines where the weapons switch is made.
 
-        if (newweapon == wp_shotgun && gamemode == commercial &&
-            player->weaponowned[wp_supershotgun] &&
-            (!player->weaponowned[wp_shotgun] ||
-             player->readyweapon == wp_shotgun ||
-             (player->readyweapon != wp_supershotgun &&
-              P_WeaponPreferred(wp_supershotgun, wp_shotgun))))
-          newweapon = wp_supershotgun;
+        if (!demo_compatibility)
+          newweapon = G_AdjustWeaponSelection(&players[consoleplayer], newweapon, players[consoleplayer].readyweapon);
       }
     }
-  }
 
-  next_weapon = 0;
+    mbf21_weapon_ammo_depleted[consoleplayer] = false;
+  }
 
   if (newweapon != wp_nochange && players[consoleplayer].chickenTics == 0)
   {
     cmd->buttons |= BT_CHANGE;
     cmd->buttons |= newweapon<<BT_WEAPONSHIFT;
+    if (!nextweapon_cmd)
+      G_NextWeaponReset(newweapon);
   }
 
   // mouse
@@ -1194,12 +1052,12 @@ static void G_SetInitialInventory(player_t *p)
 
   if (hexen)
   {
-    p->readyweapon = p->pendingweapon = wp_first;
+    p->readyweapon = p->pendingweapon = p->nextweapon = wp_first;
     p->weaponowned[wp_first] = true;
   }
   else
   {
-    p->readyweapon = p->pendingweapon = g_wp_pistol;
+    p->readyweapon = p->pendingweapon = p->nextweapon = g_wp_pistol;
     p->weaponowned[g_wp_fist] = true;
     p->weaponowned[g_wp_pistol] = true;
     if (heretic)
@@ -1229,6 +1087,25 @@ static void G_ResetInventory(player_t *p)
 
   // readyweapon, pendingweapon, maxammo handled here
   G_SetInitialInventory(p);
+}
+
+void G_UpdateDiscordPresence(void)
+{
+  dsda_string_t title;
+  dsda_string_t discord_title;
+
+  dsda_MapTitleforDiscord(&title);
+  dsda_InitString(&discord_title, NULL);
+
+  if (reelplayback) // Internal Demos
+    dsda_StringCat(&discord_title, "Playing");
+  else if (demorecording)
+    dsda_StringCat(&discord_title, "Recording demo");
+  else if (userplayback)
+    dsda_StringCat(&discord_title, "Watching demo");
+  I_UpdateDiscordPresence(discord_title.string ? discord_title.string : title.string, doomverstr);
+  dsda_FreeString(&discord_title);
+  dsda_FreeString(&title);
 }
 
 //
@@ -1297,7 +1174,7 @@ static void G_DoLoadLevel (void)
 
   // automatic pistol start when advancing from one level to the next
   if (pistolstart && !skill_loadout)
-    if (allow_incompatibility)
+    if (casual_play)
       G_PlayerReborn(0);
 
   // Custom Skill - Reset Pistol Start from Loadout
@@ -1314,6 +1191,7 @@ static void G_DoLoadLevel (void)
     SN_StopAllSequences();
 
   P_SetupLevel (gameepisode, gamemap, 0, gameskill);
+  G_UpdateDiscordPresence();
   if (!demoplayback) // Don't switch views if playing a demo
     displayplayer = consoleplayer;    // view the guy you are playing
 
@@ -1447,16 +1325,7 @@ dboolean G_Responder (event_t* ev)
   if (dsda_BuildResponder(ev))
     return true;
 
-  // If the next/previous weapon keys are pressed, set the next_weapon
-  // variable to change weapons when the next ticcmd is generated.
-  if (dsda_InputActivated(dsda_input_prevweapon))
-  {
-    next_weapon = -1;
-  }
-  else if (dsda_InputActivated(dsda_input_nextweapon))
-  {
-    next_weapon = 1;
-  }
+  G_NextWeaponUpdate();
 
   if (dsda_InputActivated(dsda_input_invleft))
   {
@@ -1471,6 +1340,15 @@ dboolean G_Responder (event_t* ev)
   {
     special_event = BT_SPECIAL | (BT_PAUSE & BT_SPECIALMASK);
     return true;
+  }
+
+  if (dsda_InputActivated(dsda_input_zoom))
+  {
+    if (gamestate == GS_LEVEL && casual_play)
+    {
+      R_ToggleZoom();
+      return true;
+    }
   }
 
   // Events that make it here should reach into the game logic
@@ -1978,6 +1856,8 @@ void G_PlayerReborn (int player)
 
   p->usedown = p->attackdown = true;  // don't do anything immediately
   p->playerstate = PST_LIVE;
+
+  st_face_reset = true;
 
   G_SetInitialHealth(p);
   G_SetInitialInventory(p);
@@ -3234,6 +3114,7 @@ void G_InitNew(int skill, int episode, int map, dboolean prepare)
   dsda_ResetCommandHistory();
   automap_full = false;
   dsda_UpdateGameSkill(skill);
+  dsda_UpdateVanillaTextureEmulation();
   dsda_UpdateGameMap(episode, map);
 
   totalleveltimes = 0; // cph

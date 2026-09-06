@@ -49,6 +49,11 @@ static int fl_init (int samplerate)
   return 0;
 }
 
+int fl_reload_soundfont(void)
+{
+  return 0;
+}
+
 const music_player_t fl_player =
 {
   fl_name,
@@ -69,8 +74,9 @@ const music_player_t fl_player =
 #include <fluidsynth.h>
 #include <stdlib.h>
 #include <string.h>
-#include "i_system.h" // for I_FindFile()
+#include "i_sound.h"
 #include "lprintf.h"
+#include "m_file.h"
 #include "midifile.h"
 #include "memio.h"
 #include "w_wad.h"
@@ -91,6 +97,8 @@ const music_player_t fl_player =
 static fluid_settings_t *f_set;
 static fluid_synth_t *f_syn;
 static int f_font;
+static int f_soundfont_lump = LUMP_NOT_FOUND;
+static dboolean f_sfloader_added;
 static midi_event_t **events;
 static int eventpos;
 static midi_file_t *midifile;
@@ -108,6 +116,12 @@ static const char *fl_name (void)
   return "fluidsynth midi player";
 }
 
+typedef struct
+{
+  MEMFILE *mem;   // WAD lump "SNDFONT"
+  FILE *file;     // real .sf2 file
+} fl_sfhandle_t;
+
 #ifdef _MSC_VER
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
@@ -118,19 +132,47 @@ static const char *fl_name (void)
 
 static void *fl_sfopen(const char *lumpname)
 {
-  MEMFILE *instream;
-  int lumpnum = W_GetNumForName(lumpname);
-  int len = W_LumpLength(lumpnum);
-  const void *data = W_LumpByNum(lumpnum);
+  fl_sfhandle_t *handle = malloc(sizeof(*handle));
 
-  instream = mem_fopen_read(data, len);
+  if (!handle)
+    return NULL;
 
-  return instream;
+  handle->mem = NULL;
+  handle->file = NULL;
+
+  if (!strcasecmp(lumpname, "SNDFONT"))
+  {
+    int lumpnum = f_soundfont_lump != LUMP_NOT_FOUND ?
+                  f_soundfont_lump : W_GetNumForName(lumpname);
+    int len = W_LumpLength(lumpnum);
+    const void *data = W_LumpByNum(lumpnum);
+
+    handle->mem = mem_fopen_read(data, len);
+  }
+  else
+  {
+    handle->file = M_OpenFile(lumpname, "rb");
+  }
+
+  if (!handle->mem && !handle->file)
+  {
+    free(handle);
+    return NULL;
+  }
+
+  return handle;
 }
 
 static int fl_sfread(void *buf, fl_sfread_count_t count, void *handle)
 {
-  if (mem_fread(buf, sizeof(byte), count, (MEMFILE *)handle) == count)
+  fl_sfhandle_t *sfhandle = (fl_sfhandle_t *)handle;
+
+  if (sfhandle->mem)
+  {
+    if (mem_fread(buf, sizeof(byte), count, sfhandle->mem) == count)
+      return FLUID_OK;
+  }
+  else if (fread(buf, sizeof(byte), count, sfhandle->file) == count)
   {
     return FLUID_OK;
   }
@@ -139,7 +181,14 @@ static int fl_sfread(void *buf, fl_sfread_count_t count, void *handle)
 
 static int fl_sfseek(void *handle, fl_sfseek_offset_t offset, int origin)
 {
-  if (mem_fseek((MEMFILE *)handle, (long)offset, origin) < 0)
+  fl_sfhandle_t *sfhandle = (fl_sfhandle_t *)handle;
+
+  if (sfhandle->mem)
+  {
+    if (mem_fseek(sfhandle->mem, (long)offset, origin) < 0)
+      return FLUID_FAILED;
+  }
+  else if (fseek(sfhandle->file, (long)offset, origin) < 0)
   {
     return FLUID_FAILED;
   }
@@ -148,17 +197,44 @@ static int fl_sfseek(void *handle, fl_sfseek_offset_t offset, int origin)
 
 static int fl_sfclose(void *handle)
 {
-  mem_fclose((MEMFILE *)handle);
+  fl_sfhandle_t *sfhandle = (fl_sfhandle_t *)handle;
+
+  if (sfhandle->mem)
+    mem_fclose(sfhandle->mem);
+  else
+    fclose(sfhandle->file);
+
+  free(sfhandle);
+
   return FLUID_OK;
 }
 
 static fl_sftell_t fl_sftell(void *handle)
 {
-  return mem_ftell((MEMFILE *)handle);
+  fl_sfhandle_t *sfhandle = (fl_sfhandle_t *)handle;
+
+  if (sfhandle->mem)
+    return mem_ftell(sfhandle->mem);
+
+  return ftell(sfhandle->file);
 }
 
 static void fl_null_logger(int level, const char *message, void *data) {
   // no op
+}
+
+static void fl_add_sfloader(void)
+{
+  if (!f_sfloader_added)
+  {
+    fluid_sfloader_t *sfloader;
+
+    sfloader = new_fluid_defsfloader(f_set);
+    fluid_sfloader_set_callbacks(sfloader, fl_sfopen, fl_sfread, fl_sfseek,
+                                 fl_sftell, fl_sfclose);
+    fluid_synth_add_sfloader(f_syn, sfloader);
+    f_sfloader_added = true;
+  }
 }
 
 static int fl_init (int samplerate)
@@ -262,8 +338,11 @@ static int fl_init (int samplerate)
   {
     lprintf (LO_WARN, "fl_init: error creating fluidsynth object\n");
     delete_fluid_settings (f_set);
+    f_set = NULL;
     return 0;
   }
+
+  fl_add_sfloader();
 
   {
     int lumpnum;
@@ -283,21 +362,21 @@ static int fl_init (int samplerate)
 
     if (!replaced_soundfont && snd_soundfont && snd_soundfont[0])
     {
-      checked_file = true;
-      checked_f_font = snd_soundfont;
-      filename = I_FindFile2(snd_soundfont, ".sf2");
-      f_font = fluid_synth_sfload (f_syn, filename, 1);
+      filename = I_GetSoundfontFile(snd_soundfont);
+
+      if (filename)
+      {
+        checked_file = true;
+        checked_f_font = snd_soundfont;
+        f_font = fluid_synth_sfload (f_syn, filename, 1);
+      }
     }
 
     if ((!checked_file || f_font == FLUID_FAILED) && lumpnum >= 0)
     {
-      fluid_sfloader_t *sfloader;
-
       checked_f_font = "SNDFONT";
-      sfloader = new_fluid_defsfloader(f_set);
-      fluid_sfloader_set_callbacks(sfloader, fl_sfopen, fl_sfread, fl_sfseek,
-                                   fl_sftell, fl_sfclose);
-      fluid_synth_add_sfloader(f_syn, sfloader);
+      fl_add_sfloader();
+      f_soundfont_lump = lumpnum;
       f_font = fluid_synth_sfload(f_syn, "SNDFONT", 1);
     }
 
@@ -328,6 +407,8 @@ static void fl_shutdown (void)
     delete_fluid_synth (f_syn);
     f_syn = NULL;
     f_font = 0;
+    f_soundfont_lump = LUMP_NOT_FOUND;
+    f_sfloader_added = false;
   }
 
   if (f_set)
@@ -335,6 +416,52 @@ static void fl_shutdown (void)
     delete_fluid_settings (f_set);
     f_set = NULL;
   }
+}
+
+int fl_reload_soundfont(void)
+{
+  int old_font = f_font;
+  int new_font;
+  const char *filename;
+  const char *snd_soundfont;
+  int lumpnum;
+
+  if (!f_syn)
+    return 0;
+
+  snd_soundfont = dsda_StringConfig(dsda_config_snd_soundfont);
+  filename = I_GetSoundfontFile(snd_soundfont);
+
+  if (filename)
+  {
+    new_font = fluid_synth_sfload(f_syn, filename, 1);
+  }
+  else
+  {
+    lumpnum = W_CheckNumForName("SNDFONT");
+    if (lumpnum == LUMP_NOT_FOUND)
+      return 0;
+
+    fl_add_sfloader();
+    f_soundfont_lump = lumpnum;
+    new_font = fluid_synth_sfload(f_syn, "SNDFONT", 1);
+  }
+
+  if (new_font == FLUID_FAILED)
+    return 0;
+
+  for (int channel = 0; channel < 16; channel++)
+  {
+    fluid_synth_all_notes_off(f_syn, channel);
+    fluid_synth_all_sounds_off(f_syn, channel);
+  }
+
+  if (old_font != FLUID_FAILED && old_font != new_font)
+    fluid_synth_sfunload(f_syn, old_font, 0);
+
+  f_font = new_font;
+
+  return 1;
 }
 
 

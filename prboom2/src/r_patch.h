@@ -47,6 +47,8 @@ typedef enum {
   PATCH_ISNOTTILEABLE   = 0x00000001,
   PATCH_REPEAT          = 0x00000002,
   PATCH_HASHOLES        = 0x00000004,
+  PATCH_DIRECTTALL      = 0x00000008,
+  PATCH_ISEMPTY         = 0x00000010,
 } rpatch_flag_t;
 
 typedef struct {
@@ -59,7 +61,19 @@ typedef struct {
   int numPosts;
   rpost_t *posts;
   unsigned char *pixels;
+
+  // Vanilla texture artifacts
+  unsigned short patch_count;
+  const unsigned char *vanilla_pixels;
 } rcolumn_t;
+
+typedef enum
+{
+  EMULATE_TEXTURE_OFF,
+  EMULATE_TEXTURE_VANILLA,
+  EMULATE_TEXTURE_LIMIT,
+  EMULATE_TEXTURE_ALL,
+} emulate_vanilla_texture_t;
 
 typedef struct {
   int width;
@@ -88,6 +102,7 @@ const rpatch_t *R_PatchByNum(int id);
 const rpatch_t *R_TextureCompositePatchByNum(int id);
 
 dboolean R_IsPatchLump(int lumpnum);
+dboolean R_IsDirectTallPatchLump(int lumpnum);
 
 // Size query funcs
 int R_NumPatchWidth(int lump) ;
@@ -108,6 +123,10 @@ const rcolumn_t *R_GetPatchColumn(const rpatch_t *patch, int columnIndex);
 void R_InitPatches();
 void R_UpdatePlayPal();
 void R_FlushAllPatches();
+void R_FlushAllCompositeTextures(void);
+
+// Medusa (r_segs.c)
+dboolean R_SetMedusaColumn(const rpatch_t *patch, const rcolumn_t **column, const rcolumn_t **prevcolumn, const rcolumn_t **nextcolumn);
 
 extern int playpal_darkest;
 extern int playpal_lightest;

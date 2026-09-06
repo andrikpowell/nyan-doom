@@ -85,7 +85,8 @@ typedef struct drawsegs_xrange_s
   int count;
 } drawsegs_xrange_t;
 
-#define DS_RANGES_COUNT 3
+#define DS_RANGE_LEVELS 6
+#define DS_RANGES_COUNT ((1 << DS_RANGE_LEVELS) - 1)
 static drawsegs_xrange_t drawsegs_xranges[DS_RANGES_COUNT];
 
 static drawseg_xrange_item_t *drawsegs_xrange;
@@ -378,7 +379,8 @@ static void R_InitSpriteDefs(const char * const * namelist)
 //
 
 static vissprite_t *vissprites, **vissprite_ptrs;  // killough
-static int num_vissprite, num_vissprite_alloc, num_vissprite_ptrs;
+static int num_vissprite, num_vissprite_total, num_vissprite_alloc, num_vissprite_ptrs;
+static vissprite_t overflow_vissprite;
 
 //
 // R_InitSprites
@@ -401,6 +403,7 @@ void R_InitSprites(const char * const *namelist)
 void R_ClearSprites (void)
 {
   num_vissprite = 0;            // killough
+  num_vissprite_total = 0;
 }
 
 //
@@ -409,6 +412,11 @@ void R_ClearSprites (void)
 
 static vissprite_t *R_NewVisSprite(void)
 {
+  ++num_vissprite_total;
+
+  if (dsda_VanillaSpriteLimit() && num_vissprite >= 128)
+    return &overflow_vissprite;
+
   if (num_vissprite >= num_vissprite_alloc)             // killough
     {
       size_t num_vissprite_alloc_prev = num_vissprite_alloc;
@@ -449,16 +457,28 @@ void R_DrawMaskedColumn(
   int64_t     topscreen; // R_WiggleFix
   int64_t     bottomscreen; // R_WiggleFix
   fixed_t basetexturemid = dcvars->texturemid;
+  dboolean tutti_frutti = false;
 
   colheight = 0;
 
   dcvars->texheight = patch->height; // killough 11/98
+
+  // Draw the full Medusa post without wrapping at the texture height
+  if (dcvars->flags & DRAW_COLUMN_MEDUSA)
+    dcvars->texheight = column->posts[0].length;
+
+  if ((dcvars->flags & DRAW_COLUMN_WALLTEXTURE) && dsda_VanillaTextureEmulation())
+    tutti_frutti = true;
+
   for (i=0; i<column->numPosts; i++) {
       const rpost_t *post = &column->posts[i];
 
       // calculate unclipped screen coordinates for post
-      topscreen = sprtopscreen + spryscale*post->topdelta;
-      bottomscreen = topscreen + spryscale*post->length;
+      topscreen = sprtopscreen + (int64_t)spryscale*post->topdelta;
+      bottomscreen = topscreen + (int64_t)spryscale*post->length;
+
+      // get full height of playersprite
+      dcvars->pspritepostheight = dcvars->isplayersprite ? post->length : 0;
 
       dcvars->yl = (int)((topscreen+FRACUNIT-1)>>FRACBITS);
       dcvars->yh = (int)((bottomscreen-1)>>FRACBITS);
@@ -475,9 +495,19 @@ void R_DrawMaskedColumn(
       // killough 3/2/98, 3/27/98: Failsafe against overflow/crash:
       if (dcvars->yl >= 0 && dcvars->yl <= dcvars->yh && dcvars->yh < viewheight)
         {
-          dcvars->source = column->pixels + post->topdelta;
-          dcvars->prevsource = prevcolumn->pixels + post->topdelta;
-          dcvars->nextsource = nextcolumn->pixels + post->topdelta;
+
+          if (tutti_frutti)
+          {
+            dcvars->source     = (column->vanilla_pixels     ? column->vanilla_pixels     : column->pixels)     + post->topdelta;
+            dcvars->prevsource = (prevcolumn->vanilla_pixels ? prevcolumn->vanilla_pixels : prevcolumn->pixels) + post->topdelta;
+            dcvars->nextsource = (nextcolumn->vanilla_pixels ? nextcolumn->vanilla_pixels : nextcolumn->pixels) + post->topdelta;
+          }
+          else
+          {
+            dcvars->source     = column->pixels + post->topdelta;
+            dcvars->prevsource = prevcolumn->pixels + post->topdelta;
+            dcvars->nextsource = nextcolumn->pixels + post->topdelta;
+          }
 
           dcvars->texturemid = basetexturemid - (post->topdelta<<FRACBITS);
 
@@ -485,28 +515,6 @@ void R_DrawMaskedColumn(
           // Drawn by either R_DrawColumn
           //  or (SHADOW) R_DrawFuzzColumn.
           dcvars->drawingmasked = 1; // POPE
-          // [AR] Fix SSG fire bleeding bottom line
-          // Player sprites can round one row past the current post.
-          if (dcvars->isplayersprite)
-          {
-            fixed_t post_end    = post->length << FRACBITS;
-            fixed_t frac_start  = dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale;
-            fixed_t frac_end    = dcvars->texturemid + (dcvars->yh - centery) * dcvars->iscale;
-
-            // Trim extra top rows of player sprite.
-            while (dcvars->yl <= dcvars->yh && frac_start < 0)
-            {
-              dcvars->yl++;
-              frac_start += dcvars->iscale;
-            }
-
-            // Trim extra bottom rows of player sprite.
-            while (dcvars->yl <= dcvars->yh && frac_end >= post_end)
-            {
-              dcvars->yh--;
-              frac_end -= dcvars->iscale;
-            }
-          }
           colfunc (dcvars);
           dcvars->drawingmasked = 0; // POPE
 
@@ -521,12 +529,12 @@ static void R_SetSpritelights(int lightlevel)
   int lightnum;
 
   // Enhanced Light Amp - Allow dark areas to be seen
-  if (NYAN_LITEAMP && (lightlevel <= 64))
+  if (nyan_liteamp && (lightlevel <= 64))
     lightlevel = 64;
 
   lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
 
-  if (NYAN_LITEAMP)
+  if (nyan_liteamp)
     lightnum += NYAN_LITESCALE;
 
   spritelights = scalelight[CLAMP(lightnum, 0, LIGHTLEVELS - 1)];
@@ -687,7 +695,7 @@ int r_near_clip_plane = MINZ;
 void R_SetClipPlanes(void)
 {
   // thing is behind view plane?
-  if ((V_IsOpenGLMode()) && (HaveMouseLook() || (gl_render_fov > FOV90) && (simple_shadows.loaded)))
+  if ((V_IsOpenGLMode()) && (HaveMouseLook() || (render_fov > FOV90) && (simple_shadows.loaded)))
   {
     r_near_clip_plane = -(FRACUNIT * MAX(64, simple_shadows.max_radius));
   }
@@ -820,7 +828,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     // [crispy] randomly flip corpse, blood and death animation sprites
     if (dsda_AllowMirroredCorpses() &&
       (thing->flags_extra & MFX_MIRROREDCORPSE) &&
-      !(thing->flags & MF_SHOOTABLE) &&
+      !(thing->flags & (MF_SHOOTABLE | MF_SPECIAL)) &&
       (thing->intflags & MIF_FLIP))
     {
       flip = !flip;
@@ -964,7 +972,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   // get light level
   if (thing->flags & g_mf_shadow_fuzz)
       vis->colormap = NULL;             // shadow draw
-  else if (fixedcolormap && !NYAN_LITEAMP)
+  else if (fixedcolormap && !nyan_liteamp)
     vis->colormap = fixedcolormap;      // fixed map
   else if (LevelUseFullBright && thing->frame & FF_FULLBRIGHT)
     vis->colormap = fullcolormap;     // full bright  // killough 3/20/98
@@ -1039,7 +1047,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
     }
   }
 
-  if (dsda_DrawNearbySprites())
+  if (dsda_DrawNearbySprites() && !dsda_VanillaSpriteLimit())
   {
     if (V_IsOpenGLMode())
       return;
@@ -1129,12 +1137,87 @@ static void R_ApplyWeaponBob (fixed_t *sx, dboolean bobx, fixed_t *sy, dboolean 
 	}
 }
 
+// [AR] Moved weapon bobbing logic out of main drawing function
+static void R_SetupWeaponBob(pspdef_t *psp, fixed_t *psp_sx, fixed_t *psp_sy)
+{
+    int weapon_attack_alignment = dsda_IntConfig(dsda_config_weapon_attack_alignment);
+
+    // [crispy] don't align swiping weapons
+    const dboolean swiping_weapon = hexen && (viewplayer->pclass == PCLASS_FIGHTER ||
+                                             (viewplayer->pclass == PCLASS_CLERIC &&
+                                             viewplayer->readyweapon == wp_first));
+
+    // [crispy] don't center vertically during lowering and raising states
+    const dboolean raise_or_lower = (viewplayer->switching != weapswitch_none);
+
+    // [AR] Instead of checking weaponready directly, check if player is idle instead.
+    const dboolean weapon_ready_state = !raise_or_lower && !viewplayer->attackdown;
+
+    // Player must be alive - fixes lingering flash states
+    const dboolean is_alive       = (viewplayer->playerstate == PST_LIVE);
+
+    // Continuous bobbing
+    const dboolean forced_bobbing = (weapon_attack_alignment == CENTERWEAPON_BOB);
+
+    // Misc Offsets
+    const dboolean x_offset       = (psp->state->misc1);
+    const dboolean y_offset       = (hexen ? psp->state->misc2 :
+                                     x_offset && psp->state->misc2);
+
+    // If no weapon bobbing (and not hexen swiping weapon)
+    if (!dsda_WeaponBob() && !(swiping_weapon && viewplayer->attackdown))
+    {
+      static fixed_t last_sy = 32 * FRACUNIT;
+
+      *psp_sx = FRACUNIT;
+
+      if (!raise_or_lower)
+      {
+        last_sy = psp->sy;
+        *psp_sy = 32 * FRACUNIT;
+      }
+      else if (viewplayer->switching == weapswitch_lowering)
+      {
+        // We want to move smoothly from where we were
+        *psp_sy -= (last_sy - 32 * FRACUNIT);
+      }
+    }
+    else if (weapon_attack_alignment && viewplayer->attackdown)
+    {
+      // [crispy] center the weapon sprite horizontally and vertically
+      if (!x_offset)
+        R_ApplyWeaponBob(psp_sx, forced_bobbing, NULL, false);
+
+      // y_offset "centering" or "push up"
+      if (weapon_attack_alignment >= CENTERWEAPON_HORVER &&
+          !raise_or_lower && !swiping_weapon && is_alive)
+      {
+        if (forced_bobbing)
+          R_ApplyWeaponBob(NULL, false, psp_sy, true);
+
+        // bob for centered horiz/vertical, unless y-offset
+        else if (!y_offset)
+          R_ApplyWeaponBob(NULL, false, psp_sy, false);
+      }
+    }
+    else if (weapon_ready_state && movement_smooth)
+    {
+      // Interpolate bobbing for animated weapons (Chainsaw)
+      R_ApplyWeaponBob(psp_sx, true, psp_sy, true);
+    }
+    else if (weapon_ready_state && dsda_WeaponBob() < 4)
+    {
+      // Always apply Weaponbob when using bobbing increments
+      R_ApplyWeaponBob(psp_sx, true, psp_sy, true);
+    }
+}
+
 //
 // R_DrawPSprite
 //
 
-// heretic
-static int PSpriteSY[NUMCLASSES][NUMWEAPONS] = {
+// heretic + hexen
+static int Full_Raven_PSpriteSY[NUMCLASSES][NUMWEAPONS] = {
   {
     0,                          // staff
     5 * FRACUNIT,               // goldwand
@@ -1151,6 +1234,55 @@ static int PSpriteSY[NUMCLASSES][NUMWEAPONS] = {
   {9 * FRACUNIT, 20 * FRACUNIT, 20 * FRACUNIT, 20 * FRACUNIT}, // Mage
   {10 * FRACUNIT, 10 * FRACUNIT, 10 * FRACUNIT, 10 * FRACUNIT} // Pig
 };
+
+static fixed_t R_WeaponZoomOffset(void)
+{
+  float offset = render_fov_current - render_fov;
+
+  return offset < 0.0f ? (fixed_t)(offset * FRACUNIT / 2.0f) : 0;
+}
+
+static float R_UpperWeaponOffset(pspdef_t *psp)
+{
+  dboolean state_offset;
+  float pitch_upper_offset;
+
+  state_offset = hexen ? psp->state->misc2 :
+                         psp->state->misc1;
+
+  pitch_upper_offset = R_StatusBarVisible() &&
+                       !state_offset ? 12.0f : 0.0f;
+
+  // Account for heretic / hexen weapon alignments
+  if (raven && pitch_upper_offset > 0.0f)
+  {
+    pitch_upper_offset -= (float)Full_Raven_PSpriteSY[viewplayer->pclass][players[consoleplayer].readyweapon] / FRACUNIT;
+
+    if (pitch_upper_offset < 0.0f)
+      pitch_upper_offset = 0.0f;
+  }
+
+  return pitch_upper_offset;
+}
+
+static fixed_t R_WeaponPitchOffset(pspdef_t *psp)
+{
+  const float max_offset = 12.0f;
+  float offset;
+  float upper_offset;
+
+  if (!dsda_IntConfig(nyan_config_weapon_freelook_tilt))
+    return 0;
+
+  offset = (R_StatusBarVisible() ? 0.0f : -4.0f) +
+    (float)(int)viewpitch / (float)ANG1 / 30.0f * max_offset;
+  upper_offset = R_UpperWeaponOffset(psp);
+
+  if (offset < -max_offset) offset = -max_offset;
+  if (offset > upper_offset) offset = upper_offset;
+
+  return (fixed_t)(offset * FRACUNIT);
+}
 
 static void R_DrawPSprite (pspdef_t *psp)
 {
@@ -1187,74 +1319,8 @@ static void R_DrawPSprite (pspdef_t *psp)
   lump = sprframe->lump[0];
   flip = (dboolean) sprframe->flip[0];
 
-  {
-    int weapon_attack_alignment = dsda_IntConfig(dsda_config_weapon_attack_alignment);
-
-    // [crispy] don't align swiping weapons
-    const dboolean swiping_weapon = hexen && (viewplayer->pclass == PCLASS_FIGHTER ||
-                                             (viewplayer->pclass == PCLASS_CLERIC &&
-                                             viewplayer->readyweapon == wp_first));
-
-    // [crispy] don't center vertically during lowering and raising states
-    const dboolean raise_or_lower = (psp->state->action == A_Lower || psp->state->action == A_Raise);
-
-    // Player must be alive - fixes lingering flash states
-    const dboolean is_alive       = (viewplayer->playerstate == PST_LIVE);
-
-    // Continuous bobbing
-    const dboolean forced_bobbing = (weapon_attack_alignment == CENTERWEAPON_BOB);
-
-    // Misc Offsets
-    const dboolean x_offset       = (psp->state->misc1);
-    const dboolean y_offset       = (hexen ? psp->state->misc2 :
-                                     x_offset && psp->state->misc2);
-
-
-    if (!dsda_WeaponBob() && !(swiping_weapon && viewplayer->attackdown))
-    {
-      static fixed_t last_sy = 32 * FRACUNIT;
-
-      psp_sx = FRACUNIT;
-
-      if (!raise_or_lower)
-      {
-        last_sy = psp->sy;
-        psp_sy = 32 * FRACUNIT;
-      }
-      else if (psp->state->action == A_Lower)
-      {
-        // We want to move smoothly from where we were
-        psp_sy -= (last_sy - 32 * FRACUNIT);
-      }
-    }
-    else if (weapon_attack_alignment && viewplayer->attackdown)
-    { // [crispy] center the weapon sprite horizontally and vertically
-      if (!x_offset)
-        R_ApplyWeaponBob(&psp_sx, forced_bobbing, NULL, false);
-
-      // y_offset "centering" or "push up"
-      if (weapon_attack_alignment >= CENTERWEAPON_HORVER &&
-          !raise_or_lower && !swiping_weapon && is_alive)
-      {
-        if (forced_bobbing)
-          R_ApplyWeaponBob(NULL, false, &psp_sy, true);
-
-        // bob for centered horiz/vertical, unless y-offset
-        else if (!y_offset)
-          R_ApplyWeaponBob(NULL, false, &psp_sy, false);
-      }
-    }
-    else if (psp->state->action == A_WeaponReady && psp->state->tics > 1 && movement_smooth)
-    {
-      // Interpolate bobbing for animated weapons (Chainsaw)
-      R_ApplyWeaponBob(&psp_sx, true, &psp_sy, true);
-    }
-    else if (psp->state->action == A_WeaponReady && dsda_WeaponBob() < 4)
-    {
-      // Always apply Weaponbob when using bobbing increments
-      R_ApplyWeaponBob(&psp_sx, true, &psp_sy, true);
-    }
-  }
+  // [AR] Set up weapon bobbing
+  R_SetupWeaponBob(psp, &psp_sx, &psp_sy);
 
   {
     const rpatch_t* patch = R_PatchByNum(lump+firstspritelump);
@@ -1275,11 +1341,6 @@ static void R_DrawPSprite (pspdef_t *psp)
     topoffset = patch->topoffset<<FRACBITS;
   }
 
-  // off the side
-  // [AR] this is fine for software, but opengl needs unclipped x1 (gx1) for drawing quad
-  if (x2 < 0 || x1 > viewwidth)
-    return;
-
   // store information in a vissprite
   vis = &avis;
   vis->mobjflags = MF_PLAYERSPRITE;
@@ -1292,14 +1353,20 @@ static void R_DrawPSprite (pspdef_t *psp)
 
   if (R_FullView() && raven)
   {
-    vis->texturemid -= PSpriteSY[viewplayer->pclass][players[consoleplayer].readyweapon];
+    vis->texturemid -= Full_Raven_PSpriteSY[viewplayer->pclass][players[consoleplayer].readyweapon];
   }
+
+  // [AR] Lower weapon based on zoom
+  vis->texturemid += R_WeaponZoomOffset();
+
+  // [AR] Move weapon based on view pitch
+  vis->texturemid += R_WeaponPitchOffset(psp);
 
   // Move the weapon down for 1280x1024.
   vis->texturemid -= psprite_offset;
 
-  vis->x1 = x1 < 0 ? 0 : x1;
-  vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
+  vis->x1 = x1;
+  vis->x2 = x2;
 
   // [AR] opengl weapon alignment
   vis->gx1 = gx1;
@@ -1318,9 +1385,6 @@ static void R_DrawPSprite (pspdef_t *psp)
       vis->xiscale = pspriteiscale;
       vis->startfrac = 0;
     }
-
-  if (vis->x1 > x1)
-    vis->startfrac += vis->xiscale*(vis->x1-x1);
 
   vis->patch = lump;
 
@@ -1420,6 +1484,22 @@ static void R_DrawPSprite (pspdef_t *psp)
 
   if (dsda_CameraMode())
     return;
+
+  // [AR] Clip bounds after interpolation
+
+  // off the side
+  // [AR] this is fine for software, but opengl needs unclipped x1 (gx1) for drawing quad
+  if (vis->x2 < 0 || vis->x1 >= viewwidth)
+    return;
+
+  if (vis->x1 < 0)
+  {
+    vis->startfrac -= vis->xiscale * vis->x1;
+    vis->x1 = 0;
+  }
+
+  if (vis->x2 >= viewwidth)
+    vis->x2 = viewwidth - 1;
 
   // proff 11/99: don't use software stuff in OpenGL
   if (V_IsSoftwareMode())
@@ -1563,7 +1643,22 @@ void R_SortVisSprites (void)
 // R_DrawSprite
 //
 
-static void R_DrawSprite (vissprite_t* spr)
+// [R&R] Skip masked-seg setup when no columns remain to draw
+// Avoids unnecessary texture, lighting, and scale setup
+// This improved midtex performance on "Eye Juice" map10
+static void R_RenderMaskedSegRangeIfNeeded(drawseg_t *ds, int x1, int x2)
+{
+  int x;
+
+  for (x = x1; x <= x2; x++)
+    if (ds->maskedtexturecol[x] != INT_MAX)
+      break;
+
+  if (x <= x2)
+    R_RenderMaskedSegRange(ds, x1, x2);
+}
+
+static void R_DrawSprite (vissprite_t* spr, int clip_level)
 {
   drawseg_t *ds;
   int     x;
@@ -1587,13 +1682,16 @@ static void R_DrawSprite (vissprite_t* spr)
   // e6y: optimization
   if (drawsegs_xrange_size)
   {
-    const drawseg_xrange_item_t *last = &drawsegs_xrange[drawsegs_xrange_count - 1];
-    drawseg_xrange_item_t *curr = &drawsegs_xrange[-1];
-    while (++curr <= last)
+    const drawseg_xrange_item_t *curr = drawsegs_xrange;
+    const drawseg_xrange_item_t *last = curr + drawsegs_xrange_count;
+    while (curr < last)
     {
       // determine if the drawseg obscures the sprite
       if (curr->x1 > spr->x2 || curr->x2 < spr->x1)
+      {
+        curr++;
         continue;      // does not cover sprite
+      }
 
       ds = curr->user;
 
@@ -1615,8 +1713,9 @@ static void R_DrawSprite (vissprite_t* spr)
         {
           r1 = ds->x1 < spr->x1 ? spr->x1 : ds->x1;
           r2 = ds->x2 > spr->x2 ? spr->x2 : ds->x2;
-          R_RenderMaskedSegRange(ds, r1, r2);
+          R_RenderMaskedSegRangeIfNeeded(ds, r1, r2);
         }
+        curr++;
         continue;               // seg is behind sprite
       }
 
@@ -1635,6 +1734,8 @@ static void R_DrawSprite (vissprite_t* spr)
         for (x=r1 ; x<=r2 ; x++)
           if (cliptop[x] == -2)
             cliptop[x] = ds->sprtopclip[x];
+
+      curr++;
     }
   }
 
@@ -1701,11 +1802,22 @@ static void R_DrawSprite (vissprite_t* spr)
 // R_DrawMasked
 //
 
+static int R_DrawSegRangeRegion(int x, int regions)
+{
+  int region = x * regions / viewwidth;
+
+  if (region < 0)
+    return 0;
+  if (region >= regions)
+    return regions - 1;
+
+  return region;
+}
+
 void R_DrawMasked(void)
 {
   int i;
   drawseg_t *ds;
-  int cx = SCREENWIDTH / 2;
 
   R_SortVisSprites();
 
@@ -1732,54 +1844,62 @@ void R_DrawMasked(void)
     {
       if (ds->silhouette || ds->maskedtexturecol)
       {
-        drawsegs_xranges[0].items[drawsegs_xranges[0].count].x1 = ds->x1;
-        drawsegs_xranges[0].items[drawsegs_xranges[0].count].x2 = ds->x2;
-        drawsegs_xranges[0].items[drawsegs_xranges[0].count].user = ds;
+        // [AR] Replace the old two-half xrange split with up to 32 screen regions.
+        // This improved sprite performance on D2ICO.wad MAP23.
 
-        // e6y: ~13% of speed improvement on sunder.wad map10
-        if (ds->x1 < cx)
-        {
-          drawsegs_xranges[1].items[drawsegs_xranges[1].count] =
-            drawsegs_xranges[0].items[drawsegs_xranges[0].count];
-          drawsegs_xranges[1].count++;
-        }
-        if (ds->x2 >= cx)
-        {
-          drawsegs_xranges[2].items[drawsegs_xranges[2].count] =
-            drawsegs_xranges[0].items[drawsegs_xranges[0].count];
-          drawsegs_xranges[2].count++;
-        }
+        drawseg_xrange_item_t item;
+        int level;
 
-        drawsegs_xranges[0].count++;
+        item.x1 = ds->x1;
+        item.x2 = ds->x2;
+        item.user = ds;
+
+        for (level = 0; level < DS_RANGE_LEVELS; level++)
+        {
+          const int regions = 1 << level;
+          const int offset = regions - 1;
+          const int first = R_DrawSegRangeRegion(ds->x1, regions);
+          const int last = R_DrawSegRangeRegion(ds->x2, regions);
+          int region;
+
+          for (region = first; region <= last; region++)
+          {
+            drawsegs_xranges[offset + region].items[
+              drawsegs_xranges[offset + region].count++] = item;
+          }
+        }
       }
     }
   }
 
   // draw all vissprites back to front
 
-  dsda_RecordVisSprites(num_vissprite);
+  dsda_RecordVisSprites(num_vissprite_total);
 
   for (i = num_vissprite ;--i>=0; )
   {
     vissprite_t* spr = vissprite_ptrs[i];
+    int level;
+    int range = 0;
 
-    if (spr->x2 < cx)
+    // Use the smallest screen region containing the sprite
+    for (level = DS_RANGE_LEVELS - 1; level > 0; level--)
     {
-      drawsegs_xrange = drawsegs_xranges[1].items;
-      drawsegs_xrange_count = drawsegs_xranges[1].count;
-    }
-    else if (spr->x1 >= cx)
-    {
-      drawsegs_xrange = drawsegs_xranges[2].items;
-      drawsegs_xrange_count = drawsegs_xranges[2].count;
-    }
-    else
-    {
-      drawsegs_xrange = drawsegs_xranges[0].items;
-      drawsegs_xrange_count = drawsegs_xranges[0].count;
+      const int regions = 1 << level;
+      const int first = R_DrawSegRangeRegion(spr->x1, regions);
+      const int last = R_DrawSegRangeRegion(spr->x2, regions);
+
+      if (first == last)
+      {
+        range = regions - 1 + first;
+        break;
+      }
     }
 
-    R_DrawSprite(vissprite_ptrs[i]);
+    drawsegs_xrange = drawsegs_xranges[range].items;
+    drawsegs_xrange_count = drawsegs_xranges[range].count;
+
+    R_DrawSprite(spr, level);
   }
 
   // render any remaining masked mid textures

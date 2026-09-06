@@ -100,6 +100,7 @@ int wide_centerx;
 
 fixed_t  focallength;
 fixed_t  focallengthy;
+fixed_t  lightfocallength;
 fixed_t  globaluclip, globaldclip;
 fixed_t  centerxfrac, centeryfrac;
 fixed_t  yaspectmul;
@@ -113,12 +114,16 @@ angle_t  viewangle;
 fixed_t  viewcos, viewsin;
 fixed_t  viewtancos, viewtansin;
 player_t *viewplayer;
+dboolean nyan_liteamp;
 // e6y: Added for more precise flats drawing
 fixed_t viewfocratio;
 
 int r_nearclip = 5;
 
 int FieldOfView;
+static dboolean fov_zoom_active;
+float render_fov_current = 90.0f;
+
 int viewport[4];
 float modelMatrix[16];
 float projMatrix[16];
@@ -371,7 +376,7 @@ static void R_InitTextureMapping (void)
 {
   int i,x,angle;
   double linearskyfactor;
-  FieldOfView = FIELDOFVIEW;
+  FieldOfView = (int)(render_fov_current * FINEANGLES / 360.0f);
 
   // For widescreen displays, increase the FOV so that the middle part of the
   // screen that would be visible on a 4:3 display has the requested FOV.
@@ -391,6 +396,9 @@ static void R_InitTextureMapping (void)
 
   focallength = FixedDiv(centerxfrac, finetangent[FINEANGLES/4 + FieldOfView/2]);
   focallengthy = Scale(centerxfrac, yaspectmul, finetangent[FINEANGLES/4 + FieldOfView/2]);
+  lightfocallength = focallength;
+  projection = focallength;
+  projectiony = focallengthy;
 
   for (i=0 ; i<FINEANGLES/2 ; i++)
     {
@@ -796,8 +804,6 @@ void R_ExecuteSetViewSize (void)
   pspritexscale_f = (float)wide_centerx / 160.0f;
   pspriteyscale_f = (((float)cheight * viewwidth) / (float)SCREENWIDTH) / 200.0f;
 
-  skyiscale = (fixed_t)(((uint64_t)FRACUNIT * SCREENWIDTH * 200) / (viewwidth * SCREENHEIGHT));
-
 	// [RH] Sky height fix for screens not 200 (or 240) pixels tall
 	R_InitSkyMap();
 
@@ -966,6 +972,80 @@ void R_SetupFreelook(void)
 }
 
 //
+// Zoom toggle
+//
+
+void R_ToggleZoom(void)
+{
+  fov_zoom_active = !fov_zoom_active;
+}
+
+static void R_ProcessFOV(void)
+{
+  static int oldtic = -1;
+  static float old_fov = 90.0f;
+  static float current_fov = 90.0f;
+  static float old_base_fov = -1.0f;
+
+  float base_fov = (float)render_fov;
+  float target_fov = base_fov;
+  float rendered_fov;
+
+  if (gamestate != GS_LEVEL || players[displayplayer].playerstate != PST_LIVE)
+    fov_zoom_active = false;
+
+  if (fov_zoom_active)
+    target_fov = (float)dsda_IntConfig(dsda_config_zoom_fov);
+
+  if (base_fov != old_base_fov)
+  {
+    old_fov = current_fov = target_fov;
+    old_base_fov = base_fov;
+    oldtic = gametic;
+  }
+
+  if (oldtic != gametic)
+  {
+    float step;
+
+    old_fov = current_fov;
+    step = (target_fov - current_fov) / 3.0f;
+
+    if (fabs(step) < 0.1f && target_fov != current_fov)
+      step = target_fov > current_fov ? 0.1f : -0.1f;
+
+    if (step > 16.0f) step = 16.0f;
+    if (step < -16.0f) step = -16.0f;
+
+    current_fov += step;
+
+    if ((step > 0.0f && current_fov > target_fov) || (step < 0.0f && current_fov < target_fov))
+      current_fov = target_fov;
+
+    oldtic = gametic;
+  }
+
+  rendered_fov = old_fov + (current_fov - old_fov) * (float)tic_vars.frac / FRACUNIT;
+
+  if (V_IsOpenGLMode())
+  {
+    if (rendered_fov != gl_render_fov_current)
+      gld_ChangeRenderFOV(rendered_fov);
+
+    render_fov_current = rendered_fov;
+  }
+  else if ((int)(rendered_fov * FINEANGLES / 360.0f) != (int)(render_fov_current * FINEANGLES / 360.0f))
+  {
+    render_fov_current = rendered_fov;
+    R_InitTextureMapping();
+    R_SetupFreelook();
+    R_UpdateSkyScale();
+  }
+  else
+    render_fov_current = rendered_fov;
+}
+
+//
 // R_SetupMatrix
 //
 
@@ -1077,6 +1157,13 @@ static void R_SetupFrame (player_t *player)
   else
     fixedcolormap = 0;
 
+  nyan_liteamp =
+    dsda_IntConfig(dsda_config_enhanced_liteamp) &&
+    !raven &&
+    fixedcolormap &&
+    player->powers[pw_infrared] &&
+    !player->powers[pw_invulnerability];
+
   R_SetClipPlanes();
 
   if (V_IsOpenGLMode() || HU_CrosshairEnabled())
@@ -1154,6 +1241,8 @@ void R_RenderPlayerView (player_t* player)
 {
   r_frame_count++;
 
+  R_ProcessFOV();
+
   DSDA_ADD_CONTEXT(sf_setup_frame);
   R_SetupFrame (player);
   DSDA_REMOVE_CONTEXT(sf_setup_frame);
@@ -1192,16 +1281,11 @@ void R_RenderPlayerView (player_t* player)
     DSDA_REMOVE_CONTEXT(sf_draw_planes);
   }
 
-  DSDA_ADD_CONTEXT(sf_reset_column_buffer);
-  R_ResetColumnBuffer();
-  DSDA_REMOVE_CONTEXT(sf_reset_column_buffer);
-
   FakeNetUpdate();
 
   if (V_IsSoftwareMode()) {
     DSDA_ADD_CONTEXT(sf_draw_masked);
     R_DrawMasked ();
-    R_ResetColumnBuffer();
     DSDA_REMOVE_CONTEXT(sf_draw_masked);
   }
 

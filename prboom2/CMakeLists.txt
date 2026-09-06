@@ -5,7 +5,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # Setup dependencies options before `project()` so vcpkg features can be used
 include(NyanDepsSetup)
 
-project("nyan-doom" VERSION 1.4.3)
+project("nyan-doom" VERSION 1.5.5)
 
 set(nyan_is_top_project FALSE)
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
@@ -27,9 +27,17 @@ endif()
 
 set(PROJECT_TARNAME "nyan-doom")
 set(WAD_DATA "nyan-doom.wad")
-set(PROJECT_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
+
+set(PROJECT_STRING "${PROJECT_NAME} v${PROJECT_VERSION}")
+set(PROJECT_DEMO_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
 
 include(NyanOptions)
+
+if(NYAN_NIGHTLY)
+  string(APPEND PROJECT_STRING " (nightly)")
+  string(APPEND PROJECT_DEMO_STRING " (nightly)")
+endif()
+
 include(NyanTargetFeatures)
 include(NyanDependencies)
 include(NyanConfigHeader)

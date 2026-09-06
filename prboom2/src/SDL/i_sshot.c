@@ -37,12 +37,10 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "SDL.h"
-
-#ifdef HAVE_LIBSDL2_IMAGE
-#include <SDL_image.h>
-#endif
+#include "spng.h"
 
 #include "doomstat.h"
 #include "doomdef.h"
@@ -51,6 +49,7 @@
 #include "i_video.h"
 #include "z_zone.h"
 #include "lprintf.h"
+#include "m_file.h"
 
 #include "dsda/gl/render_scale.h"
 
@@ -67,28 +66,56 @@ void I_UpdateRenderSize(void)
 // I_ScreenShot // Modified to work with SDL2 resizeable window and fullscreen desktop - DTIED
 //
 
+// [FG] save screenshots in PNG format
+static int I_WritePNGFile(const char *filename, const byte *pixels)
+{
+  FILE *file;
+  spng_ctx *ctx;
+  struct spng_ihdr ihdr = {0};
+  size_t image_size = (size_t)renderW * renderH * 3;
+  int result;
+
+  file = M_OpenFile(filename, "wb");
+  if (!file)
+    return -1;
+
+  ctx = spng_ctx_new(SPNG_CTX_ENCODER);
+  spng_set_png_file(ctx, file);
+  spng_set_option(ctx, SPNG_IMG_COMPRESSION_LEVEL, 1);
+
+  ihdr.width = renderW;
+  ihdr.height = renderH;
+  ihdr.color_type = SPNG_COLOR_TYPE_TRUECOLOR;
+  ihdr.bit_depth = 8;
+  spng_set_ihdr(ctx, &ihdr);
+
+  result = spng_encode_image(ctx, pixels, image_size, SPNG_FMT_PNG,
+                             SPNG_ENCODE_FINALIZE);
+
+  if (result)
+  {
+      lprintf(LO_ERROR, "I_WritePNGfile: spng_encode_image failed: %s\n",
+              spng_strerror(result));
+  }
+  else
+  {
+      lprintf(LO_DEBUG, "I_WritePNGfile: %s", filename);
+  }
+
+  fclose(file);
+  spng_ctx_free(ctx);
+
+  return result;
+}
+
 int I_ScreenShot(const char *fname)
 {
-  int result = -1;
-  unsigned char *pixels = I_GrabScreen();
-  SDL_Surface *screenshot = NULL;
+  const byte *pixels = I_GrabScreen();
 
-  if (pixels)
-  {
-    screenshot = SDL_CreateRGBSurfaceFrom(pixels, renderW, renderH, 24,
-      renderW * 3, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
-  }
+  if (!pixels)
+    return -1;
 
-  if (screenshot)
-  {
-#ifdef HAVE_LIBSDL2_IMAGE
-    result = IMG_SavePNG(screenshot, fname);
-#else
-    result = SDL_SaveBMP(screenshot, fname);
-#endif
-    SDL_FreeSurface(screenshot);
-  }
-  return result;
+  return I_WritePNGFile(fname, pixels);
 }
 
 // NSM
@@ -120,8 +147,18 @@ unsigned char *I_GrabScreen(void)
 
   if (pixels && size)
   {
-    SDL_Rect screen = { 0, 0, renderW, renderH };
-    SDL_RenderReadPixels(sdl_renderer, &screen, SDL_PIXELFORMAT_RGB24, pixels, renderW * 3);
+    int dest_x, dest_y;
+    SDL_Rect screen = viewport_rect;
+
+    // software can include borderbox areas outside the game viewport
+    // keep those borderbox pixels black, but read the viewport pixels
+    memset(pixels, 0, size);
+
+    // to avoid screenshot drawing from the top left, center it (pad with borderboxes)
+    dest_x = screen.x * 3;
+    dest_y = screen.y * renderW * 3;
+
+    SDL_RenderReadPixels(sdl_renderer, &screen, SDL_PIXELFORMAT_RGB24, pixels + dest_x + dest_y, renderW * 3);
   }
 
   return pixels;

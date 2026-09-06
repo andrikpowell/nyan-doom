@@ -183,6 +183,7 @@ typedef struct sector_s
   short ceilingpic;
   short lightlevel;
   short special;
+  short spawn_special;
   short tag;
 
   // [kb] For R_FixWiggle
@@ -611,6 +612,13 @@ typedef struct polyobj_s
   fixed_t size;               // polyobj size (area of POLY_AREAUNIT == size of FRACUNIT)
   void *specialdata;          // pointer a thinker, if the poly is moving
   subsector_t *subsector;
+
+  // Interpolation
+  vertex_t *INTERP_OldPts;
+  angle_t *INTERP_OldAngles;
+  vertex_t *INTERP_BakPts;
+  angle_t *INTERP_BakAngles;
+  int INTERP_Polyobj;
 } polyobj_t;
 
 typedef struct polyblock_s

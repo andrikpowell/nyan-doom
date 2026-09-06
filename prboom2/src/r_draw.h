@@ -44,6 +44,7 @@ enum column_pipeline_e {
   RDC_PIPELINE_ALT_TL,     // reverse translucency
   RDC_PIPELINE_ALT_TRTL,   // translated + reverse translucency
   RDC_PIPELINE_DOUBLESKY,
+  RDC_PIPELINE_SKY_COLOR_CAP,
   RDC_PIPELINE_FUZZ,
   RDC_PIPELINE_FUZZ_SCALED,
   RDC_PIPELINE_MAXPIPELINES,
@@ -58,7 +59,9 @@ enum draw_filter_type_e {
 
 typedef enum
 {
-  DRAW_COLUMN_ISPATCH = 0x00000001
+  DRAW_COLUMN_ISPATCH              = 0x00000001,
+  DRAW_COLUMN_WALLTEXTURE          = 0x00000002,
+  DRAW_COLUMN_MEDUSA               = 0x00000004
 } draw_column_flags_e;
 
 typedef struct draw_column_vars_s* pdraw_column_vars_s;
@@ -87,12 +90,15 @@ typedef struct draw_column_vars_s
 
   // [AR] mark weapon sprite
   dboolean            isplayersprite;
+  int                 pspritepostheight;
 
   // heretic
   int baseclip;
 
-  // hexen double sky
-  const byte *source2;
+  // Sky
+  const byte *source2;      // hexen double sky
+  byte skycolor;            // [Woof] color above sky textures
+  const byte *sky_tranmap;  // [Woof] color above sky textures
 } draw_column_vars_t;
 
 void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars);
@@ -118,6 +124,7 @@ typedef struct {
   fixed_t cosine;
   fixed_t planeheight;
   const lighttable_t **planezlight;
+  const lighttable_t *minzlight; // the darkest a colormap can get
 } draw_span_vars_t;
 
 typedef struct {
@@ -149,11 +156,7 @@ void R_FillBackColor (void);
 // If the view size is not full screen, draws a border around it.
 void R_DrawViewBorder(void);
 
-// haleyjd 09/13/04: new function to call from main rendering loop
-// which gets rid of the unnecessary reset of various variables during
-// column drawing.
-void R_ResetColumnBuffer(void);
-
+// Save and restore fuzz offsets when rendering multiple frames per tic.
 void R_SetFuzzPos(int fuzzpos);
 void R_SetFuzzPosScaled(int fuzzpos);
 int R_GetFuzzPos();

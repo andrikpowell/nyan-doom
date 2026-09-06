@@ -26,15 +26,13 @@ find_package(SndFile 1.0.29 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(libzip REQUIRED)
 
-if(SndFile_VERSION VERSION_GREATER_EQUAL "1.1.0")
-   set(HAVE_SNDFILE_MPEG TRUE)
+# ZLIB 1.3.2 static now requires explicit ZLIBSTATIC
+if(NOT TARGET ZLIB::ZLIB AND TARGET ZLIB::ZLIBSTATIC)
+  add_library(ZLIB::ZLIB ALIAS ZLIB::ZLIBSTATIC)
 endif()
 
-if(WITH_IMAGE)
-  find_package(SDL2_image ${nyan_strict_keyword})
-  if(SDL2_image_FOUND)
-    set(HAVE_LIBSDL2_IMAGE TRUE)
-  endif()
+if(SndFile_VERSION VERSION_GREATER_EQUAL "1.1.0")
+   set(HAVE_SNDFILE_MPEG TRUE)
 endif()
 
 if(WITH_MAD)
@@ -70,6 +68,18 @@ if(WITH_PORTMIDI)
   if(PortMidi_FOUND)
     set(HAVE_LIBPORTMIDI TRUE)
   endif()
+endif()
+
+if(WITH_SPNG)
+  find_package(SPNG ${nyan_strict_keyword})
+  if(SPNG_FOUND)
+    set(HAVE_LIBSPNG TRUE)
+  endif()
+endif()
+
+if(WITH_DISCORD_RPC)
+  include(NyanDiscordRPC)
+  set(HAVE_DISCORD_RPC TRUE)
 endif()
 
 # Before SDL 2.24.x, all SDL2::* targets were created in autotools builds, even if the underlying library wasn't built.
@@ -127,8 +137,9 @@ target_link_libraries(nyan_dependencies
   $<$<BOOL:${HAVE_LIBFLUIDSYNTH}>:FluidSynth::libfluidsynth>
   $<$<BOOL:${HAVE_LIBVORBISFILE}>:Vorbis::vorbisfile>
   $<$<BOOL:${HAVE_LIBPORTMIDI}>:PortMidi::portmidi>
+  $<$<BOOL:${HAVE_LIBSPNG}>:$<IF:$<TARGET_EXISTS:spng::spng>,spng::spng,spng::spng_static>>
+  $<$<BOOL:${HAVE_DISCORD_RPC}>:DiscordRPC::discord-rpc>
 
-  $<$<BOOL:${HAVE_LIBSDL2_IMAGE}>:$<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>>
   $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
 
   nyan::SDL2

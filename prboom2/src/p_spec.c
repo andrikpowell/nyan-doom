@@ -76,6 +76,7 @@
 #include "dsda/messenger.h"
 #include "dsda/scroll.h"
 #include "dsda/skill_info.h"
+#include "dsda/text_color.h"
 #include "dsda/thing_id.h"
 #include "dsda/utility.h"
 
@@ -1593,6 +1594,52 @@ int P_CheckTag(line_t *line)
   return 0;       // zero tag not allowed
 }
 
+dboolean P_IsManualDoor(line_t* line)
+{
+  if (!line->backsector)
+    return false;
+
+  if (map_format.hexen)
+  {
+    if (line->special_args[0])
+      return false;
+
+    switch (line->special)
+    {
+      case zl_door_open:
+      case zl_door_raise:
+      case zl_door_locked_raise:
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  if (line->tag)
+    return false;
+
+  switch (line->special)
+  {
+    case 1:
+    case 26:
+    case 27:
+    case 28:
+    case 31:
+    case 32:
+    case 33:
+    case 34:
+      return true;
+
+    case 117:
+    case 118:
+      return !heretic;
+
+    default:
+      return false;
+  }
+}
+
 static const damage_t no_damage = { 0 };
 
 static void P_TransferSectorFlags(unsigned int *dest, unsigned int source)
@@ -1676,7 +1723,7 @@ static const char* dsda_GetSecretMessage(void)
     is_percent = (secret_format == 2);
 
     if (is_default)
-      return "A secret is revealed!";
+      return s_HUSTR_SECRETFOUND;
 
     for (int i = 0; i < g_maxplayers; ++i) {
       if (playeringame[i]) {
@@ -1689,9 +1736,29 @@ static const char* dsda_GetSecretMessage(void)
     else if (is_percent)
       sprintf(secret_message, "%d%% secrets revealed!", !totalsecret ? 100 : secretcount * 100 / totalsecret);
     else // fallback
-      sprintf(secret_message, "A secret is revealed!");
+      sprintf(secret_message, "%s", s_HUSTR_SECRETFOUND);
 
     return secret_message;
+}
+
+int P_GetMilestoneSound(int config_id)
+{
+  dboolean config = dsda_IntConfig(config_id);
+
+  if (config == 0)
+    return 0;
+
+  if (raven)
+    return g_sfx_secret;
+
+  if (config == 1)
+  {
+    dboolean sound_exist = !(I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0);
+
+    return sound_exist ? g_sfx_secret : g_sfx_secret_subtle;
+  }
+
+  return g_sfx_secret_subtle;
 }
 
 #define SECRET_MESSAGE_TICS ((int)(2.5*TICRATE))
@@ -1700,13 +1767,16 @@ void P_PlayerAnnounceSecret(player_t *player, const char* message)
 {
   if (dsda_IntConfig(dsda_config_hudadd_secretarea)!=0)
   {
-    int sfx_id = raven ? g_sfx_secret : I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+    int sfx_id = P_GetMilestoneSound(dsda_config_secret_sfx);
     int cur_player = (int)(player - players);
 
     if(dsda_IntConfig(dsda_config_hudadd_secretarea)==2)
     {
-      dsda_AddAlert(message);
+      dsda_string_t secret_message;
+      dsda_StringPrintF(&secret_message, "%s%s", dsda_TextColor(dsda_tc_hud_secret_message), message);
+      dsda_AddAlert(secret_message.string);
       S_StartVoidSound(sfx_id);
+      dsda_FreeString(&secret_message);
     }
     else
     {
@@ -1717,9 +1787,9 @@ void P_PlayerAnnounceSecret(player_t *player, const char* message)
 
 #define MILESTONE_TICS ((int)(2.5*TICRATE))
 
-void P_PlayerAnnounceMilestone(player_t *player, const char* message)
+void P_PlayerAnnounceMilestone(player_t *player, const char* message, int config_id)
 {
-  int sfx_id = raven ? g_sfx_secret : I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0 ? sfx_itmbk : g_sfx_secret;
+  int sfx_id = P_GetMilestoneSound(config_id);
   int cur_player = (int)(player - players);
 
   SetCustomMessage(cur_player, message, MILESTONE_TICS, sfx_id);
@@ -1745,7 +1815,7 @@ dboolean P_AnnounceSecretMilestone(void)
 
       if (dsda_IntConfig(dsda_config_secrets_milestone))
       {
-        P_PlayerAnnounceMilestone(&players[displayplayer], "All secrets revealed!");
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All secrets revealed!", dsda_config_secrets_milestone_sfx);
         return true;
       }
     }
@@ -1774,7 +1844,7 @@ dboolean P_AnnounceItemMilestone(void)
 
       if (dsda_IntConfig(dsda_config_items_milestone))
       {
-        P_PlayerAnnounceMilestone(&players[displayplayer], "All items collected!");
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All items collected!", dsda_config_items_milestone_sfx);
         return true;
       }
     }
@@ -1812,7 +1882,7 @@ dboolean P_AnnounceKillMilestone(void)
 
       if (dsda_IntConfig(dsda_config_kills_milestone))
       {
-        P_PlayerAnnounceMilestone(&players[displayplayer], "All enemies killed!");
+        P_PlayerAnnounceMilestone(&players[displayplayer], "All enemies killed!", dsda_config_kills_milestone_sfx);
         return true;
       }
     }
@@ -4121,8 +4191,12 @@ static void P_InitSectorSpecials(void)
 
   sector = sectors;
   for (i = 0; i < numsectors; i++, sector++)
+  {
+    sector->spawn_special = sector->special;
+
     if (sector->special)
       map_format.init_sector_special(sector, i);
+  }
 }
 
 static void P_InitButtons(void)

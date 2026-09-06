@@ -69,6 +69,8 @@ cmake -Sprboom2 -Bbuild -DCMAKE_TOOLCHAIN_FILE="C:\vcpkg\scripts\buildsystems\vc
 
 During this step, vcpkg will build all the dependencies. If vcpkg does not get invoked or CMake fails at finding the dependencies, delete the build directory and make sure the path to the `vcpkg.cmake` toolchain is correct.
 
+Discord Rich Presence is enabled by default. The vcpkg manifest installs `discord-rpc` automatically. To build without Rich Presence, add `-DWITH_DISCORD_RPC=OFF` to the CMake configuration.
+
 And finally, build the project:
 
 ```
@@ -123,8 +125,12 @@ pacman -S mingw-w64-ucrt-x86_64-gcc cmake git ninja pkgconf
 Additionally, you will need the following external libraries:
 
 ```
-pacman -S mingw-w64-ucrt-x86_64-libxmp mingw-w64-ucrt-x86_64-fluidsynth mingw-w64-ucrt-x86_64-libmad mingw-w64-ucrt-x86_64-libvorbis mingw-w64-ucrt-x86_64-libzip mingw-w64-ucrt-x86_64-portmidi mingw-w64-ucrt-x86_64-SDL2 mingw-w64-ucrt-x86_64-SDL2_image mingw-w64-ucrt-x86_64-SDL2_mixer mingw-w64-ucrt-x86_64-libsndfile
+pacman -S mingw-w64-ucrt-x86_64-libxmp mingw-w64-ucrt-x86_64-fluidsynth mingw-w64-ucrt-x86_64-libmad mingw-w64-ucrt-x86_64-libvorbis mingw-w64-ucrt-x86_64-libzip mingw-w64-ucrt-x86_64-portmidi mingw-w64-ucrt-x86_64-SDL2 mingw-w64-ucrt-x86_64-SDL2_mixer mingw-w64-ucrt-x86_64-libspng mingw-w64-ucrt-x86_64-libsndfile mingw-w64-ucrt-x86_64-zlib
 ```
+
+## Installing Discord Rich Presence (Optional)
+
+Discord Rich Presence is enabled by default. Since MSYS2 does not provide the required legacy `discord-rpc` library, CMake downloads and builds a pinned copy during configuration. To skip the download and build without Rich Presence, add `-DWITH_DISCORD_RPC=OFF` to the CMake configuration.
 
 ### Building
 
@@ -189,7 +195,7 @@ This is not related to build issues, Nyan-Doom is only a Doom port. You will nee
 
 When using MSVC, this most likely means vcpkg was not used. If you are using Visual Studio, make sure you ran `vcpkg integrate install`. If you are building from a terminal or Visual Studio, make sure you used vcpkg's CMake toolchain. In either case, you want to delete the cache (CMakeCache.txt) and re-run the configure step.
 
-When using MSYS2, this most likely means you did not install the correct dependencies. Make sure you are using the same environment everywhere, if you install the `mingw-w64-clang-x86_64-` packages, you cannot use them from the UCRT64 profile, etc. Also make sure you installed the correct version of dependencies. SDL, SDL_image, and SDL_mixer have both version 2 and 1.2 available, currently we require version 2.
+When using MSYS2, this most likely means you did not install the correct dependencies. Make sure you are using the same environment everywhere, if you install the `mingw-w64-clang-x86_64-` packages, you cannot use them from the UCRT64 profile, etc. Also make sure you installed the correct version of dependencies. SDL and SDL_mixer have both version 2 and 1.2 available, currently we require version 2. Libspng is required for PNG support.
 
 ### vcpkg: The term 'vcpkg' is not recognized as a name of a cmdlet, function, script file, or executable program.
 

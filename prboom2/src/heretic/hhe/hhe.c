@@ -34,15 +34,7 @@
 #include "lprintf.h"
 
 // Error block
-static void hhe_procError(DEHFILE *fpin, char *line)
-{
-  char inbuffer[DEH_BUFFERMAX];
-
-  strncpy(inbuffer, line, DEH_BUFFERMAX - 1);
-  deh_log("Unmatched Block: '%s'\n", inbuffer);
-}
-
-const deh_block hhe_block_error = { "", hhe_procError };
+const deh_block hhe_block_error = { "", deh_procError };
 
 // Grab info from all hhe blocks
 extern const deh_block hhe_block_thing;

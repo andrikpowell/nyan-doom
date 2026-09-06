@@ -199,10 +199,6 @@ void dsda_InitSkills(void) {
   int original_skills;
   dboolean clear_skills;
 
-  // Check for / parse new skill lumps
-  dsda_LoadSkillLump();
-  dsda_CheckCustomSkill();
-
   clear_skills = (doom_mapinfo.num_skills && doom_mapinfo.skills_cleared);
   original_skills = !doom_v11 ? 5 : 4;
 
@@ -354,6 +350,8 @@ void dsda_UpdateCustomSkill(int custom_skill_num) {
 // "Always Pistol Start" is the only persistent cfg (saved in cfg file)
 //
 
+static void dsda_ResetGameModifiers(void);
+
 void dsda_InitGameModifiers(void)
 {
   if (dsda_Flag(dsda_arg_pistol_start) || dsda_IntConfig(dsda_config_always_pistol_start))
@@ -366,17 +364,21 @@ void dsda_InitGameModifiers(void)
       dsda_UpdateIntConfig(dsda_config_no_monsters, true, true);
   if (dsda_Flag(dsda_arg_coop_spawns))
       dsda_UpdateIntConfig(dsda_config_coop_spawns, true, true);
+
+  // Pistol-start config can reset other modifier configs
+  // Explicitly refresh everything for configs to match args
+  dsda_ResetGameModifiers();
 }
 
 // During demo recording/playback only use args, else use cfgs
 static void dsda_ResetGameModifiers(void)
 {
-  pistolstart   = (allow_incompatibility ? dsda_IntConfig(dsda_config_pistol_start)      : false);   // pistolstart not allowed in demos
-  limitremoving = (allow_incompatibility ? dsda_IntConfig(dsda_config_limit_removing)    : dsda_Flag(dsda_arg_limitremoving));
-  respawnparm   = (allow_incompatibility ? dsda_IntConfig(dsda_config_respawn_monsters)  : dsda_Flag(dsda_arg_respawn));
-  fastparm      = (allow_incompatibility ? dsda_IntConfig(dsda_config_fast_monsters)     : dsda_Flag(dsda_arg_fast));
-  nomonsters    = (allow_incompatibility ? dsda_IntConfig(dsda_config_no_monsters)       : dsda_Flag(dsda_arg_nomonsters));
-  coop_spawns   = (allow_incompatibility ? dsda_IntConfig(dsda_config_coop_spawns)       : dsda_Flag(dsda_arg_coop_spawns));
+  pistolstart   = (casual_play ? dsda_IntConfig(dsda_config_pistol_start)      : false);   // pistolstart not allowed in demos
+  limitremoving = (casual_play ? dsda_IntConfig(dsda_config_limit_removing)    : dsda_Flag(dsda_arg_limitremoving));
+  respawnparm   = (casual_play ? dsda_IntConfig(dsda_config_respawn_monsters)  : dsda_Flag(dsda_arg_respawn));
+  fastparm      = (casual_play ? dsda_IntConfig(dsda_config_fast_monsters)     : dsda_Flag(dsda_arg_fast));
+  nomonsters    = (casual_play ? dsda_IntConfig(dsda_config_no_monsters)       : dsda_Flag(dsda_arg_nomonsters));
+  coop_spawns   = (casual_play ? dsda_IntConfig(dsda_config_coop_spawns)       : dsda_Flag(dsda_arg_coop_spawns));
 }
 
 // if "Pistol Start" is disabled, disable "Always Pistol Start" (avoid impossible condition)
@@ -385,7 +387,7 @@ void dsda_RefreshPistolStart(void)
   dboolean pistol_start_conflict = dsda_IntConfig(dsda_config_always_pistol_start) && !dsda_IntConfig(dsda_config_pistol_start);
 
   // Fix pistolstart option "conflict"
-  if (allow_incompatibility || in_game)
+  if (casual_play || in_game)
     if (pistol_start_conflict)
       dsda_UpdateIntConfig(dsda_config_always_pistol_start, false, true);
 
@@ -399,7 +401,7 @@ void dsda_RefreshAlwaysPistolStart(void)
   dboolean pistol_start_conflict = dsda_IntConfig(dsda_config_always_pistol_start) && !dsda_IntConfig(dsda_config_pistol_start);
 
   // Fix pistolstart option "conflict"
-  if (allow_incompatibility || in_game)
+  if (casual_play || in_game)
     if (pistol_start_conflict)
       dsda_UpdateIntConfig(dsda_config_pistol_start, true, true);
 
@@ -410,7 +412,7 @@ void dsda_RefreshAlwaysPistolStart(void)
 void dsda_RefreshGameSkill(void) {
   void G_RefreshFastMonsters(void);
 
-  if (allow_incompatibility)
+  if (casual_play)
     dsda_ResetGameModifiers();
 
   skill_info = skill_infos[gameskill];
@@ -440,16 +442,13 @@ void dsda_UpdateGameSkill(int skill) {
 
 void dsda_AlterGameFlags(void)
 {
-  if (!allow_incompatibility || !in_game)
+  if (!casual_play || !in_game)
     return;
 
   dsda_RefreshGameSkill();
 }
 
 void dsda_LoadSkillLump(void) {
-  //if (started_demo)
-    //return;
-
   if (raven || doom_v11 || netgame || dsda_UseMapinfo())
     return;
 
@@ -458,10 +457,7 @@ void dsda_LoadSkillLump(void) {
 }
 
 void dsda_CheckCustomSkill(void) {
-  //if (started_demo)
-    //return;
-
-  if (!allow_incompatibility || netgame)
+  if (!casual_play || netgame)
     return;
 
   customskill = true;

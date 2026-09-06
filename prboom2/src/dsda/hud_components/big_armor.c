@@ -43,8 +43,14 @@ static void dsda_ArmorPatchSpacing(void)
     armor_lump_blue,
   };
 
+  patch_spacing_x = 0;
+  patch_spacing_y = 0;
+
   for (int i = 0; i < sizeof(lumps) / sizeof(lumps[0]); ++i)
   {
+    if (lumps[i] == LUMP_NOT_FOUND)
+      continue;
+
     patch_spacing_x = MAX(patch_spacing_x, R_NumPatchWidth(lumps[i]));
     patch_spacing_y = MAX(patch_spacing_y, R_NumPatchHeight(lumps[i]));
   }
@@ -59,7 +65,7 @@ static void dsda_DrawBigArmorIcon(int x, int y, int lump, int flags) {
   int w, h;
   int shadow = raven ? SHADOW_ALWAYS_RAVEN : SHADOW_EXTRA;
 
-  if (!lump)
+  if (lump == LUMP_NOT_FOUND)
     return;
 
   w = R_NumPatchWidth(lump);
@@ -153,16 +159,16 @@ void dsda_InitBigArmorHC(int x_offset, int y_offset, int vpt, int* args, int arg
   local->percent = (arg_count > 2) ? !!args[2] : false;
 
   if (heretic) {
-    armor_lump_green = R_NumPatchForSpriteIndex(HERETIC_SPR_SHLD);
-    armor_lump_blue = (gamemode != shareware) ? R_NumPatchForSpriteIndex(HERETIC_SPR_SHD2) : armor_lump_green;
+    armor_lump_green = R_SafeNumPatchForSpriteIndex(HERETIC_SPR_SHLD);
+    armor_lump_blue = (gamemode != shareware) ? R_SafeNumPatchForSpriteIndex(HERETIC_SPR_SHD2) : armor_lump_green;
   }
   else if (hexen) {
-    armor_lump_green = R_NumPatchForSpriteIndex(HEXEN_SPR_ARM3);
+    armor_lump_green = R_SafeNumPatchForSpriteIndex(HEXEN_SPR_ARM3);
     armor_lump_blue = armor_lump_green;
   }
   else {
-    armor_lump_green = R_NumPatchForSpriteIndex(SPR_ARM1);
-    armor_lump_blue = R_NumPatchForSpriteIndex(SPR_ARM2);
+    armor_lump_green = R_SafeNumPatchForSpriteIndex(SPR_ARM1);
+    armor_lump_blue = R_SafeNumPatchForSpriteIndex(SPR_ARM2);
   }
 
   patch_spacing = 6;
