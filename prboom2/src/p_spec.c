@@ -1756,14 +1756,14 @@ int P_GetMilestoneSound(int config_id)
 
   if (config == 1)
   {
-    sound_exist = !(I_GetSfxLumpNum(&S_sfx[sfx_secret]) < 0);
+    sound_exist = !(I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0);
 
-    return sound_exist ? sfx_secret : fallback_sfx;
+    return sound_exist ? g_sfx_secret : fallback_sfx;
   }
 
-  sound_exist = !(I_GetSfxLumpNum(&S_sfx[sfx_secret_subtle]) < 0);
+  sound_exist = !(I_GetSfxLumpNum(&S_sfx[g_sfx_secret_subtle]) < 0);
 
-  return sound_exist ? sfx_secret_subtle : fallback_sfx;
+  return sound_exist ? g_sfx_secret_subtle : fallback_sfx;
 }
 
 #define SECRET_MESSAGE_TICS ((int)(2.5*TICRATE))

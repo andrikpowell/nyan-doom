@@ -369,7 +369,7 @@ static dboolean M_MouseUpdateMainHover(void)
   {
     menu_mouse_hover_main = index;
     itemOn = index;
-    S_StartOptionalSound(sfx_mnumov, g_sfx_menu, true);
+    S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);
   }
 
   return true;
@@ -438,7 +438,7 @@ static dboolean M_MouseSetSoundSlider(int index)
     else if (index == music_vol && dsda_IntConfig(dsda_config_mute_music))
       dsda_ToggleConfig(dsda_config_mute_music, true);
 
-    S_StartOptionalSound(sfx_mnusli, g_sfx_stnmov, false);
+    S_StartOptionalSound(g_sfx_mnusli, g_sfx_stnmov, false);
   }
 
   itemOn = index;
@@ -659,7 +659,7 @@ static dboolean M_MouseColorChipAtPointer(void)
   {
     color_palette_x = x;
     color_palette_y = y;
-    S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+    S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
   }
 
   return true;
@@ -816,7 +816,7 @@ static dboolean M_MouseUpdateTabHover(void)
   if (menu_mouse_hover_tab != target_page)
   {
     menu_mouse_hover_tab = target_page;
-    S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+    S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
   }
 
   return true;
@@ -848,7 +848,7 @@ static dboolean M_MouseSwitchSetupPage(setup_menu_t **pages, int target_page)
   setup_select = false;
   setup_gather = false;
   colorbox_active = false;
-  S_StartOptionalSound(sfx_mnumov, g_sfx_menu, true);
+  S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);
 
   return true;
 }
@@ -864,7 +864,7 @@ static dboolean M_MouseSwitchSavePage(int target_page)
   M_MouseClearTabHover();
   current_page = target_page;
   M_ReadSaveStrings();
-  S_StartOptionalSound(sfx_mnumov, g_sfx_menu, true);
+  S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);
 
   return true;
 }
@@ -905,7 +905,7 @@ static void M_MouseSelectSetupItem(int index)
   setup_select = false;
   setup_gather = false;
   colorbox_active = false;
-  S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+  S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
 }
 
 static void M_MouseUpdateSetupHover(void)
@@ -959,7 +959,7 @@ static dboolean M_MouseSetSetupThermo(int index)
   if (dsda_IntConfig(item->config_id) != value)
   {
     dsda_UpdateIntConfig(item->config_id, value, true);
-    S_StartOptionalSound(sfx_mnusli, g_sfx_stnmov, false);
+    S_StartOptionalSound(g_sfx_mnusli, g_sfx_stnmov, false);
   }
 
   return true;
@@ -1026,7 +1026,7 @@ static dboolean M_MouseCycleSetupChoice(setup_menu_t *item)
   }
 
   if (next != current)
-    S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+    S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
 
   return true;
 }
@@ -1278,7 +1278,7 @@ static dboolean M_MouseResponder(event_t *ev)
           (!demoplayback || !HU_MouseOnDemoProgressBar(NULL)))
       {
         M_StartControlPanel();
-        S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+        S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
         return true;
       }
     }

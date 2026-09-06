@@ -2484,7 +2484,7 @@ void A_SkullPop(mobj_t *actor)
     if (!casual_play)
       return;
     else
-      S_StartMobjSound(actor, sfx_gibdth);
+      S_StartMobjSound(actor, g_sfx_gibdth);
   }
 
   if (hexen && !actor->player)

@@ -3901,7 +3901,7 @@ static void M_StartSetupResetVerify(setup_menu_t *ptr)
 {
   setup_reset_item = ptr;
   setup_reset_verify = true;
-  S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+  S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
 }
 
 typedef enum {
@@ -3926,15 +3926,15 @@ static dboolean M_SetupResetVerifyResponder(int ch, int action, event_t *ev)
   {
     case confirmation_yes:
       if (setup_reset_item && M_ResetSetupItemDefault(setup_reset_item))
-        S_StartOptionalSound(sfx_mnuact, g_sfx_pistol, true);
+        S_StartOptionalSound(g_sfx_mnuact, g_sfx_pistol, true);
       else
-        S_StartOptionalSound(sfx_mnuerr, g_sfx_oof, true);
+        S_StartOptionalSound(g_sfx_mnuerr, g_sfx_oof, true);
 
       setup_reset_item = NULL;
       setup_reset_verify = false;
       break;
     case confirmation_no:
-      S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+      S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
       setup_reset_item = NULL;
       setup_reset_verify = false;
       break;
@@ -7331,7 +7331,7 @@ static void M_SelectDone(setup_menu_t* ptr)
 {
   ptr->m_flags &= ~S_SELECT;
   ptr->m_flags |= S_HILITE;
-  S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+  S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
   setup_select = false;
   colorbox_active = false;
   string_edit = false;
@@ -7792,7 +7792,7 @@ static void M_HandleToggles(void)
         }
         else
         {
-          S_StartOptionalSound(sfx_mnuerr, g_sfx_oof, true);
+          S_StartOptionalSound(g_sfx_mnuerr, g_sfx_oof, true);
         }
       }
     }
@@ -7815,7 +7815,7 @@ static dboolean MenuBack(void)
 
     M_ChangeMenu(currentMenu->prevMenu, mnact_nochange);
     itemOn = currentMenu->lastOn;
-    S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+    S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     return true;
 }
 
@@ -8027,7 +8027,7 @@ static dboolean M_AutoResponder(int ch, int action, event_t* ev)
     {
       if (++color_palette_y == 16)
         color_palette_y = 0;
-      S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+      S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
       return true;
     }
 
@@ -8035,7 +8035,7 @@ static dboolean M_AutoResponder(int ch, int action, event_t* ev)
     {
       if (--color_palette_y < 0)
         color_palette_y = 15;
-      S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+      S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
       return true;
     }
 
@@ -8043,7 +8043,7 @@ static dboolean M_AutoResponder(int ch, int action, event_t* ev)
     {
       if (--color_palette_x < 0)
         color_palette_x = 15;
-      S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+      S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
       return true;
     }
 
@@ -8051,7 +8051,7 @@ static dboolean M_AutoResponder(int ch, int action, event_t* ev)
     {
       if (++color_palette_x == 16)
         color_palette_x = 0;
-      S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+      S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
       return true;
     }
 
@@ -8188,7 +8188,7 @@ static dboolean M_LevelTableResponder(int ch, int action, event_t* ev)
 
     M_LeaveSetupMenu();
     M_ClearMenus();
-    S_StartOptionalSound(sfx_mnucls, g_sfx_swtchx, false);
+    S_StartOptionalSound(g_sfx_mnucls, g_sfx_swtchx, false);
 
     return true;
   }
@@ -8210,13 +8210,13 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
     if (action == MENU_ENTER) {
       if (M_ItemDisabled(ptr1))
       {
-        S_StartOptionalSound(sfx_mnuerr, g_sfx_oof, true);
+        S_StartOptionalSound(g_sfx_mnuerr, g_sfx_oof, true);
         return true;
       }
       else if (ptr1->action)
         ptr1->action();
 
-      S_StartOptionalSound(sfx_mnuact, g_sfx_pistol, true);
+      S_StartOptionalSound(g_sfx_mnuact, g_sfx_pistol, true);
       return true;
     }
   }
@@ -8288,7 +8288,7 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
       if (action == MENU_LEFT) {
         if (M_PrevChoiceExists(ptr1))
         {
-          S_StartOptionalSound(sfx_mnumov, g_sfx_menu, true);
+          S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);
 
           if (flags & S_STR)
           {
@@ -8305,7 +8305,7 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
       else if (action == MENU_RIGHT) {
         if (M_NextChoiceExists(ptr1))
         {
-          S_StartOptionalSound(sfx_mnumov, g_sfx_menu, true);
+          S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);
 
           if (ptr1->m_flags & S_STR)
           {
@@ -8342,13 +8342,13 @@ static dboolean M_SetupCommonSelectResponder(int ch, int action, event_t* ev)
       if (action == MENU_LEFT) {
         if (M_PrevChoiceExists(ptr1)) {
           dsda_UpdateIntConfig(ptr1->config_id, M_PrevThermoValue(ptr1), true);
-          S_StartOptionalSound(sfx_mnusli, sfx_stnmov, true);
+          S_StartOptionalSound(g_sfx_mnusli, g_sfx_stnmov, true);
         }
       }
       else if (action == MENU_RIGHT) {
         if (M_NextChoiceExists(ptr1)) {
           dsda_UpdateIntConfig(ptr1->config_id, M_NextThermoValue(ptr1), true);
-          S_StartOptionalSound(sfx_mnusli, sfx_stnmov, true);
+          S_StartOptionalSound(g_sfx_mnusli, g_sfx_stnmov, true);
         }
       }
       else if (action == MENU_ENTER) {
@@ -8420,12 +8420,12 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
     {
       if (flags & S_NOCLEAR)
       {
-        S_StartOptionalSound(sfx_mnuerr, g_sfx_oof, true);
+        S_StartOptionalSound(g_sfx_mnuerr, g_sfx_oof, true);
       }
       else
       {
         dsda_InputReset(ptr1->input);
-        S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+        S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
       }
     }
 
@@ -8436,14 +8436,14 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
   {
     if (M_ItemDisabled(ptr1))
     {
-      S_StartOptionalSound(sfx_mnuerr, g_sfx_oof, true);
+      S_StartOptionalSound(g_sfx_mnuerr, g_sfx_oof, true);
       return true;
     }
 
     if (M_SetupItemCanReset(ptr1))
       M_StartSetupResetVerify(ptr1);
     else
-      S_StartOptionalSound(sfx_mnuerr, g_sfx_oof, true);
+      S_StartOptionalSound(g_sfx_mnuerr, g_sfx_oof, true);
 
     return true;
   }
@@ -8452,7 +8452,7 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
   {
     if (M_ItemDisabled(ptr1))
     {
-      S_StartOptionalSound(sfx_mnuerr, g_sfx_oof, true);
+      S_StartOptionalSound(g_sfx_mnuerr, g_sfx_oof, true);
       return true;
     }
 
@@ -8505,7 +8505,7 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
 
     ptr1->m_flags |= S_SELECT;
     setup_select = true;
-    S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+    S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
     return true;
   }
 
@@ -8527,7 +8527,7 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
       }
     }
     ptr1->m_flags &= ~(S_HILITE|S_SELECT);// phares 4/19/98
-    S_StartOptionalSound(sfx_mnucls, g_sfx_swtchx, true);
+    S_StartOptionalSound(g_sfx_mnucls, g_sfx_swtchx, true);
     return true;
   }
 
@@ -8552,7 +8552,7 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
         previous_page = current_page;
         current_page--;
         M_SaveSetupPage(current_setup_menu, current_page);
-        S_StartOptionalSound(sfx_mnumov, g_sfx_menu, true);  // killough 10/98
+        S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);  // killough 10/98
         return true;
       }
     }
@@ -8573,7 +8573,7 @@ static dboolean M_SetupNavigationResponder(int ch, int action, event_t* ev)
         previous_page = current_page;
         current_page++;
         M_SaveSetupPage(current_setup_menu, current_page);
-        S_StartOptionalSound(sfx_mnumov, g_sfx_menu, true);  // killough 10/98
+        S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);  // killough 10/98
         return true;
       }
     }
@@ -8629,14 +8629,14 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
     M_ChangeMenu(F1_menu, mnact_nochange);
 
     itemOn = 0;
-    S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+    S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     return true;
   }
 
   if (dsda_InputActivated(dsda_input_savegame))
   {
     M_StartControlPanel();
-    S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+    S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     M_SaveGame(0);
     return true;
   }
@@ -8644,7 +8644,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
   if (dsda_InputActivated(dsda_input_loadgame))
   {
     M_StartControlPanel();
-    S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+    S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     M_LoadGame(0);
     return true;
   }
@@ -8652,7 +8652,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
   if (dsda_InputActivated(dsda_input_level_table))
   {
     M_StartControlPanel();
-    S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+    S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     M_LevelTable(0);
     return true;
   }
@@ -8662,21 +8662,21 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
     M_StartControlPanel ();
     M_ChangeMenu(&SoundDef, mnact_nochange);
     itemOn = sfx_vol;
-    S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+    S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     return true;
   }
 
   if (dsda_InputActivated(dsda_input_quicksave))
   {
     if (dsda_PlayQuicksaveSFX())
-      S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+      S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     M_QuickSave();
     return true;
   }
 
   if (dsda_InputActivated(dsda_input_endgame))
   {
-    S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+    S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     M_EndGame(0);
     return true;
   }
@@ -8684,7 +8684,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
   if (dsda_InputActivated(dsda_input_quickload))
   {
     if (dsda_PlayQuicksaveSFX())
-      S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+      S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     M_QuickLoad();
     return true;
   }
@@ -8692,7 +8692,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
   if (dsda_InputActivated(dsda_input_quit))
   {
     if (!dsda_SkipQuitPrompt())
-      S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+      S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     M_QuitDOOM(0);
     return true;
   }
@@ -8726,7 +8726,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
   {
     int value = dsda_CycleConfig(dsda_config_input_profile, true);
     doom_printf("Input Profile %d", value);
-    S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+    S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     return true;
   }
 
@@ -8734,7 +8734,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
   {
     dsda_CyclePlayPal();
     doom_printf("Palette %s", dsda_PlayPalData()->lump_name);
-    S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+    S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     return true;
   }
 
@@ -8786,14 +8786,14 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
        dsda_InputActivated(dsda_input_fire) || dsda_InputActivated(dsda_input_use) || dsda_InputActivated(dsda_input_menu_enter)))) // phares
   {
     M_StartControlPanel();
-    S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+    S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     return true;
   }
 
   if (dsda_InputActivated(dsda_input_console))
   {
     if (dsda_OpenConsole())
-      S_StartOptionalSound(sfx_mnuopn, g_sfx_swtchn, true);
+      S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
     return true;
   }
 
@@ -8813,7 +8813,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
     if (automap_full)
       return false;
     M_SizeDisplay(0);
-    S_StartOptionalSound(sfx_mnusli, g_sfx_stnmov, true);
+    S_StartOptionalSound(g_sfx_mnusli, g_sfx_stnmov, true);
     return true;
   }
 
@@ -8822,7 +8822,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
     if (automap_full)                 // allow
       return false;                   // key_hud==key_zoomin
     M_SizeDisplay(1);                                             //  ^
-    S_StartOptionalSound(sfx_mnusli, g_sfx_stnmov, true);         //  |
+    S_StartOptionalSound(g_sfx_mnusli, g_sfx_stnmov, true);         //  |
     return true;                                                  // phares
   }
 
@@ -8953,7 +8953,7 @@ static dboolean M_MainNavigationResponder(int ch, int action, event_t* ev)
         itemOn = 0;
       else
         itemOn++;
-      S_StartOptionalSound(sfx_mnumov, g_sfx_menu, true);
+      S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);
     }
     while(currentMenu->menuitems[itemOn].status == -1);
     return true;
@@ -8967,7 +8967,7 @@ static dboolean M_MainNavigationResponder(int ch, int action, event_t* ev)
         itemOn = currentMenu->numitems - 1;
       else
         itemOn--;
-      S_StartOptionalSound(sfx_mnumov, g_sfx_menu, true);
+      S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);
     }
     while(currentMenu->menuitems[itemOn].status == -1);
     return true;
@@ -8978,7 +8978,7 @@ static dboolean M_MainNavigationResponder(int ch, int action, event_t* ev)
     if (currentMenu->menuitems[itemOn].routine &&
         currentMenu->menuitems[itemOn].status == 2)
     {
-      S_StartOptionalSound(sfx_mnusli, g_sfx_stnmov, false);
+      S_StartOptionalSound(g_sfx_mnusli, g_sfx_stnmov, false);
       currentMenu->menuitems[itemOn].routine(0);
     }
     return true;
@@ -8989,7 +8989,7 @@ static dboolean M_MainNavigationResponder(int ch, int action, event_t* ev)
     if (currentMenu->menuitems[itemOn].routine &&
         currentMenu->menuitems[itemOn].status == 2)
     {
-      S_StartOptionalSound(sfx_mnusli, g_sfx_stnmov, false);
+      S_StartOptionalSound(g_sfx_mnusli, g_sfx_stnmov, false);
       currentMenu->menuitems[itemOn].routine(1);
     }
     return true;
@@ -9004,7 +9004,7 @@ static dboolean M_MainNavigationResponder(int ch, int action, event_t* ev)
       if (currentMenu->menuitems[itemOn].status == 2)
       {
         currentMenu->menuitems[itemOn].routine(1);   // right arrow
-        S_StartOptionalSound(sfx_mnusli, g_sfx_stnmov, false);
+        S_StartOptionalSound(g_sfx_mnusli, g_sfx_stnmov, false);
       }
       else
       {
@@ -9012,9 +9012,9 @@ static dboolean M_MainNavigationResponder(int ch, int action, event_t* ev)
 
         // For the quicksave disabled slots, play oof sound
         if (currentMenu == &SaveDef && current_page == 0)
-          S_StartOptionalSound(sfx_mnuerr, g_sfx_oof, true);
+          S_StartOptionalSound(g_sfx_mnuerr, g_sfx_oof, true);
         else
-          S_StartOptionalSound(sfx_mnuact, g_sfx_pistol, true);
+          S_StartOptionalSound(g_sfx_mnuact, g_sfx_pistol, true);
       }
     }
     //jff 3/24/98 remember last skill selected
@@ -9026,7 +9026,7 @@ static dboolean M_MainNavigationResponder(int ch, int action, event_t* ev)
   {
     currentMenu->lastOn = itemOn;
     M_ClearMenus ();
-    S_StartOptionalSound(sfx_mnubak, g_sfx_swtchx, true);
+    S_StartOptionalSound(g_sfx_mnubak, g_sfx_swtchx, true);
     return true;
   }
 
@@ -9053,12 +9053,12 @@ static dboolean M_MainNavigationResponder(int ch, int action, event_t* ev)
       else
         M_ChangeMenu(currentMenu->prevMenu, mnact_nochange);
       itemOn = currentMenu->lastOn;
-      S_StartOptionalSound(sfx_mnubak, g_sfx_swtchn, true);
+      S_StartOptionalSound(g_sfx_mnubak, g_sfx_swtchn, true);
     }
     else
     {
       M_ClearMenus();
-      S_StartOptionalSound(sfx_mnubak, g_sfx_swtchx, true);
+      S_StartOptionalSound(g_sfx_mnubak, g_sfx_swtchx, true);
     }
     return true;
   }
@@ -9070,7 +9070,7 @@ static dboolean M_MainNavigationResponder(int ch, int action, event_t* ev)
       if (ch && currentMenu->menuitems[i].alphaKey == ch)
       {
         itemOn = i;
-        S_StartOptionalSound(sfx_mnumov, g_sfx_menu, true);
+        S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);
         return true;
       }
 
@@ -9078,7 +9078,7 @@ static dboolean M_MainNavigationResponder(int ch, int action, event_t* ev)
       if (ch && currentMenu->menuitems[i].alphaKey == ch)
       {
         itemOn = i;
-        S_StartOptionalSound(sfx_mnumov, g_sfx_menu, true);
+        S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);
         return true;
       }
   }
@@ -9112,11 +9112,11 @@ static dboolean M_SaveResponder(int ch, int action, event_t* ev)
     {
       case confirmation_yes:
         M_DeleteSaveGame(itemOn + current_page * g_menu_save_page_size);
-        S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+        S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
         delete_verify = false;
         break;
       case confirmation_no:
-        S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+        S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
         delete_verify = false;
         break;
       case confirmation_null:
@@ -9190,9 +9190,9 @@ static dboolean M_SaveResponder(int ch, int action, event_t* ev)
         currentMenu->menuitems[itemOn].routine(itemOn);
 
         if (currentMenu == &SaveDef && current_page == 0)
-          S_StartOptionalSound(sfx_mnuerr, g_sfx_oof, true);
+          S_StartOptionalSound(g_sfx_mnuerr, g_sfx_oof, true);
         else
-          S_StartOptionalSound(sfx_mnuact, g_sfx_pistol, true);
+          S_StartOptionalSound(g_sfx_mnuact, g_sfx_pistol, true);
       }
 
       return true;
@@ -9205,7 +9205,7 @@ static dboolean M_SaveResponder(int ch, int action, event_t* ev)
 
     if (diff)
     {
-      S_StartOptionalSound(sfx_mnumov, g_sfx_menu, true);
+      S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);
 
       current_page += diff;
       if (current_page < 0)
@@ -9221,14 +9221,14 @@ static dboolean M_SaveResponder(int ch, int action, event_t* ev)
   {
     if (LoadMenue[itemOn].status)
     {
-      S_StartOptionalSound(sfx_mnusel, g_sfx_itemup, false);
+      S_StartOptionalSound(g_sfx_mnusel, g_sfx_itemup, false);
       currentMenu->lastOn = itemOn;
       delete_verify = true;
       return true;
     }
     else
     {
-      S_StartOptionalSound(sfx_mnuerr, g_sfx_oof, true);
+      S_StartOptionalSound(g_sfx_mnuerr, g_sfx_oof, true);
     }
   }
 
@@ -9252,7 +9252,7 @@ static dboolean M_MessageResponder(int ch, int action, event_t* ev)
     messageRoutine(confirmation);
 
   M_ChangeMenu(NULL, mnact_inactive);
-  S_StartOptionalSound(sfx_mnucls, g_sfx_swtchx, true);
+  S_StartOptionalSound(g_sfx_mnucls, g_sfx_swtchx, true);
   return true;
 }
 

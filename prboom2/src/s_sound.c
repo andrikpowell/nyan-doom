@@ -150,7 +150,7 @@ static void Raven_S_StartSoundAtVolume(void *_origin, int sound_id, int volume, 
 
 static dboolean S_IsSecretSound(int sfx_id)
 {
-  return sfx_id == sfx_secret || sfx_id == sfx_secret_subtle;
+  return sfx_id == g_sfx_secret || sfx_id == g_sfx_secret_subtle;
 }
 
 void S_ResetSfxVolume(void)
@@ -1253,7 +1253,10 @@ static void Raven_S_StartSoundAtVolume(void *_origin, int sound_id, int volume, 
   params.priority = sfx->priority;
   params.priority *= (10 - (dist / dist_adjust));
 
-  params.sfx_class = S_IsSecretSound(sound_id) ? sfx_class_secret : sfx_class_none;
+  if (S_IsSecretSound(sound_id))
+    params.sfx_class = sfx_class_secret;
+  else
+    params.sfx_class = sfx_class_none;
 
   cnum = Raven_S_getChannel(listener, origin, sfx, &params);
   if (cnum == channel_not_found)

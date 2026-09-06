@@ -112,7 +112,6 @@
 #include "dsda/skill_info.h"
 #include "dsda/skip.h"
 #include "dsda/sndinfo.h"
-#include "dsda/sfx.h"
 #include "dsda/time.h"
 #include "dsda/utility.h"
 #include "dsda/wad_stats.h"
@@ -2263,7 +2262,6 @@ static void D_DoomMainSetup(void)
   }
 
   PostProcessDehacked();
-  dsda_AppendPortSFX();
   dsda_AppendZDoomMobjInfo();
   dsda_ApplyBinaryMapFormat();
 
