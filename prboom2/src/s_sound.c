@@ -333,7 +333,7 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume, dboolean impor
     return;
 
   // killough 4/25/98
-  if (sfx_id == sfx_secret)
+  if (sfx_id == g_sfx_secret)
     params.sfx_class = sfx_class_secret;
   else if (important || sfx_id & PICKUP_SOUND || sfx_id == sfx_oof ||
       (compatibility_level >= prboom_2_compatibility && sfx_id == sfx_noway))
@@ -1204,7 +1204,7 @@ static void Raven_S_StartSoundAtVolume(void *_origin, int sound_id, int volume, 
   params.priority = sfx->priority;
   params.priority *= (10 - (dist / dist_adjust));
 
-  if (sound_id == sfx_secret)
+  if (sound_id == g_sfx_secret)
     params.sfx_class = sfx_class_secret;
   else
     params.sfx_class = sfx_class_none;

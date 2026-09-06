@@ -1951,23 +1951,23 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint64_t value) {
     case 1: mi->spawnstate = (int)value; return;
     case 2: mi->spawnhealth = (int)value; return;
     case 3: mi->seestate = (int)value; return;
-    case 4: mi->seesound = dsda_TranslateDehSFXIndex((int)value); return;
+    case 4: mi->seesound = (int)value; return;
     case 5: mi->reactiontime = (int)value; return;
-    case 6: mi->attacksound = dsda_TranslateDehSFXIndex((int)value); return;
+    case 6: mi->attacksound = (int)value; return;
     case 7: mi->painstate = (int)value; return;
     case 8: mi->painchance = (int)value; return;
-    case 9: mi->painsound = dsda_TranslateDehSFXIndex((int)value); return;
+    case 9: mi->painsound = (int)value; return;
     case 10: mi->meleestate = (int)value; return;
     case 11: mi->missilestate = (int)value; return;
     case 12: mi->deathstate = (int)value; return;
     case 13: mi->xdeathstate = (int)value; return;
-    case 14: mi->deathsound = dsda_TranslateDehSFXIndex((int)value); return;
+    case 14: mi->deathsound = (int)value; return;
     case 15: mi->speed = (int)value; return;
     case 16: mi->radius = (int)value; return;
     case 17: mi->height = (int)value; return;
     case 18: mi->mass = (int)value; return;
     case 19: mi->damage = (int)value; return;
-    case 20: mi->activesound = dsda_TranslateDehSFXIndex((int)value); return;
+    case 20: mi->activesound = (int)value; return;
     case 21: mi->flags = value; return;
     // e6y
     // Correction of wrong processing of "Respawn frame" entry.
@@ -2019,7 +2019,7 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint64_t value) {
       }
       mi->splash_group = mi->splash_group + SG_END;
       return;
-    case 29: mi->ripsound = dsda_TranslateDehSFXIndex((int)value); return;
+    case 29: mi->ripsound = (int)value; return;
     case 30: mi->altspeed = (int)value; return;
     case 31: mi->meleerange = (int)value; return;
 

@@ -128,24 +128,6 @@ sfxinfo_t doom_S_sfx[] = {
   // S_sfx[0] needs to be a dummy for odd reasons.
   { "dsnone", 0, 0, -1, 0, 0, 0, "" },
 
-  // DSDA
-  { "dssecret", 60, 0, -1, 0, 0, 0, "" },
-
-  // Optional menu/intermission sounds
-  { "dsmnuopn", 60, 0, -1, 0, 0, 0, "" },
-  { "dsmnucls", 60, 0, -1, 0, 0, 0, "" },
-  { "dsmnuact", 60, 0, -1, 0, 0, 0, "" },
-  { "dsmnubak", 60, 0, -1, 0, 0, 0, "" },
-  { "dsmnumov", 60, 0, -1, 0, 0, 0, "" },
-  { "dsmnusli", 60, 0, -1, 0, 0, 0, "" },
-  { "dsmnusel", 60, 0, -1, 0, 0, 0, "" },
-  { "dsmnuerr", 60, 0, -1, 0, 0, 0, "" },
-  { "dsinttic", 60, 0, -1, 0, 0, 0, "" },
-  { "dsinttot", 60, 0, -1, 0, 0, 0, "" },
-  { "dsintnex", 60, 0, -1, 0, 0, 0, "" },
-  { "dsintnet", 60, 0, -1, 0, 0, 0, "" },
-  { "dsintdms", 60, 0, -1, 0, 0, 0, "" },
-
   // Doom sounds
   { "dspistol", 64, 0, -1, 0, 0, 0, "" },
   { "dsshotgn", 64, 0, -1, 0, 0, 0, "" },
@@ -262,6 +244,24 @@ sfxinfo_t doom_S_sfx[] = {
   { "dsdgact", 120, 0, -1, 0, 0, 0, "" },
   { "dsdgdth", 70, 0, -1, 0, 0, 0, "" },
   { "dsdgpain", 96, 0, -1, 0, 0, 0, "" },
+
+  // DSDA
+  { "dssecret", 60, 0, -1, 0, 0, 0, "" },
+
+  // Optional menu/intermission sounds
+  { "dsmnuopn", 60, 0, -1, 0, 0, 0, "" },
+  { "dsmnucls", 60, 0, -1, 0, 0, 0, "" },
+  { "dsmnuact", 60, 0, -1, 0, 0, 0, "" },
+  { "dsmnubak", 60, 0, -1, 0, 0, 0, "" },
+  { "dsmnumov", 60, 0, -1, 0, 0, 0, "" },
+  { "dsmnusli", 60, 0, -1, 0, 0, 0, "" },
+  { "dsmnusel", 60, 0, -1, 0, 0, 0, "" },
+  { "dsmnuerr", 60, 0, -1, 0, 0, 0, "" },
+  { "dsinttic", 60, 0, -1, 0, 0, 0, "" },
+  { "dsinttot", 60, 0, -1, 0, 0, 0, "" },
+  { "dsintnex", 60, 0, -1, 0, 0, 0, "" },
+  { "dsintnet", 60, 0, -1, 0, 0, 0, "" },
+  { "dsintdms", 60, 0, -1, 0, 0, 0, "" },
 
   // Everything from here up to 500 is reserved for future use.
 

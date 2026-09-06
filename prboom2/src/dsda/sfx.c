@@ -74,20 +74,6 @@ static void dsda_EnsureCapacity(int limit) {
   }
 }
 
-int dsda_TranslateDehSFXIndex(int index) {
-  if (index > sfx_None)
-    return index + (BASE_NUMSFX - 1);
-    
-  return sfx_None;
-}
-
-static int dsda_UnTranslateDehSFXIndex(int index) {
-  if (index >= BASE_NUMSFX)
-    return index - (BASE_NUMSFX - 1);
-
-  return index;
-}
-
 int dsda_GetDehSFXIndex(const char* key, size_t length) {
   int i;
 
@@ -112,7 +98,7 @@ int dsda_GetOriginalSFXIndex(const char* key) {
 
   for (i = 1; deh_soundnames[i]; ++i)
     if (!strncasecmp(deh_soundnames[i], key, 6))
-      return dsda_UnTranslateDehSFXIndex(i);
+      return i;
 
   // is it a number?
   for (c = key; *c; c++)
@@ -120,7 +106,7 @@ int dsda_GetOriginalSFXIndex(const char* key) {
       return -1;
 
   i = atoi(key);
-  dsda_EnsureCapacity(dsda_TranslateDehSFXIndex(i));
+  dsda_EnsureCapacity(i);
 
   return i;
 }
@@ -135,7 +121,7 @@ static sfxinfo_t* dsda_SFXAtIndex(int index) {
 }
 
 sfxinfo_t* dsda_GetDehSFX(int index) {
-  return dsda_SFXAtIndex(dsda_TranslateDehSFXIndex(index));
+  return dsda_SFXAtIndex(index);
 }
 
 sfxinfo_t* dsda_NewSFX(int* index) {
