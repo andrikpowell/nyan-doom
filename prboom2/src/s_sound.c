@@ -1204,7 +1204,10 @@ static void Raven_S_StartSoundAtVolume(void *_origin, int sound_id, int volume, 
   params.priority = sfx->priority;
   params.priority *= (10 - (dist / dist_adjust));
 
-  params.sfx_class = sfx_class_none;
+  if (sound_id == sfx_secret)
+    params.sfx_class = sfx_class_secret;
+  else
+    params.sfx_class = sfx_class_none;
 
   cnum = Raven_S_getChannel(listener, origin, sfx, &params);
   if (cnum == channel_not_found)
