@@ -269,6 +269,7 @@ typedef enum {
 typedef enum {
   sfx_None,
 
+  // DSDA
   sfx_secret,
 
   // Optional menu/intermission sounds
@@ -755,6 +756,7 @@ typedef enum {
   heretic_sfx_amb9,
   heretic_sfx_amb10,
   heretic_sfx_amb11,
+
   HERETIC_NUMSFX,
 
   // hexen
@@ -1002,6 +1004,7 @@ typedef enum {
   hexen_sfx_fireball,
   hexen_sfx_puppybeat,
   hexen_sfx_mysticincant,
+
   HEXEN_NUMSFX
 } sfxenum_t;
 

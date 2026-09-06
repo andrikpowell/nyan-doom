@@ -128,6 +128,7 @@ sfxinfo_t doom_S_sfx[] = {
   // S_sfx[0] needs to be a dummy for odd reasons.
   { "dsnone", 0, 0, -1, 0, 0, 0, "" },
 
+  // DSDA
   { "dssecret", 60, 0, -1, 0, 0, 0, "" },
 
   // Optional menu/intermission sounds

@@ -83,7 +83,8 @@ musicinfo_t heretic_S_music[] = {
 sfxinfo_t heretic_S_sfx[] = {
     { "", 0, 0, -1, 0, 0, 0, "" },
 
-    { "dssecret", 60, 0, -1, 0, 0, 1, "" },
+    // DSDA
+    { "secret", 100, 0, -1, 0, 0, 1, "" }, // match heretic_sfx_chat
 
     // Optional menu/intermission sounds
     { "dsmnuopn", 60, 0, -1, 0, 0, 1, "" },
