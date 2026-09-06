@@ -33,7 +33,6 @@ typedef enum {
   arg_string,
   arg_int_array,
   arg_string_array,
-  arg_complevel,
 } arg_type_t;
 
 typedef struct {
@@ -75,6 +74,11 @@ static arg_config_t arg_config[dsda_arg_count] = {
     "-deh", "-bex", "-hhe", NULL,
     "loads additional deh files",
     arg_string_array, AT_LEAST_ONE_STRING,
+  },
+  [dsda_arg_loadgame] = {
+    "-loadgame", NULL, NULL, NULL,
+    "loads the given savegame slot",
+    arg_int, 0, 118,
   },
   [dsda_arg_playdemo] = {
     "-playdemo", NULL, NULL, NULL,
@@ -139,7 +143,7 @@ static arg_config_t arg_config[dsda_arg_count] = {
   [dsda_arg_complevel] = {
     "-complevel", "-cl", NULL, NULL,
     "sets the compatibility level",
-    arg_complevel, -1, mbf21_compatibility,
+    arg_string,
   },
   [dsda_arg_fast] = {
     "-fast", NULL, NULL, NULL,
@@ -701,11 +705,6 @@ static arg_config_t arg_config[dsda_arg_count] = {
     "sets a special flag to compensate for sync errors in certain demos",
     arg_null,
   },
-  [dsda_arg_debug_mapinfo] = {
-    "-debug_mapinfo", NULL, NULL, NULL,
-    "turns on mapinfo parsing in doom (temporary arg for testing)",
-    arg_null,
-  },
 };
 
 static dsda_arg_t arg_value[dsda_arg_count];
@@ -796,24 +795,6 @@ static void dsda_ParseArg(arg_config_t* config, dsda_arg_t* arg, int argv_i) {
       if (arg->count > 1)
         I_Error("%s takes only one argument", config->name);
 
-      dsda_ParseIntArg(config, &arg->value.v_int, dsda_argv[argv_i + 1]);
-
-      break;
-    case arg_complevel:
-      if (arg->count == 0) {
-        if (config->default_value) {
-          dsda_ParseLimitRemovingArg(config, &arg->value.v_string, config->default_value);
-          dsda_ParseIntArg(config, &arg->value.v_int, config->default_value);
-
-          break;
-        }
-
-        I_Error("%s requires an integer argument", config->name);
-      }
-      if (arg->count > 1)
-        I_Error("%s takes only one argument", config->name);
-
-      dsda_ParseLimitRemovingArg(config, &arg->value.v_string, dsda_argv[argv_i + 1]);
       dsda_ParseIntArg(config, &arg->value.v_int, dsda_argv[argv_i + 1]);
 
       break;
@@ -915,32 +896,6 @@ void dsda_UpdateIntArg(dsda_arg_identifier_t id, const char* param) {
   dsda_ParseIntArg(&arg_config[id], &arg_value[id].value.v_int, param);
 }
 
-void dsda_UpdateComplevelArg(dsda_arg_identifier_t id, const char* param) {
-  size_t len = strlen(param);
-  char cleaned[16];
-  const char* p = param;
-
-  arg_value[id].count = 1;
-  arg_value[id].found = true;
-
-  if (len > 0 && param[len - 1] == 'r') {
-    if (!strcmp(param, "0r") || !strcmp(param, "1r") ||
-        !strcmp(param, "2r") || !strcmp(param, "3r") ||
-        !strcmp(param, "4r") || !strcmp(param, "5r") ||
-        !strcmp(param, "6r")) {
-      limitremoving_arg = true;
-
-      memcpy(cleaned, param, len - 1);
-      cleaned[len - 1] = '\0';
-      p = cleaned;
-    }
-    else {
-      I_Error("Complevel '%s' is invalid: Only complevels 0-6 may use 'r' (Limit-Removing)", param);
-    }
-  }
-
-  dsda_ParseIntArg(&arg_config[id], &arg_value[id].value.v_int, p);
-}
 
 void dsda_UpdateStringArg(dsda_arg_identifier_t id, const char* param) {
   param = Z_Strdup(param);

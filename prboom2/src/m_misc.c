@@ -355,6 +355,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_map_trail_size),
   MIGRATED_SETTING(dsda_config_map_player_arrow),
   MIGRATED_SETTING(dsda_config_map_marker_style),
+  MIGRATED_SETTING(dsda_config_map_traces),
   MIGRATED_SETTING(dsda_config_automap_overlay),
   MIGRATED_SETTING(dsda_config_automap_background),
   MIGRATED_SETTING(dsda_config_automap_background_shade),
@@ -452,6 +453,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_viewbob),
   MIGRATED_SETTING(dsda_config_weaponbob),
   MIGRATED_SETTING(nyan_config_weapon_freelook_tilt),
+  MIGRATED_SETTING(dsda_config_fix_viewbob_floor_jolt),
   MIGRATED_SETTING(dsda_config_quake_intensity),
   MIGRATED_SETTING(dsda_config_swirling_flats),
   MIGRATED_SETTING(dsda_config_draw_nearby_sprites),
@@ -1143,9 +1145,9 @@ void M_ScreenShot(void)
     startshot = shot; // CPhipps - prevent infinite loop
 
     do {
-      int size = snprintf(NULL, 0, "%s/doom%02d" SCREENSHOT_EXT, shot_dir, shot);
+      int size = snprintf(NULL, 0, "%s/nyan%04d" SCREENSHOT_EXT, shot_dir, shot);
       lbmname = Z_Realloc(lbmname, size+1);
-      snprintf(lbmname, size+1, "%s/doom%02d" SCREENSHOT_EXT, shot_dir, shot);
+      snprintf(lbmname, size+1, "%s/nyan%04d" SCREENSHOT_EXT, shot_dir, shot);
       shot++;
     } while (M_FileExists(lbmname) && (shot != startshot) && (shot < 10000));
 

@@ -995,7 +995,7 @@ static void R_ProcessFOV(void)
     fov_zoom_active = false;
 
   if (fov_zoom_active)
-    target_fov = (float)dsda_IntConfig(dsda_config_zoom_fov);
+    target_fov = dsda_IntConfig(dsda_config_zoom_fov);
 
   if (base_fov != old_base_fov)
   {
@@ -1125,7 +1125,7 @@ static void R_SetupFrame (player_t *player)
   else if (dsda_MapFadeTable()) // Hexen Fog - fadetable
     cm = FADETABLE;
   else
-    cm = map_info.default_colormap;
+    cm = map_colormap;
 
   //e6y: save previous and current colormap
   boom_cm = cm;

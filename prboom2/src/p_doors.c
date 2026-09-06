@@ -526,7 +526,7 @@ int EV_DoDoor
 
   manual_door://e6y
   // open all doors with the same tag as the activating line
-  FIND_SECTORS(id_p, line->tag)
+  FIND_SECTORS(id_p, line->special_args[0])
   {
     if (!zerotag_manual)
       sec = &sectors[*id_p];
@@ -778,7 +778,7 @@ int EV_VerticalDoor
   door->line = line; // jff 1/31/98 remember line that triggered us
 
   /* killough 10/98: use gradual lighting changes if nonzero tag given */
-  door->lighttag = comp[comp_doorlight] ? 0 : line->tag;
+  door->lighttag = comp[comp_doorlight] ? 0 : line->special_args[0];
 
   // set the type of door from the activating linedef type
   switch(line->special)
@@ -1116,7 +1116,7 @@ int EV_DoZDoomDoor(vldoor_e type, line_t *line, mobj_t *mo, int tag, fixed_t spe
       if (door->thinker.function == T_VerticalDoor)
       {
         // ONLY FOR "RAISE" DOORS, NOT "OPEN"s
-        if (door->type == DREV_NORMAL && type == DREV_NORMAL)
+        if (door->type == normal && type == normal)
         {
           if (door->direction == -1)
           {
