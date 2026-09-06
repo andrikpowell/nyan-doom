@@ -177,6 +177,11 @@ dboolean raven = false;
 dboolean uvplus = false;
 dboolean customskill = false;
 
+void dsda_LinkSFXEffect(int sound, int fallback) {
+  if (I_GetSfxLumpNum(&S_sfx[sound]) < 0)
+    S_sfx[sound].link = &S_sfx[fallback];
+}
+
 static void dsda_InitDoom(void) {
   int i;
   doom_mobjinfo_t* mobjinfo_p;
@@ -227,7 +232,7 @@ static void dsda_InitDoom(void) {
   g_sfx_oof = sfx_oof;
   g_sfx_menu = sfx_pstop;
   g_sfx_secret = sfx_secret;
-  g_sfx_secret = sfx_secret_subtle;
+  g_sfx_secret_subtle = sfx_secret_subtle;
   g_sfx_gibdth = sfx_gibdth;
   g_sfx_idnut = sfx_idnut; // nyan
   g_sfx_revive = sfx_slop;

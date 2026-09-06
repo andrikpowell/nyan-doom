@@ -136,4 +136,6 @@ extern dboolean customskill;
 
 void dsda_InitGlobal(void);
 
+void dsda_LinkSFXEffect(int sound, int fallback);
+
 #endif
