@@ -322,14 +322,40 @@ void dsda_UpdateWeaponCarouselHC(void* data)
   }
 }
 
+static void WeaponIconName(char lump_name[9], weapon_icon_t icon)
+{
+  const char *name;
+  dboolean custom_icon = !hexen && weaponinfo[icon.weapon].carouselicon;
+  int selected = icon.state == wpi_selected;
+
+  if (custom_icon)
+    name = weaponinfo[icon.weapon].carouselicon;
+  else if (hexen)
+    name = hexen_names[players[displayplayer].pclass][icon.weapon];
+  else if (heretic)
+    name = heretic_names[icon.weapon];
+  else
+    name = doom_names[icon.weapon];
+
+  snprintf(lump_name, 9, "%s%d", name, selected);
+
+  // Fallback to generic icon if not found
+  if (custom_icon && W_CheckNumForName(lump_name) == LUMP_NOT_FOUND)
+  {
+    // If raven pwad hasn't replaced unknown icon,
+    // then use internal SMUNKN2/3.
+    if (raven && !W_PWADLumpNameExists(selected ? "SMUNKN1" : "SMUNKN0"))
+      snprintf(lump_name, 9, "SMUNKN%d", selected + 2);
+    else
+      snprintf(lump_name, 9, "SMUNKN%d", selected);
+  }
+}
+
 static int WeaponIconLump(weapon_icon_t icon)
 {
   char lump_name[9] = {0};
-  const char *name =  hexen   ? hexen_names[players[displayplayer].pclass][icon.weapon] :
-                      heretic ? heretic_names[icon.weapon] :
-                                doom_names[icon.weapon];
 
-  snprintf(lump_name, sizeof(lump_name), "%s%d", name, icon.state == wpi_selected);
+  WeaponIconName(lump_name, icon);
 
   return W_GetNumForName(lump_name);
 }
@@ -337,27 +363,10 @@ static int WeaponIconLump(weapon_icon_t icon)
 static void DrawWeaponIcon(const local_component_t* c, int x, weapon_icon_t icon)
 {
   char lump_name[9] = {0};
-  const char *name;
   int color;
   int flags;
 
-  // later to add dehacked carousel names
-  /*
-  if (weaponinfo[icon.weapon].carouselicon)
-  {
-      name = weaponinfo[icon.weapon].carouselicon;
-  }
-  else
-  {
-      name = doom_names[icon.weapon];
-  }
-  */
-
-  name =  hexen   ? hexen_names[players[displayplayer].pclass][icon.weapon] :
-          heretic ? heretic_names[icon.weapon] :
-                    doom_names[icon.weapon];
-
-  snprintf(lump_name, sizeof(lump_name), "%s%d", name, icon.state == wpi_selected);
+  WeaponIconName(lump_name, icon);
 
   color = (icon.state == wpi_disabled) ? CR_DARKEN : CR_DEFAULT;
   flags = c->component.vpt;
