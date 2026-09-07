@@ -41,6 +41,17 @@ static const char* const doom_names[NUMWEAPONS] = {
   [wp_supershotgun] = "SMSGN2",
 };
 
+static const char* const heretic_names[NUMWEAPONS] = {
+  [wp_staff] = "SMWSTF",
+  [wp_goldwand] = "SMWGLD",
+  [wp_crossbow] = "SMWBOW",
+  [wp_blaster] = "SMWBLS",
+  [wp_skullrod] = "SMWSKL",
+  [wp_phoenixrod] = "SMWPHX",
+  [wp_mace] = "SMWMCE",
+  [wp_gauntlets] = "SMWGNT",
+};
+
 static const weapontype_t doom_weapon_order[] = {
   wp_fist,
   wp_chainsaw,
@@ -51,6 +62,17 @@ static const weapontype_t doom_weapon_order[] = {
   wp_missile,
   wp_plasma,
   wp_bfg,
+};
+
+static const weapontype_t heretic_weapon_order[] = {
+  wp_staff,
+  wp_gauntlets,
+  wp_goldwand,
+  wp_crossbow,
+  wp_blaster,
+  wp_skullrod,
+  wp_phoenixrod,
+  wp_mace,
 };
 
 typedef enum
@@ -139,11 +161,18 @@ static int CarouselFadeAlpha(int tics)
 static void BuildWeaponIcons(local_component_t* c, const player_t* player)
 {
   int i;
+
+  const weapontype_t* weapon_order =  heretic ? heretic_weapon_order :
+                                                doom_weapon_order;
+
+  int weapon_count = heretic ? arrlen(heretic_weapon_order) :
+                               arrlen(doom_weapon_order);
+
   c->icon_count = 0;
 
-  for (i = 0; i < arrlen(doom_weapon_order); ++i)
+  for (i = 0; i < weapon_count; ++i)
   {
-    weapontype_t weapon = doom_weapon_order[i];
+    weapontype_t weapon = weapon_order[i];
     weapon_icon_state_t state = wpi_none;
 
     if (c->last_index == -1 && weapon == player->readyweapon)
@@ -186,12 +215,19 @@ void dsda_UpdateWeaponCarouselHC(void* data)
   player_t* player = &players[displayplayer];
   local = data;
 
-  if (!dsda_WeaponCarousel() || raven)
+  if (!dsda_WeaponCarousel() || hexen)
     return;
 
   if (G_NextWeaponActivate())
   {
     local->duration = TICRATE / 2;
+  }
+
+  // [raven] Disable for chicken
+  if (players[displayplayer].chickenTics != 0)
+  {
+    ResetCarousel(local);
+    return;
   }
 
   if (local->duration == 0)
@@ -227,7 +263,8 @@ void dsda_UpdateWeaponCarouselHC(void* data)
 static int WeaponIconLump(weapon_icon_t icon)
 {
   char lump_name[9] = {0};
-  const char *name = doom_names[icon.weapon];
+  const char *name =  heretic ? heretic_names[icon.weapon] :
+                                doom_names[icon.weapon];
 
   snprintf(lump_name, sizeof(lump_name), "%s%d", name, icon.state == wpi_selected);
 
@@ -253,7 +290,8 @@ static void DrawWeaponIcon(const local_component_t* c, int x, weapon_icon_t icon
   }
   */
 
-  name = doom_names[icon.weapon];
+  name =  heretic ? heretic_names[icon.weapon] :
+                    doom_names[icon.weapon];
 
   snprintf(lump_name, sizeof(lump_name), "%s%d", name, icon.state == wpi_selected);
 
@@ -290,7 +328,11 @@ void dsda_DrawWeaponCarouselHC(void* data)
 
   local = data;
 
-  if (!dsda_WeaponCarousel() || raven)
+  if (!dsda_WeaponCarousel() || hexen)
+    return;
+
+  // [raven] Disable for chicken
+  if (players[displayplayer].chickenTics != 0)
     return;
 
   if (local->duration == 0 || local->icon_count == 0)

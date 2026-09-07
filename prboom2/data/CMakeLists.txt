@@ -270,6 +270,28 @@ set(GRAPHICS
     graphics/smsgn21.png
     graphics/smshot0.png
     graphics/smshot1.png
+    graphics/smunkn0.png
+    graphics/smunkn1.png
+
+    # Heretic Weapon carousel graphics, drawn by Julia Nechaevskaya
+    graphics/smwbls0.png
+    graphics/smwbls1.png
+    graphics/smwbow0.png
+    graphics/smwbow1.png
+    graphics/smwgld0.png
+    graphics/smwgld1.png
+    graphics/smwgnt0.png
+    graphics/smwgnt1.png
+    graphics/smwmce0.png
+    graphics/smwmce1.png
+    graphics/smwphx0.png
+    graphics/smwphx1.png
+    graphics/smwskl0.png
+    graphics/smwskl1.png
+    graphics/smwstf0.png
+    graphics/smwstf1.png
+    graphics/smunkn2.png
+    graphics/smunkn3.png
 )
 
  # must be ppm to match palette
