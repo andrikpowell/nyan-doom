@@ -57,4 +57,11 @@ void F_StartScroll (const char* right, const char* left, const char* music, dboo
 void F_StartPostFinale (void);
 dboolean F_BlockingInput(void);
 
+typedef enum finalestage_e
+{
+    FINALE_STAGE_TEXT,
+    FINALE_STAGE_ART,
+    FINALE_STAGE_CAST
+} finalestage_t;
+
 #endif

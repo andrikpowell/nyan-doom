@@ -68,7 +68,8 @@
 
 // Stage of animation:
 //  0 = text, 1 = art screen, 2 = character cast
-int finalestage;
+
+finalestage_t finalestage;
 int finalecount;
 const char*   finaletext;
 const char*   finaleflat;
@@ -294,7 +295,7 @@ void F_StartFinale (void)
 
   dsda_StartFinale();
 
-  finalestage = 0;
+  finalestage = FINALE_STAGE_TEXT;
   finalecount = 0;
 }
 
@@ -305,7 +306,7 @@ dboolean F_Responder (event_t *event)
   if (heretic) return Heretic_F_Responder(event);
   if (hexen) return Hexen_F_Responder(event);
 
-  if (finalestage == 2)
+  if (finalestage == FINALE_STAGE_CAST)
     return F_CastResponder (event);
 
   return false;
@@ -365,10 +366,10 @@ void F_Ticker(void)
   // advance animation
   finalecount++;
 
-  if (finalestage == 2)
+  if (finalestage == FINALE_STAGE_CAST)
     F_CastTicker();
 
-  if (!finalestage)
+  if (finalestage == FINALE_STAGE_TEXT)
     {
       float speed = demo_compatibility ? TEXTSPEED : Get_TextSpeed();
       /* killough 2/28/98: changed to allow acceleration */
@@ -656,7 +657,7 @@ void F_StartCast (const char* background, const char* music, dboolean loop_music
   caststate = &states[mobjinfo[castorder[castnum].type].seestate];
   casttics = caststate->tics;
   castdeath = false;
-  finalestage = 2;
+  finalestage = FINALE_STAGE_CAST;
   castframes = 0;
   castonmelee = 0;
   castattacking = false;
@@ -1049,7 +1050,7 @@ void F_StartScroll (const char* right, const char* left, const char* music, dboo
   scrollpic1 = right ? right : e3bunny1;
   scrollpic2 = left ? left : e3bunny2;
   finalecount = 0;
-  finalestage = 1;
+  finalestage = FINALE_STAGE_ART;
 
   end_patches_exist = W_CheckNumForName("END0") != LUMP_NOT_FOUND &&
                       W_CheckNumForName("END1") != LUMP_NOT_FOUND &&
@@ -1134,7 +1135,7 @@ void F_BunnyScroll (void)
 void F_StartPostFinale (void)
 {
   finalecount = 0;
-  finalestage = 1;
+  finalestage = FINALE_STAGE_ART;
   wipegamestate = -1; // force a wipe
 }
 
@@ -1151,13 +1152,13 @@ void F_Drawer (void)
     return;
   }
 
-  if (finalestage == 2)
+  if (finalestage == FINALE_STAGE_CAST)
   {
     F_CastDrawer ();
     return;
   }
 
-  if (!finalestage)
+  if (finalestage == FINALE_STAGE_TEXT)
     F_TextWrite ();
   else
   {
