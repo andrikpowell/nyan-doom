@@ -52,6 +52,27 @@ static const char* const heretic_names[NUMWEAPONS] = {
   [wp_gauntlets] = "SMWGNT",
 };
 
+static const char* const hexen_names[NUMCLASSES][HEXEN_NUMWEAPONS] = {
+    [PCLASS_FIGHTER] = {
+      [wp_first]  = "SMWFPC",
+      [wp_second] = "SMWFAX",
+      [wp_third]  = "SMWFHM",
+      [wp_fourth] = "SMWFRS",
+    },
+    [PCLASS_CLERIC] = {
+      [wp_first]  = "SMWCMC",
+      [wp_second] = "SMWCSS",
+      [wp_third]  = "SMWCFM",
+      [wp_fourth] = "SMWCHS",
+    },
+    [PCLASS_MAGE] = {
+      [wp_first]  = "SMWMWD",
+      [wp_second] = "SMWMCS",
+      [wp_third]  = "SMWMLG",
+      [wp_fourth] = "SMWMST",
+    },
+};
+
 static const weapontype_t doom_weapon_order[] = {
   wp_fist,
   wp_chainsaw,
@@ -73,6 +94,13 @@ static const weapontype_t heretic_weapon_order[] = {
   wp_skullrod,
   wp_phoenixrod,
   wp_mace,
+};
+
+static const weapontype_t hexen_weapon_order[] = {
+  wp_first,
+  wp_second,
+  wp_third,
+  wp_fourth,
 };
 
 typedef enum
@@ -158,14 +186,45 @@ static int CarouselFadeAlpha(int tics)
   return alpha;
 }
 
+// [AR] temp guard until we get internal hexen icons
+static dboolean HexenCarouselIconsAvailable(void)
+{
+  char lump_name[9];
+  int pclass;
+  int weapon;
+  int state;
+
+  if (!hexen)
+    return true;
+
+  for (pclass = PCLASS_FIGHTER; pclass <= PCLASS_MAGE; pclass++)
+  {
+    for (weapon = 0; weapon < arrlen(hexen_weapon_order); weapon++)
+    {
+      for (state = 0; state < 2; ++state)
+      {
+        snprintf(lump_name, sizeof(lump_name), "%s%d",
+                 hexen_names[pclass][hexen_weapon_order[weapon]], state);
+
+        if (W_CheckNumForName(lump_name) == LUMP_NOT_FOUND)
+          return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 static void BuildWeaponIcons(local_component_t* c, const player_t* player)
 {
   int i;
 
-  const weapontype_t* weapon_order =  heretic ? heretic_weapon_order :
+  const weapontype_t* weapon_order =  hexen   ? hexen_weapon_order :
+                                      heretic ? heretic_weapon_order :
                                                 doom_weapon_order;
 
-  int weapon_count = heretic ? arrlen(heretic_weapon_order) :
+  int weapon_count = hexen   ? arrlen(hexen_weapon_order) :
+                     heretic ? arrlen(heretic_weapon_order) :
                                arrlen(doom_weapon_order);
 
   c->icon_count = 0;
@@ -215,7 +274,7 @@ void dsda_UpdateWeaponCarouselHC(void* data)
   player_t* player = &players[displayplayer];
   local = data;
 
-  if (!dsda_WeaponCarousel() || hexen)
+  if (!dsda_WeaponCarousel())
     return;
 
   if (G_NextWeaponActivate())
@@ -223,8 +282,11 @@ void dsda_UpdateWeaponCarouselHC(void* data)
     local->duration = TICRATE / 2;
   }
 
-  // [raven] Disable for chicken
-  if (players[displayplayer].chickenTics != 0)
+  // [raven] Disable for chicken / morph
+  if (players[displayplayer].chickenTics != 0 ||
+      players[displayplayer].morphTics != 0 ||
+      // [AR] temp guard until we get internal hexen icons
+      !HexenCarouselIconsAvailable())
   {
     ResetCarousel(local);
     return;
@@ -263,7 +325,8 @@ void dsda_UpdateWeaponCarouselHC(void* data)
 static int WeaponIconLump(weapon_icon_t icon)
 {
   char lump_name[9] = {0};
-  const char *name =  heretic ? heretic_names[icon.weapon] :
+  const char *name =  hexen   ? hexen_names[players[displayplayer].pclass][icon.weapon] :
+                      heretic ? heretic_names[icon.weapon] :
                                 doom_names[icon.weapon];
 
   snprintf(lump_name, sizeof(lump_name), "%s%d", name, icon.state == wpi_selected);
@@ -290,7 +353,8 @@ static void DrawWeaponIcon(const local_component_t* c, int x, weapon_icon_t icon
   }
   */
 
-  name =  heretic ? heretic_names[icon.weapon] :
+  name =  hexen   ? hexen_names[players[displayplayer].pclass][icon.weapon] :
+          heretic ? heretic_names[icon.weapon] :
                     doom_names[icon.weapon];
 
   snprintf(lump_name, sizeof(lump_name), "%s%d", name, icon.state == wpi_selected);
@@ -328,11 +392,14 @@ void dsda_DrawWeaponCarouselHC(void* data)
 
   local = data;
 
-  if (!dsda_WeaponCarousel() || hexen)
+  if (!dsda_WeaponCarousel())
     return;
 
-  // [raven] Disable for chicken
-  if (players[displayplayer].chickenTics != 0)
+  // [raven] Disable for chicken / morph
+  if (players[displayplayer].chickenTics != 0 ||
+      players[displayplayer].morphTics != 0 ||
+      // [AR] temp guard until we get internal hexen icons
+      !HexenCarouselIconsAvailable())
     return;
 
   if (local->duration == 0 || local->icon_count == 0)
