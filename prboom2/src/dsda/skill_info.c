@@ -200,7 +200,7 @@ void dsda_InitSkills(void) {
   dboolean clear_skills;
 
   clear_skills = (doom_mapinfo.num_skills && doom_mapinfo.skills_cleared);
-  original_skills = !doom_v11 ? 5 : 4;
+  original_skills = !old_compatibility ? 5 : 4;
 
   num_skills = (clear_skills ? 0 : original_skills) + (int)doom_mapinfo.num_skills + uvplus + customskill;
   num_og_skills = num_skills - customskill;
@@ -449,7 +449,7 @@ void dsda_AlterGameFlags(void)
 }
 
 void dsda_LoadSkillLump(void) {
-  if (raven || doom_v11 || netgame || dsda_UseMapinfo())
+  if (raven || old_compatibility || netgame || dsda_UseMapinfo())
     return;
 
   if (W_LumpNameExists("NYANSKLG"))
