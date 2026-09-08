@@ -1075,6 +1075,7 @@ void gld_PreprocessLevel(void)
 
   gld_ResetLastTexture();
   gld_ResetTexturedAutomap();
+  gld_UpdateInvulnColormap();
 
   gld_FreeDrawInfo();
 

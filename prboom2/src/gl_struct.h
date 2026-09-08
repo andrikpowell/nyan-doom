@@ -60,6 +60,7 @@ extern dboolean gl_ui_lightmode_indexed;
 extern dboolean gl_automap_lightmode_indexed;
 extern dboolean gl_menu_lightmode_indexed;
 void gld_FlushTextures(void);
+void gld_UpdateInvulnColormap(void);
 
 void gld_InitVertexData();
 void gld_CleanVertexData();

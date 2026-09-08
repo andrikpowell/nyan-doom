@@ -374,6 +374,22 @@ dboolean dsda_EffectPaletteReduced(void) {
   return dsda_IntConfig(dsda_config_palette_oneffects) > 1;
 }
 
+dboolean dsda_ApplyInvulnColormapToSky(void) {
+  dboolean options_sky = !comp[comp_skymap];
+  int config = dsda_IntConfig(dsda_config_invulnerability_sky);
+
+  if (!casual_play)
+    return options_sky;
+
+  if (config == INVULN_SKY_MBF)
+    return true;
+
+  else if (config == INVULN_SKY_VANILLA)
+    return false;
+
+  return options_sky;
+}
+
 dboolean dsda_ShowHealthBars(void) {
   return dsda_IntConfig(dsda_config_gl_health_bar);
 }

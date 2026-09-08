@@ -65,6 +65,7 @@
 #include "dsda/map_format.h"
 #include "dsda/render_stats.h"
 #include "dsda/configuration.h"
+#include "dsda/settings.h"
 
 int Sky1Texture;
 int Sky2Texture;
@@ -722,7 +723,7 @@ static void R_DoDrawPlane(visplane_t *pl)
        * Because of this hack, sky is not affected by INVUL inverse mapping.
        * Until Boom fixed this. Compat option added in MBF. */
 
-      if (comp[comp_skymap] || !(dcvars.colormap = fixedcolormap))
+      if (!dsda_ApplyInvulnColormapToSky() || !(dcvars.colormap = fixedcolormap))
         dcvars.colormap = fullcolormap;          // killough 3/20/98
 
       //dcvars.texturemid = skytexturemid;
