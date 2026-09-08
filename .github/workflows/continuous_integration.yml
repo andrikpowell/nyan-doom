@@ -57,11 +57,15 @@ jobs:
             msys-env: mingw-w64-ucrt-x86_64
             artifact-path: build/*.zip
 
-          - name: "Linux GCC"
+          - name: "Linux GCC (vcpkg)"
             os: ubuntu-22.04
             build_type: "Release"
+            vcpkg: true
+            triplet: x64-linux-release
             extra_options: >-
               -G Ninja
+              -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+              -DVCPKG_TARGET_TRIPLET=x64-linux-release
               -DCMAKE_INSTALL_PREFIX=/usr
             release: true
             package_name: "linux_gcc"
@@ -106,7 +110,11 @@ jobs:
           sudo apt-get update
           sudo apt-get upgrade
           sudo apt-get install -y \
+            autoconf \
+            autoconf-archive \
+            automake \
             gcc \
+            libtool \
             ninja-build \
             pkg-config \
             libxmp-dev \
