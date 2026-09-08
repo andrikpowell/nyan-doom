@@ -613,9 +613,14 @@ static void gld_AddColormapToTexture(GLTexture *gltexture, unsigned char *buffer
       }
       else
       {
-        buffer[pos+0]=gtable[playpal[colormap[y*256+x]*3+0]];
-        buffer[pos+1]=gtable[playpal[colormap[y*256+x]*3+1]];
-        buffer[pos+2]=gtable[playpal[colormap[y*256+x]*3+2]];
+        const lighttable_t *map = colormap + y * 256;
+
+        if (y == INVERSECOLORMAP && dsda_GrayInvulnColormap())
+          map = V_GrayInvulnColormap();
+
+        buffer[pos+0]=gtable[playpal[map[x]*3+0]];
+        buffer[pos+1]=gtable[playpal[map[x]*3+1]];
+        buffer[pos+2]=gtable[playpal[map[x]*3+2]];
         buffer[pos+3]=255;
       }
     }
@@ -1580,12 +1585,15 @@ void gld_FlushTextures(void)
 
 void gld_UpdateInvulnColormap(void)
 {
+  static int cached_gray = -1;
   static int cached_sky = -1;
+  int gray = dsda_GrayInvulnColormap();
   int sky = dsda_ApplyInvulnColormapToSky();
 
-  if (sky == cached_sky)
+  if (gray == cached_gray && sky == cached_sky)
     return;
 
+  cached_gray = gray;
   cached_sky = sky;
 
   if (V_IsOpenGLMode())

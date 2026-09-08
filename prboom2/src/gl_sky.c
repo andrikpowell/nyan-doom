@@ -630,7 +630,10 @@ void gld_GetSkyCapColors(SkyBoxParams_t *skybox, int skylayer)
     *floor_rgb = *ceiling_rgb;
   }
 
-  colormap = fullcolormap + INVERSECOLORMAP * 256 * sizeof(lighttable_t);
+  if (dsda_GrayInvulnColormap())
+    colormap = V_GrayInvulnColormap();
+  else
+    colormap = fullcolormap + INVERSECOLORMAP * 256 * sizeof(lighttable_t);
 
   color = V_BestColor(playpal, ceiling_rgb->r, ceiling_rgb->g, ceiling_rgb->b);
   skybox->CeilingSkyColor[1].r = playpal[colormap[color] * 3 + 0];

@@ -1146,8 +1146,11 @@ static void R_SetupFrame (player_t *player)
       // killough 3/20/98: localize scalelightfixed (readability/optimization)
       static const lighttable_t *scalelightfixed[MAXLIGHTSCALE];
 
-      fixedcolormap = fullcolormap   // killough 3/20/98: use fullcolormap
-        + player->fixedcolormap*256*sizeof(lighttable_t);
+      if (player->fixedcolormap == INVERSECOLORMAP && dsda_GrayInvulnColormap())
+        fixedcolormap = V_GrayInvulnColormap();
+      else
+        fixedcolormap = fullcolormap   // killough 3/20/98: use fullcolormap
+          + player->fixedcolormap*256*sizeof(lighttable_t);
 
       walllights = scalelightfixed;
 

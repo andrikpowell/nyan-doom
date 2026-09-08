@@ -390,6 +390,13 @@ dboolean dsda_ApplyInvulnColormapToSky(void) {
   return options_sky;
 }
 
+dboolean dsda_GrayInvulnColormap(void) {
+  if (raven)
+    return false;
+
+  return dsda_IntConfig(dsda_config_gray_invulnerability);
+}
+
 dboolean dsda_ShowHealthBars(void) {
   return dsda_IntConfig(dsda_config_gl_health_bar);
 }

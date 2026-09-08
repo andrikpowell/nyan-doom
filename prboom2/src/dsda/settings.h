@@ -73,6 +73,7 @@ dboolean dsda_PainPaletteReduced(void);
 dboolean dsda_PickupPaletteReduced(void);
 dboolean dsda_EffectPaletteReduced(void);
 dboolean dsda_ApplyInvulnColormapToSky(void);
+dboolean dsda_GrayInvulnColormap(void);
 dboolean dsda_RenderWipeScreen(void);
 dboolean dsda_WipeAtFullSpeed(void);
 int dsda_WipeScreenSpeed(void);

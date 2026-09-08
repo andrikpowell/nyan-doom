@@ -187,6 +187,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_palette_onpowers),
   MIGRATED_SETTING(dsda_config_palette_oneffects),
   MIGRATED_SETTING(dsda_config_invulnerability_sky),
+  MIGRATED_SETTING(dsda_config_gray_invulnerability),
   MIGRATED_SETTING(dsda_config_enhanced_liteamp),
   MIGRATED_SETTING(nyan_config_ui_fade_effects),
   MIGRATED_SETTING(dsda_config_colored_borderbox),

@@ -178,7 +178,8 @@ dboolean V_IsMenuLightmodeIndexed(void);
 
 //jff 4/24/98 loads color translation lumps
 void V_UpdateColorTranslation(void);
-void V_UpdateShadeColormap(void);
+void V_UpdateColormaps(void);
+const byte *V_GrayInvulnColormap(void);
 
 void V_InitFlexTranTable(void);
 

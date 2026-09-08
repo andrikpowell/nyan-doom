@@ -2006,6 +2006,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_invulnerability_sky", dsda_config_invulnerability_sky,
     dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0), gld_UpdateInvulnColormap
   },
+  [dsda_config_gray_invulnerability] = {
+    "dsda_gray_invulnerability", dsda_config_gray_invulnerability,
+    CONF_BOOL(0), NULL, NOT_STRICT, gld_UpdateInvulnColormap
+  },
   [dsda_config_enhanced_liteamp] = {
     "enhanced_liteamp", dsda_config_enhanced_liteamp,
     CONF_BOOL(0), NULL, STRICT_INT(0)
