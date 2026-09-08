@@ -913,7 +913,7 @@ static void RenderDome(SkyBoxParams_t *sky, int skylayer)
 
   vbo_layer = gld_GetSkyVBOs(gltexture, sky->y_offset, sky->wall.flag, skylayer);
 
-  if (invul_cm && frame_fixedcolormap == INVERSECOLORMAP)
+  if (invul_cm && frame_fixedcolormap == INVERSECOLORMAP && !comp[comp_skymap])
     vbo = &vbo_layer[1];
   else
     vbo = &vbo_layer[0];
