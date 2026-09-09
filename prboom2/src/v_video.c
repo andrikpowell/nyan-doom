@@ -89,6 +89,7 @@ screeninfo_t screens[NUM_SCREENS];
 const byte *colrngs[CR_LIMIT];
 static byte *color_translation_table;
 static byte ui_shademap[31][256];
+static byte gray_invuln_colormap[256];
 
 int usegamma;
 int extra_brightness;
@@ -169,7 +170,7 @@ static const byte *V_ShadeColormap(int shade)
   return ui_shademap[shade];
 }
 
-void V_UpdateShadeColormap(void)
+static void V_UpdateShadeColormap(void)
 {
   int i;
   const byte *playpal = V_GetPlaypal();
@@ -195,6 +196,33 @@ void V_UpdateShadeColormap(void)
       );
     }
   }
+}
+
+static void V_UpdateInvulnColormap(void)
+{
+  int i;
+  const byte *playpal = V_GetPlaypal();
+
+  for (i = 0; i < 256; ++i)
+  {
+    int r = playpal[i * 3 + 0];
+    int g = playpal[i * 3 + 1];
+    int b = playpal[i * 3 + 2];
+    int gray = (r * 299 + g * 587 + b * 114) / 1000;
+
+    gray_invuln_colormap[i] = V_BestColor(playpal, gray, gray, gray);
+  }
+}
+
+void V_UpdateColormaps(void)
+{
+  V_UpdateShadeColormap();    // Update automap / menu overlay
+  V_UpdateInvulnColormap();   // Update gray invulnerability
+}
+
+const byte *V_GrayInvulnColormap(void)
+{
+  return gray_invuln_colormap;
 }
 
 void V_UpdateColorTranslation(void)
@@ -1299,7 +1327,7 @@ void V_SetPlayPal(int playpal_index)
   V_SetPalette(currentPaletteIndex);
 
   V_UpdateColorTranslation(); // Update Text Colors
-  V_UpdateShadeColormap();    // Update automap / menu overlay
+  V_UpdateColormaps();        // Update overlay / gray invuln
   dsda_RefreshTranMaps();     // Update shadows / translucency
   V_UpdateStbarColor();       // Update stbar background color
 

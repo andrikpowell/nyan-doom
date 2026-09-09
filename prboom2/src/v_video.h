@@ -159,6 +159,12 @@ typedef enum {
   VID_MODEGL
 } video_mode_t;
 
+typedef enum {
+  INVULN_SKY_DEFAULT,
+  INVULN_SKY_MBF,
+  INVULN_SKY_VANILLA,
+} invuln_sky_t;
+
 void V_InitMode(video_mode_t mode);
 
 // video mode query interface
@@ -172,7 +178,8 @@ dboolean V_IsMenuLightmodeIndexed(void);
 
 //jff 4/24/98 loads color translation lumps
 void V_UpdateColorTranslation(void);
-void V_UpdateShadeColormap(void);
+void V_UpdateColormaps(void);
+const byte *V_GrayInvulnColormap(void);
 
 void V_InitFlexTranTable(void);
 

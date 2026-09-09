@@ -472,6 +472,8 @@ enum {
   dsda_config_palette_onbonus,
   dsda_config_palette_onpowers,
   dsda_config_palette_oneffects,
+  dsda_config_invulnerability_sky,
+  dsda_config_gray_invulnerability,
   dsda_config_enhanced_liteamp,
   nyan_config_ui_fade_effects,
   dsda_config_colored_borderbox,
