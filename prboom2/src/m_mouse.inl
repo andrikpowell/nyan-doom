@@ -710,6 +710,12 @@ static dboolean M_MouseSetupItemAtPointer(int *index)
   return found;
 }
 
+static dboolean M_MouseSetupThermoAtPointer(const setup_menu_t *item)
+{
+  return menu_mouse_x >= item->m_x &&
+         menu_mouse_x < item->m_x + 80;
+}
+
 static const char **M_MouseCurrentTabs(int *visible_tabs, int *y,
                                       setup_menu_t ***setup_pages)
 {
@@ -1054,6 +1060,9 @@ static dboolean M_MouseActivateSetupItem(event_t *ev)
 
     if (item->m_flags & S_THERMO)
     {
+      if (!M_MouseSetupThermoAtPointer(item))
+        return true;
+
       menu_mouse_drag_setup = set_menu_itemon;
       return M_MouseSetSetupThermo(set_menu_itemon);
     }
@@ -1072,6 +1081,9 @@ static dboolean M_MouseActivateSetupItem(event_t *ev)
 
   if (item->m_flags & S_THERMO)
   {
+    if (!M_MouseSetupThermoAtPointer(item))
+      return true;
+
     menu_mouse_drag_setup = set_menu_itemon;
     return M_MouseSetSetupThermo(set_menu_itemon);
   }
