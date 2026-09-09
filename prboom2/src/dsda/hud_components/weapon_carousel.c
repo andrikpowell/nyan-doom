@@ -332,8 +332,7 @@ static int WeaponIconLump(weapon_icon_t icon)
 static void DrawWeaponIcon(const local_component_t* c, int x, weapon_icon_t icon)
 {
   char lump_name[9] = {0};
-  int color;
-  int flags;
+  int color, shadow, flags;
 
   WeaponIconName(lump_name, icon);
 
@@ -343,7 +342,10 @@ static void DrawWeaponIcon(const local_component_t* c, int x, weapon_icon_t icon
   if (color != CR_DEFAULT)
     flags |= VPT_COLOR;
 
-  V_DrawMenuFadeNamePatch(x, c->component.y, lump_name, color, c->fade_alpha, flags);
+  // Only use raven shadows when extra shadows are on
+  shadow = (dsda_ShadowTranslucency() && raven) ? SHADOW_ALWAYS_RAVEN : SHADOW_EXTRA;
+
+  V_DrawMenuFadeNamePatchAdv(x, c->component.y, lump_name, shadow, color, c->fade_alpha, flags);
 }
 
 static int CalcOffset(local_component_t* c)
