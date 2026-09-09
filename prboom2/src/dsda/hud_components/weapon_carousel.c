@@ -41,6 +41,38 @@ static const char* const doom_names[NUMWEAPONS] = {
   [wp_supershotgun] = "SMSGN2",
 };
 
+static const char* const heretic_names[NUMWEAPONS] = {
+  [wp_staff] = "SMWSTF",
+  [wp_goldwand] = "SMWGLD",
+  [wp_crossbow] = "SMWBOW",
+  [wp_blaster] = "SMWBLS",
+  [wp_skullrod] = "SMWSKL",
+  [wp_phoenixrod] = "SMWPHX",
+  [wp_mace] = "SMWMCE",
+  [wp_gauntlets] = "SMWGNT",
+};
+
+static const char* const hexen_names[NUMCLASSES][HEXEN_NUMWEAPONS] = {
+    [PCLASS_FIGHTER] = {
+      [wp_first]  = "SMWFPC",
+      [wp_second] = "SMWFAX",
+      [wp_third]  = "SMWFHM",
+      [wp_fourth] = "SMWFRS",
+    },
+    [PCLASS_CLERIC] = {
+      [wp_first]  = "SMWCMC",
+      [wp_second] = "SMWCSS",
+      [wp_third]  = "SMWCFM",
+      [wp_fourth] = "SMWCHS",
+    },
+    [PCLASS_MAGE] = {
+      [wp_first]  = "SMWMWD",
+      [wp_second] = "SMWMCS",
+      [wp_third]  = "SMWMLG",
+      [wp_fourth] = "SMWMST",
+    },
+};
+
 static const weapontype_t doom_weapon_order[] = {
   wp_fist,
   wp_chainsaw,
@@ -51,6 +83,24 @@ static const weapontype_t doom_weapon_order[] = {
   wp_missile,
   wp_plasma,
   wp_bfg,
+};
+
+static const weapontype_t heretic_weapon_order[] = {
+  wp_staff,
+  wp_gauntlets,
+  wp_goldwand,
+  wp_crossbow,
+  wp_blaster,
+  wp_skullrod,
+  wp_phoenixrod,
+  wp_mace,
+};
+
+static const weapontype_t hexen_weapon_order[] = {
+  wp_first,
+  wp_second,
+  wp_third,
+  wp_fourth,
 };
 
 typedef enum
@@ -139,11 +189,20 @@ static int CarouselFadeAlpha(int tics)
 static void BuildWeaponIcons(local_component_t* c, const player_t* player)
 {
   int i;
+
+  const weapontype_t* weapon_order =  hexen   ? hexen_weapon_order :
+                                      heretic ? heretic_weapon_order :
+                                                doom_weapon_order;
+
+  int weapon_count = hexen   ? arrlen(hexen_weapon_order) :
+                     heretic ? arrlen(heretic_weapon_order) :
+                               arrlen(doom_weapon_order);
+
   c->icon_count = 0;
 
-  for (i = 0; i < arrlen(doom_weapon_order); ++i)
+  for (i = 0; i < weapon_count; ++i)
   {
-    weapontype_t weapon = doom_weapon_order[i];
+    weapontype_t weapon = weapon_order[i];
     weapon_icon_state_t state = wpi_none;
 
     if (c->last_index == -1 && weapon == player->readyweapon)
@@ -186,12 +245,20 @@ void dsda_UpdateWeaponCarouselHC(void* data)
   player_t* player = &players[displayplayer];
   local = data;
 
-  if (!dsda_WeaponCarousel() || raven)
+  if (!dsda_WeaponCarousel())
     return;
 
   if (G_NextWeaponActivate())
   {
     local->duration = TICRATE / 2;
+  }
+
+  // [raven] Disable for chicken / morph
+  if (players[displayplayer].chickenTics != 0 ||
+      players[displayplayer].morphTics != 0)
+  {
+    ResetCarousel(local);
+    return;
   }
 
   if (local->duration == 0)
@@ -224,12 +291,40 @@ void dsda_UpdateWeaponCarouselHC(void* data)
   }
 }
 
+static void WeaponIconName(char lump_name[9], weapon_icon_t icon)
+{
+  const char *name;
+  dboolean custom_icon = !hexen && weaponinfo[icon.weapon].carouselicon;
+  int selected = icon.state == wpi_selected;
+
+  if (custom_icon)
+    name = weaponinfo[icon.weapon].carouselicon;
+  else if (hexen)
+    name = hexen_names[players[displayplayer].pclass][icon.weapon];
+  else if (heretic)
+    name = heretic_names[icon.weapon];
+  else
+    name = doom_names[icon.weapon];
+
+  snprintf(lump_name, 9, "%s%d", name, selected);
+
+  // Fallback to generic icon if not found
+  if (custom_icon && W_CheckNumForName(lump_name) == LUMP_NOT_FOUND)
+  {
+    // If raven pwad hasn't replaced unknown icon,
+    // then use internal SMUNKN2/3.
+    if (raven && !W_PWADLumpNameExists(selected ? "SMUNKN1" : "SMUNKN0"))
+      snprintf(lump_name, 9, "SMUNKN%d", selected + 2);
+    else
+      snprintf(lump_name, 9, "SMUNKN%d", selected);
+  }
+}
+
 static int WeaponIconLump(weapon_icon_t icon)
 {
   char lump_name[9] = {0};
-  const char *name = doom_names[icon.weapon];
 
-  snprintf(lump_name, sizeof(lump_name), "%s%d", name, icon.state == wpi_selected);
+  WeaponIconName(lump_name, icon);
 
   return W_GetNumForName(lump_name);
 }
@@ -237,25 +332,9 @@ static int WeaponIconLump(weapon_icon_t icon)
 static void DrawWeaponIcon(const local_component_t* c, int x, weapon_icon_t icon)
 {
   char lump_name[9] = {0};
-  const char *name;
-  int color;
-  int flags;
+  int color, shadow, flags;
 
-  // later to add dehacked carousel names
-  /*
-  if (weaponinfo[icon.weapon].carouselicon)
-  {
-      name = weaponinfo[icon.weapon].carouselicon;
-  }
-  else
-  {
-      name = doom_names[icon.weapon];
-  }
-  */
-
-  name = doom_names[icon.weapon];
-
-  snprintf(lump_name, sizeof(lump_name), "%s%d", name, icon.state == wpi_selected);
+  WeaponIconName(lump_name, icon);
 
   color = (icon.state == wpi_disabled) ? CR_DARKEN : CR_DEFAULT;
   flags = c->component.vpt;
@@ -263,7 +342,10 @@ static void DrawWeaponIcon(const local_component_t* c, int x, weapon_icon_t icon
   if (color != CR_DEFAULT)
     flags |= VPT_COLOR;
 
-  V_DrawMenuFadeNamePatch(x, c->component.y, lump_name, color, c->fade_alpha, flags);
+  // Only use raven shadows when extra shadows are on
+  shadow = (dsda_ShadowTranslucency() && raven) ? SHADOW_ALWAYS_RAVEN : SHADOW_EXTRA;
+
+  V_DrawMenuFadeNamePatchAdv(x, c->component.y, lump_name, shadow, color, c->fade_alpha, flags);
 }
 
 static int CalcOffset(local_component_t* c)
@@ -290,7 +372,12 @@ void dsda_DrawWeaponCarouselHC(void* data)
 
   local = data;
 
-  if (!dsda_WeaponCarousel() || raven)
+  if (!dsda_WeaponCarousel())
+    return;
+
+  // [raven] Disable for chicken / morph
+  if (players[displayplayer].chickenTics != 0 ||
+      players[displayplayer].morphTics != 0)
     return;
 
   if (local->duration == 0 || local->icon_count == 0)

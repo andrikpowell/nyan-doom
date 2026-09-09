@@ -490,12 +490,12 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
     int TL = flags & VPT_TRANSMAP;
     int REVERSE_TL = flags & VPT_TRANSMAP_REVERSE;
 
-    if (y_start < 0 || y_end > y_limit) {
-      // killough 1/19/98: improved error message:
-      lprintf(LO_WARN, "V_DrawPatch: Patch (%d,%d)-(%d,%d) exceeds LFB in vertical direction (horizontal is clipped)\n"
-              "Bad V_DrawPatch (flags=%u)", x, y, x+patch->width, y+patch->height, flags);
-      return;
-    }
+    // Crop top to the vertical screen bounds
+    if (y_start < 0)
+      crop.top = -y;
+
+    if (y_end > y_limit)
+      crop.bottom = y + patch->height - y_limit;
 
     w--; // CPhipps - note: w = width-1 now, speeds up flipping
 
@@ -506,14 +506,14 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
       int screen_x = x + col;
       const int colindex = (flags & VPT_FLIP) ? (w - col) : (col);
       const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
-      byte *desttop;
+      byte *destcolumn;
 
       if (screen_x < 0)
         continue;
       if (screen_x >= SCREENWIDTH)
         break;
 
-      desttop = screens[scrn].data + y + screen_x * pitch;
+      destcolumn = screens[scrn].data + screen_x * pitch;
 
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
@@ -528,7 +528,7 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
 
         // killough 2/21/98: Unrolled and performance-tuned
         source = column->pixels + draw_start;
-        dest = desttop + draw_start;
+        dest = destcolumn + y + draw_start;
         count = draw_end - draw_start;
 
      // both translucent and color translated
@@ -912,12 +912,12 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
         }
 
         if (dcvars.yl < 0) {
-          yoffset = (0-dcvars.yl) * 200/params->video->height;
+          yoffset = ((0-dcvars.yl) * 200 + params->video->height-1) / params->video->height;
           dcvars.yl = 0;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }
         if (dcvars.yl < top) {
-          yoffset = (top-dcvars.yl) * 200/params->video->height;
+          yoffset = ((top-dcvars.yl) * 200 + params->video->height-1) / params->video->height;
           dcvars.yl = top;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }
@@ -1154,18 +1154,9 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   if (shadowinfo.active && shadowinfo.trans == 0)
     shadowinfo.active = false;
 
-  // Clamp shadow so it doesn't exceed screen bounds,
-  // Stops V_DrawPatch vertical overflow error.
-  {
-    shadow_x = x + shadowinfo.shadow_offset;
-    shadow_y = y + shadowinfo.shadow_offset;
-
-    // DO NOT clamp shadow_x: V_DrawPatch/V_DrawPatchStretch clip horizontally already.
-
-    if (shadow_y < 0) shadow_y = 0;
-    if (shadow_y + patch->height > SCREENHEIGHT)
-        shadow_y = SCREENHEIGHT - patch->height;
-  }
+  // Clamp shadow so it doesn't exceed screen bounds
+  shadow_x = x + shadowinfo.shadow_offset;
+  shadow_y = y + shadowinfo.shadow_offset;
 
   // Draw scaled patch with pipelines
   if ((flags & VPT_STRETCH_MASK) || fuzz) {

@@ -65,6 +65,7 @@ typedef struct
   int         ammopershot;
   int         intflags;
   int         flags;
+  char*       carouselicon;
 } weaponinfo_t;
 
 extern weaponinfo_t doom_weaponinfo[NUMWEAPONS+2];
