@@ -289,13 +289,8 @@ set(NYAN_GRAPHICS
     # map icons
     graphics/amkills.png
     graphics/amitem.png
+    graphics/amitm2.png
     graphics/amsecr.png
-    graphics/amkills2.png
-    graphics/amitem2.png
-    graphics/amsecr2.png
-    graphics/amkills3.png
-    graphics/amitem3.png
-    graphics/amsecr3.png
 
     # hud graphics
     graphics/stfpstr0.png
@@ -315,18 +310,12 @@ set(NYAN_GRAPHICS
     # status widget
     graphics/stfpkill.png
     graphics/stfpitem.png
+    graphics/stfpitm2.png
     graphics/stfpsecr.png
-    graphics/stfrkil2.png
-    graphics/stfritm2.png
-    graphics/stfrscr2.png
-    graphics/stfrkil3.png
-    graphics/stfritm3.png
-    graphics/stfrscr3.png
-    graphics/stfrtome.png
-    graphics/stfrmor1.png
-    graphics/stfrmor2.png
-    graphics/stfrsped.png
-    graphics/stfrmaul.png
+    graphics/stfptome.png
+    graphics/stfpmorp.png
+    graphics/stfpsped.png
+    graphics/stfpmaul.png
     graphics/stfpinv.png
     graphics/stfpins.png
     graphics/stfpvis.png
