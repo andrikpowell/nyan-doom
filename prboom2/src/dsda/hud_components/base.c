@@ -100,7 +100,7 @@ void dsda_RefreshHudTextWrapped(dsda_text_t* component, int centered, int max_li
   HUlib_clearTextLine(&component->text);
 
   s = component->msg;
-  HUlib_WrapStringToTextLines(&component->text, s, centered, max_lines);
+  HUlib_WrapTextLine(&component->text, s, centered, max_lines);
 }
 
 //

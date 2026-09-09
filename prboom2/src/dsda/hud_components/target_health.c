@@ -132,7 +132,7 @@ void dsda_UpdateTargetHealthHC(void* data) {
   dsda_RefreshHudText(&local->component);
 
   if (local->center)
-    HUlib_setTextXCenter(&local->component.text);
+    HUlib_CenterText(&local->component.text);
 
   local->component.text.fade_alpha = dsda_MessageFadeOut(target_health_tics);
 }
