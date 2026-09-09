@@ -692,11 +692,11 @@ void MN_DrawSound(void)
 {
   char num[4];
 
-  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX, 16, 16, snd_SfxVolume, M_CurrentSelectedItem(SFX_VOL_INDEX-1), false);
+  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX, 16, 16, snd_SfxVolume, M_CurrentSelectedItem(SFX_VOL_INDEX-1), M_MenuMouseHovered(SFX_VOL_INDEX-1));
   snprintf(num, sizeof(num), "%3d", snd_SfxVolume);
   MN_DrTextA(num, SoundDef.x + 130, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX + 3);
 
-  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX, 16, 16, snd_MusicVolume, M_CurrentSelectedItem(MUS_VOL_INDEX-1), false);
+  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX, 16, 16, snd_MusicVolume, M_CurrentSelectedItem(MUS_VOL_INDEX-1), M_MenuMouseHovered(MUS_VOL_INDEX-1));
   snprintf(num, sizeof(num), "%3d", snd_MusicVolume);
   MN_DrTextA(num, SoundDef.x + 130, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX + 3);
 }
@@ -941,7 +941,7 @@ void MN_DrawTitle(int y, const char *text, int cm)
 #define SLIDER_WIDTH (SLIDER_LIMIT - 64)
 #define SLIDER_PATCH_COUNT (SLIDER_WIDTH / 8)
 
-void MN_DrawSlider(int x, int y, int width, int range, int slot, dboolean selected, dboolean small_thermo)
+void MN_DrawSlider(int x, int y, int width, int range, int slot, dboolean selected, dboolean force_highlight)
 {
   int xx;
   int i;
@@ -952,7 +952,7 @@ void MN_DrawSlider(int x, int y, int width, int range, int slot, dboolean select
   int flags = VPT_STRETCH;
 
   if (selected)
-    color += M_Highlight(small_thermo);
+    color += M_Highlight(force_highlight);
 
   if (color != CR_DEFAULT)
     flags |= VPT_COLOR;

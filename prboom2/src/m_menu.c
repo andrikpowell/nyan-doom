@@ -346,7 +346,7 @@ static void M_DrawHelp (void);                                     // phares 5/0
 static void M_DrawAd(void);
 
 static void M_DrawSaveLoadBorder(int x,int y,dboolean selected);
-static void M_DrawThermo(int x,int y,int thermWidth,int thermRange,int thermDot,dboolean selected,dboolean small_thermo);
+static void M_DrawThermo(int x,int y,int thermWidth,int thermRange,int thermDot,dboolean selected,dboolean force_highlight);
 static void M_DrawEmptyCell(menu_t *menu,int item);
 static void M_DrawSelCell(menu_t *menu,int item);
 static void M_WriteText(int x, int y, const char *string, int cm);
@@ -1593,12 +1593,12 @@ static void M_DrawSound(void)
   // CPhipps - patch drawing updated
   V_DrawMenuNamePatch(60, 38, "M_SVOL", CR_DEFAULT, VPT_STRETCH);
 
-  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),16,16,snd_SfxVolume,M_CurrentSelectedItem(sfx_vol),false);
+  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),16,16,snd_SfxVolume,M_CurrentSelectedItem(sfx_vol),M_MenuMouseHovered(sfx_vol));
   snprintf(num, sizeof(num), "%3d", snd_SfxVolume);
   strcpy(menu_buffer, num);
   M_DrawMenuString(SoundDef.x + 150, SoundDef.y+LINEHEIGHT*(sfx_vol+1) + 3, cr_value_edit);
 
-  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(music_vol+1),16,16,snd_MusicVolume,M_CurrentSelectedItem(music_vol),false);
+  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(music_vol+1),16,16,snd_MusicVolume,M_CurrentSelectedItem(music_vol),M_MenuMouseHovered(music_vol));
   snprintf(num, sizeof(num), "%3d", snd_MusicVolume);
   strcpy(menu_buffer, num);
   M_DrawMenuString(SoundDef.x + 150, SoundDef.y+LINEHEIGHT*(music_vol+1) + 3, cr_value_edit);
@@ -9903,7 +9903,7 @@ static void M_StopMessage(void)
 // proff/nicolas 09/20/98 -- changed for hi-res
 // CPhipps - patch drawing updated
 //
-static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int thermDot, dboolean selected, dboolean small_thermo )
+static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int thermDot, dboolean selected, dboolean force_highlight )
 {
   int xx;
   int i;
@@ -9912,10 +9912,10 @@ static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int therm
   int color = CR_DEFAULT;
   int flags = VPT_STRETCH;
 
-  if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot, selected, small_thermo));
+  if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot, selected, force_highlight));
 
   if (selected)
-    color += M_Highlight(small_thermo);
+    color += M_Highlight(force_highlight);
 
   if (color != CR_DEFAULT)
     flags |= VPT_COLOR;
