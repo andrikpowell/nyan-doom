@@ -109,9 +109,8 @@ set(SOUNDS
     sounds/dsnyanut.wav
 )
 
-set (PPM_GRAPHICS
-    # must be ppm to match palette
-    graphics/m_colors.ppm
+set(COLORS_LUMP
+    lumps/m_colors.lmp
 )
 
 set(GRAPHICS
@@ -272,11 +271,6 @@ set(GRAPHICS
     graphics/smshot1.png
 )
 
- # must be ppm to match palette
-set(COLOR_PICKER
-    graphics/m_colors.ppm
-)
-
 set(NYAN_GRAPHICS
     # nyan
     graphics/nyanlogo.png
@@ -424,7 +418,7 @@ set(WAD_SRC
     ${PALETTE}
     ${LUMPS}
     ${COLORMAPS}
-    ${PRBOOM_LUMPS}
+    ${COLORS_LUMP}
     ${OPENGL_GRAPHICS}
     ${SOUNDS}
     ${PPM_GRAPHICS}
@@ -445,7 +439,7 @@ set(WAD_CMDLINE
         -pngs ${OPENGL_GRAPHICS}
     -marker B_END
     -sounds ${SOUNDS}
-    -graphics ${PPM_GRAPHICS}
+    -lumps ${COLORS_LUMP}
     -pngs ${GRAPHICS}
     -pngs ${NYAN_GRAPHICS}
     -marker FF_START

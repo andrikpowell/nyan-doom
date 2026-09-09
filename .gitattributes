@@ -32,6 +32,7 @@ prboom2/data/graphics/smshot1.png
 prboom2/data/lumps/gls_fuzz.lmp
 prboom2/data/lumps/gls_main.lmp
 prboom2/data/lumps/gls_v.lmp
+prboom2/data/lumps/m_colors.lmp
 prboom2/data/graphics/cross1.png -text
 prboom2/data/graphics/cross2.png -text
 prboom2/data/graphics/cross3.png -text
@@ -145,7 +146,6 @@ prboom2/data/graphics/amsecr.png -text
 prboom2/data/graphics/amvial.png -text
 prboom2/data/graphics/m_butt1.png -text
 prboom2/data/graphics/m_butt2.png -text
-prboom2/data/graphics/m_colors.ppm -text
 prboom2/data/graphics/m_palno.png -text
 prboom2/data/graphics/m_palsel.png -text
 prboom2/data/graphics/m_vbox.png -text
