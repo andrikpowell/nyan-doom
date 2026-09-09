@@ -273,7 +273,13 @@ set(GRAPHICS
     graphics/smunkn0.png
     graphics/smunkn1.png
 
-    # Heretic Weapon carousel graphics, drawn by Julia Nechaevskaya
+    # Raven Unknown Weapon graphics, drawn by Arsinikk
+    graphics/smunkn2.png
+    graphics/smunkn3.png
+
+    # Heretic + Hexen Weapon carousel graphics, drawn by Julia Nechaevskaya
+    graphics/smunkn2.png
+    graphics/smunkn3.png
     graphics/smwbls0.png
     graphics/smwbls1.png
     graphics/smwbow0.png
@@ -290,8 +296,30 @@ set(GRAPHICS
     graphics/smwskl1.png
     graphics/smwstf0.png
     graphics/smwstf1.png
-    graphics/smunkn2.png
-    graphics/smunkn3.png
+    graphics/smwfpc0.png
+    graphics/smwfpc1.png
+    graphics/smwfax0.png
+    graphics/smwfax1.png
+    graphics/smwfhm0.png
+    graphics/smwfhm1.png
+    graphics/smwfrs0.png
+    graphics/smwfrs1.png
+    graphics/smwcmc0.png
+    graphics/smwcmc1.png
+    graphics/smwcss0.png
+    graphics/smwcss1.png
+    graphics/smwcfm0.png
+    graphics/smwcfm1.png
+    graphics/smwchs0.png
+    graphics/smwchs1.png
+    graphics/smwmwd0.png
+    graphics/smwmwd1.png
+    graphics/smwmcs0.png
+    graphics/smwmcs1.png
+    graphics/smwmlg0.png
+    graphics/smwmlg1.png
+    graphics/smwmst0.png
+    graphics/smwmst1.png
 )
 
  # must be ppm to match palette

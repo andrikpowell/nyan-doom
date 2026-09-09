@@ -186,35 +186,6 @@ static int CarouselFadeAlpha(int tics)
   return alpha;
 }
 
-// [AR] temp guard until we get internal hexen icons
-static dboolean HexenCarouselIconsAvailable(void)
-{
-  char lump_name[9];
-  int pclass;
-  int weapon;
-  int state;
-
-  if (!hexen)
-    return true;
-
-  for (pclass = PCLASS_FIGHTER; pclass <= PCLASS_MAGE; pclass++)
-  {
-    for (weapon = 0; weapon < arrlen(hexen_weapon_order); weapon++)
-    {
-      for (state = 0; state < 2; ++state)
-      {
-        snprintf(lump_name, sizeof(lump_name), "%s%d",
-                 hexen_names[pclass][hexen_weapon_order[weapon]], state);
-
-        if (W_CheckNumForName(lump_name) == LUMP_NOT_FOUND)
-          return false;
-      }
-    }
-  }
-
-  return true;
-}
-
 static void BuildWeaponIcons(local_component_t* c, const player_t* player)
 {
   int i;
@@ -284,9 +255,7 @@ void dsda_UpdateWeaponCarouselHC(void* data)
 
   // [raven] Disable for chicken / morph
   if (players[displayplayer].chickenTics != 0 ||
-      players[displayplayer].morphTics != 0 ||
-      // [AR] temp guard until we get internal hexen icons
-      !HexenCarouselIconsAvailable())
+      players[displayplayer].morphTics != 0)
   {
     ResetCarousel(local);
     return;
@@ -406,9 +375,7 @@ void dsda_DrawWeaponCarouselHC(void* data)
 
   // [raven] Disable for chicken / morph
   if (players[displayplayer].chickenTics != 0 ||
-      players[displayplayer].morphTics != 0 ||
-      // [AR] temp guard until we get internal hexen icons
-      !HexenCarouselIconsAvailable())
+      players[displayplayer].morphTics != 0)
     return;
 
   if (local->duration == 0 || local->icon_count == 0)
