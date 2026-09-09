@@ -508,7 +508,7 @@ static dboolean M_MouseSetupTextAtPointer(const char *text, int x, int y)
 
 static dboolean M_MouseSetupDescriptionAtPointer(const setup_menu_t *item, int y)
 {
-  char text[66];
+  char text[MENU_BUFFER_SIZE];
   const char *line;
   int x = item->m_x;
   menu_flags_t flags = item->m_flags;
@@ -536,7 +536,9 @@ static dboolean M_MouseSetupDescriptionAtPointer(const setup_menu_t *item, int y
     len = end ? (size_t)(end - line) : strlen(line);
     width = M_MousePixelWidthN(line, len);
 
-    if (!(flags & S_LEFTJUST))
+    if (flags & S_CENTER)
+      left = (BASE_WIDTH - width) / 2;
+    else if (!(flags & S_LEFTJUST))
       left -= width + 4;
 
     if (M_MouseSetupTextRangeAtPointer(line, len, left, y))

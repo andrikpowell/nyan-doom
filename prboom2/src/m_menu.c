@@ -2761,9 +2761,8 @@ static void M_DrawItem(const setup_menu_t* s, int y)
 {
   int x = s->m_x;
   menu_flags_t flags = s->m_flags;
-  char text[66];
+  char text[MENU_BUFFER_SIZE];
   char *p, *t;
-  int w = 0;
   int color;
 
   if (M_ItemHidden(s))
@@ -2778,7 +2777,7 @@ static void M_DrawItem(const setup_menu_t* s, int y)
   color = GetItemColor(flags);
 
   // Add ". . ." to function
-  sprintf(text, "%s%s", s->m_text, (flags & S_FUNC) ? ". . ." : "");
+  snprintf(text, sizeof(text), "%s%s", s->m_text, (flags & S_FUNC) ? ". . ." : "");
 
   /* killough 10/98:
    * Enhance to support multiline text separated by newlines.
@@ -2787,12 +2786,15 @@ static void M_DrawItem(const setup_menu_t* s, int y)
 
   for (p = t = Z_Strdup(text); (p = strtok(p,"\n")); y += 8, p = NULL)
   { /* killough 10/98: support left-justification: */
-    w = M_GetPixelWidth(p);
+    int w = M_GetPixelWidth(p);
+    int offset = 0;
 
-    if (!(flags & S_LEFTJUST))
-      x -= (w + 4);
+    if (flags & S_CENTER)
+      offset = x - (BASE_WIDTH - w) / 2;
+    else if (!(flags & S_LEFTJUST))
+      offset = w + 4;
 
-    M_DrawString(x, y, color, p);
+    M_DrawString(x - offset, y, color, p);
 
     // print a blinking left "arrow" before highlighted menu item
     if (M_ItemSelected(s))
@@ -2800,18 +2802,18 @@ static void M_DrawItem(const setup_menu_t* s, int y)
       if (setup_select && (flags & (S_CHOICE | S_CRCHOICE | S_THERMO)))
       {
         if (M_PrevChoiceExists(s))
-          M_DrawString(x - 8, y, color, "<");
+          M_DrawString(x - offset - 8, y, color, "<");
 
         // if first choice, don't draw arrow
       }
       else // if not in setup, draw arrow
-        M_DrawString(x - 8, y, color, ">");
+        M_DrawString(x - offset - 8, y, color, ">");
     }
 
     // print a blinking right "arrow" after highlighted function
     if (flags & S_FUNC)
       if (M_ItemSelected(s) && !setup_select)
-          M_DrawString(x + w, y, color, " <");
+          M_DrawString(x - offset + w, y, color, " <");
   }
   Z_Free(t);
 }
@@ -4855,7 +4857,7 @@ setup_menu_t auto_appearance_settings[] =
   EMPTY_LINE,
   { "Automap Markers", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_marker_style, 0, map_marker_style_list },
   { "Automap Stat Icons", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_stat_icons },
-  FUNC_DEPEND("OpenGL Options", S_CENTER | S_NYAN, g_all, AA_X, M_Sub_AutoMapOpenGL, dsda_config_videomode, OPENGL_MODE),
+  FUNC_DEPEND("OpenGL Options", S_NYAN, g_all, AA_X, M_Sub_AutoMapOpenGL, dsda_config_videomode, OPENGL_MODE),
   EMPTY_LINE,
   TITLE("Background", AA_X),
   { "Automap background", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_background },
@@ -5197,7 +5199,7 @@ setup_menu_t gen_audio_settings[] = {
   { "Preferred MIDI player", S_CHOICE | S_STR, m_conf, g_all, G3_X, dsda_config_snd_midiplayer, 0, midiplayers },
   { "Soundfont", S_CHOICE | S_STR | S_TWO_LINE | S_NYAN, m_conf, g_all, G3_X, dsda_config_snd_soundfont, 0, soundfont_list, DEPEND(dsda_config_snd_midiplayer, MIDI_FLUIDSYNTH) },
   EMPTY_LINE,
-  FUNC("Advanced Sound", S_CENTER, G3_X, M_Sub_AdvAudio),
+  FUNC("Advanced Sound", 0, G3_X, M_Sub_AdvAudio),
 
   PREV_PAGE(gen_video_settings),
   NEXT_PAGE(gen_device_settings),
@@ -5212,12 +5214,12 @@ setup_menu_t gen_device_settings[] = {
   { "Enable Mouse", S_YESNO, m_conf, g_all, G2_X, dsda_config_use_mouse },
   { "Vertical Mouse Movement", S_YESNO, m_conf, g_all, G2_X, dsda_config_vertmouse, 0, empty_list, DEPEND(dsda_config_use_mouse, true) },
   { "Invert Look", S_YESNO, m_conf, g_all, G2_X, dsda_config_movement_mouseinvert, 0, empty_list, DEPEND(dsda_config_use_mouse, true) },
-  FUNC_DEPEND("Mouse Options", S_CENTER, g_all, G2_X, M_Sub_Mouse, dsda_config_use_mouse, true),
+  FUNC_DEPEND("Mouse Options", 0, g_all, G2_X, M_Sub_Mouse, dsda_config_use_mouse, true),
   EMPTY_LINE,
   { "Enable Gamepad", S_YESNO, m_conf, g_all, G2_X, dsda_config_use_game_controller },
   { "Swap Analogs", S_YESNO, m_conf, g_all, G2_X, dsda_config_swap_analogs, 0, empty_list, DEPEND(dsda_config_use_game_controller, true) },
   { "Invert Look", S_YESNO, m_conf, g_all, G2_X, dsda_config_invert_analog_look, 0, empty_list, DEPEND(dsda_config_use_game_controller, true) },
-  FUNC_DEPEND("Gamepad Options", S_CENTER, g_all, G2_X, M_Sub_Gamepad, dsda_config_use_game_controller, true),
+  FUNC_DEPEND("Gamepad Options", 0, g_all, G2_X, M_Sub_Gamepad, dsda_config_use_game_controller, true),
   EMPTY_LINE,
   { "Enable Freelook", S_YESNO, m_conf, g_all, G2_X, dsda_config_freelook },
   { "Freelook AutoAim", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_list) },
@@ -5595,7 +5597,7 @@ setup_menu_t display_nyan_settings[] = {
   { "Flashing Item Bonuses", S_YESNO | S_NYAN, m_conf, g_doom, G_X, nyan_config_item_bonus_flash },
   EMPTY_LINE_ADV(g_doom),
   { "Colored Blood", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, nyan_config_colored_blood, 0, colored_blood_list },
-  FUNC_EXCLUDE("Customize", S_CENTER | S_NYAN, g_doom, G_X, M_Sub_ColoredBlood, nyan_config_colored_blood, false),
+  FUNC_EXCLUDE("Customize", S_NYAN, g_doom, G_X, M_Sub_ColoredBlood, nyan_config_colored_blood, false),
   EMPTY_LINE,
   TITLE_DEPEND("Vanilla Emulation", G_X, dsda_config_videomode, SOFTWARE_MODE),
   { "Vanilla Texture Emulation", S_CHOICE | S_NYAN, m_conf, g_all, G_X, nyan_config_vanilla_texture_emulation, 0, texture_emulation_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
@@ -5604,7 +5606,7 @@ setup_menu_t display_nyan_settings[] = {
   TITLE("Translucency", G_X),
   { "Translucent Sprites", S_CHOICE, m_conf, g_doom, G_X, dsda_config_translucent_sprites, 0, translucent_list },
   { "Translucent Ghosts", S_YESNO, m_conf, g_doom, G_X, dsda_config_translucent_ghosts },
-  FUNC("Advanced", S_CENTER | S_NYAN, G_X, M_Sub_Trans),
+  FUNC("Advanced", S_NYAN, G_X, M_Sub_Trans),
 
   PREV_PAGE(display_options_settings),
   NEXT_PAGE(display_statbar_settings),
@@ -5639,7 +5641,7 @@ setup_menu_t display_statbar_settings[] =  // Demos Settings screen
   { "Smooth Health/Armor %", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_hud_animated_count },
   { "Single Key Display", S_YESNO, m_conf, g_doom, G_X, dsda_config_sts_traditional_keys },
   { "Blink Missing Keys", S_YESNO | S_NYAN, m_conf, g_not_hexen, G_X, dsda_config_sts_blink_keys },
-  FUNC("Coloring", S_CENTER, G_X, M_Sub_StatbarColor),
+  FUNC("Coloring", 0, G_X, M_Sub_StatbarColor),
   EMPTY_LINE,
   { "Berserk Indicator", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, nyan_config_hud_berserk, 0, berserk_icon_list },
   { "Armor Indicator", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, nyan_config_hud_armoricon, 0, armor_icon_list },
@@ -5662,12 +5664,12 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   { "Show Messages", S_YESNO, m_conf, g_all, G_X, dsda_config_show_messages },
   { "Colorize Messages", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_colorize_messages, 0, empty_list, DEPEND(dsda_config_show_messages, true) },
   { "Fade Messages", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_fade_messages, 0, empty_list, DEPEND_MULTI(fade_messages_list) },
-  FUNC("Announcements", S_CENTER | S_NYAN, G_X, M_Sub_Announce),
-  FUNC("Obituaries", S_CENTER | S_NYAN, G_X, M_Sub_Obituary),
+  FUNC("Announcements", S_NYAN, G_X, M_Sub_Announce),
+  FUNC("Obituaries", S_NYAN, G_X, M_Sub_Obituary),
   EMPTY_LINE,
-  FUNC("Ex-Hud", S_CENTER | S_NYAN, G_X, M_Sub_ExHud),
-  FUNC("Status Widgets", S_CENTER | S_NYAN, G_X, M_Sub_StatusWidgets),
-  FUNC("Crosshair", S_CENTER, G_X, M_Sub_Crosshair),
+  FUNC("Ex-Hud", S_NYAN, G_X, M_Sub_ExHud),
+  FUNC("Status Widgets", S_NYAN, G_X, M_Sub_StatusWidgets),
+  FUNC("Crosshair", 0, G_X, M_Sub_Crosshair),
 
   PREV_PAGE(display_statbar_settings),
   NEXT_PAGE(display_color_settings),
@@ -5675,24 +5677,24 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
 };
 
 setup_menu_t display_color_settings[] = {
-  FUNC("Menu", S_CENTER, G_X, M_Sub_ColorMenu),
-  FUNC("Automap", S_CENTER, G_X, M_Sub_ColorAutomap),
-  FUNC("Messages", S_CENTER, G_X, M_Sub_ColorMessages),
-  FUNC("Status Bar", S_CENTER, G_X, M_Sub_ColorStatusBar),
-  FUNC("Intermission", S_CENTER, G_X, M_Sub_ColorIntermission),
+  FUNC("Menu", 0, G_X, M_Sub_ColorMenu),
+  FUNC("Automap", 0, G_X, M_Sub_ColorAutomap),
+  FUNC("Messages", 0, G_X, M_Sub_ColorMessages),
+  FUNC("Status Bar", 0, G_X, M_Sub_ColorStatusBar),
+  FUNC("Intermission", 0, G_X, M_Sub_ColorIntermission),
   EMPTY_LINE,
   TITLE("ExHUD Components", G_X),
-  FUNC("ExHUD", S_CENTER, G_X, M_Sub_ColorExHud),
-  FUNC("Powerups", S_CENTER, G_X, M_Sub_ColorPowerups),
-  FUNC("Small Armor", S_CENTER, G_X, M_Sub_ColorSmallArmor),
-  FUNC("Small Health", S_CENTER, G_X, M_Sub_ColorSmallHealth),
-  FUNC("Small Ammo", S_CENTER, G_X, M_Sub_ColorSmallAmmo),
-  FUNC("Small Weapon", S_CENTER, G_X, M_Sub_ColorSmallWeapon),
-  FUNC("Speed", S_CENTER, G_X, M_Sub_ColorSpeed),
-  FUNC("Command Display", S_CENTER, G_X, M_Sub_ColorCommand),
-  FUNC("Coordinate Display", S_CENTER, G_X, M_Sub_ColorCoordinates),
-  FUNC("Render Stats", S_CENTER, G_X, M_Sub_ColorRenderStats),
-  FUNC("Tracker", S_CENTER, G_X, M_Sub_ColorTracker),
+  FUNC("ExHUD", 0, G_X, M_Sub_ColorExHud),
+  FUNC("Powerups", 0, G_X, M_Sub_ColorPowerups),
+  FUNC("Small Armor", 0, G_X, M_Sub_ColorSmallArmor),
+  FUNC("Small Health", 0, G_X, M_Sub_ColorSmallHealth),
+  FUNC("Small Ammo", 0, G_X, M_Sub_ColorSmallAmmo),
+  FUNC("Small Weapon", 0, G_X, M_Sub_ColorSmallWeapon),
+  FUNC("Speed", 0, G_X, M_Sub_ColorSpeed),
+  FUNC("Command Display", 0, G_X, M_Sub_ColorCommand),
+  FUNC("Coordinate Display", 0, G_X, M_Sub_ColorCoordinates),
+  FUNC("Render Stats", 0, G_X, M_Sub_ColorRenderStats),
+  FUNC("Tracker", 0, G_X, M_Sub_ColorTracker),
 
   PREV_PAGE(display_hud_settings),
   FINAL_ENTRY
@@ -6475,7 +6477,7 @@ static const char *over_under_list[] = { "Off", "Player", "All things", NULL };
 
 setup_menu_t comp_emulation_settings[] = {
   { "Limit-Removing", S_YESNO | S_NORESET | S_NYAN, m_conf, g_all, CP_X, dsda_config_limit_removing },
-  FUNC_DEPEND("Overflows", S_CENTER, g_all, CP_X, M_Sub_Overflows, dsda_config_limit_removing, false),
+  FUNC_DEPEND("Overflows", 0, g_all, CP_X, M_Sub_Overflows, dsda_config_limit_removing, false),
   EMPTY_LINE,
   TITLE("Mapping Error Fixes", CP_X),
   { "Lindefs w/o Tags Apply Locally", S_YESNO | S_NYAN, m_conf, g_all, CP_X, dsda_config_comperr_zerotag },
