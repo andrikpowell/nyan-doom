@@ -40,14 +40,12 @@
 
 #include "textscreen/fonts/normal.h"
 
-#define PROGRESS_STEP_DURATION_MS 25
-
-static void dsda_WaitForProgressStep(unsigned int start_time)
+static void dsda_WaitForProgressStep(unsigned int start_time, unsigned int step_duration)
 {
   unsigned int elapsed;
 
-  while ((elapsed = SDL_GetTicks() - start_time) < PROGRESS_STEP_DURATION_MS)
-    I_uSleep((PROGRESS_STEP_DURATION_MS - elapsed) * 1000);
+  while ((elapsed = SDL_GetTicks() - start_time) < step_duration)
+    I_uSleep((step_duration - elapsed) * 1000);
 }
 
 //
@@ -629,13 +627,14 @@ void dsda_HexenStartup(void)
   for (int i = 0; i < MAX_NOTCHES; ++i)
   {
     unsigned int start_time;
+    int step_duraton = 25; // 32 notches × 25 ms = 800 ms
 
     if (!startup_active || StartupSkipped())
       break;
 
     start_time = SDL_GetTicks();
     Hexen_DrawProgressNotch();
-    dsda_WaitForProgressStep(start_time);
+    dsda_WaitForProgressStep(start_time, step_duraton);
   }
 
   FinishStartup();
@@ -683,12 +682,13 @@ static void dsda_DoomStartup(void)
   for (i = 0; i < MAX_NOTCHES; ++i)
   {
     unsigned int start_time;
+    int step_duraton = 25; // 32 notches × 25 ms = 800 ms
 
     if (StartupSkipped())
       break;
 
     start_time = SDL_GetTicks();
-    dsda_WaitForProgressStep(start_time);
+    dsda_WaitForProgressStep(start_time, step_duraton);
   }
 
   FinishStartup();
@@ -756,6 +756,7 @@ void dsda_HereticStartup(void)
   {
     int offset;
     unsigned int start_time;
+    int step_duraton = 15; // 52 therm × 15 ms = 780 ms
 
     if (StartupSkipped())
       break;
@@ -765,7 +766,7 @@ void dsda_HereticStartup(void)
     screen[offset] = 0xdb;
     screen[offset + 1] = 0x2a;
     TXT_UpdateScreen();
-    dsda_WaitForProgressStep(start_time);
+    dsda_WaitForProgressStep(start_time, step_duraton);
   }
 
   TXT_Shutdown();
