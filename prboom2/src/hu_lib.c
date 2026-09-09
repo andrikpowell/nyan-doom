@@ -189,6 +189,7 @@ void HUlib_initTextLine(hu_textline_t* t, int x, int y,
   t->space_width = f->space_width;
   t->kerning = f->kerning;
   t->fade_alpha = 100;
+  t->alignment = HU_ALIGN_LEFT;
   HUlib_clearTextLine(t);
 }
 
@@ -361,127 +362,145 @@ static hu_char_t HU_GetNextChar(const char *s, int len, int *i)
 
 static void HUlib_GetCharInfo(const hu_textline_t *l, const patchnum_t *font, hu_charinfo_t *info)
 {
-  int i;
-  int x;
-  int lines;
-  int last_line_start;
+  hu_chartype_t last_type = HU_END;
+  int i = 0;
+  int line_x = 0;
+  int screen_x = l->x;
+  int lines = 1;
 
-  hu_char_t nextch;
-
-  // reset
   info->has_newline = 0;
-  info->rendered_lines = 0;
-  info->last_line_width_px = 0;
   info->singleline_max_right_px = l->x;
 
-  // determine rendered lines + last_line_start
-  lines = 1;
-  last_line_start = 0;
-  x = 0;
-
+  for (;;)
   {
-    hu_chartype_t last_type = HU_END;
+    hu_char_t nextch = HU_GetNextChar(l->l, l->len, &i);
+    int advance;
 
-    for (i = 0; i < l->len; )
+    if (nextch.type == HU_END)
+      break;
+
+    last_type = nextch.type;
+
+    if (nextch.type == HU_NEWLINE)
     {
-      nextch = HU_GetNextChar(l->l, l->len, &i);
-      last_type = nextch.type;
-
-      if (nextch.type == HU_NEWLINE)
-      {
-        info->has_newline = 1;
-        lines++;
-        last_line_start = i;  // already advanced past '\n'
-      }
-      else if (nextch.type == HU_END)
-      {
-        break;
-      }
+      info->has_newline = 1;
+      lines++;
+      line_x = 0;
+      screen_x = l->x;
+      continue;
     }
 
-    if (last_type == HU_NEWLINE)
-      lines--;
+    if (nextch.type == HU_TAB)
+    {
+      line_x = line_x - line_x % 80 + 80;
+      screen_x = screen_x - screen_x % 80 + 80;
+    }
+    else if (nextch.type == HU_ESC)
+    {
+      if (!HU_EscIsXOffset(nextch.esc))
+        continue;
+
+      advance = (signed char)nextch.esc;
+      line_x += advance;
+      screen_x += advance;
+    }
+    else
+    {
+      int right_edge = HUlib_CharRightEdgePx(l, font, screen_x, nextch.ch);
+
+      if (right_edge > info->singleline_max_right_px)
+        info->singleline_max_right_px = right_edge;
+
+      advance = HUlib_AdvanceX(l, font, nextch.ch);
+      line_x += advance;
+      screen_x += advance;
+    }
+
+    if (screen_x > info->singleline_max_right_px)
+      info->singleline_max_right_px = screen_x;
   }
 
-  if (lines < 1) lines = 1;
-  info->rendered_lines = lines;
+  if (last_type == HU_NEWLINE)
+    lines--;
 
-  // last line width (advance width only)
-  for (i = last_line_start; i < l->len; )
+  info->rendered_lines = MAX(lines, 1);
+  info->last_line_width_px = line_x;
+}
+
+static int HUlib_LineStartX(const hu_textline_t *l, const char *line)
+{
+  int x = 0;
+  int minx = 0;
+  int maxx = 0;
+  int i = 0;
+  int len;
+  dboolean any = false;
+
+  if (l->alignment == HU_ALIGN_LEFT)
+    return l->x;
+
+  len = (int)strlen(line);
+
+  for (;;)
   {
-    nextch = HU_GetNextChar(l->l, l->len, &i);
+    hu_char_t nextch = HU_GetNextChar(line, len, &i);
 
     if (nextch.type == HU_END || nextch.type == HU_NEWLINE)
       break;
 
+    // Alignment ignores ESC sequences
     if (nextch.type == HU_ESC)
+      continue;
+
+    // Preserve the original alignment tab behavior
+    if (nextch.type == HU_TAB)
     {
-      if (HU_EscIsXOffset(nextch.esc))
-        x += (signed char)nextch.esc;
+      x += 80;
+      continue;
     }
 
-    else if (nextch.type == HU_TAB)
+    if (nextch.ch == ' ')
     {
-      x = x - x % 80 + 80;
+      x += l->space_width;
+      continue;
     }
-    
-    else if (nextch.type == HU_CHAR)
+
+    if (nextch.ch >= l->sc && nextch.ch <= 127)
     {
-      x += HUlib_AdvanceX(l, font, nextch.ch);
+      const patchnum_t *p = &l->f[nextch.ch - l->sc];
+      int left = x - p->leftoffset;
+      int right = left + p->width + l->kerning;
+
+      if (!any)
+      {
+        minx = left;
+        maxx = right;
+        any = true;
+      }
+      else
+      {
+        minx = MIN(minx, left);
+        maxx = MAX(maxx, right);
+      }
+
+      x += p->width + l->kerning;
+    }
+    else
+    {
+      x += l->space_width;
     }
   }
 
-  info->last_line_width_px = x;
+  if (!any)
+    return l->x;
 
-  // single-line max right edge (only if no newline)
-  if (!info->has_newline)
+  if (l->alignment == HU_ALIGN_CENTER)
   {
-    x = l->x;
-
-    for (i = 0; i < l->len; )
-    {
-      nextch = HU_GetNextChar(l->l, l->len, &i);
-
-      if (nextch.type == HU_END || nextch.type == HU_NEWLINE)
-        break;
-
-      if (nextch.type == HU_TAB)
-      {
-        x = x - x % 80 + 80;
-        if (x > info->singleline_max_right_px)
-          info->singleline_max_right_px = x;
-      }
-      else if (nextch.type == HU_ESC)
-      {
-        if (HU_EscIsXOffset(nextch.esc))
-        {
-          x += (signed char)nextch.esc;
-          if (x > info->singleline_max_right_px)
-            info->singleline_max_right_px = x;
-        }
-      }
-      else if (nextch.type == HU_CHAR)
-      {
-        int right_edge;
-
-        if (nextch.ch >= l->sc && nextch.ch <= 127)
-        {
-          // char with leftoffset behavior
-          right_edge = HUlib_CharRightEdgePx(l, font, x, nextch.ch);
-        }
-        else
-        {
-          // Space or unknown char behaves like simple advance
-          right_edge = x + HUlib_AdvanceX(l, font, nextch.ch);
-        }
-
-        if (right_edge > info->singleline_max_right_px)
-          info->singleline_max_right_px = right_edge;
-
-        x += HUlib_AdvanceX(l, font, nextch.ch);
-      }
-    }
+    int indent = (HUlib_UsableWidth() - (maxx - minx)) / 2;
+    return l->x + MAX(indent, 0);
   }
+
+  return l->x - maxx;
 }
 
 ////////////////////////////////////////////////////////
@@ -534,7 +553,7 @@ static int HUlib_Ellipsis_TrimLastVisible(hu_textline_t *l, const patchnum_t *fo
   return ellipsis_trim_px;
 }
 
-static void HUlib_AppendEllipsis(hu_textline_t *l, const patchnum_t *font, int max_px, dboolean force)
+static void HUlib_AppendEllipsis(hu_textline_t *l, const patchnum_t *font, int max_px)
 {
   int line_width_px;
   int dotw, dots;
@@ -563,9 +582,6 @@ static void HUlib_AppendEllipsis(hu_textline_t *l, const patchnum_t *font, int m
 
   dotw = HUlib_AdvanceX(l, font, '.');
   dots = 3 * dotw;
-
-  if (!force && line_width_px <= max_px)
-    return;
 
   // Ensure room for "..."
   cap = (int)sizeof(l->l);
@@ -617,7 +633,7 @@ static void HUlib_AppendEllipsis_SingleLine(hu_textline_t *l, const patchnum_t *
     return;
 
   // Mutate the buffer so "..." fits.
-  HUlib_AppendEllipsis(l, font, max_px, true);
+  HUlib_AppendEllipsis(l, font, max_px);
 }
 
 static void HUlib_ForceNextLine(const hu_textline_t* l, int *i, int *x, int *y)
@@ -630,7 +646,7 @@ static void HUlib_ForceNextLine(const hu_textline_t* l, int *i, int *x, int *y)
   {
     // Consume newline and move pen exactly once
     (*i)++;                 // now points to first char of next line
-    *x = l->x;
+    *x = HUlib_LineStartX(l, l->l + *i);
     *y += l->line_height;
   }
   else
@@ -704,7 +720,7 @@ void HUlib_drawTextLine
 
   // draw the new stuff
 
-  x = l->x;
+  x = HUlib_LineStartX(l, l->l);
   y = l->y;
   i = 0;
 
@@ -718,7 +734,7 @@ void HUlib_drawTextLine
 
     if (type == HU_NEWLINE)
     {
-      x = l->x;
+      x = HUlib_LineStartX(l, l->l + i);
       y += l->line_height;
       continue;
     }
@@ -851,96 +867,6 @@ void HUlib_drawOffsetTextLine(hu_textline_t* l, dboolean yellow, dboolean shadow
 //
 ////////////////////////////////////////////////////////
 
-// Returns 0 if the line has no drawable glyphs
-static dboolean HUlib_GetLineBoundsRaw(const hu_textline_t *l, const patchnum_t *font, const char *s, int *out_minx, int *out_maxx)
-{
-  int x = 0;      // advance position
-  int minx = 0;   // leftmost covered pixel relative to line start
-  int maxx = 0;   // rightmost covered pixel relative to line start
-  dboolean any = false;
-
-  int i = 0;
-  int len = (int)strlen(s);
-
-  for (;;)
-  {
-    hu_char_t nextch = HU_GetNextChar(s, len, &i);
-
-    if (nextch.type == HU_END || nextch.type == HU_NEWLINE)
-      break;
-
-    // original centering ignores ESC
-    if (nextch.type == HU_ESC)
-    {
-      continue;
-    }
-
-    // original centering tab behavior
-    if (nextch.type == HU_TAB)
-    {
-      x += 80;
-      continue;
-    }
-
-    // HU_CHAR
-    {
-      unsigned char c = nextch.ch; // already uppercased by HU_GetNextChar()
-
-      if (c == ' ')
-      {
-        x += l->space_width;
-        continue;
-      }
-
-      if (c >= l->sc && c <= 127)
-      {
-        const patchnum_t *p = &font[c - l->sc];
-
-        // Glyph covers [x - leftoffset, x + width - leftoffset)
-        int gx0 = x - p->leftoffset;
-        int gx1 = x + p->width + l->kerning - p->leftoffset;
-
-        if (!any)
-        {
-          minx = gx0;
-          maxx = gx1;
-          any = true;
-        }
-        else
-        {
-          if (gx0 < minx) minx = gx0;
-          if (gx1 > maxx) maxx = gx1;
-        }
-
-        x += p->width + l->kerning;
-      }
-      else
-      {
-        x += l->space_width;
-      }
-    }
-  }
-
-  if (!any) return 0;
-
-  *out_minx = minx;
-  *out_maxx = maxx;
-  return true;
-}
-
-static int HUlib_GetLineWidthRaw(const hu_textline_t *l, const patchnum_t *font, const char *s)
-{
-  int minx, maxx;
-  if (!HUlib_GetLineBoundsRaw(l, font, s, &minx, &maxx)) return 0;
-  return maxx - minx;
-}
-
-static int HUlib_GetLineRightExtentRaw(const hu_textline_t *l, const patchnum_t *font, const char *s)
-{
-  int minx, maxx;
-  if (!HUlib_GetLineBoundsRaw(l, font, s, &minx, &maxx)) return 0;
-  return maxx;
-}
 
 //
 // HUlib_setTextXCenter()
@@ -952,101 +878,14 @@ static int HUlib_GetLineRightExtentRaw(const hu_textline_t *l, const patchnum_t 
 //
 void HUlib_setTextXCenter(hu_textline_t* t)
 {
-  char outbuf[sizeof(t->l)];
-  int out = 0;
-
   const int full_w   = HUlib_ScreenWidth();
   const int pad_each = HUlib_ScreenPaddingEach();
-  const int usable_w = full_w - 2 * pad_each;
-
   const int margin    = (full_w - BASE_WIDTH) / 2;
   const int base_left = (full_w > BASE_WIDTH) ? -margin : 0;
 
   // shift x position so extra width is split both sides
   t->x = base_left + pad_each;
-
-  {
-    int i = 0;
-
-    while (i < t->len && out < (int)sizeof(outbuf) - 1)
-    {
-      int line_start = i;
-
-      // Get line width
-      int line_w = HUlib_GetLineWidthRaw(t, t->f, t->l + line_start);
-      int indent = (usable_w - line_w) / 2;
-      if (indent < 0) indent = 0;
-
-      while (indent > 0 && out < (int)sizeof(outbuf) - 3)
-      {
-        int chunk = indent;
-        if (chunk > HU_XOFF_MAX) chunk = HU_XOFF_MAX;
-        outbuf[(out)++] = '\x1b';
-        outbuf[(out)++] = (char)chunk;
-        indent -= chunk;
-      }
-
-      while (i < t->len)
-      {
-        hu_char_t nextch = HU_GetNextChar(t->l, t->len, &i);
-
-        if (nextch.type == HU_END)
-          break;
-
-        if (nextch.type == HU_NEWLINE)
-        {
-          outbuf[out++] = '\n';
-          break;
-        }
-
-        if (nextch.type == HU_ESC)
-        {
-          // keep color changes, skip old x-offsets
-          if (!HU_EscIsXOffset(nextch.esc))
-          {
-            outbuf[(out)++] = '\x1b';
-            outbuf[(out)++] = nextch.esc;
-          }
-          continue;
-        }
-
-        if (nextch.type == HU_TAB)
-        {
-          outbuf[out++] = '\t';
-          continue;
-        }
-
-        // HU_CHAR
-        outbuf[out++] = nextch.ch;
-      }
-    }
-  }
-
-  outbuf[out] = '\0';
-  strncpy(t->l, outbuf, sizeof(t->l));
-  t->l[sizeof(t->l) - 1] = '\0';
-  t->len = (int)strlen(t->l);
-
-  // best-effort linelen
-  t->linelen = 0;
-  {
-    int i = 0;
-    while (i < t->len)
-    {
-      hu_char_t nextch = HU_GetNextChar(t->l, t->len, &i);
-
-      if (nextch.type == HU_NEWLINE)
-      {
-        t->linelen = 0;
-        continue;
-      }
-
-      if (nextch.type == HU_ESC)
-        continue;
-
-      t->linelen++;
-    }
-  }
+  t->alignment = HU_ALIGN_CENTER;
 }
 
 ////////////////////////////////////////////////////////
@@ -1057,100 +896,9 @@ void HUlib_setTextXCenter(hu_textline_t* t)
 
 void HUlib_setTextXRightAlign(hu_textline_t *t)
 {
-  char outbuf[sizeof(t->l)];
-  int out = 0;
-
-  int i = 0;
-
-  while (i < t->len && out < (int)sizeof(outbuf) - 1)
-  {
-    int line_start = i;
-
-    // Skip any leading XOFF escapes from previous processing
-    while (line_start + 1 < t->len &&
-           t->l[line_start] == '\x1b' &&
-           HU_EscIsXOffset((unsigned char)t->l[line_start + 1]))
-    {
-      line_start += 2;
-    }
-
-    // Measure this line’s right extent (ignores ESC, tabs handled)
-    {
-      int r = HUlib_GetLineRightExtentRaw(t, t->f, t->l + line_start);
-      int indent = -r;
-
-      while (indent < 0 && out < (int)sizeof(outbuf) - 3)
-      {
-        int chunk = -indent;
-        if (chunk > HU_XOFF_MAX) chunk = HU_XOFF_MAX;
-
-        outbuf[out++] = '\x1b';
-        outbuf[out++] = (char)(signed char)(-chunk); // negative xoff
-        indent += chunk;
-      }
-    }
-
-    // Copy chars for this line, keeping colors, dropping ALL x-offset escapes
-    i = line_start;
-
-    while (i < t->len && out < (int)sizeof(outbuf) - 1)
-    {
-      hu_char_t nextch = HU_GetNextChar(t->l, t->len, &i);
-
-      if (nextch.type == HU_END)
-        break;
-
-      if (nextch.type == HU_NEWLINE)
-      {
-        outbuf[out++] = '\n';
-        break;
-      }
-
-      if (nextch.type == HU_ESC)
-      {
-        // keep colors, drop x-offsets
-        if (!HU_EscIsXOffset(nextch.esc) && out < (int)sizeof(outbuf) - 2)
-        {
-          outbuf[out++] = '\x1b';
-          outbuf[out++] = (char)nextch.esc;
-        }
-        continue;
-      }
-
-      if (nextch.type == HU_TAB)
-      {
-        outbuf[out++] = '\t';
-        continue;
-      }
-
-      outbuf[out++] = (char)nextch.ch;
-    }
-  }
-
-  outbuf[out] = '\0';
-  strncpy(t->l, outbuf, sizeof(t->l));
-  t->l[sizeof(t->l) - 1] = '\0';
-  t->len = (int)strlen(t->l);
-
-  // linelen recount
-  t->linelen = 0;
-  {
-    int j = 0;
-    while (j < t->len)
-    {
-      hu_char_t nextch = HU_GetNextChar(t->l, t->len, &j);
-
-      if (nextch.type == HU_NEWLINE)
-      {
-        t->linelen = 0;
-        continue;
-      }
-
-      if (nextch.type != HU_ESC)
-        t->linelen++;
-    }
-  }
+  t->alignment = HU_ALIGN_RIGHT;
 }
+
 
 ////////////////////////////////////////////////////////
 //
@@ -1259,7 +1007,7 @@ static int HUlib_wrap_wordMaxRightEdgePx(const hu_textline_t *l, const patchnum_
 
 #define WRAP_ELLIPSIS(tag) do { \
   lprintf(LO_DEBUG, "WRAP_LOG(%s)\n", tag); \
-  HUlib_AppendEllipsis(l, font, max_px, true); \
+  HUlib_AppendEllipsis(l, font, max_px); \
   return true; \
 } while (0)
 

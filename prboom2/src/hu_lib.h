@@ -39,6 +39,13 @@
 
 #define HU_MAXLINELENGTH  80
 
+typedef enum
+{
+  HU_ALIGN_LEFT,
+  HU_ALIGN_CENTER,
+  HU_ALIGN_RIGHT,
+} hu_text_alignment_t;
+
 // Text Line widget
 typedef struct
 {
@@ -67,6 +74,7 @@ typedef struct
   int kerning; // Heretic/Hexen -1 kerning
   int space_width;
   int fade_alpha; // dyanamic font translucency
+  hu_text_alignment_t alignment;
 } hu_textline_t;
 
 //
