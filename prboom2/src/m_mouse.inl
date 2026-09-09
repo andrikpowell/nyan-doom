@@ -46,6 +46,8 @@ static int menu_mouse_drag_main = -1;
 static int menu_mouse_hover_main = -1;
 static int menu_mouse_hover_tab = -1;
 
+static dboolean M_MouseSoundSliderAtPointer(int *index);
+
 static dboolean M_MainItemMouseHovered(int index)
 {
   return index == menu_mouse_hover_main &&
@@ -359,7 +361,8 @@ static dboolean M_MouseUpdateMainHover(void)
   int index;
 
   if (!M_MouseMainItemAtPointer(&index) &&
-      !M_MouseSaveItemAtPointer(&index))
+      !M_MouseSaveItemAtPointer(&index) &&
+      !M_MouseSoundSliderAtPointer(&index))
   {
     M_MouseClearMainHover();
     return false;
@@ -380,7 +383,8 @@ static dboolean M_MouseSelectMainItem(void)
   int index;
 
   if (!M_MouseMainItemAtPointer(&index) &&
-      !M_MouseSaveItemAtPointer(&index))
+      !M_MouseSaveItemAtPointer(&index) &&
+      !M_MouseSoundSliderAtPointer(&index))
     return false;
 
   menu_mouse_hover_main = index;
@@ -1157,6 +1161,11 @@ static dboolean M_MouseBindingCaptureResponder(event_t *ev)
   return true;
 }
 
+static dboolean M_MouseSoundSliderTitleAtPointer(void)
+{
+  return currentMenu->menuitems[itemOn].status == M_ITEM_THERMO;
+}
+
 static dboolean M_MouseMotionResponder(void)
 {
   if (menu_mouse_drag_setup >= 0 && (menu_mouse_buttons & MENU_MOUSE_LEFT))
@@ -1213,6 +1222,9 @@ static dboolean M_MouseLeftPressResponder(event_t *ev)
     menu_mouse_drag_main = slider_index;
     return M_MouseSetSoundSlider(slider_index);
   }
+
+  if (M_MouseSoundSliderTitleAtPointer())
+    return true;
 
   if (!M_MouseSelectMainItem())
     return true;
