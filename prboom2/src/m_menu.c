@@ -9490,7 +9490,7 @@ static void M_InitializeSkillMenu(void)
 
   for (i = 0; i < num_og_skills; ++i)
   {
-    SkillDef.menuitems[i].status = M_ITEM_INACTIVE;
+    SkillDef.menuitems[i].status = M_ITEM_ACTION;
 
     if (skill_infos[i].pic_name)
       strncpy(SkillDef.menuitems[i].name, skill_infos[i].pic_name, 8);
