@@ -1265,24 +1265,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ITEM_PTN1_1,             // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1292,24 +1292,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ITEM_SHLD1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1319,24 +1319,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ITEM_SHD2_1,             // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1346,24 +1346,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ITEM_BAGH1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1373,24 +1373,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ITEM_SPMP1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1400,24 +1400,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ARTI_INVS1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_SHADOW | MF_COUNTITEM,     // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1427,24 +1427,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ARTI_PTN2_1,             // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1454,24 +1454,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ARTI_SOAR1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1481,24 +1481,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ARTI_INVU1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1508,24 +1508,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ARTI_PWBK1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1535,24 +1535,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ARTI_EGGC1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1564,10 +1564,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -1579,7 +1579,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      1,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -1589,24 +1589,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ARTI_SPHL1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1616,24 +1616,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ARTI_TRCH1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1643,24 +1643,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ARTI_FBMB1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1670,12 +1670,12 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_FIREBOMB1,               // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -1687,7 +1687,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOGRAVITY | MF_SHADOW,  // flags
      0                          // flags2
      },
@@ -1697,24 +1697,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_ARTI_ATLP1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
      MF2_FLOATBOB               // flags2
      },
@@ -1724,12 +1724,12 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_POD_WAIT1,               // spawnstate
      45,                        // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_POD_PAIN1,               // painstate
      255,                       // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -1741,7 +1741,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      54 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID | MF_NOBLOOD | MF_SHOOTABLE | MF_DROPOFF, // flags
      MF2_WINDTHRUST | MF2_PUSHABLE | MF2_SLIDE | MF2_PASSMOBJ | MF2_TELESTOMP   // flags2
      },
@@ -1751,24 +1751,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_PODGOO1,                 // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_PODGOOX,                 // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
      4 * FRACUNIT,              // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
      MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH       // flags2
      },
@@ -1778,24 +1778,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_PODGENERATOR,            // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
      0                          // flags2
      },
@@ -1805,24 +1805,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SPLASH1,                 // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SPLASHX,                 // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
      4 * FRACUNIT,              // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
      MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH       // flags2
      },
@@ -1832,24 +1832,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SPLASHBASE1,             // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
      0                          // flags2
      },
@@ -1859,24 +1859,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_LAVASPLASH1,             // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
      0                          // flags2
      },
@@ -1886,24 +1886,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_LAVASMOKE1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
      0                          // flags2
      },
@@ -1913,24 +1913,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SLUDGECHUNK1,            // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SLUDGECHUNKX,            // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
      4 * FRACUNIT,              // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
      MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH       // flags2
      },
@@ -1940,24 +1940,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SLUDGESPLASH1,           // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
      0                          // flags2
      },
@@ -1967,24 +1967,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SKULLHANG70_1,           // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      70 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
      0                          // flags2
      },
@@ -1994,24 +1994,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SKULLHANG60_1,           // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      60 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
      0                          // flags2
      },
@@ -2021,24 +2021,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SKULLHANG45_1,           // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      45 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
      0                          // flags2
      },
@@ -2048,24 +2048,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SKULLHANG35_1,           // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      35 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
      0                          // flags2
      },
@@ -2075,24 +2075,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_CHANDELIER1,             // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      60 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
      0                          // flags2
      },
@@ -2102,24 +2102,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SERPTORCH1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
      54 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID,                  // flags
      0                          // flags2
      },
@@ -2129,24 +2129,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SMALLPILLAR,             // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
      34 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID,                  // flags
      0                          // flags2
      },
@@ -2156,24 +2156,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_STALAGMITESMALL,         // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
      32 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID,                  // flags
      0                          // flags2
      },
@@ -2183,24 +2183,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_STALAGMITELARGE,         // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
      64 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID,                  // flags
      0                          // flags2
      },
@@ -2210,24 +2210,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_STALACTITESMALL,         // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
      36 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
      0                          // flags2
      },
@@ -2237,24 +2237,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_STALACTITELARGE,         // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
      68 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
      0                          // flags2
      },
@@ -2264,24 +2264,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_FIREBRAZIER1,            // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
      44 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID,                  // flags
      0                          // flags2
      },
@@ -2291,24 +2291,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_BARREL,                  // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
      32 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID,                  // flags
      0                          // flags2
      },
@@ -2318,24 +2318,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_BRPILLAR,                // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
      128 * FRACUNIT,            // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID,                  // flags
      0                          // flags2
      },
@@ -2345,24 +2345,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_MOSS1,                   // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      23 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
      0                          // flags2
      },
@@ -2372,24 +2372,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_MOSS2,                   // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      27 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
      0                          // flags2
      },
@@ -2399,24 +2399,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_WALLTORCH1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOGRAVITY,              // flags
      0                          // flags2
      },
@@ -2426,24 +2426,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_HANGINGCORPSE,           // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
      104 * FRACUNIT,            // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
      0                          // flags2
      },
@@ -2453,24 +2453,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_KEYGIZMO1,               // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
      50 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID,                  // flags
      0                          // flags2
      },
@@ -2480,24 +2480,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_KEYGIZMO1,               // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
      50 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID,                  // flags
      0                          // flags2
      },
@@ -2507,24 +2507,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_KEYGIZMO1,               // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
      50 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID,                  // flags
      0                          // flags2
      },
@@ -2534,24 +2534,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_KGZ_START,               // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID | MF_NOGRAVITY,   // flags
      0                          // flags2
      },
@@ -2561,24 +2561,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_VOLCANO1,                // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
      20 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID,                  // flags
      0                          // flags2
      },
@@ -2588,12 +2588,12 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_VOLCANOBALL1,            // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -2605,7 +2605,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      2,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
      MF2_LOGRAV | MF2_NOTELEPORT | MF2_FIREDAMAGE       // flags2
      },
@@ -2615,24 +2615,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_VOLCANOTBALL1,           // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_VOLCANOTBALLX1,          // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      2 * FRACUNIT,              // speed
      8 * FRACUNIT,              // radius
      6 * FRACUNIT,              // height
      100,                       // mass
      1,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
      MF2_LOGRAV | MF2_NOTELEPORT | MF2_FIREDAMAGE       // flags2
      },
@@ -2642,24 +2642,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_TELEGLITGEN1,            // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_NOSECTOR,        // flags
      0                          // flags2
      },
@@ -2669,24 +2669,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_TELEGLITGEN2,            // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_NOSECTOR,        // flags
      0                          // flags2
      },
@@ -2696,24 +2696,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_TELEGLITTER1_1,          // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
      0                          // flags2
      },
@@ -2723,24 +2723,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_TELEGLITTER2_1,          // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
      0                          // flags2
      },
@@ -2750,24 +2750,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_TFOG1,                   // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
      0                          // flags2
      },
@@ -2777,24 +2777,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
      0                          // flags2
      },
@@ -2804,24 +2804,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_STAFFPUFF1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
      heretic_sfx_stfhit,                // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
      0                          // flags2
      },
@@ -2831,24 +2831,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_STAFFPUFF2_1,            // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
      heretic_sfx_stfpow,                // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
      0                          // flags2
      },
@@ -2858,24 +2858,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_STAFFPUFF1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
      heretic_sfx_chicatk,               // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
      0                          // flags2
      },
@@ -2885,24 +2885,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_WGNT,                    // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -2912,24 +2912,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_GAUNTLETPUFF1_1,         // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
      0                          // flags2
      },
@@ -2939,24 +2939,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_GAUNTLETPUFF2_1,         // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
      0                          // flags2
      },
@@ -2966,24 +2966,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_BLSR,                    // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -2993,12 +2993,12 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_BLASTERFX1_1,            // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3010,7 +3010,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      2,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -3020,24 +3020,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_BLASTERSMOKE1,           // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
      MF2_NOTELEPORT | MF2_CANNOTPUSH    // flags2
      },
@@ -3049,10 +3049,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3064,7 +3064,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      1,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT | MF2_RIP   // flags2
      },
@@ -3074,24 +3074,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_BLASTERPUFF1_1,          // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
      0                          // flags2
      },
@@ -3101,24 +3101,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_BLASTERPUFF2_1,          // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
      0                          // flags2
      },
@@ -3128,24 +3128,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_WMCE,                    // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -3157,10 +3157,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      heretic_sfx_lobsht,                // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3172,7 +3172,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      2,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_FLOORBOUNCE | MF2_THRUGHOST | MF2_NOTELEPORT   // flags2
      },
@@ -3184,10 +3184,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3199,7 +3199,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      6,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
      MF2_LOGRAV | MF2_FLOORBOUNCE | MF2_THRUGHOST | MF2_NOTELEPORT      // flags2
      },
@@ -3211,10 +3211,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3226,7 +3226,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      4,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
      MF2_LOGRAV | MF2_FLOORBOUNCE | MF2_THRUGHOST | MF2_NOTELEPORT      // flags2
      },
@@ -3238,10 +3238,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3253,7 +3253,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      18,                        // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
      MF2_LOGRAV | MF2_FLOORBOUNCE | MF2_THRUGHOST | MF2_TELESTOMP       // flags2
      },
@@ -3263,24 +3263,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_WSKL,                    // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -3292,10 +3292,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      heretic_sfx_hrnsht,                // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3307,7 +3307,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      3,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_WINDTHRUST | MF2_NOTELEPORT    // flags2
      },
@@ -3319,10 +3319,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      heretic_sfx_hrnsht,                // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3334,7 +3334,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      10,                        // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -3346,10 +3346,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3361,7 +3361,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      12 * FRACUNIT,             // height
      100,                       // mass
      5,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -3373,10 +3373,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3388,7 +3388,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      12 * FRACUNIT,             // height
      100,                       // mass
      5,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -3400,10 +3400,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3415,7 +3415,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      12 * FRACUNIT,             // height
      100,                       // mass
      5,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -3427,10 +3427,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3442,7 +3442,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      12 * FRACUNIT,             // height
      100,                       // mass
      5,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -3454,10 +3454,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3469,7 +3469,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      2,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -3481,10 +3481,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3496,7 +3496,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      1,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -3506,24 +3506,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_GWANDPUFF1_1,            // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
      0                          // flags2
      },
@@ -3533,24 +3533,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_GWANDFXI1_1,             // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
      0                          // flags2
      },
@@ -3560,24 +3560,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_WPHX,                    // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -3589,10 +3589,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      heretic_sfx_phosht,                // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3604,7 +3604,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      20,                        // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_THRUGHOST | MF2_NOTELEPORT     // flags2
      },
@@ -3618,24 +3618,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_PHOENIXFXIX_1,           // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                // seesound
+     sfx_None,                // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_PHOENIXFXIX_3,           // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
      4 * FRACUNIT,              // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT     // flags2
      },
@@ -3645,24 +3645,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_PHOENIXPUFF1,            // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
      MF2_NOTELEPORT | MF2_CANNOTPUSH    // flags2
      },
@@ -3674,10 +3674,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3689,7 +3689,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      2,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
      },
@@ -3699,24 +3699,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_WBOW,                    // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -3728,10 +3728,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      heretic_sfx_bowsht,                // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3743,7 +3743,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      10,                        // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -3755,10 +3755,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      heretic_sfx_bowsht,                // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3770,7 +3770,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      6,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -3782,10 +3782,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -3797,7 +3797,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      2,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_WINDTHRUST | MF2_THRUGHOST | MF2_NOTELEPORT    // flags2
      },
@@ -3807,24 +3807,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_CRBOWFX4_1,              // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
      MF2_LOGRAV                 // flags2
      },
@@ -3834,24 +3834,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_BLOOD1,                  // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
      0                          // flags2
      },
@@ -3861,24 +3861,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_BLOODSPLATTER1,          // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_BLOODSPLATTERX,          // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
      4 * FRACUNIT,              // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
      MF2_NOTELEPORT | MF2_CANNOTPUSH    // flags2
      },
@@ -3888,9 +3888,9 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_PLAY,                    // spawnstate
      100,                       // spawnhealth
      HERETIC_S_PLAY_RUN1,               // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      0,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_PLAY_PAIN,               // painstate
      255,                       // painchance
      heretic_sfx_plrpai,                // painsound
@@ -3905,7 +3905,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      56 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_DROPOFF | MF_PICKUP | MF_NOTDMATCH,   // flags
      MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_SLIDE | MF2_PASSMOBJ | MF2_TELESTOMP   // flags2
      },
@@ -3915,24 +3915,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_BLOODYSKULL1,            // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
      4 * FRACUNIT,              // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF,        // flags
      MF2_LOGRAV | MF2_CANNOTPUSH        // flags2
      },
@@ -3942,9 +3942,9 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_CHICPLAY,                // spawnstate
      100,                       // spawnhealth
      HERETIC_S_CHICPLAY_RUN1,           // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      0,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_CHICPLAY_PAIN,           // painstate
      255,                       // painchance
      heretic_sfx_chicpai,               // painsound
@@ -3959,7 +3959,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      24 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_DROPOFF | MF_NOTDMATCH,       // flags
      MF2_WINDTHRUST | MF2_SLIDE | MF2_PASSMOBJ | MF2_FOOTCLIP | MF2_LOGRAV | MF2_TELESTOMP      // flags2
      },
@@ -3996,24 +3996,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_FEATHER1,                // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_FEATHERX,                // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
      4 * FRACUNIT,              // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
      MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH | MF2_WINDTHRUST      // flags2
      },
@@ -4131,24 +4131,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_MUMMY_SOUL1,             // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
      0                          // flags2
      },
@@ -4160,10 +4160,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4175,7 +4175,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      14 * FRACUNIT,             // height
      100,                       // mass
      4,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -4214,10 +4214,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4229,7 +4229,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      4,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_WINDTHRUST | MF2_NOTELEPORT    // flags2
      },
@@ -4241,10 +4241,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4256,7 +4256,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      2,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -4268,10 +4268,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4283,7 +4283,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      2,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -4295,10 +4295,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4310,7 +4310,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      2,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -4349,10 +4349,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4364,7 +4364,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      1,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_WINDTHRUST | MF2_NOTELEPORT    // flags2
      },
@@ -4376,10 +4376,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4391,7 +4391,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      3,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -4430,10 +4430,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4445,7 +4445,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      1,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT | MF2_THRUGHOST     // flags2
      },
@@ -4457,10 +4457,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4472,7 +4472,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      3,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -4484,10 +4484,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4499,7 +4499,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      12 * FRACUNIT,             // height
      100,                       // mass
      5,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_WINDTHRUST | MF2_NOTELEPORT    // flags2
      },
@@ -4511,10 +4511,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4526,7 +4526,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      74 * FRACUNIT,             // height
      100,                       // mass
      1,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY | MF_SHADOW,        // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -4592,10 +4592,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4607,7 +4607,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      3,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -4671,24 +4671,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_IMP_CHUNKA1,             // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
      0                          // flags2
      },
@@ -4698,24 +4698,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_IMP_CHUNKB1,             // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
      0                          // flags2
      },
@@ -4727,10 +4727,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4742,7 +4742,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      1,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_WINDTHRUST | MF2_NOTELEPORT    // flags2
      },
@@ -4808,10 +4808,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4823,7 +4823,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      2,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_WINDTHRUST | MF2_NOTELEPORT | MF2_THRUGHOST    // flags2
      },
@@ -4835,10 +4835,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4850,7 +4850,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      8 * FRACUNIT,              // height
      100,                       // mass
      7,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT | MF2_THRUGHOST     // flags2
      },
@@ -4889,10 +4889,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4904,7 +4904,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      10 * FRACUNIT,             // height
      100,                       // mass
      10,                        // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
      },
@@ -4943,10 +4943,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -4958,7 +4958,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      1,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -4968,24 +4968,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SOR2FXSPARK1,            // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
      MF2_NOTELEPORT | MF2_CANNOTPUSH    // flags2
      },
@@ -4997,10 +4997,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -5012,7 +5012,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      10,                        // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT             // flags2
      },
@@ -5022,24 +5022,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SOR2TELEFADE1,           // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
      0                          // flags2
      },
@@ -5078,10 +5078,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -5093,7 +5093,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6 * FRACUNIT,              // height
      100,                       // mass
      3,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
      },
@@ -5105,10 +5105,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -5120,7 +5120,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      12 * FRACUNIT,             // height
      100,                       // mass
      4,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
      },
@@ -5132,10 +5132,10 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // seestate
      0,                         // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
@@ -5147,7 +5147,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      16 * FRACUNIT,             // height
      100,                       // mass
      4,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
      MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
      },
@@ -5157,24 +5157,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AKYY1,                   // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_NOTDMATCH, // flags
      0                          // flags2
      },
@@ -5184,24 +5184,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_BKYY1,                   // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_NOTDMATCH, // flags
      0                          // flags2
      },
@@ -5211,24 +5211,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_CKYY1,                   // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL | MF_NOTDMATCH, // flags
      0                          // flags2
      },
@@ -5238,24 +5238,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AMG1,                    // spawnstate
      AMMO_GWND_WIMPY,           // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -5265,24 +5265,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AMG2_1,                  // spawnstate
      AMMO_GWND_HEFTY,           // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -5292,24 +5292,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AMM1,                    // spawnstate
      AMMO_MACE_WIMPY,           // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -5319,24 +5319,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AMM2,                    // spawnstate
      AMMO_MACE_HEFTY,           // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -5346,24 +5346,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AMC1,                    // spawnstate
      AMMO_CBOW_WIMPY,           // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -5373,24 +5373,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AMC2_1,                  // spawnstate
      AMMO_CBOW_HEFTY,           // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -5400,24 +5400,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AMS1_1,                  // spawnstate
      AMMO_SKRD_WIMPY,           // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -5427,24 +5427,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AMS2_1,                  // spawnstate
      AMMO_SKRD_HEFTY,           // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -5454,24 +5454,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AMP1_1,                  // spawnstate
      AMMO_PHRD_WIMPY,           // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -5481,24 +5481,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AMP2_1,                  // spawnstate
      AMMO_PHRD_HEFTY,           // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -5508,24 +5508,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AMB1_1,                  // spawnstate
      AMMO_BLSR_WIMPY,           // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -5535,24 +5535,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_AMB2_1,                  // spawnstate
      AMMO_BLSR_HEFTY,           // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_SPECIAL,                // flags
      0                          // flags2
      },
@@ -5562,24 +5562,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SND_WIND,                // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
      0                          // flags2
      },
@@ -5589,24 +5589,24 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_SND_WATERFALL,           // spawnstate
      1000,                      // spawnhealth
      HERETIC_S_NULL,                    // seestate
-     heretic_sfx_None,                  // seesound
+     sfx_None,                  // seesound
      8,                         // reactiontime
-     heretic_sfx_None,                  // attacksound
+     sfx_None,                  // attacksound
      HERETIC_S_NULL,                    // painstate
      0,                         // painchance
-     heretic_sfx_None,                  // painsound
+     sfx_None,                  // painsound
      HERETIC_S_NULL,                    // meleestate
      HERETIC_S_NULL,                    // missilestate
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
-     heretic_sfx_None,                  // deathsound
+     sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
      16 * FRACUNIT,             // height
      100,                       // mass
      0,                         // damage
-     heretic_sfx_None,                  // activesound
+     sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
      0                          // flags2
      }

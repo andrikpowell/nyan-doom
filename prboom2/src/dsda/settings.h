@@ -28,6 +28,7 @@ void dsda_SetTas(dboolean t);
 int dsda_ViewBob(void);
 int dsda_WeaponBob(void);
 dboolean dsda_CameraMode(void);
+dboolean dsda_FixViewBobFloorJolt(void);
 dboolean dsda_ShowMessages(void);
 dboolean dsda_ColorizeMessages(void);
 dboolean dsda_AutoRun(void);

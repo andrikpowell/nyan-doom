@@ -548,6 +548,14 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       dsda_AddPlayerMessage(s_GOTARMBONUS, player);
       break;
 
+    case SPR_BON3:      // killough 7/11/98: evil sceptre from beta version
+      dsda_AddPlayerMessage(s_BETA_BONUS3, player);
+      break;
+
+    case SPR_BON4:      // killough 7/11/98: unholy bible from beta version
+      dsda_AddPlayerMessage(s_BETA_BONUS4, player);
+      break;
+
     case SPR_SOUL:
       player->health += P_PlayerHealthIncrease(soul_health);
       if (player->health > max_soul)
@@ -979,10 +987,8 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
         }
         else
         {
-            map_format.execute_line_special(
-              target->special, target->special_args, NULL, 0,
-              map_info.flags & MI_ACTIVATE_OWN_DEATH_SPECIALS ? target : source
-            );
+            // TODO: tenuous "activate own death specials" mapinfo flag
+            map_format.execute_line_special(target->special, target->special_args, NULL, 0, target);
         }
     }
   }

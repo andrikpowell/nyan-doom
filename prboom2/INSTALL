@@ -10,6 +10,7 @@ Prerequisites
      * MAD (MP3)
      * libxmp (various tracker-style formats)
      * vorbisfile (OGG)
+     * libsndfile (various formats)
 
 You will need `cmake` and `make` if you haven't already installed them.
 

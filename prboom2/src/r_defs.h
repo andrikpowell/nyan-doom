@@ -287,6 +287,7 @@ typedef byte r_flags_t;
 
 typedef enum
 {
+  // Exposed via Action Specials or UDMF
   ams_default,
   ams_one_sided,
   ams_two_sided,
@@ -299,13 +300,17 @@ typedef enum
   ams_locked,
   ams_teleport,
   ams_exit,
-  ams_exit_secret,
   ams_unseen_secret,
   ams_portal,
 
+  // Internal-only
+  ams_exit_secret,
   ams_invisible,
   ams_revealed_secret,
   ams_closed_door,
+
+  AMS_COUNT = ams_portal + 1,
+  AMS_COUNT_EXT = ams_closed_door + 1,
 } automap_style_t;
 
 typedef unsigned short line_activation_t;
@@ -319,8 +324,8 @@ typedef struct line_s
   float texel_length;
   line_flags_t flags;           // Animation related.
   short special;
-  short tag;
-  unsigned short sidenum[2];        // Visual appearance: SideDefs.
+  short id;
+  int32_t sidenum[2];    // Visual appearance: SideDefs.
   fixed_t bbox[4];       // A bounding box, for the linedef's extent
   slopetype_t slopetype; // To aid move clipping.
   sector_t *frontsector; // Front and back sector.
@@ -336,6 +341,7 @@ typedef struct line_s
   byte player_activations;
 
   // hexen
+  // also used in UDMF -- tag -> arg0/id split
   int special_args[5];
 
   // zdoom

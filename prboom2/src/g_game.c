@@ -35,6 +35,7 @@
  *-----------------------------------------------------------------------------
  */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -166,6 +167,7 @@ int             gameepisode;
 int             gamemap;
 // CPhipps - moved *_loadgame vars here
 static dboolean forced_loadgame = false;
+static dboolean commandline_loadgame = false;
 static dboolean load_via_cmd = false;
 
 dboolean         timingdemo;    // if true, exit with report on completion
@@ -1153,19 +1155,9 @@ static void G_DoLoadLevel (void)
 
   for (i = 0; i < g_maxplayers; i++)
   {
-    if (playeringame[i])
-    {
-      if (players[i].playerstate == PST_DEAD)
-        players[i].playerstate = PST_REBORN;
-      else
-      {
-        if (map_info.flags & MI_RESET_HEALTH)
-          G_ResetHealth(&players[i]);
-
-        if (map_info.flags & MI_RESET_INVENTORY)
-          G_ResetInventory(&players[i]);
-      }
-    }
+    // TODO: possible "reset inventory/health" mapinfo flag
+    if (playeringame[i] && players[i].playerstate == PST_DEAD)
+      players[i].playerstate = PST_REBORN;
     memset(players[i].frags, 0, sizeof(players[i].frags));
   }
 
@@ -1190,7 +1182,7 @@ static void G_DoLoadLevel (void)
   if (map_format.sndseq)
     SN_StopAllSequences();
 
-  P_SetupLevel (gameepisode, gamemap, 0, gameskill);
+  P_SetupLevel (gameepisode, gamemap, gameskill);
   G_UpdateDiscordPresence();
   if (!demoplayback) // Don't switch views if playing a demo
     displayplayer = consoleplayer;    // view the guy you are playing
@@ -1264,13 +1256,9 @@ dboolean G_Responder (event_t* ev)
   if (dsda_IntConfig(dsda_config_playback_mouse_controls) &&
     demoplayback && !timingdemo && dsda_InputActivated(dsda_input_fire))
   {
-    int x, y;
+    int x;
 
-    dsda_GetMousePosition(&x, &y);
-
-    y = y * ACTUALHEIGHT / viewport_rect.h;
-
-    if (x && y > (ACTUALHEIGHT - ST_SCALED_HEIGHT / 6))
+    if (HU_MouseOnDemoProgressBar(&x))
     {
       dsda_JumpToLogicTic(demo_tics_count * x / viewport_rect.w);
       return true;
@@ -1387,7 +1375,7 @@ dboolean G_Responder (event_t* ev)
     case ev_move_analog:
       dsda_WatchGameControllerEvent();
 
-      left_analog_x = (int)ev->data1.f;
+      left_analog_x = (int)(dsda_StrictMode() ? lroundf(ev->data1.f * 0.5f) * 2 : ev->data1.f);
       left_analog_y = (int)ev->data2.f;
       return true;    // eat events
 
@@ -1588,6 +1576,7 @@ void G_Ticker (void)
             savegameslot = ex->load_slot;
             gameaction = ga_loadgame;
             forced_loadgame = true;
+            commandline_loadgame = false;
             load_via_cmd = true;
             R_SmoothPlaying_Reset(NULL);
           }
@@ -2027,7 +2016,8 @@ void G_DoReborn (int playernum)
   if (hexen)
     RETURN(Hexen_G_DoReborn(playernum));
 
-  if (!netgame && !(map_info.flags & MI_ALLOW_RESPAWN) && !(skill_info.flags & SI_PLAYER_RESPAWN))
+  // TODO: possible "allow respawn" mapinfo flag
+  if (!netgame && !(skill_info.flags & SI_PLAYER_RESPAWN))
     gameaction = ga_loadlevel;      // reload the level from scratch
   else
     {                               // respawn at the start
@@ -2194,14 +2184,10 @@ void G_DoCompleted (void)
   if (skip_intermission)
     RETURN(G_ForceFinale());
 
-  if (!(map_info.flags & MI_INTERMISSION))
-  {
-    G_WorldDone();
-  }
-  else
-  {
-    WI_Start (&wminfo);
-  }
+  // TODO: tenuous "no intermission" mapinfo flag
+  // umapinfo already partially handles it, but not in a friendly way
+  // only in maps that can end the game -- i.e. `endgame`, `endbunny`, etc
+  WI_Start (&wminfo);
 }
 
 //
@@ -2326,7 +2312,7 @@ void G_ForcedLoadGame(void)
 }
 
 // killough 3/16/98: add slot info
-void G_LoadGame(int slot)
+void G_LoadGame(int slot, dboolean via_commandline)
 {
   if (demorecording)
   {
@@ -2334,7 +2320,7 @@ void G_LoadGame(int slot)
     return;
   }
 
-  if (!demoplayback)
+  if (!demoplayback && !via_commandline)
   {
     forced_loadgame = netgame; // CPhipps - always force load netgames
   }
@@ -2355,6 +2341,7 @@ void G_LoadGame(int slot)
 
   gameaction = ga_loadgame;
   savegameslot = slot;
+  commandline_loadgame = via_commandline;
   load_via_cmd = false;
   R_SmoothPlaying_Reset(NULL); // e6y
 }
@@ -2366,6 +2353,11 @@ static void G_LoadGameErr(const char *msg)
 {
   P_FreeSaveBuffer();
   M_ForcedLoadGame(msg);             // Print message asking for 'Y' to force
+  if (commandline_loadgame)
+  {
+    D_StartTitle();
+    gamestate = GS_DEMOSCREEN;
+  }
 }
 
 const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] =
@@ -2457,7 +2449,7 @@ void G_DoLoadGame(void)
   // [crispy] loaded game must always be single player.
   // Needed for ability to use a further game loading, as well as
   // cheat codes and other single player only specifics.
-  if (!load_via_cmd)
+  if (!commandline_loadgame && !load_via_cmd)
   {
     netgame = false;
     deathmatch = false;
@@ -3929,7 +3921,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
     netgame = true;
   }
 
-  if (!(params & RDH_SKIP_HEADER))
+  if (!(params & RDH_SKIP_HEADER) && gameaction != ga_loadgame)
   {
     G_InitNew(skill, episode, map, true);
     demo_p = dsda_EvaluateDemoStartPoint(demo_p);

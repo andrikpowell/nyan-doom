@@ -248,7 +248,8 @@ enum {
   MIF_SPAWNED_BY_DSPARIL    = (1<<5),
   MIF_FLIP                  = (1<<6),
   MIF_FAKE                  = (1<<7), // Not a real thing, transient (e.g., for cheats)
-  MIF_INTERP_CAPTURE        = (1<<8), // [AR] Capture interpolation once per tic
+  MIF_LINEDONE              = (1<<8), // Object has activated W1 or S1 linedef via DEH frame
+  MIF_INTERP_CAPTURE        = (1<<9), // [AR] Capture interpolation once per tic
 };
 
 // heretic

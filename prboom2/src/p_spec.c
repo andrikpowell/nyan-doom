@@ -1505,7 +1505,7 @@ int P_CheckTag(line_t *line)
 {
   /* tag not zero, allowed, or
    * killough 11/98: compatibility option */
-  if (comp[comp_zerotags] || line->tag || comperr(comperr_zerotag))//e6y
+  if (comp[comp_zerotags] || line->special_args[0] || comperr(comperr_zerotag))//e6y
     return 1;
 
   switch(line->special)
@@ -1616,7 +1616,7 @@ dboolean P_IsManualDoor(line_t* line)
     }
   }
 
-  if (line->tag)
+  if (line->special_args[0])
     return false;
 
   switch (line->special)
@@ -1743,20 +1743,22 @@ static const char* dsda_GetSecretMessage(void)
 
 int P_GetMilestoneSound(int config_id)
 {
-  dboolean config = dsda_IntConfig(config_id);
+  int config = dsda_IntConfig(config_id);
+  int fallback_sfx;
 
   if (config == 0)
     return 0;
 
-  if (raven)
-    return g_sfx_secret;
+  fallback_sfx  = raven ? hexen ? hexen_sfx_chat :
+                                  heretic_sfx_chat :
+                                  sfx_itmbk;
+
+  dsda_LinkSFXEffect(g_sfx_secret, fallback_sfx);
+  dsda_LinkSFXEffect(g_sfx_secret_subtle, fallback_sfx);
 
   if (config == 1)
-  {
-    dboolean sound_exist = !(I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0);
+    return g_sfx_secret;
 
-    return sound_exist ? g_sfx_secret : g_sfx_secret_subtle;
-  }
 
   return g_sfx_secret_subtle;
 }
@@ -2147,7 +2149,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       if (!thing->player && !bossaction)
         if ((line->special & FloorChange) || !(line->special & FloorModel))
           return;     // FloorModel is "Allow Monsters" if FloorChange is 0
-      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all walk generalized types require tag
         return;
       linefunc = EV_DoGenFloor;
     }
@@ -2156,7 +2158,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       if (!thing->player && !bossaction)
         if ((line->special & CeilingChange) || !(line->special & CeilingModel))
           return;     // CeilingModel is "Allow Monsters" if CeilingChange is 0
-      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all walk generalized types require tag
          return;
       linefunc = EV_DoGenCeiling;
     }
@@ -2169,7 +2171,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
         if (line->flags & ML_SECRET) // they can't open secret doors either
           return;
       }
-      if (!comperr(comperr_zerotag) && !line->tag) //e6y //3/2/98 move outside the monster check
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //3/2/98 move outside the monster check
           return;
       linefunc = EV_DoGenDoor;
     }
@@ -2191,7 +2193,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       if (!thing->player && !bossaction)
         if (!(line->special & LiftMonster))
           return; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all walk generalized types require tag
         return;
       linefunc = EV_DoGenLift;
     }
@@ -2200,7 +2202,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       if (!thing->player && !bossaction)
         if (!(line->special & StairMonster))
           return; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all walk generalized types require tag
         return;
       linefunc = EV_DoGenStairs;
     }
@@ -2211,7 +2213,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       if (!thing->player && !bossaction)
         if (!(line->special & StairMonster))
           return; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all walk generalized types require tag
         return;
       linefunc = EV_DoGenCrusher;
     }
@@ -2393,7 +2395,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
 
     case 39:
       // TELEPORT! //jff 02/09/98 fix using up with wrong side crossing
-      if (map_format.ev_teleport(0, line->tag, line, side, thing, TELF_VANILLA) || demo_compatibility)
+      if (map_format.ev_teleport(0, line->special_args[0], line, side, thing, TELF_VANILLA) || demo_compatibility)
         line->special = 0;
       break;
 
@@ -2512,7 +2514,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
     case 125:
       // TELEPORT MonsterONLY
       if (!thing->player &&
-          (map_format.ev_teleport(0, line->tag, line, side, thing, TELF_VANILLA) || demo_compatibility))
+          (map_format.ev_teleport(0, line->special_args[0], line, side, thing, TELF_VANILLA) || demo_compatibility))
         line->special = 0;
       break;
 
@@ -2649,7 +2651,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
 
     case 97:
       // TELEPORT!
-      map_format.ev_teleport( 0, line->tag, line, side, thing, TELF_VANILLA );
+      map_format.ev_teleport( 0, line->special_args[0], line, side, thing, TELF_VANILLA );
       break;
 
     case 98:
@@ -2680,7 +2682,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
     case 126:
       // TELEPORT MonsterONLY.
       if (!thing->player)
-        map_format.ev_teleport( 0, line->tag, line, side, thing, TELF_VANILLA );
+        map_format.ev_teleport( 0, line->special_args[0], line, side, thing, TELF_VANILLA );
       break;
 
     case 128:
@@ -2767,7 +2769,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
 
           case 207:
             // killough 2/16/98: W1 silent teleporter (normal kind)
-            if (map_format.ev_teleport(0, line->tag, line, side, thing, TELF_SILENT))
+            if (map_format.ev_teleport(0, line->special_args[0], line, side, thing, TELF_SILENT))
               line->special = 0;
             break;
 
@@ -2775,14 +2777,14 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
           case 153: //jff 3/15/98 create texture change no motion type
             // Texture/Type Change Only (Trig)
             // 153 W1 Change Texture/Type Only
-            if (EV_DoChange(line,trigChangeOnly,line->tag))
+            if (EV_DoChange(line,trigChangeOnly,line->special_args[0]))
               line->special = 0;
             break;
 
           case 239: //jff 3/15/98 create texture change no motion type
             // Texture/Type Change Only (Numeric)
             // 239 W1 Change Texture/Type Only
-            if (EV_DoChange(line,numChangeOnly,line->tag))
+            if (EV_DoChange(line,numChangeOnly,line->special_args[0]))
               line->special = 0;
             break;
 
@@ -2816,29 +2818,29 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
 
           case 243: //jff 3/6/98 make fit within DCK's 256 linedef types
             // killough 2/16/98: W1 silent teleporter (linedef-linedef kind)
-            if (EV_SilentLineTeleport(line, side, thing, line->tag, false))
+            if (EV_SilentLineTeleport(line, side, thing, line->special_args[0], false))
               line->special = 0;
             break;
 
           case 262: //jff 4/14/98 add silent line-line reversed
-            if (EV_SilentLineTeleport(line, side, thing, line->tag, true))
+            if (EV_SilentLineTeleport(line, side, thing, line->special_args[0], true))
               line->special = 0;
             break;
 
           case 264: //jff 4/14/98 add monster-only silent line-line reversed
             if (!thing->player &&
-                EV_SilentLineTeleport(line, side, thing, line->tag, true))
+                EV_SilentLineTeleport(line, side, thing, line->special_args[0], true))
               line->special = 0;
             break;
 
           case 266: //jff 4/14/98 add monster-only silent line-line
             if (!thing->player &&
-                EV_SilentLineTeleport(line, side, thing, line->tag, false))
+                EV_SilentLineTeleport(line, side, thing, line->special_args[0], false))
               line->special = 0;
             break;
 
           case 268: //jff 4/14/98 add monster-only silent
-            if (!thing->player && map_format.ev_teleport(0, line->tag, line, side, thing, TELF_SILENT))
+            if (!thing->player && map_format.ev_teleport(0, line->special_args[0], line, side, thing, TELF_SILENT))
               line->special = 0;
             break;
 
@@ -2933,7 +2935,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
 
           case 208:
             // killough 2/16/98: WR silent teleporter (normal kind)
-            map_format.ev_teleport(0, line->tag, line, side, thing, TELF_SILENT);
+            map_format.ev_teleport(0, line->special_args[0], line, side, thing, TELF_SILENT);
             break;
 
           case 212: //jff 3/14/98 create instant toggle floor type
@@ -2946,13 +2948,13 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
           case 154: //jff 3/15/98 create texture change no motion type
             // Texture/Type Change Only (Trigger)
             // 154 WR Change Texture/Type Only
-            EV_DoChange(line,trigChangeOnly,line->tag);
+            EV_DoChange(line,trigChangeOnly,line->special_args[0]);
             break;
 
           case 240: //jff 3/15/98 create texture change no motion type
             // Texture/Type Change Only (Numeric)
             // 240 WR Change Texture/Type Only
-            EV_DoChange(line,numChangeOnly,line->tag);
+            EV_DoChange(line,numChangeOnly,line->special_args[0]);
             break;
 
           case 220:
@@ -2981,26 +2983,26 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
 
           case 244: //jff 3/6/98 make fit within DCK's 256 linedef types
             // killough 2/16/98: WR silent teleporter (linedef-linedef kind)
-            EV_SilentLineTeleport(line, side, thing, line->tag, false);
+            EV_SilentLineTeleport(line, side, thing, line->special_args[0], false);
             break;
 
           case 263: //jff 4/14/98 add silent line-line reversed
-            EV_SilentLineTeleport(line, side, thing, line->tag, true);
+            EV_SilentLineTeleport(line, side, thing, line->special_args[0], true);
             break;
 
           case 265: //jff 4/14/98 add monster-only silent line-line reversed
             if (!thing->player)
-              EV_SilentLineTeleport(line, side, thing, line->tag, true);
+              EV_SilentLineTeleport(line, side, thing, line->special_args[0], true);
             break;
 
           case 267: //jff 4/14/98 add monster-only silent line-line
             if (!thing->player)
-              EV_SilentLineTeleport(line, side, thing, line->tag, false);
+              EV_SilentLineTeleport(line, side, thing, line->special_args[0], false);
             break;
 
           case 269: //jff 4/14/98 add monster-only silent
             if (!thing->player)
-              map_format.ev_teleport(0, line->tag, line, side, thing, TELF_SILENT);
+              map_format.ev_teleport(0, line->special_args[0], line, side, thing, TELF_SILENT);
             break;
 
             //jff 1/29/98 end of added WR linedef types
@@ -3065,7 +3067,7 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
       if (!thing->player)
         if ((line->special & FloorChange) || !(line->special & FloorModel))
           return;   // FloorModel is "Allow Monsters" if FloorChange is 0
-      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
 
       linefunc = EV_DoGenFloor;
@@ -3075,7 +3077,7 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
       if (!thing->player)
         if ((line->special & CeilingChange) || !(line->special & CeilingModel))
           return;   // CeilingModel is "Allow Monsters" if CeilingChange is 0
-      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
       linefunc = EV_DoGenCeiling;
     }
@@ -3088,7 +3090,7 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
         if (line->flags & ML_SECRET) // they can't open secret doors either
           return;
       }
-      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
       linefunc = EV_DoGenDoor;
     }
@@ -3103,7 +3105,7 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
       }
       else
         return;
-      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
 
       linefunc = EV_DoGenLockedDoor;
@@ -3120,7 +3122,7 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
       if (!thing->player)
         if (!(line->special & StairMonster))
           return; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
       linefunc = EV_DoGenStairs;
     }
@@ -3129,7 +3131,7 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
       if (!thing->player)
         if (!(line->special & StairMonster))
           return; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
       linefunc = EV_DoGenCrusher;
     }
@@ -3996,7 +3998,7 @@ static void P_SpawnVanillaExtras(void)
 
         case 271:   // Regular sky
         case 272:   // Same, only flipped
-          FIND_SECTORS(id_p, lines[i].tag)
+          FIND_SECTORS(id_p, lines[i].special_args[0])
           {
             sectors[*id_p].floorsky = i | PL_SKYFLAT_LINE;
             sectors[*id_p].ceilingsky = i | PL_SKYFLAT_LINE;
@@ -4016,7 +4018,7 @@ void P_SpawnCompatibleExtra(line_t *l, int i)
     // support for drawn heights coming from different sector
     case 242:
       sec = sides[*l->sidenum].sector->iSectorID;
-      FIND_SECTORS(id_p, lines[i].tag)
+      FIND_SECTORS(id_p, lines[i].special_args[0])
         sectors[*id_p].heightsec = sec;
       break;
 
@@ -4024,7 +4026,7 @@ void P_SpawnCompatibleExtra(line_t *l, int i)
     // floor lighting independently (e.g. lava)
     case 213:
       sec = sides[*l->sidenum].sector->iSectorID;
-      FIND_SECTORS(id_p, lines[i].tag)
+      FIND_SECTORS(id_p, lines[i].special_args[0])
         sectors[*id_p].floorlightsec = sec;
       break;
 
@@ -4032,7 +4034,7 @@ void P_SpawnCompatibleExtra(line_t *l, int i)
     // ceiling lighting independently
     case 261:
       sec = sides[*l->sidenum].sector->iSectorID;
-      FIND_SECTORS(id_p, lines[i].tag)
+      FIND_SECTORS(id_p, lines[i].special_args[0])
         sectors[*id_p].ceilinglightsec = sec;
       break;
 
@@ -4047,7 +4049,7 @@ void P_SpawnCompatibleExtra(line_t *l, int i)
 
     case 271:   // Regular sky
     case 272:   // Same, only flipped
-      FIND_SECTORS(id_p, lines[i].tag)
+      FIND_SECTORS(id_p, lines[i].special_args[0])
       {
         sectors[*id_p].floorsky = i | PL_SKYFLAT_LINE;
         sectors[*id_p].ceilingsky = i | PL_SKYFLAT_LINE;
@@ -4315,13 +4317,13 @@ void P_SpawnCompatibleScroller(line_t *l, int i)
     const int *id_p;
 
     case 250:   // scroll effect ceiling
-      FIND_SECTORS(id_p, l->tag)
+      FIND_SECTORS(id_p, l->special_args[0])
         dsda_AddControlCeilingScroller(-dx, dy, control, *id_p, accel, 0);
       break;
 
     case 251:   // scroll effect floor
     case 253:   // scroll and carry objects on floor
-      FIND_SECTORS(id_p, l->tag)
+      FIND_SECTORS(id_p, l->special_args[0])
         dsda_AddControlFloorScroller(-dx, dy, control, *id_p, accel, 0);
       if (special != 253)
         break;
@@ -4330,20 +4332,20 @@ void P_SpawnCompatibleScroller(line_t *l, int i)
     case 252: // carry objects on floor
       dx = FixedMul(dx, CARRYFACTOR);
       dy = FixedMul(dy, CARRYFACTOR);
-      FIND_SECTORS(id_p, l->tag)
+      FIND_SECTORS(id_p, l->special_args[0])
         dsda_AddControlFloorCarryScroller(dx, dy, control, *id_p, accel, 0);
       break;
 
       // killough 3/1/98: scroll wall according to linedef
       // (same direction and speed as scrolling floors)
     case 254:
-        if (l->tag == 0 && comperr(comperr_zerotag))
+        if (l->special_args[0] == 0 && comperr(comperr_zerotag))
         {
             Add_WallScroller(dx, dy, l, control, accel);
         }
         else
         {
-            FIND_LINES(id_p, l->tag)
+            FIND_LINES(id_p, l->special_args[0])
               if (*id_p != i)
                 Add_WallScroller(dx, dy, lines + *id_p, control, accel);
         }
@@ -4357,7 +4359,7 @@ void P_SpawnCompatibleScroller(line_t *l, int i)
     case 1024: // special 255 with tag control
     case 1025:
     case 1026:
-      if (l->tag == 0)
+      if (l->special_args[0] == 0)
         I_Error("Line %d is missing a tag!", i);
 
       if (special > 1024)
@@ -4369,7 +4371,7 @@ void P_SpawnCompatibleScroller(line_t *l, int i)
       side = lines[i].sidenum[0];
       dx = -sides[side].textureoffset / 8;
       dy = sides[side].rowoffset / 8;
-      FIND_LINES(id_p, l->tag)
+      FIND_LINES(id_p, l->special_args[0])
         if (*id_p != i)
           dsda_AddControlSideScroller(dx, dy, control, lines[*id_p].sidenum[0], accel, 0);
 
@@ -4779,7 +4781,7 @@ void P_SpawnCompatibleFriction(line_t *l)
     value = P_AproxDistance(l->dx, l->dy) >> FRACBITS;
     use_thinker = !demo_compatibility && !mbf_features && !prboom_comp[PC_PRBOOM_FRICTION].state;
 
-    P_ApplySectorFriction(l->tag, value, use_thinker);
+    P_ApplySectorFriction(l->special_args[0], value, use_thinker);
   }
 }
 
@@ -5113,15 +5115,15 @@ void P_SpawnCompatiblePusher(line_t *l)
   switch(l->special)
   {
     case 224: // wind
-      FIND_SECTORS(id_p, l->tag)
+      FIND_SECTORS(id_p, l->special_args[0])
         Add_Pusher(p_wind, l->dx, l->dy, NULL, *id_p);
       break;
     case 225: // current
-      FIND_SECTORS(id_p, l->tag)
+      FIND_SECTORS(id_p, l->special_args[0])
         Add_Pusher(p_current, l->dx, l->dy, NULL, *id_p);
       break;
     case 226: // push/pull
-      FIND_SECTORS(id_p, l->tag)
+      FIND_SECTORS(id_p, l->special_args[0])
       {
         thing = P_GetPushThing(*id_p);
         if (thing) // No MT_P* means no effect
@@ -5185,9 +5187,10 @@ void P_SpawnZDoomPusher(line_t *l)
       }
       else
       {  // [RH] Find thing by tid
-        int s;
+        thing_id_search_t search;
 
-        for (s = -1; (thing = P_FindMobjFromTID(l->special_args[1], &s)) != NULL;)
+        dsda_ResetThingIDSearch(&search);
+        while ((thing = dsda_FindMobjFromThingID(l->special_args[1], &search)) != NULL)
           if (thing->type == map_format.mt_push || thing->type == map_format.mt_pull)
             Add_Pusher(p_push, dx, dy, thing, thing->subsector->sector->iSectorID);
       }
@@ -5597,7 +5600,7 @@ void P_CrossHereticSpecialLine(line_t * line, int side, mobj_t * thing, dboolean
             line->special = 0;
             break;
         case 39:               // TELEPORT!
-            map_format.ev_teleport(0, line->tag, line, side, thing, TELF_VANILLA);
+            map_format.ev_teleport(0, line->special_args[0], line, side, thing, TELF_VANILLA);
             line->special = 0;
             break;
         case 40:               // RaiseCeilingLowerFloor
@@ -5724,7 +5727,7 @@ void P_CrossHereticSpecialLine(line_t * line, int side, mobj_t * thing, dboolean
             EV_DoFloor(line, raiseToTexture);
             break;
         case 97:               // TELEPORT!
-            map_format.ev_teleport(0, line->tag, line, side, thing, TELF_VANILLA);
+            map_format.ev_teleport(0, line->special_args[0], line, side, thing, TELF_VANILLA);
             break;
         case 98:               // Lower Floor (TURBO)
             EV_DoFloor(line, turboLower);
@@ -6022,10 +6025,8 @@ dboolean P_TestActivateZDoomLine(line_t *line, mobj_t *mo, int side, line_activa
 
   if (activationType == SPAC_USE || activationType == SPAC_USEBACK)
   {
-    if (
-      (line->flags & ML_CHECKSWITCHRANGE || map_info.flags & MI_CHECK_SWITCH_RANGE) &&
-      !P_CheckSwitchRange(line, mo, side)
-    )
+    // TODO: possible "check switch range" mapinfo flag
+    if ((line->flags & ML_CHECKSWITCHRANGE) && !P_CheckSwitchRange(line, mo, side))
     {
       return false;
     }
@@ -6072,10 +6073,7 @@ dboolean P_TestActivateZDoomLine(line_t *line, mobj_t *mo, int side, line_activa
     // lax activation checks, monsters can also activate certain lines
     // even without them being marked as monster activate-able. This is
     // the default for non-Hexen maps in Hexen format.
-    if (!(map_info.flags & MI_LAX_MONSTER_ACTIVATION))
-    {
-      return false;
-    }
+    // TODO: possible "check switch range" mapinfo flag
 
     if ((activationType == SPAC_USE || activationType == SPAC_PUSH) && line->flags & ML_SECRET)
       return false;    // never open secret doors
@@ -8257,7 +8255,7 @@ dboolean P_ExecuteZDoomLineSpecial(int special, int * args, line_t * line, int s
     case zl_map_set_colormap:
       if (args[0] >= 0)
       {
-        map_info.default_colormap = args[0];
+        map_colormap = args[0];
       }
       buttonSuccess = 1;
       break;
