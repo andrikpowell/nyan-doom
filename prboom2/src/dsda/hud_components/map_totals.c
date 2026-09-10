@@ -108,9 +108,7 @@ static void dsda_DrawMapTotalsIcons(void)
   if (local->include_kills)
   {
     int color = raven ? dsda_tc_map_raven_icon_kills : dsda_tc_map_icon_kills;
-    const char* kill_icon_lump =  hexen   ? "AMKILLS3" :
-                                  heretic ? "AMKILLS2" :
-                                            "AMKILLS";
+    const char* kill_icon_lump = "AMKILLS";
     dsda_DrawMapIcon(x, y, kill_icon_lump, dsda_TextCR(color), y_spacing);
     y += y_spacing;
   }
@@ -118,8 +116,7 @@ static void dsda_DrawMapTotalsIcons(void)
   if (local->include_items)
   {
     int color = raven ? dsda_tc_map_raven_icon_items : dsda_tc_map_icon_items;
-    const char* item_icon_lump =  hexen   ? "AMITEM3" :
-                                  heretic ? "AMITEM2" :
+    const char* item_icon_lump =  raven   ? "AMITM2" :
                                             "AMITEM";
     dsda_DrawMapIcon(x, y, item_icon_lump, dsda_TextCR(color), y_spacing);
     y += y_spacing;
@@ -128,9 +125,7 @@ static void dsda_DrawMapTotalsIcons(void)
   if (local->include_secrets)
   {
     int color = raven ? dsda_tc_map_raven_icon_secrets : dsda_tc_map_icon_secrets;
-    const char* secret_icon_lump =  hexen   ? "AMSECR3" :
-                                    heretic ? "AMSECR2" :
-                                              "AMSECR";
+    const char* secret_icon_lump =  "AMSECR";
     dsda_DrawMapIcon(x, y, secret_icon_lump, dsda_TextCR(color), y_spacing);
   }
 }

@@ -163,6 +163,7 @@ void R_UpdateFuzzSize(void);
 void dsda_UpdateVanillaTextureEmulation(void);
 void dsda_UpdateMenuComplevel(void);
 void M_RefreshGameSpecificMenuOptions(void);
+void gld_UpdateInvulnColormap(void);
 
 void dsda_TrackConfigFeatures(void) {
   if (!demorecording)
@@ -2010,6 +2011,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_palette_oneffects] = {
     "palette_oneffects", dsda_config_palette_oneffects,
     dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), M_ChangeApplyPalette
+  },
+  [dsda_config_invulnerability_sky] = {
+    "dsda_invulnerability_sky", dsda_config_invulnerability_sky,
+    dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0), gld_UpdateInvulnColormap
+  },
+  [dsda_config_gray_invulnerability] = {
+    "dsda_gray_invulnerability", dsda_config_gray_invulnerability,
+    CONF_BOOL(0), NULL, NOT_STRICT, gld_UpdateInvulnColormap
   },
   [dsda_config_enhanced_liteamp] = {
     "enhanced_liteamp", dsda_config_enhanced_liteamp,

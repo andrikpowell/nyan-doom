@@ -43,7 +43,7 @@ static void dsda_RefreshHudTextAnnounceWrapped(dsda_text_t *component, int cente
   split = strchr(msg, '\n');
   if (!split)
   {
-    HUlib_WrapStringToTextLines(&component->text, msg, centered, 2);
+    HUlib_WrapTextLine(&component->text, msg, centered, 2);
     return;
   }
 
@@ -51,7 +51,7 @@ static void dsda_RefreshHudTextAnnounceWrapped(dsda_text_t *component, int cente
   *split = '\0';
 
   // Title - 2 lines only
-  HUlib_WrapStringToTextLines(&component->text, msg, centered, 2);
+  HUlib_WrapTextLine(&component->text, msg, centered, 2);
 
   *split = saved;
 
@@ -62,7 +62,7 @@ static void dsda_RefreshHudTextAnnounceWrapped(dsda_text_t *component, int cente
 
   // Author prints after title - 1 line
   // Allowance of 3 lines total (with title)
-  HUlib_WrapStringToTextLines(&component->text, split + 1, centered, 3);
+  HUlib_WrapTextLine(&component->text, split + 1, centered, 3);
 }
 
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
@@ -124,11 +124,11 @@ void dsda_UpdateAnnounceMessageHC(void* data) {
   dsda_RefreshHudTextAnnounceWrapped(&local->component, local->center);
 
   if (local->center)
-    HUlib_setTextXCenter(&local->component.text);
+    HUlib_CenterText(&local->component.text);
 
   // Adjust y-offset for multi-line if bottom-aligned
   if (BOTTOM_ALIGNMENT(local->component.text.flags & VPT_ALIGN_MASK))
-    HUlib_AdjustBottomOffset_MultiLine(&local->component.text, local->y_offset, local->ratio, local->vpt);
+    HUlib_BottomAlignText(&local->component.text, local->y_offset, local->ratio, local->vpt);
 
   local->component.text.fade_alpha = dsda_MessageFadeOut(HU_AnnounceMessageTics());
 }

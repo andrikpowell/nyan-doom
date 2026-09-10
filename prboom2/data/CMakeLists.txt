@@ -109,9 +109,8 @@ set(SOUNDS
     sounds/dsnyanut.wav
 )
 
-set (PPM_GRAPHICS
-    # must be ppm to match palette
-    graphics/m_colors.ppm
+set(COLORS_LUMP
+    lumps/m_colors.lmp
 )
 
 set(GRAPHICS
@@ -270,11 +269,56 @@ set(GRAPHICS
     graphics/smsgn21.png
     graphics/smshot0.png
     graphics/smshot1.png
-)
+    graphics/smunkn0.png
+    graphics/smunkn1.png
 
- # must be ppm to match palette
-set(COLOR_PICKER
-    graphics/m_colors.ppm
+    # Raven Unknown Weapon graphics, drawn by Arsinikk
+    graphics/smunkn2.png
+    graphics/smunkn3.png
+
+    # Heretic + Hexen Weapon carousel graphics, drawn by Julia Nechaevskaya
+    graphics/smunkn2.png
+    graphics/smunkn3.png
+    graphics/smwbls0.png
+    graphics/smwbls1.png
+    graphics/smwbow0.png
+    graphics/smwbow1.png
+    graphics/smwgld0.png
+    graphics/smwgld1.png
+    graphics/smwgnt0.png
+    graphics/smwgnt1.png
+    graphics/smwmce0.png
+    graphics/smwmce1.png
+    graphics/smwphx0.png
+    graphics/smwphx1.png
+    graphics/smwskl0.png
+    graphics/smwskl1.png
+    graphics/smwstf0.png
+    graphics/smwstf1.png
+    graphics/smwfpc0.png
+    graphics/smwfpc1.png
+    graphics/smwfax0.png
+    graphics/smwfax1.png
+    graphics/smwfhm0.png
+    graphics/smwfhm1.png
+    graphics/smwfrs0.png
+    graphics/smwfrs1.png
+    graphics/smwcmc0.png
+    graphics/smwcmc1.png
+    graphics/smwcss0.png
+    graphics/smwcss1.png
+    graphics/smwcfm0.png
+    graphics/smwcfm1.png
+    graphics/smwchs0.png
+    graphics/smwchs1.png
+    graphics/smwmwd0.png
+    graphics/smwmwd1.png
+    graphics/smwmcs0.png
+    graphics/smwmcs1.png
+    graphics/smwmlg0.png
+    graphics/smwmlg1.png
+    graphics/smwmst0.png
+    graphics/smwmst1.png
 )
 
 set(NYAN_GRAPHICS
@@ -289,13 +333,8 @@ set(NYAN_GRAPHICS
     # map icons
     graphics/amkills.png
     graphics/amitem.png
+    graphics/amitm2.png
     graphics/amsecr.png
-    graphics/amkills2.png
-    graphics/amitem2.png
-    graphics/amsecr2.png
-    graphics/amkills3.png
-    graphics/amitem3.png
-    graphics/amsecr3.png
 
     # hud graphics
     graphics/stfpstr0.png
@@ -315,18 +354,12 @@ set(NYAN_GRAPHICS
     # status widget
     graphics/stfpkill.png
     graphics/stfpitem.png
+    graphics/stfpitm2.png
     graphics/stfpsecr.png
-    graphics/stfrkil2.png
-    graphics/stfritm2.png
-    graphics/stfrscr2.png
-    graphics/stfrkil3.png
-    graphics/stfritm3.png
-    graphics/stfrscr3.png
-    graphics/stfrtome.png
-    graphics/stfrmor1.png
-    graphics/stfrmor2.png
-    graphics/stfrsped.png
-    graphics/stfrmaul.png
+    graphics/stfptome.png
+    graphics/stfpmorp.png
+    graphics/stfpsped.png
+    graphics/stfpmaul.png
     graphics/stfpinv.png
     graphics/stfpins.png
     graphics/stfpvis.png
@@ -435,7 +468,7 @@ set(WAD_SRC
     ${PALETTE}
     ${LUMPS}
     ${COLORMAPS}
-    ${PRBOOM_LUMPS}
+    ${COLORS_LUMP}
     ${OPENGL_GRAPHICS}
     ${SOUNDS}
     ${PPM_GRAPHICS}
@@ -456,7 +489,7 @@ set(WAD_CMDLINE
         -pngs ${OPENGL_GRAPHICS}
     -marker B_END
     -sounds ${SOUNDS}
-    -graphics ${PPM_GRAPHICS}
+    -lumps ${COLORS_LUMP}
     -pngs ${GRAPHICS}
     -pngs ${NYAN_GRAPHICS}
     -marker FF_START

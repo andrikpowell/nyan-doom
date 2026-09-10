@@ -84,7 +84,7 @@ Available for Windows, Linux and macOS in [Releases](https://github.com/andrikpo
 - Rewind
 
 ## Patch Notes
-- [v1.5](./patch_notes/v1.5.md)
+- [v1.6](./patch_notes/v1.6.md)
 
 ## Compiling
 

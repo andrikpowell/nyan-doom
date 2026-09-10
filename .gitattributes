@@ -11,6 +11,10 @@ prboom2/data/graphics/boxuc.png -text
 prboom2/data/graphics/boxul.png -text
 prboom2/data/graphics/boxur.png -text
 prboom2/data/graphics/nyanlogo.png
+prboom2/data/graphics/smunkn0.png
+prboom2/data/graphics/smunkn1.png
+prboom2/data/graphics/smunkn2.png
+prboom2/data/graphics/smunkn3.png
 prboom2/data/graphics/smbfgg0.png
 prboom2/data/graphics/smbfgg1.png
 prboom2/data/graphics/smcsaw0.png
@@ -29,9 +33,50 @@ prboom2/data/graphics/smsgn20.png
 prboom2/data/graphics/smsgn21.png
 prboom2/data/graphics/smshot0.png
 prboom2/data/graphics/smshot1.png
+prboom2/data/graphics/smwbls0.png
+prboom2/data/graphics/smwbls1.png
+prboom2/data/graphics/smwbow0.png
+prboom2/data/graphics/smwbow1.png
+prboom2/data/graphics/smwgld0.png
+prboom2/data/graphics/smwgld1.png
+prboom2/data/graphics/smwgnt0.png
+prboom2/data/graphics/smwgnt1.png
+prboom2/data/graphics/smwmce0.png
+prboom2/data/graphics/smwmce1.png
+prboom2/data/graphics/smwphx0.png
+prboom2/data/graphics/smwphx1.png
+prboom2/data/graphics/smwskl0.png
+prboom2/data/graphics/smwskl1.png
+prboom2/data/graphics/smwstf0.png
+prboom2/data/graphics/smwstf1.png
+prboom2/data/graphics/smwfpc0.png
+prboom2/data/graphics/smwfpc1.png
+prboom2/data/graphics/smwfax0.png
+prboom2/data/graphics/smwfax1.png
+prboom2/data/graphics/smwfhm0.png
+prboom2/data/graphics/smwfhm1.png
+prboom2/data/graphics/smwfrs0.png
+prboom2/data/graphics/smwfrs1.png
+prboom2/data/graphics/smwcmc0.png
+prboom2/data/graphics/smwcmc1.png
+prboom2/data/graphics/smwcss0.png
+prboom2/data/graphics/smwcss1.png
+prboom2/data/graphics/smwcfm0.png
+prboom2/data/graphics/smwcfm1.png
+prboom2/data/graphics/smwchs0.png
+prboom2/data/graphics/smwchs1.png
+prboom2/data/graphics/smwmwd0.png
+prboom2/data/graphics/smwmwd1.png
+prboom2/data/graphics/smwmcs0.png
+prboom2/data/graphics/smwmcs1.png
+prboom2/data/graphics/smwmlg0.png
+prboom2/data/graphics/smwmlg1.png
+prboom2/data/graphics/smwmst0.png
+prboom2/data/graphics/smwmst1.png
 prboom2/data/lumps/gls_fuzz.lmp
 prboom2/data/lumps/gls_main.lmp
 prboom2/data/lumps/gls_v.lmp
+prboom2/data/lumps/m_colors.lmp
 prboom2/data/graphics/cross1.png -text
 prboom2/data/graphics/cross2.png -text
 prboom2/data/graphics/cross3.png -text
@@ -140,10 +185,11 @@ prboom2/data/graphics/fonta28.png -text
 prboom2/data/graphics/fonta30.png -text
 prboom2/data/graphics/amkills.png -text
 prboom2/data/graphics/amitem.png -text
+prboom2/data/graphics/amitm2.png -text
 prboom2/data/graphics/amsecr.png -text
+prboom2/data/graphics/amvial.png -text
 prboom2/data/graphics/m_butt1.png -text
 prboom2/data/graphics/m_butt2.png -text
-prboom2/data/graphics/m_colors.ppm -text
 prboom2/data/graphics/m_palno.png -text
 prboom2/data/graphics/m_palsel.png -text
 prboom2/data/graphics/m_vbox.png -text
@@ -152,6 +198,8 @@ prboom2/data/graphics/stkeys6.png -text
 prboom2/data/graphics/stkeys7.png -text
 prboom2/data/graphics/stkeys8.png -text
 prboom2/data/graphics/nyanstb1.png -text
+prboom2/data/graphics/nyanstb2.png -text
+prboom2/data/graphics/nyanstb3.png -text
 prboom2/data/graphics/stfpkill.png -text
 prboom2/data/graphics/stfpitem.png -text
 prboom2/data/graphics/stfpsecr.png -text
@@ -165,25 +213,11 @@ prboom2/data/graphics/stfparm1.png -text
 prboom2/data/graphics/stfparm2.png -text
 prboom2/data/graphics/stfppstr.png -text
 prboom2/data/graphics/stfpfly.png -text
-prboom2/data/graphics/amkills2.png -text
-prboom2/data/graphics/amitem2.png -text
-prboom2/data/graphics/amsecr2.png -text
-prboom2/data/graphics/amkills3.png -text
-prboom2/data/graphics/amitem3.png -text
-prboom2/data/graphics/amsecr3.png -text
-prboom2/data/graphics/nyanstb2.png -text
-prboom2/data/graphics/nyanstb3.png -text
-prboom2/data/graphics/stfrkil2.png -text
-prboom2/data/graphics/stfritm2.png -text
-prboom2/data/graphics/stfrscr2.png -text
-prboom2/data/graphics/stfrkil3.png -text
-prboom2/data/graphics/stfritm3.png -text
-prboom2/data/graphics/stfrscr3.png -text
-prboom2/data/graphics/stfrtome.png -text
-prboom2/data/graphics/stfrmor1.png -text
-prboom2/data/graphics/stfrmor2.png -text
-prboom2/data/graphics/stfrsped.png -text
-prboom2/data/graphics/stfrmaul.png -text
+prboom2/data/graphics/stfpvial.png -text
+prboom2/data/graphics/stfptome.png -text
+prboom2/data/graphics/stfpmorp.png -text
+prboom2/data/graphics/stfpsped.png -text
+prboom2/data/graphics/stfpmaul.png -text
 prboom2/data/graphics/stfpstr0.png -text
 prboom2/data/graphics/stfpstr1.png -text
 prboom2/data/graphics/stfarms0.png -text

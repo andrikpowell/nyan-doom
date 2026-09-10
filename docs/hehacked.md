@@ -289,3 +289,19 @@ Many of these strings are Doom compatable strings.
 | AMSTR_GRIDOFF | GRID OFF |
 | AMSTR_MARKEDSPOT | Marked Spot |
 | AMSTR_MARKSCLEARED | All Marks Cleared |
+
+## Weapon Carousel Icons
+
+HeHackEd Weapon blocks support the id24 `Carousel icon` field for assigning custom weapon carousel graphics. The value is a lump name prefix containing 1 to 7 characters. Nyan Doom appends a state number to the prefix:
+
+- `0` for an unselected weapon
+- `1` for the selected weapon
+
+For example:
+
+```
+Weapon 2 (Crossbow)
+Carousel icon = MYXBOW
+```
+
+If either requested lump is missing, the carousel displays an unknown icon.

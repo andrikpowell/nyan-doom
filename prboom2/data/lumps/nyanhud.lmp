@@ -22,6 +22,7 @@ target_health 0 10 top 1
 add_offset 1 top_left
 
 heretic ex
+weapon_carousel 160 20 none
 stat_totals 2 8 bottom_left
 status_timers 316 32 top_right 1
 status_widget 310 8 bottom_right 0 1
@@ -44,6 +45,7 @@ artifact_desc 0 12 bottom 1
 add_offset 1 top_left
 
 hexen ex
+weapon_carousel 160 20 none
 stat_totals 2 8 bottom_left 1 0 0
 status_timers 316 32 top_right 1
 status_widget 310 8 bottom_right 0 1
@@ -265,6 +267,7 @@ target_health 0 10 top 1
 add_offset 1 top_left
 
 heretic full 1 "default"
+weapon_carousel 160 20 none
 ready_ammo_text 2 8 bottom_left
 health_text 2 16 bottom_left
 armor_text 52 16 bottom_left
@@ -295,6 +298,7 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 heretic full 2 "modern"
+weapon_carousel 160 20 none
 big_health 4 26 bottom_left 1
 big_armor 66 26 bottom_left 1
 big_ammo 280 26 bottom_right 1 2
@@ -321,6 +325,7 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 heretic full 3 "modern - with stats"
+weapon_carousel 160 20 none
 big_health 4 26 bottom_left 1
 big_armor 66 26 bottom_left 1
 big_ammo 280 26 bottom_right 1 2
@@ -348,6 +353,7 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 heretic full 4 "boom modern"
+weapon_carousel 160 20 none
 ready_ammo_text 2 24 bottom_left 1
 health_text 2 16 bottom_left 1
 armor_text 2 8 bottom_left 1
@@ -378,6 +384,7 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 heretic full 5 "boom classic"
+weapon_carousel 160 20 none
 free_text 2 64 bottom_left
 speed_text 2 56 bottom_left
 stat_totals 2 48 bottom_left 1 1 1 0 1 1
@@ -407,6 +414,7 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 heretic full 6 "vanilla"
+weapon_carousel 160 20 none
 big_health_text 4 26 bottom_left 1
 status_timers 318 64 top_right 1
 status_widget 310 42 bottom_right 0 1
@@ -430,6 +438,7 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 hexen full 1 "default"
+weapon_carousel 160 20 none
 ready_ammo_text 2 8 bottom_left
 health_text 2 16 bottom_left
 armor_text 52 16 bottom_left
@@ -459,6 +468,7 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 hexen full 2 "modern"
+weapon_carousel 160 20 none
 big_health 4 26 bottom_left 1
 big_armor 50 26 bottom_left 1
 big_mana 236 32 bottom_right 1
@@ -484,6 +494,7 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 hexen full 3 "modern - with stats"
+weapon_carousel 160 20 none
 big_health 4 26 bottom_left 1
 big_armor 50 26 bottom_left 1
 big_mana 236 32 bottom_right 1
@@ -510,6 +521,7 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 hexen full 4 "boom modern"
+weapon_carousel 160 20 none
 ready_ammo_text 2 24 bottom_left 1
 health_text 2 16 bottom_left 1
 armor_text 2 8 bottom_left 1
@@ -539,6 +551,7 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 hexen full 5 "boom classic"
+weapon_carousel 160 20 none
 free_text 2 56 bottom_left
 speed_text 2 48 bottom_left
 stat_totals 2 40 bottom_left 1 0 0 0 1 1
@@ -567,6 +580,7 @@ artifact_desc 0 36 bottom 1
 add_offset 1 top_left
 
 hexen full 6 "vanilla"
+weapon_carousel 160 20 none
 big_health_text 4 26 bottom_left 1
 status_timers 318 64 top_right 1
 status_widget 310 42 bottom_right 0 1
@@ -600,6 +614,7 @@ announce_message 0 18 none
 secret_message 0 76 none
 
 heretic map
+weapon_carousel 160 20 none
 map_totals 2 8 top_left
 map_time 2 40 top_left 0 0
 map_coordinates 255 8 top_right
@@ -610,6 +625,7 @@ secret_message 0 66 none
 artifact_desc 0 12 bottom 1
 
 hexen map
+weapon_carousel 160 20 none
 map_totals 2 8 top_left 1 0 0
 map_time 2 40 top_left 0 0
 map_coordinates 255 8 top_right

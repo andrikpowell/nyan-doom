@@ -5236,7 +5236,7 @@ setup_menu_t gen_gamesim_settings[] = {
   { "Death Use Action", S_CHOICE, m_conf, g_all, G2_X, dsda_config_death_use_action, 0, death_use_strings },
   { "Rare Player Gib Death", S_YESNO | S_NYAN, m_conf, g_doom, G2_X, nyan_config_skullpop_easter_egg },
   { "Randomly Mirrored Corpses", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_flip_corpses },
-  { "Weapon Carousel", S_YESNO | S_NYAN, m_conf, g_doom, G2_X, dsda_config_weapon_carousel },
+  { "Weapon Carousel", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_weapon_carousel },
   { "Artifact Descriptions", S_CHOICE | S_NYAN, m_conf, g_raven, G2_X, dsda_config_artifact_descriptions, 0, artifact_desc_list },
   { "Skip Ethereal Travel", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_skip_ethereal_travel },
   { "Simpler Puzzle Piece Use", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_simpler_puzzle_use },
@@ -5550,6 +5550,7 @@ static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
 static const char* palette_list[] = { "Off", "Default", NULL };
 static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
 static const char* swirling_flat_list[] = { "Off", "Smart", "All", NULL };
+static const char* invuln_sky_list[] = { "Default", "MBF", "Vanilla", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Screen Wipe Effect", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_render_wipescreen, 0, wipe_screen_list },
@@ -5567,6 +5568,8 @@ setup_menu_t display_options_settings[] = {
   { "Palette On Pickup", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onbonus, 0, palette_reduced_list },
   { "Palette On Powers", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onpowers, 0, palette_list },
   { "Palette On Effects", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_oneffects, 0, palette_reduced_list },
+  { "Invuln Sky Behavior", S_CHOICE, m_conf, g_all, G_X, dsda_config_invulnerability_sky, 0, invuln_sky_list },
+  { "Gray Invulnerability", S_YESNO | S_NYAN, m_conf, g_doom, G_X, dsda_config_gray_invulnerability },
   EMPTY_LINE,
   { "Menu Background", S_CHOICE, m_conf, g_all, G_X, dsda_config_menu_background, 0, menu_background_list },
 
@@ -9428,10 +9431,6 @@ dboolean M_Responder(event_t* ev) {
   // Don't eat the keypress in this case. See sf bug #1843280.
   if (dsda_InputActivated(dsda_input_screenshot))
     I_QueueScreenshot();
-
-  // Cancel ESC command when under Heretic's Underwater Palette
-  if (heretic && F_BlockingInput())
-    return false;
 
   if (!menuactive)
   {

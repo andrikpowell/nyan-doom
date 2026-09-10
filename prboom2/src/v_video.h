@@ -159,6 +159,12 @@ typedef enum {
   VID_MODEGL
 } video_mode_t;
 
+typedef enum {
+  INVULN_SKY_DEFAULT,
+  INVULN_SKY_MBF,
+  INVULN_SKY_VANILLA,
+} invuln_sky_t;
+
 void V_InitMode(video_mode_t mode);
 
 // video mode query interface
@@ -172,7 +178,8 @@ dboolean V_IsMenuLightmodeIndexed(void);
 
 //jff 4/24/98 loads color translation lumps
 void V_UpdateColorTranslation(void);
-void V_UpdateShadeColormap(void);
+void V_UpdateColormaps(void);
+const byte *V_GrayInvulnColormap(void);
 
 void V_InitFlexTranTable(void);
 
@@ -310,7 +317,6 @@ extern V_DrawShadowedNumPatchGenPrecise_f V_DrawShadowedNumPatchGenPrecise;
 #define V_DrawShadowedNamePatch(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,SHADOW_ALWAYS_RAVEN,CROP_NULL,t,100,f)
 #define V_DrawShadowedNamePatchPrecise(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,SHADOW_ALWAYS_RAVEN,CROP_NULL_FLOAT,t,100,f)
 
-// V_DrawShadowedNumPatchAdv
 #define V_DrawShadowedNumPatchAdv(x,y,n,s,t,f) V_DrawShadowedNumPatchGen(x,y,FG,n,PATCH_NORMAL,s,CROP_NULL,t,100,f)
 #define V_DrawShadowedNumPatchPreciseAdv(x,y,n,s,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,s,CROP_NULL_FLOAT,t,100,f)
 #define V_DrawShadowedNamePatchAdv(x,y,n,s,t,f) V_DrawShadowedNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,s,CROP_NULL,t,100,f)
@@ -327,10 +333,17 @@ extern V_DrawShadowedNumPatchGenPrecise_f V_DrawShadowedNumPatchGenPrecise;
 #define V_DrawMenuNumPatchPreciseFS(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,n,PATCH_FULLSCREEN,SHADOW_EXTRA,CROP_NULL_FLOAT,t,100,f)
 #define V_DrawMenuNamePatchPreciseFS(x,y,n,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_FULLSCREEN,SHADOW_EXTRA,CROP_NULL_FLOAT,t,100,f)
 
+// V_DrawMenuFadeNumPatch
 #define V_DrawMenuFadeNumPatch(x,y,n,t,a,f) V_DrawShadowedNumPatchGen(x,y,FG,n,PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL,t,a,f)
 #define V_DrawMenuFadeNumPatchPrecise(x,y,n,t,a,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL_FLOAT,t,a,f)
 #define V_DrawMenuFadeNamePatch(x,y,n,t,a,f) V_DrawShadowedNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL,t,a,f)
 #define V_DrawMenuFadeNamePatchPrecise(x,y,n,t,a,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL_FLOAT,t,a,f)
+
+#define V_DrawMenuFadeNumPatchAdv(x,y,n,s,t,a,f) V_DrawShadowedNumPatchGen(x,y,FG,n,PATCH_NORMAL,s,CROP_NULL,t,a,f)
+#define V_DrawMenuFadeNumPatchPreciseAdv(x,y,n,s,t,a,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,s,CROP_NULL_FLOAT,t,a,f)
+#define V_DrawMenuFadeNamePatchAdv(x,y,n,s,t,a,f) V_DrawShadowedNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,s,CROP_NULL,t,a,f)
+#define V_DrawMenuFadeNamePatchPreciseAdv(x,y,n,s,t,a,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,s,CROP_NULL_FLOAT,t,a,f)
+
 
 /* cph -
  * Functions to return width & height of a patch.

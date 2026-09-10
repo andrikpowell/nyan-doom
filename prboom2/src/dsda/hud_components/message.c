@@ -72,11 +72,11 @@ void dsda_UpdateMessageHC(void* data) {
   dsda_RefreshHudTextWrapped(&local->component, local->center, 3);
 
   if (local->center)
-    HUlib_setTextXCenter(&local->component.text);
+    HUlib_CenterText(&local->component.text);
 
   // Adjust y-offset for multi-line if bottom-aligned
   if (BOTTOM_ALIGNMENT(local->component.text.flags & VPT_ALIGN_MASK))
-    HUlib_AdjustBottomOffset_MultiLine(&local->component.text, local->y_offset, local->ratio, local->vpt);
+    HUlib_BottomAlignText(&local->component.text, local->y_offset, local->ratio, local->vpt);
 
   local->component.text.fade_alpha = dsda_MessageFadeOut(dsda_MessageTics());
 }

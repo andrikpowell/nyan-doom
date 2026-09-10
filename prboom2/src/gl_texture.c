@@ -75,6 +75,7 @@
 
 #include "dsda/animinfo.h"
 #include "dsda/mapinfo.h"
+#include "dsda/settings.h"
 
 int imageformats[5] = {0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA};
 
@@ -375,7 +376,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
           buffer[pos] = gltexture->player_cm == INVULN_PLAYER_CM ? colormap[source[j]] : source[j];
           buffer[pos+1] = 255;
         }
-        else if (use_boom_cm && !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
+        else if (use_boom_cm && (dsda_ApplyInvulnColormapToSky() || !(gltexture->flags&GLTEXTURE_SKY)))
         {
           //e6y: Boom's color maps
           buffer[pos+0]=playpal[colormap[source[j]]*3+0];
@@ -612,9 +613,14 @@ static void gld_AddColormapToTexture(GLTexture *gltexture, unsigned char *buffer
       }
       else
       {
-        buffer[pos+0]=gtable[playpal[colormap[y*256+x]*3+0]];
-        buffer[pos+1]=gtable[playpal[colormap[y*256+x]*3+1]];
-        buffer[pos+2]=gtable[playpal[colormap[y*256+x]*3+2]];
+        const lighttable_t *map = colormap + y * 256;
+
+        if (y == INVERSECOLORMAP && dsda_GrayInvulnColormap())
+          map = V_GrayInvulnColormap();
+
+        buffer[pos+0]=gtable[playpal[map[x]*3+0]];
+        buffer[pos+1]=gtable[playpal[map[x]*3+1]];
+        buffer[pos+2]=gtable[playpal[map[x]*3+2]];
         buffer[pos+3]=255;
       }
     }
@@ -695,7 +701,7 @@ static void gld_AddIndexedSkyToTexture(GLTexture *gltexture, unsigned char *buff
         }
 #endif
         //e6y: Boom's color maps
-        if (use_boom_cm && !comp[comp_skymap])
+        if (use_boom_cm && dsda_ApplyInvulnColormapToSky())
         {
           const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
           buffer[pos+0]=gtable[playpal[colormap[source[j]]*3+0]];
@@ -1575,6 +1581,23 @@ void gld_FlushTextures(void)
 
   // do not draw anything in current frame after flushing
   gld_ResetDrawInfo();
+}
+
+void gld_UpdateInvulnColormap(void)
+{
+  static int cached_gray = -1;
+  static int cached_sky = -1;
+  int gray = dsda_GrayInvulnColormap();
+  int sky = dsda_ApplyInvulnColormapToSky();
+
+  if (gray == cached_gray && sky == cached_sky)
+    return;
+
+  cached_gray = gray;
+  cached_sky = sky;
+
+  if (V_IsOpenGLMode())
+    gld_FlushTextures();
 }
 
 static void CalcHitsCount(const byte *hitlist, int size, int *hit, int*hitcount)
