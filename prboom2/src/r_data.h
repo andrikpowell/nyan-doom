@@ -72,7 +72,7 @@ extern int numtextures;
 extern texture_t **textures;
 
 
-const byte *R_GetTextureColumn(const rpatch_t *texpatch, int col);
+const byte *R_GetTextureColumn(const rpatch_t *texpatch, int col, dboolean vanilla_tutti_frutti);
 
 
 // I/O, setting up the stuff.

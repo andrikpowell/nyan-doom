@@ -93,6 +93,7 @@ int dsda_HasBossActionTag(mobj_t* mo, int tag);
 const char* dsda_MapLumpName(int episode, int map);
 const char* dsda_MapAuthor(void);
 void dsda_HUTitle(dsda_string_t* str);
+void dsda_MapTitleforDiscord(dsda_string_t* str);
 int dsda_SkyTexture(int skynum);
 void dsda_PrepareInitNew(void);
 void dsda_PrepareIntermission(int* behaviour);

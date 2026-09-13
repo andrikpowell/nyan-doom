@@ -89,7 +89,7 @@ void Hexen_IN_Start(wbstartstruct_t* wbstartstruct)
 
 static dboolean SkipEtherealTravel(void)
 {
-    if (allow_incompatibility && dsda_IntConfig(dsda_config_hexen_skip_ethereal_travel))
+    if (casual_play && dsda_IntConfig(dsda_config_hexen_skip_ethereal_travel))
         return true;
 
     return false;
@@ -224,7 +224,7 @@ void Hexen_IN_Ticker(void)
     if (skipintermission || (gametype == SINGLE && !HubCount))
     {
         interstate = 1;
-        if (allow_incompatibility)
+        if (casual_play)
             cnt = 45;
         else
             cnt = 10;

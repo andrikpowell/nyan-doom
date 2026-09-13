@@ -226,9 +226,7 @@ void gld_Init(int width, int height)
   gld_FlushTextures(); // TODO: should this be here?
   M_ChangeSkyMode();
 
-#ifdef HAVE_LIBSDL2_IMAGE
   gld_InitMapPics();
-#endif
 
   // Create FBO object and associated render targets
   gld_InitFBO();
@@ -1638,7 +1636,7 @@ void gld_AddWall(seg_t *seg)
     return;
 
   // Enhanced Light Amp - Allow dark areas to be seen
-  if(NYAN_LITEAMP && (frontsector->lightlevel <= 64))
+  if(nyan_liteamp && (frontsector->lightlevel <= 64))
     frontsector->lightlevel = 64;
 
   base_lightlevel = frontsector->lightlevel + gld_GetGunFlashLight();
@@ -2142,7 +2140,7 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     return;
 
   // Enhanced Light Amp - Allow dark areas to be seen
-  if(NYAN_LITEAMP && (plane->lightlevel <= 64))
+  if(nyan_liteamp && (plane->lightlevel <= 64))
     plane->lightlevel = 64;
     
   swirling_flat = P_IsSwirlingFlat(plane->picnum);
@@ -2528,7 +2526,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   const rpatch_t* patch;
 
   int frustum_culling = HaveMouseLook();
-  int mlook = HaveMouseLook() || (gl_render_fov > FOV90);
+  int mlook = HaveMouseLook() || (render_fov > FOV90);
 
   if (R_ViewInterpolation())
   {
@@ -2716,7 +2714,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   else
   {
     // Enhanced Light Amp - Allow dark areas to be seen
-    if(NYAN_LITEAMP && (lightlevel <= 64))
+    if(nyan_liteamp && (lightlevel <= 64))
       lightlevel = 64;
 
     sprite.light = gld_CalcLightLevel(lightlevel+gld_GetGunFlashLight());

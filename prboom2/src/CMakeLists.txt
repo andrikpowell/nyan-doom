@@ -52,6 +52,8 @@ set(COMMON_SRC
     dsda/analysis.h
     dsda/animinfo.cpp
     dsda/animinfo.h
+    dsda/animinfo/parser.cpp
+    dsda/animinfo/parser.h
     dsda/library.h
     dsda/args.c
     dsda/args.h
@@ -208,6 +210,8 @@ set(COMMON_SRC
     dsda/hud_components/tracker.h
     dsda/hud_components/weapon_text.c
     dsda/hud_components/weapon_text.h
+    dsda/hud_components/weapon_carousel.c
+    dsda/hud_components/weapon_carousel.h
     dsda/id_list.c
     dsda/id_list.h
     dsda/input.c
@@ -271,6 +275,8 @@ set(COMMON_SRC
     dsda/skill_info.h
     dsda/skip.c
     dsda/skip.h
+    dsda/startup.c
+    dsda/startup.h
     dsda/sndinfo.c
     dsda/sndinfo.h
     dsda/spawn_number.c
@@ -335,6 +341,8 @@ set(COMMON_SRC
     f_wipe.h
     g_game.c
     g_game.h
+    weapon_switch.c
+    weapon_switch.h
     g_overflow.c
     g_overflow.h
     heretic/hhe/ammo.c
@@ -408,6 +416,8 @@ set(COMMON_SRC
     info.h
     i_capture.c
     i_capture.h
+    i_richpresence.c
+    i_richpresence.h
     i_glob.c
     i_glob.h
     i_main.h
@@ -478,6 +488,9 @@ set(COMMON_SRC
     r_main.h
     r_patch.c
     r_patch.h
+    r_png.c
+    r_png.h
+    r_patch_vanilla.inl
     r_plane.c
     r_plane.h
     r_segs.c
@@ -579,7 +592,6 @@ set(DOOMMUSIC_SOURCES
 set(EXTRA_FILES
     r_drawcolpipeline.inl
     r_drawcolumn.inl
-    r_drawflush.inl
 )
 
 set(NYAN_SOURCES

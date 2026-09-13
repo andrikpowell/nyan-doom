@@ -59,4 +59,5 @@
 #include "hud_components/status_timers.h"
 #include "hud_components/target_health.h"
 #include "hud_components/tracker.h"
+#include "hud_components/weapon_carousel.h"
 #include "hud_components/weapon_text.h"

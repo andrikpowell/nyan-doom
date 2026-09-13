@@ -111,7 +111,7 @@ void I_ResetMusicVolume(void);
 void M_ChangeAllowFog(void);
 void gld_ResetShadowParameters(void);
 void gld_MultisamplingInit(void);
-void M_ChangeFOV(void);
+void gld_ChangeFOV(void);
 void I_InitMouse(void);
 void AccelChanging(void);
 void G_UpdateMouseSensitivity(void);
@@ -151,13 +151,17 @@ void dsda_InitExHud(void);
 void dsda_UpdateFreeText(void);
 void dsda_ResetAirControl(void);
 void dsda_AlterGameFlags(void);
+void dsda_UpdateLimitRemoving(void);
 void dsda_RefreshPistolStart(void);
 void dsda_RefreshAlwaysPistolStart(void);
 void S_ToggleRandomMusic(void);
 void dsda_UpdateTranMap(void);
 void cht_UpdateCheats(void);
 void R_UpdateFuzzSize(void);
+void dsda_UpdateVanillaTextureEmulation(void);
+void dsda_UpdateMenuComplevel(void);
 void M_RefreshGameSpecificMenuOptions(void);
+void gld_UpdateInvulnColormap(void);
 
 void dsda_TrackConfigFeatures(void) {
   if (!demorecording)
@@ -258,7 +262,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_default_complevel] = {
     "default_compatibility_level", dsda_config_default_complevel,
-    dsda_config_int, 0, mbf21_compatibility, { mbf21_compatibility }
+    dsda_config_int, 0, mbf21_compatibility, { mbf21_compatibility }, NULL, NOT_STRICT, dsda_UpdateMenuComplevel
   },
   [dsda_config_default_skill] = {
     "default_skill", dsda_config_default_skill,
@@ -401,6 +405,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_fade_messages] = {
     "dsda_fade_messages", dsda_config_fade_messages,
     CONF_BOOL(1), NULL, NOT_STRICT, dsda_UpdateTranMap
+  },
+  [dsda_config_composite_time_hours] = {
+    "dsda_composite_time_hours", dsda_config_composite_time_hours,
+    dsda_config_int, 0, 1, { 0 }, NULL, NOT_STRICT
   },
   [dsda_config_exhud_stats_format] = {
     "dsda_exhud_stats_format", dsda_config_exhud_stats_format,
@@ -672,6 +680,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
    "dsda_artifact_descriptions", dsda_config_artifact_descriptions,
     dsda_config_int, 0, 3, { 1 }
   },
+  [dsda_config_weapon_carousel] = {
+    "dsda_weapon_carousel", dsda_config_weapon_carousel,
+    CONF_BOOL(1)
+  },
   [dsda_config_hexen_skip_ethereal_travel] = {
    "dsda_hexen_skip_ethereal_travel", dsda_config_hexen_skip_ethereal_travel,
    CONF_BOOL(1), NULL, STRICT_INT(0)
@@ -686,6 +698,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [nyan_config_gradual_menu_fade] = {
     "nyan_gradual_menu_fade", nyan_config_gradual_menu_fade,
+    CONF_BOOL(1)
+  },
+  [nyan_config_extra_menu_highlights] = {
+    "nyan_extra_menu_highlights", nyan_config_extra_menu_highlights,
     CONF_BOOL(1)
   },
   [nyan_config_skip_default_text] = {
@@ -1189,9 +1205,13 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "gl_render_multisampling", dsda_config_gl_render_multisampling,
     dsda_config_int, 0, 8, { 0 }, NULL, CONF_EVEN, 0, gld_MultisamplingInit
   },
-  [dsda_config_gl_render_fov] = {
-    "gl_render_fov", dsda_config_gl_render_fov,
-    dsda_config_int, 20, 160, { 90 }, &gl_render_fov, NOT_STRICT, M_ChangeFOV
+  [dsda_config_render_fov] = {
+    "render_fov", dsda_config_render_fov,
+    dsda_config_int, 40, 140, { 90 }, &render_fov, NOT_STRICT, gld_ChangeFOV
+  },
+  [dsda_config_zoom_fov] = {
+    "zoom_fov", dsda_config_zoom_fov,
+    dsda_config_int, 20, 90, { 40 }, NULL, NOT_STRICT
   },
   [dsda_config_gl_health_bar] = {
     "gl_health_bar", dsda_config_gl_health_bar,
@@ -1427,7 +1447,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_hudadd_crosshair_target_color] = {
     "hudadd_crosshair_target_color", dsda_config_hudadd_crosshair_target_color,
-    CONF_CR(9), NULL, STRICT_INT(9)
+    CONF_CR(11), NULL, STRICT_INT(9)
   },
   [dsda_config_hud_displayed] = {
     "hud_displayed", dsda_config_hud_displayed,
@@ -1579,7 +1599,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_limit_removing] = {
     "dsda_limit_removing", dsda_config_limit_removing,
-    CONF_BOOL(0), NULL, NOT_STRICT, dsda_AlterGameFlags
+    CONF_BOOL(0), NULL, NOT_STRICT, dsda_UpdateLimitRemoving
   },
   [dsda_config_always_pistol_start] = {
     "dsda_always_pistol_start", dsda_config_always_pistol_start,
@@ -1721,6 +1741,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_weaponbob_pct", dsda_config_weaponbob,
     dsda_config_int, 0, 4, { 4 }
   },
+  [nyan_config_weapon_freelook_tilt] = {
+    "nyan_weapon_freelook_tilt", nyan_config_weapon_freelook_tilt,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
   [dsda_config_quake_intensity] = {
     "dsda_quake_intensity", dsda_config_quake_intensity,
     dsda_config_int, 0, 400, { 100 }
@@ -1741,9 +1765,17 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_fuzzscale", dsda_config_fuzzscale,
     dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(0), R_UpdateFuzzSize
   },
+  [nyan_config_vanilla_texture_emulation] = {
+    "nyan_vanilla_texture_emulation", nyan_config_vanilla_texture_emulation,
+    dsda_config_int, EMULATE_TEXTURE_OFF, EMULATE_TEXTURE_ALL, { EMULATE_TEXTURE_OFF }, NULL, NOT_STRICT, dsda_UpdateVanillaTextureEmulation
+  },
+  [nyan_config_vanilla_sprite_emulation] = {
+    "nyan_vanilla_sprite_emulation", nyan_config_vanilla_sprite_emulation,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
   [dsda_config_multiple_area_maps] = {
     "dsda_multiple_area_maps", dsda_config_multiple_area_maps,
-    CONF_BOOL(1), NULL, STRICT_INT(0)
+    CONF_BOOL(0), NULL, STRICT_INT(0)
   },
   [dsda_config_doomguy_angry_face_fix] = {
     "dsda_doomguy_angry_face_fix", dsda_config_doomguy_angry_face_fix,
@@ -1970,9 +2002,21 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "palette_oneffects", dsda_config_palette_oneffects,
     dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), M_ChangeApplyPalette
   },
+  [dsda_config_invulnerability_sky] = {
+    "dsda_invulnerability_sky", dsda_config_invulnerability_sky,
+    dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0), gld_UpdateInvulnColormap
+  },
+  [dsda_config_gray_invulnerability] = {
+    "dsda_gray_invulnerability", dsda_config_gray_invulnerability,
+    CONF_BOOL(0), NULL, NOT_STRICT, gld_UpdateInvulnColormap
+  },
   [dsda_config_enhanced_liteamp] = {
     "enhanced_liteamp", dsda_config_enhanced_liteamp,
     CONF_BOOL(0), NULL, STRICT_INT(0)
+  },
+  [nyan_config_ui_fade_effects] = {
+    "nyan_ui_fade_effects", nyan_config_ui_fade_effects,
+    CONF_BOOL(1), NULL, NOT_STRICT, dsda_UpdateTranMap
   },
   [dsda_config_colored_borderbox] = {
     "dsda_colored_borderbox", dsda_config_colored_borderbox,
@@ -2018,7 +2062,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_render_stretchsky] = {
     "render_stretchsky", dsda_config_render_stretchsky,
-    CONF_BOOL(1), NULL, NOT_STRICT, M_ChangeSkyMode
+    CONF_BOOL(0), NULL, NOT_STRICT, M_ChangeSkyMode
   },
   [dsda_config_render_sky_projection] = {
     "render_sky_projection", dsda_config_render_sky_projection,
@@ -2092,6 +2136,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_skullpop_easter_egg", nyan_config_skullpop_easter_egg,
     CONF_BOOL(0), NULL, STRICT_INT(0)
   },
+  [nyan_config_classic_idchoppers] = {
+    "nyan_classic_idchoppers", nyan_config_classic_idchoppers,
+    CONF_BOOL(0)
+  },
   [nyan_config_colored_blood] = {
     "nyan_colored_blood", nyan_config_colored_blood,
     dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT, deh_changeColoredBlood
@@ -2111,6 +2159,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [nyan_config_colored_blood_spectre] = {
     "nyan_colored_blood_spectre", nyan_config_colored_blood_spectre,
     CONF_CR_BLOOD(1), NULL, NOT_STRICT, deh_changeColoredBlood
+  },
+  [nyan_config_discord_presence] = {
+    "nyan_discord_presence", nyan_config_discord_presence,
+    CONF_BOOL(1), NULL, NOT_STRICT, G_UpdateDiscordPresence
   },
   [nyan_config_loading_disk] = {
     "nyan_loading_disk", nyan_config_loading_disk,
@@ -2163,6 +2215,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_invert_analog_look] = {
     "invert_analog_look", dsda_config_invert_analog_look,
     CONF_BOOL(0),
+  },
+  [nyan_config_show_startup] = {
+    "show_startup", nyan_config_show_startup,
+    CONF_BOOL(1),
   },
   [nyan_config_show_endoom] = {
     "show_endoom", nyan_config_show_endoom,

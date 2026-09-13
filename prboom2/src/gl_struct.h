@@ -60,6 +60,7 @@ extern dboolean gl_ui_lightmode_indexed;
 extern dboolean gl_automap_lightmode_indexed;
 extern dboolean gl_menu_lightmode_indexed;
 void gld_FlushTextures(void);
+void gld_UpdateInvulnColormap(void);
 
 void gld_InitVertexData();
 void gld_CleanVertexData();
@@ -193,6 +194,6 @@ void gld_AddNiceThing(int type, float x, float y, float radius, float angle,
 void gld_DrawNiceThings(int fx, int fy, int fw, int fh);
 void gld_ClearNiceThings(void);
 
-extern int gl_render_fov;
+extern int render_fov;
 
 #endif // _GL_STRUCT_H

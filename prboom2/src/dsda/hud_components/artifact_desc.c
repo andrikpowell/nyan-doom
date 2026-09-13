@@ -44,7 +44,7 @@ static void dsda_RefreshArtifactDescWrapped(dsda_text_t *component, int centered
   split = strchr(msg, '\n');
   if (!split)
   {
-    HUlib_WrapStringToTextLines(&component->text, msg, centered, 2);
+    HUlib_WrapTextLine(&component->text, msg, centered, 2);
     return;
   }
 
@@ -52,7 +52,7 @@ static void dsda_RefreshArtifactDescWrapped(dsda_text_t *component, int centered
   *split = '\0';
 
   // Name - 2 lines only
-  HUlib_WrapStringToTextLines(&component->text, msg, centered, 2);
+  HUlib_WrapTextLine(&component->text, msg, centered, 2);
 
   *split = saved;
 
@@ -63,7 +63,7 @@ static void dsda_RefreshArtifactDescWrapped(dsda_text_t *component, int centered
 
   // Desc prints after Name - 1 line
   // Allowance of 4 lines total (with desc)
-  HUlib_WrapStringToTextLines(&component->text, split + 1, centered, 4);
+  HUlib_WrapTextLine(&component->text, split + 1, centered, 4);
 }
 
 static void dsda_UpdateComponentText(char* str, size_t max_size) {
@@ -137,11 +137,11 @@ void dsda_UpdateArtifactDescHC(void* data) {
   dsda_RefreshArtifactDescWrapped(&local->component, local->center);
 
   if (local->center)
-    HUlib_setTextXCenter(&local->component.text);
+    HUlib_CenterText(&local->component.text);
 
   // Adjust y-offset for multi-line if bottom-aligned
   if (BOTTOM_ALIGNMENT(local->component.text.flags & VPT_ALIGN_MASK))
-    HUlib_AdjustBottomOffset_MultiLine(&local->component.text, local->y_offset, local->ratio, local->vpt);
+    HUlib_BottomAlignText(&local->component.text, local->y_offset, local->ratio, local->vpt);
 }
 
 void dsda_DrawArtifactDescHC(void* data) {

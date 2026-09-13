@@ -91,6 +91,8 @@ typedef enum
     TXT_COLOR_BRIGHT_MAGENTA,
     TXT_COLOR_YELLOW,
     TXT_COLOR_BRIGHT_WHITE,
+    TXT_COLOR_HEADER_FOREGROUND,
+    TXT_COLOR_HEADER_BACKGROUND,
 } txt_color_t;
 
 // Modifier keys.
@@ -136,6 +138,9 @@ typedef enum
 // Initialize the screen
 // Returns 1 if successful, 0 if failed.
 int TXT_Init(void);
+
+void TXT_SetHeader(const char *title);
+void TXT_SetColor(txt_color_t color, int r, int g, int b);
 
 // Shut down text mode emulation
 void TXT_Shutdown(void);

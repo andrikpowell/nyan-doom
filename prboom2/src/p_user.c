@@ -47,6 +47,7 @@
 #include "smooth.h"
 #include "r_fps.h"
 #include "g_game.h"
+#include "weapon_switch.h"
 #include "p_tick.h"
 #include "e6y.h"//e6y
 
@@ -892,39 +893,7 @@ void P_PlayerThink (player_t* player)
       if (!prboom_comp[PC_ALLOW_SSG_DIRECT].state)
         newweapon = (cmd->buttons & BT_WEAPONMASK_OLD)>>BT_WEAPONSHIFT;
 
-      if (!hexen)
-      {
-        if (newweapon == g_wp_fist &&
-            player->weaponowned[g_wp_chainsaw])
-        {
-          // Heretic - always just direct to gauntlets
-          if (heretic)
-          {
-            if (player->readyweapon != g_wp_chainsaw)
-              newweapon = g_wp_chainsaw;
-          }
-          else
-          // Doom - force chainsaw if not currently on chainsaw
-          // + don't allow switch to fist if no berserk
-          //
-          // if "prefer berserk" active, switch to berserk first
-          {
-            dboolean berserk = player->powers[pw_strength];
-            dboolean prefer_berserk = dsda_BerserkPreferred() && berserk;
-
-            if (player->readyweapon != g_wp_chainsaw || !berserk)
-              if (player->readyweapon == g_wp_fist || !prefer_berserk)
-                newweapon = g_wp_chainsaw;
-          }
-        }
-
-        if (!heretic &&
-            gamemode == commercial &&
-            newweapon == wp_shotgun &&
-            player->weaponowned[wp_supershotgun] &&
-            player->readyweapon != wp_supershotgun)
-          newweapon = wp_supershotgun;
-      }
+      newweapon = G_AdjustWeaponSelection(player, newweapon, player->readyweapon);
     }
 
     // killough 2/8/98, 3/22/98 -- end of weapon selection changes

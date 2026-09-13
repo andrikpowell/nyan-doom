@@ -59,7 +59,9 @@ enum draw_filter_type_e {
 
 typedef enum
 {
-  DRAW_COLUMN_ISPATCH = 0x00000001
+  DRAW_COLUMN_ISPATCH              = 0x00000001,
+  DRAW_COLUMN_WALLTEXTURE          = 0x00000002,
+  DRAW_COLUMN_MEDUSA               = 0x00000004
 } draw_column_flags_e;
 
 typedef struct draw_column_vars_s* pdraw_column_vars_s;
@@ -154,11 +156,7 @@ void R_FillBackColor (void);
 // If the view size is not full screen, draws a border around it.
 void R_DrawViewBorder(void);
 
-// haleyjd 09/13/04: new function to call from main rendering loop
-// which gets rid of the unnecessary reset of various variables during
-// column drawing.
-void R_ResetColumnBuffer(void);
-
+// Save and restore fuzz offsets when rendering multiple frames per tic.
 void R_SetFuzzPos(int fuzzpos);
 void R_SetFuzzPosScaled(int fuzzpos);
 int R_GetFuzzPos();

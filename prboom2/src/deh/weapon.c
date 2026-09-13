@@ -35,6 +35,7 @@ static const char *deh_weapon[] = // CPhipps - static const*
   "Firing frame",   // .flashstate
   "Ammo per shot",  // .ammopershot [XA] new to mbf21
   "MBF21 Bits",     // .flags
+  "Carousel icon",  // .carouselicon [ID24]
 };
 
 static const struct deh_flag_s deh_weaponflags_mbf21[] = {
@@ -127,6 +128,24 @@ static void deh_procWeapon(DEHFILE *fpin, char *line)
       }
 
       weaponinfo[indexnum].flags = (int)value;
+    }
+    else if (!deh_strcasecmp(key, deh_weapon[8]))  // Carousel icon
+    {
+      char candidate[8]; // lump is 7 char + number
+      size_t len;
+
+      // do it
+      memset(candidate, 0, 8);
+      strncpy(candidate, ptr_lstrip(strval), 7);
+      len = strlen(candidate);
+      if (len < 1 || len > 7)
+      {
+        deh_log("Bad length for carousel icon name '%s'\n", candidate);
+        continue;
+      }
+
+      weaponinfo[indexnum].carouselicon = Z_Strdup(candidate);
+      deh_log("Setting carousel icon for weapon %d to '%s'\n", indexnum, candidate);
     }
     else
       deh_log("Invalid weapon string index for '%s'\n",key);

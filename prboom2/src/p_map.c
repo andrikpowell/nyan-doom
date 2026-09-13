@@ -1973,6 +1973,8 @@ dboolean P_ThingHeightClip (mobj_t* thing)
 {
   dboolean   onfloor;
 
+  P_MobjInterpolation(thing);
+
   onfloor = (thing->z == thing->floorz);
 
   P_CheckPosition (thing, thing->x, thing->y);
@@ -2771,11 +2773,12 @@ static int P_LineLength(line_t *line)
 
 void P_UseXboxEasterEgg(intercept_t* in)
 {
+  line_t *line;
   int linenum;
   int linelen;
   int frontside;
 
-  if (raven || bfgedition || !allow_incompatibility)
+  if (raven || bfgedition || !casual_play)
     return;
 
   if (gamemission == doom2)
@@ -2791,15 +2794,16 @@ void P_UseXboxEasterEgg(intercept_t* in)
     return;
   }
 
-  linenum = (int)(in->d.line - lines);
-  linelen = P_LineLength(in->d.line);
-  frontside = P_PointOnLineSide (usething->x, usething->y, in->d.line) == 0;   // front side only
+  line = in->d.line;
+  linenum = (int)(line - lines);
+  linelen = P_LineLength(line);
+  frontside = P_PointOnLineSide (usething->x, usething->y, line) == 0;   // front side only
 
-  if (usething->player && frontside)
+  if (frontside)
   {
     if (gamemission == doom2 &&
         linelen == 32 &&
-        (linenum = 302 ||   // 1.666
+        (linenum == 302 ||   // 1.666
         linenum == 283))    // 1.9
     {
       doom_printf("You have been betrayed.");
@@ -4106,7 +4110,7 @@ void P_BounceWall(mobj_t * mo)
                    PT_ADDLINES, PTR_BounceTraverse);
 
     // Set Bestslideline to avoid crash
-    if (allow_incompatibility)
+    if (casual_play)
     {
       P_InitSlideLine();
     }

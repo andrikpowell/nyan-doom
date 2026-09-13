@@ -2476,7 +2476,7 @@ void A_SkullPop(mobj_t *actor)
   // Easter Egg Doom Gibdeath
   if (!raven)
   {
-    if (!allow_incompatibility)
+    if (!casual_play)
       return;
     else
       S_StartMobjSound(actor, sfx_gibdth);

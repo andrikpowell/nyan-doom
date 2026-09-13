@@ -102,13 +102,20 @@ static fixed_t wipe_GetFrac(void)
   return (fixed_t) frac64;
 }
 
-static void wipe_EnsureBuffer(screeninfo_t *scr)
+static int V_PaddedTransposedPitch(int height)
 {
-  int pitch = screens[FG].pitch;
+  int pitch = height;
 
   //e6y: fixed slowdown at 1024x768 on some systems
   if (!(pitch % 1024))
     pitch += 32;
+
+  return pitch;
+}
+
+static void wipe_EnsureBuffer(screeninfo_t *scr)
+{
+  int pitch = V_PaddedTransposedPitch(screens[FG].pitch);
 
   if (scr->data &&
       scr->width == SCREENWIDTH &&
@@ -232,15 +239,10 @@ static void wipe_renderMelt(void)
       currcolend = ((col + 1) * width) / wipe_columns;
       for (; currcol < currcolend; ++currcol)
       {
-        byte *source = wipe_scr_start.data + currcol;
-        byte *dest   = wipe_scr.data + currcol;
+        byte *source = wipe_scr_start.data + currcol * wipe_scr_start.pitch;
+        byte *dest   = wipe_scr.data       + currcol * wipe_scr.pitch;
 
-        for (int i = 0; i < height; ++i)
-        {
-          *dest = *source;
-          dest += wipe_scr.pitch;
-          source += wipe_scr_start.pitch;
-        }
+        memcpy(dest, source, height);
       }
     }
     else if (current < wipe_rows)
@@ -252,15 +254,10 @@ static void wipe_renderMelt(void)
 
       for (; currcol < currcolend; ++currcol)
       {
-        byte *source = wipe_scr_start.data + currcol;
-        byte *dest   = wipe_scr.data + currcol + (currrow * wipe_scr.pitch);
+        byte *source = wipe_scr_start.data + currcol * wipe_scr_start.pitch;
+        byte *dest   = wipe_scr.data + currrow + currcol * wipe_scr.pitch;
 
-        for (int i = 0; i < height - currrow; ++i)
-        {
-          *dest = *source;
-          dest += wipe_scr.pitch;
-          source += wipe_scr_start.pitch;
-        }
+        memcpy(dest, source, (height - currrow));
       }
     }
   }

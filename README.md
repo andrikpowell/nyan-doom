@@ -59,7 +59,7 @@ Available for Windows, macOS and Linux in [Releases](https://github.com/andrikpo
 </details>
 
 ## Key Features
-- New [animated background / menu element](./docs/animbg.md) lump support (for animated M_DOOM, TITLEPIC, INTERPIC, etc)
+- New [animated background / menu element](./docs/animinfo.md) lump support (for animated M_DOOM, TITLEPIC, INTERPIC, etc)
 - Native [widescreen](./docs/ws.md) lump support for widescreen assets (avoiding the need for separate asset WADs)
 - Support for [GAMEVERS](./docs/gamevers.md) lump in combination with [COMPLVL](./docs/complvl.md) to further specify Vanilla compatibility.
 - [Limit-Removing Support](./docs/limit_removing.md) for Vanilla style maps to ignore overflow errors (such as all-ghosts, etc)
@@ -73,7 +73,7 @@ Available for Windows, macOS and Linux in [Releases](https://github.com/andrikpo
 - All DSDA-Doom features... and more!
 
 ## Patch Notes
-- [v1.5](./patch_notes/v1.5.md)
+- [v1.6](./patch_notes/v1.6.md)
 
 ## Compiling
 
@@ -115,7 +115,6 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
   - The "Apply multisampling" automap option is disabled for hexen
   - Some of the more advanced features are not implemented for hexen yet, and using them may cause crashes or other odd behaviour.
   - Some menus extend over the hud.
-  - Monster counter doesn't work as expected, due to cluster format (ex hud / levelstat)
  
 </details>
 
@@ -127,6 +126,9 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
 - [Doom-in-Hexen Support](./docs/doom_in_hexen.md)
 - [UDMF Support](./docs/udmf.md)
 - [MAPINFO Support](./docs/mapinfo.md)
+- [ANIMINFO Support](./docs/animinfo.md)
+- [Obituary Support](./docs/obituaries.md)
+- [Partial ID24 Support](./docs/id24.md)
 
 ### Standards
 - [MBF21 v1.4](https://github.com/kraflab/mbf21)

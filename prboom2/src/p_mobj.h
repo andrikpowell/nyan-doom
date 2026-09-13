@@ -248,6 +248,7 @@ enum {
   MIF_SPAWNED_BY_DSPARIL    = (1<<5),
   MIF_FLIP                  = (1<<6),
   MIF_FAKE                  = (1<<7), // Not a real thing, transient (e.g., for cheats)
+  MIF_INTERP_CAPTURE        = (1<<8), // [AR] Capture interpolation once per tic
 };
 
 // heretic
@@ -455,6 +456,8 @@ mobj_t  *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type);
 void    P_RemoveMobj(mobj_t *th);
 dboolean P_SetMobjState(mobj_t *mobj, statenum_t state);
 void    P_MobjThinker(mobj_t *mobj);
+void    P_UpdateMobjInterpolations(void);
+void    P_MobjInterpolation(mobj_t *mobj);
 void    P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z);
 void    P_SpawnBlood(fixed_t x, fixed_t y, fixed_t z, int damage, mobj_t *bleeder);
 mobj_t  *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type);

@@ -40,7 +40,7 @@
 
 #define HU_MSGTIMEOUT   (4*TICRATE)
 
-#define HU_CROSSHAIRS	8
+#define HU_CROSSHAIRS	10
 
 void HU_Start(void);
 

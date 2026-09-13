@@ -26,6 +26,7 @@
 
 #include "args.h"
 #include "doomdef.h"
+#include "doomstat.h"
 #include "doomtype.h"
 #include "i_video.h"
 #include "lprintf.h"
@@ -364,21 +365,17 @@ void dsda_CacheEndoom(void) {
   int show_endoom;
   int pwad_only;
 
-  output_format = dsda_IntConfig(dsda_config_ansi_endoom);
-
-  show_endoom = dsda_IntConfig(nyan_config_show_endoom);
-
-  if (V_IsOpenGLMode())
-    is_opengl = true;
-
-  if (started_demo)
+  if (started_demo || nodrawers || hexen)
     return;
+
+  output_format = dsda_IntConfig(dsda_config_ansi_endoom);
+  show_endoom = dsda_IntConfig(nyan_config_show_endoom);
 
   if (show_endoom==0)
     return;
 
-  if (hexen)
-    return;
+  if (V_IsOpenGLMode())
+    is_opengl = true;
 
   if (heretic)
     lump = W_CheckNumForName("ENDTEXT");

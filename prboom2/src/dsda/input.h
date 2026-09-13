@@ -173,6 +173,8 @@ typedef enum {
   dsda_input_hexen_arti_bracers,
   dsda_input_avj,
   dsda_input_exhud,
+  dsda_input_cycle_exhud_stats,
+  dsda_input_cycle_map_stats,
   dsda_input_free_text,
   dsda_input_status_widget,
   dsda_input_timer_widget,
@@ -220,6 +222,7 @@ typedef enum {
   dsda_input_script_8,
   dsda_input_script_9,
   dsda_input_fps,
+  dsda_input_zoom,
   DSDA_INPUT_IDENTIFIER_COUNT
 } dsda_input_identifier_t;
 

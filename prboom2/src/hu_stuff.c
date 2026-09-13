@@ -152,7 +152,7 @@ typedef struct crosshair_s
 static crosshair_t crosshair;
 
 static const char *crosshair_nam[HU_CROSSHAIRS] =
-  { NULL, "CROSS1", "CROSS2", "CROSS3", "CROSS4", "CROSS5", "CROSS6", "CROSS7" };
+  { NULL, "CROSS1", "CROSS2", "CROSS3", "CROSS4", "CROSS5", "CROSS6", "CROSS7", "CROSS8", "CROSS9" };
 
 static int hudadd_crosshair;
 static int hudadd_crosshair_scale;

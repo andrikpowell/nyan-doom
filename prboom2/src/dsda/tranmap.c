@@ -364,6 +364,6 @@ void dsda_UpdateTranMap(void) {
   // store main transmaps
   main_tranmap = dsda_DefaultTranMap();
 
-  if (dsda_FadeMessages())
+  if (dsda_UIFadeEffects())
     dsda_UpdateFadeTranMaps();
 }

@@ -24,6 +24,10 @@ All the tools and library dependencies can be installed in a single command:
 brew bundle
 ```
 
+## Installing Discord Rich Presence (Optional)
+
+Discord Rich Presence is enabled by default. Since it is not provided by the Homebrew bundle, CMake downloads and builds a pinned copy of `discord-rpc` during configuration. To skip the download and build without Rich Presence, add `-DWITH_DISCORD_RPC=OFF` to the CMake configuration command.
+
 ## Building
 
 Nyan Doom is built using CMake. The project first needs to be configured:

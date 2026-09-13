@@ -127,8 +127,8 @@ const dsda_powerup_t powerups[] = {
     POWERUP_BLINK_DEFAULT,
     "100% Kills",
     "STFPKILL",
-    "STFRKIL2",
-    "STFRKIL3",
+    NULL,
+    NULL,
     dsda_tc_exhud_status_all_kills,
     dsda_tc_exhud_status_raven_all_kills
   },
@@ -140,8 +140,8 @@ const dsda_powerup_t powerups[] = {
     POWERUP_BLINK_DEFAULT,
     "100% Items",
     "STFPITEM",
-    "STFRITM2",
-    "STFRITM3",
+    "STFPITM2",
+    "STFPITM2",
     dsda_tc_exhud_status_all_items,
     dsda_tc_exhud_status_raven_all_items
   },
@@ -153,8 +153,8 @@ const dsda_powerup_t powerups[] = {
     POWERUP_BLINK_DEFAULT,
     "100% Secrets",
     "STFPSECR",
-    "STFRSCR2",
-    "STFRSCR3",
+    NULL,
+    NULL,
     dsda_tc_exhud_status_all_secrets,
     dsda_tc_exhud_status_raven_all_secrets
   },
@@ -285,7 +285,7 @@ const dsda_powerup_t powerups[] = {
     WPNLEV2TICS,
     POWERUP_BLINK_RAVEN_ICONS,
     "TOME",
-    "STFRTOME",
+    "STFPTOME",
     NULL,
     NULL,
     dsda_tc_exhud_status_tome
@@ -297,9 +297,9 @@ const dsda_powerup_t powerups[] = {
     MORPHTICS,
     POWERUP_BLINK_RAVEN_ICONS,
     "MORPH",
+    "STFPMORP",
     NULL,
-    "STFRMOR1",
-    "STFRMOR2",
+    NULL,
     dsda_tc_exhud_status_morph
   },
   {
@@ -309,7 +309,7 @@ const dsda_powerup_t powerups[] = {
     SPEEDTICS,
     POWERUP_BLINK_RAVEN_ICONS,
     "SPEED",
-    "STFRSPED",
+    "STFPSPED",
     NULL,
     NULL,
     dsda_tc_exhud_status_speed
@@ -321,7 +321,7 @@ const dsda_powerup_t powerups[] = {
     MAULATORTICS,
     POWERUP_BLINK_RAVEN_ICONS,
     "MAULATOR",
-    "STFRMAUL",
+    "STFPMAUL",
     NULL,
     NULL,
     dsda_tc_exhud_status_maulotaur

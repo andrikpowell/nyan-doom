@@ -40,6 +40,9 @@
 #endif
 
 #include <assert.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 #include "SDL.h"
 
 #include "am_map.h"
@@ -86,6 +89,7 @@ screeninfo_t screens[NUM_SCREENS];
 const byte *colrngs[CR_LIMIT];
 static byte *color_translation_table;
 static byte ui_shademap[31][256];
+static byte gray_invuln_colormap[256];
 
 int usegamma;
 int extra_brightness;
@@ -166,7 +170,7 @@ static const byte *V_ShadeColormap(int shade)
   return ui_shademap[shade];
 }
 
-void V_UpdateShadeColormap(void)
+static void V_UpdateShadeColormap(void)
 {
   int i;
   const byte *playpal = V_GetPlaypal();
@@ -192,6 +196,33 @@ void V_UpdateShadeColormap(void)
       );
     }
   }
+}
+
+static void V_UpdateInvulnColormap(void)
+{
+  int i;
+  const byte *playpal = V_GetPlaypal();
+
+  for (i = 0; i < 256; ++i)
+  {
+    int r = playpal[i * 3 + 0];
+    int g = playpal[i * 3 + 1];
+    int b = playpal[i * 3 + 2];
+    int gray = (r * 299 + g * 587 + b * 114) / 1000;
+
+    gray_invuln_colormap[i] = V_BestColor(playpal, gray, gray, gray);
+  }
+}
+
+void V_UpdateColormaps(void)
+{
+  V_UpdateShadeColormap();    // Update automap / menu overlay
+  V_UpdateInvulnColormap();   // Update gray invulnerability
+}
+
+const byte *V_GrayInvulnColormap(void)
+{
+  return gray_invuln_colormap;
 }
 
 void V_UpdateColorTranslation(void)
@@ -271,12 +302,12 @@ static void FUNC_V_CopyRect(int srcscrn, int destscrn,
     return;
   }
 
-  src = screens[srcscrn].data + screens[srcscrn].pitch * y + x;
-  dest = screens[destscrn].data + screens[destscrn].pitch * y + x;
+  src = screens[srcscrn].data + y + x*screens[srcscrn].pitch;
+  dest = screens[destscrn].data + y + x*screens[destscrn].pitch;
 
-  for ( ; height>0 ; height--)
+  for ( ; width > 0 ; width--)
     {
-      memcpy (dest, src, width);
+      memcpy (dest, src, height);
       src += screens[srcscrn].pitch;
       dest += screens[destscrn].pitch;
     }
@@ -323,7 +354,7 @@ static void FUNC_V_FillRaw(int lump, int scrn, int x, int y, int lumpwidth, int 
     int sx, sy, src_x_offset, src_y_offset;
     const byte *data;
     int pitch = screens[scrn].pitch;
-    byte *dest = screens[scrn].data + y0 * pitch + x0;
+    byte *dest = screens[scrn].data + x0 * pitch + y0;
     dboolean swirling_flat = flags & VPT_SWIRL;
     const byte *row;
 
@@ -338,15 +369,15 @@ static void FUNC_V_FillRaw(int lump, int scrn, int x, int y, int lumpwidth, int 
     else
       data = W_LumpByNum(lump);
 
-    for (sy = 0; sy < h; ++sy)
+    for (sx = 0; sx < w; ++sx)
     {
-      src_y_offset = (int)((sy + yoff) / ratio_y) % lumpheight;
-      row = data + src_y_offset * lumpwidth;
+      src_x_offset = (int)((sx + xoff) / ratio_x) % lumpwidth;
 
-      for (sx = 0; sx < w; ++sx)
+      for (sy = 0; sy < h; ++sy)
       {
-        src_x_offset = (int)((sx + xoff) / ratio_x) % lumpwidth;
-        dest[sy * pitch + sx] = row[src_x_offset];
+        src_y_offset = (int)((sy + yoff) / ratio_y) % lumpheight;
+        row = data + src_y_offset * lumpwidth;
+        dest[sx * pitch + sy] = row[src_x_offset];
       }
     }
   }
@@ -479,17 +510,20 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
     int    pitch = screens[scrn].pitch;
     int    w = patch->width;
     int    start_col, end_col;
+    int    y_start = y + crop.top;
+    int    y_end = y + patch->height - crop.bottom;
+    int    y_limit = (flags & VPT_STRETCH) ? 200 : SCREENHEIGHT;
 
     int TR = flags & VPT_COLOR;
     int TL = flags & VPT_TRANSMAP;
     int REVERSE_TL = flags & VPT_TRANSMAP_REVERSE;
 
-    if (y<0 || y+patch->height > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT)) {
-      // killough 1/19/98: improved error message:
-      lprintf(LO_WARN, "V_DrawPatch: Patch (%d,%d)-(%d,%d) exceeds LFB in vertical direction (horizontal is clipped)\n"
-              "Bad V_DrawPatch (flags=%u)", x, y, x+patch->width, y+patch->height, flags);
-      return;
-    }
+    // Crop top to the vertical screen bounds
+    if (y_start < 0)
+      crop.top = -y;
+
+    if (y_end > y_limit)
+      crop.bottom = y + patch->height - y_limit;
 
     w--; // CPhipps - note: w = width-1 now, speeds up flipping
 
@@ -500,12 +534,14 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
       int screen_x = x + col;
       const int colindex = (flags & VPT_FLIP) ? (w - col) : (col);
       const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
-      byte *desttop = screens[scrn].data+y*screens[scrn].pitch+screen_x;
+      byte *destcolumn;
 
       if (screen_x < 0)
         continue;
       if (screen_x >= SCREENWIDTH)
         break;
+
+      destcolumn = screens[scrn].data + screen_x * pitch;
 
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
@@ -520,7 +556,7 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
 
         // killough 2/21/98: Unrolled and performance-tuned
         source = column->pixels + draw_start;
-        dest = desttop + draw_start * pitch;
+        dest = destcolumn + y + draw_start;
         count = draw_end - draw_start;
 
      // both translucent and color translated
@@ -530,24 +566,24 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
               register byte s0,s1;
               s0 = source[0];
               s1 = source[1];
-              s0 = transmap[(*dest<<8)+colortr[s0]];
-              s1 = transmap[(*dest<<8)+colortr[s1]];
+              s0 = transmap[(dest[0] << 8) + colortr[s0]];
+              s1 = transmap[(dest[1] << 8) + colortr[s1]];
               dest[0] = s0;
-              dest[pitch] = s1;
-              dest += pitch*2;
+              dest[1] = s1;
+              dest += 2;
               s0 = source[2];
               s1 = source[3];
-              s0 = transmap[(*dest<<8)+colortr[s0]];
-              s1 = transmap[(*dest<<8)+colortr[s1]];
+              s0 = transmap[(dest[0] << 8) + colortr[s0]];
+              s1 = transmap[(dest[1] << 8) + colortr[s1]];
               source += 4;
               dest[0] = s0;
-              dest[pitch] = s1;
-              dest += pitch*2;
+              dest[1] = s1;
+              dest += 2;
             } while ((count-=4)>=0);
           if (count+=4)
             do {
               *dest = transmap[(*dest<<8)+colortr[*source++]];
-              dest += pitch;
+              dest++;
             } while (--count);
         }
      // both reverse translucent and color translated
@@ -557,25 +593,25 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
               register byte s0,s1;
               s0 = source[0];
               s1 = source[1];
-              s0 = transmap[*dest+(colortr[s0]<<8)];
-              s1 = transmap[*dest+(colortr[s1]<<8)];
+              s0 = transmap[dest[0] + (colortr[s0] << 8)];
+              s1 = transmap[dest[1] + (colortr[s1] << 8)];
               dest[0] = s0;
-              dest[pitch] = s1;
-              dest += pitch*2;
+              dest[1] = s1;
+              dest += 2;
               s0 = source[2];
               s1 = source[3];
-              s0 = transmap[*dest+(colortr[s0]<<8)];
-              s1 = transmap[*dest+(colortr[s1]<<8)];
+              s0 = transmap[dest[0] + (colortr[s0] << 8)];
+              s1 = transmap[dest[1] + (colortr[s1] << 8)];
               source += 4;
               dest[0] = s0;
-              dest[pitch] = s1;
-              dest += pitch*2;
+              dest[1] = s1;
+              dest += 2;
             } while ((count-=4)>=0);
           if (count+=4)
             do {
-              *dest = transmap[*dest+colortr[*source<<8]];
+              *dest = transmap[*dest + (colortr[*source] << 8)];
               source++;
-              dest += pitch;
+              dest++;
             } while (--count);
         }
     // color translated patch
@@ -588,21 +624,21 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
               s0 = colortr[s0];
               s1 = colortr[s1];
               dest[0] = s0;
-              dest[pitch] = s1;
-              dest += pitch*2;
+              dest[1] = s1;
+              dest += 2;
               s0 = source[2];
               s1 = source[3];
               s0 = colortr[s0];
               s1 = colortr[s1];
               source += 4;
               dest[0] = s0;
-              dest[pitch] = s1;
-              dest += pitch*2;
+              dest[1] = s1;
+              dest += 2;
             } while ((count-=4)>=0);
           if (count+=4)
             do {
               *dest = colortr[*source++];
-              dest += pitch;
+              dest++;
             } while (--count);
         }
     // reverse translucent patch
@@ -612,25 +648,25 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
               register byte s0,s1;
               s0 = source[0];
               s1 = source[1];
-              s0 = transmap[*dest+(s0<<8)];
-              s1 = transmap[*dest+(s1<<8)];
+              s0 = transmap[(dest[0] << 8) + s0];
+              s1 = transmap[(dest[1] << 8) + s1];
               dest[0] = s0;
-              dest[pitch] = s1;
-              dest += pitch*2;
+              dest[1] = s1;
+              dest += 2;
               s0 = source[2];
               s1 = source[3];
-              s0 = transmap[*dest+(s0<<8)];
-              s1 = transmap[*dest+(s1<<8)];
+              s0 = transmap[(dest[0] << 8) + s0];
+              s1 = transmap[(dest[1] << 8) + s1];
               source += 4;
               dest[0] = s0;
-              dest[pitch] = s1;
-              dest += pitch*2;
+              dest[1] = s1;
+              dest += 2;
             } while ((count-=4)>=0);
           if (count+=4)
             do {
               *dest = transmap[*dest+(*source<<8)];
               source++;
-              dest += pitch;
+              dest++;
             } while (--count);
         }
     // translucent patch
@@ -640,24 +676,24 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
               register byte s0,s1;
               s0 = source[0];
               s1 = source[1];
-              s0 = transmap[(*dest<<8)+s0];
-              s1 = transmap[(*dest<<8)+s1];
+              s0 = transmap[(dest[0] << 8) + s0];
+              s1 = transmap[(dest[1] << 8) + s1];
               dest[0] = s0;
-              dest[pitch] = s1;
-              dest += pitch*2;
+              dest[1] = s1;
+              dest += 2;
               s0 = source[2];
               s1 = source[3];
-              s0 = transmap[(*dest<<8)+s0];
-              s1 = transmap[(*dest<<8)+s1];
+              s0 = transmap[(dest[0] << 8) + s0];
+              s1 = transmap[(dest[1] << 8) + s1];
               source += 4;
               dest[0] = s0;
-              dest[pitch] = s1;
-              dest += pitch*2;
+              dest[1] = s1;
+              dest += 2;
             } while ((count-=4)>=0);
           if (count+=4)
             do {
               *dest = transmap[(*dest<<8)+*source++];
-              dest += pitch;
+              dest++;
             } while (--count);
         }
     // normal patch
@@ -668,19 +704,19 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
               s0 = source[0];
               s1 = source[1];
               dest[0] = s0;
-              dest[pitch] = s1;
-              dest += pitch*2;
+              dest[1] = s1;
+              dest += 2;
               s0 = source[2];
               s1 = source[3];
               source += 4;
               dest[0] = s0;
-              dest[pitch] = s1;
-              dest += pitch*2;
+              dest[1] = s1;
+              dest += 2;
             } while ((count-=4)>=0);
           if (count+=4)
             do {
               *dest = *source++;
-              dest += pitch;
+              dest++;
             } while (--count);
         }
       }
@@ -904,12 +940,12 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
         }
 
         if (dcvars.yl < 0) {
-          yoffset = (0-dcvars.yl) * 200/params->video->height;
+          yoffset = ((0-dcvars.yl) * 200 + params->video->height-1) / params->video->height;
           dcvars.yl = 0;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }
         if (dcvars.yl < top) {
-          yoffset = (top-dcvars.yl) * 200/params->video->height;
+          yoffset = ((top-dcvars.yl) * 200 + params->video->height-1) / params->video->height;
           dcvars.yl = top;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }
@@ -928,7 +964,6 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
       }
     }
 
-    R_ResetColumnBuffer();
     drawvars = olddrawvars;
 }
 
@@ -1103,6 +1138,10 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   int shadow_x, shadow_y;
   int fuzz = flags & VPT_FUZZ;
 
+  // Avoid out-of-bounds errors for full transparent patches
+  if (patch->flags & PATCH_ISEMPTY)
+    return;
+
   // remove offsets
   if (!(flags & VPT_NOOFFSET))
   {
@@ -1143,18 +1182,9 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   if (shadowinfo.active && shadowinfo.trans == 0)
     shadowinfo.active = false;
 
-  // Clamp shadow so it doesn't exceed screen bounds,
-  // Stops V_DrawPatch vertical overflow error.
-  {
-    shadow_x = x + shadowinfo.shadow_offset;
-    shadow_y = y + shadowinfo.shadow_offset;
-
-    // DO NOT clamp shadow_x: V_DrawPatch/V_DrawPatchStretch clip horizontally already.
-
-    if (shadow_y < 0) shadow_y = 0;
-    if (shadow_y + patch->height > SCREENHEIGHT)
-        shadow_y = SCREENHEIGHT - patch->height;
-  }
+  // Clamp shadow so it doesn't exceed screen bounds
+  shadow_x = x + shadowinfo.shadow_offset;
+  shadow_y = y + shadowinfo.shadow_offset;
 
   // Draw scaled patch with pipelines
   if ((flags & VPT_STRETCH_MASK) || fuzz) {
@@ -1169,6 +1199,36 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
       V_DrawPatch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, crop, shadowinfo.flags);
     V_DrawPatch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, crop, patchinfo.flags);
   }
+}
+
+
+//
+// V_ClipToScreen
+//
+// Transposed buffer now causes some functions to overwrite the x
+// So we need to adjust this now
+static dboolean V_ClipToScreen(int scrn, int *x, int *y, int *width, int *height)
+{
+  if (*x < 0)
+  {
+    *width += *x;
+    *x = 0;
+  }
+
+  if (*y < 0)
+  {
+    *height += *y;
+    *y = 0;
+  }
+
+  if (*x >= screens[scrn].width || *y >= screens[scrn].height ||
+      *width <= 0 || *height <= 0)
+    return false;
+
+  *width = MIN(*width, screens[scrn].width - *x);
+  *height = MIN(*height, screens[scrn].height - *y);
+
+  return true;
 }
 
 //
@@ -1186,17 +1246,17 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
   const byte *shademap;
   int ix, iy;
 
+  if (!V_ClipToScreen(FG, &x, &y, &width, &height))
+    return;
+
   shademap = V_ShadeColormap(shade);
 
-  for (iy = y; iy < y + height; ++iy)
+  for (ix = x; ix < x + width; ++ix)
   {
-    dest = screens[FG].data + screens[FG].pitch * iy + x;
+    dest = screens[FG].data + y + ix * screens[FG].pitch;
 
-    for (ix = x; ix < x + width; ++ix)
-    {
-      *dest = shademap[*dest];
-      dest++;
-    }
+    for (iy = 0; iy < height; ++iy)
+      dest[iy] = shademap[dest[iy]];
   }
 }
 
@@ -1267,7 +1327,7 @@ void V_SetPlayPal(int playpal_index)
   V_SetPalette(currentPaletteIndex);
 
   V_UpdateColorTranslation(); // Update Text Colors
-  V_UpdateShadeColormap();    // Update automap / menu overlay
+  V_UpdateColormaps();        // Update overlay / gray invuln
   dsda_RefreshTranMaps();     // Update shadows / translucency
   V_UpdateStbarColor();       // Update stbar background color
 
@@ -1297,9 +1357,9 @@ void V_ClearDynamicPalette(void)
 // CPhipps - New function to fill a rectangle with a given colour
 static void V_FillRect8(int scrn, int x, int y, int width, int height, byte colour)
 {
-  byte* dest = screens[scrn].data + x + y*screens[scrn].pitch;
-  while (height--) {
-    memset(dest, colour, width);
+  byte* dest = screens[scrn].data + y + x*screens[scrn].pitch;
+  while (width--) {
+    memset(dest, colour, height);
     dest += screens[scrn].pitch;
   }
 }
@@ -1308,27 +1368,27 @@ static void V_FillRectTrans8(int scrn, int x, int y, int width, int height, byte
 {
   const byte *transmap;
   byte* dest;
-  int pitch = screens[scrn].pitch;
+  int ix, iy;
 
   transmap = dsda_TranMap_Custom(P_ConvertTrans(trans));
 
   if (!transmap)
     return;
 
-  for (int iy = y; iy < y + height; ++iy)
+  for (ix = x; ix < x + width; ++ix)
   {
-    dest = screens[scrn].data + pitch * iy + x;
+    dest = screens[scrn].data + y + ix * screens[scrn].pitch;
 
-    for (int ix = 0; ix < width; ++ix)
-    {
-      *dest = transmap[(*dest << 8) | colour];
-      dest++;
-    }
+    for (iy = 0; iy < height; ++iy)
+      dest[iy] = transmap[(dest[iy] << 8) | colour];
   }
 }
 
 static void FUNC_V_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, int trans)
 {
+  if (!V_ClipToScreen(scrn, &x, &y, &width, &height))
+    return;
+
   if (!dsda_MenuTranslucency() || trans >= 99)
     V_FillRect8(scrn, x, y, width, height, colour);
   else
@@ -1346,32 +1406,43 @@ static void FUNC_V_FillRectTrans(int scrn, int x, int y, int width, int height, 
 //
 void FUNC_V_FillRectShaded(int x, int y, int w, int h, int start_shade, int end_shade, int vertical)
 {
-  byte *dest = screens[FG].data + y * screens[FG].pitch + x;
+  byte *dest;
   int pitch = screens[FG].pitch;
 
   int blocks = vertical ? h : w;
   if (blocks <= 1) return;
 
-  for (int j = 0; j < h; j++)
+  for (int i = 0; i < w; i++)
   {
-    for (int i = 0; i < w; i++)
+    dest = screens[FG].data + y + (x + i) * pitch;
+
+    // Split gradients to avoid extra column shade calculations
+    if (vertical)
     {
-      int block_size = vertical ? j : i;
-      int shade = start_shade + ((end_shade - start_shade) * block_size) / (blocks - 1);
+      for (int j = 0; j < h; j++)
+      {
+        int shade = start_shade + ((end_shade - start_shade) * j) / (blocks - 1);
+        const byte *shades = V_ShadeColormap(9 + shade * 2);
 
-      const byte *shades = V_ShadeColormap(9 + shade * 2);
-      dest[i] = shades[dest[i]];
+        dest[j] = shades[dest[j]];
+      }
     }
+    else
+    {
+      int shade = start_shade + ((end_shade - start_shade) * i) / (blocks - 1);
+      const byte *shades = V_ShadeColormap(9 + shade * 2);
 
-    dest += pitch;
+      for (int j = 0; j < h; j++)
+        dest[j] = shades[dest[j]];
+    }
   }
 }
 
 static void WRAP_V_DrawLine(fline_t* fl, int color);
-static void V_PlotPixel8(int scrn, int x, int y, byte color);
+static void V_PlotPixel8(int x, int y, byte color);
 
 static void WRAP_V_DrawLineWu(fline_t* fl, int color);
-static void V_PlotPixelWu8(int scrn, int x, int y, byte color, int weight);
+static void V_PlotPixelWu8(int x, int y, byte color, int weight);
 
 static void WRAP_gld_BeginUIDraw(void)
 {
@@ -1455,11 +1526,11 @@ static void WRAP_gld_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int
 
   gld_DrawNumPatch_f(x,y,lump,center,false,crop,cm,fade_alpha,flags);
 }
-static void V_PlotPixelGL(int scrn, int x, int y, byte color) {
+static void V_PlotPixelGL(int x, int y, byte color) {
   gld_DrawPoint(x, y, color);
 }
-static void V_PlotPixelWuGL(int scrn, int x, int y, byte color, int weight) {
-  V_PlotPixelGL(scrn, x, y, color);
+static void V_PlotPixelWuGL(int x, int y, byte color, int weight) {
+  V_PlotPixelGL(x, y, color);
 }
 static void WRAP_gld_DrawLine(fline_t* fl, int color)
 {
@@ -1488,8 +1559,8 @@ static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center,
 static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags) {}
 static void NULL_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadow, patch_crop_t crop, int cm, int fade_alpha, enum patch_translation_e flags) {}
 static void NULL_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadow, patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags) {}
-static void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
-static void NULL_PlotPixelWu(int scrn, int x, int y, byte color, int weight) {}
+static void NULL_PlotPixel(int x, int y, byte color) {}
+static void NULL_PlotPixelWu(int x, int y, byte color, int weight) {}
 static void NULL_DrawLine(fline_t* fl, int color) {}
 static void NULL_DrawLineWu(fline_t* fl, int color) {}
 static void NULL_DrawShaded(int x, int y, int width, int height, int shade) {}
@@ -1612,9 +1683,9 @@ void V_CopyScreen(int srcscrn, int destscrn)
 //
 void V_AllocScreen(screeninfo_t *scrn) {
   if (!scrn->not_on_heap)
-    if ((scrn->pitch * scrn->height) > 0)
+    if ((scrn->pitch * scrn->width) > 0)
       //e6y: Clear the screen to black.
-      scrn->data = Z_Calloc(scrn->pitch*scrn->height, 1);
+      scrn->data = Z_Calloc(scrn->pitch*scrn->width, 1);
 }
 
 //
@@ -1651,11 +1722,13 @@ void V_FreeScreens(void) {
 // V_PlotPixel
 //
 
-static void V_PlotPixel8_1px(int scrn, int x, int y, byte color) {
-  screens[scrn].data[x+screens[scrn].pitch*y] = color;
+static void V_PlotPixel8_1px(int x, int y, byte color) {
+  screens[FG].data[y+screens[FG].pitch*x] = color;
 }
 
-static void V_PlotCircle8(int scrn, int cx, int cy, int thickness, byte color)
+#define FRACMASK (FRACUNIT - 1)
+
+static void V_PlotCircle8(int cx, int cy, int thickness, byte color)
 {
   fixed_t radius, radius_sq;
   int row_radius;
@@ -1663,7 +1736,7 @@ static void V_PlotCircle8(int scrn, int cx, int cy, int thickness, byte color)
 
   radius = thickness * FRACUNIT / 2;
   radius_sq = (fixed_t)(((int64_t)radius * radius) >> FRACBITS);
-  row_radius = (radius + FRACUNIT - 1) >> FRACBITS;
+  row_radius = (radius + FRACMASK) >> FRACBITS;
 
   for (dy = -row_radius; dy <= row_radius; ++dy)
   {
@@ -1672,12 +1745,13 @@ static void V_PlotCircle8(int scrn, int cx, int cy, int thickness, byte color)
     fixed_t inside;
     fixed_t halfwidth;
     int x0, x1;
-    byte *row;
+    byte *col;
+    int x;
 
     y = cy + dy;
 
-    // screen clamp (col)
-    if (y < 0 || y >= screens[scrn].height)
+    // screen clamp (row)
+    if (y < 0 || y >= screens[FG].height)
       continue;
 
     // Distance from center to this row at pixel center
@@ -1695,29 +1769,34 @@ static void V_PlotCircle8(int scrn, int cx, int cy, int thickness, byte color)
     x1 = cx + (( halfwidth - FRACUNIT/2) >> FRACBITS);
 
     // Quick screen bounds check
-    if (x1 < 0 || x0 >= screens[scrn].width)
+    if (x1 < 0 || x0 >= screens[FG].width)
       continue;
 
-    // screen clamp (row)
+    // screen clamp (col)
     if (x0 < 0) x0 = 0;
-    if (x1 >= screens[scrn].width) x1 = screens[scrn].width - 1;
+    if (x1 >= screens[FG].width) x1 = screens[FG].width - 1;
 
-    row = screens[scrn].data + screens[scrn].pitch * y;
-    memset(row + x0, color, (size_t)(x1 - x0 + 1));
+    col = screens[FG].data + y + screens[FG].pitch * x0;
+
+    for (x = x0; x <= x1; ++x)
+    {
+      *col = color;
+      col += screens[FG].pitch;
+    }
   }
 }
 
-static void V_PlotPixel8(int scrn, int x, int y, byte color)
+static void V_PlotPixel8(int x, int y, byte color)
 {
   int thickness = AM_GetLineWeight();
 
   if (thickness > 1)
-    V_PlotCircle8(scrn, x, y, thickness, color);
+    V_PlotCircle8(x, y, thickness, color);
   else
-    V_PlotPixel8_1px(scrn, x, y, color);
+    V_PlotPixel8_1px(x, y, color);
 }
 
-#define PUTDOT(xx,yy,cc) V_PlotPixel(0,xx,yy,(byte)cc)
+#define PUTDOT(xx,yy,cc) V_PlotPixel(xx,yy,(byte)cc)
 
 //
 // WRAP_V_DrawLine()
@@ -1803,39 +1882,38 @@ static void WRAP_V_DrawLine_1px(fline_t* fl, int color)
   }
 }
 
-static void V_DrawVerticalSpan8(int scrn, int x, int y0, int y1, byte color)
+static void V_DrawVerticalSpan8(int x, int y0, int y1, byte color)
 {
   byte *p;
-  int pitch, y;
 
-  // screen clamp
-  if (x < 0 || x >= screens[scrn].width) return;
+  if (x < 0 || x >= screens[FG].width) return;
   if (y0 < 0) y0 = 0;
-  if (y1 >= screens[scrn].height) y1 = screens[scrn].height - 1;
+  if (y1 >= screens[FG].height) y1 = screens[FG].height - 1;
   if (y0 > y1) return;
 
-  p = screens[scrn].data + x + screens[scrn].pitch * y0;
-  pitch = screens[scrn].pitch;
+  p = screens[FG].data + y0 + x * screens[FG].pitch;
+  memset(p, color, (y1 - y0 + 1));
+}
 
-  for (y = y0; y <= y1; ++y)
+static void V_DrawHorizontalSpan8(int y, int x0, int x1, byte color)
+{
+  byte *p;
+  int pitch;
+  int x;
+
+  if (y < 0 || y >= screens[FG].height) return;
+  if (x0 < 0) x0 = 0;
+  if (x1 >= screens[FG].width) x1 = screens[FG].width - 1;
+  if (x0 > x1) return;
+
+  p = screens[FG].data + y + x0 * screens[FG].pitch;
+  pitch = screens[FG].pitch;
+
+  for (x = x0; x <= x1; ++x)
   {
     *p = color;
     p += pitch;
   }
-}
-
-static void V_DrawHorizontalSpan8(int scrn, int y, int x0, int x1, byte color)
-{
-  byte *row;
-
-  // screen clamp
-  if (y < 0 || y >= screens[scrn].height) return;
-  if (x0 < 0) x0 = 0;
-  if (x1 >= screens[scrn].width) x1 = screens[scrn].width - 1;
-  if (x0 > x1) return;
-
-  row = screens[scrn].data + screens[scrn].pitch * y;
-  memset(row + x0, color, (size_t)(x1 - x0 + 1));
 }
 
 static void WRAP_V_DrawLine_Thick(fline_t *fl, int color, int thickness)
@@ -1890,7 +1968,7 @@ static void WRAP_V_DrawLine_Thick(fline_t *fl, int color, int thickness)
 
     for (;;)
     {
-      V_DrawVerticalSpan8(0, x0, y0 - half, y0 + (thickness - half - 1), col);
+      V_DrawVerticalSpan8(x0, y0 - half, y0 + (thickness - half - 1), col);
 
       if (x0 == x1) break;
 
@@ -1910,7 +1988,7 @@ static void WRAP_V_DrawLine_Thick(fline_t *fl, int color, int thickness)
 
     for (;;)
     {
-      V_DrawHorizontalSpan8(0, y0, x0 - half, x0 + (thickness - half - 1), col);
+      V_DrawHorizontalSpan8(y0, x0 - half, x0 + (thickness - half - 1), col);
 
       if (y0 == y1) break;
 
@@ -1964,27 +2042,26 @@ extern SDL_Surface *screen;
 //
 // haleyjd 06/13/09: Pixel plotter for Wu line drawing.
 //
-static void V_PlotPixelWu8_1px(int scrn, int x, int y, byte color, int weight)
+static void V_PlotPixelWu8_1px(int x, int y, byte color, int weight)
 {
-  unsigned int bg_color = screens[scrn].data[x+screens[scrn].pitch*y];
+  unsigned int bg_color = screens[FG].data[y + screens[FG].pitch * x];
   unsigned int *fg2rgb = Col2RGB8[weight];
   unsigned int *bg2rgb = Col2RGB8[64 - weight];
   unsigned int fg = fg2rgb[color];
   unsigned int bg = bg2rgb[bg_color];
 
   fg = (fg + bg) | 0x1f07c1f;
-  V_PlotPixel(scrn, x, y, RGB32k[0][0][fg & (fg >> 15)]);
+  V_PlotPixel(x, y, RGB32k[0][0][fg & (fg >> 15)]);
 }
 
 // Change rendering path based on thickness
-static void V_PlotPixelWu8(int scrn, int x, int y, byte color, int weight)
+static void V_PlotPixelWu8(int x, int y, byte color, int weight)
 {
-  int thickness = AM_GetLineWeight();
+  if ((unsigned)x >= (unsigned)screens[FG].width ||
+      (unsigned)y >= (unsigned)screens[FG].height)
+    return;
 
-  if (thickness > 1)
-    V_PlotCircle8(scrn, x, y, thickness, color);
-  else
-    V_PlotPixelWu8_1px(scrn, x, y, color, weight);
+  V_PlotPixelWu8_1px(x, y, color, weight);
 }
 
 //
@@ -2052,9 +2129,9 @@ void WRAP_V_DrawLineWu_1px(fline_t *fl, int color)
       y += 1; // advance y
 
       // the trick is in the trig!
-      V_PlotPixelWu(0, x, y, (byte)color,
+      V_PlotPixelWu(x, y, (byte)color,
         finecosine[erroracc >> wu_fineshift] >> wu_fixedshift);
-      V_PlotPixelWu(0, x + xdir, y, (byte)color,
+      V_PlotPixelWu(x + xdir, y, (byte)color,
         finesine[erroracc >> wu_fineshift] >> wu_fixedshift);
     }
   }
@@ -2077,15 +2154,214 @@ void WRAP_V_DrawLineWu_1px(fline_t *fl, int color)
       x += xdir; // advance x
 
       // the trick is in the trig!
-      V_PlotPixelWu(0, x, y, (byte)color,
+      V_PlotPixelWu(x, y, (byte)color,
         finecosine[erroracc >> wu_fineshift] >> wu_fixedshift);
-      V_PlotPixelWu(0, x, y + 1, (byte)color,
+      V_PlotPixelWu(x, y + 1, (byte)color,
         finesine[erroracc >> wu_fineshift] >> wu_fixedshift);
     }
   }
 
   // draw last pixel
   PUTDOT(fl->b.x, fl->b.y, color);
+}
+
+#define PLOT_PIXEL_CLIPPED(x, y, color) \
+  do { \
+    if ((unsigned)(x) < (unsigned)screens[FG].width && \
+        (unsigned)(y) < (unsigned)screens[FG].height) \
+      V_PlotPixel8_1px((x), (y), (color)); \
+  } while (0)
+
+#define PLOT_WU_CLIPPED(x, y, color, weight) \
+  do { \
+    if ((unsigned)(x) < (unsigned)screens[FG].width && \
+        (unsigned)(y) < (unsigned)screens[FG].height) \
+      V_PlotPixelWu8_1px((x), (y), (color), (weight)); \
+  } while (0)
+
+// Slightly based on Woof's multisampling thick lines, but tweaked to work with our Wu method
+static void WRAP_V_DrawLineWu_Thick(fline_t *fl, int color, int weight)
+{
+  int x1 = fl->a.x;
+  int y1 = fl->a.y;
+  int x2 = fl->b.x;
+  int y2 = fl->b.y;
+
+  int dx, dy;
+  int xpxl1, xpxl2;
+  int ypxl1, ypxl2;
+  int width_int;
+  int x;
+
+  fixed_t gradient;
+  fixed_t width;
+  fixed_t intery;
+  fixed_t yend;
+  fixed_t fpart;
+  fixed_t rfpart;
+
+  dboolean steep;
+
+  steep = D_abs(y2 - y1) > D_abs(x2 - x1);
+
+  // Swap axes for steep lines
+  if (steep)
+  {
+    int temp;
+
+    temp = x1; x1 = y1; y1 = temp;
+    temp = x2; x2 = y2; y2 = temp;
+  }
+
+  // Always draw left to right
+  if (x1 > x2)
+  {
+    int temp;
+
+    temp = x1; x1 = x2; x2 = temp;
+    temp = y1; y1 = y2; y2 = temp;
+  }
+
+  dx = x2 - x1;
+  dy = y2 - y1;
+
+  // Round caps
+  if (!dx)
+  {
+    V_PlotCircle8(fl->a.x, fl->a.y, weight, (byte)color);
+    return;
+  }
+
+  gradient = (fixed_t)(((int64_t)dy << FRACBITS) / dx);
+
+  width = (fixed_t)(weight * sqrt(1.0 + (double)dy * dy / ((double)dx * dx)) * FRACUNIT);
+  width_int = width >> FRACBITS;
+
+  if (width_int < 1)
+    width_int = 1;
+
+  //
+  // First endpoint
+  //
+
+  xpxl1 = x1;
+  yend = (y1 << FRACBITS) - ((width - FRACUNIT) >> 1);
+
+  ypxl1 = yend >> FRACBITS;
+
+  fpart = yend & FRACMASK;
+  rfpart = FRACUNIT - fpart;
+
+  if (steep)
+  {
+    int x = ypxl1;
+    int y = xpxl1;
+    int i;
+
+    PLOT_WU_CLIPPED(x, y, color, (int)(((int64_t)rfpart * 32) >> FRACBITS));
+
+    for (i = 1; i < width_int; ++i)
+      PLOT_PIXEL_CLIPPED(x + i, y, color);
+
+    PLOT_WU_CLIPPED(x + width_int, y, color, (int)(((int64_t)fpart * 32) >> FRACBITS));
+  }
+  else
+  {
+    int x = xpxl1;
+    int y = ypxl1;
+    int i;
+
+    PLOT_WU_CLIPPED(x, y, color, (int)(((int64_t)rfpart * 32) >> FRACBITS));
+
+    for (i = 1; i < width_int; ++i)
+      PLOT_PIXEL_CLIPPED(x, y + i, color);
+
+    PLOT_WU_CLIPPED(x, y + width_int, color, (int)(((int64_t)fpart * 32) >> FRACBITS));
+  }
+
+  intery = yend + gradient;
+
+  //
+  // Second endpoint
+  //
+
+  xpxl2 = x2;
+
+  yend = (y2 << FRACBITS) - ((width - FRACUNIT) >> 1);
+
+  ypxl2 = yend >> FRACBITS;
+
+  fpart = yend & FRACMASK;
+  rfpart = FRACUNIT - fpart;
+
+  if (steep)
+  {
+    int sx = ypxl2;
+    int sy = xpxl2;
+    int i;
+
+    PLOT_WU_CLIPPED(sx, sy, color, (int)(((int64_t)rfpart * 32) >> FRACBITS));
+
+    for (i = 1; i < width_int; ++i)
+      PLOT_PIXEL_CLIPPED(sx + i, sy, color);
+
+    PLOT_WU_CLIPPED(sx + width_int, sy, color, (int)(((int64_t)fpart * 32) >> FRACBITS));
+  }
+  else
+  {
+    int sx = xpxl2;
+    int sy = ypxl2;
+    int i;
+
+    PLOT_WU_CLIPPED(sx, sy, color, (int)(((int64_t)rfpart * 32) >> FRACBITS));
+
+    for (i = 1; i < width_int; ++i)
+      PLOT_PIXEL_CLIPPED(sx, sy + i, color);
+
+    PLOT_WU_CLIPPED(sx, sy + width_int, color, (int)(((int64_t)fpart * 32) >> FRACBITS));
+  }
+
+  //
+  // Main body
+  //
+
+  for (x = xpxl1 + 1; x < xpxl2; ++x)
+  {
+    int y;
+    int i;
+    int weight1;
+    int weight2;
+
+    y = intery >> FRACBITS;
+
+    fpart = intery & FRACMASK;
+    rfpart = FRACUNIT - fpart;
+
+    // Convert to Wu 64
+    weight1 = (int)(((int64_t)rfpart * 64) >> FRACBITS);
+    weight2 = (int)(((int64_t)fpart * 64)  >> FRACBITS);
+
+    if (steep)
+    {
+      PLOT_WU_CLIPPED(y, x, color, weight1);
+
+      for (i = 1; i < width_int; ++i)
+        PLOT_PIXEL_CLIPPED(y + i, x, color);
+
+      PLOT_WU_CLIPPED(y + width_int, x, color, weight2);
+    }
+    else
+    {
+      PLOT_WU_CLIPPED(x, y, color, weight1);
+
+      for (i = 1; i < width_int; ++i)
+        PLOT_PIXEL_CLIPPED(x, y + i, color);
+
+      PLOT_WU_CLIPPED(x, y + width_int, color, weight2);
+    }
+
+    intery += gradient;
+  }
 }
 
 // Change rendering path based on thickness
@@ -2148,39 +2424,26 @@ SDL_Color V_GetPatchColor (int lumpnum)
   // Doom Patch format
   if (R_IsPatchLump(lumpnum))
   {
-    width = *((const int16_t *) lump);
-    width = LittleShort(width);
+    const rpatch_t *patch = R_PatchByNum(lumpnum);
 
-    for (x = 0; x < width; ++x) {
-      byte length;
-      byte entry;
-      const byte* p;
-      int32_t offset;
+    for (x = 0; x < patch->width; ++x) {
+      const rcolumn_t *column = &patch->columns[x];
+      int post;
 
       // Only calculate for the leftmost and rightmost 16 columns
-      if (width > 32 && x > 16 && x < width - 16)
+      if (patch->width > 32 && x > 16 && x < patch->width - 16)
         continue;
 
-      // Skip irrelevant data in the doom patch header
-      p = lump + 8 + 4 * x;
-      offset = *((const int32_t *) p);
-      p = lump + LittleLong(offset);
+      for (post = 0; post < column->numPosts; ++post) {
+        const rpost_t *p = &column->posts[post];
 
-      while (*p != 0xff) {
-        p++;
-        length = *p++;
-        p++;
-
-        // Get RGB values per pixel
-        for (y = 0; y < length; ++y) {
-          entry = *p++;
+        for (y = 0; y < p->length; ++y) {
+          byte entry = column->pixels[p->topdelta + y];
           r += playpal[3 * entry + 0];
           g += playpal[3 * entry + 1];
           b += playpal[3 * entry + 2];
           pixel_cnt++;
         }
-
-        p++;
       }
     }
   }
@@ -2494,6 +2757,211 @@ int V_BestColor(const unsigned char *palette, int r, int g, int b)
   return bestcolor;
 }
 
+//
+// V_BestColor
+//
+// Adapted from zdoom -- thanks to Randy Heit.
+//
+// This gets colors from a string (hex or RGB)
+// It also understands X11 color names used by ZDoom
+// This is required for STARTUP color support
+//
+static int V_ParseZDoomHex(const char *hex)
+{
+  int result = 0;
+  const char *start = hex;
+
+  while (*hex)
+  {
+    result <<= 4;
+    if (*hex >= '0' && *hex <= '9')
+      result += *hex - '0';
+    else if (*hex >= 'a' && *hex <= 'f')
+      result += 10 + *hex - 'a';
+    else if (*hex >= 'A' && *hex <= 'F')
+      result += 10 + *hex - 'A';
+    else
+    {
+      lprintf(LO_WARN, "Bad hex number: %s\n", start);
+      return 0;
+    }
+    ++hex;
+  }
+
+  return result;
+}
+
+static dboolean V_ZDoomColorNameMatches(const char *candidate, size_t length, const char *name)
+{
+  size_t i;
+
+  if (length != strlen(name))
+    return false;
+
+  for (i = 0; i < length; ++i)
+    if (tolower((unsigned char)candidate[i]) != tolower((unsigned char)name[i]))
+      return false;
+
+  return true;
+}
+
+static dboolean V_ZDoomGetColorStringByName(const char *name, int color[3])
+{
+  int lump = W_CheckNumForName("X11R6RGB");
+  const char *cursor;
+  const char *end;
+
+  if (lump == LUMP_NOT_FOUND)
+  {
+    lprintf(LO_WARN, "X11R6RGB lump not found\n");
+    return false;
+  }
+
+  cursor = W_LumpByNum(lump);
+  end = cursor + W_LumpLength(lump);
+
+  while (cursor < end)
+  {
+    const char *line_end = cursor;
+    const char *name_start;
+    const char *name_end;
+    int component;
+
+    while (line_end < end && *line_end != '\n')
+      ++line_end;
+    while (cursor < line_end && *cursor <= ' ')
+      ++cursor;
+
+    if (cursor == line_end || *cursor == '!')
+    {
+      cursor = line_end + (line_end < end);
+      continue;
+    }
+
+    for (component = 0; component < 3; ++component)
+    {
+      int value = 0;
+
+      while (cursor < line_end && *cursor <= ' ')
+        ++cursor;
+      if (cursor == line_end || !isdigit((unsigned char)*cursor))
+        break;
+      while (cursor < line_end && isdigit((unsigned char)*cursor))
+      {
+        value = value * 10 + *cursor - '0';
+        ++cursor;
+      }
+      color[component] = value;
+    }
+
+    if (component != 3)
+    {
+      lprintf(LO_WARN, "X11R6RGB lump is corrupt\n");
+      return false;
+    }
+
+    while (cursor < line_end && *cursor <= ' ')
+      ++cursor;
+    name_start = cursor;
+    name_end = line_end;
+    while (name_end > name_start && name_end[-1] <= ' ')
+      --name_end;
+
+    if (V_ZDoomColorNameMatches(name_start, name_end - name_start, name))
+      return true;
+
+    cursor = line_end + (line_end < end);
+  }
+
+  return false;
+}
+
+void V_ZDoomGetColor(const char *string, int *red, int *green, int *blue)
+{
+  int color[3];
+  char value[3] = { 0, 0, 0 };
+  const char *p = string;
+  int i;
+
+  if (V_ZDoomGetColorStringByName(p, color))
+  {
+    *red = color[0];
+    *green = color[1];
+    *blue = color[2];
+    return;
+  }
+
+  if (*p == '#')
+  {
+    size_t length = strlen(p);
+
+    if (length == 7)
+    {
+      for (i = 0; i < 3; ++i)
+      {
+        value[0] = p[1 + i * 2];
+        value[1] = p[2 + i * 2];
+        color[i] = V_ParseZDoomHex(value);
+      }
+    }
+    else if (length == 4)
+    {
+      for (i = 0; i < 3; ++i)
+      {
+        value[0] = value[1] = p[1 + i];
+        color[i] = V_ParseZDoomHex(value);
+      }
+    }
+    else
+      color[0] = color[1] = color[2] = 0;
+  }
+  else if (strlen(p) == 6)
+  {
+    char *end;
+    long packed = strtol(p, &end, 16);
+
+    if (!*end)
+    {
+      color[0] = (packed >> 16) & 0xff;
+      color[1] = (packed >> 8) & 0xff;
+      color[2] = packed & 0xff;
+    }
+    else
+      goto spaced;
+  }
+  else
+  {
+  spaced:
+    for (i = 0; i < 3; ++i)
+    {
+      int length = 0;
+
+      while (*p <= ' ' && *p)
+        ++p;
+      while (*p > ' ')
+      {
+        if (length < 2)
+          value[length] = *p;
+        ++length;
+        ++p;
+      }
+
+      if (!length)
+        color[i] = 0;
+      else
+      {
+        if (length == 1)
+          value[1] = value[0];
+        color[i] = V_ParseZDoomHex(value);
+      }
+    }
+  }
+
+  *red = color[0];
+  *green = color[1];
+  *blue = color[2];
+}
+
 // Alt-Enter: fullscreen <-> windowed
 void V_ToggleFullscreen(void)
 {
@@ -2508,10 +2976,6 @@ void V_ChangeScreenResolution(void)
   {
     gld_PreprocessLevel();
   }
-
-  // Refresh Minimap Coordinates
-  if (in_game && gamestate == GS_LEVEL)
-    AM_RefreshMinimap();
 }
 
 void V_FillRectVPT(int x, int y, int width, int height, byte color, enum patch_translation_e flags)

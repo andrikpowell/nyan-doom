@@ -59,6 +59,8 @@ Heretic is similar to Doom DSDhacked, but has some differences.
 
 You can define these as you normally do, with `Thing 1234`, `Frame 4444`, or `Sound 137` for instance. From the perspective of dehacked format, there is no change except conceptually "every index exists" for these entities. There is no corresponding `Sprite 111` block in dehacked, but sprites can be defined in the table discussed below.
 
+Thing blocks also support custom [obituaries](obituaries.md) through the `Obituary`, `Melee obituary`, and `Self obituary` fields.
+
 ### Defining Sound / Sprite Lumps
 
 You can set the lump names for sprites and sounds in the table sections of the dehacked file. These sections normally replace lump names (OLD1 = NEW1). If the left value is a number, it is interpreted as the index where you want to store the given name. You _must_ set the lump names for any new sound or sprite indices that you reference elsewhere, otherwise the data won't be allocated and the associated sound / sprite won't actually exist. Here is an example:

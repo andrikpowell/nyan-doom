@@ -425,6 +425,7 @@ static fixed_t m_x2, m_y2;   // UR x,y window location on the map (map coords)
 static fixed_t prev_m_x, prev_m_y;
 
 static mpoint_t m_paninc2; // [crispy] mouse map panning
+static mpoint_t m_paninc_target; // movement for current tic
 
 //
 // width/height of window on map (map coords)
@@ -784,26 +785,15 @@ static void AM_changeWindowLoc(void)
 {
   fixed_t incx, incy;
 
-  // keyboard
   if (movement_smooth)
   {
-    incx = FixedMul(m_paninc.x, tic_vars.frac);
-    incy = FixedMul(m_paninc.y, tic_vars.frac);
+    incx = FixedMul(m_paninc_target.x, tic_vars.frac);
+    incy = FixedMul(m_paninc_target.y, tic_vars.frac);
   }
   else
   {
-    incx = m_paninc.x;
-    incy = m_paninc.y;
-  }
-
-  // Mouse
-  if (m_paninc2.x || m_paninc2.y)
-  {
-    incx += m_paninc2.x;
-    incy += m_paninc2.y;
-
-    m_paninc2.x = 0;
-    m_paninc2.y = 0;
+    incx = m_paninc_target.x;
+    incy = m_paninc_target.y;
   }
 
   AM_moveWindowLoc(prev_m_x, prev_m_y, incx, incy);
@@ -829,26 +819,45 @@ static void AM_AddMousePan(int x, int y)
 //
 // AM_SetScale
 //
-static void AM_SetScale(void)
+typedef enum
 {
+  AM_SCALE_RESET,
+  AM_SCALE_KEEP
+} am_scale_t;
+
+static void AM_SetScale(dboolean keep_scale)
+{
+  fixed_t a, b;
+  fixed_t scale_w, scale_h;
+  fixed_t old_m_w = m_w;
+
+  scale_w = SCREENWIDTH << FRACBITS;
+  scale_h = (SCREENHEIGHT - ST_SCALED_HEIGHT) << FRACBITS;
+
+  a = FixedDiv(scale_w, max_w);
+  b = FixedDiv(scale_h, max_h);
+  min_scale_mtof = a < b ? a : b;
+  max_scale_mtof = FixedDiv(scale_h, 2 * PLAYERRADIUS);
+
+  mapxstart = mapystart = 0;
+
+  if (keep_scale)
   {
-    fixed_t a, b;
-    fixed_t scale_w, scale_h;
-
-    scale_w = SCREENWIDTH << FRACBITS;
-    scale_h = (SCREENHEIGHT - ST_SCALED_HEIGHT) << FRACBITS;
-
-    a = FixedDiv(scale_w, max_w);
-    b = FixedDiv(scale_h, max_h);
-    min_scale_mtof = a < b ? a : b;
-    max_scale_mtof = FixedDiv(scale_h, 2 * PLAYERRADIUS);
-    mapxstart = mapystart = 0;
+    // Keep current zoom when changing resolution / renderer
+    if (automap_full && old_m_w > 0)
+    {
+      scale_mtof = FixedDiv(f_w << FRACBITS, old_m_w);
+      scale_mtof = CLAMP(scale_mtof, min_scale_mtof, max_scale_mtof);
+      scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+    }
   }
-
-  scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
-  if (scale_mtof > max_scale_mtof)
-    scale_mtof = min_scale_mtof;
-  scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+  else
+  {
+    scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
+    if (scale_mtof > max_scale_mtof)
+      scale_mtof = min_scale_mtof;
+    scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+  }
 }
 
 //
@@ -969,7 +978,7 @@ static void AM_initVariables(void)
 void AM_SetResolution(void)
 {
   AM_SetPosition();
-  AM_SetScale();
+  AM_SetScale(AM_SCALE_KEEP);
   AM_activateNewScale();
 }
 
@@ -1003,7 +1012,7 @@ static void AM_SetMinimapScale(void)
 
 void AM_RefreshMinimap(void)
 {
-  if (!dsda_ShowMinimap())
+  if (!dsda_ShowMinimap() || automap_full)
     return;
 
   // Refresh Minimap Coordinates / scale / center
@@ -1116,7 +1125,7 @@ void AM_Start(dboolean open_full_automap)
   if (lastlevel != gamemap || lastepisode != gameepisode)
   {
     AM_findMinMaxBoundaries();
-    AM_SetScale();
+    AM_SetScale(AM_SCALE_RESET);
     lastlevel = gamemap;
     lastepisode = gameepisode;
     last_full_automap = true;
@@ -2109,6 +2118,13 @@ void AM_Ticker (void)
   prev_mapxstart = mapxstart;
   prev_mapystart = mapystart;
 
+  m_paninc_target.x = m_paninc.x + m_paninc2.x;
+  m_paninc_target.y = m_paninc.y + m_paninc2.y;
+
+  // Mouse input
+  m_paninc2.x = 0;
+  m_paninc2.y = 0;
+
   if (stop_zooming && leveltime - zoom_leveltime != 1)
     AM_StopZooming();
 }
@@ -2897,13 +2913,11 @@ static void AM_DrawBossActionThings(void)
   if (!mapcolor_p->tagfinder || TAG_FINDER_BLINK_OFF)
     return;
 
-#if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
       return;
   }
-#endif
 
   for (th = thinkercap.next; th != &thinkercap; th = th->next)
   {
@@ -2951,13 +2965,11 @@ static void AM_drawPlayers(void)
   fixed_t scale;
   fixed_t box_scale = 0;
 
-#if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
       return;
   }
-#endif
 
   if (map_things_appearance == map_things_appearance_scaled)
     scale = (CLAMP(plr->mo->radius, 4<<FRACBITS, 256<<FRACBITS)>>FRACTOMAPBITS);
@@ -3676,13 +3688,11 @@ static void AM_drawThings(void)
   int lineguylines = NUMTHINTRIANGLEGUYLINES;
   int showkeys = skill_info.flags & SI_EASY_KEY || dsda_ShowAutomapKeys();
 
-#if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
       RETURN(AM_DrawNiceThings());
   }
-#endif
 
   if (!showkeys && dsda_RevealAutomap() != 2)
     return;
@@ -4011,13 +4021,11 @@ static void AM_drawMarks(void)
   if (map_trail_mode && dsda_RevealAutomap())
     AM_drawPlayerTrail();
 
-#if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
       return;
   }
-#endif
 
   for (i = 0; i < markpointnum; i++) // killough 2/22/98: remove automap mark limit
   {
@@ -4206,7 +4214,7 @@ static void AM_drawCrosshair(int color)
   }
 }
 
-static void AM_DrawGLMapLines(void)
+static void AM_FlushGLMapLines(void)
 {
   gld_DrawMapLines();
   gld_DrawMapLinePoints();
@@ -4342,7 +4350,7 @@ void AM_Drawer (dboolean minimap)
     AM_changeWindowScale();
 
   // Change x,y location
-  if (m_paninc.x || m_paninc.y || m_paninc2.x || m_paninc2.y)
+  if (m_paninc_target.x || m_paninc_target.y)
     AM_changeWindowLoc();
 
   AM_setFrameVariables();
@@ -4375,26 +4383,27 @@ void AM_Drawer (dboolean minimap)
 
   // Draw map lines before the crosshair
   if (V_IsOpenGLMode())
-  {
-    AM_DrawGLMapLines();
-  }
+    AM_FlushGLMapLines();
 
-  AM_drawCrosshair(mapcolor_p->hair);   //jff 1/7/98 default crosshair color
+  AM_drawMarks();
 
+  // OpenGL - Draw vector markers above map lines
+  // and then draw Nice things
   if (V_IsOpenGLMode())
   {
-#if defined(HAVE_LIBSDL2_IMAGE)
+    AM_FlushGLMapLines();
+
     if (map_opengl_nice_things)
     {
       gld_DrawNiceThings(f_x, f_y, f_w, f_h);
     }
-#endif
-
-    // Draw crosshair above nice things
-    AM_DrawGLMapLines();
   }
 
-  AM_drawMarks();
+  AM_drawCrosshair(mapcolor_p->hair); //jff 1/7/98 default crosshair color
+
+  // OpenGL - Draw crosshair above markers and nice things
+  if (V_IsOpenGLMode())
+    AM_FlushGLMapLines();
 
   V_EndAutomapDraw();
 }

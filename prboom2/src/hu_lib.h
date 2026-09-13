@@ -39,6 +39,13 @@
 
 #define HU_MAXLINELENGTH  80
 
+typedef enum
+{
+  HU_ALIGN_LEFT,
+  HU_ALIGN_CENTER,
+  HU_ALIGN_RIGHT,
+} hu_text_alignment_t;
+
 // Text Line widget
 typedef struct
 {
@@ -67,6 +74,7 @@ typedef struct
   int kerning; // Heretic/Hexen -1 kerning
   int space_width;
   int fade_alpha; // dyanamic font translucency
+  hu_text_alignment_t alignment;
 } hu_textline_t;
 
 //
@@ -93,11 +101,13 @@ dboolean HUlib_addCharToTextLine(hu_textline_t *t, char ch);
 void HUlib_drawTextLine(hu_textline_t *l, dboolean yellow, dboolean shadow, dboolean drawcursor);
 void HUlib_drawOffsetTextLine(hu_textline_t* l, dboolean yellow, dboolean shadow, int offset);
 
-//e6y
-void HUlib_setTextXCenter(hu_textline_t* t);
-void HUlib_setTextXRightAlign(hu_textline_t *t);
-dboolean HUlib_WrapStringToTextLines(hu_textline_t *l, const char *s, dboolean centered, int max_lines);
-void HUlib_AdjustBottomOffset_MultiLine(hu_textline_t *t, int y_offset, double ratio, int vpt);
+// set word wrap
+void HUlib_WrapTextLine(hu_textline_t *l, const char *s, dboolean centered, int max_lines);
+
+// text alignment
+void HUlib_CenterText(hu_textline_t *t);
+void HUlib_RightAlignText(hu_textline_t *t);
+void HUlib_BottomAlignText(hu_textline_t *t, int y_offset, double ratio, int vpt);
 
 int HU_FontStringWidth(const dsda_font_t* f, const char* string);
 

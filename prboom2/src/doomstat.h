@@ -258,8 +258,8 @@ extern  dboolean demoplayback;
 extern  dboolean demorecording;
 extern  int demover;
 
-#define allow_incompatibility (!demorecording && !demoplayback)
-#define comperr(i) (default_comperr[i] && allow_incompatibility)
+#define casual_play (!demorecording && !demoplayback)
+#define comperr(i) (default_comperr[i] && casual_play)
 
 extern  dboolean userdemo;
 #define userplayback (demoplayback && userdemo)
