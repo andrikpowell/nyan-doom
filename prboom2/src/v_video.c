@@ -92,7 +92,6 @@ static byte ui_shademap[31][256];
 static byte gray_invuln_colormap[256];
 
 int usegamma;
-int extra_brightness;
 
 int V_BloodColor(int blood)
 {
