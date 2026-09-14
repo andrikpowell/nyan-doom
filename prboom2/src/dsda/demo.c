@@ -28,6 +28,8 @@
 #include "e6y.h"
 #include "p_saveg.h"
 
+#include "deh/compatibility.h"
+
 #include "dsda.h"
 #include "dsda/args.h"
 #include "dsda/configuration.h"
@@ -299,6 +301,9 @@ void dsda_InitDemoRecording(void) {
   // prboom+ has already cached its settings (with demorecording == false)
   // we need to reset things here to satisfy strict mode
   dsda_InitSettings();
+
+  // Update Translucency for Strict Mode
+  deh_changeCompTranslucency();
 
   dsda_LiftInputRestrictions();
   dsda_ResetFeatures();
