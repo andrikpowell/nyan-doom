@@ -8489,7 +8489,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
   // Toggle extra brightness
   if (dsda_InputActivated(dsda_input_extra_brightness) && !dsda_StrictMode())
   {
-    dsda_CycleConfig(dsda_config_extra_level_brightness, true);
+    int extra_brightness = dsda_CycleConfig(dsda_config_extra_level_brightness, true);
     dsda_AddMessage(extra_brightness == 0 ? "Extra Brightness Off" :
                     extra_brightness == 1 ? "Extra Brightness Level 1" :
                     extra_brightness == 2 ? "Extra Brightness Level 2" :
