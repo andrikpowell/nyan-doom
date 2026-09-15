@@ -98,6 +98,7 @@ void dsda_InitializeMusic(musicinfo_t* source, int count) {
 
   // Prevent MUSINFO from treating lump 0 (PLAYPAL) as music.
   musinfo.current_item = -1;
+  musinfo.current_item_looping = true;
   S_music[mus_musinfo].lumpnum = -1;
 
   // S_music = malloc(num_music * sizeof(*S_music));
@@ -130,21 +131,25 @@ void dsda_FreeDehMusic(void) {
 }
 
 static int music_queue = -1;
+static dboolean music_queue_looping = true;
 
 void dsda_ArchiveMusic(void) {
   P_SAVE_X(musinfo.current_item);
+  P_SAVE_X(musinfo.current_item_looping);
 }
 
 void dsda_UnArchiveMusic(void) {
   P_LOAD_X(music_queue);
+  P_LOAD_X(music_queue_looping);
 }
 
 dboolean dsda_StartQueuedMusic(void) {
   if (music_queue == -1)
     return false;
 
-  S_ChangeMusInfoMusic(music_queue, true);
+  S_ChangeMusInfoMusic(music_queue, music_queue_looping);
   music_queue = -1;
+  music_queue_looping = true;
 
   return true;
 }
