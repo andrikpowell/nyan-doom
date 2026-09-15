@@ -1006,7 +1006,10 @@ static dboolean M_MouseCycleSetupChoice(setup_menu_t *item)
     return false;
 
   if (M_ItemDisabled(item))
+  {
+    S_StartOptionalSound(g_sfx_mnuerr, g_sfx_oof, true);
     return true;
+  }
 
   choices = M_SetupChoiceList(item);
 

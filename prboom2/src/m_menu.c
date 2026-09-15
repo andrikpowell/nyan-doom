@@ -9197,6 +9197,10 @@ static dboolean M_SaveResponder(int ch, int action, event_t* ev)
         else
           S_StartOptionalSound(g_sfx_mnuact, g_sfx_pistol, true);
       }
+      else
+      {
+        S_StartOptionalSound(g_sfx_mnuerr, g_sfx_oof, true);
+      }
 
       return true;
     }
