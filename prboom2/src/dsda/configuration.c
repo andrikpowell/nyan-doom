@@ -1784,6 +1784,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_doomguy_angry_face_fix", dsda_config_doomguy_angry_face_fix,
     CONF_BOOL(1)
   },
+  [dsda_config_disable_saving_after_death] = {
+   "dsda_disable_saving_after_death", dsda_config_disable_saving_after_death,
+   CONF_BOOL(1), NULL, NOT_STRICT
+  },
   [dsda_config_blockmap_fix] = {
     "dsda_blockmap_fix", dsda_config_blockmap_fix,
     CONF_BOOL(0), NULL, STRICT_INT(0)
