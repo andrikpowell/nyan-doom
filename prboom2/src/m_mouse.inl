@@ -48,18 +48,13 @@ static int menu_mouse_hover_tab = -1;
 
 static dboolean M_MouseSoundSliderAtPointer(int *index);
 
-static dboolean M_MainItemMouseHovered(int index)
+dboolean M_MouseHovered(int index)
 {
   return index == menu_mouse_hover_main &&
          currentMenu &&
          index >= 0 &&
          index < currentMenu->numitems &&
          currentMenu->menuitems[index].status != M_ITEM_SKIP;
-}
-
-int M_MenuMouseHovered(int index)
-{
-  return M_MainItemMouseHovered(index);
 }
 
 static dboolean M_MouseTabHovered(int page)

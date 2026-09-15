@@ -346,7 +346,7 @@ static void M_DrawHelp (void);                                     // phares 5/0
 static void M_DrawAd(void);
 
 static void M_DrawSaveLoadBorder(int x,int y,dboolean selected);
-static void M_DrawThermo(int x,int y,int thermWidth,int thermRange,int thermDot,dboolean selected,dboolean force_highlight);
+static void M_DrawThermo(int x,int y,int thermWidth,int thermRange,int thermDot,dboolean selected,dboolean highlight);
 static void M_DrawEmptyCell(menu_t *menu,int item);
 static void M_DrawSelCell(menu_t *menu,int item);
 static void M_WriteText(int x, int y, const char *string, int cm);
@@ -539,18 +539,6 @@ static const dsda_font_t *menu_font;
 static void M_LoadMenuFont(void)
 {
   menu_font = &hud_font;
-}
-
-//
-// Highlight option
-//
-
-int M_Highlight(int override)
-{
-  if (override || dsda_IntConfig(nyan_config_extra_menu_highlights))
-    return CR_LIGHTEN;
-
-  return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -992,7 +980,7 @@ static void M_DeleteSaveGame(int slot)
 static dboolean M_FileSlotEnabled(int menu, int item)
 {
   if (menu == MN_LOAD)
-    return LoadMenue[item].status;
+    return LoadMenue[item].status == M_ITEM_ACTION;
 
   if (menu == MN_SAVE)
     return current_page != 0;
@@ -1000,28 +988,55 @@ static dboolean M_FileSlotEnabled(int menu, int item)
   return false;
 }
 
-dboolean M_FileBoxSelected(int menu, int item)
+dboolean M_MenuItemHighlighted(int item)
 {
-  dboolean mouse = M_MenuMouseHovered(item);
-
-  // Disabled slots never highlight
-  if (!M_FileSlotEnabled(menu, item))
-    return false;
-
   // Mouse highlight is always enabled
-  if (mouse && M_Highlight(true))
+  if (M_MouseHovered(item))
     return true;
 
   // Keyboard highlight is optional
-  if (item == itemOn && M_Highlight(false))
+  if (item == itemOn && dsda_IntConfig(nyan_config_extra_menu_highlights))
     return true;
 
   return false;
 }
 
+dboolean M_FileBoxSelected(int menu, int item)
+{
+  // Disabled slots never highlight
+  if (!M_FileSlotEnabled(menu, item))
+    return false;
+
+  // Mouse / keyboard highlight
+  return M_MenuItemHighlighted(item);
+}
+
 int M_FileTextColor(int menu, int item)
 {
   return M_FileSlotEnabled(menu, item) ? CR_DEFAULT : CR_DARKEN;
+}
+
+//
+// Highlight functions
+//
+
+dboolean M_CurrentSelectedItem(int item)
+{
+  return itemOn == item;
+}
+
+int M_HighlightColor(dboolean highlight, int color)
+{
+  if (highlight &&
+      color >= CR_DEFAULT && color < CR_HUD_LIMIT)
+    return CR_LIGHTEN + color;
+
+  return color;
+}
+
+int M_AddColorFlag(int color)
+{
+  return color != CR_DEFAULT ? VPT_COLOR : VPT_NONE;
 }
 
 //
@@ -1040,13 +1055,10 @@ static void M_DrawLoad(void)
   // CPhipps - patch drawing updated
   V_DrawMenuNamePatch(72 ,LOADGRAPHIC_Y, "M_LOADG", CR_DEFAULT, VPT_STRETCH);
   for (i = 0 ; i < load_end ; i++) {
-    dboolean highlight = M_FileBoxSelected(MN_LOAD, i);
-    int textcolor = M_FileTextColor(MN_LOAD, i);
+    dboolean selected   = M_FileBoxSelected(MN_LOAD, i);
+    int textcolor       = M_HighlightColor(selected, M_FileTextColor(MN_LOAD, i));
 
-    if (highlight)
-      textcolor += M_Highlight(highlight);
-
-    M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i,highlight);
+    M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i,selected);
     M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i],textcolor);
   }
 
@@ -1060,17 +1072,11 @@ static void M_DrawLoad(void)
 // Draw border for the savegame description
 //
 
-static void M_DrawSaveLoadBorder(int x,int y,dboolean highlight)
+static void M_DrawSaveLoadBorder(int x,int y,dboolean selected)
 {
   int i;
-  int color = CR_DEFAULT;
-  int flags = VPT_STRETCH;
-
-  if (highlight)
-    color += M_Highlight(highlight);
-
-  if (color != CR_DEFAULT)
-    flags |= VPT_COLOR;
+  int color = M_HighlightColor(selected, CR_DEFAULT);
+  int flags = VPT_STRETCH | M_AddColorFlag(color);
 
   V_DrawMenuNamePatch(x-8, y+7, "M_LSLEFT", color, flags);
 
@@ -1296,13 +1302,10 @@ static void M_DrawSave(void)
   V_DrawMenuNamePatch(72, LOADGRAPHIC_Y, "M_SAVEG", CR_DEFAULT, VPT_STRETCH);
   for (i = 0 ; i < load_end ; i++)
     {
-    dboolean highlight = M_FileBoxSelected(MN_SAVE, i);
-    int textcolor = M_FileTextColor(MN_SAVE, i);
+    dboolean selected   = M_FileBoxSelected(MN_SAVE, i);
+    int textcolor       = M_HighlightColor(selected, M_FileTextColor(MN_SAVE, i));
 
-    if (highlight)
-      textcolor += M_Highlight(highlight);
-
-    M_DrawSaveLoadBorder(SaveDef.x,SaveDef.y+LINEHEIGHT*i,highlight);
+    M_DrawSaveLoadBorder(SaveDef.x,SaveDef.y+LINEHEIGHT*i,selected);
     M_WriteText(SaveDef.x,SaveDef.y+LINEHEIGHT*i,savegamestrings[i],textcolor);
     }
 
@@ -1579,11 +1582,6 @@ menu_t SoundDef =
 // Change Sfx & Music volumes
 //
 
-dboolean M_CurrentSelectedItem(int item)
-{
-  return itemOn == item;
-}
-
 static void M_DrawSound(void)
 {
   char num[4];
@@ -1593,12 +1591,12 @@ static void M_DrawSound(void)
   // CPhipps - patch drawing updated
   V_DrawMenuNamePatch(60, 38, "M_SVOL", CR_DEFAULT, VPT_STRETCH);
 
-  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),16,16,snd_SfxVolume,M_CurrentSelectedItem(sfx_vol),M_MenuMouseHovered(sfx_vol));
+  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),16,16,snd_SfxVolume,M_CurrentSelectedItem(sfx_vol),M_MenuItemHighlighted(sfx_vol));
   snprintf(num, sizeof(num), "%3d", snd_SfxVolume);
   strcpy(menu_buffer, num);
   M_DrawMenuString(SoundDef.x + 150, SoundDef.y+LINEHEIGHT*(sfx_vol+1) + 3, cr_value_edit);
 
-  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(music_vol+1),16,16,snd_MusicVolume,M_CurrentSelectedItem(music_vol),M_MenuMouseHovered(music_vol));
+  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(music_vol+1),16,16,snd_MusicVolume,M_CurrentSelectedItem(music_vol),M_MenuItemHighlighted(music_vol));
   snprintf(num, sizeof(num), "%3d", snd_MusicVolume);
   strcpy(menu_buffer, num);
   M_DrawMenuString(SoundDef.x + 150, SoundDef.y+LINEHEIGHT*(music_vol+1) + 3, cr_value_edit);
@@ -9648,14 +9646,13 @@ void M_ShadedScreen(void)
   V_DrawShaded(0, 0, SCREENWIDTH, SCREENHEIGHT, screenshade);
 }
 
-static dboolean M_MenuItemLumpMissing(const menuitem_t *item)
-{
-  return !item->name[0] || !W_LumpNameExists(item->name);
-}
-
 static dboolean M_OptionalLumpMissing(const menuitem_t *item)
 {
-  return (item->flags & MENUF_OPTLUMP) && M_MenuItemLumpMissing(item);
+  // if not optional, return
+  if (!(item->flags & MENUF_OPTLUMP))
+    return false;
+
+  return item->name[0] && !W_LumpNameExists(item->name);
 }
 
 static dboolean M_MenuHasMissingRequiredLumps(const menu_t *menu)
@@ -9669,7 +9666,9 @@ static dboolean M_MenuHasMissingRequiredLumps(const menu_t *menu)
   {
     const menuitem_t *item = &menu->menuitems[i];
 
-    if (item->status != M_ITEM_SKIP && !M_OptionalLumpMissing(item) && M_MenuItemLumpMissing(item))
+    if (item->status != M_ITEM_SKIP &&
+        !(item->flags & MENUF_OPTLUMP) &&
+        (!item->name[0] || !W_LumpNameExists(item->name)))
       return true;
   }
 
@@ -9754,26 +9753,16 @@ void M_Drawer (void)
 
     for (i = 0; i < max; i++)
     {
-      dboolean optional_lump_missing = M_OptionalLumpMissing(&currentMenu->menuitems[i]);
-      dboolean hovered = M_MenuMouseHovered(i);
-      dboolean selected = (i == itemOn) || hovered;
-      const char *alttext = currentMenu->menuitems[i].alttext;
-      int color = currentMenu->menuitems[i].color;
-      int flags = VPT_STRETCH;
+      const menuitem_t *item = &currentMenu->menuitems[i];
+      int color = M_HighlightColor(M_MenuItemHighlighted(i), item->color);
+      int flags = VPT_STRETCH | M_AddColorFlag(color);
 
-      if (selected)
-        color += M_Highlight(hovered);
+      if (!lumps_missing && item->name[0] && !M_OptionalLumpMissing(item))
+        V_DrawMenuNamePatch(x, y, item->name, color, flags);
 
-      if (color != CR_DEFAULT)
-        flags |= VPT_COLOR; 
-
-      if (!lumps_missing && currentMenu->menuitems[i].name[0] && !optional_lump_missing)
-        V_DrawMenuNamePatch(x, y, currentMenu->menuitems[i].name,
-                        color, flags);
-
-      else if (alttext)
-        M_WriteText(x, y + 8 - (M_StringHeight(alttext) / 2),
-                    alttext, color);
+      else if (item->alttext)
+        M_WriteText(x, y + 8 - (M_StringHeight(item->alttext) / 2),
+                    item->alttext, color);
 
       y += LINEHEIGHT;
     }
@@ -9904,22 +9893,20 @@ static void M_StopMessage(void)
 // proff/nicolas 09/20/98 -- changed for hi-res
 // CPhipps - patch drawing updated
 //
-static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int thermDot, dboolean selected, dboolean force_highlight )
+static void M_DrawThermo(int x, int y, int thermWidth, int thermRange, int thermDot, dboolean selected, dboolean highlight )
 {
   int xx;
   int i;
   int dot_offset;
+  int color;
+  int flags;
 
-  int color = CR_DEFAULT;
-  int flags = VPT_STRETCH;
+  if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot, selected, highlight));
 
-  if (raven) RETURN(MN_DrawSlider(x, y, thermWidth, thermRange, thermDot, selected, force_highlight));
-
-  if (selected)
-    color += M_Highlight(force_highlight);
-
-  if (color != CR_DEFAULT)
-    flags |= VPT_COLOR;
+  // [AR] We check both if the item is selected and highlight
+  // to include the label on the sound screen
+  color = M_HighlightColor(selected && highlight, CR_DEFAULT);
+  flags = VPT_STRETCH | M_AddColorFlag(color);
 
   xx = x;
   V_DrawMenuNamePatch(xx, y, "M_THERML", color, flags);
@@ -10009,9 +9996,7 @@ static void M_WriteText (int x,int y, const char* string, int cm)
   cx = x;
   cy = y;
 
-  flags = VPT_STRETCH;
-  if (cm != CR_DEFAULT)
-    flags |= VPT_COLOR;
+  flags = VPT_STRETCH | M_AddColorFlag(cm);
 
   while(1) {
     c = *ch++;
