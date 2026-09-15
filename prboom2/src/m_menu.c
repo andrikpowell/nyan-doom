@@ -5545,11 +5545,12 @@ static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
 static const char* palette_list[] = { "Off", "Default", NULL };
 static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
 static const char* swirling_flat_list[] = { "Off", "Smart", "All", NULL };
+static const char* sky_projection_list[] = { "Vanilla", "Linear", "Cylindrical", NULL };
 static const char* invuln_sky_list[] = { "Default", "MBF", "Vanilla", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Screen Wipe Effect", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_render_wipescreen, 0, wipe_screen_list },
-  { "Linear Sky Scrolling", S_YESNO, m_conf, g_all, G_X, dsda_config_render_linearsky, DEPEND_SW },
+  { "Sky Projection", S_CHOICE, m_conf, g_all, G_X, dsda_config_render_sky_projection, 0, sky_projection_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
   { "Stretch Short Skies", S_YESNO, m_conf, g_doom, G_X, dsda_config_render_stretchsky, DEPEND_SW },
   { "Height Change View Fix", S_YESNO, m_conf, g_doom, G_X, dsda_config_fix_viewbob_floor_jolt },
   { "Quake Intensity", S_PERC, m_conf, g_all, G_X, dsda_config_quake_intensity },
@@ -8713,7 +8714,7 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
   // Toggle extra brightness
   if (dsda_InputActivated(dsda_input_extra_brightness) && !dsda_StrictMode())
   {
-    dsda_CycleConfig(dsda_config_extra_level_brightness, true);
+    int extra_brightness = dsda_CycleConfig(dsda_config_extra_level_brightness, true);
     dsda_AddMessage(extra_brightness == 0 ? "Extra Brightness Off" :
                     extra_brightness == 1 ? "Extra Brightness Level 1" :
                     extra_brightness == 2 ? "Extra Brightness Level 2" :
