@@ -881,6 +881,38 @@ static dboolean PIT_FindTarget(mobj_t *mo)
 // Returns true if a player is targeted.
 //
 
+static dboolean P_LookForPlayers_10(mobj_t *actor, dboolean allaround)
+{
+  player_t *player;
+  int stop, c;
+
+  int first = true;
+
+  c = P_Random(pr_lastlook) & 3;
+  stop = c;
+
+  for (; c != stop || first; c = (c + 1) & 3)
+  {
+    first = false;
+
+    if (!playeringame[c])
+        continue;
+
+    player = &players[c];
+
+    if (player->health <= 0)
+        continue;
+
+    if (!P_IsVisible(actor, player->mo, allaround))
+        continue;
+
+    P_SetTarget(&actor->target, player->mo);
+    return true;
+  }
+
+  return false;
+}
+
 static dboolean P_LookForPlayers(mobj_t *actor, dboolean allaround)
 {
   player_t *player;
@@ -888,6 +920,9 @@ static dboolean P_LookForPlayers(mobj_t *actor, dboolean allaround)
   dboolean unseen[MAX_MAXPLAYERS] = {0};
 
   if (raven) return Raven_P_LookForPlayers(actor, allaround);
+
+  if (v10_compatibility)
+    RETURN(P_LookForPlayers_10(actor, allaround));
 
   if (actor->flags & MF_FRIEND)
   {  // killough 9/9/98: friendly monsters go about players differently

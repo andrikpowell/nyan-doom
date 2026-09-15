@@ -406,8 +406,8 @@ static void ST_refreshBackground(void)
       if (stbar_exists)
         V_DrawNamePatchAnimateFS(ST_X, y, stbar, CR_DEFAULT, flags);
 
-      // Draw Doom v1.1 two part statusbar (if stbar not found)
-      if (doom_v11 && !stbar_exists)
+      // Draw old Doom two part statusbar (if stbar not found)
+      if (old_compatibility && !stbar_exists)
       {
         V_DrawNamePatch(ST_X, y, "STMBARL", CR_DEFAULT, flags);
         V_DrawNamePatch(ST_ARMSBGX, y, "STMBARR", CR_DEFAULT, flags);
@@ -1325,8 +1325,8 @@ static void ST_loadDoomStbar(void)
   stbar_exists = W_LumpNameExists(stbar);
 
   // Main stbar
-  if (stbar_exists)         R_SetPatchNum(&stbarbg, stbar);
-  else if (doom_v11)        R_SetPatchNum(&stbarbg, "STMBARR");
+  if (stbar_exists)             R_SetPatchNum(&stbarbg, stbar);
+  else if (old_compatibility)   R_SetPatchNum(&stbarbg, "STMBARR");
 }
 
 static void ST_loadStdisk(void)

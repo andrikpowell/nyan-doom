@@ -305,9 +305,10 @@ static void P_XYMovement (mobj_t* mo)
     // to pass through walls.
     // CPhipps - compatibility optioned
 
-    if (xmove > MAXMOVE / 2 ||
+    if (!old_compatibility &&
+        (xmove > MAXMOVE / 2 ||
         ymove > MAXMOVE / 2 ||
-        (!comp[comp_moveblock] && (xmove < -MAXMOVE/2 || ymove < -MAXMOVE/2)))
+        (!comp[comp_moveblock] && (xmove < -MAXMOVE/2 || ymove < -MAXMOVE/2))))
     {
       ptryx = mo->x + xmove / 2;
       ptryy = mo->y + ymove / 2;
@@ -374,7 +375,7 @@ static void P_XYMovement (mobj_t* mo)
       }
       else if (player || mo->flags2 & MF2_SLIDE) // try to slide along it
       {
-        if (BlockingMobj == NULL || map_format.zdoom)
+        if (v10_compatibility || BlockingMobj == NULL || map_format.zdoom)
         {
           P_SlideMove(mo);
         }
@@ -1928,7 +1929,8 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   if (!(skill_info.flags & SI_INSTANT_REACTION))
     mobj->reactiontime = info->reactiontime;
 
-  if (type != ZMT_AMBIENTSOUND)
+  // Doom 1.0 chooses a random player when the monster actually looks
+  if (type != ZMT_AMBIENTSOUND && !v10_compatibility)
     mobj->lastlook = P_Random (pr_lastlook) % g_maxplayers;
 
   // do not set the state with P_SetMobjState,

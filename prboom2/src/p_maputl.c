@@ -798,6 +798,42 @@ dboolean PIT_AddLineIntercepts(line_t *ld)
   return true;  // continue
 }
 
+static dboolean PIT_AddLineIntercepts_10(line_t *ld)
+{
+  int s1, s2;
+  fixed_t frac;
+  divline_t dl;
+
+  s1 = P_PointOnDivlineSide(ld->v1->x, ld->v1->y, &trace);
+  s2 = P_PointOnDivlineSide(ld->v2->x, ld->v2->y, &trace);
+
+  if (s1 == s2)
+    return true;
+
+  P_MakeDivline(ld, &dl);
+
+  s1 = P_PointOnDivlineSide(trace.x, trace.y, &dl);
+  s2 = P_PointOnDivlineSide(trace.x + trace.dx, trace.y + trace.dy, &dl);
+
+  if (s1 == s2)
+    return true;
+
+  frac = P_InterceptVector(&trace, &dl);
+
+  if (!ld->backsector)
+    return false;
+
+  check_intercept();
+
+  intercept_p->frac = frac;
+  intercept_p->isaline = true;
+  intercept_p->d.line = ld;
+  InterceptsOverrun((int)(intercept_p - intercepts), intercept_p);
+  intercept_p++;
+
+  return true;
+}
+
 //
 // PIT_AddThingIntercepts
 //
@@ -1010,6 +1046,10 @@ dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
     {
       if (flags & PT_ADDLINES)
         if (!P_BlockLinesIterator(mapx, mapy,PIT_AddLineIntercepts))
+          return false; // early out
+
+      if (flags & PT_ADDLINES_OLD)
+        if (!P_BlockLinesIterator(mapx, mapy,PIT_AddLineIntercepts_10))
           return false; // early out
 
       if (flags & PT_ADDTHINGS)

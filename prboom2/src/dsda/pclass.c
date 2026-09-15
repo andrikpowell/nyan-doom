@@ -31,6 +31,18 @@ dsda_pclass_t pclass[NUMCLASSES] = {
     .turbo_threshold = 0x32,
   },
 
+  [PCLASS_DOOM_OLD] = {
+    .armor_increment = { 0 },
+    .auto_armor_save = 0,
+    .armor_max = 0,
+
+    // Doom 1.0 speed values, scaled by 1/900
+    .forwardmove = { 51200/900, 102400/900 },
+    .sidemove = { 49152/900, 81920/900 },
+    .stroller_threshold = 51200/900,
+    .turbo_threshold = 102400/900,
+  },
+
   [PCLASS_FIGHTER] = {
     .armor_increment = { 25 * FRACUNIT, 20 * FRACUNIT, 15 * FRACUNIT, 5 * FRACUNIT },
     .auto_armor_save = 15 * FRACUNIT,

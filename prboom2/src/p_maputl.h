@@ -46,6 +46,7 @@
 #define PT_ADDLINES     1
 #define PT_ADDTHINGS    2
 #define PT_EARLYOUT     4
+#define PT_ADDLINES_OLD 8
 
 typedef struct {
   fixed_t top;

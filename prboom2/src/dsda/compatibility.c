@@ -16,6 +16,8 @@
 //
 
 #include "md5.h"
+#include "m_file.h"
+#include "z_zone.h"
 #include "doomdata.h"
 #include "doomstat.h"
 #include "doomtype.h"
@@ -340,6 +342,28 @@ static const dsda_compatibility_t** level_compatibilities[16] = {
 static void dsda_MD5UpdateLump(int lump, struct MD5Context *md5)
 {
   MD5Update(md5, W_LumpByNum(lump), W_LumpLength(lump));
+}
+
+dboolean dsda_CheckFileChecksum(const char *name, const char *expected)
+{
+  struct MD5Context md5;
+  dsda_cksum_t cksum;
+  byte *buffer;
+  int length;
+
+  length = M_ReadFile(name, &buffer);
+  if (length < 0)
+    return false;
+
+  MD5Init(&md5);
+  MD5Update(&md5, buffer, (unsigned int)length);
+  MD5Final(cksum.bytes, &md5);
+
+  Z_Free(buffer);
+
+  dsda_TranslateCheckSum(&cksum);
+
+  return !strcmp(cksum.string, expected);
 }
 
 static void dsda_GetLevelCheckSum(int lump, dsda_cksum_t* cksum)

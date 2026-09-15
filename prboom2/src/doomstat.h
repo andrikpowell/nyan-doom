@@ -65,6 +65,7 @@ extern  dboolean modifiedgame;
 
 // CPhipps - new compatibility handling
 extern complevel_t compatibility_level;
+extern complevel_old_t old_compat_level;
 extern int complvl;
 
 // disables overflow warnings and errors for vanilla complevels
@@ -77,6 +78,10 @@ extern int limitremoving_lmp;
 #define demo_compatibility (compatibility_level < boom_compatibility_compatibility)
 #define mbf_features (compatibility_level>=mbf_compatibility)
 #define mbf21 (compatibility_level == mbf21_compatibility)
+
+#define v10_compatibility (old_compat_level == old_10_compatibility)
+#define v11_compatibility (old_compat_level == old_11_compatibility)
+#define old_compatibility (v10_compatibility || v11_compatibility)
 
 extern int demo_insurance;      // killough 4/5/98
 

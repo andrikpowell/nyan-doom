@@ -102,6 +102,17 @@ dboolean PTR_SightTraverse(intercept_t *in)
   return true;  // keep going
 }
 
+static dboolean PTR_SightTraverse_10(intercept_t *in)
+{
+  if (!in->isaline)
+    I_Error("P_SightTraverse: not a line?");
+
+  if (!(in->d.line->flags & ML_TWOSIDED))
+    return false;
+
+  return PTR_SightTraverse(in);
+}
+
 
 
 /*
@@ -412,6 +423,9 @@ dboolean P_CheckSight_12(mobj_t *t1, mobj_t *t2)
   sightzstart = t1->z + t1->height - (t1->height>>2);
   topslope = (t2->z+t2->height) - sightzstart;
   bottomslope = (t2->z) - sightzstart;
+
+  if (old_compatibility)
+    return P_PathTraverse(t1->x, t1->y, t2->x, t2->y, PT_ADDLINES_OLD, PTR_SightTraverse_10);
 
   return P_SightPathTraverse (t1->x, t1->y, t2->x, t2->y);
 }
@@ -906,7 +920,7 @@ dboolean P_CheckSight(mobj_t *t1, mobj_t *t2)
   const sector_t *s1, *s2;
   int pnum;
 
-  if (compatibility_level == doom_12_compatibility)
+  if (old_compatibility || compatibility_level == doom_12_compatibility)
   {
     return P_CheckSight_12(t1, t2);
   }

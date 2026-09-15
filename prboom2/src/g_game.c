@@ -311,6 +311,9 @@ void G_SetSpeed(dboolean reset)
 
   player_class = &pclass[players[consoleplayer].pclass];
 
+  if (old_compatibility)
+    player_class = &pclass[PCLASS_DOOM_OLD];
+
   if (last_player_class == player_class && !reset)
     return;
 
@@ -2022,6 +2025,15 @@ void G_DeathMatchSpawnPlayer (int playernum)
 
 void G_DoReborn (int playernum)
 {
+  // Doom v1.0/v1.1
+  // End demo playback instead of reloading the level
+  // when the recorded player attempts to reborn
+  if (old_compatibility)
+  {
+    G_CheckDemoStatus();
+    return;
+  }
+
   dsda_WatchReborn(playernum);
 
   if (hexen)

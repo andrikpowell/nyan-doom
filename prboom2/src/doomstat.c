@@ -55,6 +55,7 @@ dboolean modifiedgame;
 
 // CPhipps - compatibility vars
 complevel_t compatibility_level;
+complevel_old_t old_compat_level = false;
 int complvl = -1;
 
 // disables overflow warnings and errors for vanilla complevels
