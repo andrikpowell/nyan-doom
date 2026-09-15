@@ -422,3 +422,10 @@ void dsda_UpdateAutoSaves(void) {
       M_AutoSave();
   }
 }
+
+dboolean dsda_DisableSaveAfterDeath(void)
+{
+  return gamestate == GS_LEVEL &&
+         players[consoleplayer].playerstate == PST_DEAD &&
+         dsda_IntConfig(dsda_config_disable_saving_after_death);
+}

@@ -132,6 +132,7 @@ enum {
   dsda_config_artifact_descriptions,
   dsda_config_hexen_skip_ethereal_travel,
   dsda_config_hexen_simpler_puzzle_use,
+  dsda_config_disable_saving_after_death,
   nyan_config_full_menu_fade,
   nyan_config_gradual_menu_fade,
   nyan_config_extra_menu_highlights,
