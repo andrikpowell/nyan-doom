@@ -959,6 +959,9 @@ static dboolean M_MouseSetSetupThermo(int index)
   if (!(item->m_flags & S_THERMO))
     return false;
 
+  if (M_ItemDisabled(item))
+    return true;
+
   lower_limit = dsda_LowerLimitConfig(item->config_id);
   upper_limit = M_ThermoDisplayUpperLimit(item);
 
@@ -1002,7 +1005,7 @@ static dboolean M_MouseCycleSetupChoice(setup_menu_t *item)
   if (!(item->m_flags & (S_CHOICE | S_CRCHOICE)))
     return false;
 
-  if (dsda_StrictMode() && dsda_IsStrictConfig(item->config_id))
+  if (M_ItemDisabled(item))
     return true;
 
   choices = M_SetupChoiceList(item);
