@@ -15,9 +15,9 @@
 //	DSDA Menu Mouse Functions
 //
 
-#define MENU_MOUSE_LEFT   1
-#define MENU_MOUSE_RIGHT  2
-#define MENU_MOUSE_MIDDLE 4
+#define MENU_MOUSE_LEFT        1
+#define MENU_MOUSE_RIGHT       2
+#define MENU_MOUSE_MIDDLE      4
 #define MENU_MOUSE_HEIGHT      200
 #define MENU_MOUSE_TAB_Y_PAD   4
 #define MENU_MOUSE_TAB_X_PAD   6
@@ -25,9 +25,6 @@
 #define MENU_MOUSE_MAIN_Y_PAD  2
 #define MENU_MOUSE_SETUP_X_PAD 3
 #define MENU_MOUSE_SETUP_Y_PAD 2
-
-#define MENU_LEVELTABLE_LEFT 8
-#define MENU_LEVELTABLE_RIGHT 309
 
 typedef struct
 {
@@ -620,6 +617,9 @@ static dboolean M_MouseSetupItemSelectable(const setup_menu_t *item)
                             S_RESET_Y | S_NOSELECT));
 }
 
+#define MENU_LEVELTABLE_LEFT 8
+#define MENU_LEVELTABLE_RIGHT 309
+
 // [AR] Allow mouse to highlight full row for level table
 static dboolean M_MouseLevelTableRowAtPointer(int y)
 {
@@ -684,12 +684,8 @@ static dboolean M_MouseSetupItemAtPointer(int *index)
   {
     int desc_y;
     int item_y;
-    dboolean skip_entry;
 
-    skip_entry = !M_GetSetupItemPosition(src, DEFAULT_LIST_Y, &layout,
-                                         &i, &carry_y, &desc_y, &item_y);
-
-    if (skip_entry)
+    if (!M_GetSetupItemPosition(src, DEFAULT_LIST_Y, &layout, &i, &carry_y, &desc_y, &item_y))
       continue;
 
     if (!M_MouseSetupItemSelectable(src))
@@ -714,7 +710,7 @@ static dboolean M_MouseSetupThermoAtPointer(const setup_menu_t *item)
 }
 
 static const char **M_MouseCurrentTabs(int *visible_tabs, int *y,
-                                      setup_menu_t ***setup_pages)
+                                       setup_menu_t ***setup_pages)
 {
   *visible_tabs = 0;
   *y = 0;
@@ -1293,7 +1289,7 @@ static dboolean M_MouseResponder(event_t *ev)
   if (!menuactive && !messageToPrint)
   {
     dboolean click_to_open_menu = (gamestate == GS_DEMOSCREEN ||
-                                  demoplayback);
+                                  reelplayback);
   
     if (click_to_open_menu && ev->type == ev_mouse &&
         (ev->data1.i & MENU_MOUSE_LEFT))

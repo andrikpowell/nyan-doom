@@ -980,9 +980,11 @@ static void M_DeleteSaveGame(int slot)
 
 static dboolean M_FileSlotEnabled(int menu, int item)
 {
+  // Disable unsaved slots
   if (menu == MN_LOAD)
     return LoadMenue[item].status == M_ITEM_ACTION;
 
+  // Disable quicksave page items
   if (menu == MN_SAVE)
     return current_page != 0;
 
@@ -3800,7 +3802,7 @@ void M_DrawTabs(const char **pages, int m, int y)
   // Draw the page names
   for (i = layout.start_i; i <= layout.end_i; i++)
   {
-    int color = ((i == current_page) || M_MouseTabHovered(i)) ?
+    int color = (i == current_page || M_MouseTabHovered(i)) ?
       cr_tab_highlight : cr_tab;
 
     M_DrawString(x, y, color, pages[i]);

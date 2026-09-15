@@ -765,23 +765,7 @@ void MN_DrawPause(void)
 
 void MN_DrTextA(const char *text, int x, int y)
 {
-  char c;
-  int lump;
-
-  while ((c = *text++) != 0)
-  {
-    c = toupper(c);
-    if (c < 33)
-    {
-      x += 5;
-    }
-    else
-    {
-      lump = MN_SafeFontALump(c - 33);
-      V_DrawMenuNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
-      x += R_NumPatchWidth(lump) - 1;
-    }
-  }
+  MN_DrTextAColor(text, x, y, CR_DEFAULT);
 }
 
 void MN_DrTextAColor(const char *text, int x, int y, int cm)
@@ -790,9 +774,7 @@ void MN_DrTextAColor(const char *text, int x, int y, int cm)
   int lump;
   int flags;
 
-  flags = VPT_STRETCH;
-  if (cm != CR_DEFAULT)
-    flags |= VPT_COLOR;
+  flags = VPT_STRETCH | M_AddColorFlag(cm);
 
   while ((c = *text++) != 0)
   {
@@ -848,23 +830,7 @@ int MN_TextAWidth(const char *text)
 
 void MN_DrTextB(const char *text, int x, int y)
 {
-  char c;
-  int lump;
-
-  while ((c = *text++) != 0)
-  {
-    c = toupper(c);
-    if (c < 33)
-    {
-      x += 8;
-    }
-    else
-    {
-      lump = FontBBaseLump + c - 33;
-      V_DrawMenuNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
-      x += R_NumPatchWidth(lump) - 1;
-    }
-  }
+  MN_DrTextBColor(text, x, y, CR_DEFAULT);
 }
 
 void MN_DrTextBColor(const char *text, int x, int y, int cm)
@@ -873,9 +839,7 @@ void MN_DrTextBColor(const char *text, int x, int y, int cm)
   int lump;
   int flags;
 
-  flags = VPT_STRETCH;
-  if (cm != CR_DEFAULT)
-    flags |= VPT_COLOR;
+  flags = VPT_STRETCH | M_AddColorFlag(cm);
 
   while ((c = *text++) != 0)
   {
