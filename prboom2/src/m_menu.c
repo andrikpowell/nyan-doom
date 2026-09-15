@@ -1359,6 +1359,15 @@ void M_SaveGame (int choice)
     return;
   }
 
+  if (dsda_DisableSaveAfterDeath())
+  {
+    M_StartMessage(
+      "you can't save the game\n"
+      "when you're dead!\n\n"PRESSKEY,
+      NULL, false);
+    return;
+  }
+
   M_SetupNextMenu(&SaveDef);
   current_page = current_save_page;
   itemOn = current_save_item;
@@ -1635,6 +1644,11 @@ static void M_QuickSave(void)
       "you can't save the game\n"
       "under these conditions!\n\n"PRESSKEY,
       NULL, false); // killough 5/26/98: not externalized
+    return;
+  }
+
+  if (dsda_DisableSaveAfterDeath())
+  {
     return;
   }
 
@@ -4988,6 +5002,7 @@ static const char* artifact_desc_list[] = { "Off", "Full", "Names", "Description
 
 setup_menu_t gen_gamesim_settings[] = {
   { "Death Use Action", S_CHOICE, m_conf, g_all, G2_X, dsda_config_death_use_action, 0, death_use_strings },
+  { "Disable Saving After Death", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_disable_saving_after_death },
   { "Rare Player Gib Death", S_YESNO | S_NYAN, m_conf, g_doom, G2_X, nyan_config_skullpop_easter_egg },
   { "Randomly Mirrored Corpses", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_flip_corpses },
   { "Weapon Carousel", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_weapon_carousel },

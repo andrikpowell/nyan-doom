@@ -39,5 +39,6 @@ int dsda_AllowAnyMenuSave(void);
 int dsda_AllowMenuLoad(int slot);
 int dsda_AllowAnyMenuLoad(void);
 void dsda_UpdateAutoSaves(void);
+dboolean dsda_DisableSaveAfterDeath(void);
 
 #endif
