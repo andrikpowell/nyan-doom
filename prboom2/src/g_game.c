@@ -745,8 +745,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   if (dsda_InputActive(dsda_input_use) || dsda_InputTickActivated(dsda_input_use))
   {
-    if (!dsda_DeathUseNothingInDemo())
-      cmd->buttons |= BT_USE;
+    cmd->buttons |= BT_USE;
     // clear double clicks if hit use button
     dclicks = 0;
   }
@@ -885,8 +884,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         dclicks++;
       if (dclicks == 2)
         {
-          if (!dsda_DeathUseNothingInDemo())
-            cmd->buttons |= BT_USE;
+          cmd->buttons |= BT_USE;
           dclicks = 0;
         }
       else
@@ -908,8 +906,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         dclicks2++;
       if (dclicks2 == 2)
         {
-          if (!dsda_DeathUseNothingInDemo())
-            cmd->buttons |= BT_USE;
+          cmd->buttons |= BT_USE;
           dclicks2 = 0;
         }
       else
