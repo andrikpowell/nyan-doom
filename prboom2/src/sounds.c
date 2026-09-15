@@ -38,7 +38,7 @@
 #include "config.h"
 #endif
 
-#include <string.h>
+#include <stddef.h>
 
 #include "doomtype.h"
 #include "sounds.h"
@@ -130,7 +130,6 @@ musicinfo_t doom_S_music[] = {
   { "musinfo", NULL, 0 }
 };
 
-
 //
 // Information about all the sfx
 //
@@ -138,6 +137,8 @@ musicinfo_t doom_S_music[] = {
 sfxinfo_t doom_S_sfx[] = {
   // S_sfx[0] needs to be a dummy for odd reasons.
   { "dsnone", 0, 0, -1, 0, 0, 0, "" },
+
+  // Doom sounds
   { "dspistol", 64, 0, -1, 0, 0, 0, "" },
   { "dsshotgn", 64, 0, -1, 0, 0, 0, "" },
   { "dssgcock", 64, 0, -1, 0, 0, 0, "" },
@@ -254,13 +255,29 @@ sfxinfo_t doom_S_sfx[] = {
   { "dsdgdth", 70, 0, -1, 0, 0, 0, "" },
   { "dsdgpain", 96, 0, -1, 0, 0, 0, "" },
 
-  //e6y
-  { "dssecret", 60, 0, -1, 0, 0, 0, "" },
-  { "dsitmbk", 60, 0, -1, 0, 0, 0, "" },
-  { "dsgibdth", 60, 0, -1, 0, 0, 0, "" },
+  // DSDA
+  { "dssecret", 60, 0, -1, 0, 0, 0, "" }, // Secret
   
   // Nyan
-  { "dsnyanut", 60, 0, -1, 0, 0, 0, "" },
+  { "dssecre2", 60, 0, -1, 0, 0, 0, "" }, // Subtle Secret
+  { "dsgibdth", 60, 0, -1, 0, 0, 0, "" }, // Gib Death
+  { "dsnyanut", 60, 0, -1, 0, 0, 0, "" }, // IDNUT
+
+  // Optional menu/intermission sounds
+  { "dsmnuopn", 60, 0, -1, 0, 0, 1, "" },
+  { "dsmnucls", 60, 0, -1, 0, 0, 1, "" },
+  { "dsmnuact", 60, 0, -1, 0, 0, 1, "" },
+  { "dsmnubak", 60, 0, -1, 0, 0, 1, "" },
+  { "dsmnumov", 60, 0, -1, 0, 0, 1, "" },
+  { "dsmnusli", 60, 0, -1, 0, 0, 1, "" },
+  { "dsmnusel", 60, 0, -1, 0, 0, 1, "" },
+  { "dsmnuerr", 60, 0, -1, 0, 0, 1, "" },
+  { "dsinttic", 60, 0, -1, 0, 0, 1, "" },
+  { "dsinttot", 60, 0, -1, 0, 0, 1, "" },
+  { "dsintnex", 60, 0, -1, 0, 0, 1, "" },
+  { "dsintnet", 60, 0, -1, 0, 0, 1, "" },
+  { "dsintdms", 60, 0, -1, 0, 0, 1, "" },
+
   // Everything from here up to 500 is reserved for future use.
 
   // Free slots for DEHEXTRA. Priorities should be overridden by user.

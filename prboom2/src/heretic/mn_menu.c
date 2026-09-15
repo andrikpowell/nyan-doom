@@ -112,10 +112,10 @@ enum { infoempty2, info2_end } info_e2;
 enum { infoempty3, info3_end } info_e3;
 enum { infoempty4, info4_end } info_e4;
 
-menuitem_t InfoMenu1[] = { {1,"",MN_Info2,0} };
-menuitem_t InfoMenu2[] = { {1,"",MN_Info3,0} };
-menuitem_t InfoMenu3[] = { {1,"",MN_Info4,0} };
-menuitem_t InfoMenu4[] = { {1,"",MN_FinishInfo,0} };
+menuitem_t InfoMenu1[] = { {M_ITEM_ACTION,"",MN_Info2,0} };
+menuitem_t InfoMenu2[] = { {M_ITEM_ACTION,"",MN_Info3,0} };
+menuitem_t InfoMenu3[] = { {M_ITEM_ACTION,"",MN_Info4,0} };
+menuitem_t InfoMenu4[] = { {M_ITEM_ACTION,"",MN_FinishInfo,0} };
 
 menu_t InfoDef1 =
 {
@@ -235,11 +235,11 @@ enum
 
 menuitem_t RavenMainMenu[]=
 {
-  {1,"M_NGAME", M_NewGame, 'n', "NEW GAME"},
-  {1,"M_OPTION",M_Options, 'o', "OPTIONS"},
-  {1,"M_GFILES", MN_GameFiles,'g', "GAME FILES"},
-  {1,"M_INFO",MN_Info,'i', "INFO"},
-  {1,"M_QUITG", M_QuitDOOM,'q', "QUIT GAME"}
+  {M_ITEM_ACTION,"M_NGAME", M_NewGame, 'n', "NEW GAME"},
+  {M_ITEM_ACTION,"M_OPTION",M_Options, 'o', "OPTIONS"},
+  {M_ITEM_ACTION,"M_GFILES", MN_GameFiles,'g', "GAME FILES"},
+  {M_ITEM_ACTION,"M_INFO",MN_Info,'i', "INFO"},
+  {M_ITEM_ACTION,"M_QUITG", M_QuitDOOM,'q', "QUIT GAME"}
 };
 
 
@@ -258,8 +258,8 @@ enum
 
 menuitem_t SaveLoadMenu[]=
 {
-  {1,"M_LOADG", M_LoadGame,'l', "LOAD GAME"},
-  {1,"M_SAVEG", M_SaveGame,'s', "SAVE GAME"},
+  {M_ITEM_ACTION,"M_LOADG", M_LoadGame,'l', "LOAD GAME"},
+  {M_ITEM_ACTION,"M_SAVEG", M_SaveGame,'s', "SAVE GAME"},
 };
 
 menu_t SaveLoadDef =
@@ -496,17 +496,12 @@ void MN_Drawer(void)
 
   for (i = 0; i < max; i++)
   {
-    dboolean selected = (i == itemOn);
     const char *text = currentMenu->menuitems[i].alttext;
-    int text_sml = text && (currentMenu->menuitems[i].flags == MENUF_OPTLUMP);
-    int color = CR_DEFAULT;
+    int custom_skill_text = text && (currentMenu->menuitems[i].flags == MENUF_OPTLUMP);
+    int color = M_HighlightColor(M_MenuItemHighlighted(i), CR_DEFAULT);
 
-    // Lighten current item
-    if (selected)
-      color += M_Highlight(false);
-
-    if (text_sml) {  // use small font for custom skill
-      y += 6;        // add some padding (looks bad otherwise)
+    if (custom_skill_text) {  // use small font for custom skill
+      y += 6;                 // add some padding (looks bad otherwise)
       MN_DrTextAColor(text, x, y, color);
     }
     else if (text)
@@ -691,11 +686,11 @@ void MN_DrawSound(void)
 {
   char num[4];
 
-  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX, 16, 16, snd_SfxVolume, M_CurrentSelectedItem(SFX_VOL_INDEX-1), false);
+  M_DrawThermoBig(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX, 16, 16, snd_SfxVolume, SFX_VOL_INDEX-1);
   snprintf(num, sizeof(num), "%3d", snd_SfxVolume);
   MN_DrTextA(num, SoundDef.x + 130, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX + 3);
 
-  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX, 16, 16, snd_MusicVolume, M_CurrentSelectedItem(MUS_VOL_INDEX-1), false);
+  M_DrawThermoBig(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX, 16, 16, snd_MusicVolume, MUS_VOL_INDEX-1);
   snprintf(num, sizeof(num), "%3d", snd_MusicVolume);
   MN_DrTextA(num, SoundDef.x + 130, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX + 3);
 }
@@ -710,17 +705,12 @@ static void MN_DrawFileSlots(int x, int y, int menu)
   for (i = 0; i < g_menu_save_page_size; i++)
   {
     dboolean selected = M_FileBoxSelected(menu, i);
-    int color = CR_DEFAULT;
-    int flags = VPT_STRETCH;
+    int textcolor = M_HighlightColor(selected, M_FileTextColor(menu, i));
+    int boxcolor  = M_HighlightColor(selected, CR_DEFAULT);
+    int flags = VPT_STRETCH | M_AddColorFlag(boxcolor);
 
-    if (selected)
-      color += M_Highlight(false);
-
-    if (color != CR_DEFAULT)
-      flags |= VPT_COLOR;
-
-    V_DrawMenuNamePatch(x, y, "M_FSLOT", color, flags);
-    MN_DrTextAColor(savegamestrings[i], x + 5, y + 5, M_FileTextColor(menu, i));
+    V_DrawMenuNamePatch(x, y, "M_FSLOT", boxcolor, flags);
+    MN_DrTextAColor(savegamestrings[i], x + 5, y + 5, textcolor);
     y += ITEM_HEIGHT;
   }
 
@@ -775,23 +765,7 @@ void MN_DrawPause(void)
 
 void MN_DrTextA(const char *text, int x, int y)
 {
-  char c;
-  int lump;
-
-  while ((c = *text++) != 0)
-  {
-    c = toupper(c);
-    if (c < 33)
-    {
-      x += 5;
-    }
-    else
-    {
-      lump = MN_SafeFontALump(c - 33);
-      V_DrawMenuNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
-      x += R_NumPatchWidth(lump) - 1;
-    }
-  }
+  MN_DrTextAColor(text, x, y, CR_DEFAULT);
 }
 
 void MN_DrTextAColor(const char *text, int x, int y, int cm)
@@ -800,9 +774,7 @@ void MN_DrTextAColor(const char *text, int x, int y, int cm)
   int lump;
   int flags;
 
-  flags = VPT_STRETCH;
-  if (cm != CR_DEFAULT)
-    flags |= VPT_COLOR;
+  flags = VPT_STRETCH | M_AddColorFlag(cm);
 
   while ((c = *text++) != 0)
   {
@@ -858,23 +830,7 @@ int MN_TextAWidth(const char *text)
 
 void MN_DrTextB(const char *text, int x, int y)
 {
-  char c;
-  int lump;
-
-  while ((c = *text++) != 0)
-  {
-    c = toupper(c);
-    if (c < 33)
-    {
-      x += 8;
-    }
-    else
-    {
-      lump = FontBBaseLump + c - 33;
-      V_DrawMenuNumPatch(x, y, lump, CR_DEFAULT, VPT_STRETCH);
-      x += R_NumPatchWidth(lump) - 1;
-    }
-  }
+  MN_DrTextBColor(text, x, y, CR_DEFAULT);
 }
 
 void MN_DrTextBColor(const char *text, int x, int y, int cm)
@@ -883,9 +839,7 @@ void MN_DrTextBColor(const char *text, int x, int y, int cm)
   int lump;
   int flags;
 
-  flags = VPT_STRETCH;
-  if (cm != CR_DEFAULT)
-    flags |= VPT_COLOR;
+  flags = VPT_STRETCH | M_AddColorFlag(cm);
 
   while ((c = *text++) != 0)
   {
@@ -936,21 +890,16 @@ void MN_DrawTitle(int y, const char *text, int cm)
 #define SLIDER_WIDTH (SLIDER_LIMIT - 64)
 #define SLIDER_PATCH_COUNT (SLIDER_WIDTH / 8)
 
-void MN_DrawSlider(int x, int y, int width, int range, int slot, dboolean selected, dboolean small_thermo)
+void MN_DrawSlider(int x, int y, int width, int range, int slot, int color)
 {
   int xx;
   int i;
   int slot_offset;
   short slider_img = 0;
 
-  int color = CR_DEFAULT;
-  int flags = VPT_STRETCH;
-
-  if (selected)
-    color += M_Highlight(small_thermo);
-
-  if (color != CR_DEFAULT)
-    flags |= VPT_COLOR;
+  // [AR] We check both if the item is selected and highlight
+  // to include the label on the sound screen
+  int flags = VPT_STRETCH | M_AddColorFlag(color);
 
   width -= 4;
 

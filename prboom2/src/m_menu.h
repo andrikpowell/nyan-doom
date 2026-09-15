@@ -82,10 +82,12 @@ void M_ResetMenu(void);      // killough 11/98: reset main menu ordering
 void M_DrawCredits(void);
 void M_DrawCreditsDynamic(void);    // killough 11/98
 
-int M_Highlight(int override);
-
 void M_DrawTabs(const char **pages, int m, int y);
-dboolean M_CurrentSelectedItem(int item);
+
+// Big Thermo (for Raven)
+void M_DrawThermoBig(int x, int y, int thermWidth, int thermRange, int thermDot, int menu_item);
+
+// Save / Load Highlights
 dboolean M_FileBoxSelected(int menu, int item);
 int M_FileTextColor(int menu, int item);
 
@@ -94,6 +96,15 @@ typedef enum {
   MN_SAVE,
 } save_or_load_menu;
 
+// Menu Highlights
+dboolean M_MouseHovered(int index);
+int M_HighlightColor(dboolean highlight, int color);
+int M_AddColorFlag(int color);
+
+// mouse or optional keyboard highlight
+dboolean M_MenuItemHighlighted(int item);
+
+// Hide options based on game type
 typedef enum {
   g_null        = 0,
   g_doom        = (1<<0),
@@ -167,13 +178,21 @@ typedef struct setup_menu_s
 // MENU TYPEDEFS
 //
 
+typedef enum
+{
+  M_ITEM_SKIP = -1,
+  M_ITEM_INACTIVE,
+  M_ITEM_ACTION,
+  M_ITEM_THERMO,
+} menuitem_type_t;
+
 typedef struct
 {
-  short status; // 0 = no cursor here, 1 = ok, 2 = arrows ok
+  menuitem_type_t status;
   char  name[10];
 
   // choice = menu item #.
-  // if status = 2,
+  // if status = M_ITEM_THERMO,
   //   choice=0:leftarrow,1:rightarrow
   void  (*routine)(int choice);
   char  alphaKey; // hotkey in menu

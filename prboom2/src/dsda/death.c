@@ -52,7 +52,8 @@ int dsda_DeathUseNothingInDemo(void)
 static int dsda_DeathUseAction(void)
 {
   dboolean force_death_use = demorecording && !dsda_DeathUseNothingInDemo();
-  dboolean mapinfo_respawn = map_info.flags & MI_ALLOW_RESPAWN || skill_info.flags & SI_PLAYER_RESPAWN;
+  // TODO: possible "allow respawn" mapinfo flag
+  dboolean mapinfo_respawn = skill_info.flags & SI_PLAYER_RESPAWN;
   dboolean typing_cheat    = casual_play && cheat_in_progress;
 
   // Avoid other keys triggering when typing cheats (ex: "e" in "quicken")
