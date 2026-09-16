@@ -4943,7 +4943,7 @@ setup_menu_t gen_video_settings[] = {
   { "Aspect Ratio", S_CHOICE, m_conf, g_all, G_X, dsda_config_render_aspect, 0, render_aspects_list },
   { "Fullscreen Video mode", S_YESNO, m_conf, g_all, G_X, dsda_config_use_fullscreen },
   { "Exclusive Fullscreen", S_YESNO, m_conf, g_all, G_X, dsda_config_exclusive_fullscreen },
-  { "Field of View", S_THERMO | S_NYAN, m_conf, g_all, G_X, dsda_config_render_fov },
+  //{ "Field of View", S_THERMO | S_NYAN, m_conf, g_all, G_X, dsda_config_render_fov },
   { "Zoom FOV", S_THERMO | S_NYAN, m_conf, g_all, G_X, dsda_config_zoom_fov },
   EMPTY_LINE,
   TITLE("FPS", G_X),
