@@ -36,7 +36,7 @@
 
 #include "doomtype.h"
 
-#define SAVEVERSION 6
+#define NYAN_SAVE_VERSION 1
 
 /* Persistent storage/archiving.
  * These are the load / save game routines. */
@@ -104,6 +104,11 @@ void P_FreeSaveBuffer(void);
 
 #define P_LOAD_ARRAY(x) { memcpy(x, save_p, sizeof(x)); \
                           save_p += sizeof(x); }
+
+#define P_SAVE_SIGNATURE(x) P_SAVE_SIZE(x, sizeof(x) - 1)
+
+#define P_LOAD_SIGNATURE(x, result) { result = !memcmp(save_p, x, sizeof(x) - 1); \
+                                      if (result) save_p += sizeof(x) - 1; }
 
 // heretic
 
