@@ -61,6 +61,7 @@
 #include "dsda/skill_info.h"
 
 #include "heretic/def.h"
+#include "heretic/p_action.h"
 #include "heretic/sb_bar.h"
 #include "heretic/hhe/strings.h"
 
@@ -969,7 +970,7 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
   dsda_WatchDeath(target);
 
   // Transfer kill to the second form
-  if (heretic && target->type == HERETIC_MT_SORCERER1)
+  if (heretic && P_MobjHasDeathAction(target, A_SorcererRise))
     target->intflags |= MIF_SPAWNED_BY_DSPARIL;
 
   if (map_format.hexen && target->special)
