@@ -423,6 +423,7 @@ static fixed_t m_x, m_y;     // LL x,y window location on the map (map coords)
 static fixed_t m_x2, m_y2;   // UR x,y window location on the map (map coords)
 
 static fixed_t prev_m_x, prev_m_y;
+static fixed_t prev_m_w, prev_m_h;
 
 static mpoint_t m_paninc2; // [crispy] mouse map panning
 static mpoint_t m_paninc_target; // movement for current tic
@@ -796,7 +797,9 @@ static void AM_changeWindowLoc(void)
     incy = m_paninc_target.y;
   }
 
-  AM_moveWindowLoc(prev_m_x, prev_m_y, incx, incy);
+  AM_moveWindowLoc(prev_m_x + (prev_m_w - m_w) / 2,
+                   prev_m_y + (prev_m_h - m_h) / 2,
+                   incx, incy);
 }
 
 static void AM_AddMousePan(int x, int y)
@@ -2085,10 +2088,6 @@ static void AM_changeWindowScale(void)
     AM_maxOutWindowScale();
   else
     AM_activateNewScale();
-
-  // Update position for mouse panning
-  prev_m_x = m_x;
-  prev_m_y = m_y;
 }
 
 //
@@ -2115,6 +2114,8 @@ void AM_Ticker (void)
   prev_scale_mtof = scale_mtof;
   prev_m_x = m_x;
   prev_m_y = m_y;
+  prev_m_w = m_w;
+  prev_m_h = m_h;
   prev_mapxstart = mapxstart;
   prev_mapystart = mapystart;
 
