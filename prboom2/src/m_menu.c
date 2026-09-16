@@ -1101,6 +1101,11 @@ void M_ForcedLoadGame(const char *msg)
   M_StartMessage(forced_loadgame_message, M_VerifyForcedLoadGame, true);
 }
 
+void M_ShowLegacySaveMessage(void)
+{
+  M_StartMessage("This save uses an incompatible save format.\n\n"PRESSKEY, NULL, false);
+}
+
 //
 // Selected from DOOM menu
 //
