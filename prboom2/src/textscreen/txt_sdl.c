@@ -126,6 +126,8 @@ void TXT_SetColor(txt_color_t color, int r, int g, int b)
 
 void TXT_PreInit(SDL_Window *preset_window, SDL_Renderer *preset_renderer, int opengl)
 {
+    is_opengl = opengl;
+
     if (preset_window != NULL)
     {
         TXT_SDLWindow = preset_window;
@@ -134,7 +136,6 @@ void TXT_PreInit(SDL_Window *preset_window, SDL_Renderer *preset_renderer, int o
     // OpenGL doesn't use renderer
     if (opengl)
     {
-        is_opengl = true;
         return;
     }
 
