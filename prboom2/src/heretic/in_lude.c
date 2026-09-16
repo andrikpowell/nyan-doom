@@ -34,6 +34,8 @@
 #include "g_game.h"
 
 #include "dsda/exhud.h"
+#include "dsda/font.h"
+#include "dsda/mapinfo.h"
 
 #include "heretic/def.h"
 #include "heretic/mn_menu.h"
@@ -62,6 +64,7 @@ static void IN_DrawDMStats(void);
 static void IN_DrawNumber(int val, int x, int y, int digits);
 static void IN_DrawTime(int x, int y, int h, int m, int s);
 static void IN_DrTextB(const char *text, int x, int y);
+static void IN_DrawLevelname(const char *patch, const char *levelname, int y);
 
 // contains information passed into intermission
 static wbstartstruct_t* wbs;
@@ -70,8 +73,15 @@ static int prevmap;
 static int nextmap;
 static dboolean intermission;
 static dboolean skipintermission;
-static dboolean finalintermission;
+dboolean finalintermission;
 static int interstate = 0;
+enum
+{
+  IN_STATS = 0,
+  IN_FINISHED,
+  IN_ENTERING,
+  IN_ENTERING_DELAY,
+} interstate_e;
 static int intertime = -1;
 static int oldintertime = 0;
 static gametype_t gametype;
@@ -86,6 +96,10 @@ static int seconds;
 static int totalHours;
 static int totalMinutes;
 static int totalSeconds;
+
+static int parHours;
+static int parMinutes;
+static int parSeconds;
 
 static int slaughterboy;        // in DM, the player with the most kills
 
@@ -115,6 +129,15 @@ static const char **KillersText[] =
 };
 
 extern const char **LevelNames[];
+
+extern const char *lf_levelname;
+extern const char *lf_levelpic;
+extern const char *lf_author;
+extern const char *exitpic;
+extern const char *el_levelname;
+extern const char *el_levelpic;
+extern const char *el_author;
+extern const char *enterpic;
 
 typedef struct
 {
@@ -182,7 +205,14 @@ static yahpt_t YAHspot[5][9] = {
 
 static const char *NameForMap(int map)
 {
-    const char *name = *LevelNames[(gameepisode - 1) * 9 + map - 1];
+    const char *name;
+
+    if (map < 1 || map > 9)
+    {
+        return "";
+    }
+
+    name = *LevelNames[(gameepisode - 1) * 9 + map - 1];
 
     if (strlen(name) < 7)
     {
@@ -193,59 +223,73 @@ static const char *NameForMap(int map)
     return name + 7;
 }
 
-static dboolean IN_AllowKexMaps(int episode)
+static dboolean IN_KexIntermission(void)
 {
   char name[9];
 
-  // KEX only adds map screens for these episodes
-  if (episode != 4 && episode != 5)
+  // Disable for demos
+  if (!casual_play)
     return false;
 
-  snprintf(name, sizeof(name), "MAPE%d", episode);
+  // KEX only adds map screens for these episodes
+  if (gameepisode != 4 && gameepisode != 5)
+    return false;
+
+  // Disable for umapinfo
+  if (dsda_UmapinfoEntryExists() || W_LumpNameExists(enterpic) || W_LumpNameExists(exitpic))
+    return false;
+
+  snprintf(name, sizeof(name), "MAPE%d", gameepisode);
 
   return (W_CheckNumForName(name) != LUMP_NOT_FOUND);
 }
 
-static dboolean IN_RetailIntermission(void)
+static dboolean IN_HasInterpic(void)
 {
-  // Demos must use retail behavior
-  if (!casual_play && gameepisode > 3)
-    return true;
-
-  // Retail behavior starts at episode 4 and continues onward,
-  // except E4/E5 if KEX-style map gfx are present.
-  if (gameepisode < 4)
-    return false;
-
-  if (IN_AllowKexMaps(gameepisode))
-    return false;
-
-  return true;
+  return (gameepisode > 0 && gameepisode < 4) ||
+          W_LumpNameExists(enterpic) || W_LumpNameExists(exitpic) ||
+          IN_KexIntermission();
 }
 
-void IN_DrawKexE5Secret(void)
+static dboolean IN_UseWorldMap(void)
 {
-    if (W_CheckNumForName("MAPE5_M9") == LUMP_NOT_FOUND) return;
-
-    // Draw secret location on map
-    if (nextmap == 9 || players[consoleplayer].didsecret)
-        V_DrawNamePatchFS(0, 0, "MAPE5_M9", CR_DEFAULT, VPT_STRETCH);
+  return ((gameepisode > 0 && gameepisode < 4) || IN_KexIntermission()) &&
+          prevmap > 0 && prevmap < 10 &&
+          nextmap > 0 && nextmap < 10;
 }
 
 static void IN_DrawInterpic(void)
 {
-  char name[9];
+  if (W_LumpNameExists(enterpic))
+  {
+    V_ClearBorder(enterpic);
+    V_DrawNamePatchFS(0, 0, enterpic, CR_DEFAULT, VPT_STRETCH);
+  }
+  else if (W_LumpNameExists(exitpic))
+  {
+    V_ClearBorder(exitpic);
+    V_DrawNamePatchFS(0, 0, exitpic, CR_DEFAULT, VPT_STRETCH);
+  }
+  else if (IN_UseWorldMap())
+  {
+    char name[9];
+    snprintf(name, sizeof(name), "MAPE%d", gameepisode);
 
-  if (IN_RetailIntermission()) return;
+    V_ClearBorder(name);
+    V_DrawNamePatchFS(0, 0, name, CR_DEFAULT, VPT_STRETCH);
+  }
+  else
+  {
+    V_DrawBackgroundName(s_HERETIC_IN_BGFLAT);
+  }
 
-  snprintf(name, sizeof(name), "MAPE%d", gameepisode);
-
-  // e6y: wide-res
-  V_ClearBorder(name);
-  V_DrawNamePatchFS(0, 0, name, CR_DEFAULT, VPT_STRETCH);
-
-  if (gameepisode == 5)
-    IN_DrawKexE5Secret();
+  // Draw KEX secret arrow on map
+  if (IN_KexIntermission() && gameepisode == 5)
+  {
+    if (W_CheckNumForName("MAPE5_M9") != LUMP_NOT_FOUND)
+      if (nextmap == 9 || players[consoleplayer].didsecret)
+        V_DrawNamePatchFS(0, 0, "MAPE5_M9", CR_DEFAULT, VPT_STRETCH);
+  }
 }
 
 static void IN_DrawBeenThere(int i)
@@ -292,11 +336,18 @@ static void IN_InitLumps(void)
 
 static void IN_InitVariables(wbstartstruct_t* wbstartstruct)
 {
+  int behaviour, done_behaviour;
+
+  dsda_ShowNextLocBehaviour(&behaviour);
+  dsda_PrepareFinale(&done_behaviour);
+
+  // Heretic used WI_SHOW_NEXT_DONE differently than Doom
+  // Here we fix that via done_behaviour for UMAPINFO
+  finalintermission = (behaviour & WI_SHOW_NEXT_DONE) && (done_behaviour & (WD_VICTORY | WD_START_FINALE));
+
   wbs = wbstartstruct;
   prevmap = wbs->last + 1;
   nextmap = wbs->next + 1;
-
-  finalintermission = (prevmap == 8);
 }
 
 //========================================================================
@@ -380,6 +431,16 @@ void IN_InitStats(void)
         totalMinutes = count / 60;
         count -= totalMinutes * 60;
         totalSeconds = count;
+
+        if (wbs->modified_partime)
+        {
+            count = wbs->partime / 35;
+            parHours = count / 3600;
+            count -= parHours * 3600;
+            parMinutes = count / 60;
+            count -= parMinutes * 60;
+            parSeconds = count;
+        }
     }
     else if (netgame && !deathmatch)
     {
@@ -463,7 +524,7 @@ void IN_Ticker(void)
     {
         return;
     }
-    if (interstate == 3)
+    if (interstate == IN_ENTERING_DELAY)
     {
         IN_WaitStop();
         return;
@@ -475,33 +536,33 @@ void IN_Ticker(void)
         interstate++;
 
         // [crispy] skip "now entering" if it's the final intermission
-        if (interstate >= 1 && finalintermission)
+        if (interstate >= IN_FINISHED && finalintermission)
         {
             IN_Stop();
             G_WorldDone();
             return;
         }
 
-        if (gameepisode > 3 && interstate >= 1 && IN_RetailIntermission())
+        if (!IN_HasInterpic() && interstate >= IN_FINISHED)
         {                       // Extended Wad levels:  skip directly to the next level
-            interstate = 3;
+            interstate = IN_ENTERING_DELAY;
         }
         switch (interstate)
         {
-            case 0:
+            case IN_STATS:
                 oldintertime = intertime + 300;
-                if (gameepisode > 3 && IN_RetailIntermission())
+                if (!IN_HasInterpic())
                 {
                     oldintertime = intertime + 1200;
                 }
                 break;
-            case 1:
+            case IN_FINISHED:
                 oldintertime = intertime + 200;
                 break;
-            case 2:
+            case IN_ENTERING:
                 oldintertime = INT_MAX;
                 break;
-            case 3:
+            case IN_ENTERING_DELAY:
                 cnt = 10;
                 break;
             default:
@@ -510,7 +571,7 @@ void IN_Ticker(void)
     }
     if (skipintermission)
     {
-        if (interstate == 0 && intertime < 150)
+        if (interstate == IN_STATS && intertime < 150)
         {
             intertime = 150;
             skipintermission = false;
@@ -523,14 +584,14 @@ void IN_Ticker(void)
             G_WorldDone();
             return;
         }
-        else if (interstate < 2 && !IN_RetailIntermission())
+        else if (interstate < IN_ENTERING && IN_HasInterpic())
         {
-            interstate = 2;
+            interstate = IN_ENTERING;
             skipintermission = false;
             S_StartOptionalSound(g_sfx_inttot, heretic_sfx_dorcls, false);
             return;
         }
-        interstate = 3;
+        interstate = IN_ENTERING_DELAY;
         cnt = 10;
         skipintermission = false;
         S_StartOptionalSound(g_sfx_inttot, heretic_sfx_dorcls, false);
@@ -595,12 +656,12 @@ void IN_Drawer(void)
     {
         return;
     }
-    if (interstate == 3)
+    if (interstate == IN_ENTERING_DELAY)
     {
         return;
     }
 
-    if (oldinterstate != 2 && interstate == 2)
+    if (oldinterstate != IN_ENTERING && interstate == IN_ENTERING)
     {
         S_StartOptionalSound(g_sfx_intnex, heretic_sfx_pstop, false);
     }
@@ -608,7 +669,8 @@ void IN_Drawer(void)
     switch (interstate)
     {
         case -1:
-        case 0:                // draw stats
+        case IN_STATS:                // draw stats
+            dsda_PrepareFinished();
             IN_DrawStatBack();
             switch (gametype)
             {
@@ -623,22 +685,22 @@ void IN_Drawer(void)
                     break;
             }
             break;
-        case 1:                // leaving old level
-            if (!IN_RetailIntermission())
+        case IN_FINISHED:                // leaving old level
+            if (IN_HasInterpic())
             {
                 IN_DrawInterpic();
                 IN_DrawOldLevel();
             }
             break;
-        case 2:                // going to the next level
-            if (!IN_RetailIntermission())
+        case IN_ENTERING:                // going to the next level
+            if (IN_HasInterpic() && !finalintermission)
             {
                 IN_DrawInterpic();
                 IN_DrawYAH();
             }
             break;
-        case 3:                // waiting before going to the next level
-            if (!IN_RetailIntermission())
+        case IN_ENTERING_DELAY:                // waiting before going to the next level
+            if (IN_HasInterpic())
             {
                 IN_DrawInterpic();
             }
@@ -657,9 +719,16 @@ void IN_Drawer(void)
 
 void IN_DrawStatBack(void)
 {
-    // e6y: wide-res
-    V_ClearBorder(NULL);
-    V_DrawBackgroundName(s_HERETIC_IN_BGFLAT);
+    if (W_LumpNameExists(exitpic))
+    {
+        V_ClearBorder(exitpic);
+        V_DrawNamePatch(0, 0, exitpic, CR_DEFAULT, VPT_STRETCH);
+    }
+    else
+    {
+        V_ClearBorder(NULL);
+        V_DrawBackgroundName(s_HERETIC_IN_BGFLAT);
+    }
 }
 
 //========================================================================
@@ -670,18 +739,16 @@ void IN_DrawStatBack(void)
 
 void IN_DrawOldLevel(void)
 {
-    const char *level_name = NameForMap(prevmap);
-    int i;
-    int x;
+    const char *prev_level_name = lf_levelname ? lf_levelname : NameForMap(prevmap);
 
-    x = 160 - MN_TextBWidth(level_name) / 2;
-    IN_DrTextB(level_name, x, 3);
-    x = 160 - MN_TextAWidth(s_HERETIC_IN_FINISHED) / 2;
-    MN_DrTextA(s_HERETIC_IN_FINISHED, x, 25);
+    IN_DrawLevelname(lf_levelpic, prev_level_name, 3);
+    MN_DrTextA(s_HERETIC_IN_FINISHED, 160 - MN_TextAWidth(s_HERETIC_IN_FINISHED) / 2, 25);
+
+    if (W_LumpNameExists(exitpic) || !IN_UseWorldMap()) return;
 
     if (prevmap == 9)
     {
-        for (i = 0; i < nextmap - 1; i++)
+        for (int i = 0; i < nextmap - 1; i++)
         {
             IN_DrawBeenThere(i);
         }
@@ -692,7 +759,7 @@ void IN_DrawOldLevel(void)
     }
     else
     {
-        for (i = 0; i < prevmap - 1; i++)
+        for (int i = 0; i < prevmap - 1; i++)
         {
             IN_DrawBeenThere(i);
         }
@@ -715,20 +782,18 @@ void IN_DrawOldLevel(void)
 
 void IN_DrawYAH(void)
 {
-    const char *level_name = NameForMap(nextmap);
-    int i;
-    int x;
+    const char *level_name = el_levelname ? el_levelname : NameForMap(nextmap);
 
-    x = 160 - MN_TextAWidth(s_HERETIC_IN_ENTERING) / 2;
-    MN_DrTextA(s_HERETIC_IN_ENTERING, x, 10);
-    x = 160 - MN_TextBWidth(level_name) / 2;
-    IN_DrTextB(level_name, x, 20);
+    MN_DrTextA(s_HERETIC_IN_ENTERING, 160 - MN_TextAWidth(s_HERETIC_IN_ENTERING) / 2, 10);
+    IN_DrawLevelname(el_levelpic, level_name, 20);
 
     if (prevmap == 9)
     {
         prevmap = nextmap - 1;
     }
-    for (i = 0; i < prevmap; i++)
+    if (W_LumpNameExists(enterpic) || W_LumpNameExists(exitpic) || !IN_UseWorldMap()) return;
+
+    for (int i = 0; i < prevmap; i++)
     {
         IN_DrawBeenThere(i);
     }
@@ -736,10 +801,10 @@ void IN_DrawYAH(void)
     {
         IN_DrawBeenThere(8);
     }
-    if (!(intertime & 16) || interstate == 3)
+    if (!(intertime & 16) || interstate == IN_ENTERING_DELAY)
     {                           // draw the destination 'X'
         // kex uses different arrow for E5M7
-        if (gameepisode == 5 && nextmap == 7)
+        if (IN_KexIntermission() && gameepisode == 5 && nextmap == 7)
             RETURN(IN_DrawGoingThere2(nextmap - 1));
 
         IN_DrawGoingThere(nextmap - 1);
@@ -754,26 +819,34 @@ void IN_DrawYAH(void)
 
 void IN_DrawSingleStats(void)
 {
-    const char *prev_level_name = NameForMap(prevmap);
-    const char *next_level_name = NameForMap(nextmap);
     int x;
     static int sounds;
 
     // [crispy] offset the stats for Ep.4 and up, to make room for level time
-    int yoffset = 0;
-    if (gamemode == retail && IN_RetailIntermission())
+    int yoffset = 3;
+
+    const char *prev_level_name = lf_levelname ? lf_levelname : NameForMap(prevmap);
+    IN_DrawLevelname(lf_levelpic, prev_level_name, yoffset);
+    yoffset += 20;
+
+    if (lf_author && gamemode == retail && !IN_HasInterpic())
     {
-        yoffset = 20;
+        x = 160 - MN_TextAWidth(lf_author) / 2;
+        MN_DrTextA(lf_author, x, yoffset);
+        yoffset += (5 * hud_font.height / 4);
     }
 
-    IN_DrTextB(s_HERETIC_IN_KILLS, 50, 65 - yoffset);
-    IN_DrTextB(s_HERETIC_IN_ITEMS, 50, 90 - yoffset);
-    IN_DrTextB(s_HERETIC_IN_SECRETS, 50, 115 - yoffset);
-
-    x = 160 - MN_TextBWidth(prev_level_name) / 2;
-    IN_DrTextB(prev_level_name, x, 3);
     x = 160 - MN_TextAWidth(s_HERETIC_IN_FINISHED) / 2;
-    MN_DrTextA(s_HERETIC_IN_FINISHED, x, 25);
+    MN_DrTextA(s_HERETIC_IN_FINISHED, x, yoffset);
+
+    if (gamemode == retail && !IN_HasInterpic())
+    {
+        yoffset -= 20;
+    }
+
+    IN_DrTextB(s_HERETIC_IN_KILLS, 50, yoffset + 25);
+    IN_DrTextB(s_HERETIC_IN_ITEMS, 50, yoffset + 50);
+    IN_DrTextB(s_HERETIC_IN_SECRETS, 50, yoffset + 75);
 
     dsda_DrawExIntermission();
 
@@ -787,9 +860,9 @@ void IN_DrawSingleStats(void)
         S_StartOptionalSound(g_sfx_inttot, heretic_sfx_dorcls, false);
         sounds++;
     }
-    IN_DrawNumber(players[consoleplayer].killcount, 200, 65 - yoffset, 3);
-    V_DrawShadowedNamePatch(237, 65 - yoffset, "FONTB15", CR_DEFAULT, VPT_STRETCH);
-    IN_DrawNumber(totalkills, 248, 65 - yoffset, 3);
+    IN_DrawNumber(players[consoleplayer].killcount, 200, yoffset + 25, 3);
+    V_DrawShadowedNamePatch(237, yoffset + 25, "FONTB15", CR_DEFAULT, VPT_STRETCH);
+    IN_DrawNumber(totalkills, 248, yoffset + 25, 3);
     if (intertime < 60)
     {
         return;
@@ -799,9 +872,9 @@ void IN_DrawSingleStats(void)
         S_StartOptionalSound(g_sfx_inttot, heretic_sfx_dorcls, false);
         sounds++;
     }
-    IN_DrawNumber(players[consoleplayer].itemcount, 200, 90 - yoffset, 3);
-    V_DrawShadowedNamePatch(237, 90 - yoffset, "FONTB15", CR_DEFAULT, VPT_STRETCH);
-    IN_DrawNumber(totalitems, 248, 90 - yoffset, 3);
+    IN_DrawNumber(players[consoleplayer].itemcount, 200, yoffset + 50, 3);
+    V_DrawShadowedNamePatch(237, yoffset + 50, "FONTB15", CR_DEFAULT, VPT_STRETCH);
+    IN_DrawNumber(totalitems, 248, yoffset + 50, 3);
     if (intertime < 90)
     {
         return;
@@ -811,9 +884,9 @@ void IN_DrawSingleStats(void)
         S_StartOptionalSound(g_sfx_inttot, heretic_sfx_dorcls, false);
         sounds++;
     }
-    IN_DrawNumber(players[consoleplayer].secretcount, 200, 115 - yoffset, 3);
-    V_DrawShadowedNamePatch(237, 115 - yoffset, "FONTB15", CR_DEFAULT, VPT_STRETCH);
-    IN_DrawNumber(totalsecret, 248, 115 - yoffset, 3);
+    IN_DrawNumber(players[consoleplayer].secretcount, 200, yoffset + 75, 3);
+    V_DrawShadowedNamePatch(237, yoffset + 75, "FONTB15", CR_DEFAULT, VPT_STRETCH);
+    IN_DrawNumber(totalsecret, 248, yoffset + 75, 3);
     if (intertime < 150)
     {
         return;
@@ -824,32 +897,42 @@ void IN_DrawSingleStats(void)
         sounds++;
     }
 
-    // [crispy] ignore "now entering" if it's the final intermission
-    if (gamemode != retail || !IN_RetailIntermission() || finalintermission)
-    {
-        IN_DrTextB(s_HERETIC_IN_TIME, 85, 150);
-        IN_DrawTime(155, 150, hours, minutes, seconds);
+    dsda_PrepareEntering();
 
-        // [crispy] Show total time on intermission
-        IN_DrTextB(s_HERETIC_IN_TOTAL, 85, 170);
-        IN_DrawTime(155, 170, totalHours, totalMinutes, totalSeconds);
+    // [crispy] ignore "now entering" if it's the final intermission
+    if (gamemode != retail || IN_HasInterpic() || finalintermission)
+    {
+        yoffset = 30;
     }
     else
     {
-        // [crispy] show the level time for Ep.4 and up
-        IN_DrTextB(s_HERETIC_IN_TIME, 85, 120);
-        IN_DrawTime(155, 120, hours, minutes, seconds);
+      const char *next_level_name = el_levelname ? el_levelname : NameForMap(nextmap);
+        yoffset = 0;
 
-        // [crispy] Show total time on intermission
-        IN_DrTextB(s_HERETIC_IN_TOTAL, 85, 140);
-        IN_DrawTime(155, 140, totalHours, totalMinutes, totalSeconds);
-
-        x = 160 - MN_TextAWidth(s_HERETIC_IN_ENTERING) / 2;
-        MN_DrTextA(s_HERETIC_IN_ENTERING, x, 160);
-        x = 160 - MN_TextBWidth(next_level_name) / 2;
-        IN_DrTextB(next_level_name, x, 170);
+        x = 160 - MN_TextAWidth("NOW ENTERING:") / 2;
+        MN_DrTextA("NOW ENTERING:", x, 160);
+        IN_DrawLevelname(el_levelpic, next_level_name, 170);
         skipintermission = false;
     }
+
+    if (wbs->modified_partime)
+    {
+        IN_DrTextB(s_HERETIC_IN_TIME, 8, 120 + yoffset);
+        IN_DrawTime(55, 120 + yoffset, hours, minutes, seconds);
+        IN_DrTextB(s_HERETIC_IN_TOTAL, 8, 140 + yoffset);
+        IN_DrawTime(55, 140 + yoffset, totalHours, totalMinutes, totalSeconds);
+
+        IN_DrTextB("PAR", 170, 120 + yoffset);
+        IN_DrawTime(218, 120 + yoffset, parHours, parMinutes, parSeconds);
+    }
+    else
+    {
+        IN_DrTextB(s_HERETIC_IN_TIME, 85, 120 + yoffset);
+        IN_DrawTime(155, 120 + yoffset, hours, minutes, seconds);
+        IN_DrTextB(s_HERETIC_IN_TOTAL, 85, 140 + yoffset);
+        IN_DrawTime(155, 140 + yoffset, totalHours, totalMinutes, totalSeconds);
+    }
+
 }
 
 //========================================================================
@@ -860,23 +943,19 @@ void IN_DrawSingleStats(void)
 
 void IN_DrawCoopStats(void)
 {
-    const char *level_name = NameForMap(prevmap);
-    int i;
-    int x;
-    int ypos;
-
     static int sounds;
+    int ypos = 50;
+
+    const char *prev_level_name = lf_levelname ? lf_levelname : NameForMap(prevmap);
+    IN_DrawLevelname(lf_levelpic, prev_level_name, 3);
+
+    MN_DrTextA(s_HERETIC_IN_FINISHED, 160 - MN_TextAWidth(s_HERETIC_IN_FINISHED) / 2, 25);
 
     IN_DrTextB(s_HERETIC_IN_KILLS, 95, 35);
     IN_DrTextB(s_HERETIC_COOP_BONUS, 155, 35);
     IN_DrTextB(s_HERETIC_COOP_SECRET, 232, 35);
-    x = 160 - MN_TextBWidth(level_name) / 2;
-    IN_DrTextB(level_name, x, 3);
-    x = 160 - MN_TextAWidth(s_HERETIC_IN_FINISHED) / 2;
-    MN_DrTextA(s_HERETIC_IN_FINISHED, x, 25);
 
-    ypos = 50;
-    for (i = 0; i < g_maxplayers; i++)
+    for (int i = 0; i < g_maxplayers; i++)
     {
         if (playeringame[i])
         {
@@ -1137,10 +1216,11 @@ void IN_DrTextB(const char *text, int x, int y)
 
     while ((c = *text++) != 0)
     {
+        if (c > 90) // Lowercase chars
+          c -= 32;
+
         if (c < 33)
-        {
-            x += 8;
-        }
+          x += 8;
         else
         {
             int lump = FontBLump + c - 33;
@@ -1148,4 +1228,19 @@ void IN_DrTextB(const char *text, int x, int y)
             x += R_NumPatchWidth(lump) - 1;
         }
     }
+}
+
+void IN_DrawLevelname(const char *patch, const char *levelname, int y)
+{
+  int x;
+  if (W_LumpNameExists(patch))
+  {
+    x = 160 - V_NamePatchWidth(patch) / 2;
+    V_DrawNamePatch(x, y, patch, CR_DEFAULT, VPT_STRETCH);
+  }
+  else
+  {
+    x = 160 - MN_TextBWidth(levelname) / 2;
+    IN_DrTextB(levelname, x, y);
+  }
 }

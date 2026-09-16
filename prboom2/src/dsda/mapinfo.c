@@ -180,6 +180,10 @@ static void dsda_UpdateMapInfo(void) {
                     : FRACUNIT;
 }
 
+dboolean dsda_UmapinfoEntryExists(void) {
+  return dsda_UUmapinfoExists();
+}
+
 void dsda_UpdateGameMap(int episode, int map) {
   gameepisode = episode;
   gamemap = map;

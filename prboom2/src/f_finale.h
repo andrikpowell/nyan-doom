@@ -60,7 +60,8 @@ typedef enum finalestage_e
 {
     FINALE_STAGE_TEXT,
     FINALE_STAGE_ART,
-    FINALE_STAGE_CAST
+    FINALE_STAGE_CAST,
+    FINALE_STAGE_TITLE
 } finalestage_t;
 
 #endif

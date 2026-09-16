@@ -1427,7 +1427,8 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
     damage = FixedMul(damage, skill_info.damage_factor);
 
   // Special damage types
-  if (raven && inflictor)
+  if (heretic && inflictor)
+  {
     switch (inflictor->type)
     {
       case HERETIC_MT_EGGFX:
@@ -1502,6 +1503,15 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
           }
         }
         break;
+      default:
+        break;
+    }
+  }
+  else if (hexen && inflictor)
+  {
+    switch (inflictor->type)
+    {
+
       case HEXEN_MT_EGGFX:
         if (player)
         {
@@ -1595,6 +1605,7 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
       default:
         break;
     }
+  }
 
   // Some close combat weapons should not
   // inflict thrust and push the victim out of reach,

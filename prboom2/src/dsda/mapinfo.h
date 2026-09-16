@@ -40,6 +40,7 @@ void dsda_NextMap(int* episode, int* map);
 void dsda_PrevMap(int* episode, int* map);
 void dsda_ShowNextLocBehaviour(int* behaviour);
 int dsda_SkipDrawShowNextLoc(void);
+dboolean dsda_UmapinfoEntryExists(void);
 void dsda_UpdateGameMap(int episode, int map);
 void dsda_ResetLeaveData(void);
 void dsda_UpdateLeaveData(int map, int position, int flags, angle_t angle);

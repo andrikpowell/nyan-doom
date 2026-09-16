@@ -561,7 +561,7 @@ static void I_UploadNewPalette(int pal, int force)
   if (dynamic_palette)
     RETURN(I_UploadDynamicPalette(pal));
 
-  playpal_data = dsda_PlayPalData();
+  playpal_data = dsda_PlayPalData(playpal_index);
 
   if ((playpal_data->colours == NULL) || (cachedgamma != usegamma) || force) {
     int pplump;

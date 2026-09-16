@@ -66,7 +66,7 @@ static byte* tranmap_data[100];
 static void dsda_CalculatePlaypalCksum(void) {
   struct MD5Context md5;
   const byte *playpal = V_GetPlaypal();
-  int playpal_length = dsda_PlayPalData()->length;
+  int playpal_length = dsda_PlayPalData(playpal_index)->length;
 
   MD5Init(&md5);
   MD5Update(&md5, playpal, playpal_length);
