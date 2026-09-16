@@ -236,7 +236,7 @@ static dboolean IN_KexIntermission(void)
     return false;
 
   // Disable for umapinfo
-  if (dsda_UmapinfoEntryExists() || W_LumpNameExists(enterpic) || W_LumpNameExists(exitpic))
+  if (dsda_UmapinfoEntryExists() || enterpic || exitpic)
     return false;
 
   snprintf(name, sizeof(name), "MAPE%d", gameepisode);
@@ -247,7 +247,7 @@ static dboolean IN_KexIntermission(void)
 static dboolean IN_HasInterpic(void)
 {
   return (gameepisode > 0 && gameepisode < 4) ||
-          W_LumpNameExists(enterpic) || W_LumpNameExists(exitpic) ||
+          enterpic || exitpic ||
           IN_KexIntermission();
 }
 
@@ -260,12 +260,12 @@ static dboolean IN_UseWorldMap(void)
 
 static void IN_DrawInterpic(void)
 {
-  if (W_LumpNameExists(enterpic))
+  if (enterpic)
   {
     V_ClearBorder(enterpic);
     V_DrawNamePatchFS(0, 0, enterpic, CR_DEFAULT, VPT_STRETCH);
   }
-  else if (W_LumpNameExists(exitpic))
+  else if (exitpic)
   {
     V_ClearBorder(exitpic);
     V_DrawNamePatchFS(0, 0, exitpic, CR_DEFAULT, VPT_STRETCH);
@@ -719,7 +719,7 @@ void IN_Drawer(void)
 
 void IN_DrawStatBack(void)
 {
-    if (W_LumpNameExists(exitpic))
+    if (exitpic)
     {
         V_ClearBorder(exitpic);
         V_DrawNamePatch(0, 0, exitpic, CR_DEFAULT, VPT_STRETCH);
@@ -744,7 +744,7 @@ void IN_DrawOldLevel(void)
     IN_DrawLevelname(lf_levelpic, prev_level_name, 3);
     MN_DrTextA(s_HERETIC_IN_FINISHED, 160 - MN_TextAWidth(s_HERETIC_IN_FINISHED) / 2, 25);
 
-    if (W_LumpNameExists(exitpic) || !IN_UseWorldMap()) return;
+    if (exitpic || !IN_UseWorldMap()) return;
 
     if (prevmap == 9)
     {
@@ -791,7 +791,7 @@ void IN_DrawYAH(void)
     {
         prevmap = nextmap - 1;
     }
-    if (W_LumpNameExists(enterpic) || W_LumpNameExists(exitpic) || !IN_UseWorldMap()) return;
+    if (enterpic || exitpic || !IN_UseWorldMap()) return;
 
     for (int i = 0; i < prevmap; i++)
     {
@@ -1233,7 +1233,7 @@ void IN_DrTextB(const char *text, int x, int y)
 void IN_DrawLevelname(const char *patch, const char *levelname, int y)
 {
   int x;
-  if (W_LumpNameExists(patch))
+  if (patch)
   {
     x = 160 - V_NamePatchWidth(patch) / 2;
     V_DrawNamePatch(x, y, patch, CR_DEFAULT, VPT_STRETCH);
