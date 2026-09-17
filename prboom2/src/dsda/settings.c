@@ -271,7 +271,7 @@ dboolean dsda_FadeMessages(void) {
 }
 
 dboolean dsda_WeaponCarousel(void) {
-  return dsda_IntConfig(dsda_config_weapon_carousel);
+  return !demoplayback && dsda_IntConfig(dsda_config_weapon_carousel);
 }
 
 dboolean dsda_TrackSplits(void) {
