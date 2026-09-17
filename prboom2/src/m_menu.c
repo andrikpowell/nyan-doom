@@ -216,7 +216,6 @@ static dboolean sub_color_active = false;
 
 extern const char* g_menu_flat;
 extern int g_menu_save_page_size;
-extern int g_menu_font_spacing;
 
 #define QUICKSAVESLOT 0
 
@@ -7379,7 +7378,7 @@ static void M_DrawString(int cx, int cy, int color, const char* ch)
     V_DrawMenuNumPatch(cx, cy, menu_font->font[c].lumpnum, color, VPT_STRETCH | VPT_COLOR);
     // The screen is cramped, so trim one unit from each
     // character so they butt up against each other.
-    cx += w + g_menu_font_spacing;
+    cx += w + menu_font->menu_spacing;
   }
 }
 
@@ -7405,11 +7404,11 @@ static int M_GetPixelWidth(const char* ch)
       {
       len += menu_font->space_width;
       continue;
-      }
+    }
     len += menu_font->font[c].width;
-    len += g_menu_font_spacing;
+    len += menu_font->menu_spacing;
   }
-  len -= g_menu_font_spacing; // replace what you took away on the last char only
+  len -= menu_font->menu_spacing; // replace what you took away on the last char only
   return len;
 }
 
@@ -7430,7 +7429,7 @@ int M_GetPixelWidthCount(const char* str, int start_index, int count)
       width += menu_font->font[c].width;
 
     if (i + 1 < count && str[i + 1])
-      width += g_menu_font_spacing;
+      width += menu_font->menu_spacing;
   }
 
   return width;

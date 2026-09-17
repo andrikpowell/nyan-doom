@@ -27,6 +27,24 @@ dsda_font_t hud_font;
 dsda_font_t yellow_hud_font;
 dsda_font_t exhud_font;
 
+static int dsda_FontStringWidth(const patchnum_t *font, const char *string) {
+  int width = 0;
+
+  while (*string) {
+    int c = *string++ - HU_FONTSTART;
+
+    if (c >= 0 && c < HU_FONTSIZE)
+      width += font[c].width;
+  }
+
+  return width;
+}
+
+// Check font width and lower kerning if it's too wide
+static int dsda_FontMenuSpacing(const patchnum_t *font) {
+  return dsda_FontStringWidth(hu_font, "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234") > 230 ? -1 : 0;
+}
+
 void dsda_InitFont(void) {
   int i;
   int j;
@@ -102,6 +120,7 @@ void dsda_InitFont(void) {
   hud_font.space_width = raven ? 5 : 4;
   hud_font.start = HU_FONTSTART;
   hud_font.kerning = raven ? -1 : 0;
+  hud_font.menu_spacing = dsda_FontMenuSpacing(hu_font);
 
   exhud_font.font = hu_font2;
   exhud_font.height = hu_font2['0' - HU_FONTSTART].height;
@@ -109,6 +128,7 @@ void dsda_InitFont(void) {
   exhud_font.space_width = 5;
   exhud_font.start = HU_FONTSTART;
   exhud_font.kerning = 0;
+  exhud_font.menu_spacing = 0;
 
   // Hexen - yellow message
   yellow_hud_font.font = hu_font_yellow;
@@ -117,4 +137,5 @@ void dsda_InitFont(void) {
   yellow_hud_font.space_width = raven ? 5 : 4;
   yellow_hud_font.start = HU_FONTSTART;
   yellow_hud_font.kerning = raven ? -1 : 0;
+  yellow_hud_font.menu_spacing = hud_font.menu_spacing;
 }

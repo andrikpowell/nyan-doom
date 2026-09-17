@@ -32,6 +32,7 @@ typedef struct {
   int start;
 
   int kerning; // Heretic/Hexen -1 kerning
+  int menu_spacing; // Spacing for the setup menus
 } dsda_font_t;
 
 extern dsda_font_t hud_font;
