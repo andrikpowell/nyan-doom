@@ -389,10 +389,6 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_freelook_autoaim", dsda_config_freelook_autoaim,
     CONF_BOOL(1), NULL, STRICT_INT(0)
   },
-  [dsda_config_freelook_enhanced_flying] = {
-    "dsda_freelook_enhanced_flying", dsda_config_freelook_enhanced_flying,
-    CONF_BOOL(1), NULL, STRICT_INT(0)
-  },
   [dsda_config_autorun] = {
     "autorun", dsda_config_autorun,
     CONF_BOOL(1)
@@ -682,6 +678,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_artifact_descriptions] = {
    "dsda_artifact_descriptions", dsda_config_artifact_descriptions,
     dsda_config_int, 0, 3, { 1 }
+  },
+  [dsda_config_classic_flight] = {
+    "dsda_classic_flight", dsda_config_classic_flight,
+    CONF_BOOL(0), NULL, STRICT_INT(1)
   },
   [dsda_config_weapon_carousel] = {
     "dsda_weapon_carousel", dsda_config_weapon_carousel,

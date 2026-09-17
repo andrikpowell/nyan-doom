@@ -4996,7 +4996,6 @@ setup_menu_t gen_device_settings[] = {
   EMPTY_LINE,
   { "Enable Freelook", S_YESNO, m_conf, g_all, G2_X, dsda_config_freelook },
   { "Freelook AutoAim", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_list) },
-  { "Freelook Enhanced Flying", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_freelook_enhanced_flying, 0, empty_list, DEPEND_MULTI(freelook_list) },
 
   PREV_PAGE(gen_audio_settings),
   NEXT_PAGE(gen_gamesim_settings),
@@ -5010,6 +5009,7 @@ setup_menu_t gen_gamesim_settings[] = {
   { "Disable Saving After Death", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_disable_saving_after_death },
   { "Rare Player Gib Death", S_YESNO | S_NYAN, m_conf, g_doom, G2_X, nyan_config_skullpop_easter_egg },
   { "Randomly Mirrored Corpses", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_flip_corpses },
+  { "Classic Flight", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_classic_flight },
   { "Weapon Carousel", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_weapon_carousel },
   { "Artifact Descriptions", S_CHOICE | S_NYAN, m_conf, g_raven, G2_X, dsda_config_artifact_descriptions, 0, artifact_desc_list },
   { "Skip Ethereal Travel", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_skip_ethereal_travel },

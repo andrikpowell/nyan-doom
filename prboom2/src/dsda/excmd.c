@@ -70,7 +70,7 @@ dboolean dsda_FreeAim(void) {
 }
 
 dboolean dsda_FreeAimFlying(void) {
-  return (casual_play && dsda_IntConfig(dsda_config_freelook_enhanced_flying) && dsda_FreeAim());
+  return (casual_play && dsda_IntConfig(dsda_config_classic_flight) && dsda_FreeAim());
 }
 
 dboolean dsda_MouselookAutoAim(void) {
