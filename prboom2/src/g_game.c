@@ -1341,7 +1341,8 @@ dboolean G_Responder (event_t* ev)
 
   if (dsda_InputActivated(dsda_input_zoom))
   {
-    if (gamestate == GS_LEVEL && casual_play)
+    // Allow zoom in demoplayback
+    if (gamestate == GS_LEVEL && !demorecording)
     {
       R_ToggleZoom();
       return true;
