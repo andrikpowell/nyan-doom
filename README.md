@@ -102,7 +102,6 @@ Instructions in [guides](./docs/guides/)
     - For the Hexen expansion, add `-file HEXDD.WAD`.
   - If it doesn't work, you can force engine behaviour with the `-heretic` / `-hexen` commandline option.
 
-> [!NOTE]
 > The "Apply multisampling" automap option is disabled for Heretic + Hexen.
 
 ## Documentation
