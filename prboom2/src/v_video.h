@@ -417,7 +417,7 @@ extern V_DrawShaded_f V_DrawShaded;
 // CPhipps - function to set the palette to palette number pal.
 void V_TouchPalette(void);
 void V_SetPalette(int pal);
-void V_SetPlayPal(int playpal_index);
+void V_SetPlayPal(int playpal_i);
 
 void V_SetDynamicPalette(const byte *pal);
 void V_ClearDynamicPalette(void);

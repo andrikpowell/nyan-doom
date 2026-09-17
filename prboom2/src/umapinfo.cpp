@@ -44,17 +44,14 @@ MapList Maps;
 
 static void FreeMap(MapEntry *mape)
 {
-	if (mape->mapname) Z_Free(mape->mapname);
+	if (mape->lumpname) Z_Free(mape->lumpname);
 	if (mape->levelname) Z_Free(mape->levelname);
 	if (mape->label) Z_Free(mape->label);
 	if (mape->author) Z_Free(mape->author);
 	if (mape->intertext) Z_Free(mape->intertext);
 	if (mape->intertextsecret) Z_Free(mape->intertextsecret);
-	if (mape->properties) Z_Free(mape->properties);
 	if (mape->bossactions) Z_Free(mape->bossactions);
-	mape->propertycount = 0;
-	mape->mapname = NULL;
-	mape->properties = NULL;
+	mape->lumpname = NULL;
 }
 
 
@@ -161,7 +158,10 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 	{
 		if (scanner.CheckToken(TK_Identifier))
 		{
-			if (scanner.StringMatch("clear")) ReplaceString(&mape->label, "-");
+			if (scanner.StringMatch("clear"))
+			{
+				mape->flags |= MapInfo_LabelClear;
+			}
 			else
 			{
 				scanner.ErrorF("Either 'clear' or string constant expected");
@@ -171,8 +171,9 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 		else
 		{
 			scanner.MustGetToken(TK_StringConst);
-	                ReplaceString(&mape->label, scanner.string);
-	        }
+			mape->flags &= ~MapInfo_LabelClear;
+			ReplaceString(&mape->label, scanner.string);
+		}
 	}
 	else if (!stricmp(pname, "author"))
 	{
@@ -211,25 +212,38 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 	}
 	else if (!stricmp(pname, "endpic"))
 	{
+		mape->flags &= ~MapInfo_EndGameAny;
 		ParseLumpName(scanner, mape->endpic);
+		mape->flags |= MapInfo_EndGameArt;
 	}
-	else if (!stricmp(pname, "endcast"))
+	else if (!stricmp(pname, "endcast") && !raven)
 	{
 		scanner.MustGetToken(TK_BoolConst);
-		if (scanner.boolean) strcpy(mape->endpic, "$CAST");
-		else strcpy(mape->endpic, "-");
+		mape->flags &= ~MapInfo_EndGameAny;
+		mape->flags |= (scanner.boolean)
+		            ? MapInfo_EndGameCast
+		            : MapInfo_EndGameClear;
 	}
-	else if (!stricmp(pname, "endbunny"))
+	else if ((!stricmp(pname, "endbunny") && !raven) ||
+	         (!stricmp(pname, "enddemon") && heretic))
 	{
 		scanner.MustGetToken(TK_BoolConst);
-		if (scanner.boolean) strcpy(mape->endpic, "$BUNNY");
-		else strcpy(mape->endpic, "-");
+		mape->flags &= ~MapInfo_EndGameAny;
+		mape->flags |= (scanner.boolean)
+		            ? MapInfo_EndGameScroll
+		            : MapInfo_EndGameClear;
 	}
 	else if (!stricmp(pname, "endgame"))
 	{
 		scanner.MustGetToken(TK_BoolConst);
-		if (scanner.boolean) strcpy(mape->endpic, "!");
-		else strcpy(mape->endpic, "-");
+		mape->flags &= ~MapInfo_EndGameAny;
+		mape->flags |= (scanner.boolean)
+		            ? MapInfo_EndGameStandard
+		            : MapInfo_EndGameClear;
+	}
+	else if (!stricmp(pname, "endpalette"))
+	{
+		ParseLumpName(scanner, mape->endpalette);
 	}
 	else if (!stricmp(pname, "exitpic"))
 	{
@@ -242,7 +256,10 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 	else if (!stricmp(pname, "nointermission"))
 	{
 		scanner.MustGetToken(TK_BoolConst);
-		mape->nointermission = scanner.boolean;
+		if (scanner.boolean)
+			mape->flags |= MapInfo_NoIntermission;
+		else
+			mape->flags &= ~MapInfo_NoIntermission;
 	}
 	else if (!stricmp(pname, "partime"))
 	{
@@ -251,17 +268,35 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 	}
 	else if (!stricmp(pname, "intertext"))
 	{
-		char *lname = ParseMultiString(scanner, 1);
-		if (!lname) return 0;
-		if (mape->intertext != NULL) Z_Free(mape->intertext);
-		mape->intertext = lname;
+		if (scanner.CheckToken(TK_Identifier))
+		{
+			if (!stricmp(scanner.string, "clear"))
+				mape->flags |= MapInfo_InterTextClear;
+			else
+				scanner.ErrorF("Either 'clear' or string constant expected");
+		}
+		else
+		{
+			mape->flags &= ~MapInfo_InterTextClear;
+			if (mape->intertext) Z_Free(mape->intertext);
+			mape->intertext = ParseMultiString(scanner, 1);
+		}
 	}
 	else if (!stricmp(pname, "intertextsecret"))
 	{
-		char *lname = ParseMultiString(scanner, 1);
-		if (!lname) return 0;
-		if (mape->intertextsecret != NULL) Z_Free(mape->intertextsecret);
-		mape->intertextsecret = lname;
+		if (scanner.CheckToken(TK_Identifier))
+		{
+			if (!stricmp(scanner.string, "clear"))
+				mape->flags |= MapInfo_InterTextSecretClear;
+			else
+				scanner.ErrorF("Either 'clear' or string constant expected");
+		}
+		else
+		{
+			mape->flags &= ~MapInfo_InterTextSecretClear;
+			if (mape->intertextsecret) Z_Free(mape->intertextsecret);
+			mape->intertextsecret = ParseMultiString(scanner, 1);
+		}
 	}
 	else if (!stricmp(pname, "interbackdrop"))
 	{
@@ -300,7 +335,7 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 				}
 			}
 
-			dsda_AddEpisode(mape->mapname, alttext, lumpname, key, false);
+			dsda_AddEpisode(mape->lumpname, alttext, lumpname, key, false);
 
 			if (alttext) Z_Free(alttext);
 		}
@@ -308,22 +343,22 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 	else if (!stricmp(pname, "bossaction"))
 	{
 		scanner.MustGetToken(TK_Identifier);
-		int special, tag;
 		if (scanner.StringMatch("clear"))
 		{
 			// mark level free of boss actions
-			special = tag = -1;
 			if (mape->bossactions) Z_Free(mape->bossactions);
 			mape->bossactions = NULL;
-			mape->numbossactions = -1;
+			mape->numbossactions = 0;
+			mape->flags |= MapInfo_BossActionClear;
 		}
 		else
 		{
-			int i;
+			int special, tag, type;
+			mape->flags &= ~MapInfo_BossActionClear;
 
-			i = dsda_ActorNameToType(scanner.string);
+			type = dsda_ActorNameToType(scanner.string);
 
-			if (i == NAME_NOT_FOUND)
+			if (type == NAME_NOT_FOUND)
 			{
 				scanner.ErrorF("Unknown thing type %s", scanner.string);
 				return 0;
@@ -335,13 +370,14 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 			scanner.MustGetToken(',');
 			scanner.MustGetInteger();
 			tag = scanner.number;
-			// allow no 0-tag specials here, unless a level exit.
-			if (tag != 0 || special == 11 || special == 51 || special == 52 || special == 124)
+			// allow no 0-tag specials here, unless a level exit or massacre.
+			if (tag != 0 || special == 11 || special == 51 || special == 52 ||
+			   (heretic ? special == 105 : special == 124) ||
+			   (heretic && special == 515))
 			{
-				if (mape->numbossactions == -1) mape->numbossactions = 1;
-				else mape->numbossactions++;
+				mape->numbossactions++;
 				mape->bossactions = (struct BossAction *)Z_Realloc(mape->bossactions, sizeof(struct BossAction) * mape->numbossactions);
-				mape->bossactions[mape->numbossactions - 1].type = i;
+				mape->bossactions[mape->numbossactions - 1].type = type;
 				mape->bossactions[mape->numbossactions - 1].special = special;
 				mape->bossactions[mape->numbossactions - 1].tag = tag;
 			}
@@ -372,9 +408,7 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 
 static int ParseMapEntry(Scanner &scanner, MapEntry *val)
 {
-	val->mapname = NULL;
-	val->propertycount = 0;
-	val->properties = NULL;
+	val->lumpname = NULL;
 
 	scanner.MustGetIdentifier("map");
 	scanner.MustGetToken(TK_Identifier);
@@ -384,7 +418,7 @@ static int ParseMapEntry(Scanner &scanner, MapEntry *val)
 		return 0;
 	}
 
-	ReplaceString(&val->mapname, scanner.string);
+	ReplaceString(&val->lumpname, scanner.string);
 	scanner.MustGetToken('{');
 	while(!scanner.CheckToken('}'))
 	{
@@ -412,28 +446,80 @@ int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc
 		MapEntry parsed = { 0 };
 		ParseMapEntry(scanner, &parsed);
 
-		// Set default level progression here to simplify the checks elsewhere. Doing this lets us skip all normal code for this if nothing has been defined.
-		if (!parsed.nextmap[0] && !parsed.endpic[0])
+		// Set default level progression here to simplify the checks elsewhere.
+		// Doing this lets us skip all normal code for this if nothing has been defined.
+		if (!parsed.nextmap[0] && !(parsed.flags & (MapInfo_EndGameAny|MapInfo_EndGameClear)))
 		{
-			if (!stricmp(parsed.mapname, "MAP30")) strcpy(parsed.endpic, "$CAST");
-			else if (!stricmp(parsed.mapname, "E1M8"))  strcpy(parsed.endpic, gamemode == retail? "CREDIT" : "HELP2");
-			else if (!stricmp(parsed.mapname, "E2M8"))  strcpy(parsed.endpic, "VICTORY2");
-			else if (!stricmp(parsed.mapname, "E3M8"))  strcpy(parsed.endpic, "$BUNNY");
-			else if (!stricmp(parsed.mapname, "E4M8"))  strcpy(parsed.endpic, "ENDPIC");
-			else if (chex_exe && !stricmp(parsed.mapname, "E1M5"))  strcpy(parsed.endpic, "CREDIT");
-			else
+			if (!raven)
+			{
+				if (!stricmp(parsed.lumpname, "MAP30"))
+				{
+					parsed.flags |= MapInfo_EndGameCast;
+				}
+				else if (!stricmp(parsed.lumpname, "E1M8"))
+				{
+					parsed.flags |= MapInfo_EndGameArt;
+					strcpy(parsed.endpic, gamemode == retail && !pwad_help2_check ? "CREDIT" : "HELP2");
+				}
+				else if (!stricmp(parsed.lumpname, "E2M8"))
+				{
+					parsed.flags |= MapInfo_EndGameArt;
+					strcpy(parsed.endpic, "VICTORY2");
+				}
+				else if (!stricmp(parsed.lumpname, "E3M8"))
+				{
+					parsed.flags |= MapInfo_EndGameScroll;
+				}
+				else if (!stricmp(parsed.lumpname, "E4M8"))
+				{
+					parsed.flags |= MapInfo_EndGameArt;
+					strcpy(parsed.endpic, "ENDPIC");
+				}
+				else if (gamemission == tc_chex && !stricmp(parsed.lumpname, "E1M5"))
+				{
+					parsed.flags |= MapInfo_EndGameArt;
+					strcpy(parsed.endpic, "CREDIT");
+				}
+			}
+			else if (heretic)
+			{
+				if (!stricmp(parsed.lumpname, "E1M8"))
+				{
+					parsed.flags |= MapInfo_EndGameArt;
+					strcpy(parsed.endpic, gamemode == shareware ? "ORDER" : "CREDIT");
+				}
+				else if (!stricmp(parsed.lumpname, "E2M8"))
+				{
+					parsed.flags |= MapInfo_EndGameArt;
+					strcpy(parsed.endpic, "E2END");
+					strcpy(parsed.endpalette, "E2PAL");
+				}
+				else if (!stricmp(parsed.lumpname, "E3M8"))
+				{
+					parsed.flags |= MapInfo_EndGameScroll;
+				}
+				else if (!stricmp(parsed.lumpname, "E4M8") || !stricmp(parsed.lumpname, "E5M8"))
+				{
+					parsed.flags |= MapInfo_EndGameArt;
+					strcpy(parsed.endpic, "CREDIT");
+				}
+			}
+
+			// If no default attribute, just go to the next map
+			if (!(parsed.flags & (MapInfo_EndGameAny|MapInfo_EndGameClear)))
 			{
 				int ep, map;
-				G_ValidateMapName(parsed.mapname, &ep, &map);
-				map++;
-				snprintf(parsed.nextmap, sizeof(parsed.nextmap), "%s", VANILLA_MAP_LUMP_NAME(ep, map));
+				if (G_ValidateMapName(parsed.lumpname, &ep, &map))
+				{
+					strcpy(parsed.nextmap, VANILLA_MAP_LUMP_NAME(ep, map + 1));
+				}
 			}
 		}
 
 		// Does this property already exist? If yes, replace it.
 		for(i = 0; i < Maps.mapcount; i++)
 		{
-			if (!strcmp(parsed.mapname, Maps.maps[i].mapname))
+			if (!strcmp(parsed.lumpname, Maps.maps[i].lumpname))
 			{
 				FreeMap(&Maps.maps[i]);
 				Maps.maps[i] = parsed;
