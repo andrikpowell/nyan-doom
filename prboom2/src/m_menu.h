@@ -83,10 +83,12 @@ void M_ResetMenu(void);      // killough 11/98: reset main menu ordering
 void M_DrawCredits(void);
 void M_DrawCreditsDynamic(void);    // killough 11/98
 
-int M_Highlight(int override);
-
 void M_DrawTabs(const char **pages, int m, int y);
-dboolean M_CurrentSelectedItem(int item);
+
+// Big Thermo (for Raven)
+void M_DrawThermoBig(int x, int y, int thermWidth, int thermRange, int thermDot, int menu_item);
+
+// Save / Load Highlights
 dboolean M_FileBoxSelected(int menu, int item);
 int M_FileTextColor(int menu, int item);
 
@@ -95,6 +97,14 @@ typedef enum {
   MN_SAVE,
 } save_or_load_menu;
 
+// Menu Highlights
+int M_HighlightColor(dboolean highlight, int color);
+int M_AddColorFlag(int color);
+
+// mouse or optional keyboard highlight
+dboolean M_MenuItemHighlighted(int item);
+
+// Hide options based on game type
 typedef enum {
   g_null        = 0,
   g_doom        = (1<<0),

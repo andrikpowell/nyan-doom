@@ -337,10 +337,7 @@ static void DrawWeaponIcon(const local_component_t* c, int x, weapon_icon_t icon
   WeaponIconName(lump_name, icon);
 
   color = (icon.state == wpi_disabled) ? CR_DARKEN : CR_DEFAULT;
-  flags = c->component.vpt;
-
-  if (color != CR_DEFAULT)
-    flags |= VPT_COLOR;
+  flags = c->component.vpt | M_AddColorFlag(color);
 
   // Only use raven shadows when extra shadows are on
   shadow = (dsda_ShadowTranslucency() && raven) ? SHADOW_ALWAYS_RAVEN : SHADOW_EXTRA;

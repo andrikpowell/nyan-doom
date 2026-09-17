@@ -496,17 +496,12 @@ void MN_Drawer(void)
 
   for (i = 0; i < max; i++)
   {
-    dboolean selected = (i == itemOn);
     const char *text = currentMenu->menuitems[i].alttext;
-    int text_sml = text && (currentMenu->menuitems[i].flags == MENUF_OPTLUMP);
-    int color = CR_DEFAULT;
+    int custom_skill_text = text && (currentMenu->menuitems[i].flags == MENUF_OPTLUMP);
+    int color = M_HighlightColor(M_MenuItemHighlighted(i), CR_DEFAULT);
 
-    // Lighten current item
-    if (selected)
-      color += M_Highlight(false);
-
-    if (text_sml) {  // use small font for custom skill
-      y += 6;        // add some padding (looks bad otherwise)
+    if (custom_skill_text) {  // use small font for custom skill
+      y += 6;                 // add some padding (looks bad otherwise)
       MN_DrTextAColor(text, x, y, color);
     }
     else if (text)
@@ -691,11 +686,11 @@ void MN_DrawSound(void)
 {
   char num[4];
 
-  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX, 16, 16, snd_SfxVolume, M_CurrentSelectedItem(SFX_VOL_INDEX-1), false);
+  M_DrawThermoBig(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX, 16, 16, snd_SfxVolume, SFX_VOL_INDEX-1);
   snprintf(num, sizeof(num), "%3d", snd_SfxVolume);
   MN_DrTextA(num, SoundDef.x + 130, SoundDef.y + ITEM_HEIGHT * SFX_VOL_INDEX + 3);
 
-  MN_DrawSlider(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX, 16, 16, snd_MusicVolume, M_CurrentSelectedItem(MUS_VOL_INDEX-1), false);
+  M_DrawThermoBig(SoundDef.x - 8, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX, 16, 16, snd_MusicVolume, MUS_VOL_INDEX-1);
   snprintf(num, sizeof(num), "%3d", snd_MusicVolume);
   MN_DrTextA(num, SoundDef.x + 130, SoundDef.y + ITEM_HEIGHT * MUS_VOL_INDEX + 3);
 }
@@ -710,17 +705,12 @@ static void MN_DrawFileSlots(int x, int y, int menu)
   for (i = 0; i < g_menu_save_page_size; i++)
   {
     dboolean selected = M_FileBoxSelected(menu, i);
-    int color = CR_DEFAULT;
-    int flags = VPT_STRETCH;
+    int textcolor = M_HighlightColor(selected, M_FileTextColor(menu, i));
+    int boxcolor  = M_HighlightColor(selected, CR_DEFAULT);
+    int flags = VPT_STRETCH | M_AddColorFlag(boxcolor);
 
-    if (selected)
-      color += M_Highlight(false);
-
-    if (color != CR_DEFAULT)
-      flags |= VPT_COLOR;
-
-    V_DrawMenuNamePatch(x, y, "M_FSLOT", color, flags);
-    MN_DrTextAColor(savegamestrings[i], x + 5, y + 5, M_FileTextColor(menu, i));
+    V_DrawMenuNamePatch(x, y, "M_FSLOT", boxcolor, flags);
+    MN_DrTextAColor(savegamestrings[i], x + 5, y + 5, textcolor);
     y += ITEM_HEIGHT;
   }
 
@@ -800,9 +790,7 @@ void MN_DrTextAColor(const char *text, int x, int y, int cm)
   int lump;
   int flags;
 
-  flags = VPT_STRETCH;
-  if (cm != CR_DEFAULT)
-    flags |= VPT_COLOR;
+  flags = VPT_STRETCH | M_AddColorFlag(cm);
 
   while ((c = *text++) != 0)
   {
@@ -883,9 +871,7 @@ void MN_DrTextBColor(const char *text, int x, int y, int cm)
   int lump;
   int flags;
 
-  flags = VPT_STRETCH;
-  if (cm != CR_DEFAULT)
-    flags |= VPT_COLOR;
+  flags = VPT_STRETCH | M_AddColorFlag(cm);
 
   while ((c = *text++) != 0)
   {
@@ -936,21 +922,16 @@ void MN_DrawTitle(int y, const char *text, int cm)
 #define SLIDER_WIDTH (SLIDER_LIMIT - 64)
 #define SLIDER_PATCH_COUNT (SLIDER_WIDTH / 8)
 
-void MN_DrawSlider(int x, int y, int width, int range, int slot, dboolean selected, dboolean small_thermo)
+void MN_DrawSlider(int x, int y, int width, int range, int slot, int color)
 {
   int xx;
   int i;
   int slot_offset;
   short slider_img = 0;
 
-  int color = CR_DEFAULT;
-  int flags = VPT_STRETCH;
-
-  if (selected)
-    color += M_Highlight(small_thermo);
-
-  if (color != CR_DEFAULT)
-    flags |= VPT_COLOR;
+  // [AR] We check both if the item is selected and highlight
+  // to include the label on the sound screen
+  int flags = VPT_STRETCH | M_AddColorFlag(color);
 
   width -= 4;
 
