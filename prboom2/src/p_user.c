@@ -349,7 +349,7 @@ void P_HandleExCmdLook(player_t* player)
   }
 }
 
-void P_FreeAim_VerticalThrust(player_t* player, fixed_t move)
+static void P_FreeAim_VerticalThrust(player_t* player, fixed_t move)
 {
   fixed_t slope;
 
@@ -364,6 +364,25 @@ void P_FreeAim_VerticalThrust(player_t* player, fixed_t move)
   // (fixes insane flyheight changes when looking directly up or down)
   if (player->flyheight > 10)   player->flyheight = 10;
   if (player->flyheight < -10)  player->flyheight = -10;
+}
+
+static void P_FreeAim_ForwardThrust(player_t* player, fixed_t move)
+{
+  angle_t angle;
+  angle_t pitch;
+  fixed_t horizontal_move;
+  fixed_t vertical_move;
+
+  if (!dsda_FreeAimFlying())
+    return;
+
+  angle = player->mo->angle >> ANGLETOFINESHIFT;
+  pitch = player->mo->pitch >> ANGLETOFINESHIFT;
+  horizontal_move = FixedMul(move, finecosine[pitch]);
+  vertical_move = FixedMul(move, finesine[pitch]);
+
+  map_format.player_thrust(player, angle, horizontal_move - move);
+  player->mo->momz -= vertical_move << 3;
 }
 
 void P_MovePlayer (player_t* player)
@@ -1605,11 +1624,11 @@ void Raven_P_MovePlayer(player_t * player)
     {
       if (player->chickenTics) // Chicken speed
       {
-        P_FreeAim_VerticalThrust(player,cmd->forwardmove*2500);
+        P_FreeAim_ForwardThrust(player,cmd->forwardmove*2500);
       }
       else // Normal speed
       {
-        P_FreeAim_VerticalThrust(player,cmd->forwardmove*2048);
+        P_FreeAim_ForwardThrust(player,cmd->forwardmove*2048);
       }
     }
 }
