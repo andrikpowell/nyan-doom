@@ -9443,7 +9443,7 @@ static dboolean M_MenuHasMissingRequiredLumps(const menu_t *menu)
   {
     const menuitem_t *item = &menu->menuitems[i];
 
-    if (item->status != 0 &&
+    if (item->status != -1 &&
         !(item->flags & MENUF_OPTLUMP) &&
         (!item->name[0] || !W_LumpNameExists(item->name)))
       return true;
