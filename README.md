@@ -94,11 +94,10 @@ Instructions in [guides](./docs/guides/)
 
 ## Heretic + Hexen Support
 
-Nyan Doom includes demo-compatible support for Heretic and Hexen (all the demos stored on dsda are in sync).
+- Nyan Doom includes demo-compatible support for Heretic and Hexen (all the demos stored on dsda are in sync).
+  - You don't need to supply a complevel (set to complevel 0 by necessity)
 
-- You don't need to supply a complevel (set to complevel 0 by necessity)
-
-The Correct game logic should be set automatically if you use `HERETIC.WAD` / `HEXEN.WAD` as the iwad.
+- The Correct game logic should be set automatically if you use `HERETIC.WAD` / `HEXEN.WAD` as the iwad.
   - You can drag and drop the files, or use `-iwad HERETIC.WAD` or `HEXEN.WAD`
     - For the Hexen expansion, add `-file HEXDD.WAD`.
   - If it doesn't work, you can force engine behaviour with the `-heretic` / `-hexen` commandline option.
