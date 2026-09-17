@@ -415,6 +415,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_free_text_active),
   MIGRATED_SETTING(dsda_config_free_text),
   MIGRATED_SETTING(dsda_config_wipe_at_full_speed),
+  MIGRATED_SETTING(dsda_config_allow_wipescreen_raven_demos),
   MIGRATED_SETTING(dsda_config_show_demo_attempts),
   MIGRATED_SETTING(dsda_config_hide_horns),
   MIGRATED_SETTING(dsda_config_hide_weapon),

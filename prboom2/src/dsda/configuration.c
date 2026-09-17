@@ -1544,6 +1544,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_wipe_at_full_speed", dsda_config_wipe_at_full_speed,
     CONF_BOOL(1), NULL, STRICT_INT(0)
   },
+  [dsda_config_allow_wipescreen_raven_demos] = {
+    "dsda_allow_wipescreen_raven_demos", dsda_config_allow_wipescreen_raven_demos,
+    CONF_BOOL(1)
+  },
   [dsda_config_show_demo_attempts] = {
     "dsda_show_demo_attempts", dsda_config_show_demo_attempts,
     CONF_BOOL(1)

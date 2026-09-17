@@ -6525,6 +6525,7 @@ setup_menu_t demos_tas_settings[] =
   { "Strict Mode", S_YESNO, m_conf, g_all, DM_X, dsda_config_strict_mode },
   EMPTY_LINE,
   { "Wipe At Full Speed", S_YESNO, m_conf, g_all, DM_X, dsda_config_wipe_at_full_speed },
+  { "Allow Wipe For Heretic", S_YESNO | S_NYAN, m_conf, g_all, DM_X, dsda_config_allow_wipescreen_raven_demos },
   { "Show Command Display", S_YESNO, m_conf, g_all, DM_X, dsda_config_command_display },
   { "Command History", S_NUM, m_conf, g_all, DM_X, dsda_config_command_history_size },
   { "Hide Empty Commands", S_YESNO, m_conf, g_all, DM_X, dsda_config_hide_empty_commands },
