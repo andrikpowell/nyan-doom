@@ -7404,7 +7404,7 @@ static int M_GetPixelWidth(const char* ch)
       {
       len += menu_font->space_width;
       continue;
-    }
+      }
     len += menu_font->font[c].width;
     len += menu_font->menu_spacing;
   }
