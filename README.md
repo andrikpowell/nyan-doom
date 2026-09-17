@@ -107,15 +107,19 @@ Instructions in [guides](./docs/guides/)
 
 ## Documentation
 
-### Nyan Doom Features
+### Nyan Feature Support
 - [ANIMINFO Support](./docs/animinfo.md)
-- [Obituary Support](./docs/obituaries.md)
-- [Partial ID24 Support](./docs/id24.md)
+- [Limit Removing Support](./docs/limit_removing.md)
+- [NYANHUD](./docs/nyanhud.md)
+- [GAMEVERS](./docs/gamevers.md)
 
 ### Feature Support
+- [HeHackEd Support](./docs/hehacked.md)
 - [Doom-in-Hexen Support](./docs/doom_in_hexen.md)
 - [UDMF Support](./docs/udmf.md)
 - [MAPINFO Support](./docs/mapinfo.md)
+- [Partial ID24 Support](./docs/id24.md)
+- [Obituary Support](./docs/obituaries.md)
 
 ### Standards
 - [MBF21 v1.4](https://github.com/kraflab/mbf21)
