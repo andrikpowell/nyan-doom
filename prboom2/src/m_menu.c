@@ -2581,7 +2581,7 @@ static dboolean M_DoomDisabled(const setup_menu_t* s)
     static const int options_disable_false[] =
     { dsda_config_hide_horns, dsda_config_skill_auto_use_health,
       dsda_config_artifact_descriptions, dsda_config_hexen_skip_ethereal_travel,
-      dsda_config_hexen_simpler_puzzle_use,
+      dsda_config_hexen_simpler_puzzle_use, dsda_config_quick_artifact_use,
 
       // status widget stuff
       nyan_config_ex_status_tome, nyan_config_ex_status_morph,
@@ -5033,6 +5033,7 @@ setup_menu_t gen_gamesim_settings[] = {
   { "Classic Flight", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_classic_flight },
   { "Weapon Carousel", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_weapon_carousel },
   { "Artifact Descriptions", S_CHOICE | S_NYAN, m_conf, g_raven, G2_X, dsda_config_artifact_descriptions, 0, artifact_desc_list },
+  { "Quick Artifact Use", S_YESNO | S_NYAN, m_conf, g_raven, G2_X, dsda_config_quick_artifact_use },
   { "Skip Ethereal Travel", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_skip_ethereal_travel },
   { "Simpler Puzzle Piece Use", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_simpler_puzzle_use },
   EMPTY_LINE,

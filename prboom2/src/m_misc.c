@@ -468,6 +468,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_classic_flight),
   MIGRATED_SETTING(dsda_config_weapon_carousel),
   MIGRATED_SETTING(dsda_config_artifact_descriptions),
+  MIGRATED_SETTING(dsda_config_quick_artifact_use),
   MIGRATED_SETTING(dsda_config_hexen_skip_ethereal_travel),
   MIGRATED_SETTING(dsda_config_hexen_simpler_puzzle_use),
   MIGRATED_SETTING(dsda_config_player_name),

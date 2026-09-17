@@ -130,6 +130,7 @@ enum {
   dsda_config_classic_flight,
   dsda_config_weapon_carousel,
   dsda_config_artifact_descriptions,
+  dsda_config_quick_artifact_use,
   dsda_config_hexen_skip_ethereal_travel,
   dsda_config_hexen_simpler_puzzle_use,
   dsda_config_disable_saving_after_death,

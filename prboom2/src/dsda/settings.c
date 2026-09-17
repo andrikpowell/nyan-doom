@@ -610,6 +610,10 @@ dboolean dsda_MultipleAreaMaps(void) {
   return dsda_IntConfig(dsda_config_multiple_area_maps) && !dsda_StrictMode() && casual_play;
 }
 
+dboolean dsda_QuickArtifactUse(void) {
+  return dsda_IntConfig(dsda_config_quick_artifact_use) && !dsda_StrictMode() && casual_play;
+}
+
 dboolean dsda_SimplerPuzzleUse(void) {
   return dsda_IntConfig(dsda_config_hexen_simpler_puzzle_use) && !dsda_StrictMode() && casual_play;
 }

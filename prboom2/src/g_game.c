@@ -543,7 +543,11 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       {
         plr->readyArtifact = plr->inventory[plr->inv_ptr].type;
         inventory = false;
-        cmd->arti = 0;
+
+        if (dsda_QuickArtifactUse())
+          cmd->arti |= plr->readyArtifact & AFLAG_MASK;
+        else
+          cmd->arti = 0;
       }
       else
       {
