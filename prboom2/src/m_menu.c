@@ -1116,9 +1116,9 @@ void M_LoadSelect(int choice)
 
 static char *forced_loadgame_message;
 
-static void M_VerifyForcedLoadGame(int ch)
+static void M_VerifyForcedLoadGame(int confirmed)
 {
-  if (ch=='y')
+  if (confirmed) // "y" for yes
     G_ForcedLoadGame();
   Z_Free(forced_loadgame_message);    // free the message Z_Strdup()'ed below
   M_ClearMenus();
@@ -1128,6 +1128,11 @@ void M_ForcedLoadGame(const char *msg)
 {
   forced_loadgame_message = Z_Strdup(msg); // Z_Free()'d above
   M_StartMessage(forced_loadgame_message, M_VerifyForcedLoadGame, true);
+}
+
+void M_ShowLegacySaveMessage(void)
+{
+  M_StartMessage("This save uses an incompatible save format.\n\n"PRESSKEY, NULL, false);
 }
 
 //
@@ -1388,6 +1393,15 @@ void M_SaveGame (int choice)
       "you can't save the game\n"
       "under these conditions!\n\n"PRESSKEY,
       NULL, false); // killough 5/26/98: not externalized
+    return;
+  }
+
+  if (dsda_DisableSaveAfterDeath())
+  {
+    M_StartMessage(
+      "you can't save the game\n"
+      "when you're dead!\n\n"PRESSKEY,
+      NULL, false);
     return;
   }
 
@@ -1662,6 +1676,11 @@ static void M_QuickSave(void)
       "you can't save the game\n"
       "under these conditions!\n\n"PRESSKEY,
       NULL, false); // killough 5/26/98: not externalized
+    return;
+  }
+
+  if (dsda_DisableSaveAfterDeath())
+  {
     return;
   }
 
@@ -5165,7 +5184,7 @@ setup_menu_t gen_video_settings[] = {
   { "Aspect Ratio", S_CHOICE, m_conf, g_all, G_X, dsda_config_render_aspect, 0, render_aspects_list },
   { "Fullscreen Video mode", S_YESNO, m_conf, g_all, G_X, dsda_config_use_fullscreen },
   { "Exclusive Fullscreen", S_YESNO, m_conf, g_all, G_X, dsda_config_exclusive_fullscreen },
-  { "Field of View", S_THERMO | S_NYAN, m_conf, g_all, G_X, dsda_config_render_fov },
+  //{ "Field of View", S_THERMO | S_NYAN, m_conf, g_all, G_X, dsda_config_render_fov },
   { "Zoom FOV", S_THERMO | S_NYAN, m_conf, g_all, G_X, dsda_config_zoom_fov },
   EMPTY_LINE,
   TITLE("FPS", G_X),
@@ -5218,7 +5237,6 @@ setup_menu_t gen_device_settings[] = {
   EMPTY_LINE,
   { "Enable Freelook", S_YESNO, m_conf, g_all, G2_X, dsda_config_freelook },
   { "Freelook AutoAim", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_freelook_autoaim, 0, empty_list, DEPEND_MULTI(freelook_list) },
-  { "Freelook Enhanced Flying", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_freelook_enhanced_flying, 0, empty_list, DEPEND_MULTI(freelook_list) },
 
   PREV_PAGE(gen_audio_settings),
   NEXT_PAGE(gen_gamesim_settings),
@@ -5229,8 +5247,10 @@ static const char* artifact_desc_list[] = { "Off", "Full", "Names", "Description
 
 setup_menu_t gen_gamesim_settings[] = {
   { "Death Use Action", S_CHOICE, m_conf, g_all, G2_X, dsda_config_death_use_action, 0, death_use_strings },
+  { "Disable Saving After Death", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_disable_saving_after_death },
   { "Rare Player Gib Death", S_YESNO | S_NYAN, m_conf, g_doom, G2_X, nyan_config_skullpop_easter_egg },
   { "Randomly Mirrored Corpses", S_YESNO | S_NYAN, m_conf, g_all, G2_X, nyan_config_flip_corpses },
+  { "Classic Flight", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_classic_flight },
   { "Weapon Carousel", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_weapon_carousel },
   { "Artifact Descriptions", S_CHOICE | S_NYAN, m_conf, g_raven, G2_X, dsda_config_artifact_descriptions, 0, artifact_desc_list },
   { "Skip Ethereal Travel", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_skip_ethereal_travel },
@@ -6747,6 +6767,7 @@ setup_menu_t demos_tas_settings[] =
   { "Strict Mode", S_YESNO, m_conf, g_all, DM_X, dsda_config_strict_mode },
   EMPTY_LINE,
   { "Wipe At Full Speed", S_YESNO, m_conf, g_all, DM_X, dsda_config_wipe_at_full_speed },
+  { "Allow Wipe For Heretic", S_YESNO | S_NYAN, m_conf, g_all, DM_X, dsda_config_allow_wipescreen_raven_demos },
   { "Show Command Display", S_YESNO, m_conf, g_all, DM_X, dsda_config_command_display },
   { "Command History", S_NUM, m_conf, g_all, DM_X, dsda_config_command_history_size },
   { "Hide Empty Commands", S_YESNO, m_conf, g_all, DM_X, dsda_config_hide_empty_commands },
@@ -10055,9 +10076,7 @@ static void M_DrawTitleImage(int x, int y, const char *patch, const char *text, 
 
   if (lumpnum != LUMP_NOT_FOUND)
   {
-    int flags = VPT_STRETCH;
-    if (cm != CR_DEFAULT)
-    flags |= VPT_COLOR;
+    int flags = VPT_STRETCH | M_AddColorFlag(cm);
     V_DrawMenuNumPatch(x, y, lumpnum, cm, flags);
   }
   else

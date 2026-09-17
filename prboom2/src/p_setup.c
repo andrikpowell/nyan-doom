@@ -35,7 +35,6 @@
 #include <math.h>
 #include <zlib.h>
 
-#include "doomdata.h"
 #include "doomdef.h"
 #include "doomstat.h"
 #include "doomtype.h"

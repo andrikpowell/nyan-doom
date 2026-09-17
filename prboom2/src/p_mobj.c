@@ -2537,7 +2537,7 @@ void P_TrySpawnPlayer(const mapthing_t *mthing, int player)
     player_start = &playerstarts[mthing->special_args[0]][player];
   else
     player_start = &playerstarts[0][player];
-
+    
   *player_start = *mthing;
   player_start->type = player + 1;
 

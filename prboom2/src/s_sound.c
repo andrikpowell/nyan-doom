@@ -772,7 +772,7 @@ void S_RestartMusic(void)
 {
   if (musinfo.current_item != -1)
   {
-    S_ChangeMusInfoMusic(musinfo.current_item, true);
+    S_ChangeMusInfoMusic(musinfo.current_item, musinfo.current_item_looping);
   }
   else
   {
@@ -786,10 +786,12 @@ void S_RestartMusic(void)
 void S_ChangeMusInfoMusic(int lumpnum, dboolean looping)
 {
   musicinfo_t *music;
+  dboolean music_looping = looping != 0;
 
   if (dsda_SkipMode())
   {
     musinfo.current_item = lumpnum;
+    musinfo.current_item_looping = music_looping;
     return;
   }
 
@@ -797,13 +799,15 @@ void S_ChangeMusInfoMusic(int lumpnum, dboolean looping)
   if (nomusicparm)
     return;
 
-  if (mus_playing && mus_playing->lumpnum == lumpnum)
+  if (mus_playing && mus_playing->lumpnum == lumpnum &&
+      musinfo.current_item_looping == music_looping)
     return;
 
   music = &S_music[mus_musinfo];
 
   // Allow MUSINFO music to restart after MIDI player changes
-  if (music->lumpnum == lumpnum && mus_playing)
+  if (music->lumpnum == lumpnum && mus_playing &&
+      musinfo.current_item_looping == music_looping)
     return;
 
   // shutdown old music
@@ -817,11 +821,12 @@ void S_ChangeMusInfoMusic(int lumpnum, dboolean looping)
   music->handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
 
   // play it
-  I_PlaySong(music->handle, looping);
+  I_PlaySong(music->handle, music_looping);
 
   mus_playing = music;
 
   musinfo.current_item = lumpnum;
+  musinfo.current_item_looping = music_looping;
 }
 
 void S_StopMusic(void)

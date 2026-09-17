@@ -94,7 +94,7 @@ static void dsda_DrawMapIcon(int x, int y, const char* lumpname, int color, int 
   from_pwad = W_PWADLumpNameExists2(lumpname);
 
   if (!from_pwad)
-    flags |= VPT_COLOR;
+    flags |= M_AddColorFlag(color);
 
   V_DrawMenuNamePatch(x, y, lumpname, color, flags);
 }

@@ -240,16 +240,17 @@
 // (some degree of opaqueness is good, to avoid compatibility woes)
 
 enum {
-  MIF_FALLING               = (1<<0), // Object is falling
-  MIF_ARMED                 = (1<<1), // Object is armed (for MF_TOUCHY objects)
-  MIF_SCROLLING             = (1<<2), // Object is affected by scroller / pusher / puller
-  MIF_PLAYER_DAMAGED_BARREL = (1<<3),
-  MIF_SPAWNED_BY_ICON       = (1<<4),
-  MIF_SPAWNED_BY_DSPARIL    = (1<<5),
-  MIF_FLIP                  = (1<<6),
-  MIF_FAKE                  = (1<<7), // Not a real thing, transient (e.g., for cheats)
-  MIF_LINEDONE              = (1<<8), // Object has activated W1 or S1 linedef via DEH frame
-  MIF_INTERP_CAPTURE        = (1<<9), // [AR] Capture interpolation once per tic
+  MIF_FALLING               = (1<<0 ), // Object is falling
+  MIF_ARMED                 = (1<<1 ), // Object is armed (for MF_TOUCHY objects)
+  MIF_SCROLLING             = (1<<2 ), // Object is affected by scroller / pusher / puller
+  MIF_PLAYER_DAMAGED_BARREL = (1<<3 ),
+  MIF_SPAWNED_BY_ICON       = (1<<4 ),
+  MIF_SPAWNED_BY_DSPARIL    = (1<<5 ),
+  MIF_DSPARIL_FIRST_PHASE   = (1<<6 ), // [AR] Skip the double kill of D'Sparil's phases
+  MIF_FLIP                  = (1<<7 ),
+  MIF_FAKE                  = (1<<8 ), // Not a real thing, transient (e.g., for cheats)
+  MIF_LINEDONE              = (1<<9 ), // Object has activated W1 or S1 linedef via DEH frame
+  MIF_INTERP_CAPTURE        = (1<<10), // [AR] Capture interpolation once per tic
 };
 
 // heretic

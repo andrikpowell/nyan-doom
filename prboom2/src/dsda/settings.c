@@ -296,7 +296,7 @@ dboolean dsda_FadeMessages(void) {
 }
 
 dboolean dsda_WeaponCarousel(void) {
-  return dsda_IntConfig(dsda_config_weapon_carousel);
+  return !demoplayback && dsda_IntConfig(dsda_config_weapon_carousel);
 }
 
 dboolean dsda_TrackSplits(void) {
@@ -611,7 +611,24 @@ dboolean dsda_SkipWipe(void) {
     return true;
   }
 
-  return !dsda_RenderWipeScreen() || raven;
+  // Hexen doesnt have screen wipe
+  if (hexen)
+    return true;
+
+  // Heretic doesnt have screen wipe
+  // ...but allow it during demos (QOL for quickstarting)
+  if (heretic)
+  {
+    // Skip wipe when option is disabled
+    if (!dsda_IntConfig(dsda_config_allow_wipescreen_raven_demos))
+      return true;
+
+    // Skip wipe in normal play
+    if (!demorecording)
+      return true;
+  }
+
+  return !dsda_RenderWipeScreen();
 }
 
 dboolean dsda_MultipleAreaMaps(void) {

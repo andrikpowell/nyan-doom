@@ -391,10 +391,6 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_freelook_autoaim", dsda_config_freelook_autoaim,
     CONF_BOOL(1), NULL, STRICT_INT(0)
   },
-  [dsda_config_freelook_enhanced_flying] = {
-    "dsda_freelook_enhanced_flying", dsda_config_freelook_enhanced_flying,
-    CONF_BOOL(1), NULL, STRICT_INT(0)
-  },
   [dsda_config_autorun] = {
     "autorun", dsda_config_autorun,
     CONF_BOOL(1)
@@ -684,6 +680,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_artifact_descriptions] = {
    "dsda_artifact_descriptions", dsda_config_artifact_descriptions,
     dsda_config_int, 0, 3, { 1 }
+  },
+  [dsda_config_classic_flight] = {
+    "dsda_classic_flight", dsda_config_classic_flight,
+    CONF_BOOL(0), NULL, STRICT_INT(1)
   },
   [dsda_config_weapon_carousel] = {
     "dsda_weapon_carousel", dsda_config_weapon_carousel,
@@ -1546,6 +1546,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_wipe_at_full_speed", dsda_config_wipe_at_full_speed,
     CONF_BOOL(1), NULL, STRICT_INT(0)
   },
+  [dsda_config_allow_wipescreen_raven_demos] = {
+    "dsda_allow_wipescreen_raven_demos", dsda_config_allow_wipescreen_raven_demos,
+    CONF_BOOL(1)
+  },
   [dsda_config_show_demo_attempts] = {
     "dsda_show_demo_attempts", dsda_config_show_demo_attempts,
     CONF_BOOL(1)
@@ -1789,6 +1793,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_doomguy_angry_face_fix] = {
     "dsda_doomguy_angry_face_fix", dsda_config_doomguy_angry_face_fix,
     CONF_BOOL(1)
+  },
+  [dsda_config_disable_saving_after_death] = {
+   "dsda_disable_saving_after_death", dsda_config_disable_saving_after_death,
+   CONF_BOOL(1), NULL, NOT_STRICT
   },
   [dsda_config_blockmap_fix] = {
     "dsda_blockmap_fix", dsda_config_blockmap_fix,

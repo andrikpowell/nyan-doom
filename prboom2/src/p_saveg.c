@@ -288,6 +288,7 @@ void P_ArchiveWorld (void)
   }
 
   P_SAVE_X(musinfo.current_item);
+  P_SAVE_X(musinfo.current_item_looping);
   P_ArchiveRandomMusic();
 }
 
@@ -395,6 +396,7 @@ void P_UnArchiveWorld (void)
   }
 
   P_LOAD_X(musinfo.current_item);
+  P_LOAD_X(musinfo.current_item_looping);
   P_UnArchiveRandomMusic();
 }
 

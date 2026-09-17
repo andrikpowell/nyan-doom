@@ -49,6 +49,7 @@ typedef struct musinfo_s
   mobj_t *lastmapthing;
   int tics;
   int current_item;
+  dboolean current_item_looping;
   int items[MAX_MUS_ENTRIES];
 } musinfo_t;
 

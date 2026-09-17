@@ -61,6 +61,7 @@
 #include "dsda/skill_info.h"
 
 #include "heretic/def.h"
+#include "heretic/p_action.h"
 #include "heretic/sb_bar.h"
 #include "heretic/hhe/strings.h"
 
@@ -975,6 +976,10 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
     totallive--;
 
   dsda_WatchDeath(target);
+
+  // Transfer kill to the second phase
+  if (heretic && P_MobjHasDeathAction(target, A_SorcererRise))
+    target->intflags |= MIF_DSPARIL_FIRST_PHASE;
 
   if (map_format.hexen && target->special)
   {
@@ -2689,6 +2694,7 @@ dboolean P_ChickenMorph(mobj_t * actor)
     fog = P_SpawnMobj(x, y, z + TELEFOGHEIGHT, HERETIC_MT_TFOG);
     S_StartMobjSound(fog, heretic_sfx_telept);
     chicken = P_SpawnMobj(x, y, z, HERETIC_MT_CHICKEN);
+    chicken->intflags |= actor->intflags & MIF_SPAWNED_BY_DSPARIL;
     chicken->special2.i = moType;
     chicken->special1.i = CHICKENTICS + P_Random(pr_heretic);
     chicken->flags |= ghost;
