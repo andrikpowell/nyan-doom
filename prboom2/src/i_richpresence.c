@@ -130,7 +130,7 @@ void I_UpdateDiscordPresence(const char *curstate, const char *curstatus)
 
     initialized = true;
 
-    Discord_Initialize(curappid, &handlers, 1, NULL);
+    Discord_Initialize(curappid, &handlers, 0, NULL);
 
     I_AtExit(I_ShutdownDiscordPresence, true, "I_ShutdownDiscordPresence", exit_priority_normal);
   }
