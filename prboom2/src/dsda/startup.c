@@ -617,7 +617,7 @@ static void Hexen_InitStartup(void)
   startup_song = dsda_GameInfoStartupSong();
 
   if (startup_song)
-    S_StartSongName(startup_song, true);
+    S_ChangeMusicByName(startup_song, true);
   else if (hexen)
     S_StartSongName("orb", true);
 
@@ -711,7 +711,7 @@ static void dsda_DoomStartup(void)
 
   startup_song = dsda_GameInfoStartupSong();
   if (startup_song)
-    S_StartSongName(startup_song, true);
+    S_ChangeMusicByName(startup_song, true);
 
   for (i = 0; i < MAX_NOTCHES; ++i)
   {
