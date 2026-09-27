@@ -4696,8 +4696,8 @@ setup_menu_t auto_colors_settings[] =  // 2st AutoMap Settings screen
   { "Countable item sprite",                S_COLOR, m_conf, g_doom, AU_X, dsda_config_mapcolor_item },       // mead 3/4/2003
   { "Hitboxes",                             S_COLOR|S_NYAN, m_conf, g_doom, AU_X, dsda_config_mapcolor_hitbox },
   { "Crosshair",                            S_COLOR, m_conf, g_doom, AU_X, dsda_config_mapcolor_hair },
-  { "Line automap markers",                 S_COLOR, m_conf, g_doom, AU_X, dsda_config_mapcolor_marker },
-  { "Single player arrow",                  S_COLOR|S_NYAN, m_conf, g_doom, AU_X, dsda_config_mapcolor_sngl },
+  { "Line automap markers",                 S_COLOR|S_NYAN, m_conf, g_doom, AU_X, dsda_config_mapcolor_marker },
+  { "Single player arrow",                  S_COLOR, m_conf, g_doom, AU_X, dsda_config_mapcolor_sngl },
   { "Your colour in multiplayer",           S_COLOR, m_conf, g_doom,  AU_X, dsda_config_mapcolor_me },
   EMPTY_LINE_ADV(g_doom),
   { "Player trail 1",                       S_COLOR, m_conf, g_doom, AU_X, dsda_config_mapcolor_trail_1 },
