@@ -116,7 +116,6 @@ The Correct game logic should be set automatically if you use `HERETIC.WAD` / `H
 - [HeHackEd Support](./docs/hehacked.md)
 - [Doom-in-Hexen Support](./docs/doom_in_hexen.md)
 - [UDMF Support](./docs/udmf.md)
-- [MAPINFO Support](./docs/mapinfo.md)
 - [Partial ID24 Support](./docs/id24.md)
 - [Obituary Support](./docs/obituaries.md)
 
