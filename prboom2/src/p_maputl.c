@@ -46,6 +46,7 @@
 #include "g_overflow.h"
 #include "e6y.h"//e6y
 
+#include "dsda/configuration.h"
 #include "dsda/map_format.h"
 #include "dsda/settings.h"
 
@@ -368,6 +369,11 @@ void P_UnsetThingPosition (mobj_t *thing)
       if (bprev && (*bprev = bnext = thing->bnext))  // unlink from block map
         bnext->bprev = bprev;
     }
+
+    if (thing->type == MT_TELEPORTMAN)
+    {
+        P_ResetTeleptFromSector(thing->subsector->sector->iSectorID);
+    }
 }
 
 //
@@ -433,6 +439,11 @@ void P_SetThingPosition(mobj_t *thing)
       }
       else        // thing is off the map
         thing->bnext = NULL, thing->bprev = NULL;
+    }
+
+    if (thing->type == MT_TELEPORTMAN)
+    {
+        P_ResetTeleptFromSector(ss->sector->iSectorID);
     }
 }
 
@@ -881,6 +892,9 @@ dboolean P_TraverseIntercepts(traverser_t func, fixed_t maxfrac)
   return true;                  // everything was traversed
 }
 
+amlinetrace_t amlinetraces[NUMAMLINETRACES] = {0};
+unsigned int cur_amlinetrace = 0;
+
 //
 // P_PathTraverse
 // Traces a line from x1,y1 to x2,y2,
@@ -902,6 +916,16 @@ dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
   int     mapx1, mapy1;
   int     mapxstep, mapystep;
   int     count;
+
+	if (dsda_IntConfig(dsda_config_map_traces))
+	{
+		amlinetraces[cur_amlinetrace].x1 = x1;
+		amlinetraces[cur_amlinetrace].x2 = x2;
+		amlinetraces[cur_amlinetrace].y1 = y1;
+		amlinetraces[cur_amlinetrace].y2 = y2;
+		amlinetraces[cur_amlinetrace].when = leveltime;
+		cur_amlinetrace = (cur_amlinetrace + 1) % NUMAMLINETRACES;
+	}
 
   validcount++;
   intercept_p = intercepts;

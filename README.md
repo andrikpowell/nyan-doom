@@ -1,4 +1,4 @@
-<div align="center" markdown="1">
+<div align="center">
     <a href="https://github.com/andrikpowell/nyan-doom/"><img src="./prboom2/ICONS/nyan-doom.svg" alt="Nyan Doom Logo" width="200"/></a>
     <h1>Nyan Doom</h1>
     <h3>The most fuzzy, cuddly Doom port ever!</h3>
@@ -39,7 +39,7 @@ It is called Nyan Doom, because I am a cat - *meow!*
 
 ## Downloads
 
-Available for Windows, macOS and Linux in [Releases](https://github.com/andrikpowell/nyan-doom/releases/latest)
+Available for Windows, Linux and macOS in [Releases](https://github.com/andrikpowell/nyan-doom/releases/latest)
 
 <details markdown="1">
   <summary>Download for Arch Linux</summary>
@@ -100,7 +100,7 @@ Nyan Doom includes demo-compatible support for Heretic and Hexen (all the demos 
 The Correct game logic should be set automatically if you use `HERETIC.WAD` / `HEXEN.WAD` as the iwad.
 - You can drag and drop the files, or use `-iwad HERETIC.WAD` or `HEXEN.WAD`
     - For the Hexen expansion, add `-file HEXDD.WAD`.
-S- If it doesn't work, you can force engine behaviour with the `-heretic` / `-hexen` commandline option.
+- If it doesn't work, you can force engine behaviour with the `-heretic` / `-hexen` commandline option.
 
 > The "Apply multisampling" automap option is disabled for Heretic + Hexen.
 

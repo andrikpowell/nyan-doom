@@ -62,6 +62,7 @@
 #include "xs_Float.h"
 
 #include "dsda/configuration.h"
+#include "dsda/excmd.h"
 #include "dsda/exhud.h"
 #include "dsda/features.h"
 #include "dsda/map_format.h"
@@ -952,7 +953,7 @@ void R_SetupFreelook(void)
     int i;
 
     centery = viewheight / 2;
-    if (raven || dsda_MouseLook())
+    if (raven || dsda_FreeAim())
     {
       dy = FixedMul(focallengthy, finetangent[(ANG90-viewpitch)>>ANGLETOFINESHIFT]);
       centery += dy >> FRACBITS;
@@ -1129,7 +1130,7 @@ static void R_SetupFrame (player_t *player)
   else if (dsda_MapFadeTable()) // Hexen Fog - fadetable
     cm = FADETABLE;
   else
-    cm = map_info.default_colormap;
+    cm = map_colormap;
 
   //e6y: save previous and current colormap
   boom_cm = cm;

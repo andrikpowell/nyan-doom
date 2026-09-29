@@ -25,6 +25,7 @@ typedef enum {
   dsda_arg_iwad,
   dsda_arg_file,
   dsda_arg_deh,
+  dsda_arg_loadgame,
   dsda_arg_playdemo,
   dsda_arg_playlump,
   dsda_arg_timedemo,
@@ -150,7 +151,6 @@ typedef enum {
   dsda_arg_do_not_use_misc12_frame_parameters_in_a_mushroom,
   dsda_arg_apply_mbf_codepointers_to_any_complevel,
   dsda_arg_reset_monsterspawner_params_after_loading,
-  dsda_arg_debug_mapinfo,
   dsda_arg_count,
 } dsda_arg_identifier_t;
 
@@ -172,7 +172,6 @@ dboolean dsda_Flag(dsda_arg_identifier_t id);
 int dsda_SimpleIntArg(dsda_arg_identifier_t id);
 void dsda_UpdateIntArg(dsda_arg_identifier_t id, const char* param);
 void dsda_UpdateStringArg(dsda_arg_identifier_t id, const char* param);
-void dsda_UpdateComplevelArg(dsda_arg_identifier_t id, const char* param);
 void dsda_AppendStringArg(dsda_arg_identifier_t id, const char* param);
 void dsda_UpdateFlag(dsda_arg_identifier_t id, dboolean found);
 void dsda_PrintArgHelp(void);

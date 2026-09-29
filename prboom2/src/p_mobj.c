@@ -59,7 +59,7 @@
 #include "dsda/ambient.h"
 #include "dsda/excmd.h"
 #include "dsda/map_format.h"
-#include "dsda/mapinfo.h"
+#include "dsda/line_special.h"
 #include "dsda/settings.h"
 #include "dsda/skill_info.h"
 #include "dsda/spawn_number.h"
@@ -67,7 +67,6 @@
 #include "dsda/tranmap.h"
 #include "dsda/utility.h"
 
-#include "heretic/def.h"
 #include "heretic/sb_bar.h"
 
 #include "hexen/po_man.h"
@@ -515,6 +514,14 @@ static void P_XYMovement (mobj_t* mo)
             return;
           }
         }
+
+        // [RH] Don't explode on horizon lines.
+        if (map_format.zdoom && blockline && blockline->special == zl_line_horizon)
+        {
+          P_RemoveMobj(mo);
+          return;
+        }
+
         P_ExplodeMissile(mo);
       }
       else // whatever else it is, it is now standing still in (x,y)
@@ -530,14 +537,14 @@ static void P_XYMovement (mobj_t* mo)
 
   if (
     mo->z > mo->floorz && !(mo->flags2 & MF2_ONMOBJ) && !(mo->flags & MF_FLY) &&
-    player && mo->player && map_info.air_control > 256
+    player && mo->player && map_aircontrol > 256
   )
   {
-    mo->momx = FixedMul(mo->momx, map_info.air_friction);
-    mo->momy = FixedMul(mo->momy, map_info.air_friction);
+    mo->momx = FixedMul(mo->momx, map_airfriction);
+    mo->momy = FixedMul(mo->momy, map_airfriction);
 
-    player->momx = FixedMul(player->momx, map_info.air_friction);
-    player->momy = FixedMul(player->momy, map_info.air_friction);
+    player->momx = FixedMul(player->momx, map_airfriction);
+    player->momy = FixedMul(player->momy, map_airfriction);
     return;
   }
 
@@ -716,7 +723,7 @@ fixed_t P_MobjGravity(mobj_t* mo)
 
 void P_AutoCorrectLookDir(player_t* player)
 {
-  if (casual_play && dsda_MouseLook())
+  if (casual_play && dsda_FreeAim())
   {
     return;
   }
@@ -1920,8 +1927,9 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
     if (type == g_mt_player)         // Except in old demos, players
       mobj->flags |= MF_FRIEND;    // are always friends.
 
-  if (map_info.flags & MI_PASSOVER && mobj->flags & MF_SOLID)
-    mobj->flags2 |= MF2_PASSMOBJ;
+  // TODO: possible mapinfo "passover" flag
+  // if (mobj->flags & MF_SOLID)
+    // mobj->flags2 |= MF2_PASSMOBJ;
 
   mobj->health = P_MobjSpawnHealth(mobj);
 
@@ -2034,7 +2042,7 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
 
   //e6y
   mobj->friction = ORIG_FRICTION;                        // phares 3/17/98
-  mobj->gravity = map_info.gravity;
+  mobj->gravity = map_gravity;
   mobj->alpha = 1.f;
   mobj->index = -1;
 
@@ -2314,8 +2322,8 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
   else
     mobj = P_SpawnMobj(x,y,z, g_mt_player);
 
-  if (map_info.flags & MI_USE_PLAYER_START_Z)
-    mobj->z += mthing->height;
+  // TODO: possible "use player start z" mapinfo flag
+  //   mobj->z += mthing->height;
 
   if (map_format.zdoom)
     P_AdjustZLimits(mobj);
@@ -2524,13 +2532,7 @@ void P_TrySpawnPlayer(const mapthing_t *mthing, int player)
 {
   mapthing_t *player_start;
 
-  // Hexen stored these regardless of arg1, but only used the relevant ones depending on game type
-  // this caused a crash - HEXDD MAP39 players have arg1 of 99
-  if (mthing->special_args[0] < MAX_PLAYER_STARTS)
-    player_start = &playerstarts[mthing->special_args[0]][player];
-  else
-    player_start = &playerstarts[0][player];
-    
+  player_start = &playerstarts[mthing->special_args[0]][player];
   *player_start = *mthing;
   player_start->type = player + 1;
 
@@ -2646,9 +2648,9 @@ mobj_t* P_SpawnMapThing (const mapthing_t* mthing, int index)
   // check for players specially
   if ((player = P_TypeToPlayer(thingtype)) >= 0)
   {
-    if (map_info.flags & MI_FILTER_STARTS)
-      if (!P_ShouldSpawnMapThing(options))
-        return NULL;
+    // TODO: possible "filter starts" mapinfo flag
+    //   if (!P_ShouldSpawnMapThing(options))
+    //     return NULL;
 
     // killough 7/19/98: Marine's best friend :)
     if (
@@ -2817,7 +2819,7 @@ spawnit:
     if (mthing->gravity < 0)
       mobj->gravity = -mthing->gravity;
     else
-      mobj->gravity = FixedMul(map_info.gravity, mthing->gravity);
+      mobj->gravity = FixedMul(map_gravity, mthing->gravity);
   }
 
   mobj->alpha = mthing->alpha;

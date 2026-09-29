@@ -1319,9 +1319,9 @@ void V_UpdateStbarColor(void)
   D_MustFillBackScreen();
 }
 
-void V_SetPlayPal(int playpal_index)
+void V_SetPlayPal(int playpal_i)
 {
-  dsda_SetPlayPal(playpal_index);
+  dsda_SetPlayPal(playpal_i);
   R_UpdatePlayPal();
   V_SetPalette(currentPaletteIndex);
 
@@ -2378,7 +2378,7 @@ const unsigned char* V_GetPlaypal(void)
 {
   dsda_playpal_t* playpal_data;
 
-  playpal_data = dsda_PlayPalData();
+  playpal_data = dsda_PlayPalData(playpal_index);
 
   if (!playpal_data->lump)
   {
@@ -2394,13 +2394,13 @@ const unsigned char* V_GetPlaypal(void)
 
 void V_FreePlaypal(void)
 {
-  dsda_FreePlayPal();
+  dsda_FreeAllPlayPals();
 }
 
 int V_GetPlaypalCount(void)
 {
   V_GetPlaypal(); // ensure playpal data is initialized
-  return (dsda_PlayPalData()->length / PALETTE_SIZE);
+  return (dsda_PlayPalData(playpal_index)->length / PALETTE_SIZE);
 }
 
 //

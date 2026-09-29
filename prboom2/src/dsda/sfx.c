@@ -20,6 +20,7 @@
 #include <ctype.h>
 
 #include "doomtype.h"
+#include "lprintf.h"
 
 #include "dsda/configuration.h"
 

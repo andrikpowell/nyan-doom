@@ -1743,20 +1743,22 @@ static const char* dsda_GetSecretMessage(void)
 
 int P_GetMilestoneSound(int config_id)
 {
-  dboolean config = dsda_IntConfig(config_id);
+  int config = dsda_IntConfig(config_id);
+  int fallback_sfx;
 
   if (config == 0)
     return 0;
 
-  if (raven)
-    return g_sfx_secret;
+  fallback_sfx  = raven ? hexen ? hexen_sfx_chat :
+                                  heretic_sfx_chat :
+                                  sfx_itmbk;
+
+  dsda_LinkSFXEffect(g_sfx_secret, fallback_sfx);
+  dsda_LinkSFXEffect(g_sfx_secret_subtle, fallback_sfx);
 
   if (config == 1)
-  {
-    dboolean sound_exist = !(I_GetSfxLumpNum(&S_sfx[g_sfx_secret]) < 0);
+    return g_sfx_secret;
 
-    return sound_exist ? g_sfx_secret : g_sfx_secret_subtle;
-  }
 
   return g_sfx_secret_subtle;
 }
@@ -2147,7 +2149,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       if (!thing->player && !bossaction)
         if ((line->special & FloorChange) || !(line->special & FloorModel))
           return;     // FloorModel is "Allow Monsters" if FloorChange is 0
-      if (!comperr(comperr_zerotag) && !line->special_args[0]) //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all walk generalized types require tag
         return;
       linefunc = EV_DoGenFloor;
     }
@@ -2156,8 +2158,8 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       if (!thing->player && !bossaction)
         if ((line->special & CeilingChange) || !(line->special & CeilingModel))
           return;     // CeilingModel is "Allow Monsters" if CeilingChange is 0
-      if (!comperr(comperr_zerotag) && !line->special_args[0]) //jff 2/27/98 all walk generalized types require tag
-        return;
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all walk generalized types require tag
+         return;
       linefunc = EV_DoGenCeiling;
     }
     else if ((unsigned)line->special >= GenDoorBase)
@@ -2169,8 +2171,8 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
         if (line->flags & ML_SECRET) // they can't open secret doors either
           return;
       }
-      if (!comperr(comperr_zerotag) && !line->special_args[0]) //3/2/98 move outside the monster check
-        return;
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //3/2/98 move outside the monster check
+          return;
       linefunc = EV_DoGenDoor;
     }
     else if ((unsigned)line->special >= GenLockedBase)
@@ -2191,7 +2193,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       if (!thing->player && !bossaction)
         if (!(line->special & LiftMonster))
           return; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->special_args[0]) //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all walk generalized types require tag
         return;
       linefunc = EV_DoGenLift;
     }
@@ -2200,7 +2202,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       if (!thing->player && !bossaction)
         if (!(line->special & StairMonster))
           return; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->special_args[0]) //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all walk generalized types require tag
         return;
       linefunc = EV_DoGenStairs;
     }
@@ -2211,7 +2213,7 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       if (!thing->player && !bossaction)
         if (!(line->special & StairMonster))
           return; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->special_args[0]) //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all walk generalized types require tag
         return;
       linefunc = EV_DoGenCrusher;
     }
@@ -3065,7 +3067,7 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
       if (!thing->player)
         if ((line->special & FloorChange) || !(line->special & FloorModel))
           return;   // FloorModel is "Allow Monsters" if FloorChange is 0
-      if (!comperr(comperr_zerotag) && !line->special_args[0]) //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
 
       linefunc = EV_DoGenFloor;
@@ -3075,7 +3077,7 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
       if (!thing->player)
         if ((line->special & CeilingChange) || !(line->special & CeilingModel))
           return;   // CeilingModel is "Allow Monsters" if CeilingChange is 0
-      if (!comperr(comperr_zerotag) && !line->special_args[0]) //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
       linefunc = EV_DoGenCeiling;
     }
@@ -3088,7 +3090,7 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
         if (line->flags & ML_SECRET) // they can't open secret doors either
           return;
       }
-      if (!comperr(comperr_zerotag) && !line->special_args[0]) //jff 3/2/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
       linefunc = EV_DoGenDoor;
     }
@@ -3103,7 +3105,7 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
       }
       else
         return;
-      if (!comperr(comperr_zerotag) && !line->special_args[0]) //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
 
       linefunc = EV_DoGenLockedDoor;
@@ -3120,7 +3122,7 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
       if (!thing->player)
         if (!(line->special & StairMonster))
           return; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->special_args[0]) //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
       linefunc = EV_DoGenStairs;
     }
@@ -3129,7 +3131,7 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
       if (!thing->player)
         if (!(line->special & StairMonster))
           return; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->special_args[0]) //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->special_args[0]) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
       linefunc = EV_DoGenCrusher;
     }
@@ -5185,9 +5187,10 @@ void P_SpawnZDoomPusher(line_t *l)
       }
       else
       {  // [RH] Find thing by tid
-        int s;
+        thing_id_search_t search;
 
-        for (s = -1; (thing = P_FindMobjFromTID(l->special_args[1], &s)) != NULL;)
+        dsda_ResetThingIDSearch(&search);
+        while ((thing = dsda_FindMobjFromThingID(l->special_args[1], &search)) != NULL)
           if (thing->type == map_format.mt_push || thing->type == map_format.mt_pull)
             Add_Pusher(p_push, dx, dy, thing, thing->subsector->sector->iSectorID);
       }
@@ -6022,10 +6025,8 @@ dboolean P_TestActivateZDoomLine(line_t *line, mobj_t *mo, int side, line_activa
 
   if (activationType == SPAC_USE || activationType == SPAC_USEBACK)
   {
-    if (
-      (line->flags & ML_CHECKSWITCHRANGE || map_info.flags & MI_CHECK_SWITCH_RANGE) &&
-      !P_CheckSwitchRange(line, mo, side)
-    )
+    // TODO: possible "check switch range" mapinfo flag
+    if ((line->flags & ML_CHECKSWITCHRANGE) && !P_CheckSwitchRange(line, mo, side))
     {
       return false;
     }
@@ -6072,10 +6073,7 @@ dboolean P_TestActivateZDoomLine(line_t *line, mobj_t *mo, int side, line_activa
     // lax activation checks, monsters can also activate certain lines
     // even without them being marked as monster activate-able. This is
     // the default for non-Hexen maps in Hexen format.
-    if (!(map_info.flags & MI_LAX_MONSTER_ACTIVATION))
-    {
-      return false;
-    }
+    // TODO: possible "check switch range" mapinfo flag
 
     if ((activationType == SPAC_USE || activationType == SPAC_PUSH) && line->flags & ML_SECRET)
       return false;    // never open secret doors
@@ -8257,7 +8255,7 @@ dboolean P_ExecuteZDoomLineSpecial(int special, int * args, line_t * line, int s
     case zl_map_set_colormap:
       if (args[0] >= 0)
       {
-        map_info.default_colormap = args[0];
+        map_colormap = args[0];
       }
       buttonSuccess = 1;
       break;

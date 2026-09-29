@@ -25,6 +25,8 @@ int dsda_GetOriginalSFXIndex(const char* key);
 sfxinfo_t* dsda_GetDehSFX(int index);
 sfxinfo_t* dsda_NewSFX(int* index);
 void dsda_InitializeSFX(sfxinfo_t* source, int count);
+void dsda_AppendPortSFX(void);
+int dsda_PortSFXIndex(int port_sfx_id);
 void dsda_FreeDehSFX(void);
 dboolean dsda_BlockSFX(sfxinfo_t *sfx);
 

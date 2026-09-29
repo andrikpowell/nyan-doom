@@ -450,6 +450,9 @@ set(SPRITES
     sprites/dogsm0.png
     sprites/dogsn0.png
 
+    sprites/bon3a0.png
+    sprites/bon4a0.png
+
     sprites/pls1a0.png
     sprites/pls1b0.png
     sprites/pls1c0.png

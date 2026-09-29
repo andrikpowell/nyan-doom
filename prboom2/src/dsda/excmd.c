@@ -22,6 +22,7 @@
 
 #include "dsda/configuration.h"
 #include "dsda/mapinfo.h"
+#include "umapinfo.h"
 
 #include "excmd.h"
 
@@ -46,8 +47,6 @@ dboolean dsda_ExCmdDemo(void) {
 }
 
 void dsda_EnableCasualExCmdFeatures(void) {
-  void dsda_ResetAirControl(void);
-
   casual_excmd_features = true;
 
   dsda_ResetAirControl();
@@ -58,22 +57,26 @@ dboolean dsda_AllowCasualExCmdFeatures(void) {
 }
 
 dboolean dsda_AllowJumping(void) {
-  return (casual_play && dsda_IntConfig(dsda_config_allow_jumping))
-         || map_info.flags & MI_ALLOW_JUMP
-         || dsda_AllowCasualExCmdFeatures();
+  if (!casual_play && !dsda_AllowCasualExCmdFeatures())
+    return false;
+
+  return (dsda_MapAllowsJumping() != PM_Disallow && dsda_IntConfig(dsda_config_allow_jumping)) ||
+          dsda_MapAllowsJumping() == PM_Require;
 }
 
 dboolean dsda_FreeAim(void) {
-  return ((casual_play || dsda_AllowCasualExCmdFeatures())
-         && dsda_IntConfig(dsda_config_freelook))
-         || map_info.flags & MI_ALLOW_FREE_LOOK;
+  if (!casual_play && !dsda_AllowCasualExCmdFeatures())
+    return false;
+
+  return (dsda_MapAllowsFreeaim() != PM_Disallow && dsda_IntConfig(dsda_config_freelook)) ||
+          dsda_MapAllowsFreeaim() == PM_Require;
 }
 
 dboolean dsda_FreeAimFlying(void) {
-  return (casual_play && dsda_IntConfig(dsda_config_classic_flight) && dsda_FreeAim());
+  return (casual_play && !dsda_IntConfig(dsda_config_classic_flight) && dsda_FreeAim());
 }
 
-dboolean dsda_MouselookAutoAim(void) {
+dboolean dsda_FreeAimAutoAim(void) {
   return (casual_play && dsda_IntConfig(dsda_config_freelook_autoaim) && dsda_FreeAim());
 }
 

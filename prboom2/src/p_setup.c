@@ -2068,8 +2068,8 @@ static void P_LoadLineDefs (int lump)
       ld->special_args[4] = mld->arg5;
       ld->v1 = &vertexes[(unsigned short)LittleShort(mld->v1)];
       ld->v2 = &vertexes[(unsigned short)LittleShort(mld->v2)];
-      ld->sidenum[0] = LittleShort(mld->sidenum[0]);
-      ld->sidenum[1] = LittleShort(mld->sidenum[1]);
+      ld->sidenum[0] = (unsigned short)LittleShort(mld->sidenum[0]);
+      ld->sidenum[1] = (unsigned short)LittleShort(mld->sidenum[1]);
       P_SetLineID(ld);
     }
     else
@@ -2086,9 +2086,15 @@ static void P_LoadLineDefs (int lump)
       ld->special_args[4] = 0;
       ld->v1 = &vertexes[(unsigned short)LittleShort(mld->v1)];
       ld->v2 = &vertexes[(unsigned short)LittleShort(mld->v2)];
-      ld->sidenum[0] = LittleShort(mld->sidenum[0]);
-      ld->sidenum[1] = LittleShort(mld->sidenum[1]);
+      ld->sidenum[0] = (unsigned short)LittleShort(mld->sidenum[0]);
+      ld->sidenum[1] = (unsigned short)LittleShort(mld->sidenum[1]);
     }
+
+    if ((unsigned short) -1 == ld->sidenum[0])
+      ld->sidenum[0] = NO_INDEX;
+
+    if ((unsigned short) -1 == ld->sidenum[1])
+      ld->sidenum[1] = NO_INDEX;
 
     map_format.translate_line_flags(&ld->flags, &ld->activation);
 
@@ -2131,6 +2137,11 @@ static void P_LoadUDMFLineDefs(int lump)
     ld->automap_style = mld->automapstyle;
     ld->health = mld->health;
     ld->healthgroup = mld->healthgroup;
+
+    // Clamp to valid values
+    if (ld->automap_style < ams_default || ld->automap_style >= AMS_COUNT) {
+      ld->automap_style = ams_default;
+    }
 
     if (ld->special == zl_sector_set_colormap || ld->special == zl_map_set_colormap)
     {
@@ -3498,11 +3509,6 @@ static void P_UpdateMapFormat()
   }
   else
   {
-    if (dsda_UseMapinfo())
-      DO_ONCE
-        lprintf(LO_WARN, "Some features of MAPINFO may not work with non-udmf maps!\n");
-      END_ONCE
-
     if (has_behavior && !hexen)
     {
       if (heretic)
@@ -3743,7 +3749,7 @@ static void P_ResetMilestones(void)
 //
 // killough 5/3/98: reformatted, cleaned up
 
-void P_SetupLevel(int episode, int map, int playermask, int skill)
+void P_SetupLevel(int episode, int map, int skill)
 {
   int   i;
   char  lumpname[9];
@@ -3789,6 +3795,8 @@ void P_SetupLevel(int episode, int map, int playermask, int skill)
     S_LevelLoadRandomMusic();
 
   Z_FreeLevel();
+
+  P_ResetTeleptList();
 
   P_InitThinkers();
 

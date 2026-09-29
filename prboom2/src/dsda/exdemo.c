@@ -149,7 +149,7 @@ static void DemoEx_GetParams(const wadinfo_t* header) {
     if (!dsda_Arg(dsda_arg_complevel)->found) {
       p = M_CheckParmEx("-complevel", params, paramscount);
       if (p >= 0 && p < (int) paramscount - 1)
-        dsda_UpdateComplevelArg(dsda_arg_complevel, params[p + 1]);
+        dsda_UpdateStringArg(dsda_arg_complevel, params[p + 1]);
     }
 
     // set limit removing status

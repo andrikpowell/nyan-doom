@@ -42,7 +42,7 @@ static int dsda_FontStringWidth(const patchnum_t *font, const char *string) {
 
 // Check font width and lower kerning if it's too wide
 static int dsda_FontMenuSpacing(const patchnum_t *font) {
-  return dsda_FontStringWidth(hu_font, "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234") > 230 ? -1 : 0;
+  return dsda_FontStringWidth(font, "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234") > 230 ? -1 : 0;
 }
 
 void dsda_InitFont(void) {
