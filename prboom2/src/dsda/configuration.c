@@ -681,6 +681,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
    "dsda_artifact_descriptions", dsda_config_artifact_descriptions,
     dsda_config_int, 0, 3, { 1 }
   },
+  [dsda_config_quick_artifact_use] = {
+   "dsda_quick_artifact_use", dsda_config_quick_artifact_use,
+   CONF_BOOL(0), NULL, STRICT_INT(0)
+  },
   [dsda_config_classic_flight] = {
     "dsda_classic_flight", dsda_config_classic_flight,
     CONF_BOOL(0), NULL, STRICT_INT(1)
@@ -1752,7 +1756,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [nyan_config_weapon_freelook_tilt] = {
     "nyan_weapon_freelook_tilt", nyan_config_weapon_freelook_tilt,
-    CONF_BOOL(0), NULL, NOT_STRICT
+    CONF_BOOL(1), NULL, NOT_STRICT
   },
   [dsda_config_fix_viewbob_floor_jolt] = {
     "dsda_fix_viewbob_floor_jolt", dsda_config_fix_viewbob_floor_jolt,

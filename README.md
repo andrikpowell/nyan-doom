@@ -92,59 +92,37 @@ Code available at [https://github.com/andrikpowell/nyan-doom/](https://github.co
 
 Instructions in [guides](./docs/guides/)
 
-## Notice
-Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). This means that certain features already in DSDA-Doom (and by extension Nyan Doom) may be broken or unfinished, especially in regards to Heretic and Hexen support. Here is some documentation on those features:
+## Heretic + Hexen Support
 
-<details markdown="1">
+Nyan Doom includes demo-compatible support for Heretic and Hexen (all the demos stored on dsda are in sync).
+- You don't need to supply a complevel (set to complevel 0 by necessity)
 
-  <summary>Heretic Support</summary>
+The Correct game logic should be set automatically if you use `HERETIC.WAD` / `HEXEN.WAD` as the iwad.
+- You can drag and drop the files, or use `-iwad HERETIC.WAD` or `HEXEN.WAD`
+    - For the Hexen expansion, add `-file HEXDD.WAD`.
+- If it doesn't work, you can force engine behaviour with the `-heretic` / `-hexen` commandline option.
 
-### Heretic Support
-- Nyan Doom includes demo-compatible support for heretic (all the demos stored on dsda are in sync).
-- Heretic game logic should be set automatically if you use `HERETIC.WAD` as the iwad. If it doesn't work, please use the `-heretic` commandline option. This flips a switch in the engine that determines all the core game data.
-- Don't need to supply complevel (heretic is complevel 0 by necessity)
-- Known issues
-  - Setting the "Status Bar and Menu Appearance" option to "not adjusted" may look incorrect in heretic.
-  - The "Apply multisampling" automap option is disabled for heretic.
-  - Some of the more advanced features are not implemented for heretic yet, and using them may cause crashes or other odd behaviour.
-  - Some menus extend over the hud.
+> The "Apply multisampling" automap option is disabled for Heretic + Hexen.
 
-</details>
+## Documentation
 
-<details markdown="1">
-
-  <summary>Hexen Support</summary>
-
-### Hexen Support
-- Nyan Doom includes demo-compatible support for hexen.
-  - Use -iwad HEXEN.WAD (-file HEXDD.WAD for the expansion)
-    - Or drag wads onto the exe
-  - You can force hexen engine behaviour with `-hexen` (shouldn't be necessary)
-- Don't need to supply complevel (hexen is complevel 0 by necessity)
-- Known issues
-  - The "Apply multisampling" automap option is disabled for hexen
-  - Some of the more advanced features are not implemented for hexen yet, and using them may cause crashes or other odd behaviour.
-  - Some menus extend over the hud.
- 
-</details>
-
-<details markdown="1">
-
-  <summary>More Documentation</summary>
+### Nyan Feature Support
+- [ANIMINFO Support](./docs/animinfo.md)
+- [Limit Removing Support](./docs/limit_removing.md)
+- [NYANHUD](./docs/nyanhud.md)
+- [GAMEVERS](./docs/gamevers.md)
 
 ### Feature Support
+- [HeHackEd Support](./docs/hehacked.md)
 - [Doom-in-Hexen Support](./docs/doom_in_hexen.md)
 - [UDMF Support](./docs/udmf.md)
 - [MAPINFO Support](./docs/mapinfo.md)
-- [ANIMINFO Support](./docs/animinfo.md)
-- [Obituary Support](./docs/obituaries.md)
 - [Partial ID24 Support](./docs/id24.md)
+- [Obituary Support](./docs/obituaries.md)
 
 ### Standards
 - [MBF21 v1.4](https://github.com/kraflab/mbf21)
 - [UMAPINFO v2.2](https://github.com/kraflab/umapinfo)
-
-</details>
 
 ## Nyan Launcher
 [Download (Windows and macOS)](https://github.com/andrikpowell/nyan-launcher/releases/latest)

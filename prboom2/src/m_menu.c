@@ -218,7 +218,6 @@ static dboolean sub_color_active = false;
 
 extern const char* g_menu_flat;
 extern int g_menu_save_page_size;
-extern int g_menu_font_spacing;
 
 #define QUICKSAVESLOT 0
 
@@ -2644,7 +2643,7 @@ static dboolean M_DoomDisabled(const setup_menu_t* s)
     static const int options_disable_false[] =
     { dsda_config_hide_horns, dsda_config_skill_auto_use_health,
       dsda_config_artifact_descriptions, dsda_config_hexen_skip_ethereal_travel,
-      dsda_config_hexen_simpler_puzzle_use,
+      dsda_config_hexen_simpler_puzzle_use, dsda_config_quick_artifact_use,
 
       // status widget stuff
       nyan_config_ex_status_tome, nyan_config_ex_status_morph,
@@ -4351,12 +4350,13 @@ setup_menu_t keys_movement_settings[] =  // Key Binding screen strings
   EMPTY_LINE,
   { "Forward",       S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_forward },
   { "Backward",      S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_backward },
-  { "Turn Left",     S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_turnleft },
-  { "Turn Right",    S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_turnright },
-  { "Run",           S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_speed },
   { "Strafe Left",   S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_strafeleft },
   { "Strafe Right",  S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_straferight },
+  { "Use",           S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_use },
+  { "Run",           S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_speed },
   { "Strafe",        S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_strafe },
+  { "Turn Left",     S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_turnleft },
+  { "Turn Right",    S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_turnright },
   { "180 Turn",      S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_reverse },
   { "Jump",          S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_jump },
   EMPTY_LINE,
@@ -4364,6 +4364,7 @@ setup_menu_t keys_movement_settings[] =  // Key Binding screen strings
   { "Autorun",       S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_autorun },
   { "Free Look",     S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_mlook },
   { "Vertmouse",     S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_novert },
+  { "View Zoom",   S_INPUT|S_NYAN, m_scrn, g_all, KB_X, 0, dsda_input_zoom },
   EMPTY_LINE_ADV(g_raven),
   TITLE_ADV("Raven", g_raven, KB_X),
   { "Look Up", S_INPUT, m_scrn, g_raven, KB_X, 0, dsda_input_lookup },
@@ -4380,7 +4381,6 @@ setup_menu_t keys_movement_settings[] =  // Key Binding screen strings
 setup_menu_t keys_weapons_settings[] =  // Key Binding screen strings
 {
   { "Fire",      S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_fire },
-  { "Use",       S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_use },
   EMPTY_LINE,
   { "Fist",      S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_weapon1 },
   { "Pistol",    S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_weapon2 },
@@ -4411,7 +4411,8 @@ setup_menu_t keys_automap_settings[] =  // Key Binding screen strings
   { "Shift Up",         S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_up },
   { "Shift Down",       S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_down },
   { "Shift Left",       S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_left },
-  { "ShifT Right",      S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_right },
+  { "Shift Right",      S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_right },
+  { "Mouse Panning",    S_INPUT|S_NYAN, m_map, g_all, KB_X, 0, dsda_input_map_mouse_pan },
   { "Mark Place",       S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_mark },
   { "Clear Last Mark",  S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_clear },
   { "Full/Zoom",        S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_gobig },
@@ -4420,7 +4421,6 @@ setup_menu_t keys_automap_settings[] =  // Key Binding screen strings
   { "Overlay",          S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_overlay },
   { "Textured",         S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_textured },
   { "Highlight By Tag", S_INPUT, m_map, g_all, KB_X, 0, dsda_input_map_highlight_by_tag },
-  { "Mouse Panning",    S_INPUT|S_NYAN, m_map, g_all, KB_X, 0, dsda_input_map_mouse_pan },
 
   PREV_PAGE(keys_weapons_settings),
   NEXT_PAGE(keys_game_settings),
@@ -4457,7 +4457,6 @@ setup_menu_t keys_game_settings[] =  // Key Binding screen strings
   { "Smaller View",      S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_zoomout },
   { "Screenshot",        S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_screenshot },
   { "Repeat Message",    S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_repeat_message },
-  { "Toggle Zoom",       S_INPUT|S_NYAN, m_scrn, g_all, KB_X, 0, dsda_input_zoom },
 
   PREV_PAGE(keys_automap_settings),
   NEXT_PAGE(keys_misc_settings),
@@ -4513,8 +4512,8 @@ setup_menu_t keys_toggles_settings[] = {
   TITLE("Cycle", MS_X),
   { "Cycle Input Profile",  S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_cycle_profile },
   { "Cycle Palette",        S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_cycle_palette },
-  { "Cycle ExHud Stats", S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_cycle_exhud_stats },
-  { "Cycle Map Stats", S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_cycle_map_stats },
+  { "Cycle ExHud Stats", S_INPUT|S_NYAN, m_scrn, g_all, KB_X, 0, dsda_input_cycle_exhud_stats },
+  { "Cycle Map Stats", S_INPUT|S_NYAN, m_scrn, g_all, KB_X, 0, dsda_input_cycle_map_stats },
 
   PREV_PAGE(keys_misc_settings),
   NEXT_PAGE(keys_menus_settings),
@@ -4831,7 +4830,7 @@ setup_menu_t auto_options_settings[] =
   { "Pan speed (1..32)", S_NUM, m_conf, g_all, AU_X, dsda_config_map_pan_speed },
   { "Zoom speed (1..32)", S_NUM, m_conf, g_all, AU_X, dsda_config_map_scroll_speed },
   { "Use mouse wheel for zooming", S_YESNO, m_conf, g_all, AU_X, dsda_config_map_wheel_zoom },
-  { "Use mouse panning", S_YESNO, m_conf, g_all, AU_X, dsda_config_automap_mouse_pan },
+  { "Use mouse panning", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_automap_mouse_pan },
   { "Show Minimap", S_YESNO, m_conf, g_all, AU_X, dsda_config_show_minimap },
   EMPTY_LINE,
   { "Cycle Level Title / Author", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_map_title_author_cycle },
@@ -4918,7 +4917,7 @@ setup_menu_t auto_colors_settings[] =  // 2st AutoMap Settings screen
   { "Countable item sprite",                S_COLOR, m_conf, g_doom, AU_X, dsda_config_mapcolor_item },       // mead 3/4/2003
   { "Hitboxes",                             S_COLOR|S_NYAN, m_conf, g_doom, AU_X, dsda_config_mapcolor_hitbox },
   { "Crosshair",                            S_COLOR, m_conf, g_doom, AU_X, dsda_config_mapcolor_hair },
-  { "Line automap markers",                 S_COLOR, m_conf, g_doom, AU_X, dsda_config_mapcolor_marker },
+  { "Line automap markers",                 S_COLOR|S_NYAN, m_conf, g_doom, AU_X, dsda_config_mapcolor_marker },
   { "Single player arrow",                  S_COLOR, m_conf, g_doom, AU_X, dsda_config_mapcolor_sngl },
   { "Your colour in multiplayer",           S_COLOR, m_conf, g_doom,  AU_X, dsda_config_mapcolor_me },
   EMPTY_LINE_ADV(g_doom),
@@ -4953,7 +4952,7 @@ setup_menu_t auto_colors_settings[] =  // 2st AutoMap Settings screen
   { "Countable item sprite",                S_COLOR, m_conf, g_heretic, AU_X, dsda_config_mapcolor_heretic_item },       // mead 3/4/2003
   { "Hitboxes",                             S_COLOR|S_NYAN, m_conf, g_heretic, AU_X, dsda_config_mapcolor_heretic_hitbox },
   { "Crosshair",                            S_COLOR, m_conf, g_heretic, AU_X, dsda_config_mapcolor_heretic_hair },
-  { "Line automap markers",                 S_COLOR, m_conf, g_heretic, AU_X, dsda_config_mapcolor_heretic_marker },
+  { "Line automap markers",                 S_COLOR|S_NYAN, m_conf, g_heretic, AU_X, dsda_config_mapcolor_heretic_marker },
   { "Single player arrow",                  S_COLOR, m_conf, g_heretic, AU_X, dsda_config_mapcolor_heretic_sngl },
   { "Your colour in multiplayer",           S_COLOR, m_conf, g_heretic, AU_X, dsda_config_mapcolor_heretic_me },
   EMPTY_LINE_ADV(g_heretic),
@@ -4982,7 +4981,7 @@ setup_menu_t auto_colors_settings[] =  // 2st AutoMap Settings screen
   { "Artifact sprite",                     S_COLOR, m_conf, g_hexen, AU_X, dsda_config_mapcolor_hexen_item },       // mead 3/4/2003
   { "Hitboxes",                            S_COLOR|S_NYAN, m_conf, g_hexen, AU_X, dsda_config_mapcolor_hexen_hitbox },
   { "Crosshair",                           S_COLOR, m_conf, g_hexen, AU_X, dsda_config_mapcolor_hexen_hair },
-  { "Line automap markers",                S_COLOR, m_conf, g_hexen, AU_X, dsda_config_mapcolor_hexen_marker },
+  { "Line automap markers",                S_COLOR|S_NYAN, m_conf, g_hexen, AU_X, dsda_config_mapcolor_hexen_marker },
   { "Single player arrow",                 S_COLOR, m_conf, g_hexen, AU_X, dsda_config_mapcolor_hexen_sngl },
   { "Your colour in multiplayer",          S_COLOR, m_conf, g_hexen, AU_X, dsda_config_mapcolor_hexen_me },
   EMPTY_LINE_ADV(g_hexen),
@@ -5253,6 +5252,7 @@ setup_menu_t gen_gamesim_settings[] = {
   { "Classic Flight", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_classic_flight },
   { "Weapon Carousel", S_YESNO | S_NYAN, m_conf, g_all, G2_X, dsda_config_weapon_carousel },
   { "Artifact Descriptions", S_CHOICE | S_NYAN, m_conf, g_raven, G2_X, dsda_config_artifact_descriptions, 0, artifact_desc_list },
+  { "Quick Artifact Use", S_YESNO | S_NYAN, m_conf, g_raven, G2_X, dsda_config_quick_artifact_use },
   { "Skip Ethereal Travel", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_skip_ethereal_travel },
   { "Simpler Puzzle Piece Use", S_YESNO | S_NYAN, m_conf, g_hexen, G2_X, dsda_config_hexen_simpler_puzzle_use },
   EMPTY_LINE,
@@ -5570,8 +5570,8 @@ static const char* invuln_sky_list[] = { "Default", "MBF", "Vanilla", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Screen Wipe Effect", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_render_wipescreen, 0, wipe_screen_list },
-  { "Sky Projection", S_CHOICE, m_conf, g_all, G_X, dsda_config_render_sky_projection, 0, sky_projection_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
   { "Stretch Short Skies", S_YESNO, m_conf, g_doom, G_X, dsda_config_render_stretchsky, DEPEND_SW },
+  { "Sky Projection", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_render_sky_projection, 0, sky_projection_list, DEPEND(dsda_config_videomode, SOFTWARE_MODE) },
   { "Height Change View Fix", S_YESNO, m_conf, g_doom, G_X, dsda_config_fix_viewbob_floor_jolt },
   { "Quake Intensity", S_PERC, m_conf, g_all, G_X, dsda_config_quake_intensity },
   { "Fake Contrast", S_CHOICE, m_conf, g_all, G_X, dsda_config_fake_contrast_mode, 0, fake_contrast_list },
@@ -5584,7 +5584,7 @@ setup_menu_t display_options_settings[] = {
   { "Palette On Pickup", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onbonus, 0, palette_reduced_list },
   { "Palette On Powers", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onpowers, 0, palette_list },
   { "Palette On Effects", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_oneffects, 0, palette_reduced_list },
-  { "Invuln Sky Behavior", S_CHOICE, m_conf, g_all, G_X, dsda_config_invulnerability_sky, 0, invuln_sky_list },
+  { "Invuln Sky Behavior", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_invulnerability_sky, 0, invuln_sky_list },
   { "Gray Invulnerability", S_YESNO | S_NYAN, m_conf, g_doom, G_X, dsda_config_gray_invulnerability },
   EMPTY_LINE,
   { "Menu Background", S_CHOICE, m_conf, g_all, G_X, dsda_config_menu_background, 0, menu_background_list },
@@ -7601,7 +7601,7 @@ static void M_DrawString(int cx, int cy, int color, const char* ch)
     V_DrawMenuNumPatch(cx, cy, menu_font->font[c].lumpnum, color, VPT_STRETCH | VPT_COLOR);
     // The screen is cramped, so trim one unit from each
     // character so they butt up against each other.
-    cx += w + g_menu_font_spacing;
+    cx += w + menu_font->menu_spacing;
   }
 }
 
@@ -7629,9 +7629,9 @@ static int M_GetPixelWidth(const char* ch)
       continue;
       }
     len += menu_font->font[c].width;
-    len += g_menu_font_spacing;
+    len += menu_font->menu_spacing;
   }
-  len -= g_menu_font_spacing; // replace what you took away on the last char only
+  len -= menu_font->menu_spacing; // replace what you took away on the last char only
   return len;
 }
 
@@ -7652,7 +7652,7 @@ int M_GetPixelWidthCount(const char* str, int start_index, int count)
       width += menu_font->font[c].width;
 
     if (i + 1 < count && str[i + 1])
-      width += g_menu_font_spacing;
+      width += menu_font->menu_spacing;
   }
 
   return width;

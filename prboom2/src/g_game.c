@@ -545,7 +545,11 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       {
         plr->readyArtifact = plr->inventory[plr->inv_ptr].type;
         inventory = false;
-        cmd->arti = 0;
+
+        if (dsda_QuickArtifactUse())
+          cmd->arti |= plr->readyArtifact & AFLAG_MASK;
+        else
+          cmd->arti = 0;
       }
       else
       {
@@ -1326,7 +1330,8 @@ dboolean G_Responder (event_t* ev)
 
   if (dsda_InputActivated(dsda_input_zoom))
   {
-    if (gamestate == GS_LEVEL && casual_play)
+    // Allow zoom in demoplayback
+    if (gamestate == GS_LEVEL && !demorecording)
     {
       R_ToggleZoom();
       return true;

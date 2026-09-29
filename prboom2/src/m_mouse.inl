@@ -246,10 +246,10 @@ static int M_MousePixelWidthN(const char *text, size_t len)
     else
       width += menu_font->font[c].width;
 
-    width += g_menu_font_spacing;
+    width += menu_font->menu_spacing;
   }
 
-  width -= g_menu_font_spacing;
+  width -= menu_font->menu_spacing;
 
   return width > 0 ? width : 0;
 }

@@ -470,6 +470,7 @@ set(SPRITES
 set(WAD_SRC
     ${PALETTE}
     ${LUMPS}
+    ${PRBOOM_LUMPS}
     ${COLORMAPS}
     ${COLORS_LUMP}
     ${OPENGL_GRAPHICS}
