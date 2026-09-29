@@ -753,7 +753,7 @@ void I_SetPalette (int pal)
 
 // I_PreInitGraphics
 
-void I_ShutdownSDL(void)
+static void I_ShutdownSDL(void)
 {
   if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
   if (screen) SDL_FreeSurface(screen);
@@ -770,6 +770,7 @@ void I_ShutdownSDL(void)
 void I_PreInitGraphics(void)
 {
   int p;
+  dboolean endoom_export;
 
   // Initialize SDL
   unsigned int flags = 0;
@@ -784,6 +785,10 @@ void I_PreInitGraphics(void)
   {
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
+
+  endoom_export = dsda_IntConfig(nyan_config_export_endoom);
+
+  I_AtExit(I_ShutdownSDL, true, "I_ShutdownSDL", endoom_export ? exit_priority_normal : exit_priority_last);
 }
 
 // e6y: resolution limitation is removed
