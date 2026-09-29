@@ -163,23 +163,55 @@ int dsda_CompatibilityLevel(void) {
 
   if (complevel_arg->count) {
     const char* arg_val = complevel_arg->value.v_string;
+    const char* value_start = arg_val;
+    size_t value_len;
     char* str_end;
+    dboolean parsed_number;
+    dboolean limit_removing_suffix = false;
+
+    // Allow spaces before cl number/word
+    while (isspace((unsigned char)*value_start))
+      ++value_start;
+
+    // find where value starts after spaces
+    value_len = strlen(value_start);
+
+    // Remove spaces after value
+    while (value_len > 0 && isspace((unsigned char)value_start[value_len - 1]))
+      --value_len;
+
     errno = 0;
-    level = strtol(arg_val, &str_end, 0);
-    if (errno == 0 && (*str_end == '\0' || (*str_end == 'r' && str_end[1] == '\0'))) {
+    level = strtol(value_start, &str_end, 10);
+    parsed_number = str_end != value_start;
+
+    // Limit-Removing suffix
+    if (*str_end == 'r') {
+      limit_removing_suffix = true;
+      ++str_end;
+    }
+
+    // Allow spaces after cl number/word
+    while (isspace((unsigned char)*str_end))
+      ++str_end;
+
+    // Parse complevel number
+    if (errno == 0 && parsed_number && *str_end == '\0') {
       // Limit-removing
-      if (*str_end == 'r') {
+      if (limit_removing_suffix) {
         if (level < 0 || level > 6) {
           I_Error("Complevel '%s' is invalid: only complevels 0-6 may use 'r' (limit-removing).", arg_val);
         }
         limitremoving_arg = true;
       }
-      // Normal
+      // Number
       if (level >= -1 && level < MAX_COMPATIBILITY_LEVEL) {
         return level;
       }
-    } else {
-      level = dsda_ComplvlStrToNum(arg_val, strlen(arg_val));
+    }
+
+    // Parse complevel word
+    else {
+      level = dsda_ComplvlStrToNum(value_start, value_len);
       if (level != -1) {
         return level;
       }
