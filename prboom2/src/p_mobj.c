@@ -723,7 +723,7 @@ fixed_t P_MobjGravity(mobj_t* mo)
 
 void P_AutoCorrectLookDir(player_t* player)
 {
-  if (casual_play && dsda_MouseLook())
+  if (casual_play && dsda_FreeAim())
   {
     return;
   }
@@ -2034,7 +2034,8 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   mobj->PrevY = mobj->y;
   mobj->PrevZ = mobj->z;
 
-  if (mobj_interp_capture)
+  // Prevent projectiles from rendering close to the player's camera
+  if (!mobj_interp_capture)
     mobj->intflags |= MIF_INTERP_CAPTURE;
 
   mobj->thinker.function = P_MobjThinker;
@@ -2531,13 +2532,7 @@ void P_TrySpawnPlayer(const mapthing_t *mthing, int player)
 {
   mapthing_t *player_start;
 
-  // Hexen stored these regardless of arg1, but only used the relevant ones depending on game type
-  // this caused a crash - HEXDD MAP39 players have arg1 of 99
-  if (mthing->special_args[0] < MAX_PLAYER_STARTS)
-    player_start = &playerstarts[mthing->special_args[0]][player];
-  else
-    player_start = &playerstarts[0][player];
-    
+  player_start = &playerstarts[mthing->special_args[0]][player];
   *player_start = *mthing;
   player_start->type = player + 1;
 

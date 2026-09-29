@@ -716,7 +716,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     }
   }
 
-  if (players[consoleplayer].mo && players[consoleplayer].mo->pitch && !dsda_MouseLook())
+  if (players[consoleplayer].mo && players[consoleplayer].mo->pitch && !dsda_FreeAim())
     dsda_QueueExCmdLook(XC_LOOK_RESET);
 
   if (dsda_FreeAim())
@@ -1349,7 +1349,7 @@ dboolean G_Responder (event_t* ev)
 
       value = mouse_sensitivity_horiz * AccelerateMouse(ev->data1.i);
       mousex += G_CarryDouble(carry_mousex, value);
-      if (dsda_MouseLook())
+      if (dsda_FreeAim())
       {
         value = mouse_sensitivity_mlook * AccelerateMouse(ev->data2.i);
         if (dsda_IntConfig(dsda_config_movement_mouseinvert))
@@ -1377,7 +1377,7 @@ dboolean G_Responder (event_t* ev)
       dsda_WatchGameControllerEvent();
 
       mousex += AccelerateAnalog(ev->data1.f);
-      if (dsda_MouseLook())
+      if (dsda_FreeAim())
       {
         if (dsda_IntConfig(dsda_config_invert_analog_look))
           mlooky += AccelerateAnalog(ev->data2.f);
@@ -1585,7 +1585,7 @@ void G_Ticker (void)
             M_CheatNoClip();
           }
 
-          if (ex->actions & XC_LOOK && ex->look != XC_LOOK_RESET && !dsda_MouseLook())
+          if (ex->actions & XC_LOOK && ex->look != XC_LOOK_RESET && !dsda_FreeAim())
           {
             dsda_UpdateIntConfig(dsda_config_freelook, 1, false);
           }
@@ -4205,7 +4205,7 @@ void P_WalkTicker()
   G_ConvertAnalogMotion(speed, &forward, &side);
 
   walkcamera.angle += ((angturn / 8) << ANGLETOFINESHIFT);
-  if (dsda_MouseLook())
+  if (dsda_FreeAim())
   {
     walkcamera.pitch += ((mlooky / 8) << ANGLETOFINESHIFT);
     CheckPitch((signed int *) &walkcamera.pitch);

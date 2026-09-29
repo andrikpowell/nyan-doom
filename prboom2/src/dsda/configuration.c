@@ -45,6 +45,7 @@
 #include "dsda/exhud.h"
 #include "dsda/features.h"
 #include "dsda/input.h"
+#include "dsda/mapinfo.h"
 #include "dsda/skill_info.h"
 #include "dsda/stretch.h"
 #include "dsda/utility.h"
@@ -154,7 +155,6 @@ void deh_changeColoredBlood(void);
 void dsda_InitGameControllerParameters(void);
 void dsda_InitExHud(void);
 void dsda_UpdateFreeText(void);
-void dsda_ResetAirControl(void);
 void dsda_AlterGameFlags(void);
 void dsda_UpdateLimitRemoving(void);
 void dsda_RefreshPistolStart(void);

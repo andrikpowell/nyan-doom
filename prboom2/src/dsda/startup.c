@@ -617,9 +617,9 @@ static void Hexen_InitStartup(void)
   startup_song = dsda_GameInfoStartupSong();
 
   if (startup_song)
-    S_StartSongName(startup_song, true);
+    S_ChangeMusicByName(startup_song, true);
   else if (hexen)
-    S_StartSongName("orb", true);
+    S_ChangeMusic(hexen_mus_orb, true);
 
   // Vanilla Hexen has a palette fade for STARTUP. ZDoom ports do not.
   // Only do the fade, if GAMEINFO doesn't exist.
@@ -711,7 +711,7 @@ static void dsda_DoomStartup(void)
 
   startup_song = dsda_GameInfoStartupSong();
   if (startup_song)
-    S_StartSongName(startup_song, true);
+    S_ChangeMusicByName(startup_song, true);
 
   for (i = 0; i < MAX_NOTCHES; ++i)
   {

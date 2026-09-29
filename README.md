@@ -122,7 +122,6 @@ Nyan Doom code is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom). T
   - You can force hexen engine behaviour with `-hexen` (shouldn't be necessary)
 - Don't need to supply complevel (hexen is complevel 0 by necessity)
 - Known issues
-  - Setting the "Status Bar and Menu Appearance" option to "not adjusted" may look incorrect in hexen.
   - The "Apply multisampling" automap option is disabled for hexen
   - Some of the more advanced features are not implemented for hexen yet, and using them may cause crashes or other odd behaviour.
   - Some menus extend over the hud.

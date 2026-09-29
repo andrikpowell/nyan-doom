@@ -38,6 +38,7 @@
 #include "lprintf.h"
 #include "m_random.h"
 #include "p_enemy.h"
+#include "umapinfo.h"
 #include "v_video.h"
 #include "w_wad.h"
 #include "s_sound.h"
@@ -77,7 +78,7 @@ const char*   finaleflat;
 const char*   finalepatch;
 const char*   endpic;
 const char*   endpalette;
-int endgameflags;
+int finaletype;
 
 // defines for the end mission display text                     // phares
 
@@ -117,7 +118,7 @@ void F_StartFinale (void)
   finalepatch = NULL;
   endpic = NULL;
   endpalette = NULL;
-  endgameflags = 0;
+  finaletype = EG_None;
 
   if (heretic)  RETURN(Heretic_F_StartFinale());
   if (hexen)    RETURN(Hexen_F_StartFinale());

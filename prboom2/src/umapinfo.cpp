@@ -17,22 +17,22 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <assert.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <assert.h>
-#include "umapinfo.h"
 #include "scanner.h"
+#include "umapinfo.h"
 
 extern "C"
 {
-#include "m_misc.h"
-#include "g_game.h"
 #include "doomdef.h"
 #include "doomstat.h"
-
 #include "dsda/episode.h"
 #include "dsda/name.h"
+#include "g_game.h"
+#include "lprintf.h"
+#include "m_misc.h"
 
 MapList Maps;
 }
@@ -134,6 +134,38 @@ static int ParseLumpName(Scanner &scanner, char *buffer)
 
 // -----------------------------------------------
 //
+// Parses an advanced player movement option
+//
+// -----------------------------------------------
+static PlayerMovement ParsePlayerMovement(Scanner &scanner)
+{
+	auto pm = PM_Unset;
+	scanner.MustGetToken(TK_Identifier);
+	auto keyword = scanner.string;
+
+	if (!stricmp(keyword, "disallow"))
+	{
+		pm = PM_Disallow;
+	}
+	else if (!stricmp(keyword, "allow"))
+	{
+		pm = PM_Allow;
+	}
+	else if (!stricmp(keyword, "require"))
+	{
+		pm = PM_Require;
+	}
+
+	if (pm == PM_Unset)
+	{
+		scanner.ErrorF("Expected 'disallow', 'allow' or 'require', got %s", keyword);
+	}
+
+	return pm;
+}
+
+// -----------------------------------------------
+//
 // Parses a standard property that is already known
 // These do not get stored in the property list
 // but in dedicated struct member variables.
@@ -212,34 +244,24 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 	}
 	else if (!stricmp(pname, "endpic"))
 	{
-		mape->flags &= ~MapInfo_EndGameAny;
 		ParseLumpName(scanner, mape->endpic);
-		mape->flags |= MapInfo_EndGameArt;
+		mape->finale = EG_Art;
 	}
 	else if (!stricmp(pname, "endcast") && !raven)
 	{
 		scanner.MustGetToken(TK_BoolConst);
-		mape->flags &= ~MapInfo_EndGameAny;
-		mape->flags |= (scanner.boolean)
-		            ? MapInfo_EndGameCast
-		            : MapInfo_EndGameClear;
+		mape->flags = (scanner.boolean) ? EG_Cast : EG_Clear;
 	}
 	else if ((!stricmp(pname, "endbunny") && !raven) ||
 	         (!stricmp(pname, "enddemon") && heretic))
 	{
 		scanner.MustGetToken(TK_BoolConst);
-		mape->flags &= ~MapInfo_EndGameAny;
-		mape->flags |= (scanner.boolean)
-		            ? MapInfo_EndGameScroll
-		            : MapInfo_EndGameClear;
+		mape->flags = (scanner.boolean) ? EG_Scroll : EG_Clear;
 	}
 	else if (!stricmp(pname, "endgame"))
 	{
 		scanner.MustGetToken(TK_BoolConst);
-		mape->flags &= ~MapInfo_EndGameAny;
-		mape->flags |= (scanner.boolean)
-		            ? MapInfo_EndGameStandard
-		            : MapInfo_EndGameClear;
+		mape->flags = (scanner.boolean) ? EG_Standard : EG_Clear;
 	}
 	else if (!stricmp(pname, "endpalette"))
 	{
@@ -353,6 +375,7 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 		}
 		else
 		{
+			BossAction action = { 0 };
 			int special, tag, type;
 			mape->flags &= ~MapInfo_BossActionClear;
 
@@ -375,13 +398,75 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 			   (heretic ? special == 105 : special == 124) ||
 			   (heretic && special == 515))
 			{
+				action.type = type;
+				action.special = special;
+				action.args[0] = tag;
 				mape->numbossactions++;
 				mape->bossactions = (struct BossAction *)Z_Realloc(mape->bossactions, sizeof(struct BossAction) * mape->numbossactions);
-				mape->bossactions[mape->numbossactions - 1].type = type;
-				mape->bossactions[mape->numbossactions - 1].special = special;
-				mape->bossactions[mape->numbossactions - 1].tag = tag;
+				mape->bossactions[mape->numbossactions - 1] = action;
 			}
 
+		}
+	}
+	else if (!stricmp(pname, "jumping"))
+	{
+		mape->jumping = ParsePlayerMovement(scanner);
+	}
+	else if (!stricmp(pname, "crouching"))
+	{
+		mape->crouching = ParsePlayerMovement(scanner);
+
+		if (mape->crouching == PM_Require)
+		{
+			lprintf(LO_WARN,
+			        "Parsing UMAPINFO found a 'crouching = "
+			        "require' entry, but crouching is not "
+			        "supported, map %s may not work correctly.\n",
+			        mape->lumpname);
+		}
+	}
+	else if (!stricmp(pname, "freeaim"))
+	{
+		mape->freeaim = ParsePlayerMovement(scanner);
+	}
+	else if (!stricmp(pname, "DSDADoom_VerticalExplosionThrust"))
+	{
+		scanner.MustGetToken(TK_BoolConst);
+		if (scanner.boolean) mape->flags |= MapInfo_EX_VerticalExplosionThrust;
+		else mape->flags &= ~MapInfo_EX_VerticalExplosionThrust;
+	}
+	else if (!stricmp(pname, "DSDADoom_ExplodeIn3D"))
+	{
+		scanner.MustGetToken(TK_BoolConst);
+		if (scanner.boolean) mape->flags |= MapInfo_EX_ExplodeIn3D;
+		else mape->flags &= ~MapInfo_EX_ExplodeIn3D;
+	}
+	else if (!stricmp(pname, "DSDADoom_SpecialAction"))
+	{
+		BossAction action = { 0 };
+		action.is_param = true;
+		scanner.MustGetString();
+		action.type = dsda_ActorNameToType(scanner.string);
+		scanner.MustGetToken(',');
+		scanner.MustGetString();
+		action.special = dsda_ActionNameToNumber(scanner.string);
+
+		for (int i = 0; i < 5; ++i)
+		{
+			if (!scanner.CheckToken(','))
+				break;
+			scanner.MustGetInteger();
+			action.args[i] = scanner.number;
+		}
+
+		if (action.type != NAME_NOT_FOUND && action.special != NAME_NOT_FOUND)
+		{
+			mape->flags &= ~MapInfo_BossActionClear;
+			mape->numbossactions++;
+			mape->bossactions = (struct BossAction *)Z_Realloc(
+			      mape->bossactions,
+			      sizeof(struct BossAction) * mape->numbossactions);
+			mape->bossactions[mape->numbossactions - 1] = action;
 		}
 	}
 	else
@@ -448,36 +533,36 @@ int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc
 
 		// Set default level progression here to simplify the checks elsewhere.
 		// Doing this lets us skip all normal code for this if nothing has been defined.
-		if (!parsed.nextmap[0] && !(parsed.flags & (MapInfo_EndGameAny|MapInfo_EndGameClear)))
+		if (!parsed.nextmap[0] && parsed.finale == EG_None)
 		{
 			if (!raven)
 			{
 				if (!stricmp(parsed.lumpname, "MAP30"))
 				{
-					parsed.flags |= MapInfo_EndGameCast;
+					parsed.finale = EG_Cast;
 				}
 				else if (!stricmp(parsed.lumpname, "E1M8"))
 				{
-					parsed.flags |= MapInfo_EndGameArt;
+					parsed.finale = EG_Art;
 					strcpy(parsed.endpic, gamemode == retail && !pwad_help2_check ? "CREDIT" : "HELP2");
 				}
 				else if (!stricmp(parsed.lumpname, "E2M8"))
 				{
-					parsed.flags |= MapInfo_EndGameArt;
+					parsed.finale = EG_Art;
 					strcpy(parsed.endpic, "VICTORY2");
 				}
 				else if (!stricmp(parsed.lumpname, "E3M8"))
 				{
-					parsed.flags |= MapInfo_EndGameScroll;
+					parsed.finale = EG_Scroll;
 				}
 				else if (!stricmp(parsed.lumpname, "E4M8"))
 				{
-					parsed.flags |= MapInfo_EndGameArt;
+					parsed.finale = EG_Art;
 					strcpy(parsed.endpic, "ENDPIC");
 				}
 				else if (gamemission == tc_chex && !stricmp(parsed.lumpname, "E1M5"))
 				{
-					parsed.flags |= MapInfo_EndGameArt;
+					parsed.finale = EG_Art;
 					strcpy(parsed.endpic, "CREDIT");
 				}
 			}
@@ -485,28 +570,28 @@ int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc
 			{
 				if (!stricmp(parsed.lumpname, "E1M8"))
 				{
-					parsed.flags |= MapInfo_EndGameArt;
+					parsed.finale = EG_Art;
 					strcpy(parsed.endpic, gamemode == shareware ? "ORDER" : "CREDIT");
 				}
 				else if (!stricmp(parsed.lumpname, "E2M8"))
 				{
-					parsed.flags |= MapInfo_EndGameArt;
+					parsed.finale = EG_Art;
 					strcpy(parsed.endpic, "E2END");
 					strcpy(parsed.endpalette, "E2PAL");
 				}
 				else if (!stricmp(parsed.lumpname, "E3M8"))
 				{
-					parsed.flags |= MapInfo_EndGameScroll;
+					parsed.finale = EG_Scroll;
 				}
 				else if (!stricmp(parsed.lumpname, "E4M8") || !stricmp(parsed.lumpname, "E5M8"))
 				{
-					parsed.flags |= MapInfo_EndGameArt;
+					parsed.finale = EG_Art;
 					strcpy(parsed.endpic, "CREDIT");
 				}
 			}
 
 			// If no default attribute, just go to the next map
-			if (!(parsed.flags & (MapInfo_EndGameAny|MapInfo_EndGameClear)))
+			if (parsed.finale == EG_None)
 			{
 				int ep, map;
 				if (G_ValidateMapName(parsed.lumpname, &ep, &map))

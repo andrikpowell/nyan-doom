@@ -189,19 +189,19 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   if (local->include_kills)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, killcolor, dsda_GetCurrentKills(), dsda_GetMaxKills(), true, true, dsda_StatSeparator());
+    length += dsda_PrintStats(str + length, max_size - length, NULL, killcolor, dsda_GetCurrentKills(), dsda_GetMaxKills(), true, true, dsda_StatSeparator());
   }
 
   if (local->include_items)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, itemcolor, dsda_GetCurrentItems(), dsda_GetMaxItems(), false, true, dsda_StatSeparator());
+    length += dsda_PrintStats(str + length, max_size - length, NULL, itemcolor, dsda_GetCurrentItems(), dsda_GetMaxItems(), false, true, dsda_StatSeparator());
   }
 
   if (local->include_secrets)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, secretcolor, dsda_GetCurrentSecrets(), dsda_GetMaxSecrets(), false, true, dsda_StatSeparator());
+    length += dsda_PrintStats(str + length, max_size - length, NULL, secretcolor, dsda_GetCurrentSecrets(), dsda_GetMaxSecrets(), false, true, dsda_StatSeparator());
   }
 }
 

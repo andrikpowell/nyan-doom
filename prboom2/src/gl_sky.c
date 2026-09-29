@@ -59,6 +59,7 @@
 
 #include "e6y.h"
 
+#include "dsda/excmd.h"
 #include "dsda/settings.h"
 
 typedef struct
@@ -487,7 +488,7 @@ void gld_DrawSkyCaps(int skylayer)
 
   if (SkyBox.type && whichsky)
   {
-    if (dsda_MouseLook())
+    if (dsda_FreeAim())
     {
       gld_BindSkyTexture(whichsky, skylayer);
 

@@ -22,10 +22,7 @@
 #include "lprintf.h"
 #include "p_enemy.h"
 #include "p_spec.h"
-#include "p_tick.h"
 #include "r_state.h"
-#include "s_sound.h"
-#include "sounds.h"
 #include "umapinfo.h"
 #include "v_video.h"
 #include "w_wad.h"
@@ -88,7 +85,7 @@ int dsda_UNextMap(int* episode, int* map) {
     name = gamemapinfo->nextsecret;
   else if (gamemapinfo->nextmap[0])
     name = gamemapinfo->nextmap;
-  else if (gamemapinfo->flags & MapInfo_EndGameAny)
+  else if (gamemapinfo->finale >= EG_Standard)
   {
     *episode = 1;
     *map = 1;
@@ -126,6 +123,8 @@ int dsda_UPrevMap(int* episode, int* map) {
 }
 
 int dsda_UShowNextLocBehaviour(int* behaviour) {
+  int intermission_end;
+
   if (!gamemapinfo)
     return false;
 
@@ -134,8 +133,8 @@ int dsda_UShowNextLocBehaviour(int* behaviour) {
   // Heretic: "finalintermission -> endgame"
   // Doom:    "intermission -> next map or endgame"
 
-  int intermission_end = heretic ? (gamemapinfo->flags & MapInfo_EndGameAny) :
-                                   (gamemapinfo->flags & (MapInfo_EndGameAny|MapInfo_EndGameClear));
+  intermission_end = heretic ? (gamemapinfo->finale >= EG_Standard) :
+                               (gamemapinfo->finale != EG_None);
 
   if (intermission_end)
     *behaviour = WI_SHOW_NEXT_DONE;
@@ -149,7 +148,7 @@ int dsda_USkipDrawShowNextLoc(int* skip) {
   if (!gamemapinfo)
     return false;
 
-  *skip = ((gamemapinfo->flags & MapInfo_EndGameAny) != 0);
+  *skip = (gamemapinfo->finale >= EG_Standard);
 
   return true;
 }
@@ -241,7 +240,7 @@ extern const char* endpalette;
 extern int acceleratestage;
 extern int midstage;
 extern int UMAPINFO_Text;
-extern int endgameflags;
+extern MapinfoFinale finaletype;
 
 int dsda_UCheckInterText(void)
 {
@@ -447,7 +446,7 @@ int dsda_UStartFinale(void) {
 
   endpic = gamemapinfo->endpic;
   endpalette = gamemapinfo->endpalette;
-  endgameflags = gamemapinfo->flags;
+  finaletype = gamemapinfo->finale;
 
   if (gamemapinfo->endpalette[0]) {
     dsda_PlayPalData(playpal_custom)->lump_name = gamemapinfo->endpalette;
@@ -492,22 +491,22 @@ int dsda_UFTicker(void) {
   }
 
   if (next_level) {
-    if (!secretexit && gamemapinfo->flags & MapInfo_EndGameAny)
+    if (!secretexit && gamemapinfo->finale >= EG_Standard)
     {
-      if (gamemapinfo->flags & MapInfo_EndGameCast)
+      if (gamemapinfo->finale == EG_Cast)
       {
         F_StartCast(NULL, NULL, true);
         return false; // let go of finale ownership
       }
       else
       {
-        if (gamemapinfo->flags & MapInfo_EndGameStandard)
+        if (gamemapinfo->finale == EG_Standard)
           return false; // let legacy code select episode ending
 
         finalecount = 0;
         finalestage = FINALE_STAGE_ART;
         wipegamestate = -1; // force a wipe
-        if (gamemapinfo->flags & MapInfo_EndGameScroll)
+        if (gamemapinfo->finale == EG_Scroll)
           F_StartScroll(NULL, NULL, NULL, true);
       }
     }
@@ -537,7 +536,7 @@ void dsda_UFDrawer(void) {
         V_SetPlayPal(playpal_custom);
       }
 
-      if (gamemapinfo->flags & MapInfo_EndGameScroll)
+      if (gamemapinfo->finale == EG_Scroll)
       {
         F_BunnyScroll();
       }
@@ -561,6 +560,8 @@ void dsda_UFDrawer(void) {
 // `MapInfo_BossActionClear` means to do nothing.
 // positive values mean to check the list of boss actions and run all that apply.
 int dsda_UBossAction(mobj_t* mo) {
+  extern dboolean P_ExecuteZDoomLineSpecial(int special, int * args, line_t * line, int side, mobj_t * mo);
+
   int i;
   line_t junk;
 
@@ -590,11 +591,16 @@ int dsda_UBossAction(mobj_t* mo) {
     if (gamemapinfo->bossactions[i].type == mo->type) {
       junk = *lines;
       junk.special = (short) gamemapinfo->bossactions[i].special;
-      junk.special_args[0] = (short) gamemapinfo->bossactions[i].tag;
+      COLLAPSE_SPECIAL_ARGS(junk.special_args, gamemapinfo->bossactions[i].args);
 
-      // use special semantics for line activation to block problem types.
-      if (!P_UseSpecialLine(mo, &junk, 0, true))
-        map_format.cross_special_line(&junk, 0, mo, true);
+      if (gamemapinfo->bossactions[i].is_param) {
+        // explicitly defined from param actions
+        P_ExecuteZDoomLineSpecial(junk.special, junk.special_args, NULL, 0, mo);
+      } else {
+        // defined from classic actions
+        if (!P_UseSpecialLine(mo, &junk, 0, true))
+          map_format.cross_special_line(&junk, 0, mo, true);
+      }
     }
   }
 
@@ -616,7 +622,7 @@ int dsda_UHasBossActionTag(int* result, int type, int tag) {
   for (i = 0; i < gamemapinfo->numbossactions; ++i)
   {
     if (gamemapinfo->bossactions[i].type == type &&
-        gamemapinfo->bossactions[i].tag == tag)
+        gamemapinfo->bossactions[i].args[0] == tag)
     {
       *result = true;
       break;
@@ -685,7 +691,7 @@ int dsda_UPrepareIntermission(int* result) {
   if (!gamemapinfo)
     return false;
 
-  if (gamemapinfo->flags & MapInfo_EndGameAny
+  if (gamemapinfo->finale >= EG_Standard
       && gamemapinfo->flags & MapInfo_NoIntermission)
   {
     *result = DC_VICTORY;
@@ -746,7 +752,7 @@ int dsda_UPrepareFinale(int* result) {
             ? WD_START_FINALE
             : 0;
     return true;
-  } else if (gamemapinfo->flags & MapInfo_EndGameAny && !secretexit) {
+  } else if (gamemapinfo->finale >= EG_Standard && !secretexit) {
     *result = WD_VICTORY;
 
     return true;
@@ -886,4 +892,30 @@ int dsda_UInitSky(void) {
 
 int dsda_UMapColorMap(int* colormap) {
   return false;
+}
+
+dboolean dsda_UMapAllowsJumping(void)
+{
+  if (!gamemapinfo)
+    return PM_Unset;
+
+  return gamemapinfo->jumping;
+}
+
+dboolean dsda_UMapAllowsFreeAim(void)
+{
+  if (!gamemapinfo)
+    return PM_Unset;
+
+  return gamemapinfo->freeaim;
+}
+
+dboolean dsda_UExplodeIn3D(void)
+{
+  return gamemapinfo && (gamemapinfo->flags & MapInfo_EX_ExplodeIn3D);
+}
+
+dboolean dsda_UVerticalExplosionThrust(void)
+{
+  return gamemapinfo && (gamemapinfo->flags & MapInfo_EX_VerticalExplosionThrust);
 }
