@@ -10,9 +10,9 @@
 [![macOS](https://img.shields.io/badge/macOS-grey?logo=apple)]()
 [![Linux](https://img.shields.io/badge/Linux-grey?logo=linux&logoColor=white)]()
 <br>
-[![Release](https://img.shields.io/github/release/kraflab/dsda-doom.svg)](https://github.com/kraflab/dsda-doom/releases/latest)
-[![Downloads (latest)](https://img.shields.io/github/downloads/kraflab/dsda-doom/latest/total.svg)](https://github.com/kraflab/dsda-doom/releases/latest)
-[![Downloads (total)](https://img.shields.io/github/downloads/kraflab/dsda-doom/total)](https://github.com/kraflab/dsda-doom/releases/latest)
+[![Release](https://img.shields.io/github/release/dsda-org/dsda-doom.svg)](https://github.com/dsda-org/dsda-doom/releases/latest)
+[![Downloads (latest)](https://img.shields.io/github/downloads/dsda-org/dsda-doom/latest/total.svg)](https://github.com/dsda-org/dsda-doom/releases/latest)
+[![Downloads (total)](https://img.shields.io/github/downloads/dsda-org/dsda-doom/total)](https://github.com/dsda-org/dsda-doom/releases/latest)
 <br>
 [![Discord](https://img.shields.io/discord/218106532406099969?logoColor=white&logo=discord&label=Discord)](https://discord.gg/9paQ52zQUT)
 
@@ -29,7 +29,7 @@ This is a successor of prboom+ with many new features, including:
 - Advanced tools for TASing
 - Rewind
 
-Available for Windows, Linux and macOS in [Releases](https://github.com/kraflab/dsda-doom/releases/latest)
+Available for Windows, Linux and macOS in [Releases](https://github.com/dsda-org/dsda-doom/releases/latest)
 
 ### Patch Notes
 - [v0.30](./patch_notes/v0.30.md)
@@ -39,7 +39,7 @@ Available for Windows, Linux and macOS in [Releases](https://github.com/kraflab/
 - [v0.26](./patch_notes/v0.26.md)
 
 ### Launcher
-There is a dedicated launcher for this port available [dsda-launcher](https://github.com/Pedro-Beirao/dsda-launcher).
+There is a dedicated launcher for this port available [dsda-launcher](https://github.com/dsda-org/dsda-launcher).
 
 ### Doom-in-Hexen Support
 - [Full details](./docs/doom_in_hexen.md)
@@ -76,8 +76,8 @@ There is a dedicated launcher for this port available [dsda-launcher](https://gi
   - Some menus extend over the hud.
 
 ### Other Standards
-- [MBF21 v1.4](https://github.com/kraflab/mbf21)
-- [UMAPINFO v2.2](https://github.com/kraflab/umapinfo)
+- [MBF21 v1.4](https://github.com/doom-cross-port-collab/mbf21)
+- [UMAPINFO v2.2](https://github.com/doom-cross-port-collab/umapinfo)
 
 ### Maintainers
 - @fabiangreffrath, @rfomin, @Pedro-Beirao, @andrikpowell, @elf-alchemist

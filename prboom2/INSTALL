@@ -28,7 +28,7 @@ As well as the following:
 `sudo dnf install SDL2_mixer-devel SDL2_image-devel mesa-libGLU-devel libzip-devel libzip-tools zlib-static libvorbis-devel libmad-devel libxmp-devel portmidi-devel fluidsynth-devel libsndfile-devel`
 
 2. Clone the repository and navigate to the directory containing the DSDA-Doom distribution (the directory this file is in, prboom2).
-`git clone https://github.com/kraflab/dsda-doom.git`
+`git clone https://github.com/dsda-org/dsda-doom.git`
 `cd dsda-doom/prboom2`
 
 3. Create a new build folder and navigate into it:

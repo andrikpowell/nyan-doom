@@ -12,7 +12,7 @@ This guide assumes all the commands are ran from the root directory of the repos
 directory after cloning the sources:
 
 ```
-git clone https://github.com/kraflab/dsda-doom.git
+git clone https://github.com/dsda-org/dsda-doom.git
 cd dsda-doom
 ```
 
