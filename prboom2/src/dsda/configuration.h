@@ -156,6 +156,7 @@ typedef enum {
   dsda_config_snd_midiplayer,
   dsda_config_snd_mididev,
   dsda_config_snd_soundfont,
+  dsda_config_snd_device,
   dsda_config_mus_fluidsynth_chorus,
   dsda_config_mus_fluidsynth_reverb,
   dsda_config_mus_fluidsynth_gain,
@@ -229,6 +230,7 @@ typedef enum {
   dsda_config_switch_weapon_on_pickup,
   dsda_config_viewbob,
   dsda_config_weaponbob,
+  dsda_config_fix_viewbob_floor_jolt,
   dsda_config_quake_intensity,
   dsda_config_map_blinking_locks,
   dsda_config_map_secret_after,
@@ -239,6 +241,7 @@ typedef enum {
   dsda_config_map_trail,
   dsda_config_map_trail_collisions,
   dsda_config_map_trail_size,
+  dsda_config_map_traces,
   dsda_config_automap_overlay,
   dsda_config_automap_rotate,
   dsda_config_automap_follow,
@@ -295,6 +298,8 @@ typedef enum {
   dsda_config_analog_look_acceleration,
   dsda_config_swap_analogs,
   dsda_config_invert_analog_look,
+  dsda_config_show_endoom,
+  dsda_config_export_endoom,
   dsda_config_ansi_endoom,
   dsda_config_quit_sounds,
   dsda_config_announce_map,
@@ -323,6 +328,7 @@ int dsda_DecrementIntConfig(dsda_config_identifier_t id, dboolean persist);
 int dsda_CycleConfig(dsda_config_identifier_t id, dboolean persist);
 int dsda_UpdateIntConfig(dsda_config_identifier_t id, int value, dboolean persist);
 const char* dsda_UpdateStringConfig(dsda_config_identifier_t id, const char* value, dboolean persist);
+const char* dsda_HackStringConfig(dsda_config_identifier_t id, const char* value, dboolean persist);
 int dsda_IntConfig(dsda_config_identifier_t id);
 int dsda_TransientIntConfig(dsda_config_identifier_t id);
 const char* dsda_StringConfig(dsda_config_identifier_t id);

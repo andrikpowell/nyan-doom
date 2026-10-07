@@ -68,6 +68,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <locale.h>
 
 #include "e6y.h"
 
@@ -293,6 +294,9 @@ int main(int argc, char **argv)
   M_LoadDefaults();              // load before initing other systems
   lprintf(LO_DEBUG, "\n");
 
+  // Print date and time in the Load/Save Game menus in the current locale
+  setlocale(LC_TIME, "");
+
   /* Version info */
   PrintVer();
 
@@ -313,7 +317,7 @@ int main(int argc, char **argv)
   */
 
   I_AtExit(I_EssentialQuit, true, "I_EssentialQuit", exit_priority_first);
-  I_AtExit(I_Quit, false, "I_Quit", exit_priority_last);
+  I_AtExit(I_Quit, false, "I_Quit", exit_priority_quit);
 #ifndef PRBOOM_DEBUG
   if (!dsda_Flag(dsda_arg_sigsegv))
   {
