@@ -155,7 +155,7 @@ static void dsda_CopyFactor(fixed_t* dest, const char* source) {
     *dest = dsda_StringToFixed(source) + 1;
 }
 
-void dsda_RefreshHereticSkills(void)
+void dsda_UpdateHHESkillNames(void)
 {
   heretic_skill_infos[0].name = s_HERETIC_SKILL_1;
   heretic_skill_infos[1].name = s_HERETIC_SKILL_2;
@@ -177,7 +177,7 @@ void dsda_InitSkills(void) {
   skill_infos = Z_Calloc(num_skills, sizeof(*skill_infos));
 
   if (heretic)
-    dsda_RefreshHereticSkills();
+    dsda_UpdateHHESkillNames();
 
   original_skill_infos = hexen   ? hexen_skill_infos   :
                          heretic ? heretic_skill_infos :
