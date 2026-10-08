@@ -196,8 +196,6 @@ void dsda_InitSkills(void) {
       skill_infos[5].flags |= SI_MUST_CONFIRM;
     }
   }
-  for (int i = 0; i < 5; ++i)
-    skill_infos[i] = original_skill_infos[i];
 }
 
 /////////////////////////////////////////
