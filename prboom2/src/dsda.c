@@ -428,6 +428,10 @@ int dsda_MaxKillRequirement() {
   return dsda_max_kill_requirement;
 }
 
+void dsda_SetMaxKillRequirement(int max_kills) {
+  dsda_max_kill_requirement = max_kills;
+}
+
 int dsda_GetCurrentKills(void)
 {
   int i;
