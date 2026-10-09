@@ -183,13 +183,7 @@ int extralight;                           // bumped light from gun blasts
 // killough 5/2/98: reformatted
 //
 
-// Workaround for optimization bug in clang
-// fixes desync in competn/doom/fp2-3655.lmp and in dmnsns.wad dmn01m909.lmp
-#if defined(__clang__)
-PUREFUNC int R_CompatiblePointOnSide(volatile fixed_t x, volatile fixed_t y, const node_t *node)
-#else
 PUREFUNC int R_CompatiblePointOnSide(fixed_t x, fixed_t y, const node_t *node)
-#endif
 {
   if (!node->dx)
     return x <= node->x ? node->dy > 0 : node->dy < 0;
@@ -197,8 +191,8 @@ PUREFUNC int R_CompatiblePointOnSide(fixed_t x, fixed_t y, const node_t *node)
   if (!node->dy)
     return y <= node->y ? node->dx < 0 : node->dx > 0;
 
-  x -= node->x;
-  y -= node->y;
+  x = (fixed_t)(((ufixed_t)x) - ((ufixed_t)node->x));
+  y = (fixed_t)(((ufixed_t)y) - ((ufixed_t)node->y));
 
   // Try to quickly decide by looking at sign bits.
   if ((node->dy ^ node->dx ^ x ^ y) < 0)
@@ -206,11 +200,7 @@ PUREFUNC int R_CompatiblePointOnSide(fixed_t x, fixed_t y, const node_t *node)
   return FixedMul(y, node->dx>>FRACBITS) >= FixedMul(node->dy>>FRACBITS, x);
 }
 
-#if defined(__clang__)
-PUREFUNC int R_ZDoomPointOnSide(volatile fixed_t x, volatile fixed_t y, const node_t *node)
-#else
 PUREFUNC int R_ZDoomPointOnSide(fixed_t x, fixed_t y, const node_t *node)
-#endif
 {
   if (!node->dx)
     return x <= node->x ? node->dy > 0 : node->dy < 0;
@@ -218,8 +208,8 @@ PUREFUNC int R_ZDoomPointOnSide(fixed_t x, fixed_t y, const node_t *node)
   if (!node->dy)
     return y <= node->y ? node->dx < 0 : node->dx > 0;
 
-  x -= node->x;
-  y -= node->y;
+  x = (fixed_t)(((ufixed_t)x) - ((ufixed_t)node->x));
+  y = (fixed_t)(((ufixed_t)y) - ((ufixed_t)node->y));
 
   // Try to quickly decide by looking at sign bits.
   if ((node->dy ^ node->dx ^ x ^ y) < 0)
@@ -235,8 +225,8 @@ PUREFUNC int R_CompatiblePointOnSegSide(fixed_t x, fixed_t y, const seg_t *line)
 {
   fixed_t lx = line->v1->x;
   fixed_t ly = line->v1->y;
-  fixed_t ldx = line->v2->x - lx;
-  fixed_t ldy = line->v2->y - ly;
+  fixed_t ldx = (fixed_t)(((ufixed_t)line->v2->x) - ((ufixed_t)lx));
+  fixed_t ldy = (fixed_t)(((ufixed_t)line->v2->y) - ((ufixed_t)ly));
 
   if (!ldx)
     return x <= lx ? ldy > 0 : ldy < 0;
@@ -244,8 +234,8 @@ PUREFUNC int R_CompatiblePointOnSegSide(fixed_t x, fixed_t y, const seg_t *line)
   if (!ldy)
     return y <= ly ? ldx < 0 : ldx > 0;
 
-  x -= lx;
-  y -= ly;
+  x = (fixed_t)(((ufixed_t)x) - ((ufixed_t)lx));
+  y = (fixed_t)(((ufixed_t)y) - ((ufixed_t)ly));
 
   // Try to quickly decide by looking at sign bits.
   if ((ldy ^ ldx ^ x ^ y) < 0)
@@ -257,8 +247,8 @@ PUREFUNC int R_ZDoomPointOnSegSide(fixed_t x, fixed_t y, const seg_t *line)
 {
   fixed_t lx = line->v1->x;
   fixed_t ly = line->v1->y;
-  fixed_t ldx = line->v2->x - lx;
-  fixed_t ldy = line->v2->y - ly;
+  fixed_t ldx = (fixed_t)(((ufixed_t)line->v2->x) - ((ufixed_t)lx));
+  fixed_t ldy = (fixed_t)(((ufixed_t)line->v2->y) - ((ufixed_t)ly));
 
   if (!ldx)
     return x <= lx ? ldy > 0 : ldy < 0;
@@ -266,8 +256,8 @@ PUREFUNC int R_ZDoomPointOnSegSide(fixed_t x, fixed_t y, const seg_t *line)
   if (!ldy)
     return y <= ly ? ldx < 0 : ldx > 0;
 
-  x -= lx;
-  y -= ly;
+  x = (fixed_t)(((ufixed_t)x) - ((ufixed_t)lx));
+  y = (fixed_t)(((ufixed_t)y) - ((ufixed_t)ly));
 
   // Try to quickly decide by looking at sign bits.
   if ((ldy ^ ldx ^ x ^ y) < 0)
