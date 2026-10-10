@@ -3553,7 +3553,12 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
       max_width -= M_GetPixelWidth(" <");
 
     if (M_GetPixelWidth(text) > max_width)
-      M_TrimSetupString(text, sizeof(text), text, max_width, true);
+    {
+      char trimmed_text[MENU_BUFFER_SIZE];
+
+      M_TrimSetupString(trimmed_text, sizeof(trimmed_text), text, max_width, true);
+      M_CopyText(text, sizeof(text), trimmed_text);
+    }
   }
 
   M_CopyText(menu_buffer, sizeof(menu_buffer), text);
