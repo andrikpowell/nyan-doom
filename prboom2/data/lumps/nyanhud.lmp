@@ -69,6 +69,7 @@ add_offset 1 top_left
 
 doom off
 loading_disk 292 8 top_right
+weapon_carousel 160 20 none
 status_timers 316 32 top_right 1
 status_widget 310 8 bottom_right 0 1
 free_text 2 24 bottom_left
@@ -88,6 +89,7 @@ secret_message 0 76 none
 add_offset 1 top_left
 
 heretic off
+weapon_carousel 160 20 none
 status_timers 316 32 top_right 1
 status_widget 310 8 bottom_right 0 1
 free_text 2 24 bottom_left
@@ -108,6 +110,7 @@ artifact_desc 0 12 bottom 1
 add_offset 1 top_left
 
 hexen off
+weapon_carousel 160 20 none
 status_timers 316 32 top_right 1
 status_widget 310 8 bottom_right 0 1
 free_text 2 24 bottom_left
