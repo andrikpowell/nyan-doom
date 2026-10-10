@@ -13,6 +13,8 @@ jobs:
     defaults:
       run:
         shell: ${{ matrix.config.shell }}
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:

@@ -561,7 +561,7 @@ static char menu_buffer[MENU_BUFFER_SIZE];
 
 // main_e provides numerical values for which Big Font screen you're on
 
-enum
+enum main_e
 {
   newgame = 0,
   loadgame,
@@ -570,7 +570,7 @@ enum
   readthis,
   quitdoom,
   main_end
-} main_e;
+};
 
 //
 // MainMenu is the definition of what the main menu Screen should look
@@ -619,23 +619,23 @@ static void M_DrawMainMenu(void)
 // There are no menu items on the Read This! screens, so read_e just
 // provides a placeholder to maintain structure.
 
-enum
+enum read_e
 {
   rdthsempty1,
   read1_end
-} read_e;
+};
 
-enum
+enum read_e2
 {
   rdthsempty2,
   read2_end
-} read_e2;
+};
 
-enum               // killough 10/98
+enum help_e        // killough 10/98
 {
   helpempty,
   help_end
-} help_e;
+};
 
 
 // The definitions of the Read This! screens
@@ -904,7 +904,7 @@ void M_ChooseSkill(int choice)
 
 // numerical values for the Load Game slots
 
-enum
+enum load_e
 {
   load1,
   load2,
@@ -914,7 +914,7 @@ enum
   load6,
   load7,
   load_end
-} load_e;
+};
 
 static int current_save_page = 1; // 0 is the quicksaves page
 static int current_save_item = 0;
@@ -1417,7 +1417,7 @@ void M_SaveGame (int choice)
 
 // numerical values for the Options menu items
 
-enum
+enum options_e
 {
   opt_general, // killough 10/98
   opt_bindings,
@@ -1429,7 +1429,7 @@ enum
   // opt_soundvol,
   opt_level_table,
   opt_end
-} options_e;
+};
 
 // The definitions of the Options menu
 
@@ -1560,14 +1560,14 @@ void M_QuitDOOM(int choice)
 // numerical values for the Sound Volume menu items
 // The 'empty' slots are where the sliding scales appear.
 
-enum
+enum sound_e
 {
   sfx_vol,
   sfx_empty1,
   music_vol,
   sfx_empty2,
   sound_end
-} sound_e;
+};
 
 // The definitions of the Sound Volume menu
 
@@ -2067,11 +2067,11 @@ static void M_DoNothing(int choice)
 // the generic_setup_e enum mimics the 'Big Font' menu structures, but
 // means nothing to the Setup Menus.
 
-enum
+enum generic_setup_e
 {
   generic_setupempty1,
   generic_setup_end
-} generic_setup_e;
+};
 
 // Generic_Setup is a do-nothing definition that the mainstream Menu code
 // can understand, while the Setup Menu code is working. Another placeholder.
@@ -3540,6 +3540,21 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
   // Setup strings with ellipsis and cursor
   if (flags & S_STRING)
     M_PrepareSetupString(s, x, y, text, sizeof(text));
+
+  // bit of a jank (if not disgusting) way to do this, but it's to avoid the long strings caused by most audio outputs >:D
+  if ((flags & S_CHOICE) && (flags & S_STR))
+  {
+    int max_width = BASE_WIDTH - x;
+
+    // Leave room for later right arrow
+    if (s == current_setup_menu + set_menu_itemon &&
+        !(flags & S_NOSELECT) &&
+        (!setup_select || M_NextChoiceExists(s)))
+      max_width -= M_GetPixelWidth(" <");
+
+    if (M_GetPixelWidth(text) > max_width)
+      M_TrimSetupString(text, sizeof(text), text, max_width, true);
+  }
 
   M_CopyText(menu_buffer, sizeof(menu_buffer), text);
 
@@ -5340,6 +5355,8 @@ setup_menu_t audio_adv_settings[] = {
   { "Limit Overlapping for Same-Sound", S_YESNO, m_conf, g_all, G_X, dsda_config_parallel_sfx_active },
   { "Number of Overlapping Sounds", S_NUM, m_conf, g_all, G_X, dsda_config_parallel_sfx_limit, 0, empty_list, DEPEND(dsda_config_parallel_sfx_active, true) },
   { "Sound Replay Window (s)", S_NUM, m_conf, g_all, G_X, dsda_config_parallel_sfx_window, 0, empty_list, DEPEND(dsda_config_parallel_sfx_active, true) },
+  EMPTY_LINE,
+  { "Audio Output Device", S_CHOICE | S_STR | S_TWO_LINE, m_conf, g_all, G_X, dsda_config_snd_device, 0, audio_devices_list },
 
   FINAL_ENTRY
 };

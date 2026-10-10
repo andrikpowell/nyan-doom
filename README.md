@@ -119,9 +119,9 @@ The Correct game logic should be set automatically if you use `HERETIC.WAD` / `H
 - [Partial ID24 Support](./docs/id24.md)
 - [Obituary Support](./docs/obituaries.md)
 
-### Standards
-- [MBF21 v1.4](https://github.com/kraflab/mbf21)
-- [UMAPINFO v2.2](https://github.com/kraflab/umapinfo)
+### Other Standards
+- [MBF21 v1.4](https://github.com/doom-cross-port-collab/mbf21)
+- [UMAPINFO v2.2](https://github.com/doom-cross-port-collab/umapinfo)
 
 ## Nyan Launcher
 [Download (Windows and macOS)](https://github.com/andrikpowell/nyan-launcher/releases/latest)
@@ -131,4 +131,4 @@ The Correct game logic should be set automatically if you use `HERETIC.WAD` / `H
 
 Nyan Doom and its logo design are by Andrik Powell (Arsinikk)
 
-Nyan Doom is based off [DSDA-Doom](https://github.com/kraflab/dsda-doom) by kraflab, now maintained by Fabian Greffrath, Roman Fomin (rfomin), and Pedro-Beirao
+Nyan Doom is based off [DSDA-Doom](https://github.com/dsda-org/dsda-doom) by kraflab, now maintained by Fabian Greffrath, Roman Fomin (rfomin), and Pedro-Beirao

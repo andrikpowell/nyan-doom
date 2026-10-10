@@ -126,6 +126,7 @@ void M_ChangeSpeed(void);
 void M_ChangeShorttics(void);
 void I_InitSoundParams(void);
 void S_Init(void);
+void I_ChangeAudioDevice(void);
 void M_ChangeMIDIPlayer(void);
 void M_ChangeSoundfont(void);
 void HU_InitCrosshair(void);
@@ -1234,6 +1235,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "use_mouse", dsda_config_use_mouse,
     CONF_BOOL(1), NULL, NOT_STRICT, I_InitMouse
   },
+  [dsda_config_mouse_menu_navigation] = {
+    "mouse_menu_navigation", dsda_config_mouse_menu_navigation,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
   [dsda_config_mouse_sensitivity_horiz] = {
     "mouse_sensitivity_horiz", dsda_config_mouse_sensitivity_horiz,
     dsda_config_int, 0, INT_MAX, { 10 }, NULL, NOT_STRICT, G_UpdateMouseSensitivity
@@ -1353,6 +1358,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_snd_soundfont_dir] = {
     "snd_soundfont_dir", dsda_config_snd_soundfont_dir,
     CONF_STRING("")
+  },
+  [dsda_config_snd_device] = {
+    "snd_device", dsda_config_snd_device,
+    CONF_STRING("Default"), NULL, NOT_STRICT, I_ChangeAudioDevice
   },
   [dsda_config_mus_fluidsynth_chorus] = {
     "mus_fluidsynth_chorus", dsda_config_mus_fluidsynth_chorus,

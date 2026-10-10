@@ -853,7 +853,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 }
 
 // Add back Easter Egg that was previously stripped out
-// see https://github.com/kraflab/dsda-doom/commit/5679359
+// see https://github.com/dsda-org/dsda-doom/commit/5679359
 // Disappointed that this was stripped out tbh
 
 static int P_CheckGibDeath(mobj_t *source, mobj_t *target, method_t mod)

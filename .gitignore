@@ -31,6 +31,8 @@ CMakePresets.json
 
 # clangd
 /.cache/
+/prboom2/.cache/
+compile_commands.json
 
 # temp dir
 .tmp-*

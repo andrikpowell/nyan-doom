@@ -129,7 +129,7 @@ dboolean Heretic_F_Responder(event_t * event)
   if (Heretic_F_BlockingInput())
   {                           // we're showing the water pic, make any key kick to demo mode
     finalestage++;
-    S_StartVoidSound(g_sfx_swtchx);
+    S_StartOptionalSound(g_sfx_mnucls, g_sfx_swtchx, false);
     V_SetPlayPal(playpal_default);
     V_DrawRawScreen("TITLE");
     return true;
@@ -273,7 +273,7 @@ static void F_DrawUnderwater(void)
   {
     M_LeaveSetupMenu();
     M_ClearMenus();
-    S_StartVoidSound(g_sfx_swtchx);
+    S_StartOptionalSound(g_sfx_mnucls, g_sfx_swtchx, false);
   }
 
   V_SetPlayPal(playpal_heretic_e2end);

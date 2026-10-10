@@ -6582,9 +6582,9 @@ static void DragonSeek(mobj_t * actor, angle_t thresh, angle_t turnMax)
                 }
                 angleToSpot = R_PointToAngle2(actor->x, actor->y,
                                               mo_x, mo_y);
-                if (abs((int)(angleToSpot - angleToTarget)) < bestAngle)
+                if ((angle_t)abs((int)(angleToSpot - angleToTarget)) < bestAngle)
                 {
-                    bestAngle = abs((int)(angleToSpot - angleToTarget));
+                    bestAngle = (angle_t)abs((int)(angleToSpot - angleToTarget));
                     bestArg = i;
                 }
             }
