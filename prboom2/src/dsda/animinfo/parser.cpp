@@ -76,7 +76,7 @@ static animinfo_tics_t ParseRandomTics(Scanner &scanner, const char* lump_name)
 
 static animinfo_tics_t ParseTics(Scanner &scanner, const char* lump_name)
 {
-    animinfo_tics_t tics;
+    animinfo_tics_t tics = {};
 
     // Parse single tic value
     if (scanner.CheckToken(TK_IntConst))
