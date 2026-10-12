@@ -2138,9 +2138,13 @@ static void D_DoomMainSetup(void)
   {
     lprintf(LO_INFO, "Detected %s lump: %s\n", iwadver ? iwadver : "GAMEINFO", iwadlump);
     Z_Free(iwadlump);
+    iwadlump = NULL;
 
     if (iwadver)
+    {
       Z_Free(iwadver);
+      iwadver = NULL;
+    }
   }
 
   G_ReloadDefaults();
