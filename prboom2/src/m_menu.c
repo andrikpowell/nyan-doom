@@ -406,7 +406,6 @@ void M_ChangeDemoSmoothTurns(void);
 void M_ChangeFullScreen(void);
 void M_ChangeVideoMode(void);
 void M_ChangeUseGLSurface(void);
-void M_ChangeApplyPalette(void);
 
 // submenus
 static void M_Sub_AdvAudio(void);

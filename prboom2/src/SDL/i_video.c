@@ -1474,6 +1474,7 @@ void I_UpdateVideoMode(void)
 
   V_SetPalette(0);
   I_UploadNewPalette(0, true);
+  M_ChangeApplyPalette();
 
   if (V_IsOpenGLMode())
   {
