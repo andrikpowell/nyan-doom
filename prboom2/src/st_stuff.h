@@ -78,6 +78,7 @@ void ST_Init(void);
 
 // After changing videomode;
 void ST_SetResolution(void);
+void M_ChangeApplyPalette(void);
 
 void ST_Refresh(void);
 
