@@ -51,8 +51,8 @@ typedef unsigned char byte;
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
-#ifndef BETWEEN
-#define BETWEEN(l,u,x) ((l)>(x)?(l):(x)>(u)?(u):(x))
+#ifndef CLAMP
+#define CLAMP(x, min, max) ((min) > (x) ? (min) : (x) > (max) ? (max) : (x))
 #endif
 
 // [AR] supress MSVC void function return warnings

@@ -514,7 +514,7 @@ void R_DrawMaskedColumn(
 static void R_SetSpritelights(int lightlevel)
 {
   int lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
-  spritelights = scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
+  spritelights = scalelight[CLAMP(lightnum, 0, LIGHTLEVELS - 1)];
 }
 
 
