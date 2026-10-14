@@ -104,7 +104,7 @@ static void R_ClipWallSegment(int first, int last, dboolean solid)
     if (solidcol[first]) {
       if (!(p = memchr(solidcol+first, 0, last-first))) return; // All solid
       first = (int)(p - solidcol);
-      } else {
+    } else {
       int to;
       if (!(p = memchr(solidcol+first, 1, last-first))) to = last;
       else to = (int)(p - solidcol);

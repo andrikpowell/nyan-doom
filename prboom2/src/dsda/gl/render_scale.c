@@ -74,7 +74,7 @@ void dsda_GLSetRenderSceneScissor() {
 
 void dsda_GLSetScreenSpaceScissor(int x, int y, int w, int h)
 {
- glScissor((int)(viewport_rect.x + x * gl_scale_x),
+  glScissor((int)(viewport_rect.x + x * gl_scale_x),
             (int)(viewport_rect.y + (SCREENHEIGHT - (y + h)) * gl_scale_y),
             (int)(w * gl_scale_x),
             (int)(h * gl_scale_y));

@@ -74,7 +74,7 @@ void* Z_BMalloc(struct block_memory_alloc_s *pzone)
     byte *p = memchr((*pool)->used, unused_block, (*pool)->blocks); // Scan for unused marker
     if (p) {
       int n = (int)(p - (*pool)->used);
-    #ifdef SIMPLECHECKS
+#ifdef SIMPLECHECKS
       if ((n<0) || ((size_t)n>=(*pool)->blocks))
   I_Error("Z_BMalloc: memchr returned pointer outside of array");
 #endif

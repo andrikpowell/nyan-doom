@@ -622,7 +622,7 @@ static void pm_render (void *vdest, unsigned bufflen)
 
     // how many we will render (rounding down); include delta offset
     samples = (unsigned int)(eventdelta + pm_delta);
-  
+
     if (when + samples > newtime)
     {
       // overshoot; render some samples without processing an event
