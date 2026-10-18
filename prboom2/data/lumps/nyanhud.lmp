@@ -269,6 +269,27 @@ secret_message 0 76 none
 target_health 0 10 top 1
 add_offset 1 top_left
 
+doom full 6 "vanilla"
+loading_disk 292 8 top_right
+weapon_carousel 160 20 none
+free_text 2 8 bottom_left
+tracker 2 64 bottom_left
+status_timers 318 64 top_right 1
+status_widget 310 8 bottom_right 0 1
+render_stats 2 8 top_left
+coordinate_display 2 8 top_left
+line_display 98 8 top_left
+command_display 198 48 bottom_right
+event_split 10 16 top_left
+level_splits 2 2 top
+fps 298 0 top_right
+minimap 264 8 top_right 48 48 1024
+message 0 0 top_left
+announce_message 0 18 none
+secret_message 0 76 none
+target_health 0 10 top 1
+add_offset 1 top_left
+
 heretic full 1 "default"
 weapon_carousel 160 20 none
 ready_ammo_text 2 8 bottom_left
