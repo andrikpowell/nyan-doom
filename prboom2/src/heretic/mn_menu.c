@@ -447,14 +447,15 @@ void MN_Drawer(void)
   for (i = 0; i < max; i++)
   {
     const char *text = currentMenu->menuitems[i].alttext;
-    int text_sml = text && (currentMenu->menuitems[i].flags == MENUF_OPTLUMP);
+    int custom_skill_text = text && (currentMenu->menuitems[i].flags == MENUF_OPTLUMP);
+    int color = M_HighlightColor(M_MouseHovered(i), CR_DEFAULT);
 
-    if (text_sml) {  // use small font for custom skill
-      y += 4;        // add some padding (looks bad otherwise)
-      MN_DrTextA(text, x, y);
+    if (custom_skill_text) {  // use small font for custom skill
+      y += 6;                 // add some padding (looks bad otherwise)
+      MN_DrTextAColor(text, x, y, color);
     }
     else if (text)
-      MN_DrTextB(text, x, y);
+      MN_DrTextBColor(text, x, y, color);
     y += ITEM_HEIGHT;
   }
 

@@ -142,7 +142,6 @@
 #define S_NOCLEAR  0x08000000
 #define S_DISABLED 0x10000000 // disabled / darken options
 #define S_FUNC     0x20000000
-// #define S_      0x20000000
 // #define S_      0x40000000
 // #define S_      0x80000000
 
@@ -1919,6 +1918,27 @@ static char entry_string_index[ENTRY_STRING_BFR_SIZE]; // points to new strings 
 static int choice_value;
 
 //
+// Main Disable Function
+//
+
+static dboolean M_ItemDisabled(const setup_menu_t* s)
+{
+  // Strict Mode
+  if (dsda_StrictMode() && dsda_IsStrictConfig(s->config_id))
+    return true;
+
+  // Hexen Stuff
+  if (hexen)
+  {
+    // Hexen doesn't allow pistolstart + loadout doesn't work due to key management
+    if (s->action == CSPistolStart || s->action == CSCurrentLoadout)
+      return true;
+  }
+
+  return false;
+}
+
+//
 // Check item selection
 //
 
@@ -2017,32 +2037,6 @@ static int GetOptionColor(int flags)
            flags & S_SELECT ? cr_value_edit :
            flags & S_HILITE ? cr_value_highlight :
            cr_value;
-}
-
-/////////////////////////////
-//
-// M_ItemDisabled
-//
-// Disable certain menu options based on various conditions:
-// StrictMode, Complevel, and more!
-//
-//
-
-static dboolean M_ItemDisabled(const setup_menu_t* s)
-{
-  // Strict Mode
-  if (dsda_StrictMode() && dsda_IsStrictConfig(s->config_id))
-    return true;
-
-  // Hexen Stuff
-  if (hexen)
-  {
-    // Hexen doesn't allow pistolstart + loadout doesn't work due to key management
-    if (s->action == CSPistolStart || s->action == CSCurrentLoadout)
-      return true;
-  }
-
-  return false;
 }
 
 /////////////////////////////
