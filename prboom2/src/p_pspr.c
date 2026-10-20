@@ -92,7 +92,7 @@ static const int recoil_values[] = {    // phares
 static int P_RecoilValue(weapontype_t weapon)
 {
   // MBF21 recoil
-  if (weaponinfo[weapon].intflags & WIF_ENABLERECOIL)
+  if (mbf21 && weaponinfo[weapon].intflags & WIF_ENABLERECOIL)
     return weaponinfo[weapon].recoil;
 
   return recoil_values[weapon];
@@ -784,11 +784,14 @@ void A_Raise(player_t *player, pspdef_t *psp)
 
 static void A_WeaponRecoil(player_t* player)
 {
+  const weapontype_t weapon = player->readyweapon;
+  const dboolean apply_recoil = (mbf21 && weaponinfo[weapon].intflags & WIF_ENABLERECOIL) || weapon_recoil;
+
   // killough 3/27/98: prevent recoil in no-clipping mode
   if (!(player->mo->flags & MF_NOCLIP))
-    if (!compatibility && weapon_recoil) // phares
+    if (!compatibility && apply_recoil) // phares
       P_ForwardThrust(player, ANG180 + player->mo->angle,
-                      2048 * P_RecoilValue(player->readyweapon));
+                      2048 * P_RecoilValue(weapon));
 }
 
 static void A_FireSomething(player_t* player,int adder)
