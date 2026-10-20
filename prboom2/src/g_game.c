@@ -508,6 +508,11 @@ static void G_ConvertAnalogMotion(int speed, int *forward, int *side)
   }
 }
 
+static void G_TrackFreelook(dboolean freelook_active)
+{
+  dsda_UpdateIntConfig(dsda_config_freelook, freelook_active, false);
+}
+
 void G_BuildTiccmd(ticcmd_t* cmd)
 {
   int strafe;
@@ -837,7 +842,12 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   // Track freelook status
   if (dsda_ExCmdDemo())
-    dsda_QueueExCmdFreeLook(dsda_IntConfig(dsda_config_freelook));
+  {
+    if (dsda_IntConfig(dsda_config_freelook))
+    {
+      dsda_QueueExCmdFreeLook();
+    }
+  }
 
   if (dsda_InputActive(dsda_input_fire))
     cmd->buttons |= BT_ATTACK;
@@ -1641,14 +1651,10 @@ void G_Ticker (void)
             M_CheatNoClip();
           }
 
-          if (ex->actions & XC_FREELOOK_ON)
+          // Always track Freelook
+          if (dsda_ExCmdDemo())
           {
-            dsda_UpdateIntConfig(dsda_config_freelook, 1, false);
-          }
-
-          if (ex->actions & XC_FREELOOK_OFF)
-          {
-            dsda_UpdateIntConfig(dsda_config_freelook, 0, false);
+            G_TrackFreelook(!!(ex->actions & XC_FREELOOK));
           }
         }
       }
