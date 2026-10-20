@@ -42,7 +42,7 @@ vcpkg integrate install
 
 ### Building with Visual Studio
 
-Open Visual Studio, and select the "Clone a repository" option. The repository location is `https://github.com/kraflab/dsda-doom.git`, and the path you provide is where the files will be copied to, for example `C:/git/dsda-doom/`. If you already have cloned the repository beforehand, select "Open" and "Open Folder", you should **not** use the "CMake" option as this repo uses an uncommon layout.
+Open Visual Studio, and select the "Clone a repository" option. The repository location is `https://github.com/dsda-org/dsda-doom.git`, and the path you provide is where the files will be copied to, for example `C:/git/dsda-doom/`. If you already have cloned the repository beforehand, select "Open" and "Open Folder", you should **not** use the "CMake" option as this repo uses an uncommon layout.
 
 To generate the CMake cache, select "Project" and then "Configure Cache". During configuration, the vcpkg toolchain will be automatically provided to CMake and it will compile all the dependencies. Once it finishes, you should be able to select `dsda-doom.exe` as a startup item and run it.
 
@@ -57,7 +57,7 @@ To install a build, select "Build" and then "Install dsda-doom". The default dir
 Make a clone of the repository:
 
 ```
-git clone https://github.com/kraflab/dsda-doom.git
+git clone https://github.com/dsda-org/dsda-doom.git
 ```
 
 Run the CMake configuration:
@@ -89,7 +89,7 @@ cd build/Release
 Make a clone of the repository:
 
 ```
-git clone https://github.com/kraflab/dsda-doom.git
+git clone https://github.com/dsda-org/dsda-doom.git
 ```
 
 You can either use an extension such as CMake Tools or the integrated terminal to compile. The first time you open the directory, you will be prompted to install recommended extensions for syntax highlighting and CMake support.
@@ -131,7 +131,7 @@ pacman -S mingw-w64-ucrt-x86_64-libxmp mingw-w64-ucrt-x86_64-fluidsynth mingw-w6
 Make a clone of the repository:
 
 ```
-git clone https://github.com/kraflab/dsda-doom.git
+git clone https://github.com/dsda-org/dsda-doom.git
 ```
 
 Run the CMake configuration:

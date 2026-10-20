@@ -49,7 +49,7 @@ void G_DeathMatchSpawnPlayer(int playernum);
 void G_InitNew(int skill, int episode, int map, dboolean prepare);
 void G_DeferedInitNew(int skill, int episode, int map);
 void G_DeferedPlayDemo(const char *demo); // CPhipps - const
-void G_LoadGame(int slot); // killough 5/15/98
+void G_LoadGame(int slot, dboolean via_commandline); // killough 5/15/98
 void G_ForcedLoadGame(void);           // killough 5/15/98: forced loadgames
 void G_DoLoadGame(void);
 void G_SaveGame(int slot, const char *description); // Called by M_Responder.
@@ -72,7 +72,7 @@ void G_Compatibility(void);
 const byte *G_ReadOptions(const byte *demo_p);   /* killough 3/1/98 - cph: const byte* */
 byte *G_WriteOptions(byte *demo_p);        // killough 3/1/98
 void G_PlayerReborn(int player);
-void G_RestartWithLoadout(void);
+void G_RestartWithLoadout(int skill);
 void G_DoVictory(void);
 void G_BuildTiccmd (ticcmd_t* cmd); // CPhipps - move decl to header
 void G_ReadOneTick(ticcmd_t* cmd, const byte **data_p);

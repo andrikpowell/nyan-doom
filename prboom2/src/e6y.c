@@ -32,6 +32,7 @@
  */
 
 #include "doomdef.h"
+#include "dsda/demo.h"
 #include "r_patch.h"
 #include "st_stuff.h"
 #ifdef HAVE_CONFIG_H
@@ -94,6 +95,7 @@
 #include "dsda/key_frame.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
+#include "dsda/mouse.h"
 #include "dsda/playback.h"
 #include "dsda/skip.h"
 #include "dsda/stretch.h"
@@ -585,7 +587,7 @@ void e6y_WriteStats(void)
 
   for (level=0;level<numlevels;level++)
   {
-    sprintf(str,
+    snprintf(str, sizeof(str),
       "%%s - %%%dd:%%05.2f (%%%dd:%%02d)  K: %%%dd/%%-%dd%%%lds  I: %%%dd/%%-%dd%%%lds  S: %%%dd/%%-%dd %%%lds\r\n",
       max.stat[TT_TIME],      max.stat[TT_TOTALTIME],
       max.stat[TT_ALLKILL],   max.stat[TT_TOTALKILL],   (long)allkills_len,
@@ -730,6 +732,27 @@ int levelstarttic;
 
 int force_singletics_to = 0;
 
+dboolean HU_MouseOnDemoProgressBar(int *position_x)
+{
+  int mouse_x;
+  int mouse_y;
+
+  if (!dsda_IntConfig(dsda_config_playback_mouse_controls) ||
+      !demoplayback || timingdemo || walkcamera.type || viewport_rect.h <= 0)
+    return false;
+
+  dsda_GetMousePosition(&mouse_x, &mouse_y);
+  mouse_y = mouse_y * ACTUALHEIGHT / viewport_rect.h;
+
+  if (!mouse_x || mouse_y <= ACTUALHEIGHT - ST_SCALED_HEIGHT / 6)
+    return false;
+
+  if (position_x)
+    *position_x = mouse_x;
+
+  return true;
+}
+
 int HU_DrawDemoProgress(int force)
 {
   extern int mouse_hide_timer;
@@ -743,11 +766,11 @@ int HU_DrawDemoProgress(int force)
     return false;
 
   tics_count = demo_tics_count * demo_playerscount;
-  len = MIN(SCREENWIDTH, (int)((int64_t)SCREENWIDTH * dsda_PlaybackTics() / tics_count));
+  len = MIN(SCREENWIDTH, (int)((int64_t)SCREENWIDTH * dsda_DemoTic() / tics_count));
 
   if (!force)
   {
-    max_period = ((tics_count - dsda_PlaybackTics() > 35 * demo_playerscount) ? 500 : 15);
+    max_period = ((tics_count - dsda_DemoTic() > 35 * demo_playerscount) ? 500 : 15);
 
     // Unnecessary updates of progress bar
     // can slow down demo skipping and playback

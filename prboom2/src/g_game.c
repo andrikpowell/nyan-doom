@@ -35,6 +35,7 @@
  *-----------------------------------------------------------------------------
  */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -93,6 +94,7 @@
 #include "dsda/build.h"
 #include "dsda/configuration.h"
 #include "dsda/console.h"
+#include "dsda/death.h"
 #include "dsda/demo.h"
 #include "dsda/excmd.h"
 #include "dsda/exdemo.h"
@@ -159,6 +161,7 @@ int             gameepisode;
 int             gamemap;
 // CPhipps - moved *_loadgame vars here
 static dboolean forced_loadgame = false;
+static dboolean commandline_loadgame = false;
 static dboolean load_via_cmd = false;
 
 dboolean         timingdemo;    // if true, exit with report on completion
@@ -807,7 +810,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     }
   }
 
-  if (players[consoleplayer].mo && players[consoleplayer].mo->pitch && !dsda_MouseLook())
+  if (players[consoleplayer].mo && players[consoleplayer].mo->pitch && !dsda_FreeAim())
     dsda_QueueExCmdLook(XC_LOOK_RESET);
 
   if (dsda_FreeAim())
@@ -1218,19 +1221,9 @@ static void G_DoLoadLevel (void)
 
   for (i = 0; i < g_maxplayers; i++)
   {
-    if (playeringame[i])
-    {
-      if (players[i].playerstate == PST_DEAD)
-        players[i].playerstate = PST_REBORN;
-      else
-      {
-        if (map_info.flags & MI_RESET_HEALTH)
-          G_ResetHealth(&players[i]);
-
-        if (map_info.flags & MI_RESET_INVENTORY)
-          G_ResetInventory(&players[i]);
-      }
-    }
+    // TODO: possible "reset inventory/health" mapinfo flag
+    if (playeringame[i] && players[i].playerstate == PST_DEAD)
+      players[i].playerstate = PST_REBORN;
     memset(players[i].frags, 0, sizeof(players[i].frags));
   }
 
@@ -1252,7 +1245,7 @@ static void G_DoLoadLevel (void)
   if (map_format.sndseq)
     SN_StopAllSequences();
 
-  P_SetupLevel (gameepisode, gamemap, 0, gameskill);
+  P_SetupLevel (gameepisode, gamemap, gameskill);
   if (!demoplayback) // Don't switch views if playing a demo
     displayplayer = consoleplayer;    // view the guy you are playing
   gameaction = ga_nothing;
@@ -1317,13 +1310,9 @@ dboolean G_Responder (event_t* ev)
   if (dsda_IntConfig(dsda_config_playback_mouse_controls) &&
     demoplayback && !timingdemo && dsda_InputActivated(dsda_input_fire))
   {
-    int x, y;
+    int x;
 
-    dsda_GetMousePosition(&x, &y);
-
-    y = y * ACTUALHEIGHT / viewport_rect.h;
-
-    if (x && y > (ACTUALHEIGHT - ST_SCALED_HEIGHT / 6))
+    if (HU_MouseOnDemoProgressBar(&x))
     {
       dsda_JumpToLogicTic(demo_tics_count * x / viewport_rect.w);
       return true;
@@ -1372,9 +1361,6 @@ dboolean G_Responder (event_t* ev)
     }
   }
 
-  if (gamestate == GS_FINALE && F_Responder(ev))
-    return true;  // finale ate the event
-
   if (dsda_BuildResponder(ev))
     return true;
 
@@ -1420,7 +1406,7 @@ dboolean G_Responder (event_t* ev)
 
       value = mouse_sensitivity_horiz * AccelerateMouse(ev->data1.i);
       mousex += G_CarryDouble(carry_mousex, value);
-      if (dsda_MouseLook())
+      if (dsda_FreeAim())
       {
         value = mouse_sensitivity_mlook * AccelerateMouse(ev->data2.i);
         if (dsda_IntConfig(dsda_config_movement_mouseinvert))
@@ -1440,7 +1426,7 @@ dboolean G_Responder (event_t* ev)
     case ev_move_analog:
       dsda_WatchGameControllerEvent();
 
-      left_analog_x = ev->data1.f;
+      left_analog_x = dsda_StrictMode() ? lroundf(ev->data1.f * 0.5f) * 2 : ev->data1.f;
       left_analog_y = ev->data2.f;
       return true;    // eat events
 
@@ -1448,7 +1434,7 @@ dboolean G_Responder (event_t* ev)
       dsda_WatchGameControllerEvent();
 
       mousex += AccelerateAnalog(ev->data1.f);
-      if (dsda_MouseLook())
+      if (dsda_FreeAim())
       {
         if (dsda_IntConfig(dsda_config_invert_analog_look))
           mlooky += AccelerateAnalog(ev->data2.f);
@@ -1641,6 +1627,7 @@ void G_Ticker (void)
             savegameslot = ex->load_slot;
             gameaction = ga_loadgame;
             forced_loadgame = true;
+            commandline_loadgame = false;
             load_via_cmd = true;
             R_SmoothPlaying_Reset(NULL);
           }
@@ -1655,7 +1642,7 @@ void G_Ticker (void)
             M_CheatNoClip();
           }
 
-          if (ex->actions & XC_LOOK && ex->look != XC_LOOK_RESET && !dsda_MouseLook())
+          if (ex->actions & XC_LOOK && ex->look != XC_LOOK_RESET && !dsda_FreeAim())
           {
             dsda_UpdateIntConfig(dsda_config_freelook, 1, false);
           }
@@ -1715,6 +1702,9 @@ void G_Ticker (void)
 
     case GS_DEMOSCREEN:
       D_PageTicker();
+      break;
+
+    case GS_DEFAULT:
       break;
   }
 
@@ -2000,39 +1990,45 @@ static dboolean G_CheckSpot(int playernum, mapthing_t *mthing)
   sec = R_PointInSector (x,y);
   { // Teleport fog at respawn point
     fixed_t xa,ya;
-    int an;
     mobj_t      *mo;
 
-/* BUG: an can end up negative, because mthing->angle is (signed) short.
- * We have to emulate original Doom's behaviour, deferencing past the start
- * of the array, into the previous array (finetangent) */
-    an = ( ANG45 * ((signed)mthing->angle/45) ) >> ANGLETOFINESHIFT;
+    // This calculation overflows in Vanilla Doom, so use unsigned arithmetic
+    // for a defined wraparound. 'an' is then always within [0, 8191].
+    const uint32_t k = (uint32_t)((signed int) mthing->angle / 45);
+    const int32_t an = (int32_t)(((uint32_t)ANG45 * k) >> ANGLETOFINESHIFT);
     xa = finecosine[an];
     ya = finesine[an];
 
     if (compatibility_level <= finaldoom_compatibility || compatibility_level == prboom_4_compatibility)
       switch (an) {
-      case -4096: xa = finetangent[2048];   // finecosine[-4096]
+      case 4096:  // -4096:
+            xa = finetangent[2048];   // finecosine[-4096]
             ya = finetangent[0];      // finesine[-4096]
             break;
-      case -3072: xa = finetangent[3072];   // finecosine[-3072]
+      case 5120:  // -3072:
+            xa = finetangent[3072];   // finecosine[-3072]
             ya = finetangent[1024];   // finesine[-3072]
             break;
-      case -2048: xa = finesine[0];   // finecosine[-2048]
+      case 6144:  // -2048:
+            xa = finesine[0];   // finecosine[-2048]
             ya = finetangent[2048];   // finesine[-2048]
             break;
-      case -1024:  xa = finesine[1024];     // finecosine[-1024]
+      case 7168:  // -1024:
+            xa = finesine[1024];     // finecosine[-1024]
             ya = finetangent[3072];  // finesine[-1024]
             break;
       case 1024:
       case 2048:
       case 3072:
-      case 4096:
-      case 0:  break; /* correct angles set above */
-      default:  I_Error("G_CheckSpot: unexpected angle %d\n",an);
+      case 0: break; /* correct angles set above */
+      default: I_Error("G_CheckSpot: unexpected angle %d\n",an);
       }
 
-    mo = P_SpawnMobj(x+20*xa, y+20*ya, sec->floorheight, MT_TFOG);
+
+    // Vanilla Doom wraps around here (20 * finetangent[0] overflows).
+    mo = P_SpawnMobj((fixed_t)(x + 20 * (int64_t)xa),
+                     (fixed_t)(y + 20 * (int64_t)ya),
+                     sec->floorheight, MT_TFOG);
 
     if (players[consoleplayer].viewz != 1)
       S_StartMobjSound(mo, sfx_telept);  // don't start sound on first frame
@@ -2080,7 +2076,8 @@ void G_DoReborn (int playernum)
   if (hexen)
     return Hexen_G_DoReborn(playernum);
 
-  if (!netgame && !(map_info.flags & MI_ALLOW_RESPAWN) && !(skill_info.flags & SI_PLAYER_RESPAWN))
+  // TODO: possible "allow respawn" mapinfo flag
+  if (!netgame && !(skill_info.flags & SI_PLAYER_RESPAWN))
     gameaction = ga_loadlevel;      // reload the level from scratch
   else
     {                               // respawn at the start
@@ -2218,21 +2215,17 @@ void G_DoCompleted (void)
   wminfo.totaltimes = totalleveltimes;
 
   gamestate = GS_INTERMISSION;
-  automap_active = false;
+  automap_full = false;
 
   // lmpwatch.pl engine-side demo testing support
   // print "FINISHED: <mapname>" when the player exits the current map
   if (nodrawers && (demoplayback || timingdemo))
     lprintf(LO_INFO, "FINISHED: %s\n", dsda_MapLumpName(gameepisode, gamemap));
 
-  if (!(map_info.flags & MI_INTERMISSION))
-  {
-    G_WorldDone();
-  }
-  else
-  {
-    WI_Start (&wminfo);
-  }
+  // TODO: tenuous "no intermission" mapinfo flag
+  // umapinfo already partially handles it, but not in a friendly way
+  // only in maps that can end the game -- i.e. `endgame`, `endbunny`, etc
+  WI_Start (&wminfo);
 }
 
 //
@@ -2355,7 +2348,7 @@ void G_ForcedLoadGame(void)
 }
 
 // killough 3/16/98: add slot info
-void G_LoadGame(int slot)
+void G_LoadGame(int slot, dboolean via_commandline)
 {
   if (demorecording)
   {
@@ -2363,7 +2356,7 @@ void G_LoadGame(int slot)
     return;
   }
 
-  if (!demoplayback)
+  if (!demoplayback && !via_commandline)
   {
     forced_loadgame = netgame; // CPhipps - always force load netgames
   }
@@ -2378,6 +2371,7 @@ void G_LoadGame(int slot)
 
   gameaction = ga_loadgame;
   savegameslot = slot;
+  commandline_loadgame = via_commandline;
   load_via_cmd = false;
   R_SmoothPlaying_Reset(NULL); // e6y
 }
@@ -2389,6 +2383,11 @@ static void G_LoadGameErr(const char *msg)
 {
   P_FreeSaveBuffer();
   M_ForcedLoadGame(msg);             // Print message asking for 'Y' to force
+  if (commandline_loadgame)
+  {
+    D_StartTitle();
+    gamestate = GS_DEMOSCREEN;
+  }
 }
 
 const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] =
@@ -2472,7 +2471,7 @@ void G_DoLoadGame(void)
   // [crispy] loaded game must always be single player.
   // Needed for ability to use a further game loading, as well as
   // cheat codes and other single player only specifics.
-  if (!load_via_cmd)
+  if (!commandline_loadgame && !load_via_cmd)
   {
     netgame = false;
     deathmatch = false;
@@ -2631,14 +2630,14 @@ void G_DeferedInitNew(int skill, int episode, int map)
 }
 
 // Custom Skill - Restart with loadout [Nugget]
-void G_RestartWithLoadout(void)
+void G_RestartWithLoadout(int skill)
 {
   gameaction = ga_loadlevel;
 
   G_PlayerFinishLevel(consoleplayer);
+  dsda_UpdateGameSkill(skill);
 
-  // Reset automap
-  AM_Stop(false);
+  automap_full = false;
   AM_clearMarks();
 
   skill_loadout = true;
@@ -3099,7 +3098,7 @@ void G_InitNew(int skill, int episode, int map, dboolean prepare)
 
   dsda_ResetPauseMode();
   dsda_ResetCommandHistory();
-  automap_active = false;
+  automap_full = false;
   dsda_UpdateGameSkill(skill);
   dsda_UpdateGameMap(episode, map);
 
@@ -3167,6 +3166,7 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 {
   char buf[10];
   char *p = buf;
+  const byte* data_p = (byte*)buf;
 
   if (compatibility_level == tasdoom_compatibility)
   {
@@ -3199,8 +3199,7 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 
   dsda_WriteTicToDemo(buf, p - buf);
 
-  p = buf; // make SURE it is exactly the same
-  G_ReadOneTick(cmd, (const byte **) &p);
+  G_ReadOneTick(cmd, &data_p);
 }
 
 // These functions are used to read and write game-specific options in demos
@@ -3915,7 +3914,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
     netgame = true;
   }
 
-  if (!(params & RDH_SKIP_HEADER))
+  if (!(params & RDH_SKIP_HEADER) && gameaction != ga_loadgame)
   {
     G_InitNew(skill, episode, map, true);
     demo_p = dsda_EvaluateDemoStartPoint(demo_p);
@@ -3947,7 +3946,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
     {
       demo_tics_count = dsda_DemoTicsCount(p, demobuffer, demolength);
 
-      sprintf(demo_len_st, "\x1b\x35/%d:%02d",
+      snprintf(demo_len_st, sizeof(demo_len_st), "\x1b\x35/%d:%02d",
         demo_tics_count / TICRATE / 60,
         (demo_tics_count % (60 * TICRATE)) / TICRATE);
     }
@@ -4176,7 +4175,9 @@ void P_WalkTicker()
   if (dsda_InputActive(dsda_input_strafeleft))
     side -= sidemove[speed];
 
-  forward += mousey;
+  if (dsda_IntConfig(dsda_config_vertmouse))
+    forward += mousey;
+
   if (strafe)
     side += mousex / 4;       /* mead  Don't want to strafe as fast as turns.*/
   else
@@ -4185,7 +4186,7 @@ void P_WalkTicker()
   G_ConvertAnalogMotion(speed, &forward, &side);
 
   walkcamera.angle += ((angturn / 8) << ANGLETOFINESHIFT);
-  if (dsda_MouseLook())
+  if (dsda_FreeAim())
   {
     walkcamera.pitch += ((mlooky / 8) << ANGLETOFINESHIFT);
     CheckPitch((signed int *) &walkcamera.pitch);

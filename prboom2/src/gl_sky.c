@@ -46,6 +46,7 @@
 #include <SDL.h>
 #include <math.h>
 
+#include "doomtype.h"
 #include "doomstat.h"
 #include "v_video.h"
 #include "gl_intern.h"
@@ -58,6 +59,7 @@
 
 #include "e6y.h"
 
+#include "dsda/excmd.h"
 #include "dsda/settings.h"
 
 typedef struct
@@ -70,7 +72,7 @@ typedef struct
 
 typedef struct
 {
-  int id;
+  GLuint id;
   int rows, columns;
   int loopcount;
   GLSkyLoopDef *loops;
@@ -336,7 +338,7 @@ void gld_DrawSkyCaps(void)
 {
   if (SkyBox.type && SkyBox.wall.gltexture)
   {
-    if (dsda_MouseLook())
+    if (dsda_FreeAim())
     {
       gld_BindSkyTexture(SkyBox.wall.gltexture);
 

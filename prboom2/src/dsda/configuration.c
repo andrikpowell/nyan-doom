@@ -15,12 +15,15 @@
 //	DSDA Config
 //
 
+#include <errno.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "am_map.h"
 #include "d_deh.h"
 #include "doomdef.h"
 #include "doomstat.h"
+#include "dsda/mapinfo.h"
 #include "hu_stuff.h"
 #include "g_overflow.h"
 #include "gl_struct.h"
@@ -62,15 +65,17 @@ typedef struct {
   dsda_config_default_t default_value;
   int* int_binding;
   int flags;
-  int strict_value;
+  int strict_lower_limit;
+  int strict_upper_limit;
   void (*onUpdate)(void);
   dsda_config_value_t transient_value;
   dsda_config_value_t persistent_value;
 } dsda_config_t;
 
-#define CONF_STRICT  0x01
-#define CONF_EVEN    0x02
-#define CONF_FEATURE 0x04
+#define CONF_STRICT       0x01
+#define CONF_STRICT_RANGE 0x02
+#define CONF_EVEN         0x04
+#define CONF_FEATURE      0x08
 
 #define CONF_BOOL(x) dsda_config_int, 0, 1, { x }
 #define CONF_COLOR(x) dsda_config_int, 0, 255, { x }
@@ -79,8 +84,9 @@ typedef struct {
 #define CONF_CR(x) dsda_config_int, 0, CR_HUD_LIMIT - 1, { x }
 #define CONF_WEAPON(x) dsda_config_int, 0, 9, { x }
 
-#define NOT_STRICT 0, 0
-#define STRICT_INT(x) CONF_FEATURE | CONF_STRICT, x
+#define NOT_STRICT 0, 0, 0
+#define STRICT_INT(x) CONF_FEATURE | CONF_STRICT, x, x
+#define STRICT_RANGE(min, max) CONF_FEATURE | CONF_STRICT_RANGE, min, max
 
 extern int dsda_input_profile;
 extern int weapon_preferences[2][NUMWEAPONS + 1];
@@ -109,11 +115,12 @@ void M_ChangeSpeed(void);
 void M_ChangeShorttics(void);
 void I_InitSoundParams(void);
 void S_Init(void);
+void I_ChangeAudioDevice(void);
 void M_ChangeMIDIPlayer(void);
 void HU_InitCrosshair(void);
 void HU_InitThresholds(void);
 void dsda_InitAutoKeyFrames(void);
-void dsda_SetupStretchParams(void);
+void dsda_UpdateStretchParams(void);
 void dsda_InitCommandHistory(void);
 void dsda_InitQuickstartCache(void);
 void dsda_InitParallelSFXFilter(void);
@@ -134,7 +141,6 @@ void deh_changeCompTranslucency(void);
 void dsda_InitGameControllerParameters(void);
 void dsda_InitExHud(void);
 void dsda_UpdateFreeText(void);
-void dsda_ResetAirControl(void);
 void dsda_AlterGameFlags(void);
 void dsda_RefreshPistolStart(void);
 void dsda_RefreshAlwaysPistolStart(void);
@@ -577,7 +583,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_mapcolor_sprt] = {
     "mapcolor_sprt", dsda_config_mapcolor_sprt,
-    CONF_COLOR(112), &mapcolor.sprt
+    CONF_COLOR(88), &mapcolor.sprt
   },
   [dsda_config_mapcolor_item] = {
     "mapcolor_item", dsda_config_mapcolor_item,
@@ -611,6 +617,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "mapcolor_trail_2", dsda_config_mapcolor_trail_2,
     CONF_COLOR(100), &mapcolor.trail_2
   },
+  [dsda_config_mapcolor_pickup] = {
+    "mapcolor_pickup", dsda_config_mapcolor_pickup,
+    CONF_COLOR(112), &mapcolor.pickup
+  },
   [dsda_config_gl_skymode] = {
     "gl_skymode", dsda_config_gl_skymode,
     dsda_config_int, skytype_auto, skytype_count - 1, { skytype_auto }, NULL,
@@ -618,7 +628,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_gl_render_multisampling] = {
     "gl_render_multisampling", dsda_config_gl_render_multisampling,
-    dsda_config_int, 0, 8, { 0 }, NULL, CONF_EVEN, 0, gld_MultisamplingInit
+    dsda_config_int, 0, 8, { 0 }, NULL, CONF_EVEN, 0, 0, gld_MultisamplingInit
   },
   [dsda_config_gl_render_fov] = {
     "gl_render_fov", dsda_config_gl_render_fov,
@@ -635,6 +645,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_use_mouse] = {
     "use_mouse", dsda_config_use_mouse,
     CONF_BOOL(1), NULL, NOT_STRICT, I_InitMouse
+  },
+  [dsda_config_mouse_menu_navigation] = {
+    "mouse_menu_navigation", dsda_config_mouse_menu_navigation,
+    CONF_BOOL(1), NULL, NOT_STRICT
   },
   [dsda_config_mouse_sensitivity_horiz] = {
     "mouse_sensitivity_horiz", dsda_config_mouse_sensitivity_horiz,
@@ -748,6 +762,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "snd_soundfont", dsda_config_snd_soundfont,
     CONF_STRING("")
   },
+  [dsda_config_snd_device] = {
+    "snd_device", dsda_config_snd_device,
+    CONF_STRING("Default"), NULL, NOT_STRICT, I_ChangeAudioDevice
+  },
   [dsda_config_mus_fluidsynth_chorus] = {
     "mus_fluidsynth_chorus", dsda_config_mus_fluidsynth_chorus,
     CONF_BOOL(0)
@@ -822,7 +840,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_cap_muxcommand] = {
     "cap_muxcommand", dsda_config_cap_muxcommand,
-    CONF_STRING("ffmpeg -i temp_v.nut -i temp_a.nut -c copy -y %f")
+    CONF_STRING("ffmpeg -i temp_v.nut -i temp_a.nut -r %r -c copy -y %f")
   },
   [dsda_config_cap_tempfile1] = {
     "cap_tempfile1", dsda_config_cap_tempfile1,
@@ -926,11 +944,11 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_ex_text_scale_x] = {
     "ex_text_scale_x", dsda_config_ex_text_scale_x,
-    dsda_config_int, 0, 4000, { 0 }, NULL, NOT_STRICT, dsda_SetupStretchParams
+    dsda_config_int, 0, 4000, { 0 }, NULL, NOT_STRICT, dsda_UpdateStretchParams
   },
   [dsda_config_ex_text_ratio_y] = {
     "ex_text_ratio_y", dsda_config_ex_text_ratio_y,
-    dsda_config_int, 0, 200, { 0 }, NULL, NOT_STRICT, dsda_SetupStretchParams
+    dsda_config_int, 0, 200, { 0 }, NULL, NOT_STRICT, dsda_UpdateStretchParams
   },
   [dsda_config_wipe_at_full_speed] = {
     "dsda_wipe_at_full_speed", dsda_config_wipe_at_full_speed,
@@ -1100,6 +1118,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "dsda_weaponbob_pct", dsda_config_weaponbob,
     dsda_config_int, 0, 4, { 4 }
   },
+  [dsda_config_fix_viewbob_floor_jolt] = {
+    "dsda_fix_viewbob_floor_jolt", dsda_config_fix_viewbob_floor_jolt,
+    CONF_BOOL(1)
+  },
   [dsda_config_quake_intensity] = {
     "dsda_quake_intensity", dsda_config_quake_intensity,
     dsda_config_int, 0, 100, { 100 }
@@ -1143,6 +1165,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_map_trail_size] = {
     "map_trail_size", dsda_config_map_trail_size,
     dsda_config_int, 0, 350, { 105 }, NULL, STRICT_INT(0), AM_initPlayerTrail
+  },
+  [dsda_config_map_traces] = {
+    "map_traces", dsda_config_map_traces,
+    CONF_BOOL(0)
   },
   [dsda_config_automap_overlay] = {
     "automap_overlay", dsda_config_automap_overlay,
@@ -1317,11 +1343,11 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_gl_fade_mode] = {
     "gl_fade_mode", dsda_config_gl_fade_mode,
-    dsda_config_int, 0, 1, { 0 }
+    dsda_config_int, 0, 2, { 0 }
   },
   [dsda_config_translucent_sprites] = {
     "boom_translucent_sprites", dsda_config_translucent_sprites,
-    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_INT(1), deh_changeCompTranslucency
+    dsda_config_int, 0, 2, { 1 }, NULL, STRICT_RANGE(0, 1), deh_changeCompTranslucency
   },
   [dsda_config_translucent_ghosts] = {
     "translucent_ghosts", dsda_config_translucent_ghosts,
@@ -1373,6 +1399,14 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [dsda_config_invert_analog_look] = {
     "invert_analog_look", dsda_config_invert_analog_look,
+    CONF_BOOL(0),
+  },
+  [dsda_config_show_endoom] = {
+    "show_endoom", dsda_config_show_endoom,
+    dsda_config_int, 0, 2, { 0 }
+  },
+  [dsda_config_export_endoom] = {
+    "export_endoom", dsda_config_export_endoom,
     CONF_BOOL(0),
   },
   [dsda_config_ansi_endoom] = {
@@ -1541,9 +1575,18 @@ static void dsda_ParseConfigArg(int arg_id, dboolean persist) {
       conf = &dsda_config[id];
       if (conf->type == dsda_config_int) {
         int value;
+        char* str_end;
 
-        if (sscanf(key_value[1], "%i", &value) != 1)
-          I_Error("Config variable \"%s\" requires an integer value", key_value[0]);
+        errno = 0;
+        value = strtol(key_value[1], &str_end, 0);
+        if (errno != 0) {
+          I_Error("Config variable \"%s\" requires an integer value (was \"%s\", err \"%s\")",
+              key_value[0], key_value[1], strerror(errno));
+        }
+        if (*str_end != '\0') {
+          I_Error("Value for config variable \"%s\" was not converted into an integer in its entirety (was \"%s\")",
+          key_value[0], key_value[1]);
+        }
 
         dsda_InitIntConfig(conf, value, persist);
       }
@@ -1642,7 +1685,16 @@ int dsda_IntConfig(dsda_config_identifier_t id) {
   dboolean dsda_StrictMode(void);
 
   if (dsda_config[id].flags & CONF_STRICT && dsda_StrictMode())
-    return dsda_config[id].strict_value;
+    return dsda_config[id].strict_lower_limit;
+
+  if (dsda_config[id].flags & CONF_STRICT_RANGE && dsda_StrictMode())
+  {
+    if (dsda_config[id].transient_value.v_int < dsda_config[id].strict_lower_limit)
+      return dsda_config[id].strict_lower_limit;
+
+    if (dsda_config[id].transient_value.v_int > dsda_config[id].strict_upper_limit)
+      return dsda_config[id].strict_upper_limit;
+  }
 
   return dsda_config[id].transient_value.v_int;
 }

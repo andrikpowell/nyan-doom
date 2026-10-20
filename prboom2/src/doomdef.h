@@ -153,6 +153,7 @@ extern int SCREEN_320x200;
 // at the intermission screen, the game final animation, or a demo.
 
 typedef enum {
+  GS_DEFAULT = -1,
   GS_LEVEL,
   GS_INTERMISSION,
   GS_FINALE,
@@ -418,6 +419,8 @@ typedef enum {
 #define ORIG_FRICTION          0xE800      // original value
 #define ORIG_FRICTION_FACTOR   2048        // original value
 #define FRICTION_FLY           0xeb00
+
+extern dboolean started_demo;
 
 extern dboolean raven;
 

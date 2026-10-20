@@ -36,6 +36,8 @@
 #include "dsda/settings.h"
 #include "dsda/skill_info.h"
 
+#include "hexen/sv_save.h"
+
 #include "save.h"
 
 static char* dsda_base_save_dir;
@@ -88,7 +90,7 @@ static void dsda_ArchiveContext(void) {
 
   P_SAVE_X(leave_data);
 
-  P_SAVE_X(map_info.default_colormap);
+  P_SAVE_X(map_colormap);
 
   P_SAVE_X(leveltime);
   P_SAVE_X(totalleveltimes);
@@ -130,7 +132,7 @@ static void dsda_UnArchiveContext(void) {
 
   G_InitNew(gameskill, gameepisode, gamemap, false);
 
-  P_LOAD_X(map_info.default_colormap);
+  P_LOAD_X(map_colormap);
 
   P_LOAD_X(leveltime);
   P_LOAD_X(totalleveltimes);
@@ -145,7 +147,7 @@ static void dsda_UnArchiveContext(void) {
 
 skill_info_t saved_custom_skill;
 
-void dsda_ArchiveCustomSkill(void)
+static void dsda_ArchiveCustomSkill(void)
 {
   // don't store info if normal skill
   if (gameskill != (num_skills - 1))
@@ -156,7 +158,7 @@ void dsda_ArchiveCustomSkill(void)
   P_SAVE_X(saved_custom_skill);
 }
 
-void dsda_UnArchiveCustomSkill(void)
+static void dsda_UnArchiveCustomSkill(void)
 {
   // don't store info if normal skill
   if (gameskill != (num_skills - 1))
@@ -167,15 +169,40 @@ void dsda_UnArchiveCustomSkill(void)
   skill_infos[num_skills - 1] = saved_custom_skill;  // custom skill (-1 to match gameskill)
 }
 
-int saved_pistolstart, saved_respawnparm, saved_fastparm, saved_nomonsters, saved_coop_spawns;
+static int saved_pistolstart;
+static int saved_respawnparm;
+static int saved_fastparm;
+static int saved_nomonsters;
+static int saved_coop_spawns;
 
-void dsda_ArchiveGameModifiers(void)
+static void dsda_GetGameModifiers(void)
 {
   saved_pistolstart = pistolstart;
   saved_respawnparm = respawnparm;
   saved_fastparm    = fastparm;
   saved_nomonsters  = nomonsters;
   saved_coop_spawns = coop_spawns;
+}
+
+static void dsda_SetGameModifiers(void)
+{
+  // [AR] when playing / recording demos, do NOT touch configs
+  if (!allow_incompatibility)
+    return;
+
+  // If "Always Pistol Start" is enabled, skip resetting "Pistol Start"
+  if (!dsda_IntConfig(dsda_config_always_pistol_start))
+    dsda_UpdateIntConfig(dsda_config_pistol_start,saved_pistolstart,true);
+
+  dsda_UpdateIntConfig(dsda_config_respawn_monsters,saved_respawnparm,true);
+  dsda_UpdateIntConfig(dsda_config_fast_monsters,saved_fastparm,true);
+  dsda_UpdateIntConfig(dsda_config_no_monsters,saved_nomonsters,true);
+  dsda_UpdateIntConfig(dsda_config_coop_spawns,saved_coop_spawns,true);
+}
+
+static void dsda_ArchiveGameModifiers(void)
+{
+  dsda_GetGameModifiers();
 
   P_SAVE_X(saved_pistolstart);
   P_SAVE_X(saved_respawnparm);
@@ -184,7 +211,7 @@ void dsda_ArchiveGameModifiers(void)
   P_SAVE_X(saved_coop_spawns);
 }
 
-void dsda_UnArchiveGameModifiers(void)
+static void dsda_UnArchiveGameModifiers(void)
 {
   P_LOAD_X(saved_pistolstart);
   P_LOAD_X(saved_respawnparm);
@@ -192,11 +219,21 @@ void dsda_UnArchiveGameModifiers(void)
   P_LOAD_X(saved_nomonsters);
   P_LOAD_X(saved_coop_spawns);
 
-  dsda_UpdateIntConfig(dsda_config_pistol_start,     saved_pistolstart, true);
-  dsda_UpdateIntConfig(dsda_config_respawn_monsters, saved_respawnparm, true);
-  dsda_UpdateIntConfig(dsda_config_fast_monsters,    saved_fastparm,    true);
-  dsda_UpdateIntConfig(dsda_config_no_monsters,      saved_nomonsters,  true);
-  dsda_UpdateIntConfig(dsda_config_coop_spawns,      saved_coop_spawns, true);
+  dsda_SetGameModifiers();
+}
+
+void dsda_ArchiveHexenStats(void)
+{
+  if (!hexen) return;
+
+  SV_StoreHexenMapStats();
+}
+
+void dsda_UnArchiveHexenStats(void)
+{
+  if (!hexen) return;
+
+  SV_RestoreHexenMapStats();
 }
 
 void dsda_ArchiveAll(void) {
@@ -216,8 +253,9 @@ void dsda_ArchiveAll(void) {
   P_ArchiveRNG();
   P_ArchiveMap();
 
-  dsda_ArchiveCustomSkill();
+  dsda_ArchiveHexenStats();
   dsda_ArchiveGameModifiers();
+  dsda_ArchiveCustomSkill();
   dsda_ArchiveInternal();
 }
 
@@ -238,8 +276,9 @@ void dsda_UnArchiveAll(void) {
   P_UnArchiveMap();
   P_MapEnd();
 
-  dsda_UnArchiveCustomSkill();
+  dsda_UnArchiveHexenStats();
   dsda_UnArchiveGameModifiers();
+  dsda_UnArchiveCustomSkill();
   dsda_UnArchiveInternal();
 }
 

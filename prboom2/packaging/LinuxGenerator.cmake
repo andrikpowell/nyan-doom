@@ -26,13 +26,13 @@ endif()
 
 execute_process(
   COMMAND ${CMAKE_COMMAND} -E env
-    LDAI_OUTPUT=${CPACK_PACKAGE_FILE_NAME}-${CPACK_SYSTEM_PROCESSOR}.appimage
+    LDAI_OUTPUT=${CPACK_PACKAGE_FILE_NAME}.appimage
     LINUXDEPLOY_OUTPUT_VERSION=${CPACK_PACKAGE_VERSION}
     NO_STRIP=1
     ${LINUXDEPLOY_EXECUTABLE}
     --appimage-extract-and-run
     --appdir=${CPACK_TEMPORARY_DIRECTORY}
-    --executable=${CPACK_BIN_DIR}/dsda-doom
+    --executable=${CPACK_TEMPORARY_DIRECTORY}/${CPACK_PACKAGING_INSTALL_PREFIX}/${CPACK_BIN_DIR}/dsda-doom
     --desktop-file=${CPACK_TEMPORARY_DIRECTORY}/${CPACK_PACKAGING_INSTALL_PREFIX}/share/applications/dsda-doom.desktop
     --icon-file=${CPACK_TEMPORARY_DIRECTORY}/${CPACK_PACKAGING_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps/dsda-doom.svg
     --output=appimage

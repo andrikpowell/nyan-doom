@@ -106,7 +106,9 @@ static void ApplyWindowResize(SDL_Event *resize_event);
 static void ActivateMouse(void);
 static void DeactivateMouse(void);
 //static int AccelerateMouse(int val);
+static void UpdatePlaybackMouseTimer(void);
 static void I_ReadMouse(void);
+static dboolean MouseIsInWindow(void);
 static dboolean MouseShouldBeGrabbed();
 static void UpdateFocus(void);
 
@@ -123,9 +125,20 @@ SDL_Renderer *sdl_renderer;
 SDL_Texture *sdl_texture;
 static SDL_GLContext sdl_glcontext;
 unsigned int windowid = 0;
-SDL_Rect src_rect = { 0, 0, 0, 0 };
-SDL_Rect window_rect = { 0, 0, 0, 0 };
-SDL_Rect viewport_rect = { 0, 0, 0, 0 };
+SDL_Rect src_rect = { 0, 0, 0, 0 };       // Drawn pixels, independent of window size
+SDL_Rect window_rect = { 0, 0, 0, 0 };    // Physical window
+SDL_Rect renderer_rect = { 0, 0, 0, 0 };  // The window, but with HiDPI accounted
+SDL_Rect viewport_rect = { 0, 0, 0, 0 };  // The renderer, but without the black bars
+
+void *I_GetSDLWindow(void)
+{
+    return sdl_window;
+}
+
+void *I_GetSDLRenderer(void)
+{
+    return sdl_renderer;
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code
@@ -261,9 +274,7 @@ static int I_TranslateKey(SDL_Keysym* key)
   case SDLK_LCTRL:
   case SDLK_RCTRL:  rc = KEYD_RCTRL;  break;
   case SDLK_LALT:
-  case SDLK_LGUI:
-  case SDLK_RALT:
-  case SDLK_RGUI:  rc = KEYD_RALT;   break;
+  case SDLK_RALT: rc = KEYD_RALT;   break;
   case SDLK_CAPSLOCK: rc = KEYD_CAPSLOCK; break;
   case SDLK_PRINTSCREEN: rc = KEYD_PRINTSC; break;
   case SDLK_SCROLLLOCK: rc = KEYD_SCROLLLOCK; break;
@@ -288,8 +299,8 @@ int I_SDLtoDoomMouseState(Uint32 buttonstate)
 {
   return 0
       | (buttonstate & SDL_BUTTON(1) ? 1 : 0)
-      | (buttonstate & SDL_BUTTON(2) ? 2 : 0)
-      | (buttonstate & SDL_BUTTON(3) ? 4 : 0)
+      | (buttonstate & SDL_BUTTON(3) ? 2 : 0)
+      | (buttonstate & SDL_BUTTON(2) ? 4 : 0)
       | (buttonstate & SDL_BUTTON(6) ? 8 : 0)
       | (buttonstate & SDL_BUTTON(7) ? 16 : 0)
       | (buttonstate & SDL_BUTTON(4) ? 32 : 0)
@@ -328,7 +339,8 @@ static void I_GetEvent(void)
             break;
           }
           // Switch windowed<->fullscreen if pressed Alt-Enter
-          else if (Event->key.keysym.sym == SDLK_RETURN)
+          else if (Event->key.keysym.sym == SDLK_RETURN ||
+                   Event->key.keysym.sym == SDLK_KP_ENTER)
           {
             V_ToggleFullscreen();
             break;
@@ -412,7 +424,14 @@ static void I_GetEvent(void)
           {
           case SDL_WINDOWEVENT_FOCUS_GAINED:
           case SDL_WINDOWEVENT_FOCUS_LOST:
+          case SDL_WINDOWEVENT_MINIMIZED:
+          case SDL_WINDOWEVENT_MAXIMIZED:
+          case SDL_WINDOWEVENT_RESTORED:
             UpdateFocus();
+            break;
+          case SDL_WINDOWEVENT_MOVED:
+            // update mouse cursor position
+            I_SetWindowRect();
             break;
           case SDL_WINDOWEVENT_SIZE_CHANGED:
             ApplyWindowResize(Event);
@@ -422,7 +441,7 @@ static void I_GetEvent(void)
         break;
 
       case SDL_QUIT:
-        S_StartVoidSound(sfx_swtchn);
+        S_StartOptionalSound(g_sfx_mnucls, g_sfx_swtchn, true);
         M_QuitDOOM(0);
 
       default:
@@ -438,6 +457,9 @@ static void I_GetEvent(void)
 void I_StartTic (void)
 {
   I_GetEvent();
+
+  // Moved here so that playback bar can shrink when mouse is outside window
+  UpdatePlaybackMouseTimer();
 
   if (dsda_AllowMouse())
     I_ReadMouse();
@@ -503,7 +525,7 @@ static void I_UploadNewPalette(int pal, int force)
   if (V_IsOpenGLMode())
     return;
 
-  playpal_data = dsda_PlayPalData();
+  playpal_data = dsda_PlayPalData(playpal_index);
 
   if ((playpal_data->colours == NULL) || (cachedgamma != usegamma) || force) {
     int pplump;
@@ -675,6 +697,7 @@ static void I_ShutdownSDL(void)
 void I_PreInitGraphics(void)
 {
   int p;
+  dboolean endoom_export;
 
   // Initialize SDL
   unsigned int flags = 0;
@@ -690,7 +713,9 @@ void I_PreInitGraphics(void)
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
 
-  I_AtExit(I_ShutdownSDL, true, "I_ShutdownSDL", exit_priority_normal);
+  endoom_export = dsda_IntConfig(dsda_config_export_endoom);
+
+  I_AtExit(I_ShutdownSDL, true, "I_ShutdownSDL", endoom_export ? exit_priority_normal : exit_priority_last);
 }
 
 // e6y: resolution limitation is removed
@@ -1362,6 +1387,7 @@ void I_UpdateVideoMode(void)
 
   V_SetPalette(0);
   I_UploadNewPalette(0, true);
+  M_ChangeApplyPalette();
 
   if (V_IsOpenGLMode())
   {
@@ -1418,15 +1444,8 @@ void I_UpdateVideoMode(void)
 
 static void ActivateMouse(void)
 {
-  if (demoplayback && !walkcamera.type)
-  {
-    SDL_ShowCursor(SDL_DISABLE);
-  }
-  else
-  {
-    SDL_SetRelativeMouseMode(SDL_TRUE);
-    SDL_GetRelativeMouseState(NULL, NULL);
-  }
+  SDL_SetRelativeMouseMode(SDL_TRUE);
+  SDL_GetRelativeMouseState(NULL, NULL);
 }
 
 static void DeactivateMouse(void)
@@ -1463,6 +1482,12 @@ static void CorrectMouseStutter(int *x, int *y)
   y_remainder_old = y_remainder;
 }
 
+static void UpdatePlaybackMouseTimer(void)
+{
+  if (demoplayback && !menuactive && mouse_hide_timer > 0 && !dsda_SkipMode())
+    mouse_hide_timer--;
+}
+
 //
 // Read the change in mouse state to generate mouse motion events
 //
@@ -1475,6 +1500,10 @@ static void I_ReadMouse(void)
 
   //e6y: new mouse code
   UpdateGrab();
+
+  // Don't pull mouse away if outside window
+  if (demoplayback && !menuactive && !desired_fullscreen && !MouseIsInWindow())
+    return;
 
   if (window_focused)
   {
@@ -1498,12 +1527,31 @@ static void I_ReadMouse(void)
   }
 }
 
+static dboolean MouseIsInWindow(void)
+{
+  int mouse_x, mouse_y;
+
+  if (!sdl_window)
+    return false;
+
+  SDL_GetGlobalMouseState(&mouse_x, &mouse_y);
+
+  return mouse_x >= window_rect.x && mouse_x < window_rect.x + window_rect.w &&
+         mouse_y >= window_rect.y && mouse_y < window_rect.y + window_rect.h;
+}
+
 static dboolean MouseShouldBeGrabbed()
 {
   // never grab the mouse when in screensaver mode
 
   //if (screensaver_mode)
   //    return false;
+
+  // In windowed demo playback, only hide/grab the cursor while it's inside the window
+  if (demoplayback && !menuactive && !desired_fullscreen && !MouseIsInWindow())
+  {
+    return false;
+  }
 
   // if the window doesnt have focus, never grab it
   if (!window_focused)
@@ -1519,20 +1567,23 @@ static dboolean MouseShouldBeGrabbed()
     return (demoplayback && gamestate == GS_LEVEL && !menuactive);
 
   // during playback the mouse should be hidden when not moving
-  if (demoplayback && !menuactive && mouse_hide_timer > 0)
+  if (demoplayback && !menuactive && mouse_hide_timer > 0 &&
+    (dsda_IntConfig(dsda_config_playback_mouse_controls) || !desired_fullscreen))
   {
-    if (!dsda_SkipMode())
-      mouse_hide_timer--;
-
+    // moved hide playback bar timer logic to not be tied to "inside window" logic
     return false;
   }
+
+  // when menu is active and mouse navigation is desired, release the mouse even in fullscreen
+  if (menuactive && dsda_IntConfig(dsda_config_mouse_menu_navigation))
+    return false;
 
   // always grab the mouse when full screen (dont want to
   // see the mouse pointer)
   if (desired_fullscreen)
     return true;
 
-  // when menu is active or game is paused, release the mouse
+  // when game is paused, release the mouse in windowed mode
   if (menuactive || dsda_Paused())
     return false;
 
@@ -1577,15 +1628,16 @@ void UpdateGrab(void)
 
   grab = MouseShouldBeGrabbed();
 
-  if (grab && !currently_grabbed)
+  if (grab)
   {
-    ActivateMouse();
-  }
+    if (!currently_grabbed)
+      ActivateMouse();
 
-  if (!grab && currently_grabbed)
-  {
-    DeactivateMouse();
+    if (!demoplayback || walkcamera.type)
+      SDL_WarpMouseInWindow(sdl_window, window_rect.w / 2, window_rect.h / 2);
   }
+  else if (currently_grabbed)
+    DeactivateMouse();
 
   currently_grabbed = grab;
 }
@@ -1603,10 +1655,13 @@ static void ApplyWindowResize(SDL_Event *resize_event)
 
 void I_SetWindowRect()
 {
+  SDL_GetWindowPosition(sdl_window, &window_rect.x, &window_rect.y);
+  SDL_GetWindowSize(sdl_window, &window_rect.w, &window_rect.h);
+
   if (V_IsOpenGLMode())
-    SDL_GL_GetDrawableSize(sdl_window, &window_rect.w, &window_rect.h);
+    SDL_GL_GetDrawableSize(sdl_window, &renderer_rect.w, &renderer_rect.h);
   else
-    SDL_GetRendererOutputSize(sdl_renderer, &window_rect.w, &window_rect.h);
+    SDL_GetRendererOutputSize(sdl_renderer, &renderer_rect.w, &renderer_rect.h);
 }
 
 void I_SetViewportRect()
@@ -1614,19 +1669,19 @@ void I_SetViewportRect()
   float viewport_aspect = (float)SCREENWIDTH / (float)ACTUALHEIGHT;
 
   // Black bars on left and right of viewport
-  if (((float)window_rect.w / (float)window_rect.h) > viewport_aspect)
+  if (((float)renderer_rect.w / (float)renderer_rect.h) > viewport_aspect)
   {
-    viewport_rect.w = (int)((float)window_rect.h * viewport_aspect);
-    viewport_rect.h = window_rect.h;
-    viewport_rect.x = (window_rect.w - viewport_rect.w) >> 1;
+    viewport_rect.w = (int)((float)renderer_rect.h * viewport_aspect);
+    viewport_rect.h = renderer_rect.h;
+    viewport_rect.x = (renderer_rect.w - viewport_rect.w) >> 1;
     viewport_rect.y = 0;
   }
   // Either matching window's aspect ratio, or black bars on top and bottom (ie 21:9 on a 16:9 display)
   else
   {
-    viewport_rect.w = window_rect.w;
-    viewport_rect.h = (int)((float)window_rect.w / viewport_aspect);
+    viewport_rect.w = renderer_rect.w;
+    viewport_rect.h = (int)((float)renderer_rect.w / viewport_aspect);
     viewport_rect.x = 0;
-    viewport_rect.y = (window_rect.h - viewport_rect.h) >> 1;
+    viewport_rect.y = (renderer_rect.h - viewport_rect.h) >> 1;
   }
 }

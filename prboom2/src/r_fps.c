@@ -325,12 +325,17 @@ static void R_DoAnInterpolation (int i, fixed_t smoothratio)
   case INTERP_SectorCeiling:
     gld_UpdateSplitData(((sector_t*)curipos[i].address));
     break;
+  default:
+    break;
   }
 }
 
 void R_UpdateInterpolations()
 {
   int i;
+
+  P_UpdateMobjInterpolations();
+
   if (!movement_smooth)
     return;
   for (i = numinterpolations-1; i >= 0; --i)

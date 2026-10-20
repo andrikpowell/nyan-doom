@@ -47,6 +47,7 @@
 extern SDL_Window *sdl_window;
 extern SDL_Renderer *sdl_renderer;
 
+extern SDL_Rect renderer_rect;
 extern SDL_Rect window_rect;
 extern SDL_Rect viewport_rect;
 
@@ -61,6 +62,9 @@ void I_SetWindowIcon(void); /* Set the application icon */
 void I_InitGraphics (void);
 void I_UpdateVideoMode(void);
 void I_ShutdownGraphics(void);
+
+void *I_GetSDLWindow(void);
+void *I_GetSDLRenderer(void);
 
 /* Takes full 8 bit values. */
 void I_SetPalette(int pal); /* CPhipps - pass down palette number */

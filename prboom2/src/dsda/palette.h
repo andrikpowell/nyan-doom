@@ -32,8 +32,11 @@ typedef enum {
   playpal_8,
   playpal_9,
   playpal_heretic_e2end,
+  playpal_custom,
   NUMPALETTES
 } dsda_playpal_index_t;
+
+extern int playpal_index;;
 
 typedef struct playpal_data_s {
   const int index;
@@ -50,11 +53,13 @@ typedef struct playpal_data_s {
   SDL_Color* colours;
 } dsda_playpal_t;
 
-double dsda_PaletteEntryLightness(const char *playpal, int i);
-dsda_playpal_t* dsda_PlayPalData(void);
+double dsda_PaletteEntryLightness(const byte *playpal, int i);
+dsda_playpal_t* dsda_PlayPalData(int playpal_i);
 void dsda_CyclePlayPal(void);
 void dsda_SetPlayPal(int index);
-void dsda_FreePlayPal(void);
-void dsda_InitPlayPal(void);
+void dsda_FreePlayPal(int playpal_i);
+void dsda_FreeAllPlayPals(void);
+void dsda_InitPlayPal(int playpal_i);
+void dsda_InitAllPlayPals(void);
 
 #endif

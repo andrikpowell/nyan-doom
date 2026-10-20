@@ -21,6 +21,7 @@
 
 #include "doomtype.h"
 #include "doomstat.h"
+#include "d_deh.h"
 #include "g_game.h"
 #include "m_file.h"
 #include "md5.h"
@@ -47,13 +48,14 @@
 
 #define INITIAL_DEMO_BUFFER_SIZE 0x20000
 
+int demo_tics;
+
 static char* dsda_demo_name_base;
 static byte* dsda_demo_write_buffer;
 static byte* dsda_demo_write_buffer_p;
 static int dsda_demo_write_buffer_length;
 static int dsda_extra_demo_header_data_offset;
 static int largest_real_offset;
-static int demo_tics;
 static int compatibility_level_unspecified;
 
 #define DSDA_UDMF_VERSION 1
@@ -297,6 +299,9 @@ void dsda_InitDemoRecording(void) {
   // we need to reset things here to satisfy strict mode
   dsda_InitSettings();
 
+  // Update Translucency for Strict Mode
+  deh_changeCompTranslucency();
+
   dsda_LiftInputRestrictions();
   dsda_ResetFeatures();
   dsda_TrackConfigFeatures();
@@ -518,7 +523,7 @@ static dboolean dsda_UseDemoNameWithTime(void) {
 static char* dsda_DemoNameWithTime(void) {
   char* demo_name;
   char* base_name;
-  int counter = 2;
+  unsigned int counter = 2;
   size_t length;
 
   length = strlen(dsda_demo_name_base) + 16 + 1;
@@ -586,7 +591,7 @@ void dsda_EndDemoRecording(void) {
 void dsda_ExportDemo(const char* name) {
   char* demo_name;
   char* base_name;
-  int counter = 2;
+  unsigned int counter = 2;
   int old_offset;
 
   base_name = Z_Strdup(name);
@@ -807,10 +812,6 @@ void dsda_ApplyDSDADemoFormat(byte** demo_p) {
     if (!mbf21)
       I_Error("You must use complevel 21 when recording in advanced formats.");
 
-    use_dsda_format = true;
-  }
-  else if (dsda_UseMapinfo())
-  {
     use_dsda_format = true;
   }
 

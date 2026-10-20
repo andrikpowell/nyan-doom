@@ -74,6 +74,7 @@ typedef struct
   int plyr[8];
   int trail_1;
   int trail_2;
+  int pickup;
 } mapcolor_t;
 
 typedef struct map_point_s
@@ -108,7 +109,13 @@ void AM_Stop (dboolean minimap);
 
 // killough 2/22/98: for saving automap information in savegame:
 
-void AM_Start(dboolean full_automap);
+typedef enum
+{
+  AM_OPEN_MINIMAP,
+  AM_OPEN_FULLAUTOMAP
+} am_start_t;
+
+void AM_Start(dboolean open_full_automap);
 
 //jff 4/16/98 make externally available
 
@@ -182,5 +189,6 @@ typedef enum
 extern map_trail_mode_t map_trail_mode;
 
 void AM_updatePlayerTrail(fixed_t x, fixed_t y);
+void AM_RefreshMinimap(void);
 
 #endif

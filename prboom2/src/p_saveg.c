@@ -202,7 +202,7 @@ void P_ArchiveWorld (void)
 
     P_SAVE_X(li->flags);
     P_SAVE_X(li->special);
-    P_SAVE_X(li->tag);
+    P_SAVE_X(li->id);
     P_SAVE_BYTE(li->player_activations);
     P_SAVE_ARRAY(li->special_args);
 
@@ -300,7 +300,7 @@ void P_UnArchiveWorld (void)
 
     P_LOAD_X(li->flags);
     P_LOAD_X(li->special);
-    P_LOAD_X(li->tag);
+    P_LOAD_X(li->id);
     P_LOAD_BYTE(li->player_activations);
     P_LOAD_ARRAY(li->special_args);
 
@@ -455,7 +455,7 @@ void P_ArchiveMap(void)
 {
   int i;
 
-  P_SAVE_X(automap_active);
+  P_SAVE_X(automap_full);
   P_SAVE_X(markpointnum);
 
   for (i = 0; i < markpointnum; i++)
@@ -467,10 +467,10 @@ void P_ArchiveMap(void)
 
 void P_UnArchiveMap(void)
 {
-  P_LOAD_X(automap_active);
+  P_LOAD_X(automap_full);
 
-  if (automap_active)
-    AM_Start(true);
+  if (automap_full)
+    AM_Start(AM_OPEN_FULLAUTOMAP);
 
   P_LOAD_X(markpointnum);
 

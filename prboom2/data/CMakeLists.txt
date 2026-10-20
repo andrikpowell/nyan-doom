@@ -306,6 +306,8 @@ set(SPRITES
     sprites/dogsl0.ppm
     sprites/dogsm0.ppm
     sprites/dogsn0.ppm
+    sprites/bon3a0.ppm
+    sprites/bon4a0.ppm
 )
 set(SPRITEP
     ${SPRITEP}
@@ -383,6 +385,17 @@ set(SPRITEP
 
 set(SPRITES
     ${SPRITES}
+    sprites/bon3a0.ppm
+    sprites/bon4a0.ppm
+)
+set(SPRITEP
+    ${SPRITEP}
+    "4,47,sprites/bon3a0.ppm"
+    "19,19,sprites/bon4a0.ppm"
+)
+
+set(SPRITES
+    ${SPRITES}
     sprites/pls1a0.ppm
     sprites/pls1b0.ppm
     sprites/pls1c0.ppm
@@ -436,7 +449,7 @@ set(WAD_CMDLINE
 
 add_custom_command(
     OUTPUT ${WAD_DATA_PATH}
-    COMMAND dsda_rdatawad -I "${CMAKE_CURRENT_SOURCE_DIR}" ${WAD_CMDLINE} -o "${WAD_DATA_PATH}"
+    COMMAND $<TARGET_FILE:dsda_rdatawad> -I "${CMAKE_CURRENT_SOURCE_DIR}" ${WAD_CMDLINE} -o "${WAD_DATA_PATH}"
     DEPENDS dsda_rdatawad ${WAD_SRC}
     VERBATIM
 )
