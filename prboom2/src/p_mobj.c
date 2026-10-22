@@ -3760,7 +3760,7 @@ void P_RipperBlood(mobj_t * mo, mobj_t * bleeder)
 
 // hexen
 
-#define MAX_TID_COUNT 200
+#define MAX_TID_COUNT 256 * 8 // [PN] Increase TID limit
 
 extern mobj_t LavaInflictor;
 

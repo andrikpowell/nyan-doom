@@ -307,7 +307,7 @@ extern  size_t     num_deathmatchstarts; // killough
 extern  mapthing_t *deathmatch_p;
 
 // Player spawn spots.
-#define MAX_PLAYER_STARTS 8
+#define MAX_PLAYER_STARTS 10
 extern  mapthing_t playerstarts[MAX_PLAYER_STARTS][MAX_MAXPLAYERS];
 
 // Intermission stats.
