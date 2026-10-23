@@ -238,6 +238,8 @@ void SetCrosshairTarget(void)
 mobj_t *HU_SafeIntercept(void)
 {
   angle_t an = plr->mo->angle;
+  mobj_t *target;
+  mobj_t *saved_linetarget = linetarget;
 
   // intercepts overflow guard
   overflows_enabled = false;
@@ -248,12 +250,17 @@ mobj_t *HU_SafeIntercept(void)
     P_AimLineAttack(plr->mo, an -= 2<<26, 16*64*FRACUNIT, 0);
   overflows_enabled = true;
 
-  return linetarget;
+  target = linetarget;
+  linetarget = saved_linetarget;
+
+  return target;
 }
 
 mobj_t *HU_Target(void)
 {
   angle_t an = plr->mo->angle;
+  mobj_t *target;
+  mobj_t *saved_linetarget = linetarget;
 
   // intercepts overflow guard
   overflows_enabled = false;
@@ -267,7 +274,10 @@ mobj_t *HU_Target(void)
   }
   overflows_enabled = true;
 
-  return linetarget;
+  target = linetarget;
+  linetarget = saved_linetarget;
+
+  return target;
 }
 
 void HU_DrawCrosshair(void)
