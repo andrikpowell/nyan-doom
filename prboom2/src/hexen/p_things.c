@@ -303,6 +303,7 @@ dboolean EV_ThingRemove(int tid)
             A_BridgeRemove(mobj);
             return true;
         }
+        dsda_WatchThingRemove(mobj);
         P_RemoveMobj(mobj);
         success = true;
     }

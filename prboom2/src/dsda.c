@@ -426,6 +426,12 @@ void dsda_WatchDSparilPhaseSpawn(mobj_t* spawned) {
     --dsda_max_kill_requirement;
 }
 
+// Removed monsters are removed from kill count
+void dsda_WatchThingRemove(mobj_t* removed) {
+  if (dsda_IsCountedKill(removed))
+    --dsda_max_kill_requirement;
+}
+
 int dsda_MaxKillRequirement() {
   return dsda_max_kill_requirement;
 }
