@@ -126,6 +126,7 @@ Additionally, you will need the following external libraries:
 
 ```
 pacman -S mingw-w64-ucrt-x86_64-libxmp mingw-w64-ucrt-x86_64-fluidsynth mingw-w64-ucrt-x86_64-libmad mingw-w64-ucrt-x86_64-libvorbis mingw-w64-ucrt-x86_64-libzip mingw-w64-ucrt-x86_64-portmidi mingw-w64-ucrt-x86_64-SDL2 mingw-w64-ucrt-x86_64-SDL2_mixer mingw-w64-ucrt-x86_64-libspng mingw-w64-ucrt-x86_64-libsndfile mingw-w64-ucrt-x86_64-zlib
+mingw-w64-ucrt-x86_64-yyjson
 ```
 
 ## Installing Discord Rich Presence (Optional)
