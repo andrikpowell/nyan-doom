@@ -25,7 +25,8 @@
         "opusfile"
       ]
     },
-    "zlib"
+    "zlib",
+    "yyjson"
   ],
   "features": {
     "discord-rpc": {
