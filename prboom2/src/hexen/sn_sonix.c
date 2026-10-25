@@ -352,7 +352,7 @@ void SN_UpdateActiveSequences(void)
     seqnode_t *next_node;
     dboolean sndPlaying;
 
-    if (!ActiveSequences || dsda_Paused())
+    if (!ActiveSequences || dsda_Paused() || dsda_PausedViaMenu())
     {                           // No sequences currently playing/game is paused
         return;
     }

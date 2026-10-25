@@ -47,6 +47,7 @@
 
 #include "heretic/f_finale.h"
 #include "hexen/f_finale.h"
+#include "hexen/sn_sonix.h"
 
 #include "dsda/font.h"
 #include "dsda/mapinfo.h"
@@ -119,6 +120,10 @@ void F_StartFinale (void)
   endpic = NULL;
   endpalette = NULL;
   finaletype = EG_None;
+
+  // Stop sound sequences before finales
+  if (map_format.sndseq)
+    SN_StopAllSequences();
 
   if (heretic)  RETURN(Heretic_F_StartFinale());
   if (hexen)    RETURN(Hexen_F_StartFinale());
