@@ -57,6 +57,8 @@
 #include "m_misc.h"
 #include "lprintf.h"
 
+#include "hexen/p_anim.h"
+
 #include "e6y.h"
 
 #include "dsda/excmd.h"
@@ -92,6 +94,38 @@ static int num_skyboxes;
 static int max_skyboxes;
 static dboolean sky_stencil_ready;
 
+static GLTexture *gld_GetSkyTexture(const GLWall *wall, dboolean skylayer)
+{
+  int lightning_flash = P_SkyLightningActive() && wall->gltexlightning;
+
+  if (DoubleSky)
+  {
+    // Sky1 - FG layer of double sky
+    if (skylayer)
+    {
+      // Vanilla allows Lightning + DoubleSky (why?)
+      // This will replace the FG layer with SKY2
+      if (lightning_flash)
+        return wall->gltexlightning;
+      else
+        return wall->gltexlayer;
+    }
+
+    // Sky2 - BG layer of double sky
+    else
+      return wall->gltexture;
+  }
+
+  // Lightning SKY2 replaces SKY1
+  if (lightning_flash)
+  {
+    return wall->gltexlightning;
+  }
+
+  // Single SKY1
+  return wall->gltexture;
+}
+
 void gld_InitSky(void)
 {
   memset(&SkyBox, 0, sizeof(SkyBox));
@@ -109,6 +143,9 @@ void gld_InitFrameSky(void)
   SkyBox.x_offset_layer = 0;
   num_skyboxes = 0;
   sky_stencil_ready = false;
+
+  // Hexen LightningSky
+  SkyBox.wall.gltexlightning = NULL;
 }
 
 static void gld_DrawFakeSkyStrips(int skybox_index)
@@ -166,6 +203,7 @@ static int gld_AddSkyBox(const GLWall *wall, int skytype, float x_offset, float 
 
     if (check->wall.gltexture == skybox.wall.gltexture &&
         check->wall.gltexlayer == skybox.wall.gltexlayer &&
+        check->wall.gltexlightning == skybox.wall.gltexlightning &&
         check->wall.flag == skybox.wall.flag &&
         check->x_offset == skybox.x_offset &&
         check->y_offset == skybox.y_offset &&
@@ -192,12 +230,13 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
 {
   side_t *s = NULL;
   line_t *l = NULL;
-  int sky = texturetranslation[skytexture];
-  int sky_bg = DoubleSky ? texturetranslation[skytexture2] : false;
+  int glsky1 = texturetranslation[skytexture];
+  int glsky2 = DoubleSky || LightningSky ? texturetranslation[skytexture2] : false;
   angle_t fg_skyoffset = 0, bg_skyoffset = 0, skyoffset_angle = 0;
 
   wall->gltexture = NULL;
   wall->gltexlayer = NULL;
+  wall->gltexlightning = NULL;
   wall->skybox_index = -1;
 
   if (sky1 & PL_SKYFLAT_LINE)
@@ -211,11 +250,11 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
 
   if (sky1 & PL_SKYFLAT_SECTOR)
   {
-    sky = sky1 & ~PL_SKYFLAT_SECTOR;
+    glsky1 = sky1 & ~PL_SKYFLAT_SECTOR;
   }
   else if (sky2 & PL_SKYFLAT_SECTOR)
   {
-    sky = sky2 & ~PL_SKYFLAT_SECTOR;
+    glsky1 = sky2 & ~PL_SKYFLAT_SECTOR;
   }
 
   if (l)
@@ -240,8 +279,11 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
     if (DoubleSky)  // hexen layered sky
     {
       // skies get swapped so that gltexture is used for the "normal" background
-      wall->gltexture  = gld_RegisterSkyTexture(sky_bg, true);  // SKY2 - solid background
-      wall->gltexlayer = gld_RegisterSkyTexture(sky, true);     // SKY1 - Translucent layer
+      wall->gltexture  = gld_RegisterSkyTexture(glsky2, true);  // SKY2 - solid background
+      wall->gltexlayer = gld_RegisterSkyTexture(glsky1, true);  // SKY1 - Translucent layer
+
+      if (LightningSky)
+        wall->gltexlightning = gld_RegisterSkyTexture(glsky2, true); // SKY2 - Lightning flash
 
   // SKY1 - Translucent layer
       if (wall->gltexlayer)
@@ -249,7 +291,13 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
         fg_skyoffset = (angle_t)(((int64_t)Sky1ColumnOffset << ANGLETOSKYSHIFT) >> FRACBITS);
         wall->skylayer_yaw = (float)((double) (viewangle + fg_skyoffset) / (double) ANGLE_MAX);
         wall->skylayer_pitch = skyYShift;
-        wall->skylayer_offset = skytexturemid / (float)FRACUNIT / wall->gltexture->buffer_height;
+        wall->skylayer_offset = skytexturemid / (float)FRACUNIT / wall->gltexlayer->buffer_height;
+      }
+
+  // SKY2 replaces SKY1 - FG Lighting
+      if (wall->gltexlightning)
+      {
+        wall->skylightning_offset = skytexturemid / (float)FRACUNIT / wall->gltexlightning->buffer_height;
       }
 
   // SKY2 - solid background
@@ -261,11 +309,31 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
         wall->skyoffset = skytexturemid / (float)FRACUNIT / wall->gltexture->buffer_height;
       }
     }
+  // Hexen Lightning Flash for SKY1 only
+    else if (LightningSky && !sky2)
+    {
+      wall->gltexture = gld_RegisterSkyTexture(glsky1, true);
+      wall->gltexlightning = gld_RegisterSkyTexture(glsky2, true);
+
+      if (wall->gltexlightning)
+      {
+        wall->skylightning_offset = skytexturemid / (float)FRACUNIT / wall->gltexlightning->buffer_height;
+      }
+
+      if (wall->gltexture)
+      {
+        skyoffset_angle = (angle_t)(((int64_t)(Sky1ColumnOffset) << ANGLETOSKYSHIFT) >> FRACBITS);
+        wall->skyyaw = (float)((double) (viewangle + skyoffset_angle) / (double) ANGLE_MAX);
+        wall->skypitch = skyYShift;
+        wall->skyoffset = skytexturemid / (float)FRACUNIT / wall->gltexture->buffer_height;
+        wall->flag = GLDWF_SKY;
+      }
+    }
  // single scrolling sky (can be sky1 or sky2)
     else
     {
-      int which_sky = (sector->special == 200);
-      int skytex = which_sky ? sky_bg : sky;
+      int which_sky = (sector->special == 200); // SKY2
+      int skytex = which_sky ? glsky2 : glsky1;
 
       wall->gltexture = gld_RegisterSkyTexture(skytex, true);
 
@@ -281,7 +349,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
   }
   else
   {
-    wall->gltexture = gld_RegisterSkyTexture(sky, true);
+    wall->gltexture = gld_RegisterSkyTexture(glsky1, true);
     if (wall->gltexture)
     {
       int h = wall->gltexture->buffer_height;
@@ -349,6 +417,13 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
       SkyBox.wall = *wall;
   }
 
+  // Hexen - Lightning Sky
+  if (LightningSky && wall->gltexlightning)
+  {
+      // Lightning uses wall->gltexture info
+      wall->gltexlightning->flags |= GLTEXTURE_SKY;
+  }
+
   // Hexen - Double Sky
   if (DoubleSky && wall->gltexlayer)
   {
@@ -362,16 +437,38 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, sector_t *sector, int s
   }
 }
 
+static float gld_GetSkyYaw(GLWall* wall, int skylayer)
+{
+  return skylayer ? wall->skylayer_yaw : wall->skyyaw;
+}
+
+static float gld_GetSkyPitch(GLWall* wall, int skylayer)
+{
+  return skylayer ? wall->skylayer_pitch  : wall->skypitch;
+}
+
+static float gld_GetSkyOffset(GLWall* wall, int skylayer, GLTexture *skytexture)
+{
+  // Lightning sky can have a different offset based on height
+  if (skytexture == wall->gltexlightning)
+    return wall->skylightning_offset;
+
+  return skylayer ? wall->skylayer_offset : wall->skyoffset;
+}
+
+
 // The fussy arithmetic to correctly scale and translate the sky texture lives here.
 static void gld_SkyTransform(GLWall* wall, int skylayer)
 {
   // Get parameters based on which sky layer
-  int buffer_width  = skylayer ? wall->gltexlayer->buffer_width   : wall->gltexture->buffer_width;
-  int buffer_height = skylayer ? wall->gltexlayer->buffer_height  : wall->gltexture->buffer_height;
+  GLTexture *skytexture = gld_GetSkyTexture(wall, skylayer);
 
-  float sky_yaw     = skylayer ? wall->skylayer_yaw    : wall->skyyaw;
-  float sky_pitch   = skylayer ? wall->skylayer_pitch  : wall->skypitch;
-  float sky_offset  = skylayer ? wall->skylayer_offset : wall->skyoffset;
+  int buffer_width  = skytexture->buffer_width;
+  int buffer_height = skytexture->buffer_height;
+
+  float sky_yaw     = gld_GetSkyYaw   (wall, skylayer);
+  float sky_pitch   = gld_GetSkyPitch (wall, skylayer);
+  float sky_offset  = gld_GetSkyOffset(wall, skylayer, skytexture);
 
   // Make apparent scale of sky closer to software
   const float scale_correction = 0.80f;
@@ -438,7 +535,7 @@ void gld_DrawStripsSky(int skylayer)
   for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
   {
     GLWall *wall = gld_drawinfo.items[GLDIT_SWALL][i].item.wall;
-    GLTexture *skytex = skylayer ? wall->gltexlayer : wall->gltexture;
+    GLTexture *skytex = gld_GetSkyTexture(wall, skylayer);
 
     gltexture = (gl_drawskys == skytype_none ? NULL : skytex);
     gld_BindSkyTexture(gltexture, skylayer);
@@ -484,7 +581,7 @@ void gld_DrawStripsSky(int skylayer)
 
 void gld_DrawSkyCaps(int skylayer)
 {
-  GLTexture *whichsky = skylayer ? SkyBox.wall.gltexlayer : SkyBox.wall.gltexture;
+  GLTexture *whichsky = gld_GetSkyTexture(&SkyBox.wall, skylayer);
 
   if (SkyBox.type && whichsky)
   {
@@ -602,7 +699,7 @@ void gld_GetSkyCapColors(SkyBoxParams_t *skybox, int skylayer)
   const lighttable_t *fixedcolormap_saved;
   PalEntry_t *ceiling_rgb = &skybox->CeilingSkyColor[0];
   PalEntry_t *floor_rgb = &skybox->FloorSkyColor[0];
-  GLTexture *gltexture = skylayer ? skybox->wall.gltexlayer : skybox->wall.gltexture;
+  GLTexture *gltexture = gld_GetSkyTexture(&skybox->wall, skylayer);
 
   // saving current colormap
   fixedcolormap_saved = fixedcolormap;
@@ -811,7 +908,7 @@ static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky, int 
   int vertex_count = 2 * row_count * (col_count * 2 + 2) + col_count * 2;
   int vbo_idx = (cm == INVERSECOLORMAP ? 1 : 0);
   GLSkyVBO *vbo        = &vbos[vbo_idx];
-  GLTexture *gltexture = skylayer ? sky->wall.gltexlayer     : sky->wall.gltexture;
+  GLTexture *gltexture = gld_GetSkyTexture(&sky->wall, skylayer);
 
   if ((vbo->columns != col_count) || (vbo->rows != row_count))
   {
@@ -910,7 +1007,7 @@ static void RenderDome(SkyBoxParams_t *sky, int skylayer)
     return;
 
   sky_offset = skylayer ? sky->x_offset_layer : sky->x_offset;
-  gltexture = skylayer ? sky->wall.gltexlayer : sky->wall.gltexture;
+  gltexture = gld_GetSkyTexture(&sky->wall, skylayer);
 
   if (!gltexture)
     return;
@@ -1020,7 +1117,7 @@ static void RenderDome(SkyBoxParams_t *sky, int skylayer)
 
 static void gld_DrawDomeSkyBoxFor(SkyBoxParams_t *skybox, int skylayer, int skybox_index, dboolean masked)
 {
-  GLTexture *gltexture = skylayer ? skybox->wall.gltexlayer : skybox->wall.gltexture;
+  GLTexture *gltexture = gld_GetSkyTexture(&skybox->wall, skylayer);
 
   if (gltexture)
   {

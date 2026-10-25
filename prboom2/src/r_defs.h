@@ -645,5 +645,6 @@ extern int Sky2Texture;
 extern fixed_t Sky1ColumnOffset;
 extern fixed_t Sky2ColumnOffset;
 extern dboolean DoubleSky;
+extern dboolean LightningSky;
 
 #endif

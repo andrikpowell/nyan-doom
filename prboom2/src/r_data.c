@@ -593,7 +593,7 @@ void R_PrecacheLevel(void)
   //  a wall texture, with an episode dependend
   //  name.
 
-  if (map_format.doublesky)
+  if (map_format.doublesky || LightningSky)
   {
     hitlist[Sky1Texture] = 1;
     hitlist[Sky2Texture] = 1;

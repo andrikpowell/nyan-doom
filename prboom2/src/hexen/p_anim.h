@@ -39,6 +39,7 @@ extern int LightningLightLevelCount;
 void P_AnimateSurfaces(void);
 void P_ForceLightning(void);
 void P_InitLightning(void);
+int P_SkyLightningActive(void);
 void P_InitFTAnims(void);
 
 #endif

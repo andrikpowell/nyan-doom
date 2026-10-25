@@ -678,6 +678,7 @@ int dsda_HexenInitSky(void) {
   Sky1ColumnOffset = 0;
   Sky2ColumnOffset = 0;
   DoubleSky = CurrentMap->doubleSky;
+  LightningSky = CurrentMap->lightning;
 
   return true;
 }

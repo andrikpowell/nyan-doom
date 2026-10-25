@@ -62,6 +62,8 @@
 #include "v_video.h"
 #include "lprintf.h"
 
+#include "hexen/p_anim.h"
+
 #include "dsda/map_format.h"
 #include "dsda/render_stats.h"
 #include "dsda/configuration.h"
@@ -72,6 +74,7 @@ int Sky2Texture;
 fixed_t Sky1ColumnOffset;
 fixed_t Sky2ColumnOffset;
 dboolean DoubleSky;
+dboolean LightningSky;
 
 #define MAXVISPLANES 256    /* must be a power of 2 */
 
@@ -648,12 +651,14 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       if (hexen)
       {
+        int mainskytexture = P_SkyLightningActive() ? skytexture2 : skytexture;
+
         dcvars.texturemid = skytexturemid;    // Default y-offset
         flip = 0;                         // Doom flips it
 
         if (DoubleSky)
         {
-          texture  = texturetranslation[skytexture]; // Default texture
+          texture  = texturetranslation[mainskytexture]; // Default texture
           texture2 = texturetranslation[skytexture2]; // DoubleSky layer
           an  += (angle_t)(((int64_t)Sky1ColumnOffset << ANGLETOSKYSHIFT) >> FRACBITS);
           an2 += (angle_t)(((int64_t)Sky2ColumnOffset << ANGLETOSKYSHIFT) >> FRACBITS);
@@ -667,7 +672,7 @@ static void R_DoDrawPlane(visplane_t *pl)
         // SKY1 - Default
         else
         {
-          texture = texturetranslation[skytexture];
+          texture = texturetranslation[mainskytexture];
           an  += (angle_t)(((int64_t)Sky1ColumnOffset << ANGLETOSKYSHIFT) >> FRACBITS);
         }
       }

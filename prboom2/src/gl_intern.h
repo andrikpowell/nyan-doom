@@ -144,6 +144,10 @@ typedef struct
   float skylayer_yaw;
   float skylayer_offset;
 
+  // Hexen Lightning sky
+  GLTexture *gltexlightning;
+  float skylightning_offset;
+
   // Multiple skydomes
   int skybox_index;
 } GLWall;
