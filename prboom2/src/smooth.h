@@ -46,6 +46,7 @@ extern int demo_smoothturnsfactor;
 
 void R_SmoothPlaying_Reset(player_t *player);
 void R_SmoothPlaying_Add(int delta);
+void R_SmoothPlaying_Update(player_t *player, angle_t delta);
 angle_t R_SmoothPlaying_Get(player_t *player);
 void R_ResetAfterTeleport(player_t *player);
 

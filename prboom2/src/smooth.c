@@ -78,6 +78,12 @@ void R_SmoothPlaying_Add(int delta)
   }
 }
 
+void R_SmoothPlaying_Update(player_t *player, angle_t delta)
+{
+  if (demo_smoothturns && demoplayback && !demorecording && player == &players[displayplayer])
+    smooth_playing_angle += delta;
+}
+
 angle_t R_SmoothPlaying_Get(player_t *player)
 {
   if (demo_smoothturns && demoplayback && !demorecording && player == &players[displayplayer])
