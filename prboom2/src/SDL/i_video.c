@@ -1476,6 +1476,9 @@ void I_UpdateVideoMode(void)
   I_UploadNewPalette(0, true);
   M_ChangeApplyPalette();
 
+  // If starting in OpenGL, reapply multisampling
+  M_ChangeMapMultisamling();
+
   if (V_IsOpenGLMode())
   {
     int temp;
