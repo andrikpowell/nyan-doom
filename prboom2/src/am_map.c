@@ -4444,7 +4444,9 @@ void AM_Drawer (dboolean minimap)
   if (V_IsOpenGLMode())
     AM_FlushGLMapLines();
 
+  V_BeginUIDraw();
   AM_drawMarks();
+  V_EndUIDraw();
 
   // OpenGL - Draw vector markers above map lines
   // and then draw Nice things
