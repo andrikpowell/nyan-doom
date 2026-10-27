@@ -674,7 +674,7 @@ void gld_EndFuzz()
   glsl_PopFuzzShader();
 }
 
-void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
+void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, patch_cropf_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
@@ -699,6 +699,10 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
 
   // if invisible, return
   if (alpha <= 0.0f)
+    return;
+
+  // if too small, return
+  if (scale <= 0.0f)
     return;
 
   // calculate ALT translucency as smaller translucency
@@ -763,28 +767,28 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   // [FG] automatically center wide patches without horizontal offset
   if (center)
   {
-    if (gltexture->width > 320.0f && leftoffset == 0)
-      x -= (gltexture->width - 320.0f) / 2.0f;
+    if (gltexture->width * scale > 320.0f && leftoffset == 0)
+      x -= (gltexture->width * scale - 320.0f) / 2.0f;
   }
 
   if (flags & VPT_STRETCH_MASK)
   {
     stretch_param_t *params = dsda_StretchParams(flags);
 
-    xpos   = (float)((x - leftoffset + x_crop) * params->video->width)  / 320.0f + params->deltax1;
-    ypos   = (float)((y - topoffset + y_crop)  * params->video->height) / 200.0f + params->deltay1;
-    width  = (float)(crop_width * params->video->width)  / 320.0f;
-    height = (float)(crop_height * params->video->height) / 200.0f;
+    xpos   = (float)((x + (-leftoffset + x_crop) * scale) * params->video->width)  / 320.0f + params->deltax1;
+    ypos   = (float)((y + (-topoffset + y_crop) * scale)  * params->video->height) / 200.0f + params->deltay1;
+    width  = (float)(crop_width * scale * params->video->width)  / 320.0f;
+    height = (float)(crop_height * scale * params->video->height) / 200.0f;
 
     if (TOP_ALIGNMENT(flags & VPT_STRETCH_MASK))
       ypos += global_patch_top_offset;
   }
   else
   {
-    xpos   = (float)(x - leftoffset + x_crop);
-    ypos   = (float)(y - topoffset + y_crop);
-    width  = crop_width;
-    height = crop_height;
+    xpos   = x + (-leftoffset + x_crop) * scale;
+    ypos   = y + (-topoffset + y_crop) * scale;
+    width  = crop_width * scale;
+    height = crop_height * scale;
   }
 
   if (fuzz)
@@ -811,9 +815,9 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   }
 }
 
-void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, patch_crop_t crop, int cm, int alpha, enum patch_translation_e flags)
+void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, patch_crop_t crop, int cm, int alpha, float scale, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, V_PatchCropToFloat(crop), cm, alpha, flags);
+  gld_DrawNumPatch_f((float)x, (float)y, lump, center, shadowtype, V_PatchCropToFloat(crop), cm, alpha, scale, flags);
 }
 
 void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags)
@@ -916,7 +920,7 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
       scaled_x = sx;
       scaled_y = sy;
 
-      gld_DrawNumPatch(scaled_x, scaled_y, lump, false, false, crop, CR_DEFAULT, 100, flags);
+      gld_DrawNumPatch(scaled_x, scaled_y, lump, false, false, crop, CR_DEFAULT, 100, 1.0f, flags);
     }
   }
 }
