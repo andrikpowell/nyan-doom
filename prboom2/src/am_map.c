@@ -4011,7 +4011,7 @@ static void AM_drawPlayerTrail(void)
 // killough 2/22/98:
 // Rewrote AM_drawMarks(). Removed limit on marks.
 //
-static dboolean AM_GetMarkerCrop(float x, float y, const char* name, patch_cropf_t *crop)
+static dboolean AM_GetMarkerCrop(float x, float y, const char* name, float scale, patch_cropf_t *crop)
 {
   const rpatch_t *patch = R_PatchByName(name);
   float scale_x, scale_y;
@@ -4022,35 +4022,35 @@ static dboolean AM_GetMarkerCrop(float x, float y, const char* name, patch_cropf
   if (automap_full)
     return true;
 
-  scale_y = (float)SCREENHEIGHT / 200.0f;
+  scale_y = (float)SCREENHEIGHT / 200.0f * scale;
 
   switch (render_stretch_hud)
   {
     default:
     case patch_stretch_not_adjusted:
-      scale_x = patches_scalex;
+      scale_x = patches_scalex * scale;
       break;
     case patch_stretch_doom_format:
-      scale_x = (float)WIDE_SCREENWIDTH / 320.0f;
+      scale_x = (float)WIDE_SCREENWIDTH / 320.0f * scale;
       break;
     case patch_stretch_fit_to_width:
-      scale_x = (float)SCREENWIDTH / 320.0f;
+      scale_x = (float)SCREENWIDTH / 320.0f * scale;
       break;
   }
 
-  left    = x - patch->leftoffset;
-  top     = y - patch->topoffset;
-  right   = left + patch->width;
-  bottom  = top + patch->height;
+  left    = x - patch->leftoffset * scale_x;
+  top     = y - patch->topoffset * scale_y;
+  right   = left + patch->width * scale_x;
+  bottom  = top + patch->height * scale_y;
 
   if (right <= f_x  || left >= f_x + f_w ||
       bottom <= f_y || top >= f_y + f_h  )
     return false;
 
-  crop->left    = MAX(0.0f, ceilf(f_x - left));
-  crop->right   = MAX(0.0f, ceilf(right - (f_x + f_w)));
-  crop->top     = MAX(0.0f, ceilf(f_y - top));
-  crop->bottom  = MAX(0.0f, ceilf(bottom - (f_y + f_h)));
+  crop->left    = MAX(0.0f, ceilf(f_x - left) / scale_x);
+  crop->right   = MAX(0.0f, ceilf(right - (f_x + f_w)) / scale_x);
+  crop->top     = MAX(0.0f, ceilf(f_y - top) / scale_y);
+  crop->bottom  = MAX(0.0f, ceilf(bottom - (f_y + f_h)) / scale_y);
 
   return crop->left + crop->right < patch->width &&
          crop->top + crop->bottom < patch->height;
@@ -4172,7 +4172,7 @@ static void AM_drawMarks(void)
                 break;
             }
 
-            if (AM_GetMarkerCrop(p.fx, p.fy, namebuf, &crop))
+            if (AM_GetMarkerCrop(p.fx, p.fy, namebuf, 1.0f, &crop))
               V_DrawNamePatchPreciseCrop(fx, fy, namebuf, crop, CR_DEFAULT, flags);
 
             w += markpoints[i].widths[k] + 1;
