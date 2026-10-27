@@ -4011,6 +4011,51 @@ static void AM_drawPlayerTrail(void)
 // killough 2/22/98:
 // Rewrote AM_drawMarks(). Removed limit on marks.
 //
+static dboolean AM_GetMarkerCrop(float x, float y, const char* name, patch_cropf_t *crop)
+{
+  const rpatch_t *patch = R_PatchByName(name);
+  float scale_x, scale_y;
+  float left, top, right, bottom;
+
+  *crop = CROP_NULL_FLOAT;
+
+  if (automap_full)
+    return true;
+
+  scale_y = (float)SCREENHEIGHT / 200.0f;
+
+  switch (render_stretch_hud)
+  {
+    default:
+    case patch_stretch_not_adjusted:
+      scale_x = patches_scalex;
+      break;
+    case patch_stretch_doom_format:
+      scale_x = (float)WIDE_SCREENWIDTH / 320.0f;
+      break;
+    case patch_stretch_fit_to_width:
+      scale_x = (float)SCREENWIDTH / 320.0f;
+      break;
+  }
+
+  left    = x - patch->leftoffset;
+  top     = y - patch->topoffset;
+  right   = left + patch->width;
+  bottom  = top + patch->height;
+
+  if (right <= f_x  || left >= f_x + f_w ||
+      bottom <= f_y || top >= f_y + f_h  )
+    return false;
+
+  crop->left    = MAX(0.0f, ceilf(f_x - left));
+  crop->right   = MAX(0.0f, ceilf(right - (f_x + f_w)));
+  crop->top     = MAX(0.0f, ceilf(f_y - top));
+  crop->bottom  = MAX(0.0f, ceilf(bottom - (f_y + f_h)));
+
+  return crop->left + crop->right < patch->width &&
+         crop->top + crop->bottom < patch->height;
+}
+
 static void AM_drawMarks(void)
 {
   int i, namelen;
@@ -4060,9 +4105,7 @@ static void AM_drawMarks(void)
       p.fx = CXMTOF_F(p.fx) - (float)markpoints[i].w * SCREENWIDTH / 320.0f / 2.0f;
       p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * SCREENHEIGHT / 200.0f / 2.0f;
 
-      if (V_IsOpenGLMode() ?
-          p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y :
-          p.y < f_y + f_h && p.y >= f_y)
+      if (p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y)
       {
         // Vector Markers
         if (dsda_IntConfig(dsda_config_map_marker_style))
@@ -4100,39 +4143,37 @@ static void AM_drawMarks(void)
           w = 0;
           for (k = 0; k < (int)strlen(markpoints[i].label); k++)
           {
+            float fx, fy;
+            patch_cropf_t crop;
+            int flags;
+
             namebuf[namelen] = markpoints[i].label[k];
 
-            if (p.x < f_x + f_w &&
-                p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
+            switch (render_stretch_hud)
             {
-              float fx, fy;
-              int flags;
+              default:
+              case patch_stretch_not_adjusted:
+                fx = (float)p.fx / patches_scalex;
+                fy = (float)p.fy * 200.0f / SCREENHEIGHT;
 
-              switch (render_stretch_hud)
-              {
-                default:
-                case patch_stretch_not_adjusted:
-                  fx = (float)p.fx / patches_scalex;
-                  fy = (float)p.fy * 200.0f / SCREENHEIGHT;
+                flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+                break;
+              case patch_stretch_doom_format:
+                fx = (float)p.fx * 320.0f / WIDE_SCREENWIDTH;
+                fy = (float)p.fy * 200.0f / WIDE_SCREENHEIGHT;
 
-                  flags = VPT_ALIGN_LEFT | VPT_STRETCH;
-                  break;
-                case patch_stretch_doom_format:
-                  fx = (float)p.fx * 320.0f / WIDE_SCREENWIDTH;
-                  fy = (float)p.fy * 200.0f / WIDE_SCREENHEIGHT;
+                flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+                break;
+              case patch_stretch_fit_to_width:
+                fx = (float)p.fx * 320.0f / SCREENWIDTH;
+                fy = (float)p.fy * 200.0f / SCREENHEIGHT;
 
-                  flags = VPT_ALIGN_LEFT | VPT_STRETCH;
-                  break;
-                case patch_stretch_fit_to_width:
-                  fx = (float)p.fx * 320.0f / SCREENWIDTH;
-                  fy = (float)p.fy * 200.0f / SCREENHEIGHT;
-
-                  flags = VPT_ALIGN_WIDE | VPT_STRETCH;
-                  break;
-              }
-
-              V_DrawNamePatchPrecise(fx, fy, namebuf, CR_DEFAULT, flags);
+                flags = VPT_ALIGN_WIDE | VPT_STRETCH;
+                break;
             }
+
+            if (AM_GetMarkerCrop(p.fx, p.fy, namebuf, &crop))
+              V_DrawNamePatchPreciseCrop(fx, fy, namebuf, crop, CR_DEFAULT, flags);
 
             w += markpoints[i].widths[k] + 1;
             p.x += w * SCREENWIDTH / 320;
