@@ -722,9 +722,9 @@ static void AM_ParallaxPan(fixed_t incx, fixed_t incy)
     if (autopage_parallax && !minimap) // disable parallax on minimap (same reason above)
     {
       if (incx)
-        mapxstart = prev_mapxstart + MTOF(incx + MAPUNIT / 2);
+        mapxstart = prev_mapxstart + (short)lroundf(MTOF_F(incx));
       if (incy)
-        mapystart = prev_mapystart - MTOF(incy + MAPUNIT / 2);
+        mapystart = prev_mapystart - (short)lroundf(MTOF_F(incy));
     }
   }
 }
