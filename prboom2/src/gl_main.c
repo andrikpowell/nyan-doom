@@ -763,8 +763,8 @@ void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowt
   // [FG] automatically center wide patches without horizontal offset
   if (center)
   {
-    if (gltexture->width > 320 && leftoffset == 0)
-      x -= (float)(gltexture->width - 320) / 2;
+    if (gltexture->width > 320.0f && leftoffset == 0)
+      x -= (gltexture->width - 320.0f) / 2.0f;
   }
 
   if (flags & VPT_STRETCH_MASK)

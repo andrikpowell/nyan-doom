@@ -722,37 +722,125 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
     }
 }
 
-static patch_crop_t V_GetPatchStretchCrop(int x, int y, const rpatch_t *patch,
-        patch_crop_t crop, stretch_param_t *params, enum patch_translation_e flags)
+//
+//
+// V_StretchX() / V_StretchY()
+//
+// Convert coordinates from 320×200 into framebuffer coordinates
+//
+//
+
+static int V_StretchX(float x, const stretch_param_t *params)
+{
+  int scaled_start, scaled_end, scaled_pixel_width;
+  float subpixel_pos;
+
+  // find the pixel for lookups (since they use ints)
+  int ix = (int)floorf(x);
+
+  // if outside 320 range...
+  if (x < 0.0f || x > 320.0f)
+    return (int)lroundf(x * (params->video->width / 320.0f));
+
+  scaled_start = params->video->x1lookup[ix];
+  scaled_end   = params->video->x2lookup[ix];
+
+  // If exactly at 320...
+  if (ix == 320)
+    return scaled_start;
+
+  // If in traditional 320x200 space
+  subpixel_pos = x - ix;
+  scaled_pixel_width = (scaled_end - scaled_start + 1);
+
+  return scaled_start + (int)lroundf(subpixel_pos * scaled_pixel_width);
+}
+
+static int V_StretchY(float y, const stretch_param_t *params)
+{
+  int scaled_start, scaled_end, scaled_pixel_height;
+  float subpixel_pos;
+
+  // find the pixel for lookups (since they use ints)
+  int iy = (int)floorf(y);
+
+  // if outside 200 range...
+  if (y < 0.0f || y > 200.0f)
+    return (int)lroundf(y * params->video->height / 200.0f);
+
+  scaled_start = params->video->y1lookup[iy];
+  scaled_end   = params->video->y2lookup[iy];
+
+  // If exactly at 200...
+  if (iy == 200)
+    return scaled_start;
+
+  // If in traditional 320x200 space
+  subpixel_pos = y - iy;
+  scaled_pixel_height = (scaled_end - scaled_start + 1);
+
+  return scaled_start + (int)lroundf(subpixel_pos * scaled_pixel_height);
+}
+
+//
+//
+// V_GetStretchPatchX() / V_GetStretchPatchY()
+//
+// Keep int lookup scaling + add subpixel offset
+//
+//
+
+static int V_GetStretchPatchX(float x, float offset, const stretch_param_t *params, dboolean precise)
+{
+  int scaled_offset;
+  int subpixel_offset;
+
+  // find the pixel for lookups (since they use ints)
+  int ix = (int)floorf(x);
+
+  // Scale offset directly for precise patches
+  if (precise)
+  {
+    scaled_offset = (int)ceilf(offset * (params->video->width / 320.0f));
+    return V_StretchX(x, params) + scaled_offset;
+  }
+
+  // Keep int lookup scaling + add subpixel offset
+  subpixel_offset = V_StretchX(x, params) - V_StretchX((float)ix, params);
+  return V_StretchX(ix + offset, params) + subpixel_offset;
+}
+
+static int V_GetStretchPatchY(float y, float offset, const stretch_param_t *params, dboolean precise)
+{
+  int scaled_offset;
+  int subpixel_offset;
+
+  // find the pixel for lookups (since they use ints)
+  int iy = (int)floorf(y);
+
+  // Scale offset directly for precise patches
+  if (precise)
+  {
+    scaled_offset = (int)ceilf(offset * (params->video->height / 200.0f));
+    return V_StretchY(y, params) + scaled_offset;
+  }
+
+  // Keep int lookup scaling + add subpixel offset
+  subpixel_offset = V_StretchY(y, params) - V_StretchY((float)iy, params);
+  return V_StretchY(iy + offset, params) + subpixel_offset;
+}
+
+static patch_crop_t V_GetPatchStretchCrop(float x, float y, const rpatch_t *patch,
+        patch_cropf_t crop, dboolean precise,
+        stretch_param_t *params, enum patch_translation_e flags)
 {
   patch_crop_t crop_stretch;
-  patch_crop_t crop_320x200;
   int crop_deltay1 = params->deltay1;
 
-  crop_320x200.left   = x + crop.left;
-  crop_320x200.right  = x + patch->width - crop.right;
-  crop_320x200.top    = y + crop.top;
-  crop_320x200.bottom = y + patch->height - crop.bottom;
-
-  if (crop_320x200.left < 0 || crop_320x200.left > 320)
-    crop_stretch.left = (crop_320x200.left * params->video->width) / 320;
-  else
-    crop_stretch.left = params->video->x1lookup[crop_320x200.left];
-
-  if (crop_320x200.right < 0 || crop_320x200.right > 320)
-    crop_stretch.right = (crop_320x200.right * params->video->width) / 320;
-  else
-    crop_stretch.right = params->video->x2lookup[crop_320x200.right];
-
-  if (crop_320x200.top < 0 || crop_320x200.top > 200)
-    crop_stretch.top = (crop_320x200.top * params->video->height) / 200;
-  else
-    crop_stretch.top = params->video->y1lookup[crop_320x200.top];
-
-  if (crop_320x200.bottom < 0 || crop_320x200.bottom > 200)
-    crop_stretch.bottom = (crop_320x200.bottom * params->video->height) / 200;
-  else
-    crop_stretch.bottom = params->video->y2lookup[crop_320x200.bottom - 1];
+  crop_stretch.top    = V_GetStretchPatchY(y, (float)crop.top, params, precise);
+  crop_stretch.bottom = V_GetStretchPatchY(y, (float)(patch->height - crop.bottom), params, precise);
+  crop_stretch.left   = V_GetStretchPatchX(x, (float)crop.left, params, precise);
+  crop_stretch.right  = V_GetStretchPatchX(x, (float)(patch->width - crop.right), params, precise);
 
   if (TOP_ALIGNMENT(flags & VPT_STRETCH_MASK))
     crop_deltay1 += global_patch_top_offset;
@@ -765,9 +853,10 @@ static patch_crop_t V_GetPatchStretchCrop(int x, int y, const rpatch_t *patch,
   return crop_stretch;
 }
 
-static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
+static void V_DrawPatchStretch(float fx, float fy, int scrn, const rpatch_t *patch,
         const byte *transmap, const byte *colortr,
-        patch_crop_t crop, enum patch_translation_e flags)
+        patch_cropf_t crop, dboolean precise,
+        enum patch_translation_e flags)
 {
     // CPhipps - move stretched patch drawing code here
     //         - reformat initialisers, move variables into inner blocks
@@ -787,6 +876,13 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
     int TL = flags & VPT_TRANSMAP;
     int REVERSE_TL = flags & VPT_TRANSMAP_REVERSE;
     int fuzz = flags & VPT_FUZZ;
+
+    // [AR] Convert to non-precise coordinates
+    if (!(flags & VPT_STRETCH_MASK) && !precise)
+    {
+      fx = (float)(int)fx;
+      fy = (float)(int)fy;
+    }
 
     R_SetDefaultDrawColumnVars(&dcvars);
 
@@ -827,20 +923,13 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
     DYI = params->video->ystep;
 
     // Convert crop into stretched screen-space
-    dcvars.crop = V_GetPatchStretchCrop(x, y, patch, crop, params, flags);
+    dcvars.crop = V_GetPatchStretchCrop(fx, fy, patch, crop, precise, params, flags);
 
-    left = (x < 0 || x > 320 ? (x * params->video->width) / 320 : params->video->x1lookup[x]);
-    top =  (y < 0 || y > 200 ? (y * params->video->height) / 200 : params->video->y1lookup[y]);
-
-    if (x + patch->width < 0 || x + patch->width > 320)
-      right = ( ((x + patch->width) * params->video->width - 1) / 320 );
-    else
-      right = params->video->x2lookup[x + patch->width - 1];
-
-    if (y + patch->height < 0 || y + patch->height > 200)
-      bottom = ( ((y + patch->height - 0) * params->video->height) / 200 );
-    else
-      bottom = params->video->y2lookup[y + patch->height - 1];
+    // Get full patch bounds for source stepping
+    top     = V_GetStretchPatchY(fy, 0.0f, params, precise);
+    bottom  = V_GetStretchPatchY(fy, (float)patch->height, params, precise) - 1;
+    left    = V_GetStretchPatchX(fx, 0.0f, params, precise);
+    right   = V_GetStretchPatchX(fx, (float)patch->width, params, precise) - 1;
 
     deltay1 = params->deltay1;
 
@@ -893,34 +982,23 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
         const rpost_t *post = &column->posts[i];
+        dboolean clipped_top = false;
         int yoffset = 0;
 
-        //e6y
-        if (!(flags & VPT_STRETCH_MASK))
+        // Unstretched fuzz patch
+        if (!(flags & VPT_STRETCH_MASK) && !precise)
         {
+          int y = (int)fy;
+
           dcvars.yl = y + post->topdelta;
           dcvars.yh = ((((y + post->topdelta + post->length) << 16) - (FRACUNIT>>1))>>FRACBITS);
         }
+        // [AR] Convert post bounds into stretched screen-space
+        // This is more precise over the old int method
         else
         {
-          // e6y
-          // More accurate patch drawing from Eternity.
-          // Predefined arrays are used instead of dynamic calculation
-          // of the top and bottom screen coordinates of a column.
-
-          int tmpy;
-
-          tmpy = y + post->topdelta;
-          if (tmpy < 0 || tmpy > 200)
-            dcvars.yl = (tmpy * params->video->height) / 200 + deltay1;
-          else
-            dcvars.yl = params->video->y1lookup[tmpy] + deltay1;
-
-          tmpy = y + post->topdelta + post->length - 1;
-          if (tmpy < 0 || tmpy > 200)
-            dcvars.yh = (tmpy * params->video->height) / 200 + deltay1;
-          else
-            dcvars.yh = params->video->y2lookup[tmpy] + deltay1;
+          dcvars.yl = V_GetStretchPatchY(fy, (float)post->topdelta, params, precise) + deltay1;
+          dcvars.yh = V_GetStretchPatchY(fy, (float)(post->topdelta + post->length), params, precise) - 1 + deltay1;
         }
         dcvars.edgeslope = post->slope;
 
@@ -939,14 +1017,25 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
         }
 
         if (dcvars.yl < 0) {
-          yoffset = ((0-dcvars.yl) * 200 + params->video->height-1) / params->video->height;
+          clipped_top = true;
+          yoffset = (int)ceilf((0 - dcvars.yl) * 200.0f / params->video->height);
           dcvars.yl = 0;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }
         if (dcvars.yl < top) {
-          yoffset = ((top-dcvars.yl) * 200 + params->video->height-1) / params->video->height;
+          clipped_top = true;
+          yoffset = (int)ceilf((top - dcvars.yl) * 200.0f / params->video->height);
           dcvars.yl = top;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
+        }
+
+        // [AR] Fix precise clipping on the top of the screen
+        if (clipped_top && precise)
+        {
+          int64_t sourcefrac = (int64_t)(dcvars.yl - top) * DYI;
+
+          yoffset = (int)(sourcefrac >> FRACBITS) - post->topdelta;
+          yoffset = MAX(0, yoffset);
         }
 
         dcvars.source = column->pixels + post->topdelta + yoffset;
@@ -956,7 +1045,10 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
         dcvars.texturemid = -((dcvars.yl-centery)*dcvars.iscale);
 
         //e6y
-        dcvars.dy = deltay1;
+        if (precise) // [AR] Precise bounds already account for deltay1
+          dcvars.dy = top;
+        else
+          dcvars.dy = deltay1;
         dcvars.flags |= DRAW_COLUMN_ISPATCH;
 
         colfunc(&dcvars);
@@ -1128,28 +1220,28 @@ v_patchinfo_t V_GetShadowDrawInfo(int shadowtype, enum patch_translation_e flags
   return shadow;
 }
 
-void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
-        dboolean center, int shadowtype, patch_crop_t crop,
+static void V_DrawMemPatch(float fx, float fy, int scrn, const rpatch_t *patch,
+        dboolean precise, dboolean center, int shadowtype, patch_cropf_t crop,
         int cm, int fade_alpha, enum patch_translation_e flags)
 {
   v_patchinfo_t patchinfo  = {0};
   v_patchinfo_t shadowinfo = {0};
-  int shadow_x, shadow_y;
+  float shadow_x, shadow_y;
   int fuzz = flags & VPT_FUZZ;
 
   // Avoid out-of-bounds errors for full transparent patches
   if (patch->flags & PATCH_ISEMPTY)
     return;
 
-  // remove offsets
+  // Apply scaled patch offsets
   if (!(flags & VPT_NOOFFSET))
   {
-    y -= patch->topoffset;
-    x -= patch->leftoffset;
+    fy -= patch->topoffset;
+    fx -= patch->leftoffset;
   }
 
   // CPhipps - auto-no-stretch if not high-res
-  if ((flags & VPT_STRETCH_MASK) && SCREEN_320x200)
+  if ((flags & VPT_STRETCH_MASK) && SCREEN_320x200 && !precise)
     flags &= ~VPT_STRETCH_MASK;
 
   // Clamp crop values if they exceed patch size
@@ -1166,8 +1258,8 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   // [FG] automatically center wide patches without horizontal offset
   if (center)
   {
-    if (patch->width > 320 && patch->leftoffset == 0)
-      x -= (patch->width - 320) / 2;
+    if (patch->width > 320.0f && patch->leftoffset == 0)
+      fx -= (patch->width - 320.0f) / 2.0f;
   }
 
   patchinfo  = V_GetMainDrawInfo(cm, flags, fade_alpha);
@@ -1181,23 +1273,39 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   if (shadowinfo.active && shadowinfo.trans == 0)
     shadowinfo.active = false;
 
-  // Clamp shadow so it doesn't exceed screen bounds
-  shadow_x = x + shadowinfo.shadow_offset;
-  shadow_y = y + shadowinfo.shadow_offset;
+  // Offset shadow position
+  shadow_x = fx + shadowinfo.shadow_offset;
+  shadow_y = fy + shadowinfo.shadow_offset;
 
-  // Draw scaled patch with pipelines
-  if ((flags & VPT_STRETCH_MASK) || fuzz) {
+  // Draw scaled / fuzz patches with pipelines
+  if ((flags & VPT_STRETCH_MASK) || precise || fuzz) {
     if (shadowinfo.active)
-      V_DrawPatchStretch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, crop, shadowinfo.flags);
-    V_DrawPatchStretch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, crop, patchinfo.flags);
+      V_DrawPatchStretch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, crop, precise, shadowinfo.flags);
+    V_DrawPatchStretch(fx, fy, scrn, patch, patchinfo.transmap, patchinfo.colortr, crop, precise, patchinfo.flags);
   }
 
   // else draw patch unscaled
   else {
     if (shadowinfo.active)
-      V_DrawPatch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, crop, shadowinfo.flags);
-    V_DrawPatch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, crop, patchinfo.flags);
+      V_DrawPatch((int)shadow_x, (int)shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, V_PatchCropToInt(crop), shadowinfo.flags);
+    V_DrawPatch((int)fx, (int)fy, scrn, patch, patchinfo.transmap, patchinfo.colortr, V_PatchCropToInt(crop), patchinfo.flags);
   }
+}
+
+static void V_DrawMemPatchPrecise(float fx, float fy, int scrn, const rpatch_t *patch,
+        dboolean center, int shadowtype, patch_cropf_t crop,
+        int cm, int fade_alpha,
+        enum patch_translation_e flags)
+{
+  V_DrawMemPatch(fx, fy, scrn, patch, true, center, shadowtype, crop, cm, fade_alpha, flags);
+}
+
+static void V_DrawMemPatchInt(int x, int y, int scrn, const rpatch_t *patch,
+        dboolean center, int shadowtype, patch_crop_t crop,
+        int cm, int fade_alpha,
+        enum patch_translation_e flags)
+{
+  V_DrawMemPatch((float)x, (float)y, scrn, patch, false, center, shadowtype, V_PatchCropToFloat(crop), cm, fade_alpha, flags);
 }
 
 
@@ -1268,25 +1376,25 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 static void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center,
          patch_crop_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
 {
-  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, false, crop, cm, fade_alpha, flags);
+  V_DrawMemPatchInt(x, y, scrn, R_PatchByNum(lump), center, false, crop, cm, fade_alpha, flags);
 }
 
 static void FUNC_V_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center,
          patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
 {
-  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, false, V_PatchCropToInt(crop), cm, fade_alpha, flags);
+  V_DrawMemPatchPrecise(x, y, scrn, R_PatchByNum(lump), center, false, crop, cm, fade_alpha, flags);
 }
 
 static void FUNC_V_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadowtype,
          patch_crop_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
 {
-  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, shadowtype, crop, cm, fade_alpha, flags);
+  V_DrawMemPatchInt(x, y, scrn, R_PatchByNum(lump), center, shadowtype, crop, cm, fade_alpha, flags);
 }
 
 static void FUNC_V_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadowtype,
          patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
 {
-  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, shadowtype, V_PatchCropToInt(crop), cm, fade_alpha, flags);
+  V_DrawMemPatchPrecise(x, y, scrn, R_PatchByNum(lump), center, shadowtype, crop, cm, fade_alpha, flags);
 }
 
 static int currentPaletteIndex = 0;
