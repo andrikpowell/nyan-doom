@@ -4044,17 +4044,21 @@ static void AM_drawMarks(void)
       else
         AM_SetMPointFloatValue(&p);
 
+      // Allow precise coordinates not in GL
+      if (!am_frame.precise)
+      {
+        p.fx = (float)p.x;
+        p.fy = (float)p.y;
+      }
+
       // Save coordinates for vector
       mx = p.x;
       my = p.y;
 
       p.x = CXMTOF(p.x) - markpoints[i].w * SCREENWIDTH / 320 / 2;
       p.y = CYMTOF(p.y) - markpoints[i].h * SCREENHEIGHT / 200 / 2;
-      if (am_frame.precise)
-      {
-        p.fx = CXMTOF_F(p.fx) - (float)markpoints[i].w * SCREENWIDTH / 320.0f / 2.0f;
-        p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * SCREENHEIGHT / 200.0f / 2.0f;
-      }
+      p.fx = CXMTOF_F(p.fx) - (float)markpoints[i].w * SCREENWIDTH / 320.0f / 2.0f;
+      p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * SCREENHEIGHT / 200.0f / 2.0f;
 
       if (V_IsOpenGLMode() ?
           p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y :
@@ -4102,7 +4106,7 @@ static void AM_drawMarks(void)
                 p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
             {
               float fx, fy;
-              int x, y, flags;
+              int flags;
 
               switch (render_stretch_hud)
               {
@@ -4111,17 +4115,11 @@ static void AM_drawMarks(void)
                   fx = (float)p.fx / patches_scalex;
                   fy = (float)p.fy * 200.0f / SCREENHEIGHT;
 
-                  x = p.x / patches_scalex;
-                  y = p.y * 200 / SCREENHEIGHT;
-
                   flags = VPT_ALIGN_LEFT | VPT_STRETCH;
                   break;
                 case patch_stretch_doom_format:
                   fx = (float)p.fx * 320.0f / WIDE_SCREENWIDTH;
                   fy = (float)p.fy * 200.0f / WIDE_SCREENHEIGHT;
-
-                  x = p.x * 320 / WIDE_SCREENWIDTH;
-                  y = p.y * 200 / WIDE_SCREENHEIGHT;
 
                   flags = VPT_ALIGN_LEFT | VPT_STRETCH;
                   break;
@@ -4129,29 +4127,16 @@ static void AM_drawMarks(void)
                   fx = (float)p.fx * 320.0f / SCREENWIDTH;
                   fy = (float)p.fy * 200.0f / SCREENHEIGHT;
 
-                  x = p.x * 320 / SCREENWIDTH;
-                  y = p.y * 200 / SCREENHEIGHT;
-
                   flags = VPT_ALIGN_WIDE | VPT_STRETCH;
                   break;
               }
 
-              if (am_frame.precise)
-              {
-                V_DrawNamePatchPrecise(fx, fy, namebuf, CR_DEFAULT, flags);
-              }
-              else
-              {
-                V_DrawNamePatch(x, y, namebuf, CR_DEFAULT, flags);
-              }
+              V_DrawNamePatchPrecise(fx, fy, namebuf, CR_DEFAULT, flags);
             }
 
             w += markpoints[i].widths[k] + 1;
             p.x += w * SCREENWIDTH / 320;
-            if (am_frame.precise)
-            {
-              p.fx += (float)w * SCREENWIDTH / 320.0f;
-            }
+            p.fx += (float)w * SCREENWIDTH / 320.0f;
           }
         }
       }
