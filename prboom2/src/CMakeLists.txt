@@ -435,8 +435,6 @@ set(COMMON_SRC
     m_fixed.h
     m_menu.c
     m_menu.h
-    m_json.c
-    m_json.h
     m_misc.c
     m_misc.h
     m_random.c
