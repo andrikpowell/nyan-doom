@@ -1427,3 +1427,25 @@ void* M_ArrayGetNewItem(array_t *data, int itemsize)
 
   return (unsigned char*)data->data + (data->count - 1) * itemsize;
 }
+
+int M_CompareVersions(const version_t *v1, const version_t *v2)
+{
+    if (v1->major != v2->major)
+    {
+        return v1->major - v2->major;
+    }
+    if (v1->minor != v2->minor)
+    {
+        return v1->minor - v2->minor;
+    }
+    return v1->revision - v2->revision;
+}
+
+dboolean M_ParseVersion(const char *s, version_t *v)
+{
+    if (sscanf(s, "%d.%d.%d", &v->major, &v->minor, &v->revision) == 3)
+    {
+        return true;
+    }
+    return false;
+}

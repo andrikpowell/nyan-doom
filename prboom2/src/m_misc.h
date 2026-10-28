@@ -73,4 +73,15 @@ typedef struct array_s
 void M_ArrayClear(array_t *data);
 void* M_ArrayGetNewItem(array_t *data, int itemsize);
 
+typedef struct
+{
+    int major;
+    int minor;
+    int revision;
+} version_t;
+
+// Negative if v1 < v2, zero if equal, positive if v1 > v2.
+int M_CompareVersions(const version_t *v1, const version_t *v2);
+dboolean M_ParseVersion(const char *s, version_t *v);
+
 #endif
