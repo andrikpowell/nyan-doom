@@ -3460,6 +3460,75 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
   }
 }
 
+// Automap key types
+typedef enum
+{
+  automap_key_none,
+  automap_key_red,
+  automap_key_yellow,
+  automap_key_blue,
+  automap_key_green,
+  automap_key_hexen,
+  automap_key_puzzle,
+} automap_key_t;
+
+static automap_key_t AM_IsAutomapKey(const mobj_t *thing)
+{
+  int num = thing->info->doomednum;
+  dboolean doom = !raven;
+
+  if (hexen)
+  {
+    // Hexen Keys
+    if ((num >= 8030 && num <= 8039) || num == 8200)
+      return automap_key_hexen;
+
+    // Hexen Puzzle Pieces
+    if ((num >= 9002 && num <= 9010) ||
+        (num >= 9014 && num <= 9021))
+      return automap_key_puzzle;
+  }
+  else if (heretic)
+  {
+    if (num == 73)
+      return automap_key_green;
+    if (num == 80)
+      return automap_key_yellow;
+    if (num == 79)
+      return automap_key_blue;
+  }
+  //jff 1/5/98 treat keys special
+  else if (doom)
+  {
+    if (num == 13 || num == 38)
+      return automap_key_red;
+    if (num == 6 || num == 39)
+      return automap_key_yellow;
+    if (num == 5 || num == 40)
+      return automap_key_blue;
+  }
+
+  return automap_key_none;
+}
+
+static dboolean AM_IsHexenAutomapArtifact(const mobj_t *thing)
+{
+  int num = thing->info->doomednum;
+
+  if (hexen)
+  {
+    switch(num)
+    {
+      case 30: case 32: case 33: case 36: case 82:
+      case 83: case 84: case 86: case 8000: case 8002:
+      case 8003: case 8041: case 10040: case 10110: case 10120:
+        return true;
+    }
+  }
+
+  return false;
+}
+
 static void AM_DrawNiceEasyKeys(void)
 {
   int i;
@@ -3488,44 +3557,7 @@ static void AM_DrawNiceEasyKeys(void)
     {
       if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
       {
-        int nice_key = false;
-        if (hexen)
-        {
-          switch(t->info->doomednum)
-          {
-            // hexen keys
-            case 8030: case 8031: case 8032: case 8033: case 8034: case 8035:
-            case 8036: case 8037: case 8038: case 8039: case 8200:
-            // hexen puzzle parts - use key color
-            case 9002: case 9003: case 9004: case 9005: case 9006: case 9007: case 9008:
-            case 9009: case 9010: case 9011: case 9012: case 9014: case 9015: case 9016:
-            case 9017: case 9018: case 9019: case 9020: case 9021:
-              nice_key++; break;
-          }
-        }
-        else if (heretic) // Heretic Keys
-        {
-          switch(t->info->doomednum)
-          {
-            case 73: // green key
-            case 80: // yellow key
-            case 79: // blue key
-              nice_key++; break;
-          }
-        }
-        else   // Doom Keys
-        {
-          switch(t->info->doomednum)
-          {
-            //jff 1/5/98 treat keys special
-            case 38: case 13: // red keys
-            case 39: case 6:  // yellow keys
-            case 40: case 5:  // blue keys
-              nice_key++; break;
-          }
-        }
-
-        if (nice_key)
+        if (AM_IsAutomapKey(t) != automap_key_none)
         {
           AM_GetMobjPosition(t, &p, &angle);
           if (automap_rotate)
@@ -3728,6 +3760,7 @@ static void AM_drawThings(void)
       fixed_t scale;
       fixed_t box_scale = 0;
       int color = -1;
+      automap_key_t key = AM_IsAutomapKey(t);
 
       //e6y: stop if all enemies from current sector already has been drawn
       if (pass == 1 && enemies == 0)
@@ -3758,85 +3791,55 @@ static void AM_drawThings(void)
       //jff 1/5/98 case over doomednum of thing being drawn
       if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
       {
-        if (hexen) // Hexen keys and puzzle pieces
+        switch (key)
         {
-          // hexen keys
-          if (mapcolor_p->ykey)
-          {
-            int hexkey_scale = scale*2; // Hexen keys are very small on automap
-            switch(t->info->doomednum)
-            {
-              // hexen keys
-              case 8030: case 8031: case 8032: case 8033: case 8034: case 8035:
-              case 8036: case 8037: case 8038: case 8039: case 8200:
-                color = mapcolor_p->ykey != -1 ? mapcolor_p->ykey : mapcolor_p->sprt; break;
-            }
+          case automap_key_red:
+          case automap_key_green:
+            if (mapcolor_p->rkey)
+              color = mapcolor_p->rkey != -1 ? mapcolor_p->rkey : mapcolor_p->sprt;
+            break;
+          case automap_key_yellow:
+          case automap_key_hexen:
+            if (mapcolor_p->ykey)
+              color = mapcolor_p->ykey != -1 ? mapcolor_p->ykey : mapcolor_p->sprt;
+            break;
+          case automap_key_blue:
+          case automap_key_puzzle:
+            if (mapcolor_p->bkey)
+              color = mapcolor_p->bkey != -1 ? mapcolor_p->bkey : mapcolor_p->sprt;
+            break;
+          default:
+            break;
+        }
 
-            if (color != -1)
+        // Draw vector line keys
+        if (color != -1)
+        {
+          if (hexen)
+          {
+            // hexen keys
+            if (key = automap_key_hexen)
             {
+              int hexkey_scale = scale * 2; // Hexen keys are super small
               AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, hexkey_scale, box_scale, 0, color, p.x, p.y);
-              t = t->snext;
-              continue;
             }
-          }
-
-          // hexen puzzle parts - use key color
-          if (mapcolor_p->bkey)
-          {
-            switch(t->info->doomednum)
-            {
-              case 9002: case 9003: case 9004: case 9005: case 9006: case 9007: case 9008:
-              case 9009: case 9010: case 9011: case 9012: case 9014: case 9015: case 9016:
-              case 9017: case 9018: case 9019: case 9020: case 9021:
-                color = mapcolor_p->bkey != -1 ? mapcolor_p->bkey : mapcolor_p->sprt; break;
-            }
-
-            if (color != -1)
+            // hexen puzzle parts
+            else if (key == automap_key_puzzle)
             {
               AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, box_scale, t->angle, color, p.x, p.y);
-              t = t->snext;
-              continue;
             }
           }
-        }
-        else if (heretic) // Heretic keys
-        {
-          switch(t->info->doomednum)
-          {
-            case 73: // green key
-              color = mapcolor_p->rkey != -1? mapcolor_p->rkey : mapcolor_p->sprt; break;
-            case 80: // yellow key
-              color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
-            case 79: // blue key
-              color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
-          }
-
-          if (color != -1)
+          else if (heretic) // Heretic
           {
             AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, scale, box_scale, 0, color, p.x, p.y);
-            t = t->snext;
-            continue;
           }
-        }
-        else // Doom Keys
-        {
-          switch(t->info->doomednum)
-          {
-            //jff 1/5/98 treat keys special
-            case 38: case 13: //jff  red key
-              color = mapcolor_p->rkey != -1? mapcolor_p->rkey : mapcolor_p->sprt; break;
-            case 39: case 6: //jff yellow key
-              color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
-            case 40: case 5: //jff blue key
-              color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
-          }
-
-          if (color != -1)
+          else // Doom
           {
             AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, box_scale, t->angle, color, p.x, p.y);
-            t = t->snext;
-            continue;
           }
+
+          t = t->snext;
+          continue;
         }
       }
 
@@ -3850,13 +3853,8 @@ static void AM_drawThings(void)
       // hexen artifacts use item color
       if (hexen && mapcolor_p->item)
       {
-        switch(t->info->doomednum)
-        {
-          case 30: case 32: case 33: case 36: case 82:
-          case 83: case 84: case 86: case 8000: case 8002:
-          case 8003: case 8041: case 10040: case 10110: case 10120:
-            color = mapcolor_p->item != -1 ? mapcolor_p->item : mapcolor_p->sprt; break;
-        }
+        if (AM_IsHexenAutomapArtifact(t))
+          color = mapcolor_p->item != -1 ? mapcolor_p->item : mapcolor_p->sprt;
 
         if (color != -1)
         {
