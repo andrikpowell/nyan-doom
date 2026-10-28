@@ -283,6 +283,8 @@ extern V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise;
 
 #define V_DrawNumPatchCrop(x,y,n,c,t,f)V_DrawNumPatchGen(x, y, FG, n, PATCH_NORMAL, c, t, ALPHA_FULL, SCALE_1X, f);
 #define V_DrawNumPatchCropBG(x,y,n,c,t,f)V_DrawNumPatchGen(x, y, BG, n, PATCH_NORMAL, c, t, ALPHA_FULL, SCALE_1X, f);
+#define V_DrawNumPatchPreciseCrop(x,y,n,c,t,f)V_DrawNumPatchGenPrecise(x, y, FG, n, PATCH_NORMAL, c, t, ALPHA_FULL, SCALE_1X, f);
+#define V_DrawNamePatchPreciseCrop(x,y,n,c,t,f)V_DrawNumPatchGenPrecise(x, y, FG, W_GetNumForName(n), PATCH_NORMAL, c, t, ALPHA_FULL, SCALE_1X, f);
 
 #define V_DrawFadeNumPatch(x,y,n,t,a,f) V_DrawNumPatchGen(x,y,FG,n,PATCH_NORMAL,CROP_NULL,t,a,SCALE_1X,f)
 #define V_DrawFadeNumPatchPrecise(x,y,n,t,a,f) V_DrawNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,CROP_NULL_FLOAT,t,a,SCALE_1X,f)
@@ -298,11 +300,11 @@ extern V_DrawNumPatchGenPrecise_f V_DrawNumPatchGenPrecise;
 // Scaled
 #define V_DrawScaledNumPatch(x,y,n,t,s,f) V_DrawNumPatchGen(x,y,FG,n,PATCH_NORMAL,CROP_NULL,t,ALPHA_FULL,s,f)
 #define V_DrawScaledNumPatchPrecise(x,y,n,t,s,f) V_DrawNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,CROP_NULL_FLOAT,t,ALPHA_FULL,s,f)
-#define V_DrawScaledNamePatch(x,y,n,t,s,f) V_DrawScaledNumPatch(x,y,W_GetNumForName(n),t,s,f)
-#define V_DrawScaledNamePatchPrecise(x,y,n,t,s,f) V_DrawScaledNumPatchPrecise(x,y,W_GetNumForName(n),t,s,f)
+#define V_DrawScaledNamePatch(x,y,n,t,s,f) V_DrawNumPatchGen(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,CROP_NULL,t,ALPHA_FULL,s,f)
+#define V_DrawScaledNamePatchPrecise(x,y,n,t,s,f) V_DrawNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,CROP_NULL_FLOAT,t,ALPHA_FULL,s,f)
 
 #define V_DrawScaledNumPatchPreciseCrop(x,y,n,c,t,s,f) V_DrawNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,c,t,ALPHA_FULL,s,f)
-#define V_DrawScaledNamePatchPreciseCrop(x,y,n,c,t,s,f) V_DrawScaledNumPatchPreciseCrop(x,y,W_GetNumForName(n),c,t,s,f)
+#define V_DrawScaledNamePatchPreciseCrop(x,y,n,c,t,s,f) V_DrawNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,c,t,ALPHA_FULL,s,f)
 
 typedef enum
 {
@@ -337,7 +339,7 @@ extern V_DrawShadowedNumPatchGenPrecise_f V_DrawShadowedNumPatchGenPrecise;
 #define V_DrawShadowedNamePatchPreciseAdv(x,y,n,s,t,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,s,CROP_NULL_FLOAT,t,ALPHA_FULL,SCALE_1X,f)
 
 #define V_DrawScaledShadowedNumPatchPreciseCrop(x,y,n,c,t,s,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,n,PATCH_NORMAL,SHADOW_ALWAYS_RAVEN,c,t,ALPHA_FULL,s,f)
-#define V_DrawScaledShadowedNamePatchPreciseCrop(x,y,n,c,t,s,f) V_DrawScaledShadowedNumPatchPreciseCrop(x,y,W_GetNumForName(n),c,t,s,f)
+#define V_DrawScaledShadowedNamePatchPreciseCrop(x,y,n,c,t,s,f) V_DrawShadowedNumPatchGenPrecise(x,y,FG,W_GetNumForName(n),PATCH_NORMAL,SHADOW_ALWAYS_RAVEN,c,t,ALPHA_FULL,s,f)
 
 // V_DrawMenuNumPatch
 #define V_DrawMenuNumPatch(x,y,n,t,f) V_DrawShadowedNumPatchGen(x,y,FG,n,PATCH_NORMAL,SHADOW_EXTRA,CROP_NULL,t,ALPHA_FULL,SCALE_1X,f)
