@@ -374,6 +374,14 @@ static void dsda_InitDoom(void) {
   }
 
   mobjinfo[MT_DOGS].flags_extra |= MFX_MIRROREDCORPSE;
+
+  // automap offsets
+  mobjinfo[MT_REDKEY].automapoffsety      = -10;
+  mobjinfo[MT_BLUEKEY].automapoffsety     = -10;
+  mobjinfo[MT_YELLOWKEY].automapoffsety   = -10;
+  mobjinfo[MT_REDSKULL].automapoffsety    = -9;
+  mobjinfo[MT_BLUESKULL].automapoffsety   = -9;
+  mobjinfo[MT_YELLOWSKULL].automapoffsety = -9;
 }
 
 static void dsda_InitHeretic(void) {
@@ -830,6 +838,12 @@ static void dsda_InitHexen(void) {
     for (int i = 0; i < arrlen(flippable_things2); i++)
       mobjinfo[flippable_things2[i]].flags_extra |= MFX_MIRROREDCORPSE;
   }
+
+  // automap offsets
+  mobjinfo[HEXEN_MT_ARTIPUZZGEAR].automapoffsety = -28;
+  mobjinfo[HEXEN_MT_ARTIPUZZGEAR2].automapoffsety = -28;
+  mobjinfo[HEXEN_MT_ARTIPUZZGEAR3].automapoffsety = -28;
+  mobjinfo[HEXEN_MT_ARTIPUZZGEAR4].automapoffsety = -28;
 }
 
 static dboolean dsda_AutoDetectHeretic(void)

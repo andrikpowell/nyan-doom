@@ -67,6 +67,10 @@ enum
     HHE_MOBJINFO_MELEE_OBITUARY,
     HHE_MOBJINFO_SELF_OBITUARY,
 
+    // AUTOMAP
+    HHE_MOBJINFO_AUTOMAPOFFSETX,
+    HHE_MOBJINFO_AUTOMAPOFFSETY,
+
     HHE_MOBJINFOMAX
 };
 
@@ -104,6 +108,10 @@ static const char *hhe_mobjinfo_fields[] =
   "Obituary",            // .obituary
   "Melee obituary",      // .obituary_melee
   "Self obituary",       // .obituary_self
+
+  // automap
+  "Automap offset X",    // .automapoffsetx
+  "Automap offset Y",    // .automapoffsety
 
   NULL
 };
@@ -346,6 +354,10 @@ static void setHereticMobjInfoValue(int mobjInfoIndex, int keyIndex, uint64_t va
 
     // misc
     case HHE_MOBJINFO_BLOODCOLOR: mi->bloodcolor = V_BloodColor((int)value); return;
+
+    // automap
+    case HHE_MOBJINFO_AUTOMAPOFFSETX: mi->automapoffsetx = (int)value; return;
+    case HHE_MOBJINFO_AUTOMAPOFFSETY: mi->automapoffsety = (int)value; return;
 
     default: return;
   }

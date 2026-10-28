@@ -4256,6 +4256,10 @@ static void AM_drawThingSprite(mobj_t *thing, float scale)
       break;
   }
 
+  // Apply automap offsets
+  fx -= thing->info->automapoffsetx * scale;
+  fy -= thing->info->automapoffsety * scale;
+
   if (!AM_GetMarkerCrop(fx, fy, lump, scale, &crop, flags))
     return;
 
