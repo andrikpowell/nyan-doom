@@ -736,7 +736,8 @@ static int V_StretchX(float x, const stretch_param_t *params)
   float subpixel_pos;
 
   // find the pixel for lookups (since they use ints)
-  int ix = (int)floorf(x);
+  float ix_f = floorf(x);
+  int ix = (int)ix_f;
 
   // if outside 320 range...
   if (x < 0.0f || x > 320.0f)
@@ -762,7 +763,8 @@ static int V_StretchY(float y, const stretch_param_t *params)
   float subpixel_pos;
 
   // find the pixel for lookups (since they use ints)
-  int iy = (int)floorf(y);
+  float iy_f = floorf(y);
+  int iy = (int)iy_f;
 
   // if outside 200 range...
   if (y < 0.0f || y > 200.0f)
@@ -794,14 +796,17 @@ static int V_GetStretchPatchX(float x, float offset, const stretch_param_t *para
 {
   int scaled_offset;
   int subpixel_offset;
+  float scaled_offset_f;
 
   // find the pixel for lookups (since they use ints)
-  int ix = (int)floorf(x);
+  float ix_f = floorf(x);
+  int ix = (int)ix_f;
 
   // Scale offset directly for precise / resized patches
   if (precise || scale != 1.0f)
   {
-    scaled_offset = (int)ceilf(offset * scale * (params->video->width / 320.0f));
+    scaled_offset_f = ceilf(offset * scale * (params->video->width / 320.0f));
+    scaled_offset = (int)scaled_offset_f;
     return V_StretchX(x, params) + scaled_offset;
   }
 
@@ -814,14 +819,17 @@ static int V_GetStretchPatchY(float y, float offset, const stretch_param_t *para
 {
   int scaled_offset;
   int subpixel_offset;
+  float scaled_offset_f;
 
   // find the pixel for lookups (since they use ints)
-  int iy = (int)floorf(y);
+  float iy_f = floorf(y);
+  int iy = (int)iy_f;
 
   // Scale offset directly for precise / resized patches
   if (precise || scale != 1.0f)
   {
-    scaled_offset = (int)ceilf(offset * scale * (params->video->height / 200.0f));
+    scaled_offset_f = ceilf(offset * scale * (params->video->height / 200.0f));
+    scaled_offset = (int)scaled_offset_f;
     return V_StretchY(y, params) + scaled_offset;
   }
 

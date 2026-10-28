@@ -3829,7 +3829,7 @@ static void AM_drawThings(void)
           if (hexen)
           {
             // hexen keys
-            if (key = automap_key_hexen)
+            if (key == automap_key_hexen)
             {
               int hexkey_scale = scale * 2; // Hexen keys are super small
               AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, hexkey_scale, box_scale, 0, color, p.x, p.y);
@@ -4222,10 +4222,6 @@ static void AM_drawThingSprite(mobj_t *thing, float scale)
   sprframe = &sprdef->spriteframes[frame];
   lump = sprframe->lump[0] + firstspritelump;
 
-  // Check flip
-  if (sprframe->flip[0])
-    flags |= VPT_FLIP;
-
   AM_GetMobjPosition(thing, &p, &angle);
 
   if (automap_rotate)
@@ -4262,6 +4258,10 @@ static void AM_drawThingSprite(mobj_t *thing, float scale)
       flags = VPT_ALIGN_WIDE | VPT_STRETCH;
       break;
   }
+
+  // Check flip
+  if (sprframe->flip[0])
+    flags |= VPT_FLIP;
 
   // Apply automap offsets
   fx -= thing->info->automapoffsetx * scale;
