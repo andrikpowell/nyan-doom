@@ -25,7 +25,6 @@ find_package(SDL2_mixer REQUIRED)
 find_package(SndFile 1.0.29 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(libzip REQUIRED)
-find_package(yyjson CONFIG REQUIRED)
 
 # ZLIB 1.3.2 static now requires explicit ZLIBSTATIC
 if(NOT TARGET ZLIB::ZLIB AND TARGET ZLIB::ZLIBSTATIC)
@@ -131,7 +130,6 @@ target_link_libraries(nyan_dependencies
   OpenGL::GLU
   SndFile::sndfile
   libzip::zip
-  yyjson::yyjson
   ZLIB::ZLIB
 
   nyan::xmp

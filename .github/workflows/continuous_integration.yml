@@ -102,7 +102,6 @@ jobs:
             ${{ matrix.config.msys-env }}-libspng
             ${{ matrix.config.msys-env }}-libsndfile
             ${{ matrix.config.msys-env }}-libzip
-            ${{ matrix.config.msys-env }}-yyjson
 
       - name: Install Dependencies (Linux)
         if: runner.os == 'Linux'
