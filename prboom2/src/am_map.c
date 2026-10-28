@@ -3648,6 +3648,13 @@ static void AM_DrawNiceThings(void)
       t = sectors[i].thinglist;
       while (t) // for all things in that sector
       {
+        // If key sprites are used, don't draw nice things
+        if (dsda_ShowAutomapSprites() && AM_IsAutomapKey(t) != automap_key_none)
+        {
+          t = t->snext;
+          continue;
+        }
+
         // Avoid drawing the main player again
         // But draw voodoo dolls!
         if (!(t->player && t == t->player->mo))
