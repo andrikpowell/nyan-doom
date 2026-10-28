@@ -470,6 +470,18 @@ dboolean dsda_ShowAutomapKeys(void) {
   return dsda_IntConfig(dsda_config_map_show_keys) && casual_play;
 }
 
+dboolean dsda_ShowAutomapSprites(void) {
+  return dsda_IntConfig(dsda_config_map_key_style) == 0;
+}
+
+float dsda_AutomapSpriteScale(void) {
+  return dsda_IntConfig(dsda_config_map_sprite_scale) / 100.0f;
+}
+
+float dsda_MinimapSpriteScale(void) {
+  return dsda_IntConfig(dsda_config_map_minimap_sprite_scale) / 100.0f;
+}
+
 dboolean dsda_DisableHorizAutoaim(void) {
   return dsda_IntConfig(dsda_config_disable_horiz_autoaim) && casual_play;
 }

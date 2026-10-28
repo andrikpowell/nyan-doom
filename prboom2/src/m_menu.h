@@ -173,6 +173,7 @@ typedef struct setup_menu_s
   int dependent_num; /* how many dependent configs */
   struct setup_menu_s *menu;  /* next or prev menu */
   void (*action)(void); // killough 10/98: function to call after changing
+  int thermo_step; /* thermo step size */
 } setup_menu_t;
 
 //

@@ -213,6 +213,7 @@ static dboolean sub_exhud_active = false;
 static dboolean sub_status_widgets_active = false;
 static dboolean sub_crosshair_active = false;
 static dboolean sub_overflows_active = false;
+static dboolean sub_automap_marker_active = false;
 static dboolean sub_automap_opengl_active = false;
 static dboolean sub_color_active = false;
 
@@ -420,6 +421,7 @@ static void M_Sub_ExHud(void);
 static void M_Sub_StatusWidgets(void);
 static void M_Sub_Crosshair(void);
 static void M_Sub_Overflows(void);
+static void M_Sub_AutoMapMarker(void);
 static void M_Sub_AutoMapOpenGL(void);
 static void M_Sub_ColorAutomap(void);
 static void M_Sub_ColorMessages(void);
@@ -450,6 +452,7 @@ static void M_Sub_DrawExHud(void);
 static void M_Sub_DrawStatusWidgets(void);
 static void M_Sub_DrawCrosshair(void);
 static void M_Sub_DrawOverflows(void);
+static void M_Sub_DrawAutoMapMarker(void);
 static void M_Sub_DrawAutoMapOpenGL(void);
 static void M_Sub_DrawColor(void);
 
@@ -2290,6 +2293,16 @@ static menu_t AutoMapDef =
   0
 };
 
+static menu_t SubAutoMapMarkerDef =
+{
+  generic_setup_end,
+  &GeneralDef,
+  Generic_Setup,
+  M_Sub_DrawAutoMapMarker,
+  34,5,      // skull drawn here
+  0
+};
+
 static menu_t SubAutoMapOpenGLDef =
 {
   generic_setup_end,
@@ -2929,6 +2942,11 @@ static int M_ThermoDisplayUpperLimit(const setup_menu_t *s)
   return upper_limit;
 }
 
+static int M_ThermoStep(const setup_menu_t *s)
+{
+  return MAX(1, s->thermo_step);
+}
+
 static int M_ThermoDisplayValue(const setup_menu_t *s)
 {
   int lower_limit = dsda_LowerLimitConfig(s->config_id);
@@ -2937,14 +2955,14 @@ static int M_ThermoDisplayValue(const setup_menu_t *s)
   int value = dsda_IntConfig(s->config_id);
 
   if (upper_limit == INT_MAX)
-    return CLAMP(value, lower_limit, display_limit) - lower_limit;
+    return (CLAMP(value, lower_limit, display_limit) - lower_limit) / M_ThermoStep(s);
 
-  return CLAMP(value, lower_limit, upper_limit) - lower_limit;
+  return (CLAMP(value, lower_limit, upper_limit) - lower_limit) / M_ThermoStep(s);
 }
 
 static int M_ThermoDisplayRange(const setup_menu_t *s)
 {
-  return M_ThermoDisplayUpperLimit(s) - dsda_LowerLimitConfig(s->config_id) + 1;
+  return (M_ThermoDisplayUpperLimit(s) - dsda_LowerLimitConfig(s->config_id)) / M_ThermoStep(s) + 1;
 }
 
 static int M_ThermoEditUpperLimit(const setup_menu_t *s)
@@ -2965,16 +2983,27 @@ static int M_PrevThermoValue(const setup_menu_t *s)
 {
   int value = dsda_IntConfig(s->config_id);
   int lower_limit = dsda_LowerLimitConfig(s->config_id);
+  int step = M_ThermoStep(s);
+  int offset = MAX(0, value - lower_limit);
 
-  return value <= lower_limit ? lower_limit : value - 1;
+  if (value <= lower_limit)
+    return lower_limit;
+
+  return lower_limit + ((offset - 1) / step) * step;
 }
 
 static int M_NextThermoValue(const setup_menu_t *s)
 {
   int value = dsda_IntConfig(s->config_id);
+  int lower_limit = dsda_LowerLimitConfig(s->config_id);
   int upper_limit = M_ThermoEditUpperLimit(s);
+  int step = M_ThermoStep(s);
+  int offset = MAX(0, value - lower_limit);
 
-  return value >= upper_limit ? upper_limit : value + 1;
+  if (value >= upper_limit)
+    return upper_limit;
+
+  return MIN(upper_limit, lower_limit + (offset / step + 1) * step);
 }
 
 //
@@ -4228,6 +4257,7 @@ static void M_ClearSetupMenuState(void)
   sub_status_widgets_active = false;
   sub_crosshair_active = false;
   sub_overflows_active = false;
+  sub_automap_marker_active = false;
   sub_automap_opengl_active = false;
   sub_color_active = false;
 
@@ -4819,7 +4849,7 @@ static void M_DrawWeapons(void)
 // The Automap tables.
 
 #define AU_X 260
-#define AA_X 240
+#define AA_X 200
 
 static const char *auto_pages[] =
 {
@@ -4852,8 +4882,8 @@ setup_menu_t auto_options_settings[] =
   { "Use mouse panning", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_automap_mouse_pan },
   { "Show Minimap", S_YESNO, m_conf, g_all, AU_X, dsda_config_show_minimap },
   EMPTY_LINE,
+  { "Automap Stat Icons", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_map_stat_icons },
   { "Cycle Level Title / Author", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_map_title_author_cycle },
-  { "Always Show Keys on Automap", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_map_show_keys },
   { "Use Automap Hud for Fullscreen", S_YESNO | S_NYAN, m_conf, g_all, AU_X, dsda_config_full_automap_exhud },
   EMPTY_LINE,
   TITLE("Components", AU_X),
@@ -4876,19 +4906,16 @@ static const char *map_things_appearance_list[] =
 };
 
 static const char *map_player_arrow_list[] = { "Default", "Modern", "Doom", "Raven", NULL };
-static const char *map_marker_style_list[] = { "Classic", "Line", NULL };
 static const char *automap_linesize_list[] = { "Auto", "1x", "2x", "3x", "4x", "5x", "6x", NULL };
 
 setup_menu_t auto_appearance_settings[] =
 {
   { "Lines Width", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_automap_linesize, 0, automap_linesize_list },
   { "Things appearance", S_CHOICE, m_conf, g_all, AA_X, dsda_config_map_things_appearance, 0, map_things_appearance_list },
-  { "Show Line Traces", S_YESNO, m_conf, g_all, AA_X, dsda_config_map_traces },
   { "Player Arrow Style", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_player_arrow, 0, map_player_arrow_list },
   { "Show Thing Hitboxes", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_things_hitbox },
-  EMPTY_LINE,
-  { "Automap Markers", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_marker_style, 0, map_marker_style_list },
-  { "Automap Stat Icons", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_stat_icons },
+  { "Show Line Traces", S_YESNO, m_conf, g_all, AA_X, dsda_config_map_traces },
+  FUNC("Marker Options", S_NYAN, AA_X, M_Sub_AutoMapMarker),
   FUNC_DEPEND("OpenGL Options", S_NYAN, g_all, AA_X, M_Sub_AutoMapOpenGL, dsda_config_videomode, OPENGL_MODE),
   EMPTY_LINE,
   TITLE("Background", AA_X),
@@ -5022,6 +5049,56 @@ static void M_Automap(int choice)
 
 /////////////////////////////
 //
+// Sub Menu - Automap Marker Features
+
+static const char *automap_marker_pages[] =
+{
+  "Marker Options",
+  NULL
+};
+
+setup_menu_t automap_marker_adv_settings[];
+
+setup_menu_t* automap_marker_settings[] =
+{
+  automap_marker_adv_settings,
+  NULL
+};
+
+static const char *map_marker_style_list[] = { "Classic", "Line", NULL };
+static const char *map_key_marker_style_list[] = { "Sprite", "Line", NULL };
+
+setup_menu_t automap_marker_adv_settings[] = {
+  { "Automap Marker Style", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_marker_style, 0, map_marker_style_list },
+  { "Always Show Keys", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_show_keys },
+  EMPTY_LINE,
+  TITLE_ADV("Advanced", g_all, AA_X),
+  { "Automap Key Style", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_key_style, 0, map_key_marker_style_list },
+  { "Automap Sprite Scale", S_THERMO | S_PERC | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_sprite_scale, .thermo_step = 10 },
+  { "Minimap Sprite Scale", S_THERMO | S_PERC | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_minimap_sprite_scale, .thermo_step = 10 },
+
+  FINAL_ENTRY
+};
+
+static void M_Sub_AutoMapMarker(void)
+{
+  M_EnterSubSetup(&SubAutoMapMarkerDef, &sub_automap_marker_active, automap_marker_settings, automap_marker_pages);
+}
+
+static void M_Sub_DrawAutoMapMarker(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "Automap", cr_title);
+  M_DrawInstructions();
+  M_DrawSetupTabs(TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
 // Sub Menu - Automap OpenGL Features
 
 static const char *automap_opengl_pages[] =
@@ -5039,9 +5116,9 @@ setup_menu_t* automap_opengl_settings[] =
 };
 
 setup_menu_t automap_opengl_adv_settings[] = {
-  { "Textured automap", S_YESNO, m_conf, g_all, AA_X, dsda_config_map_textured, DEPEND_GL },
-  { "Textured automap", S_PERC, m_conf, g_all, AA_X, dsda_config_map_textured_trans, DEPEND_GL },
-  { "Textured automap on overlay", S_PERC, m_conf, g_all, AA_X, dsda_config_map_textured_overlay_trans, DEPEND_GL },
+  { "Textured map", S_YESNO, m_conf, g_all, AA_X, dsda_config_map_textured, DEPEND_GL },
+  { "Textured map", S_PERC, m_conf, g_all, AA_X, dsda_config_map_textured_trans, DEPEND_GL },
+  { "Textured map on overlay", S_PERC, m_conf, g_all, AA_X, dsda_config_map_textured_overlay_trans, DEPEND_GL },
   { "Lines on overlay", S_PERC, m_conf, g_all, AA_X, dsda_config_map_lines_overlay_trans, DEPEND_GL },
   { "GL Nice Icons", S_YESNO, m_conf, g_all, AA_X, dsda_config_map_things_nice, DEPEND_GL },
 

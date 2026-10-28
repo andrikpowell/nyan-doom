@@ -3540,6 +3540,10 @@ static void AM_DrawNiceEasyKeys(void)
   if (dsda_RevealAutomap() == 2)
     return;
 
+  // return if Key sprites are used
+  if (dsda_ShowAutomapSprites())
+    return;
+
   // for all sectors
   for (i = 0; i < numsectors; i++)
   {
@@ -3789,7 +3793,7 @@ static void AM_drawThings(void)
         AM_SetMPointFloatValue(&p);
 
       //jff 1/5/98 case over doomednum of thing being drawn
-      if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
+      if (!dsda_ShowAutomapSprites() && (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey))
       {
         switch (key)
         {
@@ -3841,6 +3845,13 @@ static void AM_drawThings(void)
           t = t->snext;
           continue;
         }
+      }
+
+      // Return if keys are drawn as sprites
+      if (dsda_ShowAutomapSprites() && key != automap_key_none)
+      {
+        t = t->snext;
+        continue;
       }
 
       // return if not IDDT
@@ -4009,46 +4020,40 @@ static void AM_drawPlayerTrail(void)
 // killough 2/22/98:
 // Rewrote AM_drawMarks(). Removed limit on marks.
 //
-static dboolean AM_GetMarkerCrop(float x, float y, const char* name, float scale, patch_cropf_t *crop)
+static dboolean AM_GetMarkerCrop(float x, float y, int lumpnum, float scale, patch_cropf_t *crop, int flags)
 {
-  const rpatch_t *patch = R_PatchByName(name);
+  const rpatch_t *patch;
+  stretch_param_t *params;
   float scale_x, scale_y;
   float left, top, right, bottom;
+
+  if (lumpnum == LUMP_NOT_FOUND)
+    return false;
+
+  patch = R_PatchByNum(lumpnum);
 
   *crop = CROP_NULL_FLOAT;
 
   if (automap_full)
     return true;
 
-  scale_y = (float)SCREENHEIGHT / 200.0f * scale;
+  params = dsda_StretchParams(flags);
+  scale_x = params->video->width / 320.0f;
+  scale_y = params->video->height / 200.0f;
 
-  switch (render_stretch_hud)
-  {
-    default:
-    case patch_stretch_not_adjusted:
-      scale_x = patches_scalex * scale;
-      break;
-    case patch_stretch_doom_format:
-      scale_x = (float)WIDE_SCREENWIDTH / 320.0f * scale;
-      break;
-    case patch_stretch_fit_to_width:
-      scale_x = (float)SCREENWIDTH / 320.0f * scale;
-      break;
-  }
-
-  left    = x - patch->leftoffset * scale_x;
-  top     = y - patch->topoffset * scale_y;
-  right   = left + patch->width * scale_x;
-  bottom  = top + patch->height * scale_y;
+  left    = (x - patch->leftoffset * scale) * scale_x + params->deltax1;
+  top     = (y - patch->topoffset * scale) * scale_y + params->deltay1;
+  right   = left + patch->width * scale * scale_x;
+  bottom  = top + patch->height * scale * scale_y;
 
   if (right <= f_x  || left >= f_x + f_w ||
       bottom <= f_y || top >= f_y + f_h  )
     return false;
 
-  crop->left    = MAX(0.0f, ceilf(f_x - left) / scale_x);
-  crop->right   = MAX(0.0f, ceilf(right - (f_x + f_w)) / scale_x);
-  crop->top     = MAX(0.0f, ceilf(f_y - top) / scale_y);
-  crop->bottom  = MAX(0.0f, ceilf(bottom - (f_y + f_h)) / scale_y);
+  crop->left    = MAX(0.0f, ceilf(f_x - left) / (scale * scale_x));
+  crop->right   = MAX(0.0f, ceilf(right - (f_x + f_w)) / (scale * scale_x));
+  crop->top     = MAX(0.0f, ceilf(f_y - top) / (scale * scale_y));
+  crop->bottom  = MAX(0.0f, ceilf(bottom - (f_y + f_h)) / (scale * scale_y));
 
   return crop->left + crop->right < patch->width &&
          crop->top + crop->bottom < patch->height;
@@ -4087,7 +4092,7 @@ static void AM_drawMarks(void)
       else
         AM_SetMPointFloatValue(&p);
 
-      // Allow precise coordinates not in GL
+      // Allow precise coordinates in Software
       if (!am_frame.precise)
       {
         p.fx = (float)p.x;
@@ -4170,7 +4175,7 @@ static void AM_drawMarks(void)
                 break;
             }
 
-            if (AM_GetMarkerCrop(p.fx, p.fy, namebuf, 1.0f, &crop))
+            if (AM_GetMarkerCrop(fx, fy, W_CheckNumForName(namebuf), 1.0f, &crop, flags))
               V_DrawNamePatchPreciseCrop(fx, fy, namebuf, crop, CR_DEFAULT, flags);
 
             w += markpoints[i].widths[k] + 1;
@@ -4180,6 +4185,126 @@ static void AM_drawMarks(void)
         }
       }
     }
+  }
+}
+
+static void AM_drawThingSprite(mobj_t *thing, float scale)
+{
+  spritedef_t   *sprdef;
+  spriteframe_t *sprframe;
+  int frame;
+  mpoint_t p = { 0 };
+  angle_t angle;
+  float fx, fy;
+  patch_cropf_t crop;
+  int flags;
+  int lump;
+
+  // Check sprite index
+  if ((unsigned)thing->sprite >= (unsigned)num_sprites)
+    return;
+
+  sprdef = &sprites[thing->sprite];
+  frame = thing->frame & FF_FRAMEMASK;
+
+  // Check sprite frame
+  if (!sprdef->spriteframes || frame >= sprdef->numframes)
+    return;
+
+  // Get sprite
+  sprframe = &sprdef->spriteframes[frame];
+  lump = sprframe->lump[0] + firstspritelump;
+
+  // Check flip
+  if (sprframe->flip[0])
+    flags |= VPT_FLIP;
+
+  AM_GetMobjPosition(thing, &p, &angle);
+
+  if (automap_rotate)
+    AM_rotatePoint(&p);
+  else
+    AM_SetMPointFloatValue(&p);
+
+  // Allow precise coordinates in Software
+  if (!am_frame.precise)
+  {
+    p.fx = (float)p.x;
+    p.fy = (float)p.y;
+  }
+
+  p.fx = CXMTOF_F(p.fx);
+  p.fy = CYMTOF_F(p.fy);
+
+  switch (render_stretch_hud)
+  {
+    default:
+    case patch_stretch_not_adjusted:
+      fx = p.fx / patches_scalex;
+      fy = p.fy * 200.0f / SCREENHEIGHT;
+      flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+      break;
+    case patch_stretch_doom_format:
+      fx = p.fx * 320.0f / WIDE_SCREENWIDTH;
+      fy = p.fy * 200.0f / WIDE_SCREENHEIGHT;
+      flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+      break;
+    case patch_stretch_fit_to_width:
+      fx = p.fx * 320.0f / SCREENWIDTH;
+      fy = p.fy * 200.0f / SCREENHEIGHT;
+      flags = VPT_ALIGN_WIDE | VPT_STRETCH;
+      break;
+  }
+
+  if (!AM_GetMarkerCrop(fx, fy, lump, scale, &crop, flags))
+    return;
+
+  V_DrawScaledNumPatchPreciseCrop(fx, fy, lump, crop, CR_DEFAULT, scale, flags);
+}
+
+static float AM_GetThingSpriteScale(void)
+{
+  float scale = dsda_AutomapSpriteScale();
+  float zoom = 1.0f;
+  float minimum;
+
+  // Minimap scale - not dynamic
+  if (!automap_full)
+    return dsda_MinimapSpriteScale();
+
+  if (max_scale_mtof > min_scale_mtof)
+    zoom = (scale_mtof - min_scale_mtof) / (float)(max_scale_mtof - min_scale_mtof);
+
+  zoom    = CLAMP(zoom, 0.0f, 1.0f);
+  minimum = MTOF_F(32 << MAPBITS) / (16.0f * SCREENHEIGHT / 200.0f);
+
+  return MAX(scale * (1.0f - zoom), minimum);
+}
+
+static void AM_drawThingSprites(void)
+{
+  thinker_t *thinker;
+  float scale;
+  dboolean showkeys = skill_info.flags & SI_EASY_KEY || dsda_ShowAutomapKeys();
+
+  if (!dsda_ShowAutomapSprites() || (!showkeys && dsda_RevealAutomap() != 2))
+    return;
+
+  scale = AM_GetThingSpriteScale();
+
+  for (thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+  {
+    mobj_t *thing;
+
+    if (thinker->function != P_MobjThinker)
+      continue;
+
+    thing = (mobj_t *)thinker;
+
+    if (AM_IsAutomapKey(thing) == automap_key_none)
+      continue;
+
+    AM_drawThingSprite(thing, scale);
   }
 }
 
@@ -4457,6 +4582,9 @@ void AM_Drawer (dboolean minimap)
       gld_DrawNiceThings(f_x, f_y, f_w, f_h);
     }
   }
+
+  // Draw scaled sprites on automap
+  AM_drawThingSprites();
 
   AM_drawCrosshair(mapcolor_p->hair); //jff 1/7/98 default crosshair color
 

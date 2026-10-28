@@ -946,6 +946,8 @@ static dboolean M_MouseSetSetupThermo(int index)
   setup_menu_t *item;
   int lower_limit;
   int upper_limit;
+  int step;
+  int step_index;
   int value;
 
   if (!current_setup_menu || index < 0)
@@ -961,7 +963,10 @@ static dboolean M_MouseSetSetupThermo(int index)
   lower_limit = dsda_LowerLimitConfig(item->config_id);
   upper_limit = M_ThermoDisplayUpperLimit(item);
 
-  value = M_MouseThermoValue(menu_mouse_x, item->m_x, 8, lower_limit, upper_limit);
+  step = M_ThermoStep(item);
+  step_index = M_MouseThermoValue(menu_mouse_x, item->m_x, 8, 0, M_ThermoDisplayRange(item) - 1);
+
+  value = MIN(upper_limit, lower_limit + step_index * step);
   if (dsda_IntConfig(item->config_id) != value)
   {
     dsda_UpdateIntConfig(item->config_id, value, true);
