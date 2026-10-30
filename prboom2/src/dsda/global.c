@@ -176,6 +176,8 @@ dboolean raven = false;
 dboolean uvplus = false;
 dboolean customskill = false;
 
+dboolean exdefs = false;
+
 void dsda_LinkSFXEffect(int sound, int fallback) {
   if (I_GetSfxLumpNum(&S_sfx[sound]) < 0)
     S_sfx[sound].link = &S_sfx[fallback];

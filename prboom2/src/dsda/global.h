@@ -133,6 +133,7 @@ extern const char* g_msgon;
 extern dboolean heretic;
 extern dboolean uvplus;
 extern dboolean customskill;
+extern dboolean exdefs;
 
 void dsda_InitGlobal(void);
 

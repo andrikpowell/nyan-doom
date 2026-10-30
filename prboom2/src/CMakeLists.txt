@@ -87,6 +87,8 @@ set(COMMON_SRC
     dsda/excmd.h
     dsda/exdemo.c
     dsda/exdemo.h
+    dsda/exdefs.c
+    dsda/exdefs.h
     dsda/exhud.c
     dsda/exhud.h
     dsda/features.c
