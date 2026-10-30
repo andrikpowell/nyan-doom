@@ -36,5 +36,6 @@ dsda_deh_mobjinfo_t dsda_GetDehMobjInfo(int index);
 void dsda_InitializeMobjInfo(int zero, int count);
 void dsda_FreeDehMobjInfo(void);
 void dsda_AppendZDoomMobjInfo(void);
+int dsda_AppendExDefsMobjInfo(void);
 
 #endif

@@ -361,3 +361,11 @@ void dsda_AppendZDoomMobjInfo(void) {
     mobjinfo[index] = *(append_mobjinfo[i].mobjinfo_p);
   }
 }
+
+int dsda_AppendExDefsMobjInfo(void) {
+  int index = dsda_AppendMobjInfo();
+
+  mobjinfo[index].doomednum = -1;
+
+  return index;
+}

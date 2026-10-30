@@ -21,10 +21,12 @@
 #include "info.h"
 #include "lprintf.h"
 #include "m_json.h"
+#include "s_sound.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
 #include "dsda/args.h"
+#include "dsda/mobjinfo.h"
 #include "dsda/sfx.h"
 #include "dsda/sprite.h"
 #include "dsda/state.h"
@@ -2886,7 +2888,124 @@ static const char* const exdefs_state_names_hexen[HEXEN_NUMSTATES] = {
   "S_HEXEN_BAT_DEATH",
 };
 
+typedef enum
+{
+  exdefs_flags,
+  exdefs_flags2,
+  exdefs_flags_ex,
+} exdefs_flag_field_t;
+
+typedef struct
+{
+  const char *name;
+  uint64_t value;
+  exdefs_flag_field_t field;
+} exdefs_flag_t;
+
+static const exdefs_flag_t exdefs_actor_flags[] =
+{
+  // Vanilla
+  { "SPECIAL",          MF_SPECIAL,          exdefs_flags },
+  { "SOLID",            MF_SOLID,            exdefs_flags },
+  { "SHOOTABLE",        MF_SHOOTABLE,        exdefs_flags },
+  { "NOSECTOR",         MF_NOSECTOR,         exdefs_flags },
+  { "NOBLOCKMAP",       MF_NOBLOCKMAP,       exdefs_flags },
+  { "AMBUSH",           MF_AMBUSH,           exdefs_flags },
+  { "JUSTHIT",          MF_JUSTHIT,          exdefs_flags },
+  { "JUSTATTACKED",     MF_JUSTATTACKED,     exdefs_flags },
+  { "SPAWNCEILING",     MF_SPAWNCEILING,     exdefs_flags },
+  { "NOGRAVITY",        MF_NOGRAVITY,        exdefs_flags },
+  { "DROPOFF",          MF_DROPOFF,          exdefs_flags },
+  { "PICKUP",           MF_PICKUP,           exdefs_flags },
+  { "NOCLIP",           MF_NOCLIP,           exdefs_flags },
+  { "FLOAT",            MF_FLOAT,            exdefs_flags },
+  { "TELEPORT",         MF_TELEPORT,         exdefs_flags },
+  { "MISSILE",          MF_MISSILE,          exdefs_flags },
+  { "DROPPED",          MF_DROPPED,          exdefs_flags },
+  { "SHADOW",           MF_SHADOW,           exdefs_flags }, // translucent and ghost
+  { "NOBLOOD",          MF_NOBLOOD,          exdefs_flags },
+  { "CORPSE",           MF_CORPSE,           exdefs_flags },
+  { "INFLOAT",          MF_INFLOAT,          exdefs_flags },
+  { "COUNTKILL",        MF_COUNTKILL,        exdefs_flags },
+  { "COUNTITEM",        MF_COUNTITEM,        exdefs_flags },
+  { "SKULLFLY",         MF_SKULLFLY,         exdefs_flags },
+  { "NOTDMATCH",        MF_NOTDMATCH,        exdefs_flags },
+  { "LOGRAV",           MF2_LOGRAV,          exdefs_flags2 },
+  { "WINDTHRUST",       MF2_WINDTHRUST,      exdefs_flags2 },
+  { "FLOORBOUNCE",      MF2_FLOORBOUNCE,     exdefs_flags2 },
+  { "THRUGHOST",        MF2_THRUGHOST,       exdefs_flags2 },
+  { "FLY",              MF2_FLY,             exdefs_flags2 },
+  { "FLOORCLIP",        MF2_FOOTCLIP,        exdefs_flags2 },
+  { "SPAWNFLOAT",       MF2_SPAWNFLOAT,      exdefs_flags2 },
+  { "NOTELEPORT",       MF2_NOTELEPORT,      exdefs_flags2 },
+  { "RIP",              MF2_RIP,             exdefs_flags2 },
+  { "PUSHABLE",         MF2_PUSHABLE,        exdefs_flags2 },
+  { "SLIDE",            MF2_SLIDE,           exdefs_flags2 },
+  { "ONMOBJ",           MF2_ONMOBJ,          exdefs_flags2 },
+  { "PASSMOBJ",         MF2_PASSMOBJ,         exdefs_flags2 },
+  { "CANNOTPUSH",       MF2_CANNOTPUSH,       exdefs_flags2 },
+  { "BOSS",             MF2_BOSS,             exdefs_flags2 },
+  { "FIREDAMAGE",       MF2_FIREDAMAGE,       exdefs_flags2 },
+  { "NODMGTHRUST",      MF2_NODMGTHRUST,      exdefs_flags2 },
+  { "TELESTOMP",        MF2_TELESTOMP,        exdefs_flags2 },
+  { "FLOATBOB",         MF2_FLOATBOB,         exdefs_flags2 },
+  { "DONTDRAW",         MF2_DONTDRAW,         exdefs_flags2 },
+  { "IMPACT",           MF2_IMPACT,           exdefs_flags2 },
+  { "PUSHWALL",         MF2_PUSHWALL,         exdefs_flags2 },
+  { "MCROSS",           MF2_MCROSS,           exdefs_flags2 },
+  { "PCROSS",           MF2_PCROSS,           exdefs_flags2 },
+  { "CANTLEAVEFLOORPIC", MF2_CANTLEAVEFLOORPIC, exdefs_flags2 },
+  { "NONSHOOTABLE",     MF2_NONSHOOTABLE,     exdefs_flags2 },
+  { "INVULNERABLE",     MF2_INVULNERABLE,     exdefs_flags2 },
+  { "DORMANT",          MF2_DORMANT,          exdefs_flags2 },
+  { "ICEDAMAGE",        MF2_ICEDAMAGE,        exdefs_flags2 },
+  { "REFLECTIVE",       MF2_REFLECTIVE,       exdefs_flags2 },
+  { "ALTSHADOW",        MF_ALTSHADOW,        exdefs_flags }, // translucent with alt translucency percent values (HX_ALTSHADOW) -- no projectile inaccuracy or ghost
+  { "ICECORPSE",        MF_ICECORPSE,        exdefs_flags },
+  { "BLASTED",          MF2_BLASTED,          exdefs_flags2 },
+  { "SEEKERMISSILE",    MF2_SEEKERMISSILE,    exdefs_flags2 },
+
+  // Nyan
+  { "MIRROREDCORPSE",   MFX_MIRROREDCORPSE,  exdefs_flags_ex },
+};
+
 static array_t state_names;
+static array_t actor_names;
+
+static dboolean exdefs_SetFlag(mobjinfo_t *info, const char *name)
+{
+  int i;
+
+  for (i = 0; i < arrlen(exdefs_actor_flags); ++i)
+  {
+    const exdefs_flag_t *flag = &exdefs_actor_flags[i];
+
+    if (stricmp(name, flag->name))
+      continue;
+
+    switch (flag->field)
+    {
+      case exdefs_flags:
+        info->flags |= flag->value;
+        break;
+      case exdefs_flags2:
+        info->flags2 |= flag->value;
+        break;
+      case exdefs_flags_ex:
+        info->flags_extra |= flag->value;
+        break;
+      //case exdefs_addflags:
+      //  info->exdefs_addflags |= flag->value;
+      //  break;
+      //case exdefs_removeflags:
+      //  info->exdefs_removeflags |= flag->value;
+      //  break;
+    }
+    return true;
+  }
+
+  return false;
+}
 
 typedef struct
 {
@@ -2948,6 +3067,16 @@ static int exdefs_FindSprite(const char *name)
 static actionf_t exdefs_FindAction(const char *name)
 {
   return Hexen_FindAction(name);
+}
+
+static int exdefs_FindActor(const char *name)
+{
+  int index = name ? exdefs_FindName(&actor_names, name) : -1;
+
+  if (index >= 0)
+    return index;
+
+  return name ? dsda_ActorNameToType(name) : NAME_NOT_FOUND;
 }
 
 static void exdefs_ParseSounds(int lumpnum, json_t *data)
@@ -3076,6 +3205,173 @@ static void exdefs_ParseStates(int lumpnum, json_t *data)
   }
 
   Z_Free(state_indices);
+}
+
+static void exdefs_SetActorNumber(json_t *entry, const char *key, int *field, int scale)
+{
+  json_t *value = JS_GetObject(entry, key);
+
+  if (JS_IsNumber(value))
+    *field = JS_GetInteger(value) * scale;
+}
+
+static void exdefs_SetActorState(int lumpnum, json_t *entry, const char *string, int *field)
+{
+  const char *state_name = JS_GetStringValue(entry, string);
+  int state;
+
+  if (!state_name)
+    return;
+
+  state = exdefs_FindState(state_name);
+
+  if (state >= 0)
+    *field = state;
+  else
+    lprintf(LO_ERROR, "%.8s: unknown EXDEFS %s state %s\n", W_LumpName(lumpnum), string, state_name);
+}
+
+static void exdefs_SetActorSound(int lumpnum, json_t *entry, const char *string, int *field)
+{
+  const char *sound_name = JS_GetStringValue(entry, string);
+  int sound;
+
+  if (!sound_name)
+    return;
+
+  sound = S_GetSoundID(sound_name);
+
+  if (sound)
+    *field = sound;
+  else
+    lprintf(LO_ERROR, "%.8s: unknown EXDEFS %s %s\n", W_LumpName(lumpnum), string, sound_name);
+}
+
+static void exdefs_SetActorFlags(int lumpnum, json_t *entry, mobjinfo_t *info)
+{
+  int i;
+  json_t *flags = JS_GetObject(entry, "flags");
+
+  if (!JS_IsArray(flags))
+    return;
+
+  for (i = 0; i < JS_GetArraySize(flags); ++i)
+  {
+    const char *flag = JS_GetString(JS_GetArrayItem(flags, i));
+
+    if (flag && !exdefs_SetFlag(info, flag))
+      lprintf(LO_ERROR, "%.8s: unknown EXDEFS actor flag %s\n", W_LumpName(lumpnum), flag);
+  }
+}
+
+static void exdefs_ParseActors(int lumpnum, json_t *data)
+{
+  int i;
+  json_t *actor_exdefs = JS_GetObject(data, "actors");
+
+  if (!actor_exdefs)
+    return;
+
+  if (!JS_IsArray(actor_exdefs))
+  {
+    lprintf(LO_ERROR, "%.8s: EXDEFS actors is not an array\n", W_LumpName(lumpnum));
+    return;
+  }
+
+  for (i = 0; i < JS_GetArraySize(actor_exdefs); ++i)
+  {
+    int index, inherited;
+    json_t *entry;
+    mobjinfo_t *info;
+    const char *name;
+    const char *inherits;
+
+    entry = JS_GetArrayItem(actor_exdefs, i);
+    name = JS_GetStringValue(entry, "name");
+    inherits = JS_GetStringValue(entry, "inherits");
+
+    if (!JS_IsObject(entry) || !name)
+    {
+      lprintf(LO_ERROR, "%.8s: invalid EXDEFS actor entry %d\n", W_LumpName(lumpnum), i);
+      continue;
+    }
+
+    index = exdefs_FindActor(name);
+    if (index < 0)
+    {
+      index = dsda_AppendExDefsMobjInfo();
+      inherited = exdefs_FindActor(inherits);
+  
+      if (inherits && inherited < 0)
+      {
+        lprintf(LO_ERROR, "%.8s: unknown EXDEFS actor parent %s\n", W_LumpName(lumpnum), inherits);
+      }
+      else if (inherited >= 0)
+      {
+        mobjinfo[index] = mobjinfo[inherited];
+      }
+
+      exdefs_AddName(&actor_names, name, index);
+    }
+
+    info = &mobjinfo[index];
+
+    // Values
+    exdefs_SetActorNumber(entry, "doomednum", &info->doomednum, 1);
+    exdefs_SetActorNumber(entry, "health", &info->spawnhealth, 1);
+    exdefs_SetActorNumber(entry, "reactiontime", &info->reactiontime, 1);
+    exdefs_SetActorNumber(entry, "painchance", &info->painchance, 1);
+    exdefs_SetActorNumber(entry, "speed", &info->speed, FRACUNIT);
+    exdefs_SetActorNumber(entry, "radius", &info->radius, FRACUNIT);
+    exdefs_SetActorNumber(entry, "height", &info->height, FRACUNIT);
+    exdefs_SetActorNumber(entry, "mass", &info->mass, 1);
+    exdefs_SetActorNumber(entry, "damage", &info->damage, 1);
+    exdefs_SetActorNumber(entry, "meleerange", &info->meleerange, FRACUNIT);
+    exdefs_SetActorNumber(entry, "infightinggroup", &info->infighting_group, 1);
+    exdefs_SetActorNumber(entry, "projectilegroup", &info->projectile_group, 1);
+    exdefs_SetActorNumber(entry, "splashgroup", &info->splash_group, 1);
+    exdefs_SetActorNumber(entry, "automapoffsetx", &info->automapoffsetx, 1);
+    exdefs_SetActorNumber(entry, "automapoffsety", &info->automapoffsety, 1);
+    //exdefs_SetActorNumber(entry, "damagedice", &info->damagedice, 1);
+    //exdefs_SetActorNumber(entry, "fastspeed", &info->fastspeed, FRACUNIT);
+    //exdefs_SetActorNumber(entry, "minrespawntics", &info->minrespawntics, 1);
+    //exdefs_SetActorNumber(entry, "minrespawnseconds", &info->minrespawnseconds, FRACUNIT);
+    //exdefs_SetActorNumber(entry, "respawndice", &info->respawndice, 1);
+    //exdefs_SetActorNumber(entry, "selfdamagefactor", &info->selfdamagefactor, FRACUNIT);
+
+    // States
+    exdefs_SetActorState(lumpnum, entry, "spawnstate", &info->spawnstate);
+    exdefs_SetActorState(lumpnum, entry, "seestate", &info->seestate);
+    exdefs_SetActorState(lumpnum, entry, "painstate", &info->painstate);
+    exdefs_SetActorState(lumpnum, entry, "meleestate", &info->meleestate);
+    exdefs_SetActorState(lumpnum, entry, "missilestate", &info->missilestate);
+    exdefs_SetActorState(lumpnum, entry, "deathstate", &info->deathstate);
+    exdefs_SetActorState(lumpnum, entry, "xdeathstate", &info->xdeathstate);
+    exdefs_SetActorState(lumpnum, entry, "crashstate", &info->crashstate);
+    //exdefs_SetActorState(lumpnum, entry, "icedeathstate", &info->icedeathstate);        // NEW
+    //exdefs_SetActorState(lumpnum, entry, "activatestate", &info->activatestate);        // EXDEFS
+    //exdefs_SetActorState(lumpnum, entry, "deactivatestate", &info->deactivatestate);    // EXDEFS
+    //exdefs_SetActorState(lumpnum, entry, "raisestate", &info->raisestate);            // ???
+    //exdefs_SetActorState(lumpnum, entry, "stunstate", &info->stunstate);              // ???
+
+    // Sounds
+    exdefs_SetActorSound(lumpnum, entry, "seesound", &info->seesound);
+    exdefs_SetActorSound(lumpnum, entry, "attacksound", &info->attacksound);
+    exdefs_SetActorSound(lumpnum, entry, "painsound", &info->painsound);
+    exdefs_SetActorSound(lumpnum, entry, "deathsound", &info->deathsound);
+    exdefs_SetActorSound(lumpnum, entry, "activesound", &info->activesound);
+    exdefs_SetActorSound(lumpnum, entry, "ripsound", &info->ripsound);                // MBF21
+    //exdefs_SetActorSound(lumpnum, entry, "activatesound", &info->activatesound);      // EXDEFS
+    //exdefs_SetActorSound(lumpnum, entry, "deactivatesound", &info->deactivatesound);  // EXDEFS
+
+    // Custom EXDEFS Stuff
+    exdefs_SetActorFlags(lumpnum, entry, info);
+    //exdefs_SetActorPickup();
+    //exdefs_SetActorBehavior();
+    //exdefs_SetActorCustomStates();          // ???
+    //exdefs_SetActorTranslationLump();       // string
+    //exdefs_SetActorDropItems();             // dropitem / dropitem2
+  }
 }
 
 static dboolean exdefs_LumpInIncludePath(int lumpnum, int depth)
@@ -3209,6 +3505,7 @@ static void dsda_ParseExDefsLump(int lumpnum, int depth)
   }
 
   exdefs_ParseStates(lumpnum, data);
+  exdefs_ParseActors(lumpnum, data);
 
   JS_CloseOptions(lumpnum);
 }
