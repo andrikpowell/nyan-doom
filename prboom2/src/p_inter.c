@@ -3046,12 +3046,30 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
         {
             if (!P_GiveMana(player, MANA_1, 25))
             {
-                return;
+                gaveMana = true;
             }
         }
         else
         {
             if (!P_GiveMana(player, MANA_2, 25))
+            {
+                gaveMana = true;
+            }
+        }
+
+        // Vanilla - got mana, return
+        if (gaveMana && !exdefs)
+        {
+          return;
+        }
+        else // EXDEFS
+        {
+            gaveWeapon = !P_PlayerClassOwnsWeapon(player, weaponClass, weaponType);
+            if (gaveWeapon)
+            {
+                P_GivePlayerClassWeapon(player, weaponClass, weaponType);
+            }
+            if (!(gaveWeapon || gaveMana))
             {
                 return;
             }
@@ -3063,7 +3081,14 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
         {
             return;
         }
-        P_GivePlayerWeapon(player, weaponType);
+        if (exdefs)
+        {
+            P_GivePlayerClassWeapon(player, weaponClass, weaponType);
+        }
+        else
+        {
+            P_GivePlayerWeapon(player, weaponType);
+        }
         if (weaponType == wp_second)
         {
             P_GiveMana(player, MANA_1, 25);
@@ -3092,7 +3117,14 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
         else
         {
             gaveWeapon = true;
-            P_GivePlayerWeapon(player, weaponType);
+            if (exdefs)
+            {                   // EXDEFS - can get weapons from other class
+                P_GivePlayerClassWeapon(player, weaponClass, weaponType);
+            }
+            else
+            {                   // Vanilla - only get weapon if it's for specific class
+                P_GivePlayerWeapon(player, weaponType);
+            }
             if (weaponType > player->readyweapon)
             {                   // Only switch to more powerful weapons
                 P_AutoSwitchWeapon(player, weaponType);
@@ -3164,6 +3196,7 @@ static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
 {
     dboolean remove;
     dboolean checkAssembled;
+    dboolean gavePiece;
     dboolean gaveWeapon;
     int gaveMana;
     static const char *fourthWeaponText[] = {
@@ -3188,6 +3221,7 @@ static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
 
     remove = true;
     checkAssembled = true;
+    gavePiece = false;
     gaveWeapon = false;
     if (player->pclass != matchClass)
     {                           // Wrong class, but try to pick up for mana
@@ -3198,9 +3232,30 @@ static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
         checkAssembled = false;
         gaveMana = P_GiveMana(player, MANA_1, 20) +
             P_GiveMana(player, MANA_2, 20);
-        if (!gaveMana)
+
+        // Vanilla Hexen
+        if (!exdefs && !gaveMana)
         {                       // Didn't need the mana, so don't pick it up
             return;
+        }
+        else // EXDEFS
+        {
+            if (!P_PlayerClassOwnsWeaponPiece(player, matchClass, pieceValue))
+            {
+                gavePiece = true;
+                P_GivePlayerClassWeaponPiece(player, matchClass, pieceValue);
+
+                if (P_PlayerClassWeaponPieces(player, matchClass) == (WPIECE1 | WPIECE2 | WPIECE3))
+                {
+                    gaveWeapon = true;
+                    P_GivePlayerClassWeapon(player, matchClass, wp_fourth);
+                }
+            }
+
+            if (!(gavePiece || gaveMana))
+            {                   // Already had the piece and didn't need mana
+                return;
+            }
         }
     }
     else if (netgame && !deathmatch)

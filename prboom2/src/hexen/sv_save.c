@@ -2178,7 +2178,14 @@ void SV_MapTeleport(int map, int position)
             players[i].pieces = oldPieces;
             for (bestWeapon = 0, j = 0; j < HEXEN_NUMWEAPONS; j++)
             {
-                if (oldWeaponowned[j])
+                if (exdefs) // Restore weapons per class
+                {
+                    players[i].weaponowned[j] |= oldWeaponowned[j];
+
+                    if (P_PlayerOwnsWeapon(&players[i], j))
+                        bestWeapon = j;
+                }
+                else if (oldWeaponowned[j])
                 {
                     bestWeapon = j;
                     P_GivePlayerWeapon(&players[i], j);

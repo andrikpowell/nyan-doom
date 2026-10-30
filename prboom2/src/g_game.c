@@ -4484,7 +4484,16 @@ void Hexen_G_DoReborn(int playernum)
         players[playernum].pieces = oldPieces;
         for (bestWeapon = 0, i = 0; i < HEXEN_NUMWEAPONS; i++)
         {
-            if (oldWeaponowned[i])
+            // EXDEFS checks all player weapons
+            if (exdefs)
+            {
+                players[playernum].weaponowned[i] |= oldWeaponowned[i];
+
+                if (P_PlayerOwnsWeapon(&players[playernum], i))
+                    bestWeapon = i;
+            }
+            // Vanilla only cares about current weapon slot
+            else if (oldWeaponowned[i])
             {
                 bestWeapon = i;
                 P_GivePlayerWeapon(&players[playernum], i);
