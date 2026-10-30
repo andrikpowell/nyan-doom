@@ -19,6 +19,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "doomdef.h"
 #include "doomtype.h"
 #include "lprintf.h"
 
@@ -37,8 +38,23 @@ static void dsda_ResetSFX(int from, int to) {
   int i;
 
   for (i = from; i < to; ++i) {
-    S_sfx[i].priority = 127;
-    S_sfx[i].pitch = -1;
+    if (hexen)
+    {
+      S_sfx[i].priority = 256;
+      S_sfx[i].pitch = 0;
+      S_sfx[i].numchannels = 2;
+    }
+    else if (heretic)
+    {
+      S_sfx[i].priority = 32;
+      S_sfx[i].pitch = -1;
+      S_sfx[i].numchannels = 2;
+    }
+    else // Doom
+    {
+      S_sfx[i].priority = 127;
+      S_sfx[i].pitch = -1;
+    }
   }
 }
 
@@ -77,28 +93,34 @@ static void dsda_EnsureCapacity(int limit) {
 
 int dsda_GetDehSFXIndex(const char* key, size_t length) {
   int i;
+  const char *name;
 
-  // offset "ds" for dehacked names
-  for (i = 1; i < num_sfx; ++i)
-    if (
-      S_sfx[i].name &&
-      strlen(S_sfx[i].name + 2) == length &&
-      !strnicmp(S_sfx[i].name + 2, key, length) &&
-      !sfx_state[i]
-    ) {
+  for (i = 1; i < num_sfx; ++i) {
+    if (!S_sfx[i].name)
+      continue;
+
+    // doom has 2-char offset "ds" for dehacked names
+    name = raven ? S_sfx[i].name : S_sfx[i].name + 2;
+
+    if (strlen(name) == length &&
+        !strnicmp(name, key, length) &&
+        !sfx_state[i])
+    {
       sfx_state[i] = true; // sfx has been edited
       return i;
     }
+  }
 
   return -1;
 }
 
 int dsda_GetOriginalSFXIndex(const char* key) {
   int i;
+  int length = raven ? 8 : 6;
   const char* c;
 
   for (i = 1; deh_soundnames[i]; ++i)
-    if (!strncasecmp(deh_soundnames[i], key, 6))
+    if (!strncasecmp(deh_soundnames[i], key, length))
       return i;
 
   // is it a number?
@@ -146,7 +168,7 @@ void dsda_InitializeSFX(sfxinfo_t* source, int count) {
   deh_soundnames = malloc(deh_soundnames_size * sizeof(*deh_soundnames));
   for (i = 1; i < num_sfx; i++)
     if (S_sfx[i].name != NULL)
-      deh_soundnames[i] = strdup(S_sfx[i].name + 2); // offset "ds" for dehacked names
+      deh_soundnames[i] = strdup(heretic ? S_sfx[i].name : S_sfx[i].name + 2);
     else
       deh_soundnames[i] = NULL;
   deh_soundnames[0] = NULL;
