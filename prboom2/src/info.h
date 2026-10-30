@@ -6621,6 +6621,8 @@ typedef struct
   int automapoffsety;
 
   // exdefs
+  int activatestate;
+  int deactivatestate;
   behavior_t behavior;
   uint64_t flags3;      // EXDEFS flags
 } mobjinfo_t;

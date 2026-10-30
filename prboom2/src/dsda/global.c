@@ -309,6 +309,8 @@ static void dsda_InitDoom(void) {
     mobjinfo[i].raisestate   = mobjinfo_p->raisestate;
     mobjinfo[i].droppeditem  = MT_NULL;
     mobjinfo[i].crashstate   = 0; // not in doom
+    mobjinfo[i].activatestate = 0; // not in doom
+    mobjinfo[i].deactivatestate = 0; // not in doom
     mobjinfo[i].flags2       = 0; // not in doom
 
     // mbf21
@@ -546,6 +548,8 @@ static void dsda_InitHeretic(void) {
     mobjinfo[j].raisestate   = 0; // not in heretic
     mobjinfo[j].droppeditem  = 0; // not in heretic
     mobjinfo[j].crashstate   = mobjinfo_p->crashstate;
+    mobjinfo[j].activatestate = 0; // not in heretic
+    mobjinfo[j].deactivatestate = 0; // not in heretic
     mobjinfo[j].flags2       = mobjinfo_p->flags2;
 
     // mbf21
@@ -769,6 +773,8 @@ static void dsda_InitHexen(void) {
     mobjinfo[j].raisestate   = 0; // not in hexen
     mobjinfo[j].droppeditem  = 0; // not in hexen
     mobjinfo[j].crashstate   = mobjinfo_p->crashstate;
+    mobjinfo[j].activatestate = 0; // not added to raven_mobjinfo_t yet
+    mobjinfo[j].deactivatestate = 0; // not added to raven_mobjinfo_t yet
     mobjinfo[j].flags2       = mobjinfo_p->flags2;
 
     // mbf21

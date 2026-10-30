@@ -358,6 +358,14 @@ static dboolean ActivateThing(mobj_t * mobj)
         }
         return false;
     }
+    if (exdefs)
+    {
+        if (mobj->info->activatestate != 0)
+        {
+            P_SetMobjState(mobj, mobj->info->activatestate);
+            return true;
+        }
+    }
     switch (mobj->type)
     {
         case HEXEN_MT_ZTWINEDTORCH:
@@ -433,6 +441,14 @@ static dboolean DeactivateThing(mobj_t * mobj)
             return true;
         }
         return false;
+    }
+    if (exdefs)
+    {
+        if (mobj->info->deactivatestate != 0)
+        {
+            P_SetMobjState(mobj, mobj->info->deactivatestate);
+            return true;
+        }
     }
     switch (mobj->type)
     {
