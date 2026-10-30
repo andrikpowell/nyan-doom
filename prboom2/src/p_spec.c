@@ -8428,7 +8428,7 @@ dboolean P_ExecuteHexenLineSpecial(int special, int * special_args, line_t * lin
             buttonSuccess = EV_DoHexenPlat(line, args, PLAT_PERPETUALRAISE, 0);
             break;
         case 61:               // Plat Stop
-            Hexen_EV_StopPlat(line, args);
+            buttonSuccess = Hexen_EV_StopPlat(line, args);
             break;
         case 62:               // Plat Down-Wait-Up-Stay
             buttonSuccess = EV_DoHexenPlat(line, args, PLAT_DOWNWAITUPSTAY, 0);
