@@ -1196,6 +1196,7 @@ dboolean P_UndoPlayerChicken(player_t * player)
     weapontype_t weapon;
     uint64_t oldFlags;
     uint64_t oldFlags2;
+    uint64_t oldFlags3;
 
     pmo = player->mo;
     x = pmo->x;
@@ -1205,6 +1206,7 @@ dboolean P_UndoPlayerChicken(player_t * player)
     weapon = pmo->special1.i;
     oldFlags = pmo->flags;
     oldFlags2 = pmo->flags2;
+    oldFlags3 = pmo->flags3;
     P_SetMobjState(pmo, HERETIC_S_FREETARGMOBJ);
     mo = P_SpawnMobj(x, y, z, g_mt_player);
     if (P_TestMobjLocation(mo) == false)
@@ -1217,6 +1219,7 @@ dboolean P_UndoPlayerChicken(player_t * player)
         mo->player = player;
         mo->flags = oldFlags;
         mo->flags2 = oldFlags2;
+        mo->flags3 = oldFlags3;
         player->mo = mo;
         player->chickenTics = 2 * 35;
         return (false);
@@ -1875,6 +1878,7 @@ dboolean P_UndoPlayerMorph(player_t * player)
     weapontype_t weapon;
     uint64_t oldFlags;
     uint64_t oldFlags2;
+    uint64_t oldFlags3;
     int oldBeast;
 
     pmo = player->mo;
@@ -1885,6 +1889,7 @@ dboolean P_UndoPlayerMorph(player_t * player)
     weapon = pmo->special1.i;
     oldFlags = pmo->flags;
     oldFlags2 = pmo->flags2;
+    oldFlags3 = pmo->flags3;
     oldBeast = pmo->type;
     P_SetMobjState(pmo, HEXEN_S_FREETARGMOBJ);
     playerNum = P_GetPlayerNum(player);
@@ -1914,6 +1919,7 @@ dboolean P_UndoPlayerMorph(player_t * player)
         mo->player = player;
         mo->flags = oldFlags;
         mo->flags2 = oldFlags2;
+        mo->flags3 = oldFlags3;
         player->mo = mo;
         player->morphTics = 2 * 35;
         return (false);

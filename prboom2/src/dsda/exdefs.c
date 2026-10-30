@@ -2899,6 +2899,7 @@ typedef enum
 {
   exdefs_flags,
   exdefs_flags2,
+  exdefs_flags3,
   exdefs_flags_ex,
 } exdefs_flag_field_t;
 
@@ -2971,6 +2972,45 @@ static const exdefs_flag_t exdefs_actor_flags[] =
   { "ICECORPSE",        MF_ICECORPSE,        exdefs_flags },
   { "BLASTED",          MF2_BLASTED,          exdefs_flags2 },
   { "SEEKERMISSILE",    MF2_SEEKERMISSILE,    exdefs_flags2 },
+
+  // BOOM/MBF Stuff that KEX Uses :/
+  { "TOUCHY",           MF_TOUCHY,           exdefs_flags }, // MBF -- Actor dies when touched; same semantics as GZDoom
+  { "TRANSLUCENT",      MF_TRANSLUCENT,      exdefs_flags }, // BOOM -- Actor is translucent, using the main translucency percent values (i.e. in GZDoom, HR_SHADOW and HX_SHADOW) -- this flag does not imply projectile inaccuracy or ghost behavior.
+  { "DMGIGNORED",       MF2_DMGIGNORED,      exdefs_flags2 }, // MBF21
+  { "FORCERADIUSDMG",   MF2_FORCERADIUSDMG,  exdefs_flags2 }, // MBF21
+  { "RANGEHALF",        MF2_RANGEHALF,       exdefs_flags2 }, // MBF21
+  { "FULLVOLSOUNDS",    MF2_FULLVOLSOUNDS,   exdefs_flags2 }, // MBF21
+  { "NORESPAWN",        MF3_NORESPAWN,       exdefs_flags3 }, // ID24 -- Disables nightmare respawns
+
+  // EXDEFS
+  { "FLOORMISSILE",     MF3_FLOORMISSILE,     exdefs_flags3 }, // projectile hugs the floor and can travel over any steps (e.g. minotaur floor fire attack, mage lightning)
+  { "CEILINGMISSILE",   MF3_CEILINGMISSILE,   exdefs_flags3 }, // ditto, for ceilings (e.g. mage lightning)
+  { "INVULNCHARGE",     MF3_INVULNCHARGE,     exdefs_flags3 }, // monster is immune to damage while charging (i.e. when MF_SKULLFLY flag set)
+  { "DONTMORPH",        MF3_DONTMORPH,        exdefs_flags3 }, // monster is immune to being morphed into a chicken/pig
+  { "WALLBOUNCE",       MF3_WALLBOUNCE,       exdefs_flags3 }, // projectile bounces off walls. Hexen's counterpart to Heretic's MF2_FLOORBOUNCE.
+  { "NOSPLASH",         MF3_NOSPLASH,         exdefs_flags3 }, // cannot trigger terrain splash effects when hitting the ground, regardless of mass
+  { "NOMELEEGHOST",     MF3_NOMELEEGHOST,     exdefs_flags3 }, // monster is unable to melee attack ghosts.
+  { "NOINFIGHTING",     MF3_NOINFIGHTING,     exdefs_flags3 }, // monster will never infight with another monster.
+  { "DRAWONAUTOMAP",    MF3_DRAWONAUTOMAP,    exdefs_flags3 }, // actor's sprite is drawn on the automap -- drawing works just like AutomapMarker in GZDoom, effectively
+  { "TOGGLEDORMANT",    MF3_TOGGLEDORMANT,    exdefs_flags3 }, // actor's MF2_DORMANT flag will be toggled when calling Thing Activate/Deactivate on it; previously hardcoded to MF_COUNTKILL -- GZDoom may have different semantics here?
+  { "THRUICECORPSE",    MF3_THRUICECORPSE,    exdefs_flags3 }, // missile will pass through ice corpses
+  { "PSETRANS",         MF3_PSETRANS,         exdefs_flags3 }, // draw translucent if the "PSE translucency" menu option is enabled -- this may be N/A for ports unless they want to also add this feature to the menu (it's a quick thing to wire up).
+  { "USESPECIAL",       MF3_USESPECIAL,       exdefs_flags3 }, // actor will execute its special when the player presses the Use button while facing it.
+  { "SLIDEONACTORS",    MF3_SLIDEONACTORS,    exdefs_flags3 }, // slides against other actors. in vanilla, Hexen actors have both SLIDE and SLIDEONACTORS, while Heretic just has SLIDE -- does GZDoom disambiguate?
+  { "FULLVOLACTIVE",    MF3_FULLVOLACTIVE,    exdefs_flags3 }, // play active sounds at full volume; used by D'Sparil and Hexen bosses
+  { "NOSRCDMGTHRUST",   MF3_NOSRCDMGTHRUST,   exdefs_flags3 }, // Do not thrust when damage is dealt by an attack whose source (not inflictor) has this flag; this is set on Hexen playerclasses, to prevent damage-based thrust for all attacks.
+  { "FOILINVUL",        MF3_FOILINVUL,        exdefs_flags3 }, // missiles with this flag will ignore invulnerability on monsters (but not players)
+  { "DONTBLAST",        MF3_DONTBLAST,        exdefs_flags3 }, // cannot be blasted by the disc of repulsion
+  { "STAYMORPHED",      MF3_STAYMORPHED,      exdefs_flags3 }, // monsters with this flag will never unmorph
+  { "NONETSYNC",        MF3_NONETSYNC,        exdefs_flags3 }, // Object is never synchronized on the network (i.e. clientside-only)
+  { "RANDOMACTIVESOUND",MF3_RANDOMACTIVESOUND,exdefs_flags3 }, // actor will randomly play its seesound instead of its activesound, 50% of the time (previously hardcoded to Wizard/Bishop/Pig)
+  { "NOFLYOVER",        MF3_NOFLYOVER,        exdefs_flags3 }, // actors with this flag will not attempt to fly over each other even if the PASSMOBJ flag is set (previously hardcoded to Gargoyle/Wizard/Bishop)
+
+  // N/A -- reserved, but unimplemented
+  { "TRANSLATION",      MF_TRANSLATION,      exdefs_flags }, // N/A -- reserved, but unimplemented
+  { "TRANSLATION2",     MF_TRANSLATION2,     exdefs_flags }, // N/A -- reserved, but unimplemented
+  { "BOUNCES",          MF_BOUNCES,          exdefs_flags }, // N/A -- reserved, but unimplemented
+  { "FRIEND",           MF_FRIEND,           exdefs_flags }, // N/A -- reserved, but unimplemented
 
   // Nyan
   { "MIRROREDCORPSE",   MFX_MIRROREDCORPSE,  exdefs_flags_ex },
@@ -3159,6 +3199,9 @@ static dboolean exdefs_SetFlag(mobjinfo_t *info, const char *name)
         break;
       case exdefs_flags2:
         info->flags2 |= flag->value;
+        break;
+      case exdefs_flags3:
+        info->flags3 |= flag->value;
         break;
       case exdefs_flags_ex:
         info->flags_extra |= flag->value;

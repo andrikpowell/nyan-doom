@@ -394,6 +394,9 @@ static void StreamIn_mobj_t(mobj_t *str)
     // int flags2;
     str->flags2 = SV_ReadFlags();
 
+    // int flags3;
+    str->flags3 = SV_ReadFlags();
+
     // int flags_extra;
     str->flags_extra = SV_ReadFlags();
 
@@ -531,6 +534,9 @@ static void StreamOut_mobj_t(mobj_t *str)
 
     // int flags2;
     SV_WriteFlags(str->flags2);
+
+    // int flags3;
+    SV_WriteFlags(str->flags3);
 
     // int flags_extra;
     SV_WriteFlags(str->flags_extra);

@@ -6613,6 +6613,9 @@ typedef struct
   // automap
   int automapoffsetx;
   int automapoffsety;
+
+  // exdefs
+  uint64_t flags3;      // EXDEFS flags
 } mobjinfo_t;
 
 #define NO_ALTSPEED -1
