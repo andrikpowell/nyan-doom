@@ -3450,6 +3450,24 @@ static void exdefs_SetActorFlags(int lumpnum, json_t *entry, mobjinfo_t *info)
   }
 }
 
+static void exdefs_SetActorBehavior(int lumpnum, json_t *entry, behavior_t *field)
+{
+  const char *behavior = JS_GetStringValue(entry, "behavior");
+
+  // behavior is something I don't quite understand yet...
+  if (behavior)
+  {
+    if (!stricmp(behavior, "telother_spot"))
+    {
+      *field = EXDEFS_BEHAVIOR_TELOTHER_SPOT;
+    }
+    else
+    {
+      lprintf(LO_ERROR, "%.8s: unknown EXDEFS actor behavior %s\n", W_LumpName(lumpnum), behavior);
+    }
+  }
+}
+
 static void exdefs_SetActorPickup(int lumpnum, json_t *entry, int index, mobjinfo_t *info)
 {
   const char *pickup_type = JS_GetStringValue(entry, "pickuptype");
@@ -3667,10 +3685,10 @@ static void exdefs_ParseActors(int lumpnum, json_t *data)
     // Custom EXDEFS Stuff
     exdefs_SetActorFlags(lumpnum, entry, info);
     exdefs_SetActorPickup(lumpnum, entry, index, info);
-    //exdefs_SetActorBehavior();
-    //exdefs_SetActorCustomStates();          // ???
-    //exdefs_SetActorTranslationLump();       // string
-    //exdefs_SetActorDropItems();             // dropitem / dropitem2
+    exdefs_SetActorBehavior(lumpnum, entry, &info->behavior);
+    //exdefs_SetActorCustomStates(lumpnum, entry, "customstates", info);          // ???
+    //exdefs_SetActorTranslationLump(lumpnum, entry, "translationlump", info);    // string
+    //exdefs_SetActorDropItems(lumpnum, entry, info);                             // dropitem / dropitem2
   }
 }
 

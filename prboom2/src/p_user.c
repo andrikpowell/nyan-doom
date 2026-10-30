@@ -2013,6 +2013,67 @@ void P_TeleportToDeathmatchStarts(mobj_t * victim)
     }
 }
 
+static dboolean P_IsBanishmentSpot(mobj_t *spot)
+{
+    return spot->info->behavior == EXDEFS_BEHAVIOR_TELOTHER_SPOT &&
+                                   !(spot->flags2 & MF2_DORMANT); // TODO: not sure if the dormant is a thing tbh
+}
+
+static dboolean P_BanishmentSpotsExist(void)
+{
+    thinker_t *thinker;
+
+    for (thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+    {
+        if (thinker->function == P_MobjThinker)
+        {
+            mobj_t *spot = (mobj_t *)thinker;
+
+            if (P_IsBanishmentSpot(spot))
+                return true;
+        }
+    }
+
+    return false;
+}
+
+static void P_TeleportToBanishmentSpot(mobj_t *victim)
+{
+    thinker_t *thinker;
+    mobj_t *spot;
+    int selections = 0;
+    int selection;
+
+    for (thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+    {
+        if (thinker->function == P_MobjThinker)
+        {
+            spot = (mobj_t *)thinker;
+
+            if (P_IsBanishmentSpot(spot))
+                selections++;
+        }
+    }
+
+    selection = P_Random(pr_hexen) % selections;
+
+    for (thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+    {
+        if (thinker->function != P_MobjThinker)
+            continue;
+
+        spot = (mobj_t *)thinker;
+        if (!P_IsBanishmentSpot(spot))
+            continue;
+
+        if (!selection--)
+        {
+            P_Teleport(victim, spot->x, spot->y, spot->angle, true);
+            return;
+        }
+    }
+}
+
 void P_TeleportOther(mobj_t * victim)
 {
     if (victim->player)
@@ -2032,8 +2093,11 @@ void P_TeleportOther(mobj_t * victim)
             victim->special = 0;
         }
 
-        // Send all monsters to deathmatch spots
-        P_TeleportToDeathmatchStarts(victim);
+        // Send all monsters to banishment/deathmatch spots
+        if (exdefs && P_BanishmentSpotsExist())
+            P_TeleportToBanishmentSpot(victim);
+        else
+            P_TeleportToDeathmatchStarts(victim);
     }
 }
 

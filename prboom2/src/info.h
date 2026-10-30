@@ -6531,6 +6531,12 @@ typedef enum {
   SG_END
 } splash_group_t;
 
+typedef enum
+{
+  EXDEFS_BEHAVIOR_NONE,
+  EXDEFS_BEHAVIOR_TELOTHER_SPOT,
+} behavior_t;
+
 /********************************************************************
  * Definition of the Thing structure
  ********************************************************************/
@@ -6615,6 +6621,7 @@ typedef struct
   int automapoffsety;
 
   // exdefs
+  behavior_t behavior;
   uint64_t flags3;      // EXDEFS flags
 } mobjinfo_t;
 
