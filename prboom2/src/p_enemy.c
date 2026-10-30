@@ -7737,9 +7737,28 @@ void A_SorcBallOrbit(mobj_t * actor)
     actor->special1.i = angle;    // Set previous angle
     x = parent->x + FixedMul(dist, finecosine[angle]);
     y = parent->y + FixedMul(dist, finesine[angle]);
-    actor->x = x;
-    actor->y = y;
-    actor->z = parent->z - parent->floorclip + parent->info->height;
+
+    // Fix ball orbit from getting stuck
+    // See Heresiarch room in "Heretic + Hexen"s hextest.wad
+    if (exdefs)
+    {
+        P_UnsetThingPosition(actor);
+
+        actor->x = x;
+        actor->y = y;
+        actor->z = parent->z - parent->floorclip + parent->info->height;
+
+        P_SetThingPosition(actor);
+
+        actor->floorz = parent->floorz;
+        actor->ceilingz = parent->ceilingz;
+    }
+    else
+    {
+        actor->x = x;
+        actor->y = y;
+        actor->z = parent->z - parent->floorclip + parent->info->height;
+    }
 }
 
 void A_SpeedBalls(mobj_t * actor)
