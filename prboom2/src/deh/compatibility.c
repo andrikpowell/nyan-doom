@@ -38,13 +38,13 @@ void deh_changeCompTranslucency(void)
   int config_trans_missile, config_trans_fx, config_trans_powerup;
 
   int predefined_translucency[] = {
-    MT_FIRE, MT_SMOKE, MT_FATSHOT, MT_BRUISERSHOT, MT_SPAWNFIRE,
-    MT_TROOPSHOT, MT_HEADSHOT, MT_PLASMA, MT_BFG, MT_ARACHPLAZ, MT_PUFF,
-    MT_TFOG, MT_IFOG, MT_MISC12, MT_INV, MT_INS, MT_MEGA
+    MT_FATSHOT, MT_BRUISERSHOT, MT_TROOPSHOT, MT_HEADSHOT, MT_PLASMA, MT_BFG, MT_ARACHPLAZ,
+    MT_FIRE, MT_SMOKE, MT_SPAWNFIRE, MT_PUFF, MT_TFOG, MT_IFOG,
+    MT_MISC12, MT_INV, MT_INS, MT_MEGA
   };
-  int missile_transucency[] = { MT_FATSHOT, MT_BRUISERSHOT, MT_TROOPSHOT, MT_HEADSHOT, MT_PLASMA, MT_BFG, MT_ARACHPLAZ };
-  int fx_translucency[] = { MT_FIRE, MT_SMOKE, MT_SPAWNFIRE, MT_PUFF, MT_TFOG, MT_IFOG };
-  int powerup_translucency[] = { MT_MISC12, MT_INV, MT_INS, MT_MEGA };
+  int missile_transucency[]   = { MT_FATSHOT, MT_BRUISERSHOT, MT_TROOPSHOT, MT_HEADSHOT, MT_PLASMA, MT_BFG, MT_ARACHPLAZ };
+  int fx_translucency[]       = { MT_FIRE, MT_SMOKE, MT_SPAWNFIRE, MT_PUFF, MT_TFOG, MT_IFOG };
+  int powerup_translucency[]  = { MT_MISC12, MT_INV, MT_INS, MT_MEGA };
 
   if (raven) return;
 
