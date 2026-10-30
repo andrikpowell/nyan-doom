@@ -483,10 +483,10 @@ static void ST_NewWeaponFace()
     // check if just picked up weapon
     for (i=0;i<NUMWEAPONS;i++)
     {
-      if (oldweaponsowned[i] != plyr->weaponowned[i])
+      if (oldweaponsowned[i] != P_PlayerOwnsWeapon(plyr, i))
       {
         doevilgrin = true;
-        oldweaponsowned[i] = plyr->weaponowned[i];
+        oldweaponsowned[i] = P_PlayerOwnsWeapon(plyr, i);
       }
     }
 
@@ -898,15 +898,15 @@ static void ST_DrawArmsNum(int x, int y, int vpt, dboolean exhud)
   ssg_arms_config = dsda_IntConfig(dsda_config_ssg_on_arms) && (gamemode == commercial);
 
   // [crispy] show SSG availability in the Shotgun slot of the arms widget (only if config)
-  st_shotguns = ssg_arms_config ? (plyr->weaponowned[wp_shotgun] || plyr->weaponowned[wp_supershotgun]) :
-                                  (plyr->weaponowned[wp_shotgun]);
+  st_shotguns = ssg_arms_config ? (P_PlayerOwnsWeapon(plyr, wp_shotgun) || P_PlayerOwnsWeapon(plyr, wp_supershotgun)) :
+                                   P_PlayerOwnsWeapon(plyr, wp_shotgun);
 
   // weapons owned
   for(i=0;i<6;i++)
   {
       int arm_x = x+(i%3)*ST_ARMSXSPACE;
       int arm_y = y+(i/3)*ST_ARMSYSPACE;
-      dboolean owned = plyr->weaponowned[i+1];
+      dboolean owned = P_PlayerOwnsWeapon(plyr, i+1);
 
       // [crispy] show SSG availability in the Shotgun slot of the arms widget
       if (i == wp_shotgun-1)
@@ -1462,7 +1462,7 @@ static void ST_initData(void)
   st_oldhealth = -1;
 
   for (i=0;i<NUMWEAPONS;i++)
-    oldweaponsowned[i] = plyr->weaponowned[i];
+    oldweaponsowned[i] = P_PlayerOwnsWeapon(plyr, i);
 
   dsda_InitPatchNumbers();
 }

@@ -926,7 +926,7 @@ void P_PlayerThink (player_t* player)
 
     // killough 2/8/98, 3/22/98 -- end of weapon selection changes
 
-    if (player->weaponowned[newweapon] && newweapon != player->readyweapon)
+    if (P_PlayerOwnsWeapon(player, newweapon) && newweapon != player->readyweapon)
 
       // Do not go to plasma or BFG in shareware,
       //  even if cheated.

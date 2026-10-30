@@ -313,7 +313,7 @@ static int P_SwitchWeaponMBF21(player_t *player)
         break;
     }
 
-    if (checkweapon != wp_nochange && player->weaponowned[checkweapon])
+    if (checkweapon != wp_nochange && P_PlayerOwnsWeapon(player, checkweapon))
     {
       ammotype = weaponinfo[checkweapon].ammo;
       if (ammotype == am_noammo ||
@@ -357,7 +357,7 @@ int P_SwitchWeapon(player_t *player)
     currentweapon = newweapon = wp_nochange;
 
   // Support for strip cheat (and Heretic IDKFA)
-  check_first_weapon = casual_play ? player->weaponowned[wp_pistol] : true;
+  check_first_weapon = casual_play ? P_PlayerOwnsWeapon(player, wp_pistol) : true;
 
   // killough 2/8/98: follow preferences and fix BFG/SSG bugs
 
@@ -376,33 +376,33 @@ int P_SwitchWeapon(player_t *player)
           newweapon = wp_pistol;
         break;
       case 3:
-        if (player->weaponowned[wp_shotgun] && player->ammo[am_shell])
+        if (P_PlayerOwnsWeapon(player, wp_shotgun) && player->ammo[am_shell])
           newweapon = wp_shotgun;
         break;
       case 4:
-        if (player->weaponowned[wp_chaingun] && player->ammo[am_clip])
+        if (P_PlayerOwnsWeapon(player, wp_chaingun) && player->ammo[am_clip])
           newweapon = wp_chaingun;
         break;
       case 5:
-        if (player->weaponowned[wp_missile] && player->ammo[am_misl])
+        if (P_PlayerOwnsWeapon(player, wp_missile) && player->ammo[am_misl])
           newweapon = wp_missile;
         break;
       case 6:
-        if (player->weaponowned[wp_plasma] && player->ammo[am_cell] &&
+        if (P_PlayerOwnsWeapon(player, wp_plasma) && player->ammo[am_cell] &&
             gamemode != shareware)
           newweapon = wp_plasma;
         break;
       case 7:
-        if (player->weaponowned[wp_bfg] && gamemode != shareware &&
+        if (P_PlayerOwnsWeapon(player, wp_bfg) && gamemode != shareware &&
             player->ammo[am_cell] >= (demo_compatibility ? 41 : 40))
           newweapon = wp_bfg;
         break;
       case 8:
-        if (player->weaponowned[wp_chainsaw])
+        if (P_PlayerOwnsWeapon(player, wp_chainsaw))
           newweapon = wp_chainsaw;
         break;
       case 9:
-        if (player->weaponowned[wp_supershotgun] && gamemode == commercial &&
+        if (P_PlayerOwnsWeapon(player, wp_supershotgun) && gamemode == commercial &&
             player->ammo[am_shell] >= (demo_compatibility ? 3 : 2))
           newweapon = wp_supershotgun;
         break;
@@ -2519,7 +2519,7 @@ static dboolean Heretic_P_CheckAmmo(player_t * player)
     int count;
 
     // Support for strip cheat (and Heretic IDKFA)
-    check_first_weapon = casual_play ? player->weaponowned[wp_goldwand] : true;
+    check_first_weapon = casual_play ? P_PlayerOwnsWeapon(player, wp_goldwand) : true;
 
     ammo = wpnlev1info[player->readyweapon].ammo;
     if (player->powers[pw_weaponlevel2] && !deathmatch)
@@ -2538,22 +2538,22 @@ static dboolean Heretic_P_CheckAmmo(player_t * player)
     // out of ammo, pick a weapon to change to
     do
     {
-        if (player->weaponowned[wp_skullrod]
+        if (P_PlayerOwnsWeapon(player, wp_skullrod)
             && player->ammo[am_skullrod] > checkweaponinfo[wp_skullrod].ammopershot)
         {
             player->pendingweapon = wp_skullrod;
         }
-        else if (player->weaponowned[wp_blaster]
+        else if (P_PlayerOwnsWeapon(player, wp_blaster)
                  && player->ammo[am_blaster] > checkweaponinfo[wp_blaster].ammopershot)
         {
             player->pendingweapon = wp_blaster;
         }
-        else if (player->weaponowned[wp_crossbow]
+        else if (P_PlayerOwnsWeapon(player, wp_crossbow)
                  && player->ammo[am_crossbow] > checkweaponinfo[wp_crossbow].ammopershot)
         {
             player->pendingweapon = wp_crossbow;
         }
-        else if (player->weaponowned[wp_mace]
+        else if (P_PlayerOwnsWeapon(player, wp_mace)
                  && player->ammo[am_mace] > checkweaponinfo[wp_mace].ammopershot)
         {
             player->pendingweapon = wp_mace;
@@ -2563,11 +2563,11 @@ static dboolean Heretic_P_CheckAmmo(player_t * player)
         {
             player->pendingweapon = wp_goldwand;
         }
-        else if (player->weaponowned[wp_gauntlets])
+        else if (P_PlayerOwnsWeapon(player, wp_gauntlets))
         {
             player->pendingweapon = wp_gauntlets;
         }
-        else if (player->weaponowned[wp_phoenixrod]
+        else if (P_PlayerOwnsWeapon(player, wp_phoenixrod)
                  && player->ammo[am_phoenixrod] > checkweaponinfo[wp_phoenixrod].ammopershot)
         {
             player->pendingweapon = wp_phoenixrod;
@@ -2702,18 +2702,18 @@ static dboolean P_CheckMana(player_t * player)
     }
 
     // out of mana, pick a weapon to change to
-    if (player->weaponowned[wp_third]
+    if (P_PlayerOwnsWeapon(player, wp_third)
         && player->ammo[MANA_2] >= WeaponManaUse[player->pclass][wp_third])
     {
         player->pendingweapon = wp_third;
     }
-    else if (player->weaponowned[wp_second]
+    else if (P_PlayerOwnsWeapon(player, wp_second)
              && player->ammo[MANA_1] >=
              WeaponManaUse[player->pclass][wp_second])
     {
         player->pendingweapon = wp_second;
     }
-    else if (player->weaponowned[wp_fourth]
+    else if (P_PlayerOwnsWeapon(player, wp_fourth)
              && player->ammo[MANA_1] >=
              WeaponManaUse[player->pclass][wp_fourth]
              && player->ammo[MANA_2] >=

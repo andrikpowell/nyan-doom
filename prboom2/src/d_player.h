@@ -159,6 +159,8 @@ typedef enum
   weapswitch_raising,
 } weapswitch_t;
 
+typedef unsigned int weaponowned_t;
+
 //
 // Extended player object info: player_t
 //
@@ -200,7 +202,7 @@ typedef struct player_s
   weapontype_t        nextweapon;
   weapswitch_t        switching;
 
-  dboolean           weaponowned[NUMWEAPONS];
+  weaponowned_t       weaponowned[NUMWEAPONS];
   int                 ammo[NUMAMMO];
   int                 maxammo[NUMAMMO];
 
@@ -296,6 +298,32 @@ typedef struct player_s
   int hazardcount;
   byte hazardinterval;
 } player_t;
+
+//
+// Player weapon functions
+//
+
+dboolean P_PlayerOwnsWeapon(const player_t *player, weapontype_t weapon);
+void P_GivePlayerWeapon(player_t *player, weapontype_t weapon);
+void P_RemovePlayerWeapon(player_t *player, weapontype_t weapon);
+
+// EXDEFS - check class weapon
+dboolean P_PlayerClassOwnsWeapon(const player_t *player, pclass_t pclass, weapontype_t weapon);
+void P_GivePlayerClassWeapon(player_t *player, pclass_t pclass, weapontype_t weapon);
+void P_RemovePlayerClassWeapon(player_t *player, pclass_t pclass, weapontype_t weapon);
+
+//
+// Hexen fourth weapon piece functions
+//
+
+int P_PlayerWeaponPieces(player_t *player);
+void P_GivePlayerWeaponPiece(player_t *player, int piece);
+dboolean P_PlayerOwnsWeaponPiece(player_t *player, int piece);
+int P_PlayerClassWeaponPieces(player_t *player, pclass_t pclass);
+
+// EXDEFS - check class weapon piece
+dboolean P_PlayerClassOwnsWeaponPiece(player_t *player, pclass_t pclass, int piece);
+void P_GivePlayerClassWeaponPiece(player_t *player, pclass_t pclass, int piece);
 
 
 //

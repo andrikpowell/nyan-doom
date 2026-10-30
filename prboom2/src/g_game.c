@@ -1056,13 +1056,13 @@ static void G_SetInitialInventory(player_t *p)
   if (hexen)
   {
     p->readyweapon = p->pendingweapon = p->nextweapon = wp_first;
-    p->weaponowned[wp_first] = true;
+    P_GivePlayerWeapon(p, wp_first);
   }
   else
   {
     p->readyweapon = p->pendingweapon = p->nextweapon = g_wp_pistol;
-    p->weaponowned[g_wp_fist] = true;
-    p->weaponowned[g_wp_pistol] = true;
+    P_GivePlayerWeapon(p, g_wp_fist);
+    P_GivePlayerWeapon(p, g_wp_pistol);
     if (heretic)
       p->ammo[am_goldwand] = 50;
     else
@@ -4417,7 +4417,7 @@ void G_DoTeleportNewMap(void)
 void Hexen_G_DoReborn(int playernum)
 {
     int i;
-    dboolean oldWeaponowned[HEXEN_NUMWEAPONS];
+    weaponowned_t oldWeaponowned[HEXEN_NUMWEAPONS];
     dboolean oldKeys[NUMCARDS];
     int oldPieces;
     dboolean foundSpot;
@@ -4487,7 +4487,7 @@ void Hexen_G_DoReborn(int playernum)
             if (oldWeaponowned[i])
             {
                 bestWeapon = i;
-                players[playernum].weaponowned[i] = true;
+                P_GivePlayerWeapon(&players[playernum], i);
             }
         }
         players[playernum].ammo[MANA_1] = 25;

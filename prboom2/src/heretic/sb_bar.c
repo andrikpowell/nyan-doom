@@ -1533,21 +1533,23 @@ static int PieceX[NUMCLASSES][3] = {
 
 static void DrawWeaponPieces(void)
 {
-    if (CPlayer->pieces == 7)
+    int pieces = P_PlayerClassWeaponPieces(CPlayer, PlayerClass[consoleplayer]);
+
+    if (pieces == (WPIECE1 | WPIECE2 | WPIECE3))
     {
         V_DrawNumPatch(190, 162, LumpWEAPONFULL, CR_DEFAULT, VPT_STRETCH);
         return;
     }
     V_DrawNumPatch(190, 162, LumpWEAPONSLOT, CR_DEFAULT, VPT_STRETCH);
-    if (CPlayer->pieces & WPIECE1)
+    if (pieces & WPIECE1)
     {
         V_DrawNumPatch(PieceX[PlayerClass[consoleplayer]][0], 162, LumpPIECE1, CR_DEFAULT, VPT_STRETCH);
     }
-    if (CPlayer->pieces & WPIECE2)
+    if (pieces & WPIECE2)
     {
         V_DrawNumPatch(PieceX[PlayerClass[consoleplayer]][1], 162, LumpPIECE2, CR_DEFAULT, VPT_STRETCH);
     }
-    if (CPlayer->pieces & WPIECE3)
+    if (pieces & WPIECE3)
     {
         V_DrawNumPatch(PieceX[PlayerClass[consoleplayer]][2], 162, LumpPIECE3, CR_DEFAULT, VPT_STRETCH);
     }
@@ -1727,9 +1729,9 @@ static void Hexen_DrawMainBar(void)
         DrINumber(temp, 250, 176);
     }
     // Weapon Pieces
-    if (oldpieces != CPlayer->pieces)
+    if (oldpieces != P_PlayerClassWeaponPieces(CPlayer, PlayerClass[consoleplayer]))
     {
         DrawWeaponPieces();
-        oldpieces = CPlayer->pieces;
+        oldpieces = P_PlayerClassWeaponPieces(CPlayer, PlayerClass[consoleplayer]);
     }
 }

@@ -226,7 +226,7 @@ static void BuildWeaponIcons(local_component_t* c, const player_t* player)
         state = wpi_regular;
       }
     }
-    else if (player->weaponowned[weapon])
+    else if (P_PlayerOwnsWeapon(player, weapon))
     {
       state = wpi_disabled;
     }

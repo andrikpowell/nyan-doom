@@ -363,7 +363,7 @@ static void cheat_musrr(void)
 // 'choppers' invulnerability & chainsaw
 static void cheat_choppers()
 {
-  plyr->weaponowned[wp_chainsaw] = true;
+  P_GivePlayerWeapon(plyr, wp_chainsaw);
   plyr->powers[pw_invulnerability] = true;
   dsda_AddMessage(s_STSTR_CHOPPERS);
 }
@@ -378,9 +378,9 @@ static void cheat_choppers_nyan()
   if (plyr->cheats & CF_CHOPPERS)
   {
     // If no chainsaw (pistol start), add back chainsaw and keep effect
-    if (!plyr->weaponowned[wp_chainsaw])
+    if (!P_PlayerOwnsWeapon(plyr, wp_chainsaw))
     {
-      plyr->weaponowned[wp_chainsaw] = true;
+      P_GivePlayerWeapon(plyr, wp_chainsaw);
       if (plyr->readyweapon != wp_chainsaw) // swap
         plyr->pendingweapon = wp_chainsaw;
       dsda_AddMessage("I Love Chainsaws!");
@@ -554,7 +554,7 @@ static void cheat_fa()
     }
     for (i = 0; i < HEXEN_NUMWEAPONS; i++)
     {
-        plyr->weaponowned[i] = true;
+        P_GivePlayerWeapon(plyr, i);
     }
     for (i = 0; i < NUMMANA; i++)
     {
@@ -578,7 +578,7 @@ static void cheat_fa()
     {
       for (i=0;i<NUMWEAPONS;i++)
         if (!((i == wp_skullrod || i == wp_phoenixrod || i == wp_mace) && gamemode == shareware))
-          plyr->weaponowned[i] = true;
+          P_GivePlayerWeapon(plyr, i);
 
       for (i=0;i<NUMAMMO;i++)
         if (!((i == am_skullrod || i == am_phoenixrod || i == am_mace) && gamemode == shareware))
@@ -589,7 +589,7 @@ static void cheat_fa()
       for (i=0;i<NUMWEAPONS;i++)
         if (!(((i == wp_plasma || i == wp_bfg) && gamemode == shareware) ||
               (i == wp_supershotgun && gamemode != commercial)))
-          plyr->weaponowned[i] = true;
+          P_GivePlayerWeapon(plyr, i);
 
       for (i=0;i<NUMAMMO;i++)
         if (!((i == am_cell) && gamemode == shareware))
@@ -624,7 +624,7 @@ static void cheat_dostrip(int idkfa_raven)
   if (hexen)
   {
     for (i = wp_second; i < HEXEN_NUMWEAPONS; i++)
-      plyr->weaponowned[i] = false;
+      P_RemovePlayerWeapon(plyr, i);
   }
 
   if (heretic && plyr->chickenTics) return;
@@ -639,7 +639,7 @@ static void cheat_dostrip(int idkfa_raven)
     if ((i==wp_bfg || i==wp_plasma) && gamemode==shareware)
       break;
 
-    plyr->weaponowned[i] = false;
+    P_RemovePlayerWeapon(plyr, i);
   }
 
   // Force weapon switch
@@ -1863,14 +1863,18 @@ static void cheat_weapx(char *buf)
     cheat_pw(pw_strength);
   else
     if (w >= 0 && w < NUMWEAPONS) {
-      if ((plyr->weaponowned[w] = !plyr->weaponowned[w]))
-        dsda_AddMessage("Weapon Added");
+      if (P_PlayerOwnsWeapon(plyr, w))
+      {
+        P_RemovePlayerWeapon(plyr, w);
+        dsda_AddMessage("Weapon Removed");
+        if (w==plyr->readyweapon)         // maybe switch if weapon removed
+          plyr->pendingweapon = P_SwitchWeapon(plyr);
+      }
       else
-        {
-          dsda_AddMessage("Weapon Removed");
-          if (w==plyr->readyweapon)         // maybe switch if weapon removed
-            plyr->pendingweapon = P_SwitchWeapon(plyr);
-        }
+      {
+        P_GivePlayerWeapon(plyr, w);
+        dsda_AddMessage("Weapon Added");
+      }
     }
 }
 

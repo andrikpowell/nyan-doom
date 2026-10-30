@@ -2060,7 +2060,7 @@ void SV_MapTeleport(int map, int position)
     int currentInvPos = 0;
     dboolean rClass;
     dboolean playerWasReborn;
-    dboolean oldWeaponowned[HEXEN_NUMWEAPONS];
+    weaponowned_t oldWeaponowned[HEXEN_NUMWEAPONS];
     int oldKeys[NUMCARDS];
     int oldPieces = 0;
     int bestWeapon;
@@ -2181,7 +2181,7 @@ void SV_MapTeleport(int map, int position)
                 if (oldWeaponowned[j])
                 {
                     bestWeapon = j;
-                    players[i].weaponowned[j] = true;
+                    P_GivePlayerWeapon(&players[i], j);
                 }
             }
             players[i].ammo[MANA_1] = 25;

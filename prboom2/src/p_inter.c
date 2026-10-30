@@ -100,6 +100,42 @@ int maxammo[NUMAMMO]  = {200, 50, 300, 50, 0, 0}; // heretic +2 ammo types
 int clipammo[NUMAMMO] = { 10,  4,  20,  1, 0, 0}; // heretic +2 ammo types
 
 //
+// PLAYER WEAPON STUFF
+//
+
+#define WEAPON_CLASS_FLAG(pclass) (1u << (pclass))
+
+dboolean P_PlayerOwnsWeapon(const player_t *player, weapontype_t weapon)
+{
+  return (player->weaponowned[weapon] & WEAPON_CLASS_FLAG(player->pclass));
+}
+
+void P_GivePlayerWeapon(player_t *player, weapontype_t weapon)
+{
+  player->weaponowned[weapon] |= WEAPON_CLASS_FLAG(player->pclass);
+}
+
+void P_RemovePlayerWeapon(player_t *player, weapontype_t weapon)
+{
+  player->weaponowned[weapon] &= ~WEAPON_CLASS_FLAG(player->pclass);
+}
+
+dboolean P_PlayerClassOwnsWeapon(const player_t *player, pclass_t pclass, weapontype_t weapon)
+{
+  return (player->weaponowned[weapon] & WEAPON_CLASS_FLAG(pclass));
+}
+
+void P_GivePlayerClassWeapon(player_t *player, pclass_t pclass, weapontype_t weapon)
+{
+  player->weaponowned[weapon] |= WEAPON_CLASS_FLAG(pclass);
+}
+
+void P_RemovePlayerClassWeapon(player_t *player, pclass_t pclass, weapontype_t weapon)
+{
+  player->weaponowned[weapon] &= ~WEAPON_CLASS_FLAG(pclass);
+}
+
+//
 // GET STUFF
 //
 
@@ -148,7 +184,7 @@ static dboolean P_GiveAmmoAutoSwitch(player_t *player, ammotype_t ammo, int olda
     for (i = NUMWEAPONS - 1; i > player->readyweapon; --i)
     {
       if (
-        player->weaponowned[i] &&
+        P_PlayerOwnsWeapon(player, i) &&
         !(weaponinfo[i].flags & WPF_NOAUTOSWITCHTO) &&
         weaponinfo[i].ammo == ammo &&
         weaponinfo[i].ammopershot > oldammo &&
@@ -206,7 +242,7 @@ static dboolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
   if (heretic) {
     if (player->readyweapon == wp_staff || player->readyweapon == wp_gauntlets)
     {
-        if (player->weaponowned[GetAmmoChange[ammo]])
+        if (P_PlayerOwnsWeapon(player, GetAmmoChange[ammo]))
         {
               P_AutoSwitchWeapon(player, GetAmmoChange[ammo]);
         }
@@ -219,7 +255,7 @@ static dboolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
     {
     case am_clip:
       if (player->readyweapon == wp_fist) {
-        if (player->weaponowned[wp_chaingun])
+        if (P_PlayerOwnsWeapon(player, wp_chaingun))
           P_AutoSwitchWeapon(player, wp_chaingun);
         else
           P_AutoSwitchWeapon(player, wp_pistol);
@@ -228,19 +264,19 @@ static dboolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
 
     case am_shell:
       if (player->readyweapon == wp_fist || player->readyweapon == wp_pistol)
-        if (player->weaponowned[wp_shotgun])
+        if (P_PlayerOwnsWeapon(player, wp_shotgun))
           P_AutoSwitchWeapon(player, wp_shotgun);
       break;
 
       case am_cell:
         if (player->readyweapon == wp_fist || player->readyweapon == wp_pistol)
-          if (player->weaponowned[wp_plasma])
+          if (P_PlayerOwnsWeapon(player, wp_plasma))
             P_AutoSwitchWeapon(player, wp_plasma);
         break;
 
       case am_misl:
         if (player->readyweapon == wp_fist)
-          if (player->weaponowned[wp_missile])
+          if (P_PlayerOwnsWeapon(player, wp_missile))
             P_AutoSwitchWeapon(player, wp_missile);
     default:
       break;
@@ -263,11 +299,11 @@ dboolean P_GiveWeapon(player_t *player, weapontype_t weapon, dboolean dropped)
   if (netgame && deathmatch!=2 && !dropped)
     {
       // leave placed weapons forever on net games
-      if (player->weaponowned[weapon])
+      if (P_PlayerOwnsWeapon(player, weapon))
         return false;
 
       player->bonuscount += BONUSADD;
-      player->weaponowned[weapon] = true;
+      P_GivePlayerWeapon(player, weapon);
 
       P_GiveAmmo(player, weaponinfo[weapon].ammo, deathmatch ? 5 : 2);
       P_AutoSwitchWeapon(player, weapon);
@@ -290,12 +326,12 @@ dboolean P_GiveWeapon(player_t *player, weapontype_t weapon, dboolean dropped)
   else
     gaveammo = false;
 
-  if (player->weaponowned[weapon])
+  if (P_PlayerOwnsWeapon(player, weapon))
     gaveweapon = false;
   else
     {
       gaveweapon = true;
-      player->weaponowned[weapon] = true;
+      P_GivePlayerWeapon(player, weapon);
       P_AutoSwitchWeapon(player, weapon);
     }
   return gaveweapon || gaveammo;
@@ -2512,12 +2548,12 @@ dboolean Heretic_P_GiveWeapon(player_t * player, weapontype_t weapon)
 
     if (netgame && !deathmatch)
     {                           // Cooperative net-game
-        if (player->weaponowned[weapon])
+        if (P_PlayerOwnsWeapon(player, weapon))
         {
             return (false);
         }
         player->bonuscount += BONUSADD;
-        player->weaponowned[weapon] = true;
+        P_GivePlayerWeapon(player, weapon);
         P_GiveAmmo(player, wpnlev1info[weapon].ammo, GetWeaponAmmo[weapon]);
         P_AutoSwitchWeapon(player, weapon);
         if (player == &players[consoleplayer])
@@ -2528,14 +2564,14 @@ dboolean Heretic_P_GiveWeapon(player_t * player, weapontype_t weapon)
     }
     gaveAmmo = P_GiveAmmo(player, wpnlev1info[weapon].ammo,
                           GetWeaponAmmo[weapon]);
-    if (player->weaponowned[weapon])
+    if (P_PlayerOwnsWeapon(player, weapon))
     {
         gaveWeapon = false;
     }
     else
     {
         gaveWeapon = true;
-        player->weaponowned[weapon] = true;
+        P_GivePlayerWeapon(player, weapon);
         if (WeaponValue[weapon] > WeaponValue[player->readyweapon])
         {                       // Only switch to more powerful weapons
             P_AutoSwitchWeapon(player, weapon);
@@ -3023,11 +3059,11 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
     }
     else if (netgame && !deathmatch)
     {                           // Cooperative net-game
-        if (player->weaponowned[weaponType])
+        if (P_PlayerOwnsWeapon(player, weaponType))
         {
             return;
         }
-        player->weaponowned[weaponType] = true;
+        P_GivePlayerWeapon(player, weaponType);
         if (weaponType == wp_second)
         {
             P_GiveMana(player, MANA_1, 25);
@@ -3049,14 +3085,14 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
         {
             gaveMana = P_GiveMana(player, MANA_2, 25);
         }
-        if (player->weaponowned[weaponType])
+        if (P_PlayerOwnsWeapon(player, weaponType))
         {
             gaveWeapon = false;
         }
         else
         {
             gaveWeapon = true;
-            player->weaponowned[weaponType] = true;
+            P_GivePlayerWeapon(player, weaponType);
             if (weaponType > player->readyweapon)
             {                   // Only switch to more powerful weapons
                 P_AutoSwitchWeapon(player, weaponType);
@@ -3093,6 +3129,34 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
         S_StartVoidSound(hexen_sfx_pickup_weapon);
         SB_PaletteFlash(false);
     }
+}
+
+static int P_PlayerWhichClassPiece(pclass_t pclass) {
+  return exdefs ? (pclass * 3) : 0;
+}
+
+int P_PlayerClassWeaponPieces(player_t *player, pclass_t pclass) {
+  return (player->pieces >> P_PlayerWhichClassPiece(pclass)) & (WPIECE1 | WPIECE2 | WPIECE3);
+}
+
+void P_GivePlayerClassWeaponPiece(player_t *player, pclass_t pclass, int piece) {
+  player->pieces |= piece << P_PlayerWhichClassPiece(pclass);
+}
+
+dboolean P_PlayerClassOwnsWeaponPiece(player_t *player, pclass_t pclass, int piece) {
+  return P_PlayerClassWeaponPieces(player, pclass) & piece;
+}
+
+int P_PlayerWeaponPieces(player_t *player) {
+  return P_PlayerClassWeaponPieces(player, player->pclass);
+}
+
+void P_GivePlayerWeaponPiece(player_t *player, int piece) {
+  P_GivePlayerClassWeaponPiece(player, player->pclass, piece);
+}
+
+dboolean P_PlayerOwnsWeaponPiece(player_t *player, int piece) {
+  return P_PlayerClassOwnsWeaponPiece(player, player->pclass, piece);
 }
 
 static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
@@ -3141,7 +3205,7 @@ static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
     }
     else if (netgame && !deathmatch)
     {                           // Cooperative net-game
-        if (player->pieces & pieceValue)
+        if (P_PlayerOwnsWeaponPiece(player, pieceValue))
         {                       // Already has the piece
             return;
         }
@@ -3154,7 +3218,7 @@ static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
     {                           // Deathmatch or single player game
         gaveMana = P_GiveMana(player, MANA_1, 20) +
             P_GiveMana(player, MANA_2, 20);
-        if (player->pieces & pieceValue)
+        if (P_PlayerOwnsWeaponPiece(player, pieceValue))
         {                       // Already has the piece, check if mana needed
             if (!gaveMana)
             {                   // Didn't need the mana, so don't pick it up
@@ -3190,11 +3254,11 @@ static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
     // Check if fourth weapon assembled
     if (checkAssembled)
     {
-        player->pieces |= pieceValue;
-        if (player->pieces == (WPIECE1 | WPIECE2 | WPIECE3))
+        P_GivePlayerWeaponPiece(player, pieceValue);
+        if (P_PlayerWeaponPieces(player) == (WPIECE1 | WPIECE2 | WPIECE3))
         {
             gaveWeapon = true;
-            player->weaponowned[wp_fourth] = true;
+            P_GivePlayerWeapon(player, wp_fourth);
             P_AutoSwitchWeapon(player, wp_fourth);
         }
     }
