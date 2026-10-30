@@ -1355,7 +1355,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_NOGRAVITY|MF_TRANSLUCENT,   // flags  // killough 2/21/98
+    MF_NOBLOCKMAP|MF_NOGRAVITY,   // flags
     S_NULL    // raisestate
   },
 
@@ -1433,7 +1433,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_NOGRAVITY|MF_TRANSLUCENT,   // flags             // phares
+    MF_NOBLOCKMAP|MF_NOGRAVITY,   // flags
     S_NULL    // raisestate
   },
 
@@ -1485,7 +1485,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     8,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT,   // flags \\ killough 2/21/98
+    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY,   // flags
     S_NULL    // raisestate
   },
 
@@ -1537,7 +1537,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_bgact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL, // killough |MF_TRANSLUCENT,   // flags     // phares
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
     S_TROO_RAISE1   // raisestate
   },
 
@@ -1667,7 +1667,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     8,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT,   // flags  killough 2/21/98
+    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY,   // flags
     S_NULL    // raisestate
   },
 
@@ -2005,7 +2005,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_NOGRAVITY|MF_TRANSLUCENT,   // flags             // phares
+    MF_NOBLOCKMAP|MF_NOGRAVITY,   // flags
     S_NULL    // raisestate
   },
 
@@ -2057,7 +2057,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     3,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
+    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY, // flags
     S_NULL    // raisestate
   },
 
@@ -2083,7 +2083,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     5,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares,   // flags
+    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY,   // flags
     S_NULL    // raisestate
   },
 
@@ -2135,7 +2135,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     5,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
+    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY, // flags
     S_NULL    // raisestate
   },
 
@@ -2161,7 +2161,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     100,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
+    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY, // flags
     S_NULL    // raisestate
   },
 
@@ -2187,7 +2187,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     5,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
+    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY, // flags
     S_NULL    // raisestate
   },
 
@@ -2213,7 +2213,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
+    MF_NOBLOCKMAP|MF_NOGRAVITY, // flags
     S_NULL    // raisestate
   },
 
@@ -2265,7 +2265,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
+    MF_NOBLOCKMAP|MF_NOGRAVITY, // flags
     S_NULL    // raisestate
   },
 
@@ -2291,7 +2291,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_None,   // activesound
-    MF_NOBLOCKMAP|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
+    MF_NOBLOCKMAP|MF_NOGRAVITY, // flags
     S_NULL    // raisestate
   },
 
@@ -2681,7 +2681,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_None,   // activesound
-    MF_SPECIAL|MF_COUNTITEM|MF_TRANSLUCENT,    // flags   // killough 2/21/98
+    MF_SPECIAL|MF_COUNTITEM,    // flags
     S_NULL    // raisestate
   },
 
@@ -2707,7 +2707,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_None,   // activesound
-    MF_SPECIAL|MF_COUNTITEM|MF_TRANSLUCENT,    // flags // killough 2/21/98
+    MF_SPECIAL|MF_COUNTITEM,    // flags
     S_NULL    // raisestate
   },
 
@@ -2759,7 +2759,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_None,   // activesound
-    MF_SPECIAL|MF_COUNTITEM|MF_TRANSLUCENT,    // flags // killough 2/21/98
+    MF_SPECIAL|MF_COUNTITEM,    // flags
     S_NULL    // raisestate
   },
 
@@ -2863,7 +2863,7 @@ doom_mobjinfo_t doom_mobjinfo[DOOM_NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_None,   // activesound
-    MF_SPECIAL|MF_COUNTITEM|MF_TRANSLUCENT,    // flags // killough 2/21/98
+    MF_SPECIAL|MF_COUNTITEM,    // flags
     S_NULL    // raisestate
   },
 
