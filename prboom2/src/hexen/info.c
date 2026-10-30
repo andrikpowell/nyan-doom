@@ -293,10 +293,10 @@ typedef struct {
 } exdefs_ptr;
 
 static const exdefs_ptr hexen_exdefs_ptrs[] = {
+    // MBF21
     {A_RadiusDamage, "A_RadiusDamage"},
-    {A_FlyTarget, "A_FlyTarget"},
-    {A_FlyChase, "A_FlyChase"},
 
+    // Vanilla Hexen
     {A_FreeTargMobj, "A_FreeTargMobj"},
     {A_FlameCheck, "A_FlameCheck"},
     {A_HideThing, "A_HideThing"},
