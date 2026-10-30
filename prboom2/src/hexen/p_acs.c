@@ -768,12 +768,18 @@ static int GetACSIndex(int number)
     return -1;
 }
 
-void CheckACSPresent(int number)
+dboolean CheckACSPresent(int number)
 {
     if (GetACSIndex(number) == -1)
     {
+        // EXDEFS - Ignore missing ACS declarations
+        if (exdefs)
+            return false;
+
         I_Error("Required ACS script %d not initialized", number);
     }
+
+    return true;
 }
 
 static void Push(int value)
