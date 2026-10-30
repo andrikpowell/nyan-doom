@@ -42,13 +42,15 @@ static void hhe_procAmmo(DEHFILE *fpin, char *line)
   char inbuffer[DEH_BUFFERMAX];
   uint64_t value;      // All deh values are ints or longs
   int indexnum;
+  dboolean valid;
 
   strncpy(inbuffer, line, DEH_BUFFERMAX - 1);
 
   // killough 8/98: allow rex numbers in input:
   sscanf(inbuffer, "%s %i", key, &indexnum);
   deh_log("Processing Ammo at index %d: %s\n", indexnum, key);
-  if (indexnum < 0 || indexnum >= HERETIC_NUMAMMO)
+  valid = indexnum >= 0 && indexnum < HERETIC_NUMAMMO;
+  if (!valid)
     deh_log("Bad ammo number %d of %d\n", indexnum, HERETIC_NUMAMMO);
 
   while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
@@ -61,6 +63,10 @@ static void hhe_procAmmo(DEHFILE *fpin, char *line)
       deh_log("Bad data pair in '%s'\n", inbuffer);
       continue;
     }
+
+    if (!valid)
+      continue;
+
     if (!deh_strcasecmp(key, hhe_ammo[0]))  // Max ammo
     {
       maxammo[indexnum] = (int)value;

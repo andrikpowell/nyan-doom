@@ -208,7 +208,7 @@ static void hhe_procRexCodePointers(DEHFILE *fpin, char *line)
     // Heretic only - get correct frame per version
     mapped = HHE_MapHereticFrameNumber(indexnum);
 
-    if (mapped < 0 || mapped >= num_states)
+    if (mapped < 0)
     {
       deh_log("Invalid mapped frame number: %d -> %d\n", indexnum, mapped);
       continue;
