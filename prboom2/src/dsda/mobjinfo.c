@@ -33,6 +33,9 @@ byte* edited_mobjinfo_bloodcolor;
 
 static void dsda_ResetMobjInfo(int from, int to) {
   int i;
+  int visibility = raven ? hexen ? VF_HEXEN :
+                                   VF_HERETIC :
+                                   VF_DOOM;
 
   for (i = from; i < to; ++i) {
     mobjinfo[i].droppeditem = MT_NULL;
@@ -41,7 +44,7 @@ static void dsda_ResetMobjInfo(int from, int to) {
     mobjinfo[i].splash_group = SG_DEFAULT;
     mobjinfo[i].altspeed = NO_ALTSPEED;
     mobjinfo[i].meleerange = MELEERANGE;
-    mobjinfo[i].visibility = VF_DOOM;
+    mobjinfo[i].visibility = visibility;
   }
 }
 
