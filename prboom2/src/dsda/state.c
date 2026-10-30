@@ -130,3 +130,17 @@ void dsda_FreeDehStates(void) {
   free(defined_codeptr_args);
   free(deh_codeptr);
 }
+
+int dsda_AppendStates(int count) {
+  int first = num_states;
+
+  if (count <= 0)
+    return first;
+
+  dsda_PrepAllocation();
+  dsda_EnsureIndex(num_states + count - 1);
+  memset(states + first, 0, count * sizeof(*states));
+  dsda_ResetStates(first, first + count);
+
+  return first;
+}

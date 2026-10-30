@@ -6705,4 +6705,8 @@ extern int ZMT_TELEPORTDEST2;
 extern int ZMT_TELEPORTDEST3;
 extern int ZMT_AMBIENTSOUND;
 
+// exdefs
+extern actionf_t Hexen_FindAction(const char *name);
+
+
 #endif

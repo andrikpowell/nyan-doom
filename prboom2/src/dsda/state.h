@@ -29,5 +29,6 @@ typedef struct {
 dsda_deh_state_t dsda_GetDehState(int index);
 void dsda_InitializeStates(state_t* source, int count);
 void dsda_FreeDehStates(void);
+int dsda_AppendStates(int count);
 
 #endif

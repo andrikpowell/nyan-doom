@@ -130,3 +130,13 @@ void dsda_FreeDehSprites(void) {
   free(deh_spritenames);
   free(sprnames_state);
 }
+
+int dsda_AppendSprite(const char *name) {
+  int index = num_sprites;
+
+  dsda_PrepAllocation();
+  dsda_EnsureIndex(index);
+  sprnames[index] = strdup(name);
+
+  return index;
+}
