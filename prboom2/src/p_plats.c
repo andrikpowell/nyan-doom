@@ -912,6 +912,28 @@ int Hexen_EV_StopPlat(line_t * line, byte * args)
 {
     platlist_t *pl;
 
+    // KEX follows ZDoom logic
+    if (exdefs)
+    {
+        dboolean stopped = false;
+
+        for (pl = activeplats; pl;)
+        {
+            platlist_t *next = pl->next;
+
+            if (pl->plat->tag == args[0])
+            {
+                SN_StopSequence((mobj_t *) & pl->plat->sector->soundorg);
+                P_RemoveActivePlat(pl->plat);
+                stopped = true;
+            }
+
+            pl = next;
+        }
+
+        return stopped;
+    }
+
     // Vanilla Hexen
     // But fixes the switch texture change / stopping sound sequence
     for (pl = activeplats; pl; pl = pl->next)
