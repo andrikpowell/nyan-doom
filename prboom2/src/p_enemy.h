@@ -161,6 +161,10 @@ dboolean A_RaiseMobj(mobj_t * actor);
 dboolean A_SinkMobj(mobj_t * actor);
 void A_NoBlocking(mobj_t * actor);
 
+// Hexen KEX
+void A_FlyTarget(mobj_t * actor);
+void A_FlyChase(mobj_t * actor);
+
 // zdoom
 
 dboolean P_RaiseThing(mobj_t *corpse, mobj_t *raiser);

@@ -8832,3 +8832,102 @@ void A_KBoltRaise(mobj_t * actor)
         // Maybe cap it off here
     }
 }
+
+//
+// EXDEFS
+//
+
+void A_FlyTarget(mobj_t *actor)
+{
+    int count;
+    mobj_t *mo;
+    thinker_t *think;
+    int random;
+
+    random = P_Random(pr_hexen) % 50;
+    think = thinkercap.next;
+    while (random--)
+    {
+        think = think->next;
+    }
+    think = think->next;
+
+    count = 0;
+    for (; think != &thinkercap; think = think->next)
+    {
+        if (think->function != P_MobjThinker)
+        { // Not a mobj thinker
+            continue;
+        }
+
+        mo = (mobj_t *)think;
+        if (!(mo->flags & MF_CORPSE) || mo == actor || actor->target == mo)
+        { // Not a valid corpse
+            continue;
+        }
+        if (count++ > MONS_LOOK_LIMIT)
+        { // Stop searching
+            return;
+        }
+        if(!P_CheckSight(actor, mo))
+        { // Out of sight
+            continue;
+        }
+        // Found a target corpse
+        actor->target = mo;
+        P_SetMobjState(actor, actor->info->seestate);
+        return;
+    }
+
+    return;
+}
+
+void A_FlyChase(mobj_t *actor)
+{
+    mobj_t *target;
+    angle_t ang;
+    int x;
+    int y;
+    int random;
+
+    target = actor->target;
+    if (!target || !(target->flags & MF_CORPSE) || P_Random(pr_hexen) < 5)
+    {
+        P_SetMobjState(actor, actor->info->spawnstate);
+        return;
+    }
+
+    actor->special_args[0]++;
+
+    ang = R_PointToAngle2(actor->x, actor->y, target->x, target->y);
+    actor->angle = ang;
+    ang >>= ANGLETOFINESHIFT;
+    x = actor->x + FixedMul(6*FRACUNIT, finecosine[ang]);
+    y = actor->y + FixedMul(6*FRACUNIT, finesine[ang]);
+
+    if (!P_TryMove(actor, x, y, true))
+    {
+        P_SetMobjStateNF(actor, actor->info->spawnstate);
+        return;
+    }
+
+    if (actor->special_args[0] & 2)
+    {
+        actor->momx += (P_Random(pr_hexen) - 128) << 10;
+        actor->momy += (P_Random(pr_hexen) - 128) << 10;
+    }
+
+    random = P_Random(pr_hexen);
+    if(((target->z + 5 * FRACUNIT) < actor->z) && random > 150)
+    {
+        random = -random;
+    }
+    actor->momz = random << 10;
+
+    if (P_Random(pr_hexen) < 40)
+    {
+        S_StartSoundAtVolume(actor, actor->info->activesound, 64, false, 0);
+    }
+
+    return;
+}
