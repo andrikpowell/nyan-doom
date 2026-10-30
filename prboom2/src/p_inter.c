@@ -54,6 +54,7 @@
 #include "e6y.h"//e6y
 
 #include "dsda.h"
+#include "dsda/exdefs.h"
 #include "dsda/settings.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
@@ -3433,8 +3434,10 @@ static void TryPickupArtifact(player_t * player, artitype_t artifactType, mobj_t
         }
         else
         {                       // Puzzle item
+            dboolean vanilla_artifact = (artifactType < (hexen ? HEXEN_NUMARTIFACTS : NUMARTIFACTS));
+            const char *message = vanilla_artifact ? artifactMessages[artifactType] : dsda_ExDefsArtifactMessage(artifactType);
             S_StartVoidSound(hexen_sfx_pickup_item);
-            P_SetColoredMessage(player, artifactMessages[artifactType], true);
+            P_SetColoredMessage(player, message ? message : "", true); // blank puzzle message
             if (!netgame || deathmatch)
             {                   // Remove puzzle items if not cooperative netplay
                 P_RemoveMobj(artifact);
@@ -3466,6 +3469,17 @@ static void Hexen_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
     // Disable picking up items in Camera Mode
     if (dsda_CameraMode())
         return;
+
+    if (exdefs)
+    {
+        int artifact = dsda_ExDefsArtifactPickup(special->type);
+
+        if (artifact != hexen_arti_none)
+        {
+            TryPickupArtifact(player, artifact, special);
+            return;
+        }
+    }
 
     switch (special->sprite)
     {

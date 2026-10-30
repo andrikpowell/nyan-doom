@@ -140,7 +140,9 @@ typedef enum
     HEXEN_NUMARTIFACTS
 } artitype_t;
 
-#define NUMINVENTORYSLOTS	HEXEN_NUMARTIFACTS
+#define EXDEFS_MAX_EXTRA_ARTIFACTS 30 // currently only 63 is allowed for AFLAG_MASK
+#define NUMINVENTORYSLOTS (HEXEN_NUMARTIFACTS + EXDEFS_MAX_EXTRA_ARTIFACTS) // 63 total for now
+#define HEXEN_EXDEFS_NUMARTIFACTS NUMINVENTORYSLOTS
 
 // [crispy] blinking key or skull in the status bar
 typedef enum

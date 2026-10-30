@@ -61,6 +61,7 @@
 #include "dsda/args.h"
 #include "dsda/configuration.h"
 #include "dsda/excmd.h"
+#include "dsda/exdefs.h"
 #include "dsda/exhud.h"
 #include "dsda/features.h"
 #include "dsda/input.h"
@@ -2497,6 +2498,17 @@ static void cheat_puzzle(void)
   {
     P_GiveArtifact(plyr, i, NULL);
   }
+
+  // Add exdefs artifacts
+  if (exdefs)
+  {
+    for (i = HEXEN_NUMARTIFACTS; i < dsda_ExDefsArtifactsMax(); i++)
+    {
+      if (dsda_ExDefsArtifactDefined(i))
+        P_GiveArtifact(plyr, i, NULL);
+    }
+  }
+
   P_SetMessage(plyr, HEXEN_TXT_CHEATPUZZLES, true);
 }
 

@@ -38,6 +38,13 @@
 
 static int exdefs_include_path[EXDEFS_MAX_DEPTH];
 
+static array_t state_names;
+static array_t actor_names;
+static array_t actor_pickups;
+
+static array_t artifact_names;
+static array_t artifact_defs;
+
 // EXDEFS Hexen lookup
 static const char* const exdefs_state_names_hexen[HEXEN_NUMSTATES] = {
   "S_HEXEN_NULL",
@@ -2969,8 +2976,170 @@ static const exdefs_flag_t exdefs_actor_flags[] =
   { "MIRROREDCORPSE",   MFX_MIRROREDCORPSE,  exdefs_flags_ex },
 };
 
-static array_t state_names;
-static array_t actor_names;
+//
+//
+// ARTIFACTS / PICKUPS
+//
+//
+
+typedef struct
+{
+  const char *key;
+  const char *value;
+} exdefs_string_t;
+
+static const exdefs_string_t exdefs_strings[] =
+{
+  { "arti_puzzcrestdragon",  "Dragon Crest" },
+  { "arti_puzzcrestwolf",    "Wolf Crest" },
+  { "arti_puzzcrestgriffin", "Griffin Crest" },
+  { "arti_puzzmaskice",      "Death Mask" },
+  { "arti_puzzmaskswamp",    "Fetid Mask" },
+  { "arti_puzzchalice1",     "Coiled Chalice" },
+  { "arti_puzzchalice2",     "Gilded Chalice" },
+  { "arti_puzzchalice3",     "Earthen Chalice" },
+  { "arti_puzzchalice4",     "Molten Chalice" },
+  { "arti_puzzchalice5",     "Rimed Chalice" },
+  { "arti_puzzidol1",        "Skull Idol" },
+  { "arti_puzzidol2",        "Demon Idol" },
+  { "arti_puzzidol3",        "Dragon Idol" },
+  { "arti_puzzbook3",        "Lurid Atlas" },
+  { "arti_puzzbook4",        "Malum Vulgata" },
+};
+
+static const char *exdefs_TranslateString(const char *string)
+{
+  int i;
+
+  if (!string)
+    return string;
+
+  // look for matching string
+  if (string[0] == '$')
+    for (i = 0; i < arrlen(exdefs_strings); ++i)
+      if (!stricmp(string + 1, exdefs_strings[i].key))
+        return exdefs_strings[i].value;
+
+  return string;
+}
+
+typedef struct
+{
+  int mobjtype;
+  int artifact;
+} exdefs_pickup_t;
+
+int dsda_ExDefsArtifactPickup(int mobjtype)
+{
+  int i;
+  exdefs_pickup_t *items = actor_pickups.data;
+
+  for (i = 0; i < actor_pickups.count; ++i)
+    if (items[i].mobjtype == mobjtype)
+      return items[i].artifact;
+
+  return hexen ? hexen_arti_none : arti_none;
+}
+
+typedef struct
+{
+  int artifact;
+  char *message;
+  char *display_name;
+  char *icon;
+} exdefs_artifact_t;
+
+// Artifact - does it exist?
+dboolean dsda_ExDefsArtifactDefined(int artifact)
+{
+  int i;
+  exdefs_artifact_t *items = artifact_defs.data;
+  int max = hexen ? HEXEN_NUMARTIFACTS : NUMARTIFACTS;
+
+  if (artifact < max)
+    return true;
+
+  if (exdefs)
+    for (i = 0; i < artifact_defs.count; ++i)
+      if (items[i].artifact == artifact)
+        return true;
+
+  return false;
+}
+
+static exdefs_artifact_t *exdefs_Artifact(int artifact)
+{
+  int i;
+  exdefs_artifact_t *items = artifact_defs.data;
+  for (i = 0; i < artifact_defs.count; ++i)
+    if (items[i].artifact == artifact)
+      return &items[i];
+  return NULL;
+}
+
+// Artifact - Pickup message
+const char *dsda_ExDefsArtifactMessage(int artifact)
+{
+  exdefs_artifact_t *item = exdefs_Artifact(artifact);
+  return item ? exdefs_TranslateString(item->message) : NULL;
+}
+
+// Artifact - Inventory Name
+const char *dsda_ExDefsArtifactDisplayName(int artifact)
+{
+  exdefs_artifact_t *item = exdefs_Artifact(artifact);
+  return item ? exdefs_TranslateString(item->display_name) : NULL;
+}
+
+// Artifact - Inventory Icon
+const char *dsda_ExDefsArtifactIcon(int artifact)
+{
+  exdefs_artifact_t *item = exdefs_Artifact(artifact);
+  return item ? item->icon : NULL;
+}
+
+// Artifact - Inventory Max
+int dsda_ExDefsArtifactsMax(void)
+{
+  int i, max = HEXEN_NUMARTIFACTS;
+  exdefs_artifact_t *items = artifact_defs.data;
+  for (i = 0; i < artifact_defs.count; ++i)
+    if (items[i].artifact >= max)
+      max = items[i].artifact + 1;
+  return max;
+}
+
+//
+//
+// ACTOR STUFF
+//
+//
+
+typedef struct
+{
+  char *name;
+  int index;
+} exdefs_name_t;
+
+static int exdefs_FindName(array_t *names, const char *name)
+{
+  int i;
+  exdefs_name_t *items = names->data;
+
+  for (i = names->count - 1; i >= 0; --i)
+    if (!stricmp(items[i].name, name))
+      return items[i].index;
+
+  return -1;
+}
+
+static void exdefs_AddName(array_t *names, const char *name, int index)
+{
+  exdefs_name_t *entry = M_ArrayGetNewItem(names, sizeof(*entry));
+
+  entry->name = Z_Strdup(name);
+  entry->index = index;
+}
 
 static dboolean exdefs_SetFlag(mobjinfo_t *info, const char *name)
 {
@@ -3005,32 +3174,6 @@ static dboolean exdefs_SetFlag(mobjinfo_t *info, const char *name)
   }
 
   return false;
-}
-
-typedef struct
-{
-  char *name;
-  int index;
-} exdefs_name_t;
-
-static int exdefs_FindName(array_t *names, const char *name)
-{
-  int i;
-  exdefs_name_t *items = names->data;
-
-  for (i = names->count - 1; i >= 0; --i)
-    if (!stricmp(items[i].name, name))
-      return items[i].index;
-
-  return -1;
-}
-
-static void exdefs_AddName(array_t *names, const char *name, int index)
-{
-  exdefs_name_t *entry = M_ArrayGetNewItem(names, sizeof(*entry));
-
-  entry->name = Z_Strdup(name);
-  entry->index = index;
 }
 
 static int exdefs_FindHexenState(const char* name) {
@@ -3264,6 +3407,120 @@ static void exdefs_SetActorFlags(int lumpnum, json_t *entry, mobjinfo_t *info)
   }
 }
 
+static void exdefs_SetActorPickup(int lumpnum, json_t *entry, int index, mobjinfo_t *info)
+{
+  const char *pickup_type = JS_GetStringValue(entry, "pickuptype");
+  int artifact;
+
+  if (!pickup_type)
+    return;
+
+  artifact = exdefs_FindName(&artifact_names, pickup_type);
+
+  if (artifact >= 0)
+  {
+    exdefs_pickup_t *pickup = M_ArrayGetNewItem(&actor_pickups, sizeof(*pickup));
+
+    pickup->mobjtype = index;
+    pickup->artifact = artifact;
+    info->flags |= MF_SPECIAL;
+  }
+  else
+  {
+    lprintf(LO_ERROR, "%.8s: unknown EXDEFS pickuptype %s\n", W_LumpName(lumpnum), pickup_type);
+  }
+}
+
+// Inventory Items
+static void exdefs_ParseArtifacts(int lumpnum, json_t *data)
+{
+  int i;
+  json_t *artifact_exdefs = JS_GetObject(data, "artifacts");
+
+  if (!artifact_exdefs)
+    return;
+
+  if (!JS_IsArray(artifact_exdefs))
+  {
+    lprintf(LO_ERROR, "%.8s: EXDEFS artifacts is not an array\n", W_LumpName(lumpnum));
+    return;
+  }
+
+  for (i = 0; i < JS_GetArraySize(artifact_exdefs); ++i)
+  {
+    json_t *entry;
+    json_t *args;
+    const char *name;
+    const char *message;
+    const char *display_name;
+    const char *icon;
+    exdefs_artifact_t *item;
+    int puzzle_id;
+    int artifact;
+
+    entry = JS_GetArrayItem(artifact_exdefs, i);
+    args = JS_GetObject(entry, "args");
+    name = JS_GetStringValue(entry, "name");
+    message = JS_GetStringValue(entry, "message");
+    display_name = JS_GetStringValue(entry, "displayName");
+    icon = JS_GetStringValue(entry, "icon");
+
+    if (!JS_IsObject(entry) || !name || !JS_IsArray(args) || JS_GetArraySize(args) < 1 || !JS_IsNumber(JS_GetArrayItem(args, 0)))
+    {
+      lprintf(LO_ERROR, "%.8s: invalid EXDEFS artifact entry %d\n", W_LumpName(lumpnum), i);
+      continue;
+    }
+
+    puzzle_id = JS_GetInteger(JS_GetArrayItem(args, 0));
+    artifact = hexen_arti_firstpuzzitem + puzzle_id;
+
+    if (artifact < HEXEN_NUMARTIFACTS || artifact >= NUMINVENTORYSLOTS)
+    {
+      lprintf(LO_ERROR, "%.8s: unsupported EXDEFS puzzle item id %d\n", W_LumpName(lumpnum), puzzle_id);
+      continue;
+    }
+
+    exdefs_AddName(&artifact_names, name, artifact);
+    {
+      item = M_ArrayGetNewItem(&artifact_defs, sizeof(*item));
+      item->artifact = artifact;
+      item->message = Z_Strdup(message ? message : name);
+      item->display_name = Z_Strdup(display_name ? display_name : name);
+      item->icon = Z_Strdup(icon ? icon : NULL);
+    }
+  }
+}
+
+static void exdefs_ParsePickups(int lumpnum, json_t *data)
+{
+  int i;
+  json_t *pickup_exdefs = JS_GetObject(data, "pickups");
+
+  if (!pickup_exdefs)
+    return;
+
+  if (!JS_IsArray(pickup_exdefs))
+  {
+    lprintf(LO_ERROR, "%.8s: EXDEFS pickups is not an array\n", W_LumpName(lumpnum));
+    return;
+  }
+
+  for (i = 0; i < JS_GetArraySize(pickup_exdefs); ++i)
+  {
+    json_t *entry = JS_GetArrayItem(pickup_exdefs, i);
+    const char *name = JS_GetStringValue(entry, "name");
+    const char *message = JS_GetStringValue(entry, "message");
+    int artifact = name ? exdefs_FindName(&artifact_names, name) : -1;
+    exdefs_artifact_t *item = exdefs_Artifact(artifact);
+
+    if (item && message)
+    {
+      Z_Free(item->message);
+      item->message = Z_Strdup(message);
+    }
+  }
+}
+
 static void exdefs_ParseActors(int lumpnum, json_t *data)
 {
   int i;
@@ -3366,7 +3623,7 @@ static void exdefs_ParseActors(int lumpnum, json_t *data)
 
     // Custom EXDEFS Stuff
     exdefs_SetActorFlags(lumpnum, entry, info);
-    //exdefs_SetActorPickup();
+    exdefs_SetActorPickup(lumpnum, entry, index, info);
     //exdefs_SetActorBehavior();
     //exdefs_SetActorCustomStates();          // ???
     //exdefs_SetActorTranslationLump();       // string
@@ -3505,6 +3762,8 @@ static void dsda_ParseExDefsLump(int lumpnum, int depth)
   }
 
   exdefs_ParseStates(lumpnum, data);
+  exdefs_ParseArtifacts(lumpnum, data);
+  exdefs_ParsePickups(lumpnum, data);
   exdefs_ParseActors(lumpnum, data);
 
   JS_CloseOptions(lumpnum);

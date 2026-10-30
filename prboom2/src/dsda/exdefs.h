@@ -18,6 +18,17 @@
 #ifndef __DSDA_EXDEFS__
 #define __DSDA_EXDEFS__
 
+#include "doomtype.h"
+
 void dsda_ParseExDefs(void);
+
+// Artifact stuff
+int dsda_ExDefsArtifactPickup(int mobjtype);                // artifact pickup
+const char *dsda_ExDefsArtifactMessage(int artifact);       // artifact pickup message
+
+dboolean dsda_ExDefsArtifactDefined(int artifact);          // artifact inventory def valid?
+const char *dsda_ExDefsArtifactDisplayName(int artifact);   // artifact inventory name
+const char *dsda_ExDefsArtifactIcon(int artifact);          // artifact inventory icon
+int dsda_ExDefsArtifactsMax(void);                          // artifact inventory max
 
 #endif

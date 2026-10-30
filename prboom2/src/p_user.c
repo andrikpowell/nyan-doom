@@ -857,7 +857,7 @@ void P_PlayerThink (player_t* player)
       {
         P_DamageMobj(player->mo, NULL, NULL, 10000);
       }
-      if (cmd->arti == HEXEN_NUMARTIFACTS)
+      if (cmd->arti == (exdefs ? HEXEN_EXDEFS_NUMARTIFACTS : HEXEN_NUMARTIFACTS))
       {                       // use one of each artifact (except puzzle artifacts)
         int i;
 
@@ -2105,6 +2105,21 @@ static dboolean Hexen_P_UseArtifact(player_t * player, artitype_t arti)
     int i;
     int count;
 
+    // Use puzzle item
+    if (arti >= hexen_arti_firstpuzzitem)
+    {
+        if (P_UsePuzzleItem(player, arti - hexen_arti_firstpuzzitem))
+        {
+            return true;
+        }
+        else
+        {
+            // Kex adds extra sfx
+            dsda_PuzzleFailMessage(player);
+            return false;
+        }
+    }
+
     switch (arti)
     {
         case hexen_arti_invulnerability:
@@ -2249,35 +2264,6 @@ static dboolean Hexen_P_UseArtifact(player_t * player, artitype_t arti)
             break;
         case hexen_arti_blastradius:
             P_BlastRadius(player);
-            break;
-
-        case hexen_arti_puzzskull:
-        case hexen_arti_puzzgembig:
-        case hexen_arti_puzzgemred:
-        case hexen_arti_puzzgemgreen1:
-        case hexen_arti_puzzgemgreen2:
-        case hexen_arti_puzzgemblue1:
-        case hexen_arti_puzzgemblue2:
-        case hexen_arti_puzzbook1:
-        case hexen_arti_puzzbook2:
-        case hexen_arti_puzzskull2:
-        case hexen_arti_puzzfweapon:
-        case hexen_arti_puzzcweapon:
-        case hexen_arti_puzzmweapon:
-        case hexen_arti_puzzgear1:
-        case hexen_arti_puzzgear2:
-        case hexen_arti_puzzgear3:
-        case hexen_arti_puzzgear4:
-            if (P_UsePuzzleItem(player, arti - hexen_arti_firstpuzzitem))
-            {
-                return true;
-            }
-            else
-            {
-                // Kex adds extra sfx
-                dsda_PuzzleFailMessage(player);
-                return false;
-            }
             break;
         default:
             return false;

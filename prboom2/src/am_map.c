@@ -62,6 +62,7 @@
 #include "d_main.h"
 #include "m_menu.h"
 
+#include "dsda/exdefs.h"
 #include "dsda/id_list.h"
 #include "dsda/input.h"
 #include "dsda/map_format.h"
@@ -3479,6 +3480,13 @@ static automap_key_t AM_IsAutomapKey(const mobj_t *thing)
 
   if (hexen)
   {
+    // Kex puzzle pieces
+    if (exdefs)
+    {
+      if (dsda_ExDefsArtifactPickup(thing->type) >= hexen_arti_firstpuzzitem)
+        return automap_key_puzzle;
+    }
+
     // Hexen Keys
     if ((num >= 8030 && num <= 8039) || num == 8200)
       return automap_key_hexen;
