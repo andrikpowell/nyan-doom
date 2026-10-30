@@ -3033,8 +3033,8 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
                      const char *message)
 {
     dboolean remove;
-    dboolean gaveMana;
-    dboolean gaveWeapon;
+    dboolean gaveMana = false;
+    dboolean gaveWeapon = false;
 
     remove = true;
     if (player->pclass != weaponClass)
@@ -3045,22 +3045,16 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
         }
         if (weaponType == wp_second)
         {
-            if (!P_GiveMana(player, MANA_1, 25))
-            {
-                gaveMana = true;
-            }
+            gaveMana = P_GiveMana(player, MANA_1, 25);
         }
         else
         {
-            if (!P_GiveMana(player, MANA_2, 25))
-            {
-                gaveMana = true;
-            }
+            gaveMana = P_GiveMana(player, MANA_2, 25);
         }
 
-        // Vanilla - got mana, return
-        if (gaveMana && !exdefs)
-        {
+        // Vanilla Hexen
+        if (!gaveMana && !exdefs)
+        {                   // Didn't need the mana, so don't pick it up
           return;
         }
         else // EXDEFS
