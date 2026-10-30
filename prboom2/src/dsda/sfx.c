@@ -222,3 +222,45 @@ dboolean dsda_BlockSFX(sfxinfo_t *sfx) {
 
   return sfx->parallel_count > dsda_parallel_sfx_limit;
 }
+
+#define SFX_NOT_FOUND (-1)
+
+static int dsda_FindSFX(const char *name) {
+  int i;
+
+  for (i = 1; i < num_sfx; ++i)
+    if (S_sfx[i].tagname && !stricmp(S_sfx[i].tagname, name))
+      return i;
+
+  return SFX_NOT_FOUND;
+}
+
+dboolean dsda_SFXExists(const char *name) {
+  return dsda_FindSFX(name) != SFX_NOT_FOUND;
+}
+
+void dsda_UpdateSFX(const char *name, const char *lump) {
+  int index = dsda_FindSFX(name);
+
+  if (index != SFX_NOT_FOUND)
+  {
+    S_sfx[index].name = strdup(lump);
+    S_sfx[index].data = NULL;
+    S_sfx[index].lumpnum = -1;
+  }
+}
+
+int dsda_AppendSFX(const char *name, const char *lump) {
+  int index = num_sfx;
+
+  dsda_PrepAllocation();
+  dsda_EnsureIndex(index);
+  memset(&S_sfx[index], 0, sizeof(S_sfx[index]));
+  dsda_ResetSFX(index, index + 1);
+
+  S_sfx[index].name = strdup(lump);
+  S_sfx[index].tagname = strdup(name);
+  S_sfx[index].lumpnum = -1;
+
+  return index;
+}

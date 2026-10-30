@@ -27,5 +27,8 @@ sfxinfo_t* dsda_NewSFX(int* index);
 void dsda_InitializeSFX(sfxinfo_t* source, int count);
 void dsda_FreeDehSFX(void);
 dboolean dsda_BlockSFX(sfxinfo_t *sfx);
+int dsda_AppendSFX(const char *name, const char *lump);
+dboolean dsda_SFXExists(const char *name);
+void dsda_UpdateSFX(const char *name, const char *lump);
 
 #endif

@@ -24,12 +24,45 @@
 #include "z_zone.h"
 
 #include "dsda/args.h"
+#include "dsda/sfx.h"
 
 #include "exdefs.h"
 
 #define EXDEFS_MAX_DEPTH 64
 
 static int exdefs_include_path[EXDEFS_MAX_DEPTH];
+
+static void exdefs_ParseSounds(int lumpnum, json_t *data)
+{
+  int i;
+  json_t *sound_exdefs = JS_GetObject(data, "sounds");
+
+  if (!sound_exdefs)
+    return;
+
+  if (!JS_IsArray(sound_exdefs))
+  {
+    lprintf(LO_ERROR, "%.8s: EXDEFS sounds is not an array\n", W_LumpName(lumpnum));
+    return;
+  }
+
+  for (i = 0; i < JS_GetArraySize(sound_exdefs); ++i)
+  {
+    json_t *entry = JS_GetArrayItem(sound_exdefs, i);
+    const char *name = JS_GetStringValue(entry, "name");
+    const char *lump = JS_GetStringValue(entry, "lump");
+
+    if (JS_IsObject(entry) && name && lump)
+    {
+      if (dsda_SFXExists(name))
+        dsda_UpdateSFX(name, lump);
+      else
+        dsda_AppendSFX(name, lump);
+    }
+    else
+      lprintf(LO_ERROR, "%.8s: invalid EXDEFS sound entry %d\n", W_LumpName(lumpnum), i);
+  }
+}
 
 static dboolean exdefs_LumpInIncludePath(int lumpnum, int depth)
 {
@@ -124,6 +157,9 @@ static void dsda_ParseExDefsLump(int lumpnum, int depth)
   }
 
   count = includes ? JS_GetArraySize(includes) : 0;
+
+  // We set up sounds before parsing all later EXDEFS lumps
+  exdefs_ParseSounds(lumpnum, data);
 
   for (i = 0; i < count; ++i)
   {
