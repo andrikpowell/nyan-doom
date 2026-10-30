@@ -185,7 +185,7 @@ static void dsda_InitDoom(void) {
   int i;
   doom_mobjinfo_t* mobjinfo_p;
 
-  dsda_InitializeMobjInfo(DOOM_MT_ZERO, DOOM_NUMMOBJTYPES, DOOM_NUMMOBJTYPES);
+  dsda_InitializeMobjInfo(DOOM_MT_ZERO, DOOM_NUMMOBJTYPES);
   dsda_InitializeStates(doom_states, DOOM_NUMSTATES);
   dsda_InitializeSprites(doom_sprnames, DOOM_NUMSPRITES);
   dsda_InitializeSFX(doom_S_sfx, DOOM_NUMSFX);
@@ -388,7 +388,7 @@ static void dsda_InitHeretic(void) {
   int i, j;
   raven_mobjinfo_t* mobjinfo_p;
 
-  dsda_InitializeMobjInfo(HERETIC_MT_ZERO, HERETIC_NUMMOBJTYPES, HERETIC_NUMMOBJTYPES);
+  dsda_InitializeMobjInfo(HERETIC_MT_ZERO, HERETIC_NUMMOBJTYPES);
   dsda_InitializeStates(heretic_states, HERETIC_NUMSTATES);
   dsda_InitializeSprites(heretic_sprnames, HERETIC_NUMSPRITES);
   dsda_InitializeSFX(heretic_S_sfx, HERETIC_NUMSFX);
@@ -620,7 +620,7 @@ static void dsda_InitHexen(void) {
   int i, j;
   raven_mobjinfo_t* mobjinfo_p;
 
-  dsda_InitializeMobjInfo(HEXEN_MT_ZERO, HEXEN_NUMMOBJTYPES, TOTAL_NUMMOBJTYPES);
+  dsda_InitializeMobjInfo(HEXEN_MT_ZERO, HEXEN_NUMMOBJTYPES);
   dsda_InitializeStates(hexen_states, HEXEN_NUMSTATES);
   dsda_InitializeSprites(hexen_sprnames, HEXEN_NUMSPRITES);
   dsda_InitializeSFX(hexen_S_sfx, HEXEN_NUMSFX);

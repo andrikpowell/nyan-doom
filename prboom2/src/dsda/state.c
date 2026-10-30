@@ -27,6 +27,7 @@ byte* defined_codeptr_args;
 statenum_t* seenstate_tab;
 
 static actionf_t* deh_codeptr;
+static int states_capacity;
 
 static void dsda_ResetStates(int from, int to) {
   int i;
@@ -54,36 +55,49 @@ static void dsda_PrepAllocation(void) {
 }
 
 static void dsda_EnsureCapacity(int limit) {
-  while (limit >= num_states) {
-    int old_num_states = num_states;
+  while (limit >= states_capacity) {
+    int old_capacity = states_capacity;
 
     dsda_PrepAllocation();
 
-    num_states *= 2;
+    states_capacity *= 2;
 
-    states = realloc(states, num_states * sizeof(*states));
-    memset(states + old_num_states, 0, (num_states - old_num_states) * sizeof(*states));
+    states = realloc(states, states_capacity * sizeof(*states));
+    memset(states + old_capacity, 0, (states_capacity - old_capacity) * sizeof(*states));
 
-    deh_codeptr = realloc(deh_codeptr, num_states * sizeof(*deh_codeptr));
-    memset(deh_codeptr + old_num_states, 0, (num_states - old_num_states) * sizeof(*deh_codeptr));
+    if (deh_codeptr)
+    {
+      deh_codeptr = realloc(deh_codeptr, states_capacity * sizeof(*deh_codeptr));
+      memset(deh_codeptr + old_capacity, 0, (states_capacity - old_capacity) * sizeof(*deh_codeptr));
+    }
 
-    defined_codeptr_args =
-      realloc(defined_codeptr_args, num_states * sizeof(*defined_codeptr_args));
-    memset(defined_codeptr_args + old_num_states, 0,
-      (num_states - old_num_states) * sizeof(*defined_codeptr_args));
+    if (defined_codeptr_args)
+    {
+      defined_codeptr_args = realloc(defined_codeptr_args, states_capacity * sizeof(*defined_codeptr_args));
+      memset(defined_codeptr_args + old_capacity, 0, (states_capacity - old_capacity) * sizeof(*defined_codeptr_args));
+    }
 
-    seenstate_tab = realloc(seenstate_tab, num_states * sizeof(*seenstate_tab));
-    memset(seenstate_tab + old_num_states, 0,
-      (num_states - old_num_states) * sizeof(*seenstate_tab));
+    if (seenstate_tab)
+    {
+      seenstate_tab = realloc(seenstate_tab, states_capacity * sizeof(*seenstate_tab));
+      memset(seenstate_tab + old_capacity, 0, (states_capacity - old_capacity) * sizeof(*seenstate_tab));
+    }
 
-    dsda_ResetStates(old_num_states, num_states);
+    dsda_ResetStates(old_capacity, states_capacity);
   }
+}
+
+static void dsda_EnsureIndex(int index) {
+  dsda_EnsureCapacity(index);
+
+  if (index >= num_states)
+    num_states = index + 1;
 }
 
 dsda_deh_state_t dsda_GetDehState(int index) {
   dsda_deh_state_t deh_state;
 
-  dsda_EnsureCapacity(index);
+  dsda_EnsureIndex(index);
 
   deh_state.state = &states[index];
   deh_state.codeptr = &deh_codeptr[index];
@@ -97,6 +111,7 @@ void dsda_InitializeStates(state_t* source, int count) {
   extern int hexen;
 
   num_states = count;
+  states_capacity = count;
 
   states = source;
 

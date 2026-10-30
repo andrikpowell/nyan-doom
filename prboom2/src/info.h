@@ -6694,7 +6694,6 @@ extern int num_sprites;
 extern mobjinfo_t* mobjinfo;
 extern int num_mobj_types;
 extern int mobj_types_zero;
-extern int mobj_types_max;
 
 // zdoom
 

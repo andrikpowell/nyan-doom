@@ -30,6 +30,7 @@ int num_mobj_types;
 int mobj_types_zero;
 byte* edited_mobjinfo_bits;
 byte* edited_mobjinfo_bloodcolor;
+static int mobjinfo_capacity;
 
 static void dsda_ResetMobjInfo(int from, int to) {
   int i;
@@ -49,27 +50,35 @@ static void dsda_ResetMobjInfo(int from, int to) {
 }
 
 static void dsda_EnsureCapacity(int limit) {
-  while (limit >= num_mobj_types) {
-    int old_num_mobj_types = num_mobj_types;
+  while (limit >= mobjinfo_capacity) {
+    int old_capacity = mobjinfo_capacity;
 
-    num_mobj_types *= 2;
+    mobjinfo_capacity *= 2;
 
-    mobjinfo = Z_Realloc(mobjinfo, num_mobj_types * sizeof(*mobjinfo));
-    memset(mobjinfo + old_num_mobj_types, 0,
-      (num_mobj_types - old_num_mobj_types) * sizeof(*mobjinfo));
+    mobjinfo = Z_Realloc(mobjinfo, mobjinfo_capacity * sizeof(*mobjinfo));
+    memset(mobjinfo + old_capacity, 0, (mobjinfo_capacity - old_capacity) * sizeof(*mobjinfo));
 
-    edited_mobjinfo_bits =
-      Z_Realloc(edited_mobjinfo_bits, num_mobj_types * sizeof(*edited_mobjinfo_bits));
-    memset(edited_mobjinfo_bits + old_num_mobj_types, 0,
-      (num_mobj_types - old_num_mobj_types) * sizeof(*edited_mobjinfo_bits));
+    if (edited_mobjinfo_bits)
+    {
+      edited_mobjinfo_bits = Z_Realloc(edited_mobjinfo_bits, mobjinfo_capacity * sizeof(*edited_mobjinfo_bits));
+      memset(edited_mobjinfo_bits + old_capacity, 0, (mobjinfo_capacity - old_capacity) * sizeof(*edited_mobjinfo_bits));
+    }
 
-    edited_mobjinfo_bloodcolor =
-      Z_Realloc(edited_mobjinfo_bloodcolor, num_mobj_types * sizeof(*edited_mobjinfo_bloodcolor));
-    memset(edited_mobjinfo_bloodcolor + old_num_mobj_types, 0,
-      (num_mobj_types - old_num_mobj_types) * sizeof(*edited_mobjinfo_bloodcolor));
+    if (edited_mobjinfo_bloodcolor)
+    {
+      edited_mobjinfo_bloodcolor = Z_Realloc(edited_mobjinfo_bloodcolor, mobjinfo_capacity * sizeof(*edited_mobjinfo_bloodcolor));
+      memset(edited_mobjinfo_bloodcolor + old_capacity, 0, (mobjinfo_capacity - old_capacity) * sizeof(*edited_mobjinfo_bloodcolor));
+    }
 
-    dsda_ResetMobjInfo(old_num_mobj_types, num_mobj_types);
+    dsda_ResetMobjInfo(old_capacity, mobjinfo_capacity);
   }
+}
+
+static void dsda_EnsureIndex(int index) {
+  dsda_EnsureCapacity(index);
+
+  if (index >= num_mobj_types)
+    num_mobj_types = index + 1;
 }
 
 static deh_index_hash_t deh_mobj_index_hash;
@@ -79,7 +88,11 @@ int dsda_FindDehMobjIndex(int index) {
 }
 
 int dsda_GetDehMobjIndex(int index) {
-  return dsda_GetDehIndex(index, &deh_mobj_index_hash);
+  int result = dsda_GetDehIndex(index, &deh_mobj_index_hash);
+
+  dsda_EnsureIndex(result);
+
+  return result;
 }
 
 // Dehacked has the index off by 1
@@ -90,7 +103,7 @@ int dsda_TranslateDehMobjIndex(int index) {
 dsda_deh_mobjinfo_t dsda_GetDehMobjInfo(int index) {
   dsda_deh_mobjinfo_t deh_mobjinfo;
 
-  dsda_EnsureCapacity(index);
+  dsda_EnsureIndex(index);
 
   deh_mobjinfo.info = &mobjinfo[index];
   deh_mobjinfo.edited_bits = &edited_mobjinfo_bits[index];
@@ -99,20 +112,31 @@ dsda_deh_mobjinfo_t dsda_GetDehMobjInfo(int index) {
   return deh_mobjinfo;
 }
 
-void dsda_InitializeMobjInfo(int zero, int max, int count) {
+void dsda_InitializeMobjInfo(int zero, int count) {
   extern dboolean hexen;
 
   num_mobj_types = count;
+  mobjinfo_capacity = count;
   mobj_types_zero = zero;
 
-  mobjinfo = Z_Calloc(num_mobj_types, sizeof(*mobjinfo));
+  mobjinfo = Z_Calloc(mobjinfo_capacity, sizeof(*mobjinfo));
 
   if (hexen) return;
 
-  deh_mobj_index_hash.start_index = num_mobj_types;
+  deh_mobj_index_hash.start_index = count;
   deh_mobj_index_hash.end_index = num_mobj_types;
-  edited_mobjinfo_bits = Z_Calloc(num_mobj_types, sizeof(*edited_mobjinfo_bits));
-  edited_mobjinfo_bloodcolor = Z_Calloc(num_mobj_types, sizeof(*edited_mobjinfo_bloodcolor));
+  edited_mobjinfo_bits = Z_Calloc(mobjinfo_capacity, sizeof(*edited_mobjinfo_bits));
+  edited_mobjinfo_bloodcolor = Z_Calloc(mobjinfo_capacity, sizeof(*edited_mobjinfo_bloodcolor));
+}
+
+static int dsda_AppendMobjInfo(void) {
+  int index = num_mobj_types;
+
+  dsda_EnsureIndex(index);
+  memset(&mobjinfo[index], 0, sizeof(mobjinfo[index]));
+  dsda_ResetMobjInfo(index, index + 1);
+
+  return index;
 }
 
 // Changing the renderer causes a reset that accesses this list,
@@ -330,13 +354,10 @@ static int append_mobjinfo_count = sizeof(append_mobjinfo) / sizeof(append_mobji
 void dsda_AppendZDoomMobjInfo(void) {
   int i;
   int index;
-  dsda_deh_mobjinfo_t mobjinfo;
 
-  index = deh_mobj_index_hash.end_index;
   for (i = 0; i < append_mobjinfo_count; ++i) {
-    mobjinfo = dsda_GetDehMobjInfo(index);
+    index = dsda_AppendMobjInfo();
     *(append_mobjinfo[i].index_p) = index;
-    *(mobjinfo.info) = *(append_mobjinfo[i].mobjinfo_p);
-    ++index;
+    mobjinfo[index] = *(append_mobjinfo[i].mobjinfo_p);
   }
 }

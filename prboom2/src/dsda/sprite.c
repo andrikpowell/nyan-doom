@@ -25,6 +25,7 @@
 
 const char** sprnames;
 int num_sprites;
+static int sprites_capacity;
 static int deh_spritenames_size;
 static char** deh_spritenames;
 static byte* sprnames_state;
@@ -42,20 +43,29 @@ static void dsda_PrepAllocation(void) {
 }
 
 static void dsda_EnsureCapacity(int limit) {
-  while (limit >= num_sprites) {
-    int old_num_sprites = num_sprites;
+  while (limit >= sprites_capacity) {
+    int old_capacity = sprites_capacity;
 
     dsda_PrepAllocation();
 
-    num_sprites *= 2;
+    sprites_capacity *= 2;
 
-    sprnames = realloc(sprnames, num_sprites * sizeof(*sprnames));
-    memset(sprnames + old_num_sprites, 0, (num_sprites - old_num_sprites) * sizeof(*sprnames));
+    sprnames = realloc(sprnames, sprites_capacity * sizeof(*sprnames));
+    memset(sprnames + old_capacity, 0, (sprites_capacity - old_capacity) * sizeof(*sprnames));
 
-    sprnames_state = realloc(sprnames_state, num_sprites * sizeof(*sprnames_state));
-    memset(sprnames_state + old_num_sprites, 0,
-      (num_sprites - old_num_sprites) * sizeof(*sprnames_state));
+    if (sprnames_state)
+    {
+      sprnames_state = realloc(sprnames_state, sprites_capacity * sizeof(*sprnames_state));
+      memset(sprnames_state + old_capacity, 0, (sprites_capacity - old_capacity) * sizeof(*sprnames_state));
+    }
   }
+}
+
+static void dsda_EnsureIndex(int index) {
+  dsda_EnsureCapacity(index);
+
+  if (index >= num_sprites)
+    num_sprites = index + 1;
 }
 
 int dsda_GetDehSpriteIndex(const char* key) {
@@ -84,7 +94,7 @@ int dsda_GetOriginalSpriteIndex(const char* key) {
       return -1;
 
   i = atoi(key);
-  dsda_EnsureCapacity(i);
+  dsda_EnsureIndex(i);
 
   return i;
 }
@@ -94,6 +104,7 @@ void dsda_InitializeSprites(const char** source, int count) {
   extern int hexen;
 
   num_sprites = count;
+  sprites_capacity = count;
   deh_spritenames_size = num_sprites + 1;
 
   sprnames = source;
