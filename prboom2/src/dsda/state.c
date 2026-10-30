@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "doomdef.h"
 #include "state.h"
 
 state_t* states;
@@ -30,8 +31,11 @@ static actionf_t* deh_codeptr;
 static void dsda_ResetStates(int from, int to) {
   int i;
 
+  // Raven doesn't have a null sprite
+  int null_sprite = raven ? states[0].sprite : SPR_TNT1;
+
   for (i = from; i < to; ++i) {
-    states[i].sprite = SPR_TNT1;
+    states[i].sprite = null_sprite;
     states[i].tics = -1;
     states[i].nextstate = i;
   }
