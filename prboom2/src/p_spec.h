@@ -1474,7 +1474,7 @@ dboolean EV_StartFloorWaggle(int tag, int height, int speed, int offset, int tim
 // p_plats
 
 int EV_DoHexenPlat(line_t * line, byte * args, plattype_e type, int amount);
-void Hexen_EV_StopPlat(line_t * line, byte * args);
+int Hexen_EV_StopPlat(line_t * line, byte * args);
 
 // quake
 
