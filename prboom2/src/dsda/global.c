@@ -193,6 +193,14 @@ static void dsda_ApplyHereticDefaults(void) {
   // note: heretic does not apply this to imp leaders
   mobjinfo[HERETIC_MT_IMP].flags3         |= MF3_NOFLYOVER;
   mobjinfo[HERETIC_MT_WIZARD].flags3      |= MF3_NOFLYOVER;
+
+  // these actors cannot be morphed
+  mobjinfo[HERETIC_MT_POD].flags3         |= MF3_DONTMORPH;
+  mobjinfo[HERETIC_MT_CHICKEN].flags3     |= MF3_DONTMORPH;
+  mobjinfo[HERETIC_MT_HEAD].flags3        |= MF3_DONTMORPH;
+  mobjinfo[HERETIC_MT_MINOTAUR].flags3    |= MF3_DONTMORPH;
+  mobjinfo[HERETIC_MT_SORCERER1].flags3   |= MF3_DONTMORPH;
+  mobjinfo[HERETIC_MT_SORCERER2].flags3   |= MF3_DONTMORPH;
 }
 
 // [AR] TODO: Add stuff into raven_mobjinfo_t
@@ -216,6 +224,15 @@ static void dsda_ApplyHexenDefaults(void) {
   mobjinfo[HEXEN_MT_SERPENT].flags3       |= MF3_STAYMORPHED;
   mobjinfo[HEXEN_MT_SERPENTLEADER].flags3 |= MF3_STAYMORPHED;
   mobjinfo[HEXEN_MT_MINOTAUR].flags3      |= MF3_STAYMORPHED;
+
+  // these actors cannot be morphed
+  mobjinfo[HEXEN_MT_PIG].flags3          |= MF3_DONTMORPH;
+  mobjinfo[HEXEN_MT_FIGHTER_BOSS].flags3 |= MF3_DONTMORPH;
+  mobjinfo[HEXEN_MT_CLERIC_BOSS].flags3  |= MF3_DONTMORPH;
+  mobjinfo[HEXEN_MT_MAGE_BOSS].flags3    |= MF3_DONTMORPH;
+  mobjinfo[HEXEN_MT_DRAGON].flags3       |= MF3_DONTMORPH; // MF2_BOSS
+  mobjinfo[HEXEN_MT_SORCBOSS].flags3     |= MF3_DONTMORPH; // MF2_BOSS
+  mobjinfo[HEXEN_MT_KORAX].flags3        |= MF3_DONTMORPH; // MF2_BOSS
 
   // player ice deaths
   mobjinfo[HEXEN_MT_FIGHTER_BOSS].icedeathstate   = HEXEN_S_FIGHTER_ICE;

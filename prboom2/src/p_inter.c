@@ -2661,19 +2661,11 @@ dboolean P_ChickenMorph(mobj_t * actor)
     {
         return (false);
     }
-    moType = actor->type;
-    switch (moType)
+    if (actor->flags3 & MF3_DONTMORPH)
     {
-        case HERETIC_MT_POD:
-        case HERETIC_MT_CHICKEN:
-        case HERETIC_MT_HEAD:
-        case HERETIC_MT_MINOTAUR:
-        case HERETIC_MT_SORCERER1:
-        case HERETIC_MT_SORCERER2:
-            return (false);
-        default:
-            break;
+        return (false);
     }
+    moType = actor->type;
     x = actor->x;
     y = actor->y;
     z = actor->z;
@@ -3813,21 +3805,9 @@ static dboolean P_MorphMonster(mobj_t * actor)
         return (false);
     if (!(actor->flags & MF_COUNTKILL))
         return false;
-    if (actor->flags2 & MF2_BOSS)
+    if (actor->flags3 & MF3_DONTMORPH)
         return false;
     moType = actor->type;
-    switch (moType)
-    {
-        case HEXEN_MT_PIG:
-            return (false);
-        case HEXEN_MT_FIGHTER_BOSS:
-        case HEXEN_MT_CLERIC_BOSS:
-        case HEXEN_MT_MAGE_BOSS:
-            return (false);
-        default:
-            break;
-    }
-
     oldMonster = *actor;
     x = oldMonster.x;
     y = oldMonster.y;
