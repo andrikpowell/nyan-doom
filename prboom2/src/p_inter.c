@@ -1411,7 +1411,7 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
 
   if (target->flags & MF_SKULLFLY)
   {
-    if (heretic && target->type == HERETIC_MT_MINOTAUR) return;
+    if (target->flags3 & MF3_INVULNCHARGE) return; // if invuln while charging, don't stop (Heretic Minotaur)
     target->momx = target->momy = target->momz = 0;
   }
 

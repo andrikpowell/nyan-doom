@@ -201,6 +201,9 @@ static void dsda_ApplyHereticDefaults(void) {
   mobjinfo[HERETIC_MT_MINOTAUR].flags3    |= MF3_DONTMORPH;
   mobjinfo[HERETIC_MT_SORCERER1].flags3   |= MF3_DONTMORPH;
   mobjinfo[HERETIC_MT_SORCERER2].flags3   |= MF3_DONTMORPH;
+
+  // the maulotaur is invulnerable while charging
+  mobjinfo[HERETIC_MT_MINOTAUR].flags3    |= MF3_INVULNCHARGE;
 }
 
 // [AR] TODO: Add stuff into raven_mobjinfo_t
