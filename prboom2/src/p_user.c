@@ -1189,6 +1189,8 @@ dboolean P_ChangePlayerClass(player_t *player, pclass_t new_class, dboolean spaw
 {
     int i;
     int player_num;
+    mobj_t *fog;
+    fixed_t x, y, z;
 
     if (!hexen)
         return false;
@@ -1207,6 +1209,16 @@ dboolean P_ChangePlayerClass(player_t *player, pclass_t new_class, dboolean spaw
     player->pclass = new_class;
     PlayerClass[player_num] = new_class;
     P_PostMorphWeapon(player, wp_first);
+
+    // Teleport
+    if (spawn_fog && player->mo)
+    {
+      x = player->mo->x;
+      y = player->mo->y;
+      z = player->mo->z;
+      fog = P_SpawnMobj(x, y, z + TELEFOGHEIGHT, HEXEN_MT_TFOG);
+      S_StartMobjSound(fog, hexen_sfx_teleport);
+    }
 
     // Other players can changes classes
     // We want to only update statusbar for the player
