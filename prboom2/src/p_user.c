@@ -1185,10 +1185,62 @@ int P_GetPlayerNum(player_t * player)
     return (0);
 }
 
+static void P_ConvertPlayerArmor(player_t *player, pclass_t old_class, pclass_t new_class)
+{
+    int i;
+    fixed_t armor_total;
+    fixed_t armor_remainder;
+
+    if (old_class < PCLASS_FIGHTER || old_class > PCLASS_MAGE)
+    {
+        memset(player->armorpoints, 0, sizeof(player->armorpoints));
+        return;
+    }
+
+    for (i = 0; i < NUMARMOR; ++i)
+    {
+        const fixed_t old_increment = pclass[old_class].armor_increment[i];
+        const fixed_t new_increment = pclass[new_class].armor_increment[i];
+        const fixed_t old_armor = player->armorpoints[i];
+
+        if (old_armor > old_increment)
+        {
+            // Preserve Dragonskin armor above the full piece as absolute AC
+            player->armorpoints[i] = new_increment + old_armor - old_increment;
+        }
+        else
+        {
+            // Preserve how worn the underlying armor piece is
+            player->armorpoints[i] = (fixed_t)((int64_t)old_armor * new_increment / old_increment);
+        }
+    }
+
+    armor_total = pclass[new_class].auto_armor_save
+                + player->armorpoints[ARMOR_ARMOR]
+                + player->armorpoints[ARMOR_SHIELD]
+                + player->armorpoints[ARMOR_HELMET]
+                + player->armorpoints[ARMOR_AMULET];
+    armor_remainder = armor_total % (5 * FRACUNIT);
+
+    // Avoid armor rounding errors
+    if (armor_remainder && 5 * FRACUNIT - armor_remainder <= NUMARMOR)
+    {
+        for (i = 0; i < NUMARMOR; ++i)
+        {
+            if (player->armorpoints[i])
+            {
+                player->armorpoints[i] += 5 * FRACUNIT - armor_remainder;
+                break;
+            }
+        }
+    }
+}
+
 dboolean P_ChangePlayerClass(player_t *player, pclass_t new_class, dboolean spawn_fog)
 {
     int i;
     int player_num;
+    pclass_t old_class;
     mobj_t *fog;
     fixed_t x, y, z;
 
@@ -1200,11 +1252,9 @@ dboolean P_ChangePlayerClass(player_t *player, pclass_t new_class, dboolean spaw
 
     player_num = P_GetPlayerNum(player);
 
-    // Clear armor
-    for (i = 0; i < NUMARMOR; ++i)
-    {
-        player->armorpoints[i] = 0;
-    }
+    old_class = player->pclass;
+
+    P_ConvertPlayerArmor(player, old_class, new_class);
 
     player->pclass = new_class;
     PlayerClass[player_num] = new_class;
