@@ -187,6 +187,7 @@ void dsda_LinkSFXEffect(int sound, int fallback) {
 static void dsda_ApplyHereticDefaults(void) {
   // Sound stuff
   mobjinfo[HERETIC_MT_WIZARD].flags3      |= MF3_RANDOMACTIVESOUND;
+  mobjinfo[HERETIC_MT_SORCERER2].flags3   |= MF3_FULLVOLACTIVE;
 }
 
 // [AR] TODO: Add stuff into raven_mobjinfo_t
