@@ -1391,25 +1391,13 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
   {
     if ((target->flags2 & MF2_INVULNERABLE) && damage < 10000)
     {                           // mobj is invulnerable
+      // Invulnerable players cannot be damaged
       if (target->player)
-        return;             // for player, no exceptions
-      if (inflictor)
-      {
-        switch (inflictor->type)
-        {
-              // These inflictors aren't foiled by invulnerability
-          case HEXEN_MT_HOLY_FX:
-          case HEXEN_MT_POISONCLOUD:
-          case HEXEN_MT_FIREBOMB:
-            break;
-          default:
-            return;
-        }
-      }
-      else
-      {
         return;
-      }
+
+      // Only FOILINVUL attacks can damage invulnerable actors
+      if (!(inflictor && (inflictor->flags3 & MF3_FOILINVUL)))
+        return;
     }
     if (target->player)
     {

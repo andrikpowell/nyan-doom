@@ -240,6 +240,11 @@ static void dsda_ApplyHexenDefaults(void) {
   mobjinfo[HEXEN_MT_PLAYER_MAGE].flags3    |= MF3_NOSRCDMGTHRUST;
   mobjinfo[HEXEN_MT_PIGPLAYER].flags3      |= MF3_NOSRCDMGTHRUST;
 
+  // these attacks ignore monster invulnerability
+  mobjinfo[HEXEN_MT_HOLY_FX].flags3     |= MF3_FOILINVUL;
+  mobjinfo[HEXEN_MT_POISONCLOUD].flags3 |= MF3_FOILINVUL;
+  mobjinfo[HEXEN_MT_FIREBOMB].flags3    |= MF3_FOILINVUL;
+
   // player ice deaths
   mobjinfo[HEXEN_MT_FIGHTER_BOSS].icedeathstate   = HEXEN_S_FIGHTER_ICE;
   mobjinfo[HEXEN_MT_CLERIC_BOSS].icedeathstate    = HEXEN_S_CLERIC_ICE;
