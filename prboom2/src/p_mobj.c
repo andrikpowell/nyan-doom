@@ -1453,7 +1453,7 @@ void P_MobjThinker (mobj_t* mobj)
               mobj->flags2 |= MF2_ONMOBJ;
               mobj->momz = 0;
             }
-            if (onmo->player || onmo->type == HERETIC_MT_POD)
+            if (onmo->player || (onmo->flags3 & MF3_TRANSFERVELOCITY)) // Heretic_MT_POD
             {
               mobj->momx = onmo->momx;
               mobj->momy = onmo->momy;

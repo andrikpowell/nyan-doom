@@ -204,6 +204,10 @@ static void dsda_ApplyHereticDefaults(void) {
 
   // the maulotaur is invulnerable while charging
   mobjinfo[HERETIC_MT_MINOTAUR].flags3    |= MF3_INVULNCHARGE;
+
+  // EXDEFS removes this POD behaviour
+  if (exdefs)   mobjinfo[HERETIC_MT_POD].flags3       &= ~MF3_TRANSFERVELOCITY;
+  else          mobjinfo[HERETIC_MT_POD].flags3       |= MF3_TRANSFERVELOCITY;
 }
 
 // [AR] TODO: Add stuff into raven_mobjinfo_t
