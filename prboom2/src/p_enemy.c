@@ -1415,8 +1415,13 @@ void A_Chase(mobj_t *actor)
                       heretic ? pr_heretic :
                       pr_see; // Doom
 
+    // Preserve vanilla pig sound selection
+    if (hexen && !exdefs && actor->type == HEXEN_MT_PIG)
+    {
+      S_StartMobjSound(actor, hexen_sfx_pig_active1 + (P_Random(pr_hexen) & 1));
+    }
     // Play see sound instead of active randomly 50% of the time
-    if (actor->flags3 & MF3_RANDOMACTIVESOUND && P_Random(random_type) < 128)
+    else if (actor->flags3 & MF3_RANDOMACTIVESOUND && P_Random(random_type) < 128)
     {
       S_StartMobjSound(actor, actor->info->seesound);
     }
