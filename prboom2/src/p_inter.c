@@ -1146,26 +1146,25 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
     // heretic
     if (target->flags2 & MF2_FIREDAMAGE)
     {                       // Player flame death
+      int firedeath = pclass[target->player->pclass].firedeath;
+
       switch (target->player->pclass)
       {
-        case PCLASS_NULL: // heretic
-          P_SetMobjState(target, HERETIC_S_PLAY_FDTH1);
-          return;
         case PCLASS_FIGHTER:
           S_StartMobjSound(target, hexen_sfx_player_fighter_burn_death);
-          P_SetMobjState(target, HEXEN_S_PLAY_F_FDTH1);
-          return;
+          break;
         case PCLASS_CLERIC:
           S_StartMobjSound(target, hexen_sfx_player_cleric_burn_death);
-          P_SetMobjState(target, HEXEN_S_PLAY_C_FDTH1);
-          return;
+          break;
         case PCLASS_MAGE:
           S_StartMobjSound(target, hexen_sfx_player_mage_burn_death);
-          P_SetMobjState(target, HEXEN_S_PLAY_M_FDTH1);
-          return;
+          break;
         default:
           break;
       }
+
+      P_SetMobjState(target, firedeath);
+      return;
     }
 
     // hexen
@@ -1188,6 +1187,7 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
 
   if (hexen)
   {
+    // [AR] TODO: de-hardcode firedeath?
     if (target->flags2 & MF2_FIREDAMAGE)
     {
       if (target->type == HEXEN_MT_FIGHTER_BOSS

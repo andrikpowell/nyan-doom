@@ -46,6 +46,8 @@ dsda_pclass_t pclass[NUMCLASSES] = {
     .fire_weapon_state = HEXEN_S_FPLAY_ATK1,
     .attack_state = HEXEN_S_FPLAY_ATK1,
     .attack_end_state = HEXEN_S_FPLAY_ATK2,
+    .firedeath = HEXEN_S_PLAY_F_FDTH1,
+    .firedeathend = HEXEN_S_PLAY_FDTH20,
   },
 
   [PCLASS_CLERIC] = {
@@ -63,6 +65,8 @@ dsda_pclass_t pclass[NUMCLASSES] = {
     .fire_weapon_state = HEXEN_S_CPLAY_ATK1,
     .attack_state = HEXEN_S_CPLAY_ATK1,
     .attack_end_state = HEXEN_S_CPLAY_ATK3,
+    .firedeath = HEXEN_S_PLAY_C_FDTH1,
+    .firedeathend = HEXEN_S_PLAY_FDTH20,
   },
 
   [PCLASS_MAGE] = {
@@ -80,6 +84,8 @@ dsda_pclass_t pclass[NUMCLASSES] = {
     .fire_weapon_state = HEXEN_S_MPLAY_ATK1,
     .attack_state = HEXEN_S_MPLAY_ATK1,
     .attack_end_state = HEXEN_S_MPLAY_ATK2,
+    .firedeath = HEXEN_S_PLAY_M_FDTH1,
+    .firedeathend = HEXEN_S_PLAY_FDTH20,
   },
 
   [PCLASS_PIG] = {
@@ -108,6 +114,7 @@ void dsda_ResetNullPClass(void) {
     pclass[PCLASS_NULL].fire_weapon_state = HERETIC_S_PLAY_ATK2;
     pclass[PCLASS_NULL].attack_state = HERETIC_S_PLAY_ATK1;
     pclass[PCLASS_NULL].attack_end_state = HERETIC_S_PLAY_ATK2;
+    pclass[PCLASS_NULL].firedeath = HERETIC_S_PLAY_FDTH1;
   }
   else
   {
@@ -116,5 +123,6 @@ void dsda_ResetNullPClass(void) {
     pclass[PCLASS_NULL].fire_weapon_state = S_PLAY_ATK1;
     pclass[PCLASS_NULL].attack_state = S_PLAY_ATK1;
     pclass[PCLASS_NULL].attack_end_state = S_PLAY_ATK2;
+    pclass[PCLASS_NULL].firedeath = HEXEN_S_NULL;
   }
 }
