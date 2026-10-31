@@ -2948,6 +2948,8 @@ dboolean PTR_NoWayTraverse(intercept_t* in)
   );
 }
 
+static void P_UsePuzzleItemOnThing(player_t *player);
+
 //
 // P_UseLines
 // Looks for special lines in front of the player to activate.
@@ -4527,7 +4529,7 @@ dboolean P_UsePuzzleItem(player_t * player, int itemType)
 // Special use artifact functions
 //
 
-int P_FindPuzzleItemType(player_t *player)
+static int P_FindPuzzleItemType(player_t *player)
 {
     int angle;
     fixed_t x1, y1, x2, y2;
@@ -4550,7 +4552,7 @@ int P_FindPuzzleItemType(player_t *player)
     return PuzzleUseThing;
 }
 
-dboolean P_UsePuzzleItemOnThing(player_t *player)
+static void P_UsePuzzleItemOnThing(player_t *player)
 {
     int required;
     int i;
@@ -4558,11 +4560,11 @@ dboolean P_UsePuzzleItemOnThing(player_t *player)
     artitype_t arti;
 
     if (!player || !player->mo)
-        return false;
+        return;
 
     required = P_FindPuzzleItemType(player);
     if (required < 0)
-        return false;
+        return;
 
     for (i = 0; i < player->artifactCount; i++)
     {
@@ -4584,15 +4586,14 @@ dboolean P_UsePuzzleItemOnThing(player_t *player)
                 S_StartVoidSound(hexen_sfx_puzzle_success);
                 ArtifactFlash = 4;
             }
-            return true;
+            return;
         }
 
         // kex adds this
         dsda_PuzzleFailMessage(player);
-        return false;
+        return;
     }
 
     // No matching puzzle item exists anywhere in inventory
     dsda_PuzzleMissingMessage(player);
-    return false;
 }
