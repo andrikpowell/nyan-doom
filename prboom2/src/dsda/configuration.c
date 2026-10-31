@@ -1831,6 +1831,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "map_show_keys", dsda_config_map_show_keys,
     CONF_BOOL(0), NULL, STRICT_INT(0)
   },
+  [dsda_config_map_show_raven_waypoints] = {
+    "map_show_raven_waypoints", dsda_config_map_show_raven_waypoints,
+    CONF_BOOL(1), NULL, NOT_STRICT
+  },
   [dsda_config_map_key_style] = {
     "map_key_style", dsda_config_map_key_style,
     CONF_BOOL(0), NULL, NOT_STRICT
