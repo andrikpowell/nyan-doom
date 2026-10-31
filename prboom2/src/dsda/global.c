@@ -248,6 +248,10 @@ static void dsda_ApplyHexenDefaults(void) {
   mobjinfo[HEXEN_MT_POISONCLOUD].flags3 |= MF3_FOILINVUL;
   mobjinfo[HEXEN_MT_FIREBOMB].flags3    |= MF3_FOILINVUL;
 
+  // these actors cannot infight
+  mobjinfo[HEXEN_MT_BISHOP].flags3        |= MF3_NOINFIGHTING;
+  mobjinfo[HEXEN_MT_MINOTAUR].flags3      |= MF3_NOINFIGHTING;
+
   // player ice deaths
   mobjinfo[HEXEN_MT_FIGHTER_BOSS].icedeathstate   = HEXEN_S_FIGHTER_ICE;
   mobjinfo[HEXEN_MT_CLERIC_BOSS].icedeathstate    = HEXEN_S_CLERIC_ICE;
