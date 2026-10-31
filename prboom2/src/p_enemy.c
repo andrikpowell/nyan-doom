@@ -5419,15 +5419,9 @@ dboolean P_UpdateMorphedMonster(mobj_t * actor, int tics)
         return (false);
     }
     moType = actor->special2.i;
-    switch (moType)
+    if (mobjinfo[moType].flags3 & MF3_STAYMORPHED)
     {
-        case HEXEN_MT_WRAITHB:       // These must remain morphed
-        case HEXEN_MT_SERPENT:
-        case HEXEN_MT_SERPENTLEADER:
-        case HEXEN_MT_MINOTAUR:
-            return (false);
-        default:
-            break;
+        return false;       // These must remain morphed
     }
     x = actor->x;
     y = actor->y;
