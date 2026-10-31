@@ -1846,6 +1846,9 @@ void P_BlastMobj(mobj_t * source, mobj_t * victim, fixed_t strength)
     mobj_t *mo;
     fixed_t x, y, z;
 
+    if (victim->flags3 & MF3_DONTBLAST)
+      return;
+
     angle = R_PointToAngle2(source->x, source->y, victim->x, victim->y);
     angle >>= ANGLETOFINESHIFT;
     if (strength < BLAST_FULLSTRENGTH)
@@ -1866,19 +1869,10 @@ void P_BlastMobj(mobj_t * source, mobj_t * victim, fixed_t strength)
     {
         if (victim->flags & MF_MISSILE)
         {
-            switch (victim->type)
+            if (victim->type == HEXEN_MT_MSTAFF_FX2)     // Reflect to originato
             {
-                case HEXEN_MT_SORCBALL1:     // don't blast sorcerer balls
-                case HEXEN_MT_SORCBALL2:
-                case HEXEN_MT_SORCBALL3:
-                    return;
-                    break;
-                case HEXEN_MT_MSTAFF_FX2:    // Reflect to originator
-                    P_SetTarget(&victim->special1.m, victim->target);
-                    P_SetTarget(&victim->target, source);
-                    break;
-                default:
-                    break;
+                P_SetTarget(&victim->special1.m, victim->target);
+                P_SetTarget(&victim->target, source);
             }
         }
         if (victim->type == HEXEN_MT_HOLY_FX)
@@ -1970,14 +1964,6 @@ void P_BlastRadius(player_t * player)
         if ((mo->type == HEXEN_MT_WRAITHB) && (mo->flags2 & MF2_DONTDRAW))
         {
             continue;           // no underground wraiths
-        }
-        if ((mo->type == HEXEN_MT_SPLASHBASE) || (mo->type == HEXEN_MT_SPLASH))
-        {
-            continue;
-        }
-        if (mo->type == HEXEN_MT_SERPENT || mo->type == HEXEN_MT_SERPENTLEADER)
-        {
-            continue;
         }
         dist = P_AproxDistance(pmo->x - mo->x, pmo->y - mo->y);
         if (dist > BLAST_RADIUS_DIST)

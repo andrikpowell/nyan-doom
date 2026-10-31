@@ -256,6 +256,15 @@ static void dsda_ApplyHexenDefaults(void) {
   mobjinfo[HEXEN_MT_BISHOP].flags3        |= MF3_NOINFIGHTING;
   mobjinfo[HEXEN_MT_MINOTAUR].flags3      |= MF3_NOINFIGHTING;
 
+  // these actors cannot be blasted by the disc of repulsion
+  mobjinfo[HEXEN_MT_SPLASHBASE].flags3    |= MF3_DONTBLAST;
+  mobjinfo[HEXEN_MT_SPLASH].flags3        |= MF3_DONTBLAST;
+  mobjinfo[HEXEN_MT_SERPENT].flags3       |= MF3_DONTBLAST;
+  mobjinfo[HEXEN_MT_SERPENTLEADER].flags3 |= MF3_DONTBLAST;
+  mobjinfo[HEXEN_MT_SORCBALL1].flags3     |= MF3_DONTBLAST;
+  mobjinfo[HEXEN_MT_SORCBALL2].flags3     |= MF3_DONTBLAST;
+  mobjinfo[HEXEN_MT_SORCBALL3].flags3     |= MF3_DONTBLAST;
+
   // player ice deaths
   mobjinfo[HEXEN_MT_FIGHTER_BOSS].icedeathstate   = HEXEN_S_FIGHTER_ICE;
   mobjinfo[HEXEN_MT_CLERIC_BOSS].icedeathstate    = HEXEN_S_CLERIC_ICE;
