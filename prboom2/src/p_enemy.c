@@ -1411,21 +1411,18 @@ void A_Chase(mobj_t *actor)
   // make active sound
   if (actor->info->activesound && P_Random(pr_see) < 3)
   {
-    if (heretic && actor->type == HERETIC_MT_WIZARD && P_Random(pr_heretic) < 128)
+    int random_type = hexen ? pr_hexen :
+                      heretic ? pr_heretic :
+                      pr_see; // Doom
+
+    // Play see sound instead of active randomly 50% of the time
+    if (actor->flags3 & MF3_RANDOMACTIVESOUND && P_Random(random_type) < 128)
     {
       S_StartMobjSound(actor, actor->info->seesound);
     }
     else if (heretic && actor->type == HERETIC_MT_SORCERER2)
     {
       S_StartVoidSound(actor->info->activesound);
-    }
-    else if (hexen && actor->type == HEXEN_MT_BISHOP && P_Random(pr_hexen) < 128)
-    {
-      S_StartMobjSound(actor, actor->info->seesound);
-    }
-    else if (hexen && actor->type == HEXEN_MT_PIG)
-    {
-      S_StartMobjSound(actor, hexen_sfx_pig_active1 + (P_Random(pr_hexen) & 1));
     }
     else if (hexen && actor->flags2 & MF2_BOSS)
     {

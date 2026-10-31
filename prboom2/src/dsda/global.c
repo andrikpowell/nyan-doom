@@ -184,7 +184,21 @@ void dsda_LinkSFXEffect(int sound, int fallback) {
 }
 
 // [AR] TODO: Add stuff into raven_mobjinfo_t
+static void dsda_ApplyHereticDefaults(void) {
+  // Sound stuff
+  mobjinfo[HERETIC_MT_WIZARD].flags3      |= MF3_RANDOMACTIVESOUND;
+}
+
+// [AR] TODO: Add stuff into raven_mobjinfo_t
 static void dsda_ApplyHexenDefaults(void) {
+  // Sound stuff
+  mobjinfo[HEXEN_MT_BISHOP].flags3        |= MF3_RANDOMACTIVESOUND;
+
+  // [AR] The pig used a jank hardcoded thing which randomly chose active1 or active2
+  // This deliberately unhardcodes that, while keeping the same behaviour
+  mobjinfo[HEXEN_MT_PIG].flags3 |= MF3_RANDOMACTIVESOUND;
+  mobjinfo[HEXEN_MT_PIG].activesound = hexen_sfx_pig_active2;
+
   // player ice deaths
   mobjinfo[HEXEN_MT_FIGHTER_BOSS].icedeathstate   = HEXEN_S_FIGHTER_ICE;
   mobjinfo[HEXEN_MT_CLERIC_BOSS].icedeathstate    = HEXEN_S_CLERIC_ICE;
@@ -592,6 +606,8 @@ static void dsda_InitHeretic(void) {
     mobjinfo[j].bloodcolor = 0; // default
     mobjinfo[j].visibility = VF_HERETIC;
   }
+
+  dsda_ApplyHereticDefaults();
 
   // heretic doesn't use "clip" concept
   for (i = 0; i < NUMAMMO; ++i) clipammo[i] = 1;
