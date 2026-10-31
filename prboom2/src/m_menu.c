@@ -5070,6 +5070,7 @@ static const char *map_key_marker_style_list[] = { "Sprite", "Line", NULL };
 
 setup_menu_t automap_marker_adv_settings[] = {
   { "Automap Marker Style", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_marker_style, 0, map_marker_style_list },
+  { "Show Waypoints", S_YESNO | S_NYAN, m_conf, g_hexen, AA_X, dsda_config_map_show_raven_waypoints },
   { "Always Show Keys", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_show_keys },
   EMPTY_LINE,
   TITLE_ADV("Advanced", g_all, AA_X),

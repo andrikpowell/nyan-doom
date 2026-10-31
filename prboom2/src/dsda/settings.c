@@ -470,6 +470,10 @@ dboolean dsda_ShowAutomapKeys(void) {
   return dsda_IntConfig(dsda_config_map_show_keys) && casual_play;
 }
 
+dboolean dsda_ShowRavenAutomapWaypoints(void) {
+  return dsda_IntConfig(dsda_config_map_show_raven_waypoints);
+}
+
 dboolean dsda_ShowAutomapSprites(void) {
   return dsda_IntConfig(dsda_config_map_key_style) == 0;
 }

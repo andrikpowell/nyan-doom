@@ -360,6 +360,19 @@ static dboolean ActivateThing(mobj_t * mobj)
     }
     if (exdefs)
     {
+        // [AR] TODO: Double check behaviour regarding MF2_DORMANT
+        if (mobj->flags3 & MF3_DRAWONAUTOMAP)
+        {
+            mobj->flags2 &= ~MF2_DORMANT;
+            return true;
+        }
+        // [AR] TODO: Double check behaviour regarding MF2_DORMANT
+        if (mobj->flags2 & MF2_DORMANT)
+        {
+            mobj->flags2 &= ~MF2_DORMANT;
+            mobj->flags3 |= MF3_DRAWONAUTOMAP;
+            return true;
+        }
         if (mobj->info->activatestate != 0)
         {
             P_SetMobjState(mobj, mobj->info->activatestate);
@@ -444,6 +457,12 @@ static dboolean DeactivateThing(mobj_t * mobj)
     }
     if (exdefs)
     {
+        // [AR] TODO: Double check behaviour regarding MF2_DORMANT
+        if (mobj->flags3 & MF3_DRAWONAUTOMAP)
+        {
+            mobj->flags2 |= MF2_DORMANT;
+            return true;
+        }
         if (mobj->info->deactivatestate != 0)
         {
             P_SetMobjState(mobj, mobj->info->deactivatestate);

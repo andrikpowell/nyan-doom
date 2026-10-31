@@ -4300,11 +4300,41 @@ static float AM_GetThingSpriteScale(void)
   return MAX(scale * (1.0f - zoom), minimum);
 }
 
+static void AM_drawExDefsWaypoints(void)
+{
+  thinker_t *thinker;
+  float scale;
+
+  if (!dsda_ShowRavenAutomapWaypoints())
+    return;
+
+  scale = AM_GetThingSpriteScale();
+
+  for (thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+  {
+    mobj_t *thing;
+
+    if (thinker->function != P_MobjThinker)
+      continue;
+
+    thing = (mobj_t *)thinker;
+
+    // [AR] TODO: Double check MF2_DORMANT use with MF3_DRAWONAUTOMAP
+    if (!(thing->flags3 & MF3_DRAWONAUTOMAP) || (thing->flags2 & MF2_DORMANT))
+      continue;
+
+    AM_drawThingSprite(thing, scale);
+  }
+}
+
 static void AM_drawThingSprites(void)
 {
   thinker_t *thinker;
   float scale;
   dboolean showkeys = skill_info.flags & SI_EASY_KEY || dsda_ShowAutomapKeys();
+
+  if (exdefs)
+    AM_drawExDefsWaypoints();
 
   if (!dsda_ShowAutomapSprites() || (!showkeys && dsda_RevealAutomap() != 2))
     return;
@@ -4319,6 +4349,12 @@ static void AM_drawThingSprites(void)
       continue;
 
     thing = (mobj_t *)thinker;
+
+    if (exdefs && dsda_ShowRavenAutomapWaypoints())
+    {
+      if (thing->flags3 & MF3_DRAWONAUTOMAP)
+        continue;
+    }
 
     if (AM_IsAutomapKey(thing) == automap_key_none)
       continue;

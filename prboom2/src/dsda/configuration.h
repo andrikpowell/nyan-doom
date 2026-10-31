@@ -428,6 +428,7 @@ enum {
   dsda_config_map_blinking_locks,
   dsda_config_map_secret_after,
   dsda_config_map_show_keys,
+  dsda_config_map_show_raven_waypoints,
   dsda_config_map_key_style,
   dsda_config_map_sprite_scale,
   dsda_config_map_minimap_sprite_scale,
