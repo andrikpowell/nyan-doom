@@ -2949,6 +2949,7 @@ dboolean PTR_NoWayTraverse(intercept_t* in)
 }
 
 static void P_UsePuzzleItemOnThing(player_t *player);
+static void P_UseSpecialThing(player_t *player);
 
 //
 // P_UseLines
@@ -2982,8 +2983,12 @@ void P_UseLines (player_t*  player)
       S_StartSound (usething, sfx_noway);
 
   // allow kex-style puzzle item usage
-  if (hexen && dsda_SimplerPuzzleUse())
+  if (hexen && (exdefs || dsda_SimplerPuzzleUse()))
     P_UsePuzzleItemOnThing(player);
+
+  // allow kex class-change thing use
+  if (hexen && exdefs)
+    P_UseSpecialThing(player);
 }
 
 
@@ -4596,4 +4601,50 @@ static void P_UsePuzzleItemOnThing(player_t *player)
 
     // No matching puzzle item exists anywhere in inventory
     dsda_PuzzleMissingMessage(player);
+}
+
+//
+// EXDEFS - Use thing to activate line special
+//
+
+static dboolean PTR_UseThingTraverse(intercept_t *in)
+{
+  mobj_t *thing;
+
+  // stop at closed lines
+  if (in->isaline)
+  {
+    P_LineOpening(in->d.line, NULL);
+    return line_opening.range > 0;
+  }
+
+  // skip player and non-usable things
+  thing = in->d.thing;
+  if (thing == usething || !(thing->flags3 & MF3_USESPECIAL))
+    return true;
+
+  // skip things without a special
+  if (!thing->special)
+    return true;
+
+  // Do special!
+  map_format.execute_line_special(thing->special, thing->special_args, NULL, 0, usething);
+
+  return false;
+}
+
+static void P_UseSpecialThing(player_t *player)
+{
+  int angle;
+  fixed_t x1, y1, x2, y2;
+
+  if (!player || !player->mo)
+      return;
+
+  angle = player->mo->angle >> ANGLETOFINESHIFT;
+  x1 = player->mo->x;
+  y1 = player->mo->y;
+  x2 = x1 + (USERANGE >> FRACBITS) * finecosine[angle];
+  y2 = y1 + (USERANGE >> FRACBITS) * finesine[angle];
+  P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES | PT_ADDTHINGS, PTR_UseThingTraverse);
 }

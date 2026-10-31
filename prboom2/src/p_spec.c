@@ -81,6 +81,7 @@
 #include "dsda/utility.h"
 
 #include "hexen/dstrings.h"
+#include "heretic/mn_menu.h"
 
 //
 //      source animation definition
@@ -8575,6 +8576,30 @@ dboolean P_ExecuteHexenLineSpecial(int special, int * special_args, line_t * lin
             break;
         case 120:              // Quake Tremor
             buttonSuccess = A_LocalQuake(args, mo);
+            break;
+        case 123:              // ChangePlayerClass
+            if (exdefs)
+            {
+              // Players must be alive
+              if (!(mo && mo->player && mo->player->playerstate == PST_DEAD))
+              {
+                buttonSuccess = P_ChangePlayerClass(mo->player, PCLASS_FIGHTER + args[0], true);
+              }
+            }
+            break;
+        case 124:              // ChangePlayerClassMenu
+            if (exdefs)
+            {
+              // Players must be alive
+              if (!(mo && mo->player && mo->player->playerstate == PST_DEAD))
+              {
+                if (P_GetPlayerNum(mo->player) == consoleplayer)
+                {
+                  MN_OpenClassChangeMenu();
+                }
+                buttonSuccess = true;
+              }
+            }
             break;
         case 129:              // UsePuzzleItem
             buttonSuccess = EV_LineSearchForPuzzleItem(line, args, mo);

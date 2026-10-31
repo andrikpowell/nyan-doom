@@ -60,10 +60,12 @@
 
 // heretic needs
 #include "heretic/def.h"
+#include "heretic/sb_bar.h"
 #include "hexen/dstrings.h"
 #include "s_sound.h"
 #include "sounds.h"
 #include "p_inter.h"
+#include "p_pspr.h"
 #include "m_random.h"
 
 //
@@ -1181,6 +1183,39 @@ int P_GetPlayerNum(player_t * player)
         }
     }
     return (0);
+}
+
+dboolean P_ChangePlayerClass(player_t *player, pclass_t new_class, dboolean spawn_fog)
+{
+    int i;
+    int player_num;
+
+    if (!hexen)
+        return false;
+
+    if (new_class < PCLASS_FIGHTER || new_class > PCLASS_MAGE)
+        return false;
+
+    player_num = P_GetPlayerNum(player);
+
+    // Clear armor
+    for (i = 0; i < NUMARMOR; ++i)
+    {
+        player->armorpoints[i] = 0;
+    }
+
+    player->pclass = new_class;
+    PlayerClass[player_num] = new_class;
+    P_PostMorphWeapon(player, wp_first);
+
+    // Other players can changes classes
+    // We want to only update statusbar for the player
+    if (player_num == consoleplayer)
+    {
+        SB_SetClassData();
+    }
+
+    return true;
 }
 
 dboolean P_UndoPlayerChicken(player_t * player)

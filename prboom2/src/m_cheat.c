@@ -2519,7 +2519,6 @@ static void cheat_class()
 
 static void cheat_classx(char *buf)
 {
-  int i;
   int new_class;
 
   if (!hexen) return;
@@ -2532,15 +2531,8 @@ static void cheat_classx(char *buf)
   new_class = 1 + (buf[0] - '0');
   if (new_class > PCLASS_MAGE || new_class < PCLASS_FIGHTER)
     RETURN(P_SetMessage(plyr, HEXEN_TXT_CHEATCLASSFAIL, true));
-  plyr->pclass = new_class;
-  for (i = 0; i < NUMARMOR; i++)
-  {
-    plyr->armorpoints[i] = 0;
-  }
-  PlayerClass[consoleplayer] = new_class;
-  P_PostMorphWeapon(plyr, wp_first);
-  SB_SetClassData();
-  P_SetMessage(plyr, HEXEN_TXT_CHEATCLASS2, true);
+  if (P_ChangePlayerClass(plyr, new_class, false))
+    P_SetMessage(plyr, HEXEN_TXT_CHEATCLASS2, true);
 }
 
 static void cheat_script(char *buf)

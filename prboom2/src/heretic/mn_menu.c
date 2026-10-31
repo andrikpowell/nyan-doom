@@ -22,6 +22,7 @@
 #include "m_menu.h"
 #include "m_random.h"
 #include "g_game.h"
+#include "p_user.h"
 #include "dsda/settings.h"
 
 #include "heretic/mn_menu.h"
@@ -609,8 +610,26 @@ static void Hexen_MN_DrawMainMenu(void)
   V_DrawMenuNumPatch(278, 80, SkullBaseLump + frame, CR_DEFAULT, VPT_STRETCH);
 }
 
-// Class menu is in the episode slot for hexen
-void MN_DrawEpisode(void)
+// Select Class
+static player_t *ClassChangePlayer;
+
+static void MN_ChangePlayerClass(int choice)
+{
+  pclass_t new_class;
+
+  if (choice == 3)
+    new_class = PCLASS_FIGHTER + Nyan_Random() % 3;
+  else
+    new_class = PCLASS_FIGHTER + choice;
+
+  if (ClassChangePlayer)
+    P_ChangePlayerClass(ClassChangePlayer, new_class, true);
+
+  ClassChangePlayer = NULL;
+  M_ClearMenus();
+}
+
+static void MN_DrawClassSelect(void)
 {
   pclass_t class;
   static int last_cycle = 0;
@@ -624,8 +643,6 @@ void MN_DrawEpisode(void)
     "m_cwalk1",
     "m_mwalk1"
   };
-
-  if (heretic) return;
 
   MN_DrTextB("CHOOSE CLASS:", 34, 24);
   class = (pclass_t) itemOn;
@@ -641,6 +658,45 @@ void MN_DrawEpisode(void)
   V_DrawNamePatch(174, 8, boxLumpName[class], CR_DEFAULT, VPT_STRETCH);
   V_DrawNumPatch(174 + 24, 8 + 12, W_GetNumForName(walkLumpName[class]) + ((MenuTime >> 3) & 3),
                  CR_DEFAULT, VPT_STRETCH);
+}
+
+static menuitem_t ClassChangeMenu[] =
+{
+  { M_ITEM_ACTION, "", MN_ChangePlayerClass, 'f', HEXEN_CLASS_FIGHTER },
+  { M_ITEM_ACTION, "", MN_ChangePlayerClass, 'c', HEXEN_CLASS_CLERIC },
+  { M_ITEM_ACTION, "", MN_ChangePlayerClass, 'm', HEXEN_CLASS_MAGE },
+  { M_ITEM_ACTION, "", MN_ChangePlayerClass, 'r', "RANDOM" },
+};
+
+static menu_t ClassChangeDef =
+{
+  .numitems = (short)arrlen(ClassChangeMenu),
+  .menuitems = ClassChangeMenu,
+  .routine = MN_DrawClassSelect,
+  .x = 48,
+  .y = 63,
+};
+
+void MN_OpenClassChangeMenu(void)
+{
+  player_t *player = &players[consoleplayer];
+
+  if (!hexen || !playeringame[consoleplayer] || player->morphTics)
+    return;
+
+  ClassChangePlayer = player;
+  ClassChangeDef.numitems = casual_play ? (short)arrlen(ClassChangeMenu) : 3;
+  M_StartControlPanel();
+  M_SetupNextMenu(&ClassChangeDef);
+}
+
+// Class menu is in the episode slot for hexen
+// [AR] TODO: I want to separate the class menu instead of hacking the episode menu
+void MN_DrawEpisode(void)
+{
+  if (heretic) return;
+
+  MN_DrawClassSelect();
 }
 
 static int last_random_class = -1;

@@ -50,6 +50,7 @@ void P_SetPitch(player_t *player);
 // heretic
 
 int P_GetPlayerNum(player_t * player);
+dboolean P_ChangePlayerClass(player_t *player, pclass_t new_class, dboolean spawn_fog);
 void P_PlayerRemoveArtifact(player_t * player, int slot);
 void P_PlayerUseArtifact(player_t * player, artitype_t arti);
 void P_PlayerNextArtifact(player_t * player);
