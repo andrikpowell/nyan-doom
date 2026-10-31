@@ -234,6 +234,12 @@ static void dsda_ApplyHexenDefaults(void) {
   mobjinfo[HEXEN_MT_SORCBOSS].flags3     |= MF3_DONTMORPH; // MF2_BOSS
   mobjinfo[HEXEN_MT_KORAX].flags3        |= MF3_DONTMORPH; // MF2_BOSS
 
+  // player attacks do not thrust from damage
+  mobjinfo[HEXEN_MT_PLAYER_FIGHTER].flags3 |= MF3_NOSRCDMGTHRUST;
+  mobjinfo[HEXEN_MT_PLAYER_CLERIC].flags3  |= MF3_NOSRCDMGTHRUST;
+  mobjinfo[HEXEN_MT_PLAYER_MAGE].flags3    |= MF3_NOSRCDMGTHRUST;
+  mobjinfo[HEXEN_MT_PIGPLAYER].flags3      |= MF3_NOSRCDMGTHRUST;
+
   // player ice deaths
   mobjinfo[HEXEN_MT_FIGHTER_BOSS].icedeathstate   = HEXEN_S_FIGHTER_ICE;
   mobjinfo[HEXEN_MT_CLERIC_BOSS].icedeathstate    = HEXEN_S_CLERIC_ICE;

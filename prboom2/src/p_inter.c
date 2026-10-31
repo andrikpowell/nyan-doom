@@ -1342,6 +1342,23 @@ static dboolean P_InfightingImmune(mobj_t *target, mobj_t *source)
     mobjinfo[target->type].infighting_group == mobjinfo[source->type].infighting_group;
 }
 
+static dboolean P_SourcePreventsDamageThrust(mobj_t *source)
+{
+    // No source to apply thrust
+    if (!source)
+        return false;
+
+    // Source actor prevents thrust (EXDEFS allow for actors other than the player)
+    if (source->flags3 & MF3_NOSRCDMGTHRUST)
+        return true;
+
+    // Source player's weapon prevents thrust
+    if (!hexen && source->player && (weaponinfo[source->player->readyweapon].flags & WPF_NOTHRUST))
+        return true;
+
+    return false;
+}
+
 static dboolean P_MorphMonster(mobj_t * actor);
 
 void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage, method_t mod)
@@ -1609,11 +1626,7 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
   if (
     inflictor &&
     !(target->flags & MF_NOCLIP) && // hexen_note: not done in hexen, does it matter?
-    !(
-      source &&
-      source->player &&
-      (hexen || weaponinfo[source->player->readyweapon].flags & WPF_NOTHRUST)
-    ) &&
+    !P_SourcePreventsDamageThrust(source) &&
     !(inflictor->flags2 & MF2_NODMGTHRUST)
   )
   {
