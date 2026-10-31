@@ -183,6 +183,32 @@ void dsda_LinkSFXEffect(int sound, int fallback) {
     S_sfx[sound].link = &S_sfx[fallback];
 }
 
+// [AR] TODO: Add stuff into raven_mobjinfo_t
+static void dsda_ApplyHexenDefaults(void) {
+  // player ice deaths
+  mobjinfo[HEXEN_MT_FIGHTER_BOSS].icedeathstate   = HEXEN_S_FIGHTER_ICE;
+  mobjinfo[HEXEN_MT_CLERIC_BOSS].icedeathstate    = HEXEN_S_CLERIC_ICE;
+  mobjinfo[HEXEN_MT_MAGE_BOSS].icedeathstate      = HEXEN_S_MAGE_ICE;
+  mobjinfo[HEXEN_MT_PIG].icedeathstate            = HEXEN_S_PIG_ICE;
+
+  // actor ice deaths
+  mobjinfo[HEXEN_MT_PLAYER_FIGHTER].icedeathstate = HEXEN_S_FPLAY_ICE;
+  mobjinfo[HEXEN_MT_PLAYER_CLERIC].icedeathstate  = HEXEN_S_CPLAY_ICE;
+  mobjinfo[HEXEN_MT_PLAYER_MAGE].icedeathstate    = HEXEN_S_MPLAY_ICE;
+  mobjinfo[HEXEN_MT_PIGPLAYER].icedeathstate      = HEXEN_S_PIG_ICE;
+  mobjinfo[HEXEN_MT_BISHOP].icedeathstate         = HEXEN_S_BISHOP_ICE;
+  mobjinfo[HEXEN_MT_CENTAUR].icedeathstate        = HEXEN_S_CENTAUR_ICE;
+  mobjinfo[HEXEN_MT_CENTAURLEADER].icedeathstate  = HEXEN_S_CENTAUR_ICE;
+  mobjinfo[HEXEN_MT_DEMON].icedeathstate          = HEXEN_S_DEMON_ICE;
+  mobjinfo[HEXEN_MT_DEMON2].icedeathstate         = HEXEN_S_DEMON_ICE;
+  mobjinfo[HEXEN_MT_SERPENT].icedeathstate        = HEXEN_S_SERPENT_ICE;
+  mobjinfo[HEXEN_MT_SERPENTLEADER].icedeathstate  = HEXEN_S_SERPENT_ICE;
+  mobjinfo[HEXEN_MT_WRAITH].icedeathstate         = HEXEN_S_WRAITH_ICE;
+  mobjinfo[HEXEN_MT_WRAITHB].icedeathstate        = HEXEN_S_WRAITH_ICE;
+  mobjinfo[HEXEN_MT_ETTIN].icedeathstate          = HEXEN_S_ETTIN_ICE1;
+  mobjinfo[HEXEN_MT_FIREDEMON].icedeathstate      = HEXEN_S_FIRED_ICE1;
+}
+
 static void dsda_InitDoom(void) {
   int i;
   doom_mobjinfo_t* mobjinfo_p;
@@ -309,6 +335,7 @@ static void dsda_InitDoom(void) {
     mobjinfo[i].raisestate   = mobjinfo_p->raisestate;
     mobjinfo[i].droppeditem  = MT_NULL;
     mobjinfo[i].crashstate   = 0; // not in doom
+    mobjinfo[i].icedeathstate = 0; // not in doom
     mobjinfo[i].activatestate = 0; // not in doom
     mobjinfo[i].deactivatestate = 0; // not in doom
     mobjinfo[i].flags2       = 0; // not in doom
@@ -548,6 +575,7 @@ static void dsda_InitHeretic(void) {
     mobjinfo[j].raisestate   = 0; // not in heretic
     mobjinfo[j].droppeditem  = 0; // not in heretic
     mobjinfo[j].crashstate   = mobjinfo_p->crashstate;
+    mobjinfo[j].icedeathstate = 0; // not in heretic
     mobjinfo[j].activatestate = 0; // not in heretic
     mobjinfo[j].deactivatestate = 0; // not in heretic
     mobjinfo[j].flags2       = mobjinfo_p->flags2;
@@ -773,6 +801,7 @@ static void dsda_InitHexen(void) {
     mobjinfo[j].raisestate   = 0; // not in hexen
     mobjinfo[j].droppeditem  = 0; // not in hexen
     mobjinfo[j].crashstate   = mobjinfo_p->crashstate;
+    mobjinfo[j].icedeathstate = 0; // not added to raven_mobjinfo_t yet
     mobjinfo[j].activatestate = 0; // not added to raven_mobjinfo_t yet
     mobjinfo[j].deactivatestate = 0; // not added to raven_mobjinfo_t yet
     mobjinfo[j].flags2       = mobjinfo_p->flags2;
@@ -789,6 +818,8 @@ static void dsda_InitHexen(void) {
     mobjinfo[j].bloodcolor = 0; // default
     mobjinfo[j].visibility = VF_HEXEN;
   }
+
+  dsda_ApplyHexenDefaults();
 
   {
     extern void P_UseHexenRNG(void);

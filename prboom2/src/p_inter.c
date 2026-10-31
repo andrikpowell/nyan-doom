@@ -1171,24 +1171,14 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
     // hexen
     if (target->flags2 & MF2_ICEDAMAGE)
     {                       // Player ice death
-      target->flags &= ~(7 << MF_TRANSSHIFT);     //no translation
-      target->flags |= MF_ICECORPSE;
-      switch (target->player->pclass)
+      int icedeath = target->info->icedeathstate;
+
+      if (icedeath)
       {
-        case PCLASS_FIGHTER:
-          P_SetMobjState(target, HEXEN_S_FPLAY_ICE);
-          return;
-        case PCLASS_CLERIC:
-          P_SetMobjState(target, HEXEN_S_CPLAY_ICE);
-          return;
-        case PCLASS_MAGE:
-          P_SetMobjState(target, HEXEN_S_MPLAY_ICE);
-          return;
-        case PCLASS_PIG:
-          P_SetMobjState(target, HEXEN_S_PIG_ICE);
-          return;
-        default:
-            break;
+        target->flags &= ~(7 << MF_TRANSSHIFT);     //no translation
+        target->flags |= MF_ICECORPSE;
+        P_SetMobjState(target, icedeath);
+        return;
       }
     }
 
@@ -1232,49 +1222,12 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
     }
     if (target->flags2 & MF2_ICEDAMAGE)
     {
-      target->flags |= MF_ICECORPSE;
-      switch (target->type)
+      int icedeath = target->info->icedeathstate;
+      if (icedeath)
       {
-        case HEXEN_MT_BISHOP:
-          P_SetMobjState(target, HEXEN_S_BISHOP_ICE);
-          return;
-        case HEXEN_MT_CENTAUR:
-        case HEXEN_MT_CENTAURLEADER:
-          P_SetMobjState(target, HEXEN_S_CENTAUR_ICE);
-          return;
-        case HEXEN_MT_DEMON:
-        case HEXEN_MT_DEMON2:
-          P_SetMobjState(target, HEXEN_S_DEMON_ICE);
-          return;
-        case HEXEN_MT_SERPENT:
-        case HEXEN_MT_SERPENTLEADER:
-          P_SetMobjState(target, HEXEN_S_SERPENT_ICE);
-          return;
-        case HEXEN_MT_WRAITH:
-        case HEXEN_MT_WRAITHB:
-          P_SetMobjState(target, HEXEN_S_WRAITH_ICE);
-          return;
-        case HEXEN_MT_ETTIN:
-          P_SetMobjState(target, HEXEN_S_ETTIN_ICE1);
-          return;
-        case HEXEN_MT_FIREDEMON:
-          P_SetMobjState(target, HEXEN_S_FIRED_ICE1);
-          return;
-        case HEXEN_MT_FIGHTER_BOSS:
-          P_SetMobjState(target, HEXEN_S_FIGHTER_ICE);
-          return;
-        case HEXEN_MT_CLERIC_BOSS:
-          P_SetMobjState(target, HEXEN_S_CLERIC_ICE);
-          return;
-        case HEXEN_MT_MAGE_BOSS:
-          P_SetMobjState(target, HEXEN_S_MAGE_ICE);
-          return;
-        case HEXEN_MT_PIG:
-          P_SetMobjState(target, HEXEN_S_PIG_ICE);
-          return;
-        default:
-          target->flags &= ~MF_ICECORPSE;
-          break;
+        target->flags |= MF_ICECORPSE;
+        P_SetMobjState(target, icedeath);
+        return;
       }
     }
 

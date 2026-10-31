@@ -3666,7 +3666,7 @@ static void exdefs_ParseActors(int lumpnum, json_t *data)
     exdefs_SetActorState(lumpnum, entry, "deathstate", &info->deathstate);
     exdefs_SetActorState(lumpnum, entry, "xdeathstate", &info->xdeathstate);
     exdefs_SetActorState(lumpnum, entry, "crashstate", &info->crashstate);
-    //exdefs_SetActorState(lumpnum, entry, "icedeathstate", &info->icedeathstate);        // NEW
+    exdefs_SetActorState(lumpnum, entry, "icedeathstate", &info->icedeathstate);        // NEW
     exdefs_SetActorState(lumpnum, entry, "activatestate", &info->activatestate);        // EXDEFS
     exdefs_SetActorState(lumpnum, entry, "deactivatestate", &info->deactivatestate);    // EXDEFS
     //exdefs_SetActorState(lumpnum, entry, "raisestate", &info->raisestate);            // ???

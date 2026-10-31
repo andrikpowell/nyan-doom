@@ -6621,6 +6621,7 @@ typedef struct
   int automapoffsety;
 
   // exdefs
+  int icedeathstate;
   int activatestate;
   int deactivatestate;
   behavior_t behavior;
