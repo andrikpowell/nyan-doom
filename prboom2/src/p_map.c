@@ -894,6 +894,11 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   if (thing == tmthing)
     return true;
 
+  // Camera mode phases through actors, but still checks walls and lines
+  if ((tmthing->player && tmthing->player->cheats & CF_CAMERA) ||
+      (thing->player && thing->player->cheats & CF_CAMERA))
+    return true;
+
   if (map_format.hexen)
     BlockingMobj = thing;
 
