@@ -179,6 +179,9 @@ static dboolean P_CheckMeleeRange(mobj_t *actor)
   if (actor->subsector->sector->flags & SECF_NOATTACK)
     return false;
 
+  if ((actor->flags3 & MF3_NOMELEEGHOST) && (actor->target->flags & MF_SHADOW))
+    return false;
+
   range = actor->info->meleerange;
 
   if (compatibility_level != doom_12_compatibility)
