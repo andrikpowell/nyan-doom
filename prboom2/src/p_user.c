@@ -1238,52 +1238,41 @@ static void P_ConvertPlayerArmor(player_t *player, pclass_t old_class, pclass_t 
 
 // Keep the current weapon slot if available
 // [AR] TODO: Check if this is really how KEX works
-static void P_ChangePlayerClassWeapon(player_t *player, weapontype_t weapon)
+static weapontype_t P_ChangePlayerClassWeapon(player_t *player, pclass_t pclass, weapontype_t weapon)
 {
     int i;
 
     // Make sure new class has weapon 1
-    P_GivePlayerWeapon(player, wp_first);
+    P_GivePlayerClassWeapon(player, pclass, wp_first);
 
     if (weapon < wp_first || weapon >= HEXEN_NUMWEAPONS)
-    {
         weapon = wp_first;
-    }
-    else if (!P_PlayerOwnsWeapon(player, weapon))
+
+    if (P_PlayerClassOwnsWeapon(player, pclass, weapon))
+        return weapon;
+
+    for (i = weapon + 1; i < HEXEN_NUMWEAPONS; ++i)
     {
-        for (i = weapon + 1; i < HEXEN_NUMWEAPONS; ++i)
-        {
-            if (P_PlayerOwnsWeapon(player, i))
-            {
-                weapon = i;
-                break;
-            }
-        }
-
-        if (i == HEXEN_NUMWEAPONS)
-        {
-            for (i = weapon - 1; i >= wp_first; --i)
-            {
-                if (P_PlayerOwnsWeapon(player, i))
-                {
-                    weapon = i;
-                    break;
-                }
-            }
-        }
+        if (P_PlayerClassOwnsWeapon(player, pclass, i))
+            return i;
     }
 
-    P_PostMorphWeapon(player, weapon);
+    for (i = weapon - 1; i >= wp_first; --i)
+    {
+        if (P_PlayerClassOwnsWeapon(player, pclass, i))
+            return i;
+    }
+
+    return wp_first;
 }
 
 dboolean P_ChangePlayerClass(player_t *player, pclass_t new_class, dboolean spawn_fog)
 {
-    int i;
     int player_num;
+    dboolean morphed;
     pclass_t old_class;
     weapontype_t weapon;
     mobj_t *fog;
-    fixed_t x, y, z;
 
     if (!hexen)
         return false;
@@ -1292,25 +1281,45 @@ dboolean P_ChangePlayerClass(player_t *player, pclass_t new_class, dboolean spaw
         return false;
 
     player_num = P_GetPlayerNum(player);
+    morphed = exdefs && player->morphTics;
 
-    // Remember old class and weapon slot
-    old_class = player->pclass;
-    weapon = player->readyweapon;
+    // EXDEFS - allow changing classes while in pig form
+    // Restore new class after morph wears off
+    if (morphed)
+    {
+        old_class = PlayerClass[player_num];
+        weapon = player->mo->special1.i;
+    }
+    else
+    {
+        old_class = player->pclass;
+        weapon = player->readyweapon;
+    }
 
     P_ConvertPlayerArmor(player, old_class, new_class);
 
-    player->pclass = new_class;
+    // Keep the current weapon slot if available
+    weapon = P_ChangePlayerClassWeapon(player, new_class, weapon);
     PlayerClass[player_num] = new_class;
 
-    // Keep the current weapon slot if available
-    P_ChangePlayerClassWeapon(player, weapon);
+    if (morphed)
+    {
+        // Equip this weapon when the player unmorphs
+        player->mo->special1.i = weapon;
+    }
+    else
+    {
+        player->pclass = new_class;
+        P_PostMorphWeapon(player, weapon);
+    }
 
     // Teleport
     if (spawn_fog && player->mo)
     {
-      x = player->mo->x;
-      y = player->mo->y;
-      z = player->mo->z;
+      fixed_t x = player->mo->x;
+      fixed_t y = player->mo->y;
+      fixed_t z = player->mo->z;
+
       fog = P_SpawnMobj(x, y, z + TELEFOGHEIGHT, HEXEN_MT_TFOG);
       S_StartMobjSound(fog, hexen_sfx_teleport);
     }
