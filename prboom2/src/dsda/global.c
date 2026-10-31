@@ -188,6 +188,11 @@ static void dsda_ApplyHereticDefaults(void) {
   // Sound stuff
   mobjinfo[HERETIC_MT_WIZARD].flags3      |= MF3_RANDOMACTIVESOUND;
   mobjinfo[HERETIC_MT_SORCERER2].flags3   |= MF3_FULLVOLACTIVE;
+
+  // don't let imps/wizards fly over each other
+  // note: heretic does not apply this to imp leaders
+  mobjinfo[HERETIC_MT_IMP].flags3         |= MF3_NOFLYOVER;
+  mobjinfo[HERETIC_MT_WIZARD].flags3      |= MF3_NOFLYOVER;
 }
 
 // [AR] TODO: Add stuff into raven_mobjinfo_t
@@ -199,6 +204,9 @@ static void dsda_ApplyHexenDefaults(void) {
   // This deliberately unhardcodes that, while keeping the same behaviour
   mobjinfo[HEXEN_MT_PIG].flags3 |= MF3_RANDOMACTIVESOUND;
   mobjinfo[HEXEN_MT_PIG].activesound = hexen_sfx_pig_active2;
+
+  // don't let bishops fly over each other
+  mobjinfo[HEXEN_MT_BISHOP].flags3        |= MF3_NOFLYOVER;
 
   // player ice deaths
   mobjinfo[HEXEN_MT_FIGHTER_BOSS].icedeathstate   = HEXEN_S_FIGHTER_ICE;

@@ -889,18 +889,11 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 
   if (tmthing->flags2 & MF2_PASSMOBJ)
   {                           // check if a mobj passed over/under another object
-    if (raven)
+    // [AR] don't let actors fly over other actors with this flag
+    // heretic imps/wizards / hexen bishops)
+    if ((tmthing->flags3 & MF3_NOFLYOVER) && (thing->flags3 & MF3_NOFLYOVER))
     {
-      if ((tmthing->type == HERETIC_MT_IMP || tmthing->type == HERETIC_MT_WIZARD)
-          && (thing->type == HERETIC_MT_IMP || thing->type == HERETIC_MT_WIZARD))
-      {                       // don't let imps/wizards fly over other imps/wizards
-        return false;
-      }
-
-      if (tmthing->type == HEXEN_MT_BISHOP && thing->type == HEXEN_MT_BISHOP)
-      {                       // don't let bishops fly over other bishops
-        return false;
-      }
+      return false;
     }
 
     if (
