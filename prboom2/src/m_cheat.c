@@ -1947,28 +1947,36 @@ static void cheat_notarget()
     dsda_AddMessage("Notarget Mode OFF");
 }
 
+static int camera_saved_cheats;
+static int camera_saved_flight;
+static uint64_t camera_saved_flags;
+
 static void cheat_camera()
 {
+  int camera_cheats = CF_GODMODE | CF_NOTARGET | CF_FLY;
+
   if (!casual_play)
     RETURN(dsda_AddMessage("Camera Mode Not Allowed"));
 
-  plyr->cheats ^= CF_CAMERA;
-  plyr->cheats ^= CF_GODMODE;
-  plyr->cheats ^= CF_NOTARGET;
-  plyr->cheats ^= CF_FLY;
-
-  if (plyr->cheats & CF_CAMERA)
+  if (!(plyr->cheats & CF_CAMERA))
     {
-      plyr->mo->flags |= CF_GODMODE;
-      plyr->mo->flags |= CF_NOTARGET;
+      // Keep track so we can restore status later
+      camera_saved_cheats = plyr->cheats & camera_cheats;
+      camera_saved_flight = plyr->powers[pw_flight];
+      camera_saved_flags  = plyr->mo->flags & (MF_NOGRAVITY | MF_FLY);
 
+      // Add camera cheats
+      plyr->cheats |= CF_CAMERA | camera_cheats;
+
+      // Add flight
       if (raven)
       {
         if (!plyr->powers[pw_flight])
         {
           P_GivePower(plyr, pw_flight);
-          plyr->powers[pw_flight] = INT_MAX;
         }
+        // Force unlimited flight without using saved timer
+        plyr->powers[pw_flight] = INT_MAX;
       }
       else
       {
@@ -1980,21 +1988,30 @@ static void cheat_camera()
     }
     else
     {
-      plyr->mo->flags &= ~CF_GODMODE;
-      plyr->mo->flags &= ~CF_NOTARGET;
+      // Remove camera cheats
+      plyr->cheats &= ~(CF_CAMERA | camera_cheats);
 
+      // Restore previous cheats
+      plyr->cheats |= camera_saved_cheats;
+
+      // Restore previous flight status
       if (raven)
       {
-        if (plyr->powers[pw_flight])
+        if (!camera_saved_flight)
         {
           P_PlayerEndFlight(plyr);
           plyr->powers[pw_flight] = 0;
+        }
+        else // Restore saved flight timer
+        {
+          plyr->powers[pw_flight] = camera_saved_flight;
         }
       }
       else
       {
         plyr->mo->flags &= ~MF_NOGRAVITY;
         plyr->mo->flags &= ~MF_FLY;
+        plyr->mo->flags |= camera_saved_flags;
       }
 
       dsda_AddMessage("Camera Mode OFF");
