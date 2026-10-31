@@ -1988,6 +1988,8 @@ static void cheat_camera()
     }
     else
     {
+      P_CameraExitTelefrag(plyr->mo);
+
       // Remove camera cheats
       plyr->cheats &= ~(CF_CAMERA | camera_cheats);
 

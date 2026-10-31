@@ -89,6 +89,9 @@ void    P_LineAttack(mobj_t *t1, angle_t angle, fixed_t distance,
 void P_RadiusAttack(mobj_t *spot, mobj_t *source, int damage, int distance, int flags);
 dboolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y);
 
+// Nyan camera mode
+void P_CameraExitTelefrag(mobj_t *thing);
+
 typedef struct
 {
   msecnode_t *node;

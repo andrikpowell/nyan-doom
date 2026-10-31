@@ -143,6 +143,7 @@ msecnode_t* sector_list = NULL;                             // phares 3/16/98
 //
 
 static dboolean telefrag;   /* killough 8/9/98: whether to telefrag at exit */
+static dboolean telefrag_camera;  // Camera telefrag
 
 dboolean PIT_StompThing (mobj_t* thing)
 {
@@ -162,6 +163,14 @@ dboolean PIT_StompThing (mobj_t* thing)
 
   if (D_abs(thing->x - tmx) >= blockdist || D_abs(thing->y - tmy) >= blockdist)
     return true; // didn't hit it
+
+  // Check z-position of camera cheat telefrag
+  if (telefrag_camera)
+  {
+    if (thing->z >= tmthing->z + tmthing->height ||
+        thing->z + thing->height <= tmthing->z)
+      return true;
+  }
 
   // monsters don't stomp things except on boss level
   // killough 8/9/98: make consistent across all levels
@@ -466,6 +475,46 @@ dboolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, dboolean boss)
   thing->PrevZ = thing->floorz;
 
   return true;
+}
+
+void P_CameraExitTelefrag(mobj_t *thing)
+{
+  int     xl;
+  int     xh;
+  int     yl;
+  int     yh;
+  int     bx;
+  int     by;
+
+  // kill anything occupying the position
+
+  tmthing = thing;
+
+  tmx = thing->x;
+  tmy = thing->y;
+
+  telefrag = true;
+  telefrag_camera = true;
+
+  tmbbox[BOXTOP] = tmy + thing->radius;
+  tmbbox[BOXBOTTOM] = tmy - thing->radius;
+  tmbbox[BOXRIGHT] = tmx + thing->radius;
+  tmbbox[BOXLEFT] = tmx - thing->radius;
+
+  // stomp on any things contacted
+
+  xl = P_GetSafeBlockX(tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS);
+  xh = P_GetSafeBlockX(tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS);
+  yl = P_GetSafeBlockY(tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS);
+  yh = P_GetSafeBlockY(tmbbox[BOXTOP] - bmaporgy + MAXRADIUS);
+
+  for (bx=xl ; bx<=xh ; bx++)
+    for (by=yl ; by<=yh ; by++)
+      P_BlockThingsIterator(bx, by, PIT_StompThing, true);
+
+  telefrag = false;
+  telefrag_camera = false;
+  tmthing = NULL;
 }
 
 
