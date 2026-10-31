@@ -199,6 +199,9 @@ static void dsda_ApplyHereticDefaults(void) {
 static void dsda_ApplyHexenDefaults(void) {
   // Sound stuff
   mobjinfo[HEXEN_MT_BISHOP].flags3        |= MF3_RANDOMACTIVESOUND;
+  mobjinfo[HEXEN_MT_DRAGON].flags3        |= MF3_FULLVOLACTIVE; // MF2_BOSS
+  mobjinfo[HEXEN_MT_SORCBOSS].flags3      |= MF3_FULLVOLACTIVE; // MF2_BOSS
+  mobjinfo[HEXEN_MT_KORAX].flags3         |= MF3_FULLVOLACTIVE; // MF2_BOSS
 
   // [AR] The pig used a jank hardcoded thing which randomly chose active1 or active2
   // This deliberately unhardcodes that, while keeping the same behaviour

@@ -1420,10 +1420,8 @@ void A_Chase(mobj_t *actor)
     {
       S_StartMobjSound(actor, actor->info->seesound);
     }
-    // [AR] TODO: Figure out if this or flags, or just one flag
     // active sounds are full volume (Heretic final boss / Hexen bosses)
-    else if ((hexen && actor->flags2 & MF2_BOSS) ||
-             (actor->flags3 & MF3_FULLVOLACTIVE))
+    else if (actor->flags3 & MF3_FULLVOLACTIVE)
     {
       S_StartVoidSound(actor->info->activesound);
     }
