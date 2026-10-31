@@ -1236,11 +1236,52 @@ static void P_ConvertPlayerArmor(player_t *player, pclass_t old_class, pclass_t 
     }
 }
 
+// Keep the current weapon slot if available
+// [AR] TODO: Check if this is really how KEX works
+static void P_ChangePlayerClassWeapon(player_t *player, weapontype_t weapon)
+{
+    int i;
+
+    // Make sure new class has weapon 1
+    P_GivePlayerWeapon(player, wp_first);
+
+    if (weapon < wp_first || weapon >= HEXEN_NUMWEAPONS)
+    {
+        weapon = wp_first;
+    }
+    else if (!P_PlayerOwnsWeapon(player, weapon))
+    {
+        for (i = weapon + 1; i < HEXEN_NUMWEAPONS; ++i)
+        {
+            if (P_PlayerOwnsWeapon(player, i))
+            {
+                weapon = i;
+                break;
+            }
+        }
+
+        if (i == HEXEN_NUMWEAPONS)
+        {
+            for (i = weapon - 1; i >= wp_first; --i)
+            {
+                if (P_PlayerOwnsWeapon(player, i))
+                {
+                    weapon = i;
+                    break;
+                }
+            }
+        }
+    }
+
+    P_PostMorphWeapon(player, weapon);
+}
+
 dboolean P_ChangePlayerClass(player_t *player, pclass_t new_class, dboolean spawn_fog)
 {
     int i;
     int player_num;
     pclass_t old_class;
+    weapontype_t weapon;
     mobj_t *fog;
     fixed_t x, y, z;
 
@@ -1252,13 +1293,17 @@ dboolean P_ChangePlayerClass(player_t *player, pclass_t new_class, dboolean spaw
 
     player_num = P_GetPlayerNum(player);
 
+    // Remember old class and weapon slot
     old_class = player->pclass;
+    weapon = player->readyweapon;
 
     P_ConvertPlayerArmor(player, old_class, new_class);
 
     player->pclass = new_class;
     PlayerClass[player_num] = new_class;
-    P_PostMorphWeapon(player, wp_first);
+
+    // Keep the current weapon slot if available
+    P_ChangePlayerClassWeapon(player, weapon);
 
     // Teleport
     if (spawn_fog && player->mo)
