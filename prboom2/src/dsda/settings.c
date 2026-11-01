@@ -391,19 +391,36 @@ dboolean dsda_MapTitle(void) {
   return dsda_IntConfig(dsda_config_map_title);
 }
 
+dboolean dsda_FreeCamera(void) {
+  return (casual_play && casual_freecamera) ||
+         (demoplayback && walkcamera.type == walkcamera_free);
+}
+
+static dboolean dsda_CameraDisableEffects(void) {
+  return (dsda_FreeCamera() || P_WalkCameraDetached());
+}
+
 dboolean dsda_PainPalette(void) {
+  if (dsda_CameraDisableEffects()) return false;
+
   return dsda_IntConfig(dsda_config_palette_ondamage);
 }
 
 dboolean dsda_PickupPalette(void) {
+  if (dsda_CameraDisableEffects()) return false;
+
   return dsda_IntConfig(dsda_config_palette_onbonus);
 }
 
 dboolean dsda_PowerPalette(void) {
+  if (dsda_CameraDisableEffects()) return false;
+
   return dsda_IntConfig(dsda_config_palette_onpowers);
 }
 
 dboolean dsda_EffectPalette(void) {
+  if (dsda_CameraDisableEffects()) return false;
+
   if (!casual_play || dsda_StrictMode()) return true;
 
   return dsda_IntConfig(dsda_config_palette_oneffects);

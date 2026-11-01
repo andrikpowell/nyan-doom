@@ -1654,8 +1654,8 @@ static dboolean MouseShouldBeGrabbed()
 
   // always grab the mouse in camera mode when playing levels
   // and menu is not active
-  if (walkcamera.type)
-    return (demoplayback && gamestate == GS_LEVEL && !menuactive);
+  if (demoplayback && walkcamera.type)
+    return gamestate == GS_LEVEL && !menuactive;
 
   // during playback the mouse should be hidden when not moving
   if (demoplayback && !menuactive && mouse_hide_timer > 0 &&

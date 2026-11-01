@@ -4571,6 +4571,7 @@ setup_menu_t keys_toggles_settings[] = {
   { "FPS",                  S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_fps },
   { "Show Alive Monsters",  S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_showalive },
   { "Show Target's Health", S_INPUT|S_NYAN, m_scrn, g_all, KB_X, 0, dsda_input_target_health },
+  { "Free Camera",          S_INPUT|S_NYAN, m_scrn, g_all, MS_X, 0,  nyan_input_freecamera },
   EMPTY_LINE,
   TITLE("Cycle", MS_X),
   { "Cycle Input Profile",  S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_cycle_profile },
@@ -8960,6 +8961,13 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
     // return true;
   }
 
+  // Walkcamera mode on the main menu demo?
+  if (!in_game && walkcamera.type != walkcamera_off &&
+      dsda_InputActivated(dsda_input_fire))
+  {
+    return false;
+  }
+
   // Pop-up Main menu?
   if (ch == KEYD_ESCAPE || action == MENU_ESCAPE ||
       (!in_game && (ch == KEYD_ENTER || ch == KEYD_SPACEBAR || ch == KEYD_KEYPADENTER ||
@@ -9083,13 +9091,30 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
   {
     if (demoplayback && gamestate == GS_LEVEL)
     {
-      walkcamera.type = (walkcamera.type+1)%3;
-      P_SyncWalkcam (true, (walkcamera.type!=2));
+      walkcamera.type = (walkcamera.type + 1) % walkcamera_mode_count;
+
+      if (walkcamera.type == walkcamera_player)
+        P_SyncWalkcam(true, true);
+      else if (walkcamera.type == walkcamera_walk)
+        P_SyncWalkcam(true, false);
+      // walkcamera_free inherits position from walkcamera_walk
+
       R_ResetViewInterpolation ();
-      if (walkcamera.type==0)
+      M_ChangeApplyPalette();
+      if (walkcamera.type == walkcamera_off)
         R_SmoothPlaying_Reset(NULL);
       // Don't eat the keypress in this case.
       // return true;
+    }
+  }
+
+  if (dsda_InputActivated(nyan_input_freecamera))
+  {
+    if (casual_play && gamestate == GS_LEVEL)
+    {
+      P_ToggleFreecam();
+      doom_printf("Free Camera %s", casual_freecamera ? "On" : "Off");
+      return true;
     }
   }
 

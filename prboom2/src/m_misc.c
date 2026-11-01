@@ -688,6 +688,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_demo_skip", dsda_input_demo_skip, KEYD_INSERT, -1, -1),
   INPUT_SETTING("input_demo_endlevel", dsda_input_demo_endlevel, KEYD_END, -1, -1),
   INPUT_SETTING("input_walkcamera", dsda_input_walkcamera, KEYD_KEYPAD0, -1, -1),
+  INPUT_SETTING("input_freecamera", nyan_input_freecamera, 0, -1, -1),
   INPUT_SETTING("input_join_demo", dsda_input_join_demo, 0, -1, -1),
   INPUT_SETTING("input_restart", dsda_input_restart, KEYD_HOME, -1, -1),
   INPUT_SETTING("input_nextlevel", dsda_input_nextlevel, KEYD_PAGEDOWN, -1, -1),

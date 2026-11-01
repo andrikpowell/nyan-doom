@@ -2512,6 +2512,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
 {
   // Stupid C trick to get alignment without C11 alignof
   static const size_t align = offsetof(struct { char a; mobj_t m; }, m);
+  dboolean first_person;
   fixed_t   tx;
   spritedef_t   *sprdef;
   spriteframe_t *sprframe;
@@ -2670,8 +2671,11 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
       return;
   }
 
-  //e6y FIXME!!!
-  if (thing == players[displayplayer].mo && walkcamera.type != 2)
+  // e6y
+  // Don't draw the viewed player in first person
+  first_person = !P_WalkCameraDetached();
+
+  if (thing == players[displayplayer].mo && first_person)
     return;
 
   sprite.x =-(float)fx / MAP_SCALE;

@@ -943,7 +943,7 @@ void R_SetupFreelook(void)
     int i;
 
     centery = viewheight / 2;
-    if (raven || dsda_FreeAim())
+    if (raven || dsda_FreeAim() || P_WalkCameraFreeAim())
     {
       dy = FixedMul(focallengthy, finetangent[(ANG90-viewpitch)>>ANGLETOFINESHIFT]);
       centery += dy >> FRACBITS;
@@ -1088,6 +1088,10 @@ static void R_SetupFrame (player_t *player)
 
   extralight = player->extralight;
 
+  // Disable weapon flashes for detached cameras
+  if (dsda_FreeCamera() || P_WalkCameraDetached())
+    extralight = 0;
+
   if (extra_brightness < 0 || extra_brightness > 4) {
     extra_brightness = 0;
   }
@@ -1213,7 +1217,8 @@ static void R_InitDrawScene(void)
 static void R_RenderBSPNodes(void)
 {
   // Make displayed player invisible locally
-  if (localQuakeHappening[displayplayer] && gamestate == GS_LEVEL)
+  if (localQuakeHappening[displayplayer] && gamestate == GS_LEVEL &&
+      !P_WalkCameraDetached())
   {
     players[displayplayer].mo->flags2 |= MF2_DONTDRAW;
     R_RenderBSPNode(numnodes - 1);  // head node is the last node output

@@ -725,6 +725,7 @@ dboolean LevelUseFullBright = true;
 
 static void R_ProjectSprite (mobj_t* thing, int lightlevel)
 {
+  dboolean  first_person;
   fixed_t   gzt, gzb;               // killough 3/27/98
   fixed_t   tx;
   fixed_t   xscale;
@@ -899,9 +900,11 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
         return;
     }
 
-  //e6y FIXME!!!
-  if (thing == players[displayplayer].mo && walkcamera.type != 2)
-//  if (thing->player && thing->player == &players[displayplayer] && walkcamera.type != 2)
+  // e6y
+  // Don't draw the viewed player in first person
+  first_person = !P_WalkCameraDetached();
+
+  if (thing == players[displayplayer].mo && first_person)
     return;
 
   // store information in a vissprite
@@ -1550,7 +1553,7 @@ void R_DrawPlayerSprites(void)
   int i;
   pspdef_t *psp;
 
-  if (walkcamera.type != 0)
+  if (walkcamera.type != walkcamera_off)
     return;
 
   // get light level

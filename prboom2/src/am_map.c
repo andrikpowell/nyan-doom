@@ -339,6 +339,21 @@ mline_t thingbox_guy[] =
 #undef R
 #define NUMTHINGBOXGUYLINES (sizeof(thingbox_guy)/sizeof(mline_t))
 
+// Free camera
+#define R (FRACUNIT)
+mline_t camera_guy[] =
+{
+  { { -3*R/4, -R/2 }, {  R/4, -R/2 } },   // Square top
+  { {  R/4, -R/2 }, {  R/4,  R/2 } },     // Square right
+  { {  R/4,  R/2 }, { -3*R/4,  R/2 } },   // Square bottom
+  { { -3*R/4,  R/2 }, { -3*R/4, -R/2 } }, // Square left
+  { {  R/4, -R/3 }, {  R,   -R/2 } },     // Lens side slant
+  { {  R,   -R/2 }, {  R,    R/2 } },     // Lens front
+  { {  R,    R/2 }, {  R/4,  R/3 } },     // Lens side slant
+};
+#undef R
+#define NUMCAMERALINES (sizeof(camera_guy)/sizeof(mline_t))
+
 // Digit Segments
 #define R (FRACUNIT)
 #define SEG_T  { { -R/2,  R }, {  R/2,  R } } // top
@@ -2959,6 +2974,23 @@ static void AM_DrawBossActionThings(void)
 //
 // Passed nothing, returns nothing
 //
+static void AM_drawFreeCameraPlayer(void)
+{
+  fixed_t scale = 16 << MAPBITS;
+  mpoint_t pt;
+
+  pt.x = viewx >> FRACTOMAPBITS;
+  pt.y = viewy >> FRACTOMAPBITS;
+
+  if (automap_rotate)
+    AM_rotatePoint(&pt);
+  else
+    AM_SetMPointFloatValue(&pt);
+
+  AM_drawLineCharacter(camera_guy, NUMCAMERALINES, scale, 0,
+      viewangle, mapcolor_p->sngl, pt.x, pt.y);
+}
+
 static void AM_drawPlayers(void)
 {
   int   i;
@@ -2966,6 +2998,10 @@ static void AM_drawPlayers(void)
   mpoint_t pt;
   fixed_t scale;
   fixed_t box_scale = 0;
+
+  // Free Camera Player
+  if (dsda_FreeCamera())
+    AM_drawFreeCameraPlayer();
 
   if (V_IsOpenGLMode())
   {
@@ -2984,17 +3020,27 @@ static void AM_drawPlayers(void)
 
   if (!netgame)
   {
-    pt.x = viewx >> FRACTOMAPBITS;
-    pt.y = viewy >> FRACTOMAPBITS;
+    // draw the player separate from view
+    if (dsda_FreeCamera())
+    {
+      AM_GetMobjPosition(plr->mo, &pt, &angle);
+    }
+    else
+    {
+      pt.x = viewx >> FRACTOMAPBITS;
+      pt.y = viewy >> FRACTOMAPBITS;
+      angle = viewangle;
+    }
+
     if (automap_rotate)
       AM_rotatePoint(&pt);
     else
       AM_SetMPointFloatValue(&pt);
 
     if (dsda_RevealAutomap())
-      AM_drawLineCharacter(cheat_player_arrow, numcheatplyrlines, scale, box_scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
+      AM_drawLineCharacter(cheat_player_arrow, numcheatplyrlines, scale, box_scale, angle, mapcolor_p->sngl, pt.x, pt.y);
     else
-      AM_drawLineCharacter(player_arrow, numplyrlines, scale, box_scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
+      AM_drawLineCharacter(player_arrow, numplyrlines, scale, box_scale, angle, mapcolor_p->sngl, pt.x, pt.y);
     return;
   }
 
