@@ -126,5 +126,7 @@ void dsda_WatchMouseEvent(void);
 void dsda_LiftInputRestrictions(void);
 
 dboolean dsda_FreeCamera(void);
+dboolean dsda_Deathcam(void);
+int dsda_ChasecamMode(void);
 
 #endif
