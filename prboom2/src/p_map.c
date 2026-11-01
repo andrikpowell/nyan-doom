@@ -1073,6 +1073,12 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
         return true;
     }
 
+    // EXDEFS - Allow firing through ice corpses
+    if ((thing->flags & MF_ICECORPSE) && (tmthing->flags3 & MF3_THRUICECORPSE))
+    {
+        return true;
+    }
+
     // Check for passing through a ghost
     if ((thing->flags & MF_SHADOW) && (tmthing->flags2 & MF2_THRUGHOST))
     {
