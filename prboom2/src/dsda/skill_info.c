@@ -169,7 +169,7 @@ void dsda_InitSkills(void) {
   int original_skill_num;
   const skill_info_t* original_skill_infos;
 
-  original_skill_num = !doom_v11 ? 5 : 4;
+  original_skill_num = !old_compatibility ? 5 : 4;
 
   num_skills = original_skill_num + uvplus + customskill;
   num_og_skills = num_skills - customskill;
@@ -382,7 +382,7 @@ void dsda_AlterGameFlags(void)
 }
 
 void dsda_LoadSkillLump(void) {
-  if (raven || doom_v11 || netgame)
+  if (raven || old_compatibility || netgame)
     return;
 
   if (W_LumpNameExists("NYANSKLG"))

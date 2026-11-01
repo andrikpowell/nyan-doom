@@ -18,6 +18,7 @@
 #ifndef __DSDA_COMPATIBILITY__
 #define __DSDA_COMPATIBILITY__
 
+dboolean dsda_CheckFileChecksum(const char *name, const char *expected);
 void dsda_ApplyLevelCompatibility(int lump);
 
 #endif

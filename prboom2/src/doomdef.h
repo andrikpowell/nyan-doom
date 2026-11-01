@@ -59,7 +59,6 @@
 
 extern dboolean bfgedition;
 extern dboolean unityedition;
-extern dboolean doom_v11;
 
 // Game mode handling - identify IWAD version
 //  to handle IWAD dependend animations etc.
@@ -487,6 +486,7 @@ typedef enum
 typedef enum
 {
   PCLASS_NULL,
+  PCLASS_DOOM_OLD,
   PCLASS_FIGHTER,
   PCLASS_CLERIC,
   PCLASS_MAGE,
