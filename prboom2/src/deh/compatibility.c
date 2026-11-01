@@ -136,7 +136,18 @@ void deh_applyCompatibility(void)
     maxhealthbonus = maxhealth * 2;
   }
 
-  if (raven) return;
+  if (raven)
+  {
+    if (heretic)
+    {
+      // EXDEFS removes this POD behaviour
+      if (exdefs)
+        mobjinfo[HERETIC_MT_POD].flags3 &= ~MF3_TRANSFERVELOCITY;
+      else
+        mobjinfo[HERETIC_MT_POD].flags3 |= MF3_TRANSFERVELOCITY;
+    }
+    return;
+  }
 
   if (!edited_mobjinfo_bits[MT_SKULL])
   {

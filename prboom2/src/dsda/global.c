@@ -567,12 +567,6 @@ static void dsda_InitHeretic(void) {
     mobjinfo[j].visibility = VF_HERETIC;
   }
 
-  // EXDEFS removes this POD behaviour
-  if (exdefs)
-    mobjinfo[HERETIC_MT_POD].flags3 &= ~MF3_TRANSFERVELOCITY;
-  else
-    mobjinfo[HERETIC_MT_POD].flags3 |= MF3_TRANSFERVELOCITY;
-
   // heretic doesn't use "clip" concept
   for (i = 0; i < NUMAMMO; ++i) clipammo[i] = 1;
 
