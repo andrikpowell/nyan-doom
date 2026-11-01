@@ -16,6 +16,8 @@
 //
 
 #include <string.h>
+#include <errno.h>
+#include <stdlib.h>
 
 #include "doomstat.h"
 #include "m_menu.h"
@@ -25,6 +27,7 @@
 #include "g_game.h"
 #include "gl_struct.h"
 #include "lprintf.h"
+#include "i_capture.h"
 #include "i_main.h"
 #include "i_video.h"
 
@@ -95,6 +98,26 @@ static int dsda_ParseGameversLump(void) {
     return false;
 }
 
+static int dsda_ComplvlStrToNum(const char* data, size_t length) {
+  if (length == 7 && !strncasecmp("vanilla", data, 7)) {
+    if (gamemode == commercial) {
+      if (gamemission == pack_plut || gamemission == pack_tnt)
+        return 4;
+      else
+        return 2;
+    }
+    else
+      return 3;
+  }
+  else if (length == 4 && !strncasecmp("boom", data, 4))
+    return 9;
+  else if (length == 3 && !strncasecmp("mbf", data, 3))
+    return 11;
+  else if (length == 5 && !strncasecmp("mbf21", data, 5))
+    return 21;
+  return -1;
+}
+
 static int dsda_WadCompatibilityLevel(void) {
   static int last_numwadfiles = -1;
 
@@ -113,32 +136,15 @@ static int dsda_WadCompatibilityLevel(void) {
           length = W_LumpLength(num);
           data = W_LumpByNum(num);
 
-          if (length == 7 && !strncasecmp("vanilla", data, 7)) {
-            gamever = dsda_ParseGameversLump();
-
-            if (complvl == -1) {
-                if (gamemode == commercial)
-                      if (gamemission == pack_plut || gamemission == pack_tnt)
-                          complvl = 4;
-                      else
-                          complvl = 2;
-                  else
-                      complvl = 3;
-            }
-          }
-          else if (length == 4 && !strncasecmp("boom", data, 4))
-              complvl = 9;
-          else if (length == 3 && !strncasecmp("mbf", data, 3))
-              complvl = 11;
-          else if (length == 5 && !strncasecmp("mbf21", data, 5))
-              complvl = 21;
+          complvl = dsda_ComplvlStrToNum(data, length);
+          gamever = dsda_ParseGameversLump();
 
           lumps = (gamever ? "COMPLVL and GAMEVERS" : "COMPLVL");
           limit = (limitremoving_lmp ? " (limit-removing)" : "");
 
           lprintf(LO_INFO, "Detected %s lump: %i%s\n", lumps, complvl, limit);
       }
-}
+  }
 
   return complvl;
 }
@@ -146,7 +152,6 @@ static int dsda_WadCompatibilityLevel(void) {
 int dsda_CompatibilityLevel(void) {
   int level;
   dsda_arg_t* complevel_arg;
-  dsda_arg_t* lr_arg;
 
   if (raven) return doom_12_compatibility;
 
@@ -156,22 +161,70 @@ int dsda_CompatibilityLevel(void) {
 
   complevel_arg = dsda_Arg(dsda_arg_complevel);
 
-  // Set Limit-Removing from arg
-  lr_arg = dsda_Arg(dsda_arg_limitremoving);
-  if ((lr_arg->count || limitremoving_arg) &&
-      (complevel_arg->value.v_int < boom_compatibility_compatibility))
-  {
-    dsda_UpdateIntConfig(dsda_config_limit_removing, 1, true);
-    limitremoving = true;
+  if (complevel_arg->count) {
+    const char* arg_val = complevel_arg->value.v_string;
+    const char* value_start = arg_val;
+    size_t value_len;
+    char* str_end;
+    dboolean parsed_number;
+    dboolean limit_removing_suffix = false;
+
+    // Allow spaces before cl number/word
+    while (isspace((unsigned char)*value_start))
+      ++value_start;
+
+    // find where value starts after spaces
+    value_len = strlen(value_start);
+
+    // Remove spaces after value
+    while (value_len > 0 && isspace((unsigned char)value_start[value_len - 1]))
+      --value_len;
+
+    errno = 0;
+    level = strtol(value_start, &str_end, 10);
+    parsed_number = str_end != value_start;
+
+    // Limit-Removing suffix
+    if (*str_end == 'r') {
+      limit_removing_suffix = true;
+      ++str_end;
+    }
+
+    // Allow spaces after cl number/word
+    while (isspace((unsigned char)*str_end))
+      ++str_end;
+
+    // Parse complevel number
+    if (errno == 0 && parsed_number && *str_end == '\0') {
+      // Limit-removing
+      if (limit_removing_suffix) {
+        if (level < 0 || level > 6) {
+          I_Error("Complevel '%s' is invalid: only complevels 0-6 may use 'r' (limit-removing).", arg_val);
+        }
+        limitremoving_arg = true;
+      }
+      // Number
+      if (level >= -1 && level < MAX_COMPATIBILITY_LEVEL) {
+        return level;
+      }
+    }
+
+    // Parse complevel word
+    else {
+      level = dsda_ComplvlStrToNum(value_start, value_len);
+      if (level != -1) {
+        return level;
+      }
+    }
+    I_Error("-complevel value of \"%s\" did not match any known complevel.", arg_val);
   }
 
-  if (complevel_arg->count)
-    return complevel_arg->value.v_int;
+  if (!demoplayback) {
+    level = dsda_WadCompatibilityLevel();
 
-  level = dsda_WadCompatibilityLevel();
-
-  if (level >= 0)
-    return level;
+    if (level >= 0)
+      return level;
+  }
 
   return UNSPECIFIED_COMPLEVEL;
 }
@@ -192,6 +245,10 @@ dboolean dsda_CameraMode(void) {
   return (players[consoleplayer].cheats & CF_CAMERA);
 }
 
+dboolean dsda_FixViewBobFloorJolt(void) {
+  return dsda_IntConfig(dsda_config_fix_viewbob_floor_jolt);
+}
+
 dboolean dsda_ShowMessages(void) {
   return dsda_IntConfig(dsda_config_show_messages);
 }
@@ -204,10 +261,6 @@ dboolean dsda_AutoRun(void) {
   return dsda_IntConfig(dsda_config_autorun);
 }
 
-dboolean dsda_MouseLook(void) {
-  return dsda_IntConfig(dsda_config_freelook);
-}
-
 dboolean dsda_VertMouse(void) {
   return dsda_IntConfig(dsda_config_vertmouse);
 }
@@ -218,12 +271,12 @@ dboolean dsda_StrictMode(void) {
 
 dboolean dsda_MuteSfx(void) {
   return dsda_IntConfig(dsda_config_mute_sfx) ||
-         (!I_WindowFocused() && dsda_IntConfig(dsda_config_mute_unfocused_window));
+         (!I_WindowFocused() && dsda_IntConfig(dsda_config_mute_unfocused_window) && !capturing_video);
 }
 
 dboolean dsda_MuteMusic(void) {
   return dsda_IntConfig(dsda_config_mute_music) ||
-         (!I_WindowFocused() && dsda_IntConfig(dsda_config_mute_unfocused_window));
+         (!I_WindowFocused() && dsda_IntConfig(dsda_config_mute_unfocused_window) && !capturing_video);
 }
 
 dboolean dsda_ProcessCheatCodes(void) {
@@ -262,9 +315,16 @@ dboolean dsda_PlayQuicksaveSFX(void) {
   return dsda_IntConfig(dsda_config_quicksave_sfx);
 }
 
+dboolean dsda_UIFadeEffects(void) {
+  return dsda_IntConfig(nyan_config_ui_fade_effects);
+}
 
 dboolean dsda_FadeMessages(void) {
-  return dsda_IntConfig(dsda_config_fade_messages);
+  return dsda_UIFadeEffects() && dsda_IntConfig(dsda_config_fade_messages);
+}
+
+dboolean dsda_WeaponCarousel(void) {
+  return !demoplayback && dsda_IntConfig(dsda_config_weapon_carousel);
 }
 
 dboolean dsda_TrackSplits(void) {
@@ -367,6 +427,29 @@ dboolean dsda_EffectPaletteReduced(void) {
   return dsda_IntConfig(dsda_config_palette_oneffects) > 1;
 }
 
+dboolean dsda_ApplyInvulnColormapToSky(void) {
+  dboolean options_sky = !comp[comp_skymap];
+  int config = dsda_IntConfig(dsda_config_invulnerability_sky);
+
+  if (!casual_play)
+    return options_sky;
+
+  if (config == INVULN_SKY_MBF)
+    return true;
+
+  else if (config == INVULN_SKY_VANILLA)
+    return false;
+
+  return options_sky;
+}
+
+dboolean dsda_GrayInvulnColormap(void) {
+  if (raven)
+    return false;
+
+  return dsda_IntConfig(dsda_config_gray_invulnerability);
+}
+
 dboolean dsda_ShowHealthBars(void) {
   return dsda_IntConfig(dsda_config_gl_health_bar);
 }
@@ -385,6 +468,18 @@ int dsda_ShowAliveMonsters(void) {
 
 dboolean dsda_ShowAutomapKeys(void) {
   return dsda_IntConfig(dsda_config_map_show_keys) && casual_play;
+}
+
+dboolean dsda_ShowAutomapSprites(void) {
+  return dsda_IntConfig(dsda_config_map_key_style) == 0;
+}
+
+float dsda_AutomapSpriteScale(void) {
+  return dsda_IntConfig(dsda_config_map_sprite_scale) / 100.0f;
+}
+
+float dsda_MinimapSpriteScale(void) {
+  return dsda_IntConfig(dsda_config_map_minimap_sprite_scale) / 100.0f;
 }
 
 dboolean dsda_DisableHorizAutoaim(void) {
@@ -556,11 +651,32 @@ dboolean dsda_SkipWipe(void) {
     return true;
   }
 
-  return !dsda_RenderWipeScreen() || raven;
+  // Hexen doesnt have screen wipe
+  if (hexen)
+    return true;
+
+  // Heretic doesnt have screen wipe
+  // ...but allow it during demos (QOL for quickstarting)
+  if (heretic)
+  {
+    // Skip wipe when option is disabled
+    if (!dsda_IntConfig(dsda_config_allow_wipescreen_raven_demos))
+      return true;
+
+    // Skip wipe in normal play
+    if (!demorecording)
+      return true;
+  }
+
+  return !dsda_RenderWipeScreen();
 }
 
 dboolean dsda_MultipleAreaMaps(void) {
   return dsda_IntConfig(dsda_config_multiple_area_maps) && !dsda_StrictMode() && casual_play;
+}
+
+dboolean dsda_QuickArtifactUse(void) {
+  return dsda_IntConfig(dsda_config_quick_artifact_use) && !dsda_StrictMode() && casual_play;
 }
 
 dboolean dsda_SimplerPuzzleUse(void) {

@@ -88,7 +88,7 @@ void dsda_UpdateStatusTimersHC(void* data) {
     dsda_RefreshHudText(&local->component);
 
     if (local->text_align_right)
-      HUlib_setTextXRightAlign(&local->component.text);
+      HUlib_RightAlignText(&local->component.text);
 }
 
 void dsda_DrawStatusTimersHC(void* data) {

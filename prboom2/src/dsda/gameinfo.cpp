@@ -54,10 +54,11 @@ static void dsda_ParseGameInfoLine(Scanner &scanner, dboolean parse_iwad_only) {
     scanner.MustGetToken('=');
     scanner.MustGetString();
 
-    if (iwadlump)
+    // Only parse iwad during first pass
+    if (parse_iwad_only) {
       Z_Free(iwadlump);
-
-    iwadlump = Z_Strdup(scanner.string);
+      iwadlump = Z_Strdup(scanner.string);
+    }
   }
   // On initial pass, do not read anything but IWAD.
   // On second pass, we then have access to nyan-doom.wad for STARTUP colours.

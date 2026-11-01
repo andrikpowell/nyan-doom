@@ -35,6 +35,7 @@
  *-----------------------------------------------------------------------------
  */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -52,6 +53,7 @@
 #include "d_net.h"
 #include "f_finale.h"
 #include "i_video.h"
+#include "i_richpresence.h"
 #include "m_file.h"
 #include "m_misc.h"
 #include "m_menu.h"
@@ -79,6 +81,7 @@
 #include "deh/strings.h"              // Ty 3/27/98 deh declarations
 #include "p_inter.h"
 #include "g_game.h"
+#include "weapon_switch.h"
 #include "lprintf.h"
 #include "i_main.h"
 #include "i_system.h"
@@ -164,6 +167,7 @@ int             gameepisode;
 int             gamemap;
 // CPhipps - moved *_loadgame vars here
 static dboolean forced_loadgame = false;
+static dboolean commandline_loadgame = false;
 static dboolean load_via_cmd = false;
 
 dboolean         timingdemo;    // if true, exit with report on completion
@@ -216,45 +220,6 @@ fixed_t angleturn[3]   = {640, 1280, 320};  // + slow turn
 fixed_t flyspeed[2]    = {1*256, 3*256};
 
 static int     turnheld;       // for accelerative turning
-
-// Set to -1 or +1 to switch to the previous or next weapon.
-
-static int next_weapon = 0;
-
-// Used for prev/next weapon keys.
-
-static const struct
-{
-  weapontype_t weapon;
-  weapontype_t weapon_num;
-} weapon_order_table[] = {
-  { wp_fist,         wp_fist },
-  { wp_chainsaw,     wp_fist },
-  { wp_pistol,       wp_pistol },
-  { wp_shotgun,      wp_shotgun },
-  { wp_supershotgun, wp_shotgun },
-  { wp_chaingun,     wp_chaingun },
-  { wp_missile,      wp_missile },
-  { wp_plasma,       wp_plasma },
-  { wp_bfg,          wp_bfg }
-};
-
-// HERETIC_TODO: dynamically set these
-// static const struct
-// {
-//     weapontype_t weapon;
-//     weapontype_t weapon_num;
-// } heretic_weapon_order_table[] = {
-//     { wp_staff,       wp_staff },
-//     { wp_gauntlets,   wp_staff },
-//     { wp_goldwand,    wp_goldwand },
-//     { wp_crossbow,    wp_crossbow },
-//     { wp_blaster,     wp_blaster },
-//     { wp_skullrod,    wp_skullrod },
-//     { wp_phoenixrod,  wp_phoenixrod },
-//     { wp_mace,        wp_mace },
-//     { wp_beak,        wp_beak },
-// };
 
 // mouse values are used once
 static int   mousex;
@@ -395,90 +360,6 @@ void G_SetSpeed(dboolean reset)
   }
 }
 
-static dboolean WeaponSelectable(weapontype_t weapon)
-{
-  if (heretic)
-  {
-    if (gamemode == shareware)
-    {
-      if (weapon == wp_skullrod || weapon == wp_phoenixrod || weapon == wp_mace)
-        return false;
-    }
-
-    return weapon != wp_beak && players[consoleplayer].weaponowned[weapon];
-  }
-  else if (hexen)
-  {
-    return weapon < HEXEN_NUMWEAPONS && players[consoleplayer].weaponowned[weapon];
-  }
-
-  if (gamemode == shareware)
-  {
-    if (weapon == wp_plasma || weapon == wp_bfg)
-      return false;
-  }
-
-  // Can't select the super shotgun in Doom 1.
-  if (weapon == wp_supershotgun && gamemission == doom)
-  {
-    return false;
-  }
-
-  // Can't select a weapon if we don't own it.
-  if (!players[consoleplayer].weaponowned[weapon])
-  {
-    return false;
-  }
-
-  // Can't select the fist if we have the chainsaw, unless
-  // we also have the berserk pack.
-  if ((demo_compatibility)
-      && weapon == wp_fist
-      && players[consoleplayer].weaponowned[wp_chainsaw]
-      && !players[consoleplayer].powers[pw_strength])
-  {
-    return false;
-  }
-
-  return true;
-}
-
-static int G_NextWeapon(int direction)
-{
-  weapontype_t weapon;
-  int start_i, i, arrlen;
-
-  // Find index in the table.
-  if (players[consoleplayer].pendingweapon == wp_nochange)
-  {
-    weapon = players[consoleplayer].readyweapon;
-  }
-  else
-  {
-    weapon = players[consoleplayer].pendingweapon;
-  }
-
-  arrlen = sizeof(weapon_order_table) / sizeof(*weapon_order_table);
-  for (i = 0; i < arrlen; i++)
-  {
-    if (weapon_order_table[i].weapon == weapon)
-    {
-      break;
-    }
-  }
-
-  // Switch weapon. Don't loop forever.
-  start_i = i;
-  do
-  {
-    i += direction;
-    i = (i + arrlen) % arrlen;
-  }
-  while (i != start_i && !WeaponSelectable(weapon_order_table[i].weapon));
-
-  return weapon_order_table[i].weapon_num;
-}
-
 static double mouse_sensitivity_horiz;
 static double mouse_sensitivity_vert;
 static double mouse_sensitivity_mlook;
@@ -532,6 +413,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   int side;
   int newweapon;                                          // phares
   dboolean strict_input;
+  dboolean nextweapon_cmd = false;
 
   dsda_pclass_t *player_class = &pclass[players[consoleplayer].pclass];
 
@@ -666,7 +548,11 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       {
         plr->readyArtifact = plr->inventory[plr->inv_ptr].type;
         inventory = false;
-        cmd->arti = 0;
+
+        if (dsda_QuickArtifactUse())
+          cmd->arti |= plr->readyArtifact & AFLAG_MASK;
+        else
+          cmd->arti = 0;
       }
       else
       {
@@ -837,7 +723,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     }
   }
 
-  if (players[consoleplayer].mo && players[consoleplayer].mo->pitch && !dsda_MouseLook())
+  if (players[consoleplayer].mo && players[consoleplayer].mo->pitch && !dsda_FreeAim())
     dsda_QueueExCmdLook(XC_LOOK_RESET);
 
   if (dsda_FreeAim())
@@ -868,20 +754,29 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   if (dsda_InputActive(dsda_input_use) || dsda_InputTickActivated(dsda_input_use))
   {
-    if (!dsda_DeathUseNothingInDemo())
-      cmd->buttons |= BT_USE;
+    cmd->buttons |= BT_USE;
     // clear double clicks if hit use button
     dclicks = 0;
   }
 
   {
     extern dboolean boom_weapon_state_injection;
+    extern dboolean mbf21_weapon_ammo_depleted[MAX_MAXPLAYERS];
     static dboolean done_autoswitch = false;
+    dboolean boom_weapon_switch_no_ammo;
 
     if (!players[consoleplayer].attackdown)
     {
       done_autoswitch = false;
     }
+
+    G_NextWeaponResendCmd();
+    nextweapon_cmd = false;
+
+    // [AR] Fix Boom's "Autoswitch When Ammo Runs Out"
+    // For MBF21 weapons with custom refire states
+    boom_weapon_switch_no_ammo = players[consoleplayer].attackdown ||
+                                 mbf21_weapon_ammo_depleted[consoleplayer];
 
     // Toggle between the top 2 favorite weapons.                   // phares
     // If not currently aiming one of these, switch to              // phares
@@ -898,7 +793,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     if (
       (
         !demo_compatibility &&
-        players[consoleplayer].attackdown && // killough
+        boom_weapon_switch_no_ammo && // killough
         !P_CheckAmmo(&players[consoleplayer]) &&
         (
           (
@@ -921,102 +816,70 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     }
     else
     {                                 // phares 02/26/98: Added gamemode checks
-      if (next_weapon && players[consoleplayer].morphTics == 0)
+      if (G_NextWeaponDeactivate() && players[consoleplayer].morphTics == 0)
       {
-        newweapon = G_NextWeapon(next_weapon);
+        newweapon = G_NextWeaponTranslate(players[consoleplayer].nextweapon);
+        nextweapon_cmd = true;
       }
-      else if (hexen)
+      else // direct weapon keys
       {
-        newweapon =
-          dsda_InputActive(dsda_input_weapon1) ? wp_first :    // killough 5/2/98: reformatted
-          dsda_InputActive(dsda_input_weapon2) ? wp_second :
-          dsda_InputActive(dsda_input_weapon3) ? wp_third :
-          dsda_InputActive(dsda_input_weapon4) ? wp_fourth :
-          wp_nochange;
-      }
-      else if (heretic)
-      {
-        newweapon =
-          dsda_InputTickActivated(dsda_input_weapon1) ? wp_staff :
-          dsda_InputTickActivated(dsda_input_weapon2) ? wp_goldwand :
-          dsda_InputTickActivated(dsda_input_weapon3) ? wp_crossbow :
-          dsda_InputTickActivated(dsda_input_weapon4) ? wp_blaster :
-          dsda_InputTickActivated(dsda_input_weapon5) && gamemode != shareware ? wp_skullrod :
-          dsda_InputTickActivated(dsda_input_weapon6) && gamemode != shareware ? wp_phoenixrod :
-          dsda_InputTickActivated(dsda_input_weapon7) && gamemode != shareware ? wp_mace :
-          dsda_InputTickActivated(dsda_input_weapon8) ? wp_gauntlets :
-          wp_nochange;
-      }
-      else
-      {
-        newweapon =
-          dsda_InputTickActivated(dsda_input_weapon1) ? wp_fist :    // killough 5/2/98: reformatted
-          dsda_InputTickActivated(dsda_input_weapon2) ? wp_pistol :
-          dsda_InputTickActivated(dsda_input_weapon3) ? wp_shotgun :
-          dsda_InputTickActivated(dsda_input_weapon4) ? wp_chaingun :
-          dsda_InputTickActivated(dsda_input_weapon5) ? wp_missile :
-          dsda_InputTickActivated(dsda_input_weapon6) && gamemode != shareware ? wp_plasma :
-          dsda_InputTickActivated(dsda_input_weapon7) && gamemode != shareware ? wp_bfg :
-          dsda_InputTickActivated(dsda_input_weapon8) ? wp_chainsaw :
-          (!demo_compatibility && dsda_InputTickActivated(dsda_input_weapon9) && gamemode == commercial) ? wp_supershotgun :
-          wp_nochange;
-      }
-
-      // killough 3/22/98: For network and demo consistency with the
-      // new weapons preferences, we must do the weapons switches here
-      // instead of in p_user.c. But for old demos we must do it in
-      // p_user.c according to the old rules. Therefore demo_compatibility
-      // determines where the weapons switch is made.
-
-      // killough 2/8/98:
-      // Allow user to switch to fist even if they have chainsaw.
-      // Switch to fist or chainsaw based on preferences.
-      // Switch to shotgun or SSG based on preferences.
-
-      if (!demo_compatibility)
-      {
-        const player_t *player = &players[consoleplayer];
-
-        // only select chainsaw from '1' if it's owned, it's
-        // not already in use, and the player prefers it or
-        // the fist is already in use, or the player does not
-        // have the berserker strength.
-
-        // [AR] Add beserk priority option
-        if (newweapon==wp_fist && player->weaponowned[wp_chainsaw] &&
-            player->readyweapon!=wp_chainsaw)
+        if (hexen)
         {
-          dboolean prefer_berserk = dsda_BerserkPreferred() && player->powers[pw_strength];
-          dboolean prefer_chainsaw = !prefer_berserk && P_WeaponPreferred(wp_chainsaw, wp_fist);
-
-          if (player->readyweapon==wp_fist ||
-              !player->powers[pw_strength] ||
-              prefer_chainsaw)
-            newweapon = wp_chainsaw;
+          newweapon =
+            dsda_InputActive(dsda_input_weapon1) ? wp_first :    // killough 5/2/98: reformatted
+            dsda_InputActive(dsda_input_weapon2) ? wp_second :
+            dsda_InputActive(dsda_input_weapon3) ? wp_third :
+            dsda_InputActive(dsda_input_weapon4) ? wp_fourth :
+            wp_nochange;
+        }
+        else if (heretic)
+        {
+          newweapon =
+            dsda_InputTickActivated(dsda_input_weapon1) ? wp_staff :
+            dsda_InputTickActivated(dsda_input_weapon2) ? wp_goldwand :
+            dsda_InputTickActivated(dsda_input_weapon3) ? wp_crossbow :
+            dsda_InputTickActivated(dsda_input_weapon4) ? wp_blaster :
+            dsda_InputTickActivated(dsda_input_weapon5) && gamemode != shareware ? wp_skullrod :
+            dsda_InputTickActivated(dsda_input_weapon6) && gamemode != shareware ? wp_phoenixrod :
+            dsda_InputTickActivated(dsda_input_weapon7) && gamemode != shareware ? wp_mace :
+            dsda_InputTickActivated(dsda_input_weapon8) ? wp_gauntlets :
+            wp_nochange;
+        }
+        else
+        {
+          newweapon =
+            dsda_InputTickActivated(dsda_input_weapon1) ? wp_fist :    // killough 5/2/98: reformatted
+            dsda_InputTickActivated(dsda_input_weapon2) ? wp_pistol :
+            dsda_InputTickActivated(dsda_input_weapon3) ? wp_shotgun :
+            dsda_InputTickActivated(dsda_input_weapon4) ? wp_chaingun :
+            dsda_InputTickActivated(dsda_input_weapon5) ? wp_missile :
+            dsda_InputTickActivated(dsda_input_weapon6) && gamemode != shareware ? wp_plasma :
+            dsda_InputTickActivated(dsda_input_weapon7) && gamemode != shareware ? wp_bfg :
+            dsda_InputTickActivated(dsda_input_weapon8) ? wp_chainsaw :
+            (!demo_compatibility && dsda_InputTickActivated(dsda_input_weapon9) && gamemode == commercial) ? wp_supershotgun :
+            wp_nochange;
         }
 
-        // Select SSG from '3' only if it's owned and the player
-        // does not have a shotgun, or if the shotgun is already
-        // in use, or if the SSG is not already in use and the
-        // player prefers it.
+        // killough 3/22/98: For network and demo consistency with the
+        // new weapons preferences, we must do the weapons switches here
+        // instead of in p_user.c. But for old demos we must do it in
+        // p_user.c according to the old rules. Therefore demo_compatibility
+        // determines where the weapons switch is made.
 
-        if (newweapon == wp_shotgun && gamemode == commercial &&
-            player->weaponowned[wp_supershotgun] &&
-            (!player->weaponowned[wp_shotgun] ||
-             player->readyweapon == wp_shotgun ||
-             (player->readyweapon != wp_supershotgun &&
-              P_WeaponPreferred(wp_supershotgun, wp_shotgun))))
-          newweapon = wp_supershotgun;
+        if (!demo_compatibility)
+          newweapon = G_AdjustWeaponSelection(&players[consoleplayer], newweapon, players[consoleplayer].readyweapon);
       }
     }
-  }
 
-  next_weapon = 0;
+    mbf21_weapon_ammo_depleted[consoleplayer] = false;
+  }
 
   if (newweapon != wp_nochange && players[consoleplayer].chickenTics == 0)
   {
     cmd->buttons |= BT_CHANGE;
     cmd->buttons |= newweapon<<BT_WEAPONSHIFT;
+    if (!nextweapon_cmd)
+      G_NextWeaponReset(newweapon);
   }
 
   // mouse
@@ -1030,8 +893,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         dclicks++;
       if (dclicks == 2)
         {
-          if (!dsda_DeathUseNothingInDemo())
-            cmd->buttons |= BT_USE;
+          cmd->buttons |= BT_USE;
           dclicks = 0;
         }
       else
@@ -1053,8 +915,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         dclicks2++;
       if (dclicks2 == 2)
         {
-          if (!dsda_DeathUseNothingInDemo())
-            cmd->buttons |= BT_USE;
+          cmd->buttons |= BT_USE;
           dclicks2 = 0;
         }
       else
@@ -1197,12 +1058,12 @@ static void G_SetInitialInventory(player_t *p)
 
   if (hexen)
   {
-    p->readyweapon = p->pendingweapon = wp_first;
+    p->readyweapon = p->pendingweapon = p->nextweapon = wp_first;
     p->weaponowned[wp_first] = true;
   }
   else
   {
-    p->readyweapon = p->pendingweapon = g_wp_pistol;
+    p->readyweapon = p->pendingweapon = p->nextweapon = g_wp_pistol;
     p->weaponowned[g_wp_fist] = true;
     p->weaponowned[g_wp_pistol] = true;
     if (heretic)
@@ -1234,6 +1095,25 @@ static void G_ResetInventory(player_t *p)
   G_SetInitialInventory(p);
 }
 
+void G_UpdateDiscordPresence(void)
+{
+  dsda_string_t title;
+  dsda_string_t discord_title;
+
+  dsda_MapTitleforDiscord(&title);
+  dsda_InitString(&discord_title, NULL);
+
+  if (reelplayback) // Internal Demos
+    dsda_StringCat(&discord_title, "Playing");
+  else if (demorecording)
+    dsda_StringCat(&discord_title, "Recording demo");
+  else if (userplayback)
+    dsda_StringCat(&discord_title, "Watching demo");
+  I_UpdateDiscordPresence(discord_title.string ? discord_title.string : title.string, doomverstr);
+  dsda_FreeString(&discord_title);
+  dsda_FreeString(&title);
+}
+
 //
 // G_DoLoadLevel
 //
@@ -1256,7 +1136,7 @@ static void G_DoLoadLevel (void)
 
   skyflatnum = R_FlatNumForName(g_skyflatname);
   skytexture = dsda_SkyTexture(1);
-  if (DoubleSky) skytexture2 = dsda_SkyTexture(2);
+  if (DoubleSky || LightningSky) skytexture2 = dsda_SkyTexture(2);
   R_SetFloorNum(&grnrock, dsda_BorderTexture());
 
   // [RH] Set up details about sky rendering
@@ -1279,19 +1159,9 @@ static void G_DoLoadLevel (void)
 
   for (i = 0; i < g_maxplayers; i++)
   {
-    if (playeringame[i])
-    {
-      if (players[i].playerstate == PST_DEAD)
-        players[i].playerstate = PST_REBORN;
-      else
-      {
-        if (map_info.flags & MI_RESET_HEALTH)
-          G_ResetHealth(&players[i]);
-
-        if (map_info.flags & MI_RESET_INVENTORY)
-          G_ResetInventory(&players[i]);
-      }
-    }
+    // TODO: possible "reset inventory/health" mapinfo flag
+    if (playeringame[i] && players[i].playerstate == PST_DEAD)
+      players[i].playerstate = PST_REBORN;
     memset(players[i].frags, 0, sizeof(players[i].frags));
   }
 
@@ -1316,7 +1186,8 @@ static void G_DoLoadLevel (void)
   if (map_format.sndseq)
     SN_StopAllSequences();
 
-  P_SetupLevel (gameepisode, gamemap, 0, gameskill);
+  P_SetupLevel (gameepisode, gamemap, gameskill);
+  G_UpdateDiscordPresence();
   if (!demoplayback) // Don't switch views if playing a demo
     displayplayer = consoleplayer;    // view the guy you are playing
 
@@ -1389,13 +1260,9 @@ dboolean G_Responder (event_t* ev)
   if (dsda_IntConfig(dsda_config_playback_mouse_controls) &&
     demoplayback && !timingdemo && dsda_InputActivated(dsda_input_fire))
   {
-    int x, y;
+    int x;
 
-    dsda_GetMousePosition(&x, &y);
-
-    y = y * ACTUALHEIGHT / viewport_rect.h;
-
-    if (x && y > (ACTUALHEIGHT - ST_SCALED_HEIGHT / 6))
+    if (HU_MouseOnDemoProgressBar(&x))
     {
       dsda_JumpToLogicTic(demo_tics_count * x / viewport_rect.w);
       return true;
@@ -1444,22 +1311,10 @@ dboolean G_Responder (event_t* ev)
     }
   }
 
-  if (gamestate == GS_FINALE && F_Responder(ev))
-    return true;  // finale ate the event
-
   if (dsda_BuildResponder(ev))
     return true;
 
-  // If the next/previous weapon keys are pressed, set the next_weapon
-  // variable to change weapons when the next ticcmd is generated.
-  if (dsda_InputActivated(dsda_input_prevweapon))
-  {
-    next_weapon = -1;
-  }
-  else if (dsda_InputActivated(dsda_input_nextweapon))
-  {
-    next_weapon = 1;
-  }
+  G_NextWeaponUpdate();
 
   if (dsda_InputActivated(dsda_input_invleft))
   {
@@ -1474,6 +1329,16 @@ dboolean G_Responder (event_t* ev)
   {
     special_event = BT_SPECIAL | (BT_PAUSE & BT_SPECIALMASK);
     return true;
+  }
+
+  if (dsda_InputActivated(dsda_input_zoom))
+  {
+    // Allow zoom in demoplayback
+    if (gamestate == GS_LEVEL && !demorecording)
+    {
+      R_ToggleZoom();
+      return true;
+    }
   }
 
   // Events that make it here should reach into the game logic
@@ -1492,7 +1357,7 @@ dboolean G_Responder (event_t* ev)
 
       value = mouse_sensitivity_horiz * AccelerateMouse(ev->data1.i);
       mousex += G_CarryDouble(carry_mousex, value);
-      if (dsda_MouseLook())
+      if (dsda_FreeAim())
       {
         value = mouse_sensitivity_mlook * AccelerateMouse(ev->data2.i);
         if (dsda_IntConfig(dsda_config_movement_mouseinvert))
@@ -1512,7 +1377,7 @@ dboolean G_Responder (event_t* ev)
     case ev_move_analog:
       dsda_WatchGameControllerEvent();
 
-      left_analog_x = (int)ev->data1.f;
+      left_analog_x = (int)(dsda_StrictMode() ? lroundf(ev->data1.f * 0.5f) * 2 : ev->data1.f);
       left_analog_y = (int)ev->data2.f;
       return true;    // eat events
 
@@ -1520,7 +1385,7 @@ dboolean G_Responder (event_t* ev)
       dsda_WatchGameControllerEvent();
 
       mousex += AccelerateAnalog(ev->data1.f);
-      if (dsda_MouseLook())
+      if (dsda_FreeAim())
       {
         if (dsda_IntConfig(dsda_config_invert_analog_look))
           mlooky += AccelerateAnalog(ev->data2.f);
@@ -1713,6 +1578,7 @@ void G_Ticker (void)
             savegameslot = ex->load_slot;
             gameaction = ga_loadgame;
             forced_loadgame = true;
+            commandline_loadgame = false;
             load_via_cmd = true;
             R_SmoothPlaying_Reset(NULL);
           }
@@ -1727,7 +1593,7 @@ void G_Ticker (void)
             M_CheatNoClip();
           }
 
-          if (ex->actions & XC_LOOK && ex->look != XC_LOOK_RESET && !dsda_MouseLook())
+          if (ex->actions & XC_LOOK && ex->look != XC_LOOK_RESET && !dsda_FreeAim())
           {
             dsda_UpdateIntConfig(dsda_config_freelook, 1, false);
           }
@@ -2072,39 +1938,45 @@ static dboolean G_CheckSpot(int playernum, mapthing_t *mthing)
   sec = R_PointInSector (x,y);
   { // Teleport fog at respawn point
     fixed_t xa,ya;
-    int an;
     mobj_t      *mo;
 
-/* BUG: an can end up negative, because mthing->angle is (signed) short.
- * We have to emulate original Doom's behaviour, deferencing past the start
- * of the array, into the previous array (finetangent) */
-    an = ( ANG45 * ((signed)mthing->angle/45) ) >> ANGLETOFINESHIFT;
+    // This calculation overflows in Vanilla Doom, so use unsigned arithmetic
+    // for a defined wraparound. 'an' is then always within [0, 8191].
+    const uint32_t k = (uint32_t)((signed int) mthing->angle / 45);
+    const int32_t an = (int32_t)(((uint32_t)ANG45 * k) >> ANGLETOFINESHIFT);
     xa = finecosine[an];
     ya = finesine[an];
 
     if (compatibility_level <= finaldoom_compatibility || compatibility_level == prboom_4_compatibility)
       switch (an) {
-      case -4096: xa = finetangent[2048];   // finecosine[-4096]
+      case 4096:  // -4096:
+            xa = finetangent[2048];   // finecosine[-4096]
             ya = finetangent[0];      // finesine[-4096]
             break;
-      case -3072: xa = finetangent[3072];   // finecosine[-3072]
+      case 5120:  // -3072:
+            xa = finetangent[3072];   // finecosine[-3072]
             ya = finetangent[1024];   // finesine[-3072]
             break;
-      case -2048: xa = finesine[0];   // finecosine[-2048]
+      case 6144:  // -2048:
+            xa = finesine[0];   // finecosine[-2048]
             ya = finetangent[2048];   // finesine[-2048]
             break;
-      case -1024:  xa = finesine[1024];     // finecosine[-1024]
+      case 7168:  // -1024:
+            xa = finesine[1024];     // finecosine[-1024]
             ya = finetangent[3072];  // finesine[-1024]
             break;
       case 1024:
       case 2048:
       case 3072:
-      case 4096:
-      case 0:  break; /* correct angles set above */
-      default:  I_Error("G_CheckSpot: unexpected angle %d\n",an);
+      case 0: break; /* correct angles set above */
+      default: I_Error("G_CheckSpot: unexpected angle %d\n",an);
       }
 
-    mo = P_SpawnMobj(x+20*xa, y+20*ya, sec->floorheight, MT_TFOG);
+
+    // Vanilla Doom wraps around here (20 * finetangent[0] overflows).
+    mo = P_SpawnMobj((fixed_t)(x + 20 * (int64_t)xa),
+                     (fixed_t)(y + 20 * (int64_t)ya),
+                     sec->floorheight, MT_TFOG);
 
     if (players[consoleplayer].viewz != 1)
       S_StartMobjSound(mo, sfx_telept);  // don't start sound on first frame
@@ -2161,7 +2033,8 @@ void G_DoReborn (int playernum)
   if (hexen)
     RETURN(Hexen_G_DoReborn(playernum));
 
-  if (!netgame && !(map_info.flags & MI_ALLOW_RESPAWN) && !(skill_info.flags & SI_PLAYER_RESPAWN))
+  // TODO: possible "allow respawn" mapinfo flag
+  if (!netgame && !(skill_info.flags & SI_PLAYER_RESPAWN))
     gameaction = ga_loadlevel;      // reload the level from scratch
   else
     {                               // respawn at the start
@@ -2328,14 +2201,10 @@ void G_DoCompleted (void)
   if (skip_intermission)
     RETURN(G_ForceFinale());
 
-  if (!(map_info.flags & MI_INTERMISSION))
-  {
-    G_WorldDone();
-  }
-  else
-  {
-    WI_Start (&wminfo);
-  }
+  // TODO: tenuous "no intermission" mapinfo flag
+  // umapinfo already partially handles it, but not in a friendly way
+  // only in maps that can end the game -- i.e. `endgame`, `endbunny`, etc
+  WI_Start (&wminfo);
 }
 
 //
@@ -2460,7 +2329,7 @@ void G_ForcedLoadGame(void)
 }
 
 // killough 3/16/98: add slot info
-void G_LoadGame(int slot)
+void G_LoadGame(int slot, dboolean via_commandline)
 {
   if (demorecording)
   {
@@ -2468,7 +2337,7 @@ void G_LoadGame(int slot)
     return;
   }
 
-  if (!demoplayback)
+  if (!demoplayback && !via_commandline)
   {
     forced_loadgame = netgame; // CPhipps - always force load netgames
   }
@@ -2489,6 +2358,7 @@ void G_LoadGame(int slot)
 
   gameaction = ga_loadgame;
   savegameslot = slot;
+  commandline_loadgame = via_commandline;
   load_via_cmd = false;
   R_SmoothPlaying_Reset(NULL); // e6y
 }
@@ -2500,6 +2370,11 @@ static void G_LoadGameErr(const char *msg)
 {
   P_FreeSaveBuffer();
   M_ForcedLoadGame(msg);             // Print message asking for 'Y' to force
+  if (commandline_loadgame)
+  {
+    D_StartTitle();
+    gamestate = GS_DEMOSCREEN;
+  }
 }
 
 const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] =
@@ -2583,6 +2458,8 @@ void G_DoLoadGame(void)
   // CPhipps - do savegame filename stuff here
   char *name;                // killough 3/22/98
   int saveversion;
+  dboolean port_signature;
+  dboolean incompatible_save = false;
 
   dsda_SetLastLoadSlot(savegameslot);
 
@@ -2591,7 +2468,7 @@ void G_DoLoadGame(void)
   // [crispy] loaded game must always be single player.
   // Needed for ability to use a further game loading, as well as
   // cheat codes and other single player only specifics.
-  if (!load_via_cmd)
+  if (!commandline_loadgame && !load_via_cmd)
   {
     netgame = false;
     deathmatch = false;
@@ -2605,8 +2482,21 @@ void G_DoLoadGame(void)
   Z_Free(name);
   save_p = savebuffer + SAVESTRINGSIZE;
 
-  P_LOAD_X(saveversion);
-  if (saveversion != SAVEVERSION && !forced_loadgame) {
+  P_LOAD_SIGNATURE("NYAN", port_signature);
+
+  if (port_signature)
+  {
+    P_LOAD_X(saveversion);
+    incompatible_save = saveversion != NYAN_SAVE_VERSION;
+  }
+  else // Legacy / DSDA saves
+  {
+    P_FreeSaveBuffer();
+    M_ShowLegacySaveMessage();
+    return;
+  }
+
+  if (!forced_loadgame && incompatible_save) {
     G_LoadGameErr("Unrecognised savegame version!\nAre you sure? (y/n) ");
     return;
   }
@@ -2692,11 +2582,12 @@ static void G_DoSaveGame(dboolean via_cmd)
   name = dsda_SaveGameName(savegameslot, via_cmd);
 
   description = savedescription;
-  saveversion = SAVEVERSION;
+  saveversion = NYAN_SAVE_VERSION;
 
   P_InitSaveBuffer();
 
   P_SAVE_SIZE(description, SAVESTRINGSIZE);
+  P_SAVE_SIGNATURE("NYAN");
   P_SAVE_X(saveversion);
 
   /* killough 3/16/98, 12/98: store lump name checksum */
@@ -4063,7 +3954,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
     netgame = true;
   }
 
-  if (!(params & RDH_SKIP_HEADER))
+  if (!(params & RDH_SKIP_HEADER) && gameaction != ga_loadgame)
   {
     G_InitNew(skill, episode, map, true);
     demo_p = dsda_EvaluateDemoStartPoint(demo_p);
@@ -4337,7 +4228,7 @@ void P_WalkTicker()
   G_ConvertAnalogMotion(speed, &forward, &side);
 
   walkcamera.angle += ((angturn / 8) << ANGLETOFINESHIFT);
-  if (dsda_MouseLook())
+  if (dsda_FreeAim())
   {
     walkcamera.pitch += ((mlooky / 8) << ANGLETOFINESHIFT);
     CheckPitch((signed int *) &walkcamera.pitch);

@@ -48,8 +48,8 @@ static void drawPowerupStatusIcon(int *x, int *y, int powerup, const char *lumpn
     if (W_PWADLumpNameExists2(lumpname))
         from_pwad++;
 
-    if (!from_pwad && color != CR_DEFAULT)
-        flags |= VPT_COLOR;
+    if (!from_pwad)
+        flags |= M_AddColorFlag(color);
 
     V_DrawMenuNamePatch(*x, *y, lumpname, color, flags);
 

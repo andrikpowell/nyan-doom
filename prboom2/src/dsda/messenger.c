@@ -91,12 +91,12 @@ static int dsda_GetAlphaStep(int a)
   return CLAMP(a, 0, 100);
 }
 
-int dsda_MessageFadeOut(int tics, dboolean forced)
+int dsda_MessageFadeOut(int tics)
 {
   const int fade_tics = MESSAGE_FADE_TICS;
   int alpha;
 
-  if (!dsda_FadeMessages() && !forced)
+  if (!dsda_FadeMessages())
     return 100;
 
   if (tics <= 0) return 0;
@@ -107,12 +107,12 @@ int dsda_MessageFadeOut(int tics, dboolean forced)
   return alpha;
 }
 
-int dsda_MessageFadeIn(int tics, dboolean forced)
+int dsda_MessageFadeIn(int tics)
 {
   const int fade_tics = MESSAGE_FADE_TICS;
   int alpha;
 
-  if (!dsda_FadeMessages() && !forced)
+  if (!dsda_FadeMessages())
     return 100;
 
   if (tics <= 0) return 100 / fade_tics;

@@ -240,15 +240,17 @@
 // (some degree of opaqueness is good, to avoid compatibility woes)
 
 enum {
-  MIF_FALLING               = (1<<0), // Object is falling
-  MIF_ARMED                 = (1<<1), // Object is armed (for MF_TOUCHY objects)
-  MIF_SCROLLING             = (1<<2), // Object is affected by scroller / pusher / puller
-  MIF_PLAYER_DAMAGED_BARREL = (1<<3),
-  MIF_SPAWNED_BY_ICON       = (1<<4),
-  MIF_SPAWNED_BY_DSPARIL    = (1<<5),
-  MIF_FLIP                  = (1<<6),
-  MIF_FAKE                  = (1<<7), // Not a real thing, transient (e.g., for cheats)
-  MIF_NOINTERPOLATEZ        = (1<<8), // [AR] Prevent mobj thinker from overwriting an updated PrevZ (example: lift thinker)
+  MIF_FALLING               = (1<<0 ), // Object is falling
+  MIF_ARMED                 = (1<<1 ), // Object is armed (for MF_TOUCHY objects)
+  MIF_SCROLLING             = (1<<2 ), // Object is affected by scroller / pusher / puller
+  MIF_PLAYER_DAMAGED_BARREL = (1<<3 ),
+  MIF_SPAWNED_BY_ICON       = (1<<4 ),
+  MIF_SPAWNED_BY_DSPARIL    = (1<<5 ),
+  MIF_DSPARIL_FIRST_PHASE   = (1<<6 ), // [AR] Skip the double kill of D'Sparil's phases
+  MIF_FLIP                  = (1<<7 ),
+  MIF_FAKE                  = (1<<8 ), // Not a real thing, transient (e.g., for cheats)
+  MIF_LINEDONE              = (1<<9 ), // Object has activated W1 or S1 linedef via DEH frame
+  MIF_INTERP_CAPTURE        = (1<<10), // [AR] Capture interpolation once per tic
 };
 
 // heretic
@@ -456,6 +458,8 @@ mobj_t  *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type);
 void    P_RemoveMobj(mobj_t *th);
 dboolean P_SetMobjState(mobj_t *mobj, statenum_t state);
 void    P_MobjThinker(mobj_t *mobj);
+void    P_UpdateMobjInterpolations(void);
+void    P_MobjInterpolation(mobj_t *mobj);
 void    P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z);
 void    P_SpawnBlood(fixed_t x, fixed_t y, fixed_t z, int damage, mobj_t *bleeder);
 mobj_t  *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type);

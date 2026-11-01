@@ -34,6 +34,7 @@
 #include "doomstat.h"
 #include "w_wad.h"
 #include "r_main.h"
+#include "p_enemy.h"
 #include "p_maputl.h"
 #include "p_spec.h"
 #include "g_game.h"
@@ -458,7 +459,7 @@ P_UseSpecialLine
       if (!thing->player && !bossaction)
         if ((line->special & FloorChange) || !(line->special & FloorModel))
           return false; // FloorModel is "Allow Monsters" if FloorChange is 0
-      if (!comperr(comperr_zerotag) && !line->tag && ((line->special & 6) != 6)) //e6y //jff 2/27/98 all non-manual
+      if (!comperr(comperr_zerotag) && !line->special_args[0] && ((line->special&6)!=6)) //jff 2/27/98 all non-manual
         return false;                         // generalized types require tag
       linefunc = EV_DoGenFloor;
     }
@@ -467,7 +468,7 @@ P_UseSpecialLine
       if (!thing->player && !bossaction)
         if ((line->special & CeilingChange) || !(line->special & CeilingModel))
           return false;   // CeilingModel is "Allow Monsters" if CeilingChange is 0
-      if (!comperr(comperr_zerotag) && !line->tag && ((line->special & 6) != 6)) //e6y //jff 2/27/98 all non-manual
+      if (!comperr(comperr_zerotag) && !line->special_args[0] && ((line->special&6)!=6)) //jff 2/27/98 all non-manual
         return false;                         // generalized types require tag
       linefunc = EV_DoGenCeiling;
     }
@@ -480,7 +481,7 @@ P_UseSpecialLine
         if (line->flags & ML_SECRET) // they can't open secret doors either
           return false;
       }
-      if (!comperr(comperr_zerotag) && !line->tag && ((line->special & 6) != 6)) //e6y //jff 2/27/98 all non-manual
+      if (!comperr(comperr_zerotag) && !line->special_args[0] && ((line->special&6)!=6)) //jff 3/2/98 all non-manual
         return false;                         // generalized types require tag
       linefunc = EV_DoGenDoor;
     }
@@ -490,7 +491,7 @@ P_UseSpecialLine
         return false;   // monsters disallowed from unlocking doors
       if (!P_CanUnlockGenDoor(line,thing->player))
         return false;
-      if (!comperr(comperr_zerotag) && !line->tag && ((line->special & 6) != 6)) //e6y //jff 2/27/98 all non-manual
+      if (!comperr(comperr_zerotag) && !line->special_args[0] && ((line->special&6)!=6)) //jff 2/27/98 all non-manual
         return false;                         // generalized types require tag
 
       linefunc = EV_DoGenLockedDoor;
@@ -500,7 +501,7 @@ P_UseSpecialLine
       if (!thing->player && !bossaction)
         if (!(line->special & LiftMonster))
           return false; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->tag && ((line->special & 6) != 6)) //e6y //jff 2/27/98 all non-manual
+      if (!comperr(comperr_zerotag) && !line->special_args[0] && ((line->special&6)!=6)) //jff 2/27/98 all non-manual
         return false;                         // generalized types require tag
       linefunc = EV_DoGenLift;
     }
@@ -509,7 +510,7 @@ P_UseSpecialLine
       if (!thing->player && !bossaction)
         if (!(line->special & StairMonster))
           return false; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->tag && ((line->special & 6) != 6)) //e6y //jff 2/27/98 all non-manual
+      if (!comperr(comperr_zerotag) && !line->special_args[0] && ((line->special&6)!=6)) //jff 2/27/98 all non-manual
         return false;                         // generalized types require tag
       linefunc = EV_DoGenStairs;
     }
@@ -518,7 +519,7 @@ P_UseSpecialLine
       if (!thing->player && !bossaction)
         if (!(line->special & CrusherMonster))
           return false; // monsters disallowed
-      if (!comperr(comperr_zerotag) && !line->tag && ((line->special & 6) != 6)) //e6y //jff 2/27/98 all non-manual
+      if (!comperr(comperr_zerotag) && !line->special_args[0] && ((line->special&6)!=6)) //jff 2/27/98 all non-manual
         return false;                         // generalized types require tag
       linefunc = EV_DoGenCrusher;
     }
@@ -945,7 +946,7 @@ P_UseSpecialLine
           case 174:
             // Teleport
             // 174 S1  Teleport(side,thing)
-            if (map_format.ev_teleport(0, line->tag,line,side,thing,TELF_VANILLA))
+            if (map_format.ev_teleport(0, line->special_args[0],line,side,thing,TELF_VANILLA))
               P_ChangeSwitchTexture(line,0);
             return true;
 
@@ -959,7 +960,7 @@ P_UseSpecialLine
           case 189: //jff 3/15/98 create texture change no motion type
             // Texture Change Only (Trigger)
             // 189 S1 Change Texture/Type Only
-            if (EV_DoChange(line,trigChangeOnly,line->tag))
+            if (EV_DoChange(line,trigChangeOnly,line->special_args[0]))
               P_ChangeSwitchTexture(line,0);
             return true;
 
@@ -980,14 +981,14 @@ P_UseSpecialLine
           case 209:
             // killough 1/31/98: silent teleporter
             //jff 209 S1 SilentTeleport
-            if (map_format.ev_teleport(0, line->tag, line, side, thing, TELF_SILENT))
+            if (map_format.ev_teleport(0, line->special_args[0], line, side, thing, TELF_SILENT))
               P_ChangeSwitchTexture(line,0);
             return true;
 
           case 241: //jff 3/15/98 create texture change no motion type
             // Texture Change Only (Numeric)
             // 241 S1 Change Texture/Type Only
-            if (EV_DoChange(line,numChangeOnly,line->tag))
+            if (EV_DoChange(line,numChangeOnly,line->special_args[0]))
               P_ChangeSwitchTexture(line,0);
             return true;
 
@@ -1028,7 +1029,7 @@ P_UseSpecialLine
           case 78: //jff 3/15/98 create texture change no motion type
             // Texture Change Only (Numeric)
             // 78 SR Change Texture/Type Only
-            if (EV_DoChange(line,numChangeOnly,line->tag))
+            if (EV_DoChange(line,numChangeOnly,line->special_args[0]))
               P_ChangeSwitchTexture(line,1);
             return true;
 
@@ -1128,7 +1129,7 @@ P_UseSpecialLine
           case 190: //jff 3/15/98 create texture change no motion type
             // Texture Change Only (Trigger)
             // 190 SR Change Texture/Type Only
-            if (EV_DoChange(line,trigChangeOnly,line->tag))
+            if (EV_DoChange(line,trigChangeOnly,line->special_args[0]))
               P_ChangeSwitchTexture(line,1);
             return true;
 
@@ -1163,7 +1164,7 @@ P_UseSpecialLine
           case 195:
             // Teleport
             // 195 SR  Teleport(side,thing)
-            if (map_format.ev_teleport(0, line->tag,line,side,thing,TELF_VANILLA))
+            if (map_format.ev_teleport(0, line->special_args[0],line,side,thing,TELF_VANILLA))
               P_ChangeSwitchTexture(line,1);
             return true;
 
@@ -1191,7 +1192,7 @@ P_UseSpecialLine
           case 210:
             // killough 1/31/98: silent teleporter
             //jff 210 SR SilentTeleport
-            if (map_format.ev_teleport(0, line->tag, line, side, thing, TELF_SILENT))
+            if (map_format.ev_teleport(0, line->special_args[0], line, side, thing, TELF_SILENT))
               P_ChangeSwitchTexture(line,1);
             return true;
 
@@ -1394,12 +1395,12 @@ P_UseSpecialLine
 dboolean Heretic_P_UseSpecialLine(mobj_t * thing, line_t * line, int side, dboolean bossaction)
 {
     // This condition never reached in heretic
-    if (side || bossaction) return false;
+    if (side) return false;
 
     //
     //      Switches that other things can activate
     //
-    if (!thing->player)
+    if (!thing->player && !bossaction)
     {
         if (line->flags & ML_SECRET)
             return false;       // never open secret doors
@@ -1413,6 +1414,20 @@ dboolean Heretic_P_UseSpecialLine(mobj_t * thing, line_t * line, int side, dbool
             default:
                 return false;
         }
+    }
+
+    if (bossaction)
+    {
+      switch(line->special)
+      {
+        // 0-tag specials, locked switches and teleporters need to be blocked for boss actions.
+        case 1:         // MANUAL DOOR RAISE
+        case 32:        // MANUAL BLUE
+        case 33:        // MANUAL RED
+        case 34:        // MANUAL YELLOW
+          return false;
+          break;
+      }
     }
 
     //
@@ -1588,6 +1603,9 @@ dboolean Heretic_P_UseSpecialLine(mobj_t * thing, line_t * line, int side, dbool
         case 2060: case 2066: case 2090: case 2096:
             P_ChangeSwitchTexture(line,1);
             EV_ChangeMusic(line, side);
+        // Heretic + Hexen
+        case 515:
+            P_Massacre();
             break;
     }
 

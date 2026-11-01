@@ -77,6 +77,7 @@ typedef enum {
   exhud_stat_totals,
   exhud_tracker,
   exhud_weapon_text,
+  exhud_weapon_carousel,
   exhud_render_stats,
   exhud_fps,
   exhud_attempts,
@@ -263,6 +264,13 @@ exhud_component_t components_template[exhud_component_count] = {
     dsda_DrawWeaponTextHC,
     "weapon_text",
     .default_vpt = VPT_EX_TEXT | VPT_EX_TRANS,
+  },
+  [exhud_weapon_carousel] = {
+    dsda_InitWeaponCarouselHC,
+    dsda_UpdateWeaponCarouselHC,
+    dsda_DrawWeaponCarouselHC,
+    "weapon_carousel",
+    .default_vpt = VPT_EX_TRANS,
   },
   [exhud_render_stats] = {
     dsda_InitRenderStatsHC,

@@ -66,6 +66,7 @@
 #include "m_menu.h"
 #include "m_random.h"
 #include "i_main.h"
+#include "i_richpresence.h"
 #include "i_system.h"
 #include "i_sound.h"
 #include "i_video.h"
@@ -149,6 +150,11 @@ dboolean fastparm;       // working -fast
 dboolean pistolstart;
 
 dboolean randomclass;
+
+int map_colormap;
+fixed_t map_gravity;
+fixed_t map_aircontrol;
+fixed_t map_airfriction;
 
 dboolean singletics = false; // debug flag to cancel adaptiveness
 
@@ -252,8 +258,12 @@ void D_PostEvent(event_t *ev)
     }
   }
 
-  if (M_Responder(ev))
+  if (gamestate == GS_FINALE && !F_ShowCast() && F_Responder(ev))
+    dsda_InputFlushTick(); // custom palette screen ate the event
+  else if (M_Responder(ev))
     dsda_InputFlushTick(); // If the menu used the event, make it invisible
+  else if (gamestate == GS_FINALE && F_Responder(ev))
+    dsda_InputFlushTick(); // finale ate the event
   else
     G_Responder(ev);
 }
@@ -890,6 +900,7 @@ void D_StartTitle (void)
 {
   gameaction = ga_nothing;
   in_game = false;
+  I_UpdateDiscordPresence("Playing", doomverstr);
   demosequence = -1;
   D_AdvanceDemo();
 }
@@ -1248,18 +1259,11 @@ static char *FindIWADFile(void)
 static dboolean FileMatchesIWAD(const char *name)
 {
   int i;
-  int name_length;
+  const char *base_name = dsda_BaseName(name);
 
-  name_length = (int)strlen(name);
   for (i = 0; i < nstandard_iwads; ++i)
   {
-    int iwad_length;
-
-    iwad_length = (int)strlen(standard_iwads[i]);
-    if (
-      name_length >= iwad_length &&
-      !stricmp(name + name_length - iwad_length, standard_iwads[i])
-    )
+    if (!stricmp(base_name, standard_iwads[i]))
       return true;
   }
 
@@ -1998,7 +2002,7 @@ static void IdentifyVersion (void)
 
 static void D_DoomMainSetup(void)
 {
-  int p;
+  int p, slot = -1;
   dsda_arg_t *arg;
   dboolean autoload;
   const char* DehackedLump;
@@ -2148,9 +2152,13 @@ static void D_DoomMainSetup(void)
   {
     lprintf(LO_INFO, "Detected %s lump: %s\n", iwadver ? iwadver : "GAMEINFO", iwadlump);
     Z_Free(iwadlump);
+    iwadlump = NULL;
 
     if (iwadver)
+    {
       Z_Free(iwadver);
+      iwadver = NULL;
+    }
   }
 
   G_ReloadDefaults();
@@ -2278,7 +2286,7 @@ static void D_DoomMainSetup(void)
 
   PostProcessDehacked();
   dsda_AppendZDoomMobjInfo();
-  dsda_ApplyDefaultMapFormat();
+  dsda_ApplyBinaryMapFormat();
 
   deh_InitNyanTweaks();
 
@@ -2288,7 +2296,7 @@ static void D_DoomMainSetup(void)
   lprintf(LO_INFO, "\n"); // Separator after file loading
 
   V_UpdateColorTranslation(); //jff 4/24/98 load color translation lumps
-  V_UpdateShadeColormap();    // Update dark overlay colormap
+  V_UpdateColormaps();        // Update overlay / gray invuln
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_DEBUG, "M_Init: Init miscellaneous info.\n");
@@ -2334,6 +2342,8 @@ static void D_DoomMainSetup(void)
   if (!(dsda_Flag(dsda_arg_nodraw) && dsda_Flag(dsda_arg_nosound)))
     I_InitGraphics();
 
+  I_UpdateDiscordPresence("Playing", doomverstr);
+
   // Draw STARTUP / LOADING
   if (dsda_IntConfig(nyan_config_show_startup))
   {
@@ -2365,10 +2375,19 @@ static void D_DoomMainSetup(void)
     dsda_SetDemoBaseName(arg->value.v_string);
     dsda_InitDemoRecording();
   }
+  else
+  {
+    arg = dsda_Arg(dsda_arg_loadgame);
+    if (arg->found)
+    {
+      slot = arg->value.v_int;
+      G_LoadGame(slot, true);
+    }
+  }
 
   dsda_ExecutePlaybackOptions();
 
-  if (!userdemo)
+  if (slot == -1 && !userdemo)
   {
     if (autostart || netgame)
     {

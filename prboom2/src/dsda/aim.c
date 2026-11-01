@@ -67,7 +67,7 @@ void dsda_PlayerAim(mobj_t* source, angle_t angle, aim_t* aim, uint64_t target_m
   dboolean freelook_autoaim = false;
   aim->angle = angle;
 
-  if (dsda_MouselookAutoAim())
+  if (dsda_FreeAimAutoAim())
     freelook_autoaim = dsda_PlayerFreelookAutoAim();
 
   if (dsda_FreeAim() && !freelook_autoaim)
@@ -113,7 +113,7 @@ void dsda_PlayerAimBad(mobj_t* source, angle_t angle, aim_t* aim, uint64_t targe
   aim->angle = angle;
   aim->z_offset = 0;
 
-  if (dsda_MouselookAutoAim())
+  if (dsda_FreeAimAutoAim())
     freelook_autoaim = dsda_PlayerFreelookAutoAim();
 
   if (dsda_FreeAim() && !freelook_autoaim)

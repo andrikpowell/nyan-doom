@@ -2,6 +2,8 @@
 
 Nyan Doom supports new widescreen background and statusbar lumps with the prefix `W_`.
 
+For custom widescreen lump names and control over automatic replacement, see [ANIMINFO](animinfo.md).
+
 When any of the `widescreen` lumps are loaded within a WAD, they will take priority over the following `original` lumps.
 
 Note there are no widescreen versions for [animated lumps](animbg.md) as animate lumps take priority over widescreen lumps. The lump priority is: `start/end animations` > `widescreen` > `original`.

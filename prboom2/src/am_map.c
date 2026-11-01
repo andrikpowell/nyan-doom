@@ -423,6 +423,7 @@ static fixed_t m_x, m_y;     // LL x,y window location on the map (map coords)
 static fixed_t m_x2, m_y2;   // UR x,y window location on the map (map coords)
 
 static fixed_t prev_m_x, prev_m_y;
+static fixed_t prev_m_w, prev_m_h;
 
 static mpoint_t m_paninc2; // [crispy] mouse map panning
 static mpoint_t m_paninc_target; // movement for current tic
@@ -721,9 +722,9 @@ static void AM_ParallaxPan(fixed_t incx, fixed_t incy)
     if (autopage_parallax && !minimap) // disable parallax on minimap (same reason above)
     {
       if (incx)
-        mapxstart = prev_mapxstart + MTOF(incx + MAPUNIT / 2);
+        mapxstart = prev_mapxstart + (short)lroundf(MTOF_F(incx));
       if (incy)
-        mapystart = prev_mapystart - MTOF(incy + MAPUNIT / 2);
+        mapystart = prev_mapystart - (short)lroundf(MTOF_F(incy));
     }
   }
 }
@@ -796,7 +797,9 @@ static void AM_changeWindowLoc(void)
     incy = m_paninc_target.y;
   }
 
-  AM_moveWindowLoc(prev_m_x, prev_m_y, incx, incy);
+  AM_moveWindowLoc(prev_m_x + (prev_m_w - m_w) / 2,
+                   prev_m_y + (prev_m_h - m_h) / 2,
+                   incx, incy);
 }
 
 static void AM_AddMousePan(int x, int y)
@@ -990,7 +993,7 @@ static void AM_ResetTagHighlight(void)
   highlight.y = INT_MIN;
 }
 
-void AM_UpdateMinimapCoordinates(void)
+static void AM_UpdateMinimapCoordinates(void)
 {
   if (dsda_ShowMinimap())
   {
@@ -1250,7 +1253,7 @@ static void AM_AddTaggedLineConnections(line_t *line)
 
   AM_HighlightLineCenter(&origin, line);
 
-  FIND_SECTORS(id_p, line->tag)
+  FIND_SECTORS(id_p, line->special_args[0])
   {
     AM_HighlightSectorCenter(&destination, &sectors[*id_p]);
     AM_AddHighlightConnection(origin, destination);
@@ -1614,10 +1617,10 @@ static void AM_HighlightByTag(void)
   {
     highlight.sec = NULL;
     highlight.line = line;
-    highlight.tag = line->tag;
+    highlight.tag = line->special_args[0];
     highlight.thing = 0;
 
-    doom_printf("Highlight line %d, tag %d\n", highlight.line->iLineID, line->tag);
+    doom_printf("Highlight line %d, tag %d\n", highlight.line->iLineID, line->special_args[0]);
   }
   // Nothing
   else
@@ -1683,7 +1686,7 @@ static dboolean AM_ShouldBlinkHighlightLine(line_t *line)
 
     // highlight lines linked to main sector
     if (highlight.tag)
-      return line->tag == highlight.tag;
+      return line->special_args[0] == highlight.tag;
 
     // highlight manual doors
     if (P_IsManualDoor(line))
@@ -2085,10 +2088,6 @@ static void AM_changeWindowScale(void)
     AM_maxOutWindowScale();
   else
     AM_activateNewScale();
-
-  // Update position for mouse panning
-  prev_m_x = m_x;
-  prev_m_y = m_y;
 }
 
 //
@@ -2115,6 +2114,8 @@ void AM_Ticker (void)
   prev_scale_mtof = scale_mtof;
   prev_m_x = m_x;
   prev_m_y = m_y;
+  prev_m_w = m_w;
+  prev_m_h = m_h;
   prev_mapxstart = mapxstart;
   prev_mapystart = mapystart;
 
@@ -2913,13 +2914,11 @@ static void AM_DrawBossActionThings(void)
   if (!mapcolor_p->tagfinder || TAG_FINDER_BLINK_OFF)
     return;
 
-#if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
       return;
   }
-#endif
 
   for (th = thinkercap.next; th != &thinkercap; th = th->next)
   {
@@ -2967,13 +2966,11 @@ static void AM_drawPlayers(void)
   fixed_t scale;
   fixed_t box_scale = 0;
 
-#if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
       return;
   }
-#endif
 
   if (map_things_appearance == map_things_appearance_scaled)
     scale = (CLAMP(plr->mo->radius, 4<<FRACBITS, 256<<FRACBITS)>>FRACTOMAPBITS);
@@ -3463,6 +3460,75 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
   }
 }
 
+// Automap key types
+typedef enum
+{
+  automap_key_none,
+  automap_key_red,
+  automap_key_yellow,
+  automap_key_blue,
+  automap_key_green,
+  automap_key_hexen,
+  automap_key_puzzle,
+} automap_key_t;
+
+static automap_key_t AM_IsAutomapKey(const mobj_t *thing)
+{
+  int num = thing->info->doomednum;
+  dboolean doom = !raven;
+
+  if (hexen)
+  {
+    // Hexen Keys
+    if ((num >= 8030 && num <= 8039) || num == 8200)
+      return automap_key_hexen;
+
+    // Hexen Puzzle Pieces
+    if ((num >= 9002 && num <= 9010) ||
+        (num >= 9014 && num <= 9021))
+      return automap_key_puzzle;
+  }
+  else if (heretic)
+  {
+    if (num == 73)
+      return automap_key_green;
+    if (num == 80)
+      return automap_key_yellow;
+    if (num == 79)
+      return automap_key_blue;
+  }
+  //jff 1/5/98 treat keys special
+  else if (doom)
+  {
+    if (num == 13 || num == 38)
+      return automap_key_red;
+    if (num == 6 || num == 39)
+      return automap_key_yellow;
+    if (num == 5 || num == 40)
+      return automap_key_blue;
+  }
+
+  return automap_key_none;
+}
+
+static dboolean AM_IsHexenAutomapArtifact(const mobj_t *thing)
+{
+  int num = thing->info->doomednum;
+
+  if (hexen)
+  {
+    switch(num)
+    {
+      case 30: case 32: case 33: case 36: case 82:
+      case 83: case 84: case 86: case 8000: case 8002:
+      case 8003: case 8041: case 10040: case 10110: case 10120:
+        return true;
+    }
+  }
+
+  return false;
+}
+
 static void AM_DrawNiceEasyKeys(void)
 {
   int i;
@@ -3472,6 +3538,10 @@ static void AM_DrawNiceEasyKeys(void)
 
   // return if IDDT
   if (dsda_RevealAutomap() == 2)
+    return;
+
+  // return if Key sprites are used
+  if (dsda_ShowAutomapSprites())
     return;
 
   // for all sectors
@@ -3491,44 +3561,7 @@ static void AM_DrawNiceEasyKeys(void)
     {
       if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
       {
-        int nice_key = false;
-        if (hexen)
-        {
-          switch(t->info->doomednum)
-          {
-            // hexen keys
-            case 8030: case 8031: case 8032: case 8033: case 8034: case 8035:
-            case 8036: case 8037: case 8038: case 8039: case 8200:
-            // hexen puzzle parts - use key color
-            case 9002: case 9003: case 9004: case 9005: case 9006: case 9007: case 9008:
-            case 9009: case 9010: case 9011: case 9012: case 9014: case 9015: case 9016:
-            case 9017: case 9018: case 9019: case 9020: case 9021:
-              nice_key++; break;
-          }
-        }
-        else if (heretic) // Heretic Keys
-        {
-          switch(t->info->doomednum)
-          {
-            case 73: // green key
-            case 80: // yellow key
-            case 79: // blue key
-              nice_key++; break;
-          }
-        }
-        else   // Doom Keys
-        {
-          switch(t->info->doomednum)
-          {
-            //jff 1/5/98 treat keys special
-            case 38: case 13: // red keys
-            case 39: case 6:  // yellow keys
-            case 40: case 5:  // blue keys
-              nice_key++; break;
-          }
-        }
-
-        if (nice_key)
+        if (AM_IsAutomapKey(t) != automap_key_none)
         {
           AM_GetMobjPosition(t, &p, &angle);
           if (automap_rotate)
@@ -3615,6 +3648,13 @@ static void AM_DrawNiceThings(void)
       t = sectors[i].thinglist;
       while (t) // for all things in that sector
       {
+        // If key sprites are used, don't draw nice things
+        if (dsda_ShowAutomapSprites() && AM_IsAutomapKey(t) != automap_key_none)
+        {
+          t = t->snext;
+          continue;
+        }
+
         // Avoid drawing the main player again
         // But draw voodoo dolls!
         if (!(t->player && t == t->player->mo))
@@ -3692,13 +3732,11 @@ static void AM_drawThings(void)
   int lineguylines = NUMTHINTRIANGLEGUYLINES;
   int showkeys = skill_info.flags & SI_EASY_KEY || dsda_ShowAutomapKeys();
 
-#if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
       RETURN(AM_DrawNiceThings());
   }
-#endif
 
   if (!showkeys && dsda_RevealAutomap() != 2)
     return;
@@ -3733,6 +3771,7 @@ static void AM_drawThings(void)
       fixed_t scale;
       fixed_t box_scale = 0;
       int color = -1;
+      automap_key_t key = AM_IsAutomapKey(t);
 
       //e6y: stop if all enemies from current sector already has been drawn
       if (pass == 1 && enemies == 0)
@@ -3761,88 +3800,65 @@ static void AM_drawThings(void)
         AM_SetMPointFloatValue(&p);
 
       //jff 1/5/98 case over doomednum of thing being drawn
-      if (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey)
+      if (!dsda_ShowAutomapSprites() && (mapcolor_p->rkey || mapcolor_p->ykey || mapcolor_p->bkey))
       {
-        if (hexen) // Hexen keys and puzzle pieces
+        switch (key)
         {
-          // hexen keys
-          if (mapcolor_p->ykey)
-          {
-            int hexkey_scale = scale*2; // Hexen keys are very small on automap
-            switch(t->info->doomednum)
-            {
-              // hexen keys
-              case 8030: case 8031: case 8032: case 8033: case 8034: case 8035:
-              case 8036: case 8037: case 8038: case 8039: case 8200:
-                color = mapcolor_p->ykey != -1 ? mapcolor_p->ykey : mapcolor_p->sprt; break;
-            }
+          case automap_key_red:
+          case automap_key_green:
+            if (mapcolor_p->rkey)
+              color = mapcolor_p->rkey != -1 ? mapcolor_p->rkey : mapcolor_p->sprt;
+            break;
+          case automap_key_yellow:
+          case automap_key_hexen:
+            if (mapcolor_p->ykey)
+              color = mapcolor_p->ykey != -1 ? mapcolor_p->ykey : mapcolor_p->sprt;
+            break;
+          case automap_key_blue:
+          case automap_key_puzzle:
+            if (mapcolor_p->bkey)
+              color = mapcolor_p->bkey != -1 ? mapcolor_p->bkey : mapcolor_p->sprt;
+            break;
+          default:
+            break;
+        }
 
-            if (color != -1)
+        // Draw vector line keys
+        if (color != -1)
+        {
+          if (hexen)
+          {
+            // hexen keys
+            if (key == automap_key_hexen)
             {
+              int hexkey_scale = scale * 2; // Hexen keys are super small
               AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, hexkey_scale, box_scale, 0, color, p.x, p.y);
-              t = t->snext;
-              continue;
             }
-          }
-
-          // hexen puzzle parts - use key color
-          if (mapcolor_p->bkey)
-          {
-            switch(t->info->doomednum)
-            {
-              case 9002: case 9003: case 9004: case 9005: case 9006: case 9007: case 9008:
-              case 9009: case 9010: case 9011: case 9012: case 9014: case 9015: case 9016:
-              case 9017: case 9018: case 9019: case 9020: case 9021:
-                color = mapcolor_p->bkey != -1 ? mapcolor_p->bkey : mapcolor_p->sprt; break;
-            }
-
-            if (color != -1)
+            // hexen puzzle parts
+            else if (key == automap_key_puzzle)
             {
               AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, box_scale, t->angle, color, p.x, p.y);
-              t = t->snext;
-              continue;
             }
           }
-        }
-        else if (heretic) // Heretic keys
-        {
-          switch(t->info->doomednum)
-          {
-            case 73: // green key
-              color = mapcolor_p->rkey != -1? mapcolor_p->rkey : mapcolor_p->sprt; break;
-            case 80: // yellow key
-              color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
-            case 79: // blue key
-              color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
-          }
-
-          if (color != -1)
+          else if (heretic) // Heretic
           {
             AM_drawLineCharacter(raven_keysquare, RAVEN_NUMKEYSQUARELINES, scale, box_scale, 0, color, p.x, p.y);
-            t = t->snext;
-            continue;
           }
-        }
-        else // Doom Keys
-        {
-          switch(t->info->doomednum)
-          {
-            //jff 1/5/98 treat keys special
-            case 38: case 13: //jff  red key
-              color = mapcolor_p->rkey != -1? mapcolor_p->rkey : mapcolor_p->sprt; break;
-            case 39: case 6: //jff yellow key
-              color = mapcolor_p->ykey != -1? mapcolor_p->ykey : mapcolor_p->sprt; break;
-            case 40: case 5: //jff blue key
-              color = mapcolor_p->bkey != -1? mapcolor_p->bkey : mapcolor_p->sprt; break;
-          }
-
-          if (color != -1)
+          else // Doom
           {
             AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES, scale, box_scale, t->angle, color, p.x, p.y);
-            t = t->snext;
-            continue;
           }
+
+          t = t->snext;
+          continue;
         }
+      }
+
+      // Return if keys are drawn as sprites
+      if (dsda_ShowAutomapSprites() && key != automap_key_none)
+      {
+        t = t->snext;
+        continue;
       }
 
       // return if not IDDT
@@ -3855,13 +3871,8 @@ static void AM_drawThings(void)
       // hexen artifacts use item color
       if (hexen && mapcolor_p->item)
       {
-        switch(t->info->doomednum)
-        {
-          case 30: case 32: case 33: case 36: case 82:
-          case 83: case 84: case 86: case 8000: case 8002:
-          case 8003: case 8041: case 10040: case 10110: case 10120:
-            color = mapcolor_p->item != -1 ? mapcolor_p->item : mapcolor_p->sprt; break;
-        }
+        if (AM_IsHexenAutomapArtifact(t))
+          color = mapcolor_p->item != -1 ? mapcolor_p->item : mapcolor_p->sprt;
 
         if (color != -1)
         {
@@ -4016,6 +4027,45 @@ static void AM_drawPlayerTrail(void)
 // killough 2/22/98:
 // Rewrote AM_drawMarks(). Removed limit on marks.
 //
+static dboolean AM_GetMarkerCrop(float x, float y, int lumpnum, float scale, patch_cropf_t *crop, int flags)
+{
+  const rpatch_t *patch;
+  stretch_param_t *params;
+  float scale_x, scale_y;
+  float left, top, right, bottom;
+
+  if (lumpnum == LUMP_NOT_FOUND)
+    return false;
+
+  patch = R_PatchByNum(lumpnum);
+
+  *crop = CROP_NULL_FLOAT;
+
+  if (automap_full)
+    return true;
+
+  params = dsda_StretchParams(flags);
+  scale_x = params->video->width / 320.0f;
+  scale_y = params->video->height / 200.0f;
+
+  left    = (x - patch->leftoffset * scale) * scale_x + params->deltax1;
+  top     = (y - patch->topoffset * scale) * scale_y + params->deltay1;
+  right   = left + patch->width * scale * scale_x;
+  bottom  = top + patch->height * scale * scale_y;
+
+  if (right <= f_x  || left >= f_x + f_w ||
+      bottom <= f_y || top >= f_y + f_h  )
+    return false;
+
+  crop->left    = MAX(0.0f, ceilf(f_x - left) / (scale * scale_x));
+  crop->right   = MAX(0.0f, ceilf(right - (f_x + f_w)) / (scale * scale_x));
+  crop->top     = MAX(0.0f, ceilf(f_y - top) / (scale * scale_y));
+  crop->bottom  = MAX(0.0f, ceilf(bottom - (f_y + f_h)) / (scale * scale_y));
+
+  return crop->left + crop->right < patch->width &&
+         crop->top + crop->bottom < patch->height;
+}
+
 static void AM_drawMarks(void)
 {
   int i, namelen;
@@ -4027,13 +4077,11 @@ static void AM_drawMarks(void)
   if (map_trail_mode && dsda_RevealAutomap())
     AM_drawPlayerTrail();
 
-#if defined(HAVE_LIBSDL2_IMAGE)
   if (V_IsOpenGLMode())
   {
     if (map_opengl_nice_things)
       return;
   }
-#endif
 
   for (i = 0; i < markpointnum; i++) // killough 2/22/98: remove automap mark limit
   {
@@ -4051,21 +4099,23 @@ static void AM_drawMarks(void)
       else
         AM_SetMPointFloatValue(&p);
 
+      // Allow precise coordinates in Software
+      if (!am_frame.precise)
+      {
+        p.fx = (float)p.x;
+        p.fy = (float)p.y;
+      }
+
       // Save coordinates for vector
       mx = p.x;
       my = p.y;
 
       p.x = CXMTOF(p.x) - markpoints[i].w * SCREENWIDTH / 320 / 2;
       p.y = CYMTOF(p.y) - markpoints[i].h * SCREENHEIGHT / 200 / 2;
-      if (am_frame.precise)
-      {
-        p.fx = CXMTOF_F(p.fx) - (float)markpoints[i].w * SCREENWIDTH / 320.0f / 2.0f;
-        p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * SCREENHEIGHT / 200.0f / 2.0f;
-      }
+      p.fx = CXMTOF_F(p.fx) - (float)markpoints[i].w * SCREENWIDTH / 320.0f / 2.0f;
+      p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * SCREENHEIGHT / 200.0f / 2.0f;
 
-      if (V_IsOpenGLMode() ?
-          p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y :
-          p.y < f_y + f_h && p.y >= f_y)
+      if (p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y)
       {
         // Vector Markers
         if (dsda_IntConfig(dsda_config_map_marker_style))
@@ -4103,66 +4153,169 @@ static void AM_drawMarks(void)
           w = 0;
           for (k = 0; k < (int)strlen(markpoints[i].label); k++)
           {
+            float fx, fy;
+            patch_cropf_t crop;
+            int flags;
+
             namebuf[namelen] = markpoints[i].label[k];
 
-            if (p.x < f_x + f_w &&
-                p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
+            switch (render_stretch_hud)
             {
-              float fx, fy;
-              int x, y, flags;
+              default:
+              case patch_stretch_not_adjusted:
+                fx = (float)p.fx / patches_scalex;
+                fy = (float)p.fy * 200.0f / SCREENHEIGHT;
 
-              switch (render_stretch_hud)
-              {
-                default:
-                case patch_stretch_not_adjusted:
-                  fx = (float)p.fx / patches_scalex;
-                  fy = (float)p.fy * 200.0f / SCREENHEIGHT;
+                flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+                break;
+              case patch_stretch_doom_format:
+                fx = (float)p.fx * 320.0f / WIDE_SCREENWIDTH;
+                fy = (float)p.fy * 200.0f / WIDE_SCREENHEIGHT;
 
-                  x = p.x / patches_scalex;
-                  y = p.y * 200 / SCREENHEIGHT;
+                flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+                break;
+              case patch_stretch_fit_to_width:
+                fx = (float)p.fx * 320.0f / SCREENWIDTH;
+                fy = (float)p.fy * 200.0f / SCREENHEIGHT;
 
-                  flags = VPT_ALIGN_LEFT | VPT_STRETCH;
-                  break;
-                case patch_stretch_doom_format:
-                  fx = (float)p.fx * 320.0f / WIDE_SCREENWIDTH;
-                  fy = (float)p.fy * 200.0f / WIDE_SCREENHEIGHT;
-
-                  x = p.x * 320 / WIDE_SCREENWIDTH;
-                  y = p.y * 200 / WIDE_SCREENHEIGHT;
-
-                  flags = VPT_ALIGN_LEFT | VPT_STRETCH;
-                  break;
-                case patch_stretch_fit_to_width:
-                  fx = (float)p.fx * 320.0f / SCREENWIDTH;
-                  fy = (float)p.fy * 200.0f / SCREENHEIGHT;
-
-                  x = p.x * 320 / SCREENWIDTH;
-                  y = p.y * 200 / SCREENHEIGHT;
-
-                  flags = VPT_ALIGN_WIDE | VPT_STRETCH;
-                  break;
-              }
-
-              if (am_frame.precise)
-              {
-                V_DrawNamePatchPrecise(fx, fy, namebuf, CR_DEFAULT, flags);
-              }
-              else
-              {
-                V_DrawNamePatch(x, y, namebuf, CR_DEFAULT, flags);
-              }
+                flags = VPT_ALIGN_WIDE | VPT_STRETCH;
+                break;
             }
+
+            if (AM_GetMarkerCrop(fx, fy, W_CheckNumForName(namebuf), 1.0f, &crop, flags))
+              V_DrawNamePatchPreciseCrop(fx, fy, namebuf, crop, CR_DEFAULT, flags);
 
             w += markpoints[i].widths[k] + 1;
             p.x += w * SCREENWIDTH / 320;
-            if (am_frame.precise)
-            {
-              p.fx += (float)w * SCREENWIDTH / 320.0f;
-            }
+            p.fx += (float)w * SCREENWIDTH / 320.0f;
           }
         }
       }
     }
+  }
+}
+
+static void AM_drawThingSprite(mobj_t *thing, float scale)
+{
+  spritedef_t   *sprdef;
+  spriteframe_t *sprframe;
+  int frame;
+  mpoint_t p = { 0 };
+  angle_t angle;
+  float fx, fy;
+  patch_cropf_t crop;
+  int flags;
+  int lump;
+
+  // Check sprite index
+  if ((unsigned)thing->sprite >= (unsigned)num_sprites)
+    return;
+
+  sprdef = &sprites[thing->sprite];
+  frame = thing->frame & FF_FRAMEMASK;
+
+  // Check sprite frame
+  if (!sprdef->spriteframes || frame >= sprdef->numframes)
+    return;
+
+  // Get sprite
+  sprframe = &sprdef->spriteframes[frame];
+  lump = sprframe->lump[0] + firstspritelump;
+
+  AM_GetMobjPosition(thing, &p, &angle);
+
+  if (automap_rotate)
+    AM_rotatePoint(&p);
+  else
+    AM_SetMPointFloatValue(&p);
+
+  // Allow precise coordinates in Software
+  if (!am_frame.precise)
+  {
+    p.fx = (float)p.x;
+    p.fy = (float)p.y;
+  }
+
+  p.fx = CXMTOF_F(p.fx);
+  p.fy = CYMTOF_F(p.fy);
+
+  switch (render_stretch_hud)
+  {
+    default:
+    case patch_stretch_not_adjusted:
+      fx = p.fx / patches_scalex;
+      fy = p.fy * 200.0f / SCREENHEIGHT;
+      flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+      break;
+    case patch_stretch_doom_format:
+      fx = p.fx * 320.0f / WIDE_SCREENWIDTH;
+      fy = p.fy * 200.0f / WIDE_SCREENHEIGHT;
+      flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+      break;
+    case patch_stretch_fit_to_width:
+      fx = p.fx * 320.0f / SCREENWIDTH;
+      fy = p.fy * 200.0f / SCREENHEIGHT;
+      flags = VPT_ALIGN_WIDE | VPT_STRETCH;
+      break;
+  }
+
+  // Check flip
+  if (sprframe->flip[0])
+    flags |= VPT_FLIP;
+
+  // Apply automap offsets
+  fx -= thing->info->automapoffsetx * scale;
+  fy -= thing->info->automapoffsety * scale;
+
+  if (!AM_GetMarkerCrop(fx, fy, lump, scale, &crop, flags))
+    return;
+
+  V_DrawScaledNumPatchPreciseCrop(fx, fy, lump, crop, CR_DEFAULT, scale, flags);
+}
+
+static float AM_GetThingSpriteScale(void)
+{
+  float scale = dsda_AutomapSpriteScale();
+  float zoom = 1.0f;
+  float minimum;
+
+  // Minimap scale - not dynamic
+  if (!automap_full)
+    return dsda_MinimapSpriteScale();
+
+  if (max_scale_mtof > min_scale_mtof)
+    zoom = (scale_mtof - min_scale_mtof) / (float)(max_scale_mtof - min_scale_mtof);
+
+  zoom    = CLAMP(zoom, 0.0f, 1.0f);
+  minimum = MTOF_F(32 << MAPBITS) / (16.0f * SCREENHEIGHT / 200.0f);
+
+  return MAX(scale * (1.0f - zoom), minimum);
+}
+
+static void AM_drawThingSprites(void)
+{
+  thinker_t *thinker;
+  float scale;
+  dboolean showkeys = skill_info.flags & SI_EASY_KEY || dsda_ShowAutomapKeys();
+
+  if (!dsda_ShowAutomapSprites() || (!showkeys && dsda_RevealAutomap() != 2))
+    return;
+
+  scale = AM_GetThingSpriteScale();
+
+  for (thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+  {
+    mobj_t *thing;
+
+    if (thinker->function != P_MobjThinker)
+      continue;
+
+    thing = (mobj_t *)thinker;
+
+    if (AM_IsAutomapKey(thing) == automap_key_none)
+      continue;
+
+    AM_drawThingSprite(thing, scale);
   }
 }
 
@@ -4229,6 +4382,36 @@ static void AM_FlushGLMapLines(void)
 
   M_ArrayClear(&map_lines);
   M_ArrayClear(&map_line_points);
+}
+
+static void AM_drawLineTraces(void)
+{
+  for (unsigned short i = 0; i < NUMAMLINETRACES; i++)
+  {
+    amlinetrace_t *p = &amlinetraces[(cur_amlinetrace + i) % NUMAMLINETRACES];
+    int fade = (leveltime - p->when) << 1;
+    if (fade < 24 && (p->x1 != p->x2 || p->y1 != p->y2))
+    {
+      int color;
+      mline_t pathline = {
+        {p->x1 >> FRACTOMAPBITS, p->y1 >> FRACTOMAPBITS},
+        {p->x2 >> FRACTOMAPBITS, p->y2 >> FRACTOMAPBITS}};
+
+      if (automap_rotate)
+      {
+        AM_rotatePoint(&pathline.a);
+        AM_rotatePoint(&pathline.b);
+      }
+      else
+      {
+        AM_SetMPointFloatValue(&pathline.a);
+        AM_SetMPointFloatValue(&pathline.b);
+      }
+      // red to fading gray
+      color = leveltime <= p->when + 1 ? 176 : 78 + fade;
+      AM_drawMline(&pathline, color);
+    }
+  }
 }
 
 void M_ChangeMapTextured(void)
@@ -4385,6 +4568,8 @@ void AM_Drawer (dboolean minimap)
     AM_drawGrid(mapcolor_p->grid);      //jff 1/7/98 grid default color
   AM_drawWalls();
   AM_drawPlayers();
+  if (dsda_IntConfig(dsda_config_map_traces) && dsda_RevealAutomap() == 2)
+    AM_drawLineTraces();
   AM_drawThings(); //jff 1/5/98 default double IDDT sprite
   AM_DrawConnections();
   AM_UpdateParallax();
@@ -4393,7 +4578,9 @@ void AM_Drawer (dboolean minimap)
   if (V_IsOpenGLMode())
     AM_FlushGLMapLines();
 
+  V_BeginUIDraw();
   AM_drawMarks();
+  V_EndUIDraw();
 
   // OpenGL - Draw vector markers above map lines
   // and then draw Nice things
@@ -4401,13 +4588,14 @@ void AM_Drawer (dboolean minimap)
   {
     AM_FlushGLMapLines();
 
-#if defined(HAVE_LIBSDL2_IMAGE)
     if (map_opengl_nice_things)
     {
       gld_DrawNiceThings(f_x, f_y, f_w, f_h);
     }
-#endif
   }
+
+  // Draw scaled sprites on automap
+  AM_drawThingSprites();
 
   AM_drawCrosshair(mapcolor_p->hair); //jff 1/7/98 default crosshair color
 

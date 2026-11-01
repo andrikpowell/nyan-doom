@@ -141,6 +141,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_snd_mididev),
   MIGRATED_SETTING(dsda_config_snd_soundfont),
   MIGRATED_SETTING(dsda_config_snd_soundfont_dir),
+  MIGRATED_SETTING(dsda_config_snd_device),
   MIGRATED_SETTING(dsda_config_mus_fluidsynth_chorus),
   MIGRATED_SETTING(dsda_config_mus_fluidsynth_reverb),
   MIGRATED_SETTING(dsda_config_mus_fluidsynth_gain),
@@ -186,7 +187,10 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_palette_onbonus),
   MIGRATED_SETTING(dsda_config_palette_onpowers),
   MIGRATED_SETTING(dsda_config_palette_oneffects),
+  MIGRATED_SETTING(dsda_config_invulnerability_sky),
+  MIGRATED_SETTING(dsda_config_gray_invulnerability),
   MIGRATED_SETTING(dsda_config_enhanced_liteamp),
+  MIGRATED_SETTING(nyan_config_ui_fade_effects),
   MIGRATED_SETTING(dsda_config_colored_borderbox),
   MIGRATED_SETTING(dsda_config_render_wipescreen),
   MIGRATED_SETTING(dsda_config_render_screen_multiply),
@@ -198,16 +202,16 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_render_patches_scalex),
   MIGRATED_SETTING(dsda_config_render_patches_scaley),
   MIGRATED_SETTING(dsda_config_render_stretchsky),
-  MIGRATED_SETTING(dsda_config_render_linearsky),
+  MIGRATED_SETTING(dsda_config_render_sky_projection),
   MIGRATED_SETTING(dsda_config_aspect_ratio_correction),
   MIGRATED_SETTING(dsda_config_freelook),
   MIGRATED_SETTING(dsda_config_freelook_autoaim),
-  MIGRATED_SETTING(dsda_config_freelook_enhanced_flying),
   MIGRATED_SETTING(dsda_config_extra_level_brightness),
+  MIGRATED_SETTING(dsda_config_render_fov),
+  MIGRATED_SETTING(dsda_config_zoom_fov),
 
   SETTING_HEADING("OpenGL settings"),
   MIGRATED_SETTING(dsda_config_gl_render_multisampling),
-  MIGRATED_SETTING(dsda_config_gl_render_fov),
   MIGRATED_SETTING(dsda_config_gl_skymode),
   MIGRATED_SETTING(dsda_config_gl_health_bar),
   MIGRATED_SETTING(dsda_config_gl_usevbo),
@@ -215,6 +219,7 @@ cfg_def_t cfg_defs[] =
 
   SETTING_HEADING("Mouse settings"),
   MIGRATED_SETTING(dsda_config_use_mouse),
+  MIGRATED_SETTING(dsda_config_mouse_menu_navigation),
   MIGRATED_SETTING(dsda_config_mouse_stutter_correction),
   MIGRATED_SETTING(dsda_config_mouse_sensitivity_horiz),
   MIGRATED_SETTING(dsda_config_fine_sensitivity),
@@ -341,6 +346,9 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_map_blinking_locks),
   MIGRATED_SETTING(dsda_config_map_secret_after),
   MIGRATED_SETTING(dsda_config_map_show_keys),
+  MIGRATED_SETTING(dsda_config_map_key_style),
+  MIGRATED_SETTING(dsda_config_map_sprite_scale),
+  MIGRATED_SETTING(dsda_config_map_minimap_sprite_scale),
   MIGRATED_SETTING(dsda_config_full_automap_exhud),
   MIGRATED_SETTING(dsda_config_map_stat_icons),
   MIGRATED_SETTING(dsda_config_map_coordinates),
@@ -353,6 +361,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_map_trail_size),
   MIGRATED_SETTING(dsda_config_map_player_arrow),
   MIGRATED_SETTING(dsda_config_map_marker_style),
+  MIGRATED_SETTING(dsda_config_map_traces),
   MIGRATED_SETTING(dsda_config_automap_overlay),
   MIGRATED_SETTING(dsda_config_automap_background),
   MIGRATED_SETTING(dsda_config_automap_background_shade),
@@ -412,6 +421,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_free_text_active),
   MIGRATED_SETTING(dsda_config_free_text),
   MIGRATED_SETTING(dsda_config_wipe_at_full_speed),
+  MIGRATED_SETTING(dsda_config_allow_wipescreen_raven_demos),
   MIGRATED_SETTING(dsda_config_show_demo_attempts),
   MIGRATED_SETTING(dsda_config_hide_horns),
   MIGRATED_SETTING(dsda_config_hide_weapon),
@@ -449,6 +459,8 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_ssg_on_arms),
   MIGRATED_SETTING(dsda_config_viewbob),
   MIGRATED_SETTING(dsda_config_weaponbob),
+  MIGRATED_SETTING(nyan_config_weapon_freelook_tilt),
+  MIGRATED_SETTING(dsda_config_fix_viewbob_floor_jolt),
   MIGRATED_SETTING(dsda_config_quake_intensity),
   MIGRATED_SETTING(dsda_config_swirling_flats),
   MIGRATED_SETTING(dsda_config_draw_nearby_sprites),
@@ -456,10 +468,14 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_fuzzscale),
   MIGRATED_SETTING(dsda_config_multiple_area_maps),
   MIGRATED_SETTING(dsda_config_doomguy_angry_face_fix),
+  MIGRATED_SETTING(dsda_config_disable_saving_after_death),
   MIGRATED_SETTING(dsda_config_blockmap_fix),
   MIGRATED_SETTING(dsda_config_organize_failed_demos),
   MIGRATED_SETTING(dsda_config_demo_end_quit),
+  MIGRATED_SETTING(dsda_config_classic_flight),
+  MIGRATED_SETTING(dsda_config_weapon_carousel),
   MIGRATED_SETTING(dsda_config_artifact_descriptions),
+  MIGRATED_SETTING(dsda_config_quick_artifact_use),
   MIGRATED_SETTING(dsda_config_hexen_skip_ethereal_travel),
   MIGRATED_SETTING(dsda_config_hexen_simpler_puzzle_use),
   MIGRATED_SETTING(dsda_config_player_name),
@@ -489,6 +505,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_colored_blood_knight),
   MIGRATED_SETTING(nyan_config_colored_blood_caco),
   MIGRATED_SETTING(nyan_config_colored_blood_spectre),
+  MIGRATED_SETTING(nyan_config_discord_presence),
   MIGRATED_SETTING(nyan_config_loading_disk),
   MIGRATED_SETTING(nyan_config_highlight_nyan_features),
   MIGRATED_SETTING(dsda_config_show_all_game_specific_options),
@@ -739,6 +756,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_console", dsda_input_console, 0, -1, -1),
   INPUT_SETTING("input_coordinate_display", dsda_input_coordinate_display, 0, -1, -1),
   INPUT_SETTING("input_fps", dsda_input_fps, 0, -1, -1),
+  INPUT_SETTING("input_zoom", dsda_input_zoom, 0, -1, -1),
   INPUT_SETTING("input_avj", dsda_input_avj, 0, -1, -1),
   INPUT_SETTING("input_exhud", dsda_input_exhud, 0, -1, -1),
   INPUT_SETTING("input_free_text", dsda_input_free_text, 0, -1, -1),
@@ -1073,11 +1091,7 @@ void M_DoScreenShot (const char* fname)
 #define SCREENSHOT_DIR "."
 #endif
 
-#ifdef HAVE_LIBSDL2_IMAGE
 #define SCREENSHOT_EXT ".png"
-#else
-#define SCREENSHOT_EXT ".bmp"
-#endif
 
 const char* M_CheckWritableDir(const char *dir)
 {
@@ -1141,9 +1155,9 @@ void M_ScreenShot(void)
     startshot = shot; // CPhipps - prevent infinite loop
 
     do {
-      int size = snprintf(NULL, 0, "%s/doom%02d" SCREENSHOT_EXT, shot_dir, shot);
+      int size = snprintf(NULL, 0, "%s/nyan%04d" SCREENSHOT_EXT, shot_dir, shot);
       lbmname = Z_Realloc(lbmname, size+1);
-      snprintf(lbmname, size+1, "%s/doom%02d" SCREENSHOT_EXT, shot_dir, shot);
+      snprintf(lbmname, size+1, "%s/nyan%04d" SCREENSHOT_EXT, shot_dir, shot);
       shot++;
     } while (M_FileExists(lbmname) && (shot != startshot) && (shot < 10000));
 

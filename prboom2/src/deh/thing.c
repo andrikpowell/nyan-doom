@@ -77,6 +77,10 @@ enum
     DEH_MOBJINFO_MELEE_OBITUARY,
     DEH_MOBJINFO_SELF_OBITUARY,
 
+    // AUTOMAP
+    DEH_MOBJINFO_AUTOMAPOFFSETX,
+    DEH_MOBJINFO_AUTOMAPOFFSETY,
+
     DEH_MOBJINFOMAX
 };
 
@@ -124,6 +128,10 @@ static const char *deh_mobjinfo_fields[] =
   "Obituary",            // .obituary
   "Melee obituary",      // .obituary_melee
   "Self obituary",       // .obituary_self
+
+  // automap
+  "Automap offset X",    // .automapoffsetx
+  "Automap offset Y",    // .automapoffsety
 
   NULL
 };
@@ -420,6 +428,10 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint64_t value) {
 
     // misc
     case DEH_MOBJINFO_BLOODCOLOR: mi->bloodcolor = V_BloodColor((int)value); return;
+
+    // automap
+    case DEH_MOBJINFO_AUTOMAPOFFSETX: mi->automapoffsetx = (int)value; return;
+    case DEH_MOBJINFO_AUTOMAPOFFSETY: mi->automapoffsety = (int)value; return;
 
     default: return;
   }

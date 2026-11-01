@@ -66,10 +66,16 @@ animDef_t AnimDefs[MAX_ANIM_DEFS];
 static frameDef_t FrameDefs[MAX_FRAME_DEFS];
 static int AnimDefCount;
 static dboolean LevelHasLightning;
+static dboolean SkyLightningFlash;
 int NextLightningFlash;
 int LightningFlash;
 int *LightningLightLevels;
 int LightningLightLevelCount;
+
+int P_SkyLightningActive(void)
+{
+    return SkyLightningFlash;
+}
 
 void P_AnimateCompatibleSurfaces(void)
 {
@@ -237,7 +243,7 @@ static void P_LightningFlash(void)
                     tempLight++;
                 }
             }
-            Sky1Texture = dsda_Sky1Texture();
+            SkyLightningFlash = false;
         }
         return;
     }
@@ -283,7 +289,7 @@ static void P_LightningFlash(void)
     }
     if (foundSec)
     {
-        Sky1Texture = dsda_Sky2Texture();     // set alternate sky
+        SkyLightningFlash = true;     // set alternate sky
         S_StartVoidSound(hexen_sfx_thunder_crash);
     }
     // Calculate the next lighting flash
@@ -321,11 +327,13 @@ void P_InitLightning(void)
     {
         LevelHasLightning = false;
         LightningFlash = 0;
+        SkyLightningFlash = false;
         LightningLightLevelCount = 0;
         LightningLightLevels = NULL;
         return;
     }
     LightningFlash = 0;
+    SkyLightningFlash = false;
     secCount = 0;
     for (i = 0; i < numsectors; i++)
     {

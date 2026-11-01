@@ -95,6 +95,7 @@
 #include "dsda/key_frame.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
+#include "dsda/mouse.h"
 #include "dsda/playback.h"
 #include "dsda/skip.h"
 #include "dsda/stretch.h"
@@ -107,7 +108,8 @@ int demo_tics_count;
 char demo_len_st[80];
 
 int mouse_handler;
-int gl_render_fov = 90;
+int render_fov = 90;
+float gl_render_fov_current = 90.0f;
 
 camera_t walkcamera;
 
@@ -330,7 +332,7 @@ float gl_render_multiplier;
 
 void M_ChangeAspectRatio(void)
 {
-  M_ChangeFOV();
+  gld_ChangeFOV();
 
   R_SetViewSize();
 }
@@ -342,11 +344,13 @@ void M_ChangeStretch(void)
   R_SetViewSize();
 }
 
-void M_ChangeFOV(void)
+void gld_ChangeRenderFOV(float set_fov)
 {
   float f1, f2;
   dsda_arg_t* arg;
   int gl_render_aspect_width, gl_render_aspect_height;
+
+  gl_render_fov_current = set_fov;
 
   arg = dsda_Arg(dsda_arg_aspect);
   if (
@@ -374,11 +378,11 @@ void M_ChangeFOV(void)
     }
   }
 
-  gl_render_fovy = (float)(2 * RAD2DEG(atan(tan(DEG2RAD(gl_render_fov) / 2) / gl_render_fovratio)));
+  gl_render_fovy = (float)(2 * RAD2DEG(atan(tan(DEG2RAD(set_fov) / 2) / gl_render_fovratio)));
 
-  screen_skybox_zplane = 320.0f/2.0f/(float)tan(DEG2RAD(gl_render_fov/2));
+  screen_skybox_zplane = 320.0f/2.0f/(float)tan(DEG2RAD(set_fov/2));
 
-  f1 = (float)(320.0f / 200.0f * (float)gl_render_fov / (float)FOV90 - 0.2f);
+  f1 = (float)(320.0f / 200.0f * set_fov / (float)FOV90 - 0.2f);
   f2 = (float)tan(DEG2RAD(gl_render_fovy)/2.0f);
   if (f1-f2<1)
     skyUpAngle = (float)-RAD2DEG(asin(f1-f2));
@@ -387,7 +391,12 @@ void M_ChangeFOV(void)
 
   skyUpShift = (float)tan(DEG2RAD(gl_render_fovy)/2.0f);
 
-  skyscale = 1.0f / (float)tan(DEG2RAD(gl_render_fov / 2));
+  skyscale = 1.0f / (float)tan(DEG2RAD(render_fov) / 2);
+}
+
+void gld_ChangeFOV(void)
+{
+  gld_ChangeRenderFOV((float)render_fov);
 }
 
 float viewPitch;
@@ -720,7 +729,7 @@ int secnum;
 dboolean ProcessNoTagLines(line_t *line, sector_t **sec, int *secnum)
 {
     zerotag_manual = false;
-    if (line->tag == 0 && comperr(comperr_zerotag))
+    if (line->special_args[0] == 0 && comperr(comperr_zerotag))
     {
         if (!(*sec = line->backsector))
             return true;
@@ -801,6 +810,27 @@ static int HU_MouseDemoProgressBarHeight(int collapsed_h)
   demobar_h = demobar_anim_start_h + height_change * (int)elapsed / (int)animate_time;
 
   return demobar_h;
+}
+
+dboolean HU_MouseOnDemoProgressBar(int *position_x)
+{
+  int mouse_x;
+  int mouse_y;
+
+  if (!dsda_IntConfig(dsda_config_playback_mouse_controls) ||
+      !demoplayback || timingdemo || walkcamera.type || viewport_rect.h <= 0)
+    return false;
+
+  dsda_GetMousePosition(&mouse_x, &mouse_y);
+  mouse_y = mouse_y * ACTUALHEIGHT / viewport_rect.h;
+
+  if (!mouse_x || mouse_y <= ACTUALHEIGHT - ST_SCALED_HEIGHT / 6)
+    return false;
+
+  if (position_x)
+    *position_x = mouse_x;
+
+  return true;
 }
 
 int HU_DrawDemoProgress(int force)

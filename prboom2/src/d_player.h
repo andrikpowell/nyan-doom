@@ -152,6 +152,13 @@ typedef enum
   KEYBLINK_EITHER,
 } keyblink_t;
 
+typedef enum
+{
+  weapswitch_none,
+  weapswitch_lowering,
+  weapswitch_raising,
+} weapswitch_t;
+
 //
 // Extended player object info: player_t
 //
@@ -190,6 +197,8 @@ typedef struct player_s
 
   // Is wp_nochange if not changing.
   weapontype_t        pendingweapon;
+  weapontype_t        nextweapon;
+  weapswitch_t        switching;
 
   dboolean           weaponowned[NUMWEAPONS];
   int                 ammo[NUMAMMO];

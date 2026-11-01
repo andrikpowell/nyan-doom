@@ -47,6 +47,7 @@
 #include "smooth.h"
 #include "r_fps.h"
 #include "g_game.h"
+#include "weapon_switch.h"
 #include "p_tick.h"
 #include "e6y.h"//e6y
 
@@ -74,6 +75,8 @@
 #define MAXBOB  0x100000
 
 dboolean onground; // whether player is on ground or in air
+int offgroundtics; // how many tics player has been in air
+#define AIRBOBFADETICS 4 // num tics to scale bobbing to 0 in midair
 
 // heretic
 int newtorch;      // used in the torch flicker effect.
@@ -200,7 +203,7 @@ static void P_Bob(player_t *player, angle_t angle, fixed_t move)
 void P_CalcHeight (player_t* player)
 {
   int     angle;
-  fixed_t bob;
+  fixed_t bob, totalviewoffset;
 
   // Regular movement bobbing
   // (needs to be calculated for gun swing
@@ -261,7 +264,9 @@ void P_CalcHeight (player_t* player)
     player->bob = FRACUNIT / 2;
   }
 
-  if (!onground && !raven)
+  offgroundtics = onground ? 0 : offgroundtics + 1;
+
+  if (!onground && !raven && (offgroundtics > AIRBOBFADETICS || !dsda_FixViewBobFloorJolt()) )
   {
     player->viewz = player->mo->z + g_viewheight;
 
@@ -290,7 +295,7 @@ void P_CalcHeight (player_t* player)
 
   // move viewheight
 
-  if (player->playerstate == PST_LIVE)
+  if (player->playerstate == PST_LIVE && (onground || raven) )
   {
     player->viewheight += player->deltaviewheight;
 
@@ -321,7 +326,12 @@ void P_CalcHeight (player_t* player)
   }
   else
   {
-    player->viewz = player->mo->z + player->viewheight + bob;
+    totalviewoffset = player->viewheight + bob - g_viewheight;
+
+    if (!onground && !raven)
+      totalviewoffset = totalviewoffset * (AIRBOBFADETICS + 1 - offgroundtics) / AIRBOBFADETICS;
+
+    player->viewz = player->mo->z + g_viewheight + totalviewoffset;
   }
 
   if (player->playerstate != PST_DEAD && player->mo->z <= player->mo->floorz)
@@ -365,7 +375,7 @@ void P_HandleExCmdLook(player_t* player)
   }
 }
 
-void P_FreeAim_VerticalThrust(player_t* player, fixed_t move)
+static void P_FreeAim_VerticalThrust(player_t* player, fixed_t move)
 {
   fixed_t slope;
 
@@ -380,6 +390,25 @@ void P_FreeAim_VerticalThrust(player_t* player, fixed_t move)
   // (fixes insane flyheight changes when looking directly up or down)
   if (player->flyheight > 10)   player->flyheight = 10;
   if (player->flyheight < -10)  player->flyheight = -10;
+}
+
+static void P_FreeAim_ForwardThrust(player_t* player, fixed_t move)
+{
+  angle_t angle;
+  angle_t pitch;
+  fixed_t horizontal_move;
+  fixed_t vertical_move;
+
+  if (!dsda_FreeAimFlying())
+    return;
+
+  angle = player->mo->angle >> ANGLETOFINESHIFT;
+  pitch = player->mo->pitch >> ANGLETOFINESHIFT;
+  horizontal_move = FixedMul(move, finecosine[pitch]);
+  vertical_move = FixedMul(move, finesine[pitch]);
+
+  map_format.player_thrust(player, angle, horizontal_move - move);
+  player->mo->momz -= vertical_move << 3;
 }
 
 void P_MovePlayer_10 (player_t* player, dboolean justattacked)
@@ -493,11 +522,11 @@ void P_MovePlayer (player_t* player)
           P_FreeAim_VerticalThrust(player,cmd->forwardmove*movefactor);
         }
       }
-      else if (map_info.air_control)
+      else if (map_aircontrol)
       {
         int friction, movefactor = P_GetMoveFactor(mo, &friction);
 
-        movefactor = FixedMul(movefactor, map_info.air_control);
+        movefactor = FixedMul(movefactor, map_aircontrol);
 
         if (cmd->forwardmove)
         {
@@ -959,39 +988,7 @@ void P_PlayerThink (player_t* player)
       if (!prboom_comp[PC_ALLOW_SSG_DIRECT].state)
         newweapon = (cmd->buttons & BT_WEAPONMASK_OLD)>>BT_WEAPONSHIFT;
 
-      if (!hexen)
-      {
-        if (newweapon == g_wp_fist &&
-            player->weaponowned[g_wp_chainsaw])
-        {
-          // Heretic - always just direct to gauntlets
-          if (heretic)
-          {
-            if (player->readyweapon != g_wp_chainsaw)
-              newweapon = g_wp_chainsaw;
-          }
-          else
-          // Doom - force chainsaw if not currently on chainsaw
-          // + don't allow switch to fist if no berserk
-          //
-          // if "prefer berserk" active, switch to berserk first
-          {
-            dboolean berserk = player->powers[pw_strength];
-            dboolean prefer_berserk = dsda_BerserkPreferred() && berserk;
-
-            if (player->readyweapon != g_wp_chainsaw || !berserk)
-              if (player->readyweapon == g_wp_fist || !prefer_berserk)
-                newweapon = g_wp_chainsaw;
-          }
-        }
-
-        if (!heretic &&
-            gamemode == commercial &&
-            newweapon == wp_shotgun &&
-            player->weaponowned[wp_supershotgun] &&
-            player->readyweapon != wp_supershotgun)
-          newweapon = wp_supershotgun;
-      }
+      newweapon = G_AdjustWeaponSelection(player, newweapon, player->readyweapon);
     }
 
     // killough 2/8/98, 3/22/98 -- end of weapon selection changes
@@ -1594,7 +1591,7 @@ void Raven_P_MovePlayer(player_t * player)
           if (onground || player->mo->flags2 & MF2_FLY)
               P_ForwardThrust(player, player->mo->angle, cmd->forwardmove * 2048);
           else if (hexen)
-              P_ForwardThrust(player, player->mo->angle, map_info.air_control);
+              P_ForwardThrust(player, player->mo->angle, map_aircontrol);
         }
 
         if (cmd->sidemove)
@@ -1602,7 +1599,7 @@ void Raven_P_MovePlayer(player_t * player)
           if (onground || player->mo->flags2 & MF2_FLY)
               P_Thrust(player, player->mo->angle - ANG90, cmd->sidemove * 2048);
           else if (hexen)
-              P_Thrust(player, player->mo->angle, map_info.air_control);
+              P_Thrust(player, player->mo->angle, map_aircontrol);
         }
     }
 
@@ -1703,11 +1700,11 @@ void Raven_P_MovePlayer(player_t * player)
     {
       if (player->chickenTics) // Chicken speed
       {
-        P_FreeAim_VerticalThrust(player,cmd->forwardmove*2500);
+        P_FreeAim_ForwardThrust(player,cmd->forwardmove*2500);
       }
       else // Normal speed
       {
-        P_FreeAim_VerticalThrust(player,cmd->forwardmove*2048);
+        P_FreeAim_ForwardThrust(player,cmd->forwardmove*2048);
       }
     }
 }

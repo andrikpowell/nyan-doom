@@ -52,6 +52,8 @@ set(COMMON_SRC
     dsda/analysis.h
     dsda/animinfo.cpp
     dsda/animinfo.h
+    dsda/animinfo/parser.cpp
+    dsda/animinfo/parser.h
     dsda/library.h
     dsda/args.c
     dsda/args.h
@@ -208,6 +210,8 @@ set(COMMON_SRC
     dsda/hud_components/tracker.h
     dsda/hud_components/weapon_text.c
     dsda/hud_components/weapon_text.h
+    dsda/hud_components/weapon_carousel.c
+    dsda/hud_components/weapon_carousel.h
     dsda/id_list.c
     dsda/id_list.h
     dsda/input.c
@@ -219,10 +223,6 @@ set(COMMON_SRC
     dsda/map_format.h
     dsda/mapinfo.c
     dsda/mapinfo.h
-    dsda/mapinfo/doom.c
-    dsda/mapinfo/doom.h
-    dsda/mapinfo/doom/parser.cpp
-    dsda/mapinfo/doom/parser.h
     dsda/mapinfo/hexen.c
     dsda/mapinfo/hexen.h
     dsda/mapinfo/legacy.c
@@ -337,6 +337,8 @@ set(COMMON_SRC
     f_wipe.h
     g_game.c
     g_game.h
+    weapon_switch.c
+    weapon_switch.h
     g_overflow.c
     g_overflow.h
     heretic/hhe/ammo.c
@@ -410,6 +412,8 @@ set(COMMON_SRC
     info.h
     i_capture.c
     i_capture.h
+    i_richpresence.c
+    i_richpresence.h
     i_glob.c
     i_glob.h
     i_main.h
@@ -480,6 +484,8 @@ set(COMMON_SRC
     r_main.h
     r_patch.c
     r_patch.h
+    r_png.c
+    r_png.h
     r_patch_vanilla.inl
     r_plane.c
     r_plane.h
@@ -573,6 +579,7 @@ set(DOOMMUSIC_SOURCES
     MUSIC/oplplayer.h
     MUSIC/opl_queue.c
     MUSIC/opl_queue.h
+    MUSIC/wf_rom.h
     MUSIC/portmidiplayer.c
     MUSIC/portmidiplayer.h
     MUSIC/vorbisplayer.c

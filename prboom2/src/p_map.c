@@ -60,6 +60,7 @@
 #include "dsda/excmd.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
+#include "dsda/line_special.h"
 
 #include "heretic/def.h"
 #include "hexen/dstrings.h"
@@ -164,9 +165,8 @@ dboolean PIT_StompThing (mobj_t* thing)
 
   // monsters don't stomp things except on boss level
   // killough 8/9/98: make consistent across all levels
-  if (!telefrag &&
-      !(map_info.flags & MI_ALLOW_MONSTER_TELEFRAGS) &&
-      !(tmthing->flags2 & MF2_TELESTOMP))
+  // TODO: possible "monster telefrag" mapinfo flag
+  if (!telefrag && !(tmthing->flags2 & MF2_TELESTOMP))
     return false;
 
   P_DamageMobjBy (thing, tmthing, tmthing, 10000, MOD_Telefrag); // Stomp!
@@ -1596,6 +1596,10 @@ void P_IterateCompatibleSpecHit(mobj_t *thing, fixed_t oldx, fixed_t oldy)
       if (oldside != P_PointOnLineSide(thing->x, thing->y, spechit[numspechit]))
         map_format.cross_special_line(spechit[numspechit], oldside, thing, false);
     }
+
+  // There are checks elsewhere for numspechit == 0, so we don't want to
+  // leave numspechit == -1.
+  numspechit = 0;
 }
 
 void P_IterateZDoomSpecHit(mobj_t *thing, fixed_t oldx, fixed_t oldy)
@@ -1973,6 +1977,8 @@ dboolean P_ThingHeightClip (mobj_t* thing)
 {
   dboolean   onfloor;
 
+  P_MobjInterpolation(thing);
+
   onfloor = (thing->z == thing->floorz);
 
   P_CheckPosition (thing, thing->x, thing->y);
@@ -1996,11 +2002,7 @@ dboolean P_ThingHeightClip (mobj_t* thing)
       (thing->z - thing->floorz < 9 * FRACUNIT) ||
       (thing->flags & MF_NOGRAVITY)
     )
-    {
-      thing->PrevZ = thing->z;
       thing->z = thing->floorz;
-      thing->intflags |= MIF_NOINTERPOLATEZ;
-    }
 
     /* killough 11/98: Possibly upset balance of objects hanging off ledges */
     if (thing->intflags & MIF_FALLING && thing->gear >= MAXGEAR)
@@ -2011,11 +2013,7 @@ dboolean P_ThingHeightClip (mobj_t* thing)
     // don't adjust a floating monster unless forced to
 
     if (thing->z+thing->height > thing->ceilingz)
-    {
-      thing->PrevZ = thing->z;
       thing->z = thing->ceilingz - thing->height;
-      thing->intflags |= MIF_NOINTERPOLATEZ;
-    }
   }
 
   return thing->ceilingz - thing->floorz >= thing->height;
@@ -2476,6 +2474,9 @@ dboolean PTR_ShootTraverse (intercept_t* in)
       map_format.shoot_special_line(shootthing, li, side);
     }
 
+    if (map_format.zdoom && li->special == zl_line_horizon)
+      return false;
+
     if (li->flags & ML_TWOSIDED &&
         !(li->flags & (ML_BLOCKEVERYTHING | ML_BLOCKHITSCAN)))
     {  // crosses a two sided (really 2s) line
@@ -2861,7 +2862,7 @@ dboolean PTR_UseTraverse (intercept_t* in)
             sound = hexen_sfx_pig_active1;
             break;
           default:
-            sound = hexen_sfx_None;
+            sound = sfx_None;
             break;
         }
         S_StartMobjSound(usething, sound);
@@ -2896,7 +2897,7 @@ dboolean PTR_UseTraverse (intercept_t* in)
             sound = hexen_sfx_pig_active1;
             break;
           default:
-            sound = hexen_sfx_None;
+            sound = sfx_None;
             break;
         }
         S_StartMobjSound(usething, sound);
@@ -3102,7 +3103,7 @@ dboolean PIT_RadiusAttack (mobj_t* thing)
 
   dist = dx > dy ? dx : dy;
 
-  if (map_info.flags & MI_EXPLODE_IN_3D &&
+  if (dsda_ExplodeIn3D() &&
       (bomb.spot->z < thing->z || bomb.spot->z >= thing->z + thing->height))
   {
     fixed_t dz;
@@ -3152,7 +3153,7 @@ dboolean PIT_RadiusAttack (mobj_t* thing)
 
     P_DamageMobj (thing, bomb.spot, bomb.source, damage);
 
-    if (map_info.flags & MI_VERTICAL_EXPLOSION_THRUST && !(bomb.flags & BF_HORIZONTAL))
+    if (dsda_VerticalExplosionThrust() && !(bomb.flags & BF_HORIZONTAL))
     {
       fixed_t thrust;
       fixed_t dxy, dz;
@@ -4241,8 +4242,9 @@ static void CheckForPushSpecial(line_t * line, int side, mobj_t * mobj)
         }
         else if (mobj->flags2 & MF2_IMPACT)
         {
-            if (map_info.flags & MI_MISSILES_ACTIVATE_IMPACT_LINES ||
-                !(mobj->flags & MF_MISSILE) ||
+            // TODO: possible "missile activates impact lines" mapinfo flag
+            // By default, hexen always has this flag
+            if (hexen || !(mobj->flags & MF_MISSILE) ||
                 !mobj->target)
             {
               P_ActivateLine(line, mobj, side, SPAC_IMPACT);
@@ -4416,7 +4418,7 @@ static int PuzzleUseThing;
 
 void dsda_PuzzleFailSound(mobj_t *mo)
 {
-  int sound = hexen_sfx_None;
+  int sound = sfx_None;
   if (mo->player)
   {
       switch (mo->player->pclass)
@@ -4431,7 +4433,7 @@ void dsda_PuzzleFailSound(mobj_t *mo)
               sound = hexen_sfx_puzzle_fail_mage;
               break;
           default:
-              sound = hexen_sfx_None;
+              sound = sfx_None;
               break;
       }
   }

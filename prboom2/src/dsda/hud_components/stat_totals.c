@@ -121,7 +121,7 @@ static int dsda_GetStatFormat(dboolean automap_stats)
   return automap_stat_config - 1; // Normalise map stats
 }
 
-int dsda_PrintStats(size_t length, char *buffer, size_t size, const char* label, const char* cm, const int th_count, const int th_total, dboolean allow_dsda, dboolean automap_stats, const char *separator)
+int dsda_PrintStats(char *buffer, size_t size, const char* label, const char* cm, const int th_count, const int th_total, dboolean allow_dsda, dboolean automap_stats, const char *separator)
 {
     int stat_format = dsda_GetStatFormat(automap_stats);
     int ratio, percent, count, remain, boolean, dsda;
@@ -198,19 +198,19 @@ static void dsda_LevelStats(char* str, size_t max_size) {
   if (local->include_kills)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, local->label_k, killcolor, dsda_GetCurrentKills(), dsda_GetMaxKills(), true, false, dsda_StatSeparator());
+    length += dsda_PrintStats(str + length, max_size - length, local->label_k, killcolor, dsda_GetCurrentKills(), dsda_GetMaxKills(), true, false, dsda_StatSeparator());
   }
 
   if (local->include_items)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, local->label_i, itemcolor, dsda_GetCurrentItems(), dsda_GetMaxItems(), false, false, dsda_StatSeparator());
+    length += dsda_PrintStats(str + length, max_size - length, local->label_i, itemcolor, dsda_GetCurrentItems(), dsda_GetMaxItems(), false, false, dsda_StatSeparator());
   }
 
   if (local->include_secrets)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, local->label_s, secretcolor, dsda_GetCurrentSecrets(), dsda_GetMaxSecrets(), false, false, dsda_StatSeparator());
+    length += dsda_PrintStats(str + length, max_size - length, local->label_s, secretcolor, dsda_GetCurrentSecrets(), dsda_GetMaxSecrets(), false, false, dsda_StatSeparator());
   }
 }
 

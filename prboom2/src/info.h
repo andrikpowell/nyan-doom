@@ -5836,11 +5836,17 @@ typedef enum {
   MT_MISC2,
   MT_MISC3,
   MT_MISC4,
+  MT_BLUEKEY = MT_MISC4,  // blue keycard
   MT_MISC5,
+  MT_REDKEY = MT_MISC5,  // red keycard
   MT_MISC6,
+  MT_YELLOWKEY = MT_MISC6,  // yellow keycard
   MT_MISC7,
+  MT_YELLOWSKULL = MT_MISC7,  // yellow skull
   MT_MISC8,
+  MT_REDSKULL = MT_MISC8,  // red skull
   MT_MISC9,
+  MT_BLUESKULL = MT_MISC9,  // blue skull
   MT_MISC10,
   MT_MISC11,
   MT_MISC12,
@@ -6603,6 +6609,10 @@ typedef struct
 
   // extra
   uint64_t flags_extra;
+
+  // automap
+  int automapoffsetx;
+  int automapoffsety;
 } mobjinfo_t;
 
 #define NO_ALTSPEED -1

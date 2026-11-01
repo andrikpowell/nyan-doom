@@ -65,6 +65,9 @@ typedef struct
     int num_frames;
     int seq_index;
     int seq_remaining;
+    int seq_direction;
+
+    int oscillate;
 } animate_t;
 
 // Setup / Control Animations

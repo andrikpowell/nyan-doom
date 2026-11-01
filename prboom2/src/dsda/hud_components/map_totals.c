@@ -94,7 +94,7 @@ static void dsda_DrawMapIcon(int x, int y, const char* lumpname, int color, int 
   from_pwad = W_PWADLumpNameExists2(lumpname);
 
   if (!from_pwad)
-    flags |= VPT_COLOR;
+    flags |= M_AddColorFlag(color);
 
   V_DrawMenuNamePatch(x, y, lumpname, color, flags);
 }
@@ -108,9 +108,7 @@ static void dsda_DrawMapTotalsIcons(void)
   if (local->include_kills)
   {
     int color = raven ? dsda_tc_map_raven_icon_kills : dsda_tc_map_icon_kills;
-    const char* kill_icon_lump =  hexen   ? "AMKILLS3" :
-                                  heretic ? "AMKILLS2" :
-                                            "AMKILLS";
+    const char* kill_icon_lump = "AMKILLS";
     dsda_DrawMapIcon(x, y, kill_icon_lump, dsda_TextCR(color), y_spacing);
     y += y_spacing;
   }
@@ -118,8 +116,7 @@ static void dsda_DrawMapTotalsIcons(void)
   if (local->include_items)
   {
     int color = raven ? dsda_tc_map_raven_icon_items : dsda_tc_map_icon_items;
-    const char* item_icon_lump =  hexen   ? "AMITEM3" :
-                                  heretic ? "AMITEM2" :
+    const char* item_icon_lump =  raven   ? "AMITM2" :
                                             "AMITEM";
     dsda_DrawMapIcon(x, y, item_icon_lump, dsda_TextCR(color), y_spacing);
     y += y_spacing;
@@ -128,9 +125,7 @@ static void dsda_DrawMapTotalsIcons(void)
   if (local->include_secrets)
   {
     int color = raven ? dsda_tc_map_raven_icon_secrets : dsda_tc_map_icon_secrets;
-    const char* secret_icon_lump =  hexen   ? "AMSECR3" :
-                                    heretic ? "AMSECR2" :
-                                              "AMSECR";
+    const char* secret_icon_lump =  "AMSECR";
     dsda_DrawMapIcon(x, y, secret_icon_lump, dsda_TextCR(color), y_spacing);
   }
 }
@@ -194,19 +189,19 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
   if (local->include_kills)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, killcolor, dsda_GetCurrentKills(), dsda_GetMaxKills(), true, true, dsda_StatSeparator());
+    length += dsda_PrintStats(str + length, max_size - length, NULL, killcolor, dsda_GetCurrentKills(), dsda_GetMaxKills(), true, true, dsda_StatSeparator());
   }
 
   if (local->include_items)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, itemcolor, dsda_GetCurrentItems(), dsda_GetMaxItems(), false, true, dsda_StatSeparator());
+    length += dsda_PrintStats(str + length, max_size - length, NULL, itemcolor, dsda_GetCurrentItems(), dsda_GetMaxItems(), false, true, dsda_StatSeparator());
   }
 
   if (local->include_secrets)
   {
     local->stats_count--;
-    length += dsda_PrintStats(length, str + length, max_size - length, NULL, secretcolor, dsda_GetCurrentSecrets(), dsda_GetMaxSecrets(), false, true, dsda_StatSeparator());
+    length += dsda_PrintStats(str + length, max_size - length, NULL, secretcolor, dsda_GetCurrentSecrets(), dsda_GetMaxSecrets(), false, true, dsda_StatSeparator());
   }
 }
 

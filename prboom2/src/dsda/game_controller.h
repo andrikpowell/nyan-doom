@@ -50,5 +50,7 @@ const char* dsda_GameControllerButtonName(int button);
 void dsda_PollGameController(void);
 void dsda_PollGameControllerButtons(void);
 void dsda_InitGameController(void);
+void dsda_GameControllerAdded(int device_index);
+void dsda_GameControllerRemoved(int instance_id);
 
 #endif

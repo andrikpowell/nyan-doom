@@ -113,6 +113,8 @@ static deh_strs deh_strlookup[] = {
   {&s_GOTPLASMA,"GOTPLASMA"},
   {&s_GOTSHOTGUN,"GOTSHOTGUN"},
   {&s_GOTSHOTGUN2,"GOTSHOTGUN2"},
+  {&s_BETA_BONUS3,"BETA_BONUS3"},
+  {&s_BETA_BONUS4,"BETA_BONUS4"},
   {&s_PD_BLUEO,"PD_BLUEO"},
   {&s_PD_REDO,"PD_REDO"},
   {&s_PD_YELLOWO,"PD_YELLOWO"},

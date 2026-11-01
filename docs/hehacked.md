@@ -15,6 +15,8 @@ The following Vanilla Hehacked features are supported:
 - Thing
 - Weapon
 
+Thing blocks and REX `[STRINGS]` blocks support custom [obituaries](obituaries.md).
+
 ## HeHackEd Versioning
 
 Nyan Doom supports Hehacked patches for Heretic `1.0`, `1.2`, and `1.3`. In order to get around the lack of version detection, Nyan Doom uses an auto-detect system to "vote" on which version a hehacked patch is most likely for. If undetected, Heretic will default to the latest (currently `1.3`).
@@ -287,3 +289,19 @@ Many of these strings are Doom compatable strings.
 | AMSTR_GRIDOFF | GRID OFF |
 | AMSTR_MARKEDSPOT | Marked Spot |
 | AMSTR_MARKSCLEARED | All Marks Cleared |
+
+## Weapon Carousel Icons
+
+HeHackEd Weapon blocks support the id24 `Carousel icon` field for assigning custom weapon carousel graphics. The value is a lump name prefix containing 1 to 7 characters. Nyan Doom appends a state number to the prefix:
+
+- `0` for an unselected weapon
+- `1` for the selected weapon
+
+For example:
+
+```
+Weapon 2 (Crossbow)
+Carousel icon = MYXBOW
+```
+
+If either requested lump is missing, the carousel displays an unknown icon.

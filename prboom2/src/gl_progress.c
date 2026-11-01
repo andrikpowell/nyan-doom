@@ -151,7 +151,7 @@ void gld_ProgressUpdate(const char * text, int progress, int total)
     s = text;
     while (*s)
       HUlib_addCharToTextLine(&w_precache, *(s++));
-    HUlib_setTextXCenter(&w_precache);
+    HUlib_CenterText(&w_precache);
   }
 
   gld_ProgressRestoreScreen();

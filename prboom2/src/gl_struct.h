@@ -60,6 +60,7 @@ extern dboolean gl_ui_lightmode_indexed;
 extern dboolean gl_automap_lightmode_indexed;
 extern dboolean gl_menu_lightmode_indexed;
 void gld_FlushTextures(void);
+void gld_UpdateInvulnColormap(void);
 
 void gld_InitVertexData();
 void gld_CleanVertexData();
@@ -75,8 +76,8 @@ void gld_EndAutomapDraw(void);
 void gld_BeginMenuDraw(void);
 void gld_EndMenuDraw(void);
 
-void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, patch_crop_t crop, int cm, int alpha, enum patch_translation_e flags);
-void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, patch_cropf_t crop, int cm, int alpha, enum patch_translation_e flags);
+void gld_DrawNumPatch(int x, int y, int lump, dboolean center, int shadowtype, patch_crop_t crop, int cm, int alpha, float scale, enum patch_translation_e flags);
+void gld_DrawNumPatch_f(float x, float y, int lump, dboolean center, int shadowtype, patch_cropf_t crop, int cm, int alpha, float scale, enum patch_translation_e flags);
 
 void gld_FillRaw(int lump, int x, int y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags);
 void gld_FillRaw_f(int lump, float x, float y, int src_width, int src_height, int dst_width, int dst_height, int x_offset, int y_offset, enum patch_translation_e flags);
@@ -193,6 +194,6 @@ void gld_AddNiceThing(int type, float x, float y, float radius, float angle,
 void gld_DrawNiceThings(int fx, int fy, int fw, int fh);
 void gld_ClearNiceThings(void);
 
-extern int gl_render_fov;
+extern int render_fov;
 
 #endif // _GL_STRUCT_H

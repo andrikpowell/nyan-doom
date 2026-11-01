@@ -24,7 +24,7 @@ extern "C" {
 
 typedef enum {
   dsda_startup_default,
-  dsda_startup_doom,    // skip because this requires support for PNG and other formats
+  dsda_startup_doom,    // only PNG support
   dsda_startup_heretic,
   dsda_startup_hexen,
   dsda_startup_strife,  // skip because we don't have Strife support

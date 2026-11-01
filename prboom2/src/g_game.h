@@ -49,7 +49,7 @@ void G_DeathMatchSpawnPlayer(int playernum);
 void G_InitNew(int skill, int episode, int map, dboolean prepare);
 void G_DeferedInitNew(int skill, int episode, int map);
 void G_DeferedPlayDemo(const char *demo); // CPhipps - const
-void G_LoadGame(int slot); // killough 5/15/98
+void G_LoadGame(int slot, dboolean via_commandline); // killough 5/15/98
 void G_ForcedLoadGame(void);           // killough 5/15/98: forced loadgames
 void G_DoLoadGame(void);
 void G_SaveGame(int slot, const char *description); // Called by M_Responder.
@@ -62,6 +62,7 @@ void G_ReloadDefaults(void);     // killough 3/1/98: loads game defaults
 void G_RefreshFastMonsters(void); // killough 4/10/98: sets -fast parameters
 void G_DoNewGame(void);
 void G_DoReborn(int playernum);
+void G_UpdateDiscordPresence(void);
 void G_StartDemoPlayback(const byte *buffer, int length, int behaviour);
 void G_DoPlayDemo(void);
 void G_DoCompleted(void);

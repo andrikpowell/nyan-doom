@@ -187,6 +187,11 @@ extern dboolean coop_spawns;
 
 extern dboolean randomclass;
 
+extern int map_colormap;
+extern fixed_t map_gravity;
+extern fixed_t map_aircontrol;
+extern fixed_t map_airfriction;
+
 // ------------------------------------------
 // Internal parameters for sound rendering.
 // These have been taken from the DOS version,
@@ -307,7 +312,7 @@ extern  size_t     num_deathmatchstarts; // killough
 extern  mapthing_t *deathmatch_p;
 
 // Player spawn spots.
-#define MAX_PLAYER_STARTS 8
+#define MAX_PLAYER_STARTS 10
 extern  mapthing_t playerstarts[MAX_PLAYER_STARTS][MAX_MAXPLAYERS];
 
 // Intermission stats.

@@ -89,9 +89,9 @@ screeninfo_t screens[NUM_SCREENS];
 const byte *colrngs[CR_LIMIT];
 static byte *color_translation_table;
 static byte ui_shademap[31][256];
+static byte gray_invuln_colormap[256];
 
 int usegamma;
-int extra_brightness;
 
 int V_BloodColor(int blood)
 {
@@ -169,7 +169,7 @@ static const byte *V_ShadeColormap(int shade)
   return ui_shademap[shade];
 }
 
-void V_UpdateShadeColormap(void)
+static void V_UpdateShadeColormap(void)
 {
   int i;
   const byte *playpal = V_GetPlaypal();
@@ -195,6 +195,33 @@ void V_UpdateShadeColormap(void)
       );
     }
   }
+}
+
+static void V_UpdateInvulnColormap(void)
+{
+  int i;
+  const byte *playpal = V_GetPlaypal();
+
+  for (i = 0; i < 256; ++i)
+  {
+    int r = playpal[i * 3 + 0];
+    int g = playpal[i * 3 + 1];
+    int b = playpal[i * 3 + 2];
+    int gray = (r * 299 + g * 587 + b * 114) / 1000;
+
+    gray_invuln_colormap[i] = V_BestColor(playpal, gray, gray, gray);
+  }
+}
+
+void V_UpdateColormaps(void)
+{
+  V_UpdateShadeColormap();    // Update automap / menu overlay
+  V_UpdateInvulnColormap();   // Update gray invulnerability
+}
+
+const byte *V_GrayInvulnColormap(void)
+{
+  return gray_invuln_colormap;
 }
 
 void V_UpdateColorTranslation(void)
@@ -490,12 +517,12 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
     int TL = flags & VPT_TRANSMAP;
     int REVERSE_TL = flags & VPT_TRANSMAP_REVERSE;
 
-    if (y_start < 0 || y_end > y_limit) {
-      // killough 1/19/98: improved error message:
-      lprintf(LO_WARN, "V_DrawPatch: Patch (%d,%d)-(%d,%d) exceeds LFB in vertical direction (horizontal is clipped)\n"
-              "Bad V_DrawPatch (flags=%u)", x, y, x+patch->width, y+patch->height, flags);
-      return;
-    }
+    // Crop top to the vertical screen bounds
+    if (y_start < 0)
+      crop.top = -y;
+
+    if (y_end > y_limit)
+      crop.bottom = y + patch->height - y_limit;
 
     w--; // CPhipps - note: w = width-1 now, speeds up flipping
 
@@ -506,14 +533,14 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
       int screen_x = x + col;
       const int colindex = (flags & VPT_FLIP) ? (w - col) : (col);
       const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
-      byte *desttop;
+      byte *destcolumn;
 
       if (screen_x < 0)
         continue;
       if (screen_x >= SCREENWIDTH)
         break;
 
-      desttop = screens[scrn].data + y + screen_x * pitch;
+      destcolumn = screens[scrn].data + screen_x * pitch;
 
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
@@ -528,7 +555,7 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
 
         // killough 2/21/98: Unrolled and performance-tuned
         source = column->pixels + draw_start;
-        dest = desttop + draw_start;
+        dest = destcolumn + y + draw_start;
         count = draw_end - draw_start;
 
      // both translucent and color translated
@@ -695,37 +722,133 @@ static void V_DrawPatch(int x, int y, int scrn, const rpatch_t *patch,
     }
 }
 
-static patch_crop_t V_GetPatchStretchCrop(int x, int y, const rpatch_t *patch,
-        patch_crop_t crop, stretch_param_t *params, enum patch_translation_e flags)
+//
+//
+// V_StretchX() / V_StretchY()
+//
+// Convert coordinates from 320×200 into framebuffer coordinates
+//
+//
+
+static int V_StretchX(float x, const stretch_param_t *params)
+{
+  int scaled_start, scaled_end, scaled_pixel_width;
+  float subpixel_pos;
+
+  // find the pixel for lookups (since they use ints)
+  float ix_f = floorf(x);
+  int ix = (int)ix_f;
+
+  // if outside 320 range...
+  if (x < 0.0f || x > 320.0f)
+    return (int)lroundf(x * (params->video->width / 320.0f));
+
+  scaled_start = params->video->x1lookup[ix];
+  scaled_end   = params->video->x2lookup[ix];
+
+  // If exactly at 320...
+  if (ix == 320)
+    return scaled_start;
+
+  // If in traditional 320x200 space
+  subpixel_pos = x - ix;
+  scaled_pixel_width = (scaled_end - scaled_start + 1);
+
+  return scaled_start + (int)lroundf(subpixel_pos * scaled_pixel_width);
+}
+
+static int V_StretchY(float y, const stretch_param_t *params)
+{
+  int scaled_start, scaled_end, scaled_pixel_height;
+  float subpixel_pos;
+
+  // find the pixel for lookups (since they use ints)
+  float iy_f = floorf(y);
+  int iy = (int)iy_f;
+
+  // if outside 200 range...
+  if (y < 0.0f || y > 200.0f)
+    return (int)lroundf(y * params->video->height / 200.0f);
+
+  scaled_start = params->video->y1lookup[iy];
+  scaled_end   = params->video->y2lookup[iy];
+
+  // If exactly at 200...
+  if (iy == 200)
+    return scaled_start;
+
+  // If in traditional 320x200 space
+  subpixel_pos = y - iy;
+  scaled_pixel_height = (scaled_end - scaled_start + 1);
+
+  return scaled_start + (int)lroundf(subpixel_pos * scaled_pixel_height);
+}
+
+//
+//
+// V_GetStretchPatchX() / V_GetStretchPatchY()
+//
+// Keep int lookup scaling + add subpixel offset
+//
+//
+
+static int V_GetStretchPatchX(float x, float offset, const stretch_param_t *params, float scale, dboolean precise)
+{
+  int scaled_offset;
+  int subpixel_offset;
+  float scaled_offset_f;
+
+  // find the pixel for lookups (since they use ints)
+  float ix_f = floorf(x);
+  int ix = (int)ix_f;
+
+  // Scale offset directly for precise / resized patches
+  if (precise || scale != 1.0f)
+  {
+    scaled_offset_f = ceilf(offset * scale * (params->video->width / 320.0f));
+    scaled_offset = (int)scaled_offset_f;
+    return V_StretchX(x, params) + scaled_offset;
+  }
+
+  // Keep int lookup scaling + add subpixel offset
+  subpixel_offset = V_StretchX(x, params) - V_StretchX((float)ix, params);
+  return V_StretchX(ix + offset, params) + subpixel_offset;
+}
+
+static int V_GetStretchPatchY(float y, float offset, const stretch_param_t *params, float scale, dboolean precise)
+{
+  int scaled_offset;
+  int subpixel_offset;
+  float scaled_offset_f;
+
+  // find the pixel for lookups (since they use ints)
+  float iy_f = floorf(y);
+  int iy = (int)iy_f;
+
+  // Scale offset directly for precise / resized patches
+  if (precise || scale != 1.0f)
+  {
+    scaled_offset_f = ceilf(offset * scale * (params->video->height / 200.0f));
+    scaled_offset = (int)scaled_offset_f;
+    return V_StretchY(y, params) + scaled_offset;
+  }
+
+  // Keep int lookup scaling + add subpixel offset
+  subpixel_offset = V_StretchY(y, params) - V_StretchY((float)iy, params);
+  return V_StretchY(iy + offset, params) + subpixel_offset;
+}
+
+static patch_crop_t V_GetPatchStretchCrop(float x, float y, const rpatch_t *patch,
+        patch_cropf_t crop, float scale, dboolean precise,
+        stretch_param_t *params, enum patch_translation_e flags)
 {
   patch_crop_t crop_stretch;
-  patch_crop_t crop_320x200;
   int crop_deltay1 = params->deltay1;
 
-  crop_320x200.left   = x + crop.left;
-  crop_320x200.right  = x + patch->width - crop.right;
-  crop_320x200.top    = y + crop.top;
-  crop_320x200.bottom = y + patch->height - crop.bottom;
-
-  if (crop_320x200.left < 0 || crop_320x200.left > 320)
-    crop_stretch.left = (crop_320x200.left * params->video->width) / 320;
-  else
-    crop_stretch.left = params->video->x1lookup[crop_320x200.left];
-
-  if (crop_320x200.right < 0 || crop_320x200.right > 320)
-    crop_stretch.right = (crop_320x200.right * params->video->width) / 320;
-  else
-    crop_stretch.right = params->video->x2lookup[crop_320x200.right];
-
-  if (crop_320x200.top < 0 || crop_320x200.top > 200)
-    crop_stretch.top = (crop_320x200.top * params->video->height) / 200;
-  else
-    crop_stretch.top = params->video->y1lookup[crop_320x200.top];
-
-  if (crop_320x200.bottom < 0 || crop_320x200.bottom > 200)
-    crop_stretch.bottom = (crop_320x200.bottom * params->video->height) / 200;
-  else
-    crop_stretch.bottom = params->video->y2lookup[crop_320x200.bottom - 1];
+  crop_stretch.top    = V_GetStretchPatchY(y, (float)crop.top, params, scale, precise);
+  crop_stretch.bottom = V_GetStretchPatchY(y, (float)(patch->height - crop.bottom), params, scale, precise);
+  crop_stretch.left   = V_GetStretchPatchX(x, (float)crop.left, params, scale, precise);
+  crop_stretch.right  = V_GetStretchPatchX(x, (float)(patch->width - crop.right), params, scale, precise);
 
   if (TOP_ALIGNMENT(flags & VPT_STRETCH_MASK))
     crop_deltay1 += global_patch_top_offset;
@@ -738,9 +861,10 @@ static patch_crop_t V_GetPatchStretchCrop(int x, int y, const rpatch_t *patch,
   return crop_stretch;
 }
 
-static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
+static void V_DrawPatchStretch(float fx, float fy, int scrn, const rpatch_t *patch,
         const byte *transmap, const byte *colortr,
-        patch_crop_t crop, enum patch_translation_e flags)
+        patch_cropf_t crop, float scale, dboolean precise,
+        enum patch_translation_e flags)
 {
     // CPhipps - move stretched patch drawing code here
     //         - reformat initialisers, move variables into inner blocks
@@ -760,6 +884,17 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
     int TL = flags & VPT_TRANSMAP;
     int REVERSE_TL = flags & VPT_TRANSMAP_REVERSE;
     int fuzz = flags & VPT_FUZZ;
+
+    // If not 1.0 scale, use precise logic
+    if (scale != 1.0f)
+      precise = true;
+
+    // [AR] Convert to non-precise coordinates
+    if (!(flags & VPT_STRETCH_MASK) && !precise)
+    {
+      fx = (float)(int)fx;
+      fy = (float)(int)fy;
+    }
 
     R_SetDefaultDrawColumnVars(&dcvars);
 
@@ -796,24 +931,17 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, RDRAW_FILTER_NONE);
     }
 
-    DXI = params->video->xstep;
-    DYI = params->video->ystep;
+    DXI = MAX(1, (int)lroundf(params->video->xstep / scale));
+    DYI = MAX(1, (int)lroundf(params->video->ystep / scale));
 
     // Convert crop into stretched screen-space
-    dcvars.crop = V_GetPatchStretchCrop(x, y, patch, crop, params, flags);
+    dcvars.crop = V_GetPatchStretchCrop(fx, fy, patch, crop, scale, precise, params, flags);
 
-    left = (x < 0 || x > 320 ? (x * params->video->width) / 320 : params->video->x1lookup[x]);
-    top =  (y < 0 || y > 200 ? (y * params->video->height) / 200 : params->video->y1lookup[y]);
-
-    if (x + patch->width < 0 || x + patch->width > 320)
-      right = ( ((x + patch->width) * params->video->width - 1) / 320 );
-    else
-      right = params->video->x2lookup[x + patch->width - 1];
-
-    if (y + patch->height < 0 || y + patch->height > 200)
-      bottom = ( ((y + patch->height - 0) * params->video->height) / 200 );
-    else
-      bottom = params->video->y2lookup[y + patch->height - 1];
+    // Get full patch bounds for source stepping
+    top     = V_GetStretchPatchY(fy, 0.0f, params, scale, precise);
+    bottom  = V_GetStretchPatchY(fy, (float)patch->height, params, scale, precise) - 1;
+    left    = V_GetStretchPatchX(fx, 0.0f, params, scale, precise);
+    right   = V_GetStretchPatchX(fx, (float)patch->width, params, scale, precise) - 1;
 
     deltay1 = params->deltay1;
 
@@ -866,34 +994,23 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
         const rpost_t *post = &column->posts[i];
+        dboolean clipped_top = false;
         int yoffset = 0;
 
-        //e6y
-        if (!(flags & VPT_STRETCH_MASK))
+        // Unstretched fuzz patch
+        if (!(flags & VPT_STRETCH_MASK) && !precise)
         {
+          int y = (int)fy;
+
           dcvars.yl = y + post->topdelta;
           dcvars.yh = ((((y + post->topdelta + post->length) << 16) - (FRACUNIT>>1))>>FRACBITS);
         }
+        // [AR] Convert post bounds into stretched screen-space
+        // This is more precise over the old int method
         else
         {
-          // e6y
-          // More accurate patch drawing from Eternity.
-          // Predefined arrays are used instead of dynamic calculation
-          // of the top and bottom screen coordinates of a column.
-
-          int tmpy;
-
-          tmpy = y + post->topdelta;
-          if (tmpy < 0 || tmpy > 200)
-            dcvars.yl = (tmpy * params->video->height) / 200 + deltay1;
-          else
-            dcvars.yl = params->video->y1lookup[tmpy] + deltay1;
-
-          tmpy = y + post->topdelta + post->length - 1;
-          if (tmpy < 0 || tmpy > 200)
-            dcvars.yh = (tmpy * params->video->height) / 200 + deltay1;
-          else
-            dcvars.yh = params->video->y2lookup[tmpy] + deltay1;
+          dcvars.yl = V_GetStretchPatchY(fy, (float)post->topdelta, params, scale, precise) + deltay1;
+          dcvars.yh = V_GetStretchPatchY(fy, (float)(post->topdelta + post->length), params, scale, precise) - 1 + deltay1;
         }
         dcvars.edgeslope = post->slope;
 
@@ -912,14 +1029,25 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
         }
 
         if (dcvars.yl < 0) {
-          yoffset = (0-dcvars.yl) * 200/params->video->height;
+          clipped_top = true;
+          yoffset = (int)ceilf((0 - dcvars.yl) * 200.0f / params->video->height / scale);
           dcvars.yl = 0;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }
         if (dcvars.yl < top) {
-          yoffset = (top-dcvars.yl) * 200/params->video->height;
+          clipped_top = true;
+          yoffset = (int)ceilf((top - dcvars.yl) * 200.0f / params->video->height / scale);
           dcvars.yl = top;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
+        }
+
+        // [AR] Fix precise clipping on the top of the screen
+        if (clipped_top && precise)
+        {
+          int64_t sourcefrac = (int64_t)(dcvars.yl - top) * DYI;
+
+          yoffset = (int)(sourcefrac >> FRACBITS) - post->topdelta;
+          yoffset = MAX(0, yoffset);
         }
 
         dcvars.source = column->pixels + post->topdelta + yoffset;
@@ -929,7 +1057,10 @@ static void V_DrawPatchStretch(int x, int y, int scrn, const rpatch_t *patch,
         dcvars.texturemid = -((dcvars.yl-centery)*dcvars.iscale);
 
         //e6y
-        dcvars.dy = deltay1;
+        if (precise) // [AR] Precise bounds already account for deltay1
+          dcvars.dy = top;
+        else
+          dcvars.dy = deltay1;
         dcvars.flags |= DRAW_COLUMN_ISPATCH;
 
         colfunc(&dcvars);
@@ -1101,28 +1232,32 @@ v_patchinfo_t V_GetShadowDrawInfo(int shadowtype, enum patch_translation_e flags
   return shadow;
 }
 
-void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
-        dboolean center, int shadowtype, patch_crop_t crop,
-        int cm, int fade_alpha, enum patch_translation_e flags)
+static void V_DrawMemPatch(float fx, float fy, int scrn, const rpatch_t *patch,
+        dboolean precise, dboolean center, int shadowtype, patch_cropf_t crop,
+        int cm, int fade_alpha, float scale, enum patch_translation_e flags)
 {
   v_patchinfo_t patchinfo  = {0};
   v_patchinfo_t shadowinfo = {0};
-  int shadow_x, shadow_y;
+  float shadow_x, shadow_y;
   int fuzz = flags & VPT_FUZZ;
 
+  // If not 1.0 scale, use precise logic
+  if (scale != 1.0f)
+    precise = true;
+
   // Avoid out-of-bounds errors for full transparent patches
-  if (patch->flags & PATCH_ISEMPTY)
+  if (patch->flags & PATCH_ISEMPTY || scale <= 0.0f)
     return;
 
-  // remove offsets
+  // Apply scaled patch offsets
   if (!(flags & VPT_NOOFFSET))
   {
-    y -= patch->topoffset;
-    x -= patch->leftoffset;
+    fy -= patch->topoffset * scale;
+    fx -= patch->leftoffset * scale;
   }
 
   // CPhipps - auto-no-stretch if not high-res
-  if ((flags & VPT_STRETCH_MASK) && SCREEN_320x200)
+  if ((flags & VPT_STRETCH_MASK) && SCREEN_320x200 && !precise)
     flags &= ~VPT_STRETCH_MASK;
 
   // Clamp crop values if they exceed patch size
@@ -1139,8 +1274,8 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   // [FG] automatically center wide patches without horizontal offset
   if (center)
   {
-    if (patch->width > 320 && patch->leftoffset == 0)
-      x -= (patch->width - 320) / 2;
+    if (patch->width * scale > 320.0f && patch->leftoffset == 0)
+      fx -= (patch->width * scale - 320.0f) / 2.0f;
   }
 
   patchinfo  = V_GetMainDrawInfo(cm, flags, fade_alpha);
@@ -1154,32 +1289,69 @@ void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   if (shadowinfo.active && shadowinfo.trans == 0)
     shadowinfo.active = false;
 
-  // Clamp shadow so it doesn't exceed screen bounds,
-  // Stops V_DrawPatch vertical overflow error.
-  {
-    shadow_x = x + shadowinfo.shadow_offset;
-    shadow_y = y + shadowinfo.shadow_offset;
+  // Offset shadow position
+  shadow_x = fx + shadowinfo.shadow_offset;
+  shadow_y = fy + shadowinfo.shadow_offset;
 
-    // DO NOT clamp shadow_x: V_DrawPatch/V_DrawPatchStretch clip horizontally already.
-
-    if (shadow_y < 0) shadow_y = 0;
-    if (shadow_y + patch->height > SCREENHEIGHT)
-        shadow_y = SCREENHEIGHT - patch->height;
-  }
-
-  // Draw scaled patch with pipelines
-  if ((flags & VPT_STRETCH_MASK) || fuzz) {
+  // Draw scaled / resized / fuzz patches with pipelines
+  if ((flags & VPT_STRETCH_MASK) || precise || fuzz) {
     if (shadowinfo.active)
-      V_DrawPatchStretch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, crop, shadowinfo.flags);
-    V_DrawPatchStretch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, crop, patchinfo.flags);
+      V_DrawPatchStretch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, crop, scale, precise, shadowinfo.flags);
+    V_DrawPatchStretch(fx, fy, scrn, patch, patchinfo.transmap, patchinfo.colortr, crop, scale, precise, patchinfo.flags);
   }
 
   // else draw patch unscaled
   else {
     if (shadowinfo.active)
-      V_DrawPatch(shadow_x, shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, crop, shadowinfo.flags);
-    V_DrawPatch(x, y, scrn, patch, patchinfo.transmap, patchinfo.colortr, crop, patchinfo.flags);
+      V_DrawPatch((int)shadow_x, (int)shadow_y, scrn, patch, shadowinfo.transmap, shadowinfo.colortr, V_PatchCropToInt(crop), shadowinfo.flags);
+    V_DrawPatch((int)fx, (int)fy, scrn, patch, patchinfo.transmap, patchinfo.colortr, V_PatchCropToInt(crop), patchinfo.flags);
   }
+}
+
+static void V_DrawMemPatchPrecise(float fx, float fy, int scrn, const rpatch_t *patch,
+        dboolean center, int shadowtype, patch_cropf_t crop,
+        int cm, int fade_alpha, float scale,
+        enum patch_translation_e flags)
+{
+  V_DrawMemPatch(fx, fy, scrn, patch, true, center, shadowtype, crop, cm, fade_alpha, scale, flags);
+}
+
+static void V_DrawMemPatchInt(int x, int y, int scrn, const rpatch_t *patch,
+        dboolean center, int shadowtype, patch_crop_t crop,
+        int cm, int fade_alpha, float scale,
+        enum patch_translation_e flags)
+{
+  V_DrawMemPatch((float)x, (float)y, scrn, patch, false, center, shadowtype, V_PatchCropToFloat(crop), cm, fade_alpha, scale, flags);
+}
+
+
+//
+// V_ClipToScreen
+//
+// Transposed buffer now causes some functions to overwrite the x
+// So we need to adjust this now
+static dboolean V_ClipToScreen(int scrn, int *x, int *y, int *width, int *height)
+{
+  if (*x < 0)
+  {
+    *width += *x;
+    *x = 0;
+  }
+
+  if (*y < 0)
+  {
+    *height += *y;
+    *y = 0;
+  }
+
+  if (*x >= screens[scrn].width || *y >= screens[scrn].height ||
+      *width <= 0 || *height <= 0)
+    return false;
+
+  *width = MIN(*width, screens[scrn].width - *x);
+  *height = MIN(*height, screens[scrn].height - *y);
+
+  return true;
 }
 
 //
@@ -1196,6 +1368,9 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
   byte* dest;
   const byte *shademap;
   int ix, iy;
+
+  if (!V_ClipToScreen(FG, &x, &y, &width, &height))
+    return;
 
   shademap = V_ShadeColormap(shade);
 
@@ -1215,27 +1390,27 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
 // This inline is _only_ for the function below
 
 static void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center,
-         patch_crop_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
+         patch_crop_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags)
 {
-  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, false, crop, cm, fade_alpha, flags);
+  V_DrawMemPatchInt(x, y, scrn, R_PatchByNum(lump), center, false, crop, cm, fade_alpha, scale, flags);
 }
 
 static void FUNC_V_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center,
-         patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
+         patch_cropf_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags)
 {
-  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, false, V_PatchCropToInt(crop), cm, fade_alpha, flags);
+  V_DrawMemPatchPrecise(x, y, scrn, R_PatchByNum(lump), center, false, crop, cm, fade_alpha, scale, flags);
 }
 
 static void FUNC_V_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadowtype,
-         patch_crop_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
+         patch_crop_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags)
 {
-  V_DrawMemPatch(x, y, scrn, R_PatchByNum(lump), center, shadowtype, crop, cm, fade_alpha, flags);
+  V_DrawMemPatchInt(x, y, scrn, R_PatchByNum(lump), center, shadowtype, crop, cm, fade_alpha, scale, flags);
 }
 
 static void FUNC_V_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadowtype,
-         patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
+         patch_cropf_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags)
 {
-  V_DrawMemPatch((int)x, (int)y, scrn, R_PatchByNum(lump), center, shadowtype, V_PatchCropToInt(crop), cm, fade_alpha, flags);
+  V_DrawMemPatchPrecise(x, y, scrn, R_PatchByNum(lump), center, shadowtype, crop, cm, fade_alpha, scale, flags);
 }
 
 static int currentPaletteIndex = 0;
@@ -1268,14 +1443,14 @@ void V_UpdateStbarColor(void)
   D_MustFillBackScreen();
 }
 
-void V_SetPlayPal(int playpal_index)
+void V_SetPlayPal(int playpal_i)
 {
-  dsda_SetPlayPal(playpal_index);
+  dsda_SetPlayPal(playpal_i);
   R_UpdatePlayPal();
   V_SetPalette(currentPaletteIndex);
 
   V_UpdateColorTranslation(); // Update Text Colors
-  V_UpdateShadeColormap();    // Update automap / menu overlay
+  V_UpdateColormaps();        // Update overlay / gray invuln
   dsda_RefreshTranMaps();     // Update shadows / translucency
   V_UpdateStbarColor();       // Update stbar background color
 
@@ -1334,6 +1509,9 @@ static void V_FillRectTrans8(int scrn, int x, int y, int width, int height, byte
 
 static void FUNC_V_FillRectTrans(int scrn, int x, int y, int width, int height, byte colour, int trans)
 {
+  if (!V_ClipToScreen(scrn, &x, &y, &width, &height))
+    return;
+
   if (!dsda_MenuTranslucency() || trans >= 99)
     V_FillRect8(scrn, x, y, width, height, colour);
   else
@@ -1445,31 +1623,31 @@ static void WRAP_gld_FillPatch(int lump, int n, int x, int y, int width, int hei
 {
   gld_FillPatch(lump, x, y, width, height, flags);
 }
-static void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, patch_crop_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
+static void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, patch_crop_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch(x,y,lump,center,false,crop,cm,fade_alpha,flags);
+  gld_DrawNumPatch(x,y,lump,center,false,crop,cm,fade_alpha,scale,flags);
 }
-static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
+static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, patch_cropf_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f(x,y,lump,center,false,crop,cm,fade_alpha,flags);
+  gld_DrawNumPatch_f(x,y,lump,center,false,crop,cm,fade_alpha,scale,flags);
 }
-static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadowtype, patch_crop_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
+static void WRAP_gld_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadowtype, patch_crop_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags)
 {
   int offset = V_GetShadowOffset(shadowtype);
 
   if (offset > 0)
-    gld_DrawNumPatch(x+offset,y+offset,lump,center,offset,crop,cm,fade_alpha,flags|VPT_SHADOW); // draw offset shadow
+    gld_DrawNumPatch(x+offset,y+offset,lump,center,offset,crop,cm,fade_alpha,scale,flags|VPT_SHADOW); // draw offset shadow
 
-  gld_DrawNumPatch(x,y,lump,center,false,crop,cm,fade_alpha,flags);
+  gld_DrawNumPatch(x,y,lump,center,false,crop,cm,fade_alpha,scale,flags);
 }
-static void WRAP_gld_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadowtype, patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags)
+static void WRAP_gld_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadowtype, patch_cropf_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags)
 {
   int offset = V_GetShadowOffset(shadowtype);
 
   if (offset > 0)
-    gld_DrawNumPatch_f(x+offset,y+offset,lump,center,offset,crop,cm,fade_alpha,flags|VPT_SHADOW); // draw offset shadow
+    gld_DrawNumPatch_f(x+offset,y+offset,lump,center,offset,crop,cm,fade_alpha,scale,flags|VPT_SHADOW); // draw offset shadow
 
-  gld_DrawNumPatch_f(x,y,lump,center,false,crop,cm,fade_alpha,flags);
+  gld_DrawNumPatch_f(x,y,lump,center,false,crop,cm,fade_alpha,scale,flags);
 }
 static void V_PlotPixelGL(int x, int y, byte color) {
   gld_DrawPoint(x, y, color);
@@ -1500,10 +1678,10 @@ static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, 
 static void NULL_FillRaw(int lump, int n, int x, int y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags) {}
 static void NULL_FillRawPrecise(int lump, int n, float x, float y, int lumpwidth, int lumpheight, int width, int height, int x_offset, int y_offset, enum patch_translation_e flags) {}
 static void NULL_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
-static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, patch_crop_t crop, int cm, int fade_alpha, enum patch_translation_e flags) {}
-static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags) {}
-static void NULL_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadow, patch_crop_t crop, int cm, int fade_alpha, enum patch_translation_e flags) {}
-static void NULL_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadow, patch_cropf_t crop, int cm, int fade_alpha, enum patch_translation_e flags) {}
+static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, dboolean center, patch_crop_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags) {}
+static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, patch_cropf_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags) {}
+static void NULL_DrawShadowedNumPatch(int x, int y, int scrn, int lump, dboolean center, int shadow, patch_crop_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags) {}
+static void NULL_DrawShadowedNumPatchPrecise(float x, float y, int scrn, int lump, dboolean center, int shadow, patch_cropf_t crop, int cm, int fade_alpha, float scale, enum patch_translation_e flags) {}
 static void NULL_PlotPixel(int x, int y, byte color) {}
 static void NULL_PlotPixelWu(int x, int y, byte color, int weight) {}
 static void NULL_DrawLine(fline_t* fl, int color) {}
@@ -2002,6 +2180,10 @@ static void V_PlotPixelWu8_1px(int x, int y, byte color, int weight)
 // Change rendering path based on thickness
 static void V_PlotPixelWu8(int x, int y, byte color, int weight)
 {
+  if ((unsigned)x >= (unsigned)screens[FG].width ||
+      (unsigned)y >= (unsigned)screens[FG].height)
+    return;
+
   V_PlotPixelWu8_1px(x, y, color, weight);
 }
 
@@ -2320,7 +2502,7 @@ const unsigned char* V_GetPlaypal(void)
 {
   dsda_playpal_t* playpal_data;
 
-  playpal_data = dsda_PlayPalData();
+  playpal_data = dsda_PlayPalData(playpal_index);
 
   if (!playpal_data->lump)
   {
@@ -2336,13 +2518,13 @@ const unsigned char* V_GetPlaypal(void)
 
 void V_FreePlaypal(void)
 {
-  dsda_FreePlayPal();
+  dsda_FreeAllPlayPals();
 }
 
 int V_GetPlaypalCount(void)
 {
   V_GetPlaypal(); // ensure playpal data is initialized
-  return (dsda_PlayPalData()->length / PALETTE_SIZE);
+  return (dsda_PlayPalData(playpal_index)->length / PALETTE_SIZE);
 }
 
 //
@@ -2365,39 +2547,26 @@ SDL_Color V_GetPatchColor (int lumpnum)
   // Doom Patch format
   if (R_IsPatchLump(lumpnum))
   {
-    width = *((const int16_t *) lump);
-    width = LittleShort(width);
+    const rpatch_t *patch = R_PatchByNum(lumpnum);
 
-    for (x = 0; x < width; ++x) {
-      byte length;
-      byte entry;
-      const byte* p;
-      int32_t offset;
+    for (x = 0; x < patch->width; ++x) {
+      const rcolumn_t *column = &patch->columns[x];
+      int post;
 
       // Only calculate for the leftmost and rightmost 16 columns
-      if (width > 32 && x > 16 && x < width - 16)
+      if (patch->width > 32 && x > 16 && x < patch->width - 16)
         continue;
 
-      // Skip irrelevant data in the doom patch header
-      p = lump + 8 + 4 * x;
-      offset = *((const int32_t *) p);
-      p = lump + LittleLong(offset);
+      for (post = 0; post < column->numPosts; ++post) {
+        const rpost_t *p = &column->posts[post];
 
-      while (*p != 0xff) {
-        p++;
-        length = *p++;
-        p++;
-
-        // Get RGB values per pixel
-        for (y = 0; y < length; ++y) {
-          entry = *p++;
+        for (y = 0; y < p->length; ++y) {
+          byte entry = column->pixels[p->topdelta + y];
           r += playpal[3 * entry + 0];
           g += playpal[3 * entry + 1];
           b += playpal[3 * entry + 2];
           pixel_cnt++;
         }
-
-        p++;
       }
     }
   }

@@ -2035,12 +2035,14 @@ static void SV_LoadCurrentMapStats(void)
   }
 }
 
+// Hexen - store for keyframes
 void SV_StoreHexenMapStats(void)
 {
   SV_SaveCurrentMapStats();
   P_SAVE_SIZE(hub_mapstats, sizeof(hub_mapstats));
 }
 
+// Hexen - restore for keyframes
 void SV_RestoreHexenMapStats(void)
 {
   P_LOAD_SIZE(hub_mapstats, sizeof(hub_mapstats));

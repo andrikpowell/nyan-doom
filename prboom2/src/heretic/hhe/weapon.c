@@ -30,6 +30,7 @@ static const char *hhe_heretic_weapon[] = // CPhipps - static const*
   "Shooting frame", // .atkstate
   "Firing frame",   // .holdatkstate   (Heretic difference)
   "Unknown frame",  // .flashstate     (Heretic difference)
+  "Carousel icon",  // .carouselicon [ID24]
   // (optional) "Ammo per shot" etc if you support it in your format
 };
 
@@ -106,6 +107,24 @@ static void hhe_procWeapon(DEHFILE *fpin, char *line)
       weapon->holdatkstate = (int)value;
     else if (!deh_strcasecmp(key, hhe_heretic_weapon[6]))  // Unknown frame (Heretic!)
       weapon->flashstate = (int)value;
+    else if (!deh_strcasecmp(key, hhe_heretic_weapon[7]))  // Carousel icon
+    {
+      char candidate[8]; // lump is 7 char + number
+      size_t len;
+
+      // do it
+      memset(candidate, 0, 8);
+      strncpy(candidate, ptr_lstrip(strval), 7);
+      len = strlen(candidate);
+      if (len < 1 || len > 7)
+      {
+        deh_log("Bad length for carousel icon name '%s'\n", candidate);
+        continue;
+      }
+
+      weapon->carouselicon = Z_Strdup(candidate);
+      deh_log("Setting carousel icon for weapon %d to '%s'\n", indexnum, candidate);
+    }
     else
       deh_log("Invalid weapon string '%s'\n",key);
   }

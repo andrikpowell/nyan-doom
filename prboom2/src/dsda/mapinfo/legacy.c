@@ -19,7 +19,6 @@
 #include "deh/strings.h"
 #include "g_game.h"
 #include "m_misc.h"
-#include "p_setup.h"
 #include "r_data.h"
 #include "s_sound.h"
 #include "sounds.h"
@@ -452,7 +451,7 @@ int dsda_LegacyCheckInterText(void)
     int MapLump = 0;
 
     // Disable check for ZDoom (MAPINFO)
-    if (netgame || map_format.zdoom || dsda_UseMapinfo())
+    if (netgame || map_format.zdoom)
       return false;
 
     // Disable check if UMAPINFO has text
@@ -897,6 +896,21 @@ int dsda_LegacyHUTitle(dsda_string_t* str) {
   return true;
 }
 
+int dsda_LegacyDiscordTitle(dsda_string_t* str) {
+  dsda_string_t generic_title;
+
+  dsda_InitString(&generic_title, NULL);
+
+  if (dsda_LegacyGenericMapname(&generic_title, gameepisode, gamemap)) {
+    dsda_StringPrintF(str, "PWAD %s", generic_title.string);
+    dsda_FreeString(&generic_title);
+    return true;
+  }
+
+  dsda_FreeString(&generic_title);
+  return dsda_LegacyHUTitle(str);
+}
+
 int dsda_LegacySkyTexture(int skynum, int* sky) {
   if (heretic) {
     static const char *sky_lump_names[5] = {
@@ -953,8 +967,16 @@ void dsda_LegacyParTime(int* partime, dboolean* modified) {
     }
   }
   else {
-    if (gameepisode >= 1 && gameepisode <= 4 && gamemap >= 1 && gamemap <= 9) {
+    if (gameepisode >= 1 &&
+        (gameepisode <= 3 || (casual_play && gameepisode <= 4)) &&
+        gamemap >= 1 && gamemap <= 9) {
       *partime = TICRATE * pars[gameepisode][gamemap];
+      *modified = deh_pars;
+    }
+    // Doom episode 4 doesn't have a par time, so this
+    // overflows into the cpars array.
+    else if (gameepisode == 4 && gamemap >= 1 && gamemap <= 9) {
+      *partime = TICRATE * cpars[gamemap - 1];
       *modified = deh_pars;
     }
   }
@@ -1182,16 +1204,6 @@ int dsda_LegacyAirControl(fixed_t* air_control) {
 }
 
 int dsda_LegacyInitSky(void) {
-  return true;
-}
-
-int dsda_LegacyMapFlags(map_info_flags_t* flags) {
-  *flags = MI_INTERMISSION |
-           MI_ACTIVATE_OWN_DEATH_SPECIALS |
-           MI_LAX_MONSTER_ACTIVATION |
-           MI_MISSILES_ACTIVATE_IMPACT_LINES |
-           MI_SHOW_AUTHOR;
-
   return true;
 }
 

@@ -62,6 +62,7 @@
 #include "xs_Float.h"
 
 #include "dsda/configuration.h"
+#include "dsda/excmd.h"
 #include "dsda/exhud.h"
 #include "dsda/features.h"
 #include "dsda/map_format.h"
@@ -100,6 +101,7 @@ int wide_centerx;
 
 fixed_t  focallength;
 fixed_t  focallengthy;
+fixed_t  lightfocallength;
 fixed_t  globaluclip, globaldclip;
 fixed_t  centerxfrac, centeryfrac;
 fixed_t  yaspectmul;
@@ -120,6 +122,9 @@ fixed_t viewfocratio;
 int r_nearclip = 5;
 
 int FieldOfView;
+static dboolean fov_zoom_active;
+float render_fov_current = 90.0f;
+
 int viewport[4];
 float modelMatrix[16];
 float projMatrix[16];
@@ -178,13 +183,7 @@ int extralight;                           // bumped light from gun blasts
 // killough 5/2/98: reformatted
 //
 
-// Workaround for optimization bug in clang
-// fixes desync in competn/doom/fp2-3655.lmp and in dmnsns.wad dmn01m909.lmp
-#if defined(__clang__)
-PUREFUNC int R_CompatiblePointOnSide(volatile fixed_t x, volatile fixed_t y, const node_t *node)
-#else
 PUREFUNC int R_CompatiblePointOnSide(fixed_t x, fixed_t y, const node_t *node)
-#endif
 {
   if (!node->dx)
     return x <= node->x ? node->dy > 0 : node->dy < 0;
@@ -192,8 +191,8 @@ PUREFUNC int R_CompatiblePointOnSide(fixed_t x, fixed_t y, const node_t *node)
   if (!node->dy)
     return y <= node->y ? node->dx < 0 : node->dx > 0;
 
-  x -= node->x;
-  y -= node->y;
+  x = (fixed_t)(((ufixed_t)x) - ((ufixed_t)node->x));
+  y = (fixed_t)(((ufixed_t)y) - ((ufixed_t)node->y));
 
   // Try to quickly decide by looking at sign bits.
   if ((node->dy ^ node->dx ^ x ^ y) < 0)
@@ -201,11 +200,7 @@ PUREFUNC int R_CompatiblePointOnSide(fixed_t x, fixed_t y, const node_t *node)
   return FixedMul(y, node->dx>>FRACBITS) >= FixedMul(node->dy>>FRACBITS, x);
 }
 
-#if defined(__clang__)
-PUREFUNC int R_ZDoomPointOnSide(volatile fixed_t x, volatile fixed_t y, const node_t *node)
-#else
 PUREFUNC int R_ZDoomPointOnSide(fixed_t x, fixed_t y, const node_t *node)
-#endif
 {
   if (!node->dx)
     return x <= node->x ? node->dy > 0 : node->dy < 0;
@@ -213,8 +208,8 @@ PUREFUNC int R_ZDoomPointOnSide(fixed_t x, fixed_t y, const node_t *node)
   if (!node->dy)
     return y <= node->y ? node->dx < 0 : node->dx > 0;
 
-  x -= node->x;
-  y -= node->y;
+  x = (fixed_t)(((ufixed_t)x) - ((ufixed_t)node->x));
+  y = (fixed_t)(((ufixed_t)y) - ((ufixed_t)node->y));
 
   // Try to quickly decide by looking at sign bits.
   if ((node->dy ^ node->dx ^ x ^ y) < 0)
@@ -230,8 +225,8 @@ PUREFUNC int R_CompatiblePointOnSegSide(fixed_t x, fixed_t y, const seg_t *line)
 {
   fixed_t lx = line->v1->x;
   fixed_t ly = line->v1->y;
-  fixed_t ldx = line->v2->x - lx;
-  fixed_t ldy = line->v2->y - ly;
+  fixed_t ldx = (fixed_t)(((ufixed_t)line->v2->x) - ((ufixed_t)lx));
+  fixed_t ldy = (fixed_t)(((ufixed_t)line->v2->y) - ((ufixed_t)ly));
 
   if (!ldx)
     return x <= lx ? ldy > 0 : ldy < 0;
@@ -239,8 +234,8 @@ PUREFUNC int R_CompatiblePointOnSegSide(fixed_t x, fixed_t y, const seg_t *line)
   if (!ldy)
     return y <= ly ? ldx < 0 : ldx > 0;
 
-  x -= lx;
-  y -= ly;
+  x = (fixed_t)(((ufixed_t)x) - ((ufixed_t)lx));
+  y = (fixed_t)(((ufixed_t)y) - ((ufixed_t)ly));
 
   // Try to quickly decide by looking at sign bits.
   if ((ldy ^ ldx ^ x ^ y) < 0)
@@ -252,8 +247,8 @@ PUREFUNC int R_ZDoomPointOnSegSide(fixed_t x, fixed_t y, const seg_t *line)
 {
   fixed_t lx = line->v1->x;
   fixed_t ly = line->v1->y;
-  fixed_t ldx = line->v2->x - lx;
-  fixed_t ldy = line->v2->y - ly;
+  fixed_t ldx = (fixed_t)(((ufixed_t)line->v2->x) - ((ufixed_t)lx));
+  fixed_t ldy = (fixed_t)(((ufixed_t)line->v2->y) - ((ufixed_t)ly));
 
   if (!ldx)
     return x <= lx ? ldy > 0 : ldy < 0;
@@ -261,8 +256,8 @@ PUREFUNC int R_ZDoomPointOnSegSide(fixed_t x, fixed_t y, const seg_t *line)
   if (!ldy)
     return y <= ly ? ldx < 0 : ldx > 0;
 
-  x -= lx;
-  y -= ly;
+  x = (fixed_t)(((ufixed_t)x) - ((ufixed_t)lx));
+  y = (fixed_t)(((ufixed_t)y) - ((ufixed_t)ly));
 
   // Try to quickly decide by looking at sign bits.
   if ((ldy ^ ldx ^ x ^ y) < 0)
@@ -372,7 +367,7 @@ static void R_InitTextureMapping (void)
 {
   int i,x,angle;
   double linearskyfactor;
-  FieldOfView = FIELDOFVIEW;
+  FieldOfView = (int)(render_fov_current * FINEANGLES / 360.0f);
 
   // For widescreen displays, increase the FOV so that the middle part of the
   // screen that would be visible on a 4:3 display has the requested FOV.
@@ -392,6 +387,9 @@ static void R_InitTextureMapping (void)
 
   focallength = FixedDiv(centerxfrac, finetangent[FINEANGLES/4 + FieldOfView/2]);
   focallengthy = Scale(centerxfrac, yaspectmul, finetangent[FINEANGLES/4 + FieldOfView/2]);
+  lightfocallength = focallength;
+  projection = focallength;
+  projectiony = focallengthy;
 
   for (i=0 ; i<FINEANGLES/2 ; i++)
     {
@@ -797,8 +795,6 @@ void R_ExecuteSetViewSize (void)
   pspritexscale_f = (float)wide_centerx / 160.0f;
   pspriteyscale_f = (((float)cheight * viewwidth) / (float)SCREENWIDTH) / 200.0f;
 
-  skyiscale = (fixed_t)(((uint64_t)FRACUNIT * SCREENWIDTH * 200) / (viewwidth * SCREENHEIGHT));
-
 	// [RH] Sky height fix for screens not 200 (or 240) pixels tall
 	R_InitSkyMap();
 
@@ -949,7 +945,7 @@ void R_SetupFreelook(void)
     int i;
 
     centery = viewheight / 2;
-    if (raven || dsda_MouseLook())
+    if (raven || dsda_FreeAim())
     {
       dy = FixedMul(focallengthy, finetangent[(ANG90-viewpitch)>>ANGLETOFINESHIFT]);
       centery += dy >> FRACBITS;
@@ -966,6 +962,83 @@ void R_SetupFreelook(void)
       yslope[i] = FixedDiv(projectiony, dy);
     }
   }
+}
+
+//
+// Zoom toggle
+//
+
+void R_ToggleZoom(void)
+{
+  fov_zoom_active = !fov_zoom_active;
+}
+
+static void R_ProcessFOV(void)
+{
+  static int oldtic = -1;
+  static float old_fov = 90.0f;
+  static float current_fov = 90.0f;
+  static float old_base_fov = -1.0f;
+
+  float base_fov = (float)render_fov;
+  float target_fov = base_fov;
+  float rendered_fov;
+
+  if (gamestate != GS_LEVEL || players[displayplayer].playerstate != PST_LIVE)
+    fov_zoom_active = false;
+
+  if (fov_zoom_active)
+  {
+    int zoom_fov = dsda_IntConfig(dsda_config_zoom_fov);
+    target_fov = (float)zoom_fov;
+  }
+
+  if (base_fov != old_base_fov)
+  {
+    old_fov = current_fov = target_fov;
+    old_base_fov = base_fov;
+    oldtic = gametic;
+  }
+
+  if (oldtic != gametic)
+  {
+    float step;
+
+    old_fov = current_fov;
+    step = (target_fov - current_fov) / 3.0f;
+
+    if (fabs(step) < 0.1f && target_fov != current_fov)
+      step = target_fov > current_fov ? 0.1f : -0.1f;
+
+    if (step > 16.0f) step = 16.0f;
+    if (step < -16.0f) step = -16.0f;
+
+    current_fov += step;
+
+    if ((step > 0.0f && current_fov > target_fov) || (step < 0.0f && current_fov < target_fov))
+      current_fov = target_fov;
+
+    oldtic = gametic;
+  }
+
+  rendered_fov = old_fov + (current_fov - old_fov) * (float)tic_vars.frac / FRACUNIT;
+
+  if (V_IsOpenGLMode())
+  {
+    if (rendered_fov != gl_render_fov_current)
+      gld_ChangeRenderFOV(rendered_fov);
+
+    render_fov_current = rendered_fov;
+  }
+  else if ((int)(rendered_fov * FINEANGLES / 360.0f) != (int)(render_fov_current * FINEANGLES / 360.0f))
+  {
+    render_fov_current = rendered_fov;
+    R_InitTextureMapping();
+    R_SetupFreelook();
+    R_UpdateSkyScale();
+  }
+  else
+    render_fov_current = rendered_fov;
 }
 
 //
@@ -1011,6 +1084,7 @@ static void R_SetupFrame (player_t *player)
   int i, cm;
 
   int FocalTangent = finetangent[FINEANGLES/4 + FieldOfView/2];
+  int extra_brightness = dsda_IntConfig(dsda_config_extra_level_brightness);
 
   viewplayer = player;
 
@@ -1048,7 +1122,7 @@ static void R_SetupFrame (player_t *player)
   else if (dsda_MapFadeTable()) // Hexen Fog - fadetable
     cm = FADETABLE;
   else
-    cm = map_info.default_colormap;
+    cm = map_colormap;
 
   //e6y: save previous and current colormap
   boom_cm = cm;
@@ -1069,8 +1143,11 @@ static void R_SetupFrame (player_t *player)
       // killough 3/20/98: localize scalelightfixed (readability/optimization)
       static const lighttable_t *scalelightfixed[MAXLIGHTSCALE];
 
-      fixedcolormap = fullcolormap   // killough 3/20/98: use fullcolormap
-        + player->fixedcolormap*256*sizeof(lighttable_t);
+      if (player->fixedcolormap == INVERSECOLORMAP && dsda_GrayInvulnColormap())
+        fixedcolormap = V_GrayInvulnColormap();
+      else
+        fixedcolormap = fullcolormap   // killough 3/20/98: use fullcolormap
+          + player->fixedcolormap*256*sizeof(lighttable_t);
 
       walllights = scalelightfixed;
 
@@ -1163,6 +1240,8 @@ static void R_RenderBSPNodes(void)
 void R_RenderPlayerView (player_t* player)
 {
   r_frame_count++;
+
+  R_ProcessFOV();
 
   DSDA_ADD_CONTEXT(sf_setup_frame);
   R_SetupFrame (player);

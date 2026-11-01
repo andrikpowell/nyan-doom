@@ -61,6 +61,7 @@
 #include "dsda/skill_info.h"
 
 #include "heretic/def.h"
+#include "heretic/p_action.h"
 #include "heretic/sb_bar.h"
 #include "heretic/hhe/strings.h"
 
@@ -125,7 +126,7 @@ static void P_AutoSwitchWeapon(player_t *player, weapontype_t weapon)
 
   if (!autoswitch) return;
 
-  player->pendingweapon = weapon;
+  player->pendingweapon = player->nextweapon = weapon;
 }
 
 //
@@ -548,6 +549,14 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       dsda_AddPlayerMessage(s_GOTARMBONUS, player);
       break;
 
+    case SPR_BON3:      // killough 7/11/98: evil sceptre from beta version
+      dsda_AddPlayerMessage(s_BETA_BONUS3, player);
+      break;
+
+    case SPR_BON4:      // killough 7/11/98: unholy bible from beta version
+      dsda_AddPlayerMessage(s_BETA_BONUS4, player);
+      break;
+
     case SPR_SOUL:
       player->health += P_PlayerHealthIncrease(soul_health);
       if (player->health > max_soul)
@@ -844,7 +853,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 }
 
 // Add back Easter Egg that was previously stripped out
-// see https://github.com/kraflab/dsda-doom/commit/5679359
+// see https://github.com/dsda-org/dsda-doom/commit/5679359
 // Disappointed that this was stripped out tbh
 
 static int P_CheckGibDeath(mobj_t *source, mobj_t *target, method_t mod)
@@ -968,6 +977,10 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
 
   dsda_WatchDeath(target);
 
+  // Transfer kill to the second phase
+  if (heretic && P_MobjHasDeathAction(target, A_SorcererRise))
+    target->intflags |= MIF_DSPARIL_FIRST_PHASE;
+
   if (map_format.hexen && target->special)
   {
     if (!hexen || (target->flags & MF_COUNTKILL || target->type == HEXEN_MT_ZBELL))
@@ -979,10 +992,8 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
         }
         else
         {
-            map_format.execute_line_special(
-              target->special, target->special_args, NULL, 0,
-              map_info.flags & MI_ACTIVATE_OWN_DEATH_SPECIALS ? target : source
-            );
+            // TODO: tenuous "activate own death specials" mapinfo flag
+            map_format.execute_line_special(target->special, target->special_args, NULL, 0, target);
         }
     }
   }
@@ -1421,7 +1432,8 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
     damage = FixedMul(damage, skill_info.damage_factor);
 
   // Special damage types
-  if (raven && inflictor)
+  if (heretic && inflictor)
+  {
     switch (inflictor->type)
     {
       case HERETIC_MT_EGGFX:
@@ -1496,6 +1508,15 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
           }
         }
         break;
+      default:
+        break;
+    }
+  }
+  else if (hexen && inflictor)
+  {
+    switch (inflictor->type)
+    {
+
       case HEXEN_MT_EGGFX:
         if (player)
         {
@@ -1589,6 +1610,7 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
       default:
         break;
     }
+  }
 
   // Some close combat weapons should not
   // inflict thrust and push the victim out of reach,
@@ -2672,6 +2694,7 @@ dboolean P_ChickenMorph(mobj_t * actor)
     fog = P_SpawnMobj(x, y, z + TELEFOGHEIGHT, HERETIC_MT_TFOG);
     S_StartMobjSound(fog, heretic_sfx_telept);
     chicken = P_SpawnMobj(x, y, z, HERETIC_MT_CHICKEN);
+    chicken->intflags |= actor->intflags & MIF_SPAWNED_BY_DSPARIL;
     chicken->special2.i = moType;
     chicken->special1.i = CHICKENTICS + P_Random(pr_heretic);
     chicken->flags |= ghost;

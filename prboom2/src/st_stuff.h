@@ -79,6 +79,7 @@ void ST_Init(void);
 
 // After changing videomode;
 void ST_SetResolution(void);
+void M_ChangeApplyPalette(void);
 
 int ST_HealthColor(int health);
 

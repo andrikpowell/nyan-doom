@@ -133,6 +133,7 @@ typedef enum
 } midi_player_name_t;
 
 extern const char *midiplayers[];
+extern const char *audio_devices_list[];
 
 void I_InitSoundfontList(void);
 const char** I_GetSoundfontList(void);
@@ -140,5 +141,7 @@ const char* I_GetSoundfontFile(const char *soundfont);
 void I_ReinitMusic(void);
 void M_ChangeMIDIPlayer(void);
 void M_ChangeSoundfont(void);
+
+void I_ChangeAudioDevice(void);
 
 #endif

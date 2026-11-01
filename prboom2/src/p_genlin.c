@@ -53,7 +53,7 @@
                             } \
                             else \
                             { \
-                              id_p = dsda_FindSectorsFromID(line->tag); \
+                              id_p = dsda_FindSectorsFromID(line->special_args[0]); \
                             }
 
 //////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ int EV_DoGenFloor
 
   for (; *id_p >= 0; id_p++)
   {
-      if ((comperr(comperr_zerotag)) && (line->tag == 0) && (id_p = manual_list))
+      if ((comperr(comperr_zerotag)) && (line->special_args[0] == 0) && (id_p = manual_list))
           sec = line->backsector;
       else
         sec = &sectors[*id_p];
@@ -278,7 +278,7 @@ int EV_DoGenCeiling
 
   for (; *id_p >= 0; id_p++)
   {
-      if ((comperr(comperr_zerotag)) && (line->tag == 0) && (id_p = manual_list))
+      if ((comperr(comperr_zerotag)) && (line->special_args[0] == 0) && (id_p = manual_list))
           sec = line->backsector;
       else
           sec = &sectors[*id_p];
@@ -454,13 +454,13 @@ int EV_DoGenLift
   // Activate all <type> plats that are in_stasis
 
   if (Targ==LnF2HnF)
-    P_ActivateInStasis(line->tag);
+    P_ActivateInStasis(line->special_args[0]);
 
   FIND_GENLIN_SECTORS;
 
   for (; *id_p >= 0; id_p++)
   {
-      if ((comperr(comperr_zerotag)) && (line->tag == 0) && (id_p = manual_list))
+      if ((comperr(comperr_zerotag)) && (line->special_args[0] == 0) && (id_p = manual_list))
           sec = line->backsector;
       else
           sec = &sectors[*id_p];
@@ -479,7 +479,7 @@ int EV_DoGenLift
     plat->sector->floordata = plat;
     plat->thinker.function = T_PlatRaise;
     plat->crush = NO_CRUSH;
-    plat->tag = line->tag;
+    plat->tag = line->special_args[0];
 
     plat->type = genLift;
     plat->high = sec->floorheight;
@@ -602,7 +602,7 @@ int EV_DoGenStairs
 
   for (; *id_p >= 0; id_p++)
   {
-      if ((comperr(comperr_zerotag)) && (line->tag == 0) && (id_p = manual_list))
+      if ((comperr(comperr_zerotag)) && (line->special_args[0] == 0) && (id_p = manual_list))
           sec = line->backsector;
       else
           sec = &sectors[*id_p];
@@ -767,13 +767,13 @@ int EV_DoGenCrusher
 
   //jff 2/22/98  Reactivate in-stasis ceilings...for certain types.
   //jff 4/5/98 return if activated
-  rtn = P_ActivateInStasisCeiling(line->tag);
+  rtn = P_ActivateInStasisCeiling(line->special_args[0]);
 
   FIND_GENLIN_SECTORS;
 
   for (; *id_p >= 0; id_p++)
   {
-      if ((comperr(comperr_zerotag)) && (line->tag == 0) && (id_p = manual_list))
+      if ((comperr(comperr_zerotag)) && (line->special_args[0] == 0) && (id_p = manual_list))
           sec = line->backsector;
       else
           sec = &sectors[*id_p];
@@ -857,7 +857,7 @@ int EV_DoGenLockedDoor
 
   for (; *id_p >= 0; id_p++)
   {
-      if ((comperr(comperr_zerotag)) && (line->tag == 0) && (id_p = manual_list))
+      if ((comperr(comperr_zerotag)) && (line->special_args[0] == 0) && (id_p = manual_list))
           sec = line->backsector;
       else
           sec = &sectors[*id_p];
@@ -884,7 +884,7 @@ int EV_DoGenLockedDoor
     /* killough 10/98: implement gradual lighting */
     door->lighttag = !comp[comp_doorlight] &&
       (line->special&6) == 6 &&
-      line->special > GenLockedBase ? line->tag : 0;
+      line->special > GenLockedBase ? line->special_args[0] : 0;
 
     // setup speed of door motion
     switch(Sped)
@@ -949,7 +949,7 @@ int EV_DoGenDoor
 
   for (; *id_p >= 0; id_p++)
   {
-      if ((comperr(comperr_zerotag)) && (line->tag == 0) && (id_p = manual_list))
+      if ((comperr(comperr_zerotag)) && (line->special_args[0] == 0) && (id_p = manual_list))
           sec = line->backsector;
       else
           sec = &sectors[*id_p];
@@ -1007,7 +1007,7 @@ int EV_DoGenDoor
     /* killough 10/98: implement gradual lighting */
     door->lighttag = !comp[comp_doorlight] &&
       (line->special&6) == 6 &&
-      line->special > GenLockedBase ? line->tag : 0;
+      line->special > GenLockedBase ? line->special_args[0] : 0;
 
     // set kind of door, whether it opens then close, opens, closes etc.
     // assign target heights accordingly

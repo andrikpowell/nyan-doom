@@ -64,10 +64,71 @@ static dboolean P_IsMapSpot(mobj_t *mo)
   return mo->type == ZMT_MAPSPOT || mo->type == ZMT_MAPSPOT_GRAVITY;
 }
 
+
+static struct
+{
+    mobj_t *telept;
+    dboolean checked;
+} *sectors_telept;
+
+static void P_InitTeleptFromSector(void)
+{
+    if (sectors_telept == NULL)
+    {
+        sectors_telept = Z_CallocLevel(numsectors, sizeof(*sectors_telept));
+    }
+}
+
+void P_ResetTeleptList(void)
+{
+    sectors_telept = NULL;
+}
+
+void P_ResetTeleptFromSector(int i)
+{
+    if (sectors_telept == NULL)
+    {
+        P_InitTeleptFromSector();
+    }
+
+    sectors_telept[i].checked = false;
+}
+
+static mobj_t *P_TeleptFromSector(int i)
+{
+    if (sectors_telept == NULL)
+    {
+        P_InitTeleptFromSector();
+    }
+
+    if (sectors_telept[i].checked)
+    {
+        return sectors_telept[i].telept;
+    }
+
+    sectors_telept[i].telept = NULL;
+
+    for (thinker_t *thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+    {
+        mobj_t *m;
+        if (thinker->function == P_MobjThinker
+            && (m = (mobj_t *)thinker)->type == MT_TELEPORTMAN
+            && m->subsector->sector->iSectorID == i)
+        {
+            sectors_telept[i].telept = m;
+            break;
+        }
+    }
+
+    sectors_telept[i].checked = true;
+    return sectors_telept[i].telept;
+}
+
 static mobj_t* P_TeleportDestination(short thing_id, int tag)
 {
   const int *id_p;
 
+  // ZDoom-y
   if (thing_id)
   {
     int count = 0;
@@ -142,16 +203,14 @@ static mobj_t* P_TeleportDestination(short thing_id, int tag)
     return NULL;
   }
 
+  // Legacy
   FIND_SECTORS(id_p, tag)
   {
-    register thinker_t* th = NULL;
-    while ((th = P_NextThinker(th,th_misc)) != NULL)
-      if (th->function == P_MobjThinker) {
-        register mobj_t* m = (mobj_t*)th;
-        if (m->type == MT_TELEPORTMAN  &&
-            m->subsector->sector->iSectorID == *id_p)
-            return m;
-      }
+    mobj_t* m = NULL;
+    if ((m = P_TeleptFromSector(*id_p)) != NULL)
+    {
+      return m;
+    }
   }
   return NULL;
 }
@@ -460,6 +519,15 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
         fixed_t s = finesine[angle>>ANGLETOFINESHIFT];
         fixed_t c = finecosine[angle>>ANGLETOFINESHIFT];
 
+        // Get original thing position and angle
+        fixed_t oldx = thing->x;
+        fixed_t oldy = thing->y;
+        fixed_t oldz = thing->z;
+        fixed_t oldprevx = thing->PrevX;
+        fixed_t oldprevy = thing->PrevY;
+        fixed_t oldprevz = thing->PrevZ;
+        angle_t oldangle = thing->angle;
+
         // Maximum distance thing can be moved away from interpolated
         // exit, to ensure that it is on the correct side of exit linedef
         int fudge = FUDGEFACTOR;
@@ -511,10 +579,6 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
         if (!P_TeleportMove(thing, x, y, false)) /* killough 8/9/98 */
           return 0;
 
-        // e6y
-        if (player && player->mo == thing)
-          R_ResetAfterTeleport(player);
-
         // Adjust z position to be same height above ground as before.
         // Ground level at the exit is measured as the higher of the
         // two floor heights at the exit linedef.
@@ -535,6 +599,11 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
         // Adjust a player's view, in case there has been a height change
         if (player)
           {
+            // Save the current view z and angle
+            fixed_t old_viewz = player->viewz;
+            fixed_t old_prev_viewz = player->prev_viewz;
+            angle_t old_prev_viewangle = player->prev_viewangle;
+
             // Save the current deltaviewheight, used in stepping
             fixed_t deltaviewheight = player->deltaviewheight;
 
@@ -546,11 +615,21 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
 
             // Reset the delta to have the same dynamics as before
             player->deltaviewheight = deltaviewheight;
+
+            // Update the view z and angle
+            player->prev_viewz = player->viewz - (old_viewz - old_prev_viewz);
+            player->prev_viewangle = player->mo->angle - (oldangle - old_prev_viewangle);
+
+            // Update smooth turning angle
+            R_SmoothPlaying_Update(player, player->mo->angle - oldangle);
           }
 
-        // e6y
-        if (player && player->mo == thing)
-          R_ResetAfterTeleport(player);
+        // Update thing position interpolation
+        x = oldx - oldprevx;
+        y = oldy - oldprevy;
+        thing->PrevX = thing->x - (FixedMul(x, c) - FixedMul(y, s));
+        thing->PrevY = thing->y - (FixedMul(y, c) + FixedMul(x, s));
+        thing->PrevZ = thing->z - (oldz - oldprevz);
 
         return 1;
       }

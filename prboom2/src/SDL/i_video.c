@@ -120,7 +120,6 @@ int desired_fullscreen;
 int exclusive_fullscreen;
 SDL_Surface *screen;
 static SDL_Surface *buffer;
-static SDL_Surface *texture_surface;
 SDL_Window *sdl_window;
 SDL_Renderer *sdl_renderer;
 SDL_Texture *sdl_texture;
@@ -276,9 +275,7 @@ static int I_TranslateKey(SDL_Keysym* key)
   case SDLK_LCTRL:
   case SDLK_RCTRL:  rc = KEYD_RCTRL;  break;
   case SDLK_LALT:
-  case SDLK_LGUI:
-  case SDLK_RALT:
-  case SDLK_RGUI:  rc = KEYD_RALT;   break;
+  case SDLK_RALT: rc = KEYD_RALT;   break;
   case SDLK_CAPSLOCK: rc = KEYD_CAPSLOCK; break;
   case SDLK_PRINTSCREEN: rc = KEYD_PRINTSC; break;
   case SDLK_SCROLLLOCK: rc = KEYD_SCROLLLOCK; break;
@@ -303,8 +300,8 @@ int I_SDLtoDoomMouseState(Uint32 buttonstate)
 {
   return 0
       | (buttonstate & SDL_BUTTON(1) ? 1 : 0)
-      | (buttonstate & SDL_BUTTON(2) ? 2 : 0)
-      | (buttonstate & SDL_BUTTON(3) ? 4 : 0)
+      | (buttonstate & SDL_BUTTON(3) ? 2 : 0)
+      | (buttonstate & SDL_BUTTON(2) ? 4 : 0)
       | (buttonstate & SDL_BUTTON(6) ? 8 : 0)
       | (buttonstate & SDL_BUTTON(7) ? 16 : 0)
       | (buttonstate & SDL_BUTTON(4) ? 32 : 0)
@@ -343,7 +340,8 @@ static void I_GetEvent(void)
             break;
           }
           // Switch windowed<->fullscreen if pressed Alt-Enter
-          else if (Event->key.keysym.sym == SDLK_RETURN)
+          else if (Event->key.keysym.sym == SDLK_RETURN ||
+                   Event->key.keysym.sym == SDLK_KP_ENTER)
           {
             V_ToggleFullscreen();
             break;
@@ -414,6 +412,14 @@ static void I_GetEvent(void)
           dsda_PollGameControllerButtons();
         break;
 
+      case SDL_CONTROLLERDEVICEADDED:
+        dsda_GameControllerAdded(Event->cdevice.which);
+        break;
+
+      case SDL_CONTROLLERDEVICEREMOVED:
+        dsda_GameControllerRemoved(Event->cdevice.which);
+        break;
+
       case SDL_TEXTINPUT:
         event.type = ev_text;
         event.text = Event->text.text;
@@ -427,6 +433,9 @@ static void I_GetEvent(void)
           {
           case SDL_WINDOWEVENT_FOCUS_GAINED:
           case SDL_WINDOWEVENT_FOCUS_LOST:
+          case SDL_WINDOWEVENT_MINIMIZED:
+          case SDL_WINDOWEVENT_MAXIMIZED:
+          case SDL_WINDOWEVENT_RESTORED:
             UpdateFocus();
             break;
           case SDL_WINDOWEVENT_MOVED:
@@ -441,7 +450,7 @@ static void I_GetEvent(void)
         break;
 
       case SDL_QUIT:
-        S_StartVoidSound(sfx_swtchn);
+        S_StartOptionalSound(g_sfx_mnucls, g_sfx_swtchn, true);
         M_QuitDOOM(0);
 
       default:
@@ -552,7 +561,7 @@ static void I_UploadNewPalette(int pal, int force)
   if (dynamic_palette)
     RETURN(I_UploadDynamicPalette(pal));
 
-  playpal_data = dsda_PlayPalData();
+  playpal_data = dsda_PlayPalData(playpal_index);
 
   if ((playpal_data->colours == NULL) || (cachedgamma != usegamma) || force) {
     int pplump;
@@ -646,9 +655,6 @@ void I_FinishUpdate (void)
      ACTUALHEIGHT,
      SCREENWIDTH
   };
-  void *texture_pixels;
-  int texture_pitch;
-
   if (V_IsOpenGLMode()) {
     // proff 04/05/2000: swap OpenGL buffers
     gld_Finish();
@@ -685,30 +691,12 @@ void I_FinishUpdate (void)
     newpal = NO_PALETTE_CHANGE;
   }
 
-  // Convert directly into the texture to avoid copying the frame twice
-  // This saved about 0.7 ms per frame at 2560x1440 in testing
-  if (SDL_LockTexture(sdl_texture, &src_rect, &texture_pixels, &texture_pitch) == 0)
-  {
-    texture_surface->pixels = texture_pixels;
-    texture_surface->pitch = texture_pitch;
+  // Blit from the paletted 8-bit screen buffer to the intermediate
+  // 32-bit RGBA buffer that we can load into the texture.
+  SDL_LowerBlit(screen, &src_rect, buffer, &src_rect);
 
-    // Convert the paletted framebuffer into the streaming texture.
-    SDL_LowerBlit(screen, &src_rect, texture_surface, &src_rect);
-
-    // Finish updating the streaming texture.
-    SDL_UnlockTexture(sdl_texture);
-  }
-
-  // Keep the fallback in case the texture can't be locked
-  else
-  {
-    // Blit from the paletted 8-bit screen buffer to the intermediate
-    // 32-bit RGBA buffer that we can load into the texture.
-    SDL_LowerBlit(screen, &src_rect, buffer, &src_rect);
-
-    // Update the intermediate texture with the contents of the RGBA buffer.
-    SDL_UpdateTexture(sdl_texture, &src_rect, buffer->pixels, buffer->pitch);
-  }
+  // Update the intermediate texture with the contents of the RGBA buffer.
+  SDL_UpdateTexture(sdl_texture, &src_rect, buffer->pixels, buffer->pitch);
 
   // Make sure the pillarboxes are kept clear each frame.
   SDL_RenderClear(sdl_renderer);
@@ -765,12 +753,11 @@ void I_SetPalette (int pal)
 
 // I_PreInitGraphics
 
-void I_ShutdownSDL(void)
+static void I_ShutdownSDL(void)
 {
   if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
   if (screen) SDL_FreeSurface(screen);
   if (buffer) SDL_FreeSurface(buffer);
-  if (texture_surface) SDL_FreeSurface(texture_surface);
   if (sdl_texture_fallback) SDL_DestroyTexture(sdl_texture_fallback);
   if (sdl_texture) SDL_DestroyTexture(sdl_texture);
   if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
@@ -783,6 +770,7 @@ void I_ShutdownSDL(void)
 void I_PreInitGraphics(void)
 {
   int p;
+  dboolean endoom_export;
 
   // Initialize SDL
   unsigned int flags = 0;
@@ -797,6 +785,10 @@ void I_PreInitGraphics(void)
   {
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
+
+  endoom_export = dsda_IntConfig(nyan_config_export_endoom);
+
+  I_AtExit(I_ShutdownSDL, true, "I_ShutdownSDL", endoom_export ? exit_priority_normal : exit_priority_last);
 }
 
 // e6y: resolution limitation is removed
@@ -1303,7 +1295,6 @@ void I_UpdateVideoMode(void)
     if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
     if (screen) SDL_FreeSurface(screen);
     if (buffer) SDL_FreeSurface(buffer);
-    if (texture_surface) SDL_FreeSurface(texture_surface);
     if (sdl_texture_fallback) SDL_DestroyTexture(sdl_texture_fallback);
     if (sdl_texture) SDL_DestroyTexture(sdl_texture);
     if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
@@ -1314,7 +1305,6 @@ void I_UpdateVideoMode(void)
     sdl_glcontext = NULL;
     screen = NULL;
     buffer = NULL;
-    texture_surface = NULL;
     sdl_texture_fallback = NULL;
     sdl_texture = NULL;
   }
@@ -1409,19 +1399,7 @@ void I_UpdateVideoMode(void)
 
     sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREENHEIGHT, SCREENWIDTH);
 
-    if (sdl_texture)
-    {
-      void *texture_pixels;
-      int texture_pitch;
-
-      if (SDL_LockTexture(sdl_texture, NULL, &texture_pixels, &texture_pitch) < 0)
-        I_Error("Couldn't lock software texture [%s]", SDL_GetError());
-
-      texture_surface = SDL_CreateRGBSurfaceWithFormatFrom(texture_pixels, SCREENHEIGHT, SCREENWIDTH, 32, texture_pitch, SDL_PIXELFORMAT_ARGB8888);
-      SDL_UnlockTexture(sdl_texture);
-    }
-
-    if(screen == NULL || buffer == NULL || sdl_texture == NULL || texture_surface == NULL) {
+    if(screen == NULL || buffer == NULL || sdl_texture == NULL) {
       I_Error("Couldn't set %dx%d video mode [%s]", SCREENWIDTH, SCREENHEIGHT, SDL_GetError());
     }
 
@@ -1496,6 +1474,10 @@ void I_UpdateVideoMode(void)
 
   V_SetPalette(0);
   I_UploadNewPalette(0, true);
+  M_ChangeApplyPalette();
+
+  // If starting in OpenGL, reapply multisampling
+  M_ChangeMapMultisamling();
 
   if (V_IsOpenGLMode())
   {
@@ -1538,7 +1520,7 @@ void I_UpdateVideoMode(void)
 
   if (V_IsOpenGLMode())
   {
-    M_ChangeFOV();
+    gld_ChangeFOV();
     deh_changeCompTranslucency();
 
     // elim - Sets up viewport sizing for render-to-texture scaling
@@ -1676,18 +1658,23 @@ static dboolean MouseShouldBeGrabbed()
     return (demoplayback && gamestate == GS_LEVEL && !menuactive);
 
   // during playback the mouse should be hidden when not moving
-  if (demoplayback && !menuactive && mouse_hide_timer > 0)
+  if (demoplayback && !menuactive && mouse_hide_timer > 0 &&
+    (dsda_IntConfig(dsda_config_playback_mouse_controls) || !desired_fullscreen))
   {
     // moved hide playback bar timer logic to not be tied to "inside window" logic
     return false;
   }
+
+  // when menu is active and mouse navigation is desired, release the mouse even in fullscreen
+  if (menuactive && dsda_IntConfig(dsda_config_mouse_menu_navigation))
+    return false;
 
   // always grab the mouse when full screen (dont want to
   // see the mouse pointer)
   if (desired_fullscreen)
     return true;
 
-  // when menu is active or game is paused, release the mouse
+  // when game is paused, release the mouse in windowed mode
   if (menuactive || dsda_Paused())
     return false;
 
