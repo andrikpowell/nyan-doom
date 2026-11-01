@@ -204,6 +204,7 @@ static setup_menu_t *setup_reset_item = NULL;
 static dboolean sub_advanced_audio_active = false;
 static dboolean sub_mouse_active = false;
 static dboolean sub_gamepad_active = false;
+static dboolean sub_palette_active = false;
 static dboolean sub_colored_blood_active = false;
 static dboolean sub_trans_active = false;
 static dboolean sub_statbar_color_active = false;
@@ -423,6 +424,7 @@ static void M_Sub_Crosshair(void);
 static void M_Sub_Overflows(void);
 static void M_Sub_AutoMapMarker(void);
 static void M_Sub_AutoMapOpenGL(void);
+static void M_Sub_Palette(void);
 static void M_Sub_ColorAutomap(void);
 static void M_Sub_ColorMessages(void);
 static void M_Sub_ColorStatusBar(void);
@@ -454,6 +456,7 @@ static void M_Sub_DrawCrosshair(void);
 static void M_Sub_DrawOverflows(void);
 static void M_Sub_DrawAutoMapMarker(void);
 static void M_Sub_DrawAutoMapOpenGL(void);
+static void M_Sub_DrawPalette(void);
 static void M_Sub_DrawColor(void);
 
 menu_t SkillDef;                                              // phares 5/04/98
@@ -2139,6 +2142,16 @@ static menu_t SubGamepadDef =
   &GeneralDef,
   Generic_Setup,
   M_Sub_DrawGamepad,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubPaletteDef =
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawPalette,
   34,5,      // skull drawn here
   0
 };
@@ -4248,6 +4261,7 @@ static void M_ClearSetupMenuState(void)
   sub_advanced_audio_active = false;
   sub_mouse_active = false;
   sub_gamepad_active = false;
+  sub_palette_active = false;
   sub_colored_blood_active = false;
   sub_trans_active = false;
   sub_statbar_color_active = false;
@@ -5660,11 +5674,8 @@ static const char* fake_contrast_list[] =
 static const char *gl_fade_mode_list[] = { "Normal", "Smooth", "TrueColor", NULL };
 static const char* wipe_screen_list[] = { "Off", "On", "Fast", NULL };
 static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
-static const char* palette_list[] = { "Off", "Default", NULL };
-static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
 static const char* swirling_flat_list[] = { "Off", "Smart", "All", NULL };
 static const char* sky_projection_list[] = { "Vanilla", "Linear", "Cylindrical", NULL };
-static const char* invuln_sky_list[] = { "Default", "MBF", "Vanilla", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Screen Wipe Effect", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_render_wipescreen, 0, wipe_screen_list },
@@ -5678,12 +5689,7 @@ setup_menu_t display_options_settings[] = {
   { "GL Light Fade", S_CHOICE, m_conf, g_all, G_X, dsda_config_gl_fade_mode, 0, gl_fade_mode_list, DEPEND(dsda_config_videomode, OPENGL_MODE) },
   { "GL Health Bars", S_YESNO, m_conf, g_all, G_X, dsda_config_gl_health_bar, DEPEND_GL },
   EMPTY_LINE,
-  { "Palette On Pain", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_ondamage, 0, palette_reduced_list },
-  { "Palette On Pickup", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onbonus, 0, palette_reduced_list },
-  { "Palette On Powers", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onpowers, 0, palette_list },
-  { "Palette On Effects", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_oneffects, 0, palette_reduced_list },
-  { "Invuln Sky Behavior", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_invulnerability_sky, 0, invuln_sky_list },
-  { "Gray Invulnerability", S_YESNO | S_NYAN, m_conf, g_doom, G_X, dsda_config_gray_invulnerability },
+  FUNC("Palette Options", S_NYAN, G_X, M_Sub_Palette),
   EMPTY_LINE,
   { "Menu Background", S_CHOICE, m_conf, g_all, G_X, dsda_config_menu_background, 0, menu_background_list },
 
@@ -5829,6 +5835,59 @@ static void M_DrawDisplay(void)
   M_DrawBackground(g_menu_flat);
 
   M_DrawTitle(2, "Display", cr_title); // M_DSPLAY
+  M_DrawInstructions();
+  M_DrawSetupTabs(TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Palette Options
+
+
+static const char *palette_pages[] =
+{
+  "Palette Options",
+  NULL
+};
+
+setup_menu_t palette_options_settings[];
+
+setup_menu_t* palette_settings[] =
+{
+  palette_options_settings,
+  NULL
+};
+
+static const char* palette_list[] = { "Off", "Default", NULL };
+static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
+static const char* invuln_sky_list[] = { "Default", "MBF", "Vanilla", NULL };
+
+setup_menu_t palette_options_settings[] =
+{
+  { "Palette On Pain", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_ondamage, 0, palette_reduced_list },
+  { "Palette On Pickup", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onbonus, 0, palette_reduced_list },
+  { "Palette On Powers", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onpowers, 0, palette_list },
+  { "Palette On Effects", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_oneffects, 0, palette_reduced_list },
+  EMPTY_LINE,
+  { "Invuln Sky Behavior", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_invulnerability_sky, 0, invuln_sky_list },
+  { "Gray Invulnerability", S_YESNO | S_NYAN, m_conf, g_doom, G_X, dsda_config_gray_invulnerability },
+
+  FINAL_ENTRY
+};
+
+static void M_Sub_Palette(void)
+{
+  M_EnterSubSetup(&SubPaletteDef, &sub_palette_active, palette_settings, palette_pages);
+}
+
+static void M_Sub_DrawPalette(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "Display", cr_title);
   M_DrawInstructions();
   M_DrawSetupTabs(TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
