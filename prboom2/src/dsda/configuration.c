@@ -2186,6 +2186,22 @@ dsda_config_t dsda_config[dsda_config_count] = {
     "nyan_classic_idchoppers", nyan_config_classic_idchoppers,
     CONF_BOOL(0)
   },
+  [nyan_config_chasecam] = {
+    "chasecam", nyan_config_chasecam,
+    dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT
+  },
+  [nyan_config_chasecam_distance] = {
+    "chasecam_distance", nyan_config_chasecam_distance,
+    dsda_config_int, 1, 128, { 80 }, NULL, NOT_STRICT
+  },
+  [nyan_config_chasecam_height] = {
+    "chasecam_height", nyan_config_chasecam_height,
+    dsda_config_int, 1, 64, { 48 }, NULL, NOT_STRICT
+  },
+  [nyan_config_death_camera] = {
+    "death_camera", nyan_config_death_camera,
+    CONF_BOOL(0), NULL, NOT_STRICT
+  },
   [nyan_config_colored_blood] = {
     "nyan_colored_blood", nyan_config_colored_blood,
     dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT, deh_changeColoredBlood

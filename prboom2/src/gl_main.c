@@ -2673,7 +2673,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
 
   // e6y
   // Don't draw the viewed player in first person
-  first_person = !P_WalkCameraDetached();
+  first_person = !P_WalkCameraDetached() && !R_ChasecamOn();
 
   if (thing == players[displayplayer].mo && first_person)
     return;

@@ -2723,6 +2723,111 @@ dboolean PTR_ShootTraverse (intercept_t* in)
   return false;
 }
 
+//
+// Chasecam
+//
+// Partly based on Nugget
+//
+
+static fixed_t chasecam_x;
+static fixed_t chasecam_y;
+static fixed_t chasecam_z;
+static fixed_t chasecam_start_z;
+static fixed_t chasecam_slope;
+
+static dboolean PTR_ChasecamTraverse(intercept_t *in)
+{
+  line_t *line;
+  fixed_t frac;
+  fixed_t line_z;
+
+  if (!in->isaline)
+    return true;
+
+  line = in->d.line;
+  line_z = chasecam_start_z + FixedMul(chasecam_slope, FixedMul(attackrange, in->frac));
+
+  if (line->flags & ML_TWOSIDED)
+  {
+    P_LineOpening(line, NULL);
+
+    if (line->backsector &&
+        (line->frontsector->floorheight == line->backsector->floorheight ||
+        line_z >= line_opening.bottom + FRACUNIT) &&
+        (line->frontsector->ceilingheight == line->backsector->ceilingheight ||
+        line_z <= line_opening.top - FRACUNIT))
+    {
+      return true;
+    }
+  }
+
+  // Stop the camera just before the wall
+  frac = in->frac - FixedDiv(FRACUNIT, attackrange);
+  frac = MAX(0, frac);
+
+  chasecam_x = trace.x + FixedMul(trace.dx, frac);
+  chasecam_y = trace.y + FixedMul(trace.dy, frac);
+  chasecam_z = chasecam_start_z + FixedMul(chasecam_slope, FixedMul(attackrange, frac));
+
+  return false;
+}
+
+static void P_ClampChasecamHeight(void)
+{
+  fixed_t clamped_z;
+  fixed_t slope_distance;
+  fixed_t frac;
+  sector_t *sector;
+
+  sector = R_PointInSubsector(chasecam_x, chasecam_y)->sector;
+  clamped_z = CLAMP(chasecam_z, sector->floorheight + FRACUNIT,
+                                sector->ceilingheight - FRACUNIT);
+
+  if (clamped_z == chasecam_z)
+    return;
+
+  chasecam_z = clamped_z;
+  slope_distance = FixedMul(chasecam_slope, attackrange);
+
+  // Move forward along the trace when the camera hits the floor or ceiling
+  if (slope_distance)
+  {
+    frac = FixedDiv(chasecam_z - chasecam_start_z, slope_distance);
+    frac = CLAMP(frac, 0, FRACUNIT);
+    chasecam_x = trace.x + FixedMul(trace.dx, frac);
+    chasecam_y = trace.y + FixedMul(trace.dy, frac);
+  }
+}
+
+void P_ClipChasecam(fixed_t x, fixed_t y, fixed_t z, angle_t angle,
+                    fixed_t distance, fixed_t slope, fixed_t *camera_x,
+                    fixed_t *camera_y, fixed_t *camera_z)
+{
+  int saved_overflows_enabled = overflows_enabled;
+  fixed_t saved_attackrange = attackrange;
+  fixed_t trace_x;
+  fixed_t trace_y;
+  angle_t fineangle = (angle + ANG180) >> ANGLETOFINESHIFT;
+
+  attackrange = distance + FRACUNIT;
+  chasecam_start_z = z;
+  chasecam_slope = slope;
+  chasecam_x = x + FixedMul(distance, finecosine[fineangle]);
+  chasecam_y = y + FixedMul(distance, finesine[fineangle]);
+  chasecam_z = z + FixedMul(slope, distance);
+  trace_x = x + FixedMul(attackrange, finecosine[fineangle]);
+  trace_y = y + FixedMul(attackrange, finesine[fineangle]);
+
+  overflows_enabled = false;
+  P_PathTraverse(x, y, trace_x, trace_y, PT_ADDLINES | PT_NOAUTOMAPTRACE, PTR_ChasecamTraverse);
+  P_ClampChasecamHeight();
+  overflows_enabled = saved_overflows_enabled;
+  attackrange = saved_attackrange;
+
+  *camera_x = chasecam_x;
+  *camera_y = chasecam_y;
+  *camera_z = chasecam_z;
+}
 
 //
 // P_AimLineAttack

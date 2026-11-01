@@ -164,6 +164,8 @@ dboolean R_FullView(void);
 dboolean R_PartialView(void);
 dboolean R_StatusBarVisible(void);
 
+dboolean R_ChasecamOn(void);
+
 #define Pi 3.14159265358979323846f
 #define DEG2RAD(a) ((a * Pi) / 180.0f)
 #define RAD2DEG(a) ((a / Pi) * 180.0f)

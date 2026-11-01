@@ -891,7 +891,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
 
   // e6y
   // Don't draw the viewed player in first person
-  first_person = !P_WalkCameraDetached();
+  first_person = !P_WalkCameraDetached() && !R_ChasecamOn();
 
   if (thing == players[displayplayer].mo && first_person)
     return;
@@ -1542,7 +1542,7 @@ void R_DrawPlayerSprites(void)
   int i;
   pspdef_t *psp;
 
-  if (walkcamera.type != walkcamera_off)
+  if (walkcamera.type != walkcamera_off || R_ChasecamOn())
     return;
 
   // get light level
