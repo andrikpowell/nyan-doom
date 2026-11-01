@@ -961,7 +961,7 @@ dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
   int     mapxstep, mapystep;
   int     count;
 
-	if (dsda_IntConfig(dsda_config_map_traces))
+	if (dsda_IntConfig(dsda_config_map_traces) && !(flags & PT_NOAUTOMAPTRACE))
 	{
 		amlinetraces[cur_amlinetrace].x1 = x1;
 		amlinetraces[cur_amlinetrace].x2 = x2;

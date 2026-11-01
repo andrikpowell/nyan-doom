@@ -152,6 +152,10 @@ dboolean P_SkullSlam(mobj_t **skull, mobj_t *hitthing);
 
 void P_AppendSpecHit(line_t * ld);
 
+void P_ClipChasecam(fixed_t x, fixed_t y, fixed_t z, angle_t angle,
+                    fixed_t distance, fixed_t slope, fixed_t *camera_x,
+                    fixed_t *camera_y, fixed_t *camera_z);
+
 // hexen
 
 extern int tmfloorpic;

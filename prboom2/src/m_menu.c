@@ -204,6 +204,7 @@ static setup_menu_t *setup_reset_item = NULL;
 static dboolean sub_advanced_audio_active = false;
 static dboolean sub_mouse_active = false;
 static dboolean sub_gamepad_active = false;
+static dboolean sub_chasecam_active = false;
 static dboolean sub_palette_active = false;
 static dboolean sub_colored_blood_active = false;
 static dboolean sub_trans_active = false;
@@ -424,6 +425,7 @@ static void M_Sub_Crosshair(void);
 static void M_Sub_Overflows(void);
 static void M_Sub_AutoMapMarker(void);
 static void M_Sub_AutoMapOpenGL(void);
+static void M_Sub_Chasecam(void);
 static void M_Sub_Palette(void);
 static void M_Sub_ColorAutomap(void);
 static void M_Sub_ColorMessages(void);
@@ -456,6 +458,7 @@ static void M_Sub_DrawCrosshair(void);
 static void M_Sub_DrawOverflows(void);
 static void M_Sub_DrawAutoMapMarker(void);
 static void M_Sub_DrawAutoMapOpenGL(void);
+static void M_Sub_DrawChasecam(void);
 static void M_Sub_DrawPalette(void);
 static void M_Sub_DrawColor(void);
 
@@ -2142,6 +2145,16 @@ static menu_t SubGamepadDef =
   &GeneralDef,
   Generic_Setup,
   M_Sub_DrawGamepad,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubChasecamDef =
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawChasecam,
   34,5,      // skull drawn here
   0
 };
@@ -4261,6 +4274,7 @@ static void M_ClearSetupMenuState(void)
   sub_advanced_audio_active = false;
   sub_mouse_active = false;
   sub_gamepad_active = false;
+  sub_chasecam_active = false;
   sub_palette_active = false;
   sub_colored_blood_active = false;
   sub_trans_active = false;
@@ -5691,6 +5705,7 @@ setup_menu_t display_options_settings[] = {
   { "GL Light Fade", S_CHOICE, m_conf, g_all, G_X, dsda_config_gl_fade_mode, 0, gl_fade_mode_list, DEPEND(dsda_config_videomode, OPENGL_MODE) },
   { "GL Health Bars", S_YESNO, m_conf, g_all, G_X, dsda_config_gl_health_bar, DEPEND_GL },
   EMPTY_LINE,
+  FUNC("Chasecam Options", S_NYAN, G_X, M_Sub_Chasecam),
   FUNC("Palette Options", S_NYAN, G_X, M_Sub_Palette),
   EMPTY_LINE,
   { "Menu Background", S_CHOICE, m_conf, g_all, G_X, dsda_config_menu_background, 0, menu_background_list },
@@ -5837,6 +5852,54 @@ static void M_DrawDisplay(void)
   M_DrawBackground(g_menu_flat);
 
   M_DrawTitle(2, "Display", cr_title); // M_DSPLAY
+  M_DrawInstructions();
+  M_DrawSetupTabs(TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Chasecam Options
+
+
+static const char *chasecam_pages[] =
+{
+  "Chasecam Options",
+  NULL
+};
+
+setup_menu_t chasecam_options_settings[];
+
+setup_menu_t* chasecam_settings[] =
+{
+  chasecam_options_settings,
+  NULL
+};
+
+static const char *chasecam_mode_list[] = { "Off", "Back", "Front", NULL };
+
+setup_menu_t chasecam_options_settings[] =
+{
+  { "Chasecam", S_CHOICE | S_NYAN, m_conf, g_all, G_X, nyan_config_chasecam, 0, chasecam_mode_list },
+  { "Death Camera", S_YESNO | S_NYAN, m_conf, g_all, G_X, nyan_config_death_camera },
+  { "Chasecam Distance", S_THERMO | S_NYAN, m_conf, g_all, G_X, nyan_config_chasecam_distance },
+  { "Chasecam Height", S_THERMO | S_NYAN, m_conf, g_all, G_X, nyan_config_chasecam_height },
+
+  FINAL_ENTRY
+};
+
+static void M_Sub_Chasecam(void)
+{
+  M_EnterSubSetup(&SubChasecamDef, &sub_chasecam_active, chasecam_settings, chasecam_pages);
+}
+
+static void M_Sub_DrawChasecam(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "Display", cr_title);
   M_DrawInstructions();
   M_DrawSetupTabs(TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);

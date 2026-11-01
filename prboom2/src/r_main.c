@@ -55,6 +55,7 @@
 #include "i_system.h"
 #include "i_video.h"
 #include "g_game.h"
+#include "p_map.h"
 #include "smooth.h"
 #include "r_fps.h"
 #include <math.h>
@@ -1174,6 +1175,124 @@ static void R_SetupFrame (player_t *player)
   validcount++;
 }
 
+//
+// Chasecam
+//
+// Partly based on Nugget
+//
+
+typedef enum {
+  chasecam_off,
+  chasecam_back,
+  chasecam_front
+} chasecam_t;
+
+dboolean R_ChasecamOn(void)
+{
+  player_t *player;
+
+  if (gamestate != GS_LEVEL || walkcamera.type)
+    return false;
+
+  if (dsda_IntConfig(nyan_config_chasecam))
+    return true;
+
+  player = &players[displayplayer];
+
+  return dsda_IntConfig(nyan_config_death_camera) &&
+         player->mo &&
+         player->mo->health <= 0 &&
+         player->playerstate == PST_DEAD;
+}
+
+static void R_ApplyChasecam(player_t *player)
+{
+  static fixed_t old_effort;
+  static fixed_t effort;
+  static int old_gametic = -1;
+  static int old_mode = chasecam_off;
+  fixed_t camera_x;
+  fixed_t camera_y;
+  fixed_t camera_z;
+  fixed_t distance;
+  fixed_t momx;
+  fixed_t momy;
+  fixed_t player_z;
+  fixed_t slope;
+  chasecam_t mode;
+
+  if (!R_ChasecamOn() || !player->mo)
+    return;
+
+  mode = dsda_IntConfig(nyan_config_chasecam);
+
+  // Death camera uses the normal rear view
+  if (mode == chasecam_off)
+    mode = chasecam_back;
+
+  // Front view moves the camera without changing player aim
+  if (mode == chasecam_front)
+  {
+    viewangle += ANG180;
+    viewpitch = 0 - viewpitch;
+  }
+
+  if (gametic != old_gametic)
+  {
+    old_effort = effort;
+
+    if (raven || compatibility_level < mbf_compatibility)
+    {
+      momx = player->mo->momx;
+      momy = player->mo->momy;
+    }
+    else
+    {
+      momx = player->momx;
+      momy = player->momy;
+    }
+
+    effort = FixedMul(momx, finecosine[viewangle >> ANGLETOFINESHIFT]) +
+             FixedMul(momy, finesine[viewangle >> ANGLETOFINESHIFT]);
+
+    // Don't interpolate across camera mode changes or inactive periods
+    if (old_mode != mode || old_gametic + 1 != gametic)
+      old_effort = effort;
+
+    old_gametic = gametic;
+    old_mode = mode;
+  }
+
+  distance = dsda_IntConfig(nyan_config_chasecam_distance) * FRACUNIT;
+
+  if (R_ViewInterpolation())
+    distance += old_effort + FixedMul(tic_vars.frac, effort - old_effort);
+  else
+    distance += effort;
+
+  distance = MAX(distance, FRACUNIT);
+
+  if (R_ViewInterpolation())
+    player_z = player->mo->PrevZ + FixedMul(tic_vars.frac, player->mo->z - player->mo->PrevZ);
+  else
+    player_z = player->mo->z;
+
+  if (player->mo->health <= 0 && player->playerstate == PST_DEAD)
+    camera_z = player_z + 6 * FRACUNIT;
+  else
+    camera_z = player_z + dsda_IntConfig(nyan_config_chasecam_height) * FRACUNIT;
+
+  camera_z = MIN(camera_z, player->mo->ceilingz - 2 * FRACUNIT);
+
+  slope = viewpitch ? -finetangent[(ANG90 - viewpitch) >> ANGLETOFINESHIFT] : 0;
+
+  P_ClipChasecam(viewx, viewy, camera_z, viewangle, distance, slope, &camera_x, &camera_y, &camera_z);
+
+  viewx = camera_x;
+  viewy = camera_y;
+  viewz = camera_z;
+}
+
 static void R_InitDrawScene(void)
 {
   // Framerate-independent fuzz progression
@@ -1218,7 +1337,7 @@ static void R_RenderBSPNodes(void)
 {
   // Make displayed player invisible locally
   if (localQuakeHappening[displayplayer] && gamestate == GS_LEVEL &&
-      !P_WalkCameraDetached())
+      !P_WalkCameraDetached() && !R_ChasecamOn())
   {
     players[displayplayer].mo->flags2 |= MF2_DONTDRAW;
     R_RenderBSPNode(numnodes - 1);  // head node is the last node output
@@ -1245,6 +1364,7 @@ void R_RenderPlayerView (player_t* player)
   r_frame_count++;
 
   R_ProcessFOV();
+  R_ApplyChasecam(player);
 
   DSDA_ADD_CONTEXT(sf_setup_frame);
   R_SetupFrame (player);

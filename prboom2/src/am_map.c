@@ -475,6 +475,43 @@ static fixed_t prev_scale_mtof = (fixed_t)INITSCALEMTOF;
 static player_t *plr;           // the player represented by an arrow
 static vertex_t oldplr;
 
+static angle_t AM_GetViewAngle(void)
+{
+  // If chasecam, use the player angle and not camera angle
+  if (R_ChasecamOn() && plr && plr->mo)
+  {
+    if (R_ViewInterpolation())
+    {
+      return plr->prev_viewangle + FixedMul(tic_vars.frac, R_SmoothPlaying_Get(plr) - plr->prev_viewangle);
+    }
+
+    return plr->mo->angle;
+  }
+
+  return viewangle;
+}
+
+static void AM_GetFollowPosition(fixed_t *x, fixed_t *y)
+{
+  *x = viewx;
+  *y = viewy;
+
+  // If chasecam, use the player position and not camera position
+  if (R_ChasecamOn() && plr && plr->mo)
+  {
+    if (R_ViewInterpolation())
+    {
+      *x = plr->mo->PrevX + FixedMul(tic_vars.frac, plr->mo->x - plr->mo->PrevX);
+      *y = plr->mo->PrevY + FixedMul(tic_vars.frac, plr->mo->y - plr->mo->PrevY);
+    }
+    else
+    {
+      *x = plr->mo->x;
+      *y = plr->mo->y;
+    }
+  }
+}
+
 // killough 2/22/98: Remove limit on automap marks,
 // and make variables external for use in savegames.
 
@@ -576,6 +613,8 @@ static void AM_saveScaleAndLoc(void)
 //
 static void AM_restoreScaleAndLoc(void)
 {
+  fixed_t follow_x, follow_y;
+
   m_w = old_m_w;
   m_h = old_m_h;
   if (!automap_follow)
@@ -585,8 +624,9 @@ static void AM_restoreScaleAndLoc(void)
   }
   else
   {
-    m_x = (viewx >> FRACTOMAPBITS) - m_w/2;//e6y
-    m_y = (viewy >> FRACTOMAPBITS) - m_h/2;//e6y
+    AM_GetFollowPosition(&follow_x, &follow_y);
+    m_x = (follow_x >> FRACTOMAPBITS) - m_w/2;//e6y
+    m_y = (follow_y >> FRACTOMAPBITS) - m_h/2;//e6y
   }
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
@@ -759,7 +799,7 @@ static void AM_moveWindowLoc(fixed_t origin_x, fixed_t origin_y, fixed_t incx, f
 
   if (automap_rotate)
   {
-    AM_rotate(&incx, &incy, viewangle - ANG90);
+    AM_rotate(&incx, &incy, AM_GetViewAngle() - ANG90);
   }
 
   m_x = origin_x + incx;
@@ -2115,7 +2155,10 @@ static void AM_changeWindowScale(void)
 //
 static void AM_doFollowPlayer(void)
 {
-  AM_SetMapCenter(viewx, viewy);
+  fixed_t x, y;
+
+  AM_GetFollowPosition(&x, &y);
+  AM_SetMapCenter(x, y);
 }
 
 //
@@ -2856,7 +2899,7 @@ static void AM_drawLineCharacter
   if (box_scale && dsda_RevealAutomap() == 2)
     AM_drawLineCharacter(thingbox_guy, NUMTHINGBOXGUYLINES, box_scale, 0, 0x40000000, mapcolor_p->hitbox, x, y);
 
-  if (automap_rotate) angle -= viewangle - ANG90; // cph
+  if (automap_rotate) angle -= AM_GetViewAngle() - ANG90; // cph
 
   for (i=0;i<lineguylines;i++)
   {
@@ -3021,7 +3064,7 @@ static void AM_drawPlayers(void)
   if (!netgame)
   {
     // draw the player separate from view
-    if (dsda_FreeCamera())
+    if (dsda_FreeCamera() || R_ChasecamOn())
     {
       AM_GetMobjPosition(plr->mo, &pt, &angle);
     }
@@ -3485,7 +3528,7 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
     return;
   }
 
-  ang = (rotate ? angle : 0) + (automap_rotate ? ANG90 - viewangle : 0);
+  ang = (rotate ? angle : 0) + (automap_rotate ? ANG90 - AM_GetViewAngle() : 0);
   rot = -(float)ang / (float)(1u << 31) * (float)M_PI;
 
   // shadow will end up drawing underneath
@@ -4177,7 +4220,7 @@ static void AM_drawMarks(void)
           fixed_t digit_size    = FRACUNIT * 2 * SCREENWIDTH / 320;
           fixed_t digit_scale   = FixedDiv(digit_size, scale_mtof);
           fixed_t digit_spacing = FixedMul(digit_scale, FRACUNIT*2);
-          angle_t digit_angle   = automap_rotate ? (viewangle - ANG90) : 0;
+          angle_t digit_angle   = automap_rotate ? (AM_GetViewAngle() - ANG90) : 0;
 
           // Center digit on marker
           fixed_t bx = mx;
@@ -4542,11 +4585,11 @@ static void AM_setFrameVariables(void)
 {
   float angle;
 
-  angle = (float)(ANG90 - viewangle) / (float)(1u << 31) * (float)M_PI;
+  angle = (float)(ANG90 - AM_GetViewAngle()) / (float)(1u << 31) * (float)M_PI;
   am_frame.sin_f = (float)sin(angle);
   am_frame.cos_f = (float)cos(angle);
-  am_frame.sin = finesine[(ANG90 - viewangle)>>ANGLETOFINESHIFT];
-  am_frame.cos = finecosine[(ANG90 - viewangle)>>ANGLETOFINESHIFT];
+  am_frame.sin = finesine[(ANG90 - AM_GetViewAngle())>>ANGLETOFINESHIFT];
+  am_frame.cos = finecosine[(ANG90 - AM_GetViewAngle())>>ANGLETOFINESHIFT];
 
   am_frame.centerx = m_x + m_w / 2;
   am_frame.centery = m_y + m_h / 2;
