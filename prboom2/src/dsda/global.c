@@ -208,6 +208,9 @@ static void dsda_ApplyHereticDefaults(void) {
   // EXDEFS removes this POD behaviour
   if (exdefs)   mobjinfo[HERETIC_MT_POD].flags3       &= ~MF3_TRANSFERVELOCITY;
   else          mobjinfo[HERETIC_MT_POD].flags3       |= MF3_TRANSFERVELOCITY;
+
+  // floor missiles
+  mobjinfo[HERETIC_MT_MNTRFX2].flags3 |= MF3_FLOORMISSILE;
 }
 
 // [AR] TODO: Add stuff into raven_mobjinfo_t
@@ -264,6 +267,11 @@ static void dsda_ApplyHexenDefaults(void) {
   mobjinfo[HEXEN_MT_SORCBALL1].flags3     |= MF3_DONTBLAST;
   mobjinfo[HEXEN_MT_SORCBALL2].flags3     |= MF3_DONTBLAST;
   mobjinfo[HEXEN_MT_SORCBALL3].flags3     |= MF3_DONTBLAST;
+
+  // floor / ceiling missiles
+  mobjinfo[HEXEN_MT_MNTRFX2].flags3           |= MF3_FLOORMISSILE;
+  mobjinfo[HEXEN_MT_LIGHTNING_FLOOR].flags3   |= MF3_FLOORMISSILE;
+  mobjinfo[HEXEN_MT_LIGHTNING_CEILING].flags3 |= MF3_CEILINGMISSILE;
 
   // player ice deaths
   mobjinfo[HEXEN_MT_FIGHTER_BOSS].icedeathstate   = HEXEN_S_FIGHTER_ICE;

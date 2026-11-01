@@ -1735,6 +1735,7 @@ dboolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
         floatok = true,
         !(thing->flags & MF_TELEPORT) &&
         tmceilingz - thing->z < thing->height &&
+        !(thing->flags3 & MF3_CEILINGMISSILE) && // exdefs - new
         !(thing->flags & MF_FLY) &&
         !(thing->flags2 & MF2_FLY)
       )
@@ -1765,7 +1766,7 @@ dboolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
 
     if (
       !(thing->flags & MF_TELEPORT) &&
-      (!heretic || thing->type != HERETIC_MT_MNTRFX2) &&
+      !(thing->flags3 & MF3_FLOORMISSILE) && // HERETIC_MT_MNTRFX2
       tmfloorz - thing->z > 24*FRACUNIT
     )
     {
@@ -4419,7 +4420,7 @@ static dboolean Hexen_P_TryMove(mobj_t* thing, fixed_t x, fixed_t y)
         floatok = true;
         if (!(thing->flags & MF_TELEPORT)
             && tmceilingz - thing->z < thing->height
-            && thing->type != HEXEN_MT_LIGHTNING_CEILING
+            && !(thing->flags3 & MF3_CEILINGMISSILE) // mage lightning ceiling
             && !(thing->flags2 & MF2_FLY))
         {                       // mobj must lower itself to fit
             goto pushline;
@@ -4439,8 +4440,8 @@ static dboolean Hexen_P_TryMove(mobj_t* thing, fixed_t x, fixed_t y)
             }
         }
         if (!(thing->flags & MF_TELEPORT)
-            // The Minotaur floor fire (HEXEN_MT_MNTRFX2) can step up any amount
-            && thing->type != HEXEN_MT_MNTRFX2 && thing->type != HEXEN_MT_LIGHTNING_FLOOR
+            // The Minotaur floor fire / Mage floor lightning can step up any amount
+            && !(thing->flags3 & MF3_FLOORMISSILE)
             && tmfloorz - thing->z > 24 * FRACUNIT)
         {
             goto pushline;

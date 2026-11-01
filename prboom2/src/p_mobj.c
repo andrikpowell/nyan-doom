@@ -889,14 +889,8 @@ floater:
           P_FloorBounceMissile(mo);
           return;
         }
-        else if (
-          raven && (
-            mo->type == HERETIC_MT_MNTRFX2 ||
-            mo->type == HEXEN_MT_MNTRFX2 ||
-            mo->type == HEXEN_MT_LIGHTNING_FLOOR
-          )
-        )
-        {                   // Minotaur floor fire can go up steps
+        else if (mo->flags3 & MF3_FLOORMISSILE)
+        {                   // Floor missiles can go up steps (Ex: Minotaur floor fire / Mage lightning)
           return;
         }
         else if (hexen && mo->type == HEXEN_MT_HOLY_FX)
@@ -1122,7 +1116,7 @@ floater:
 
     if ((mo->flags & MF_MISSILE) && (hexen || !(mo->flags & MF_NOCLIP)))
     {
-      if (hexen && mo->type == HEXEN_MT_LIGHTNING_CEILING)
+      if (mo->flags3 & MF3_CEILINGMISSILE) // HEXEN_MT_LIGHTNING_CEILING
       {
         return;
       }
@@ -3050,6 +3044,20 @@ mobj_t* P_SpawnMissile(mobj_t* source,mobj_t* dest,mobjtype_t type)
   {
     z = source->z + 32 * FRACUNIT;
   }
+  else if (mobjinfo[type].flags3 & MF3_FLOORMISSILE)
+  {
+    z = ONFLOORZ;
+
+    // Vanilla Heretic does not allow minotaur attack in liquids
+    if (!exdefs) {
+      if (heretic && source->flags2 & MF2_FEETARECLIPPED)
+        z -= FOOTCLIPSIZE;
+    }
+  }
+  else if (mobjinfo[type].flags3 & MF3_CEILINGMISSILE)
+  {
+    z = ONCEILINGZ;
+  }
   else
   {
     switch (type)
@@ -3059,12 +3067,6 @@ mobj_t* P_SpawnMissile(mobj_t* source,mobj_t* dest,mobjtype_t type)
       case HEXEN_MT_ICEGUY_FX:
       case HEXEN_MT_HOLY_MISSILE:
         z = source->z + 40 * FRACUNIT;
-        break;
-      case HERETIC_MT_MNTRFX2:       // Minotaur floor fire missile
-        z = ONFLOORZ;
-        break;
-      case HEXEN_MT_MNTRFX2:         // Minotaur floor fire missile
-        z = ONFLOORZ + source->floorclip;
         break;
       case HERETIC_MT_SRCRFX1:       // Sorcerer Demon fireball
         z = source->z + 48 * FRACUNIT;
@@ -3148,12 +3150,12 @@ mobj_t* P_SpawnPlayerMissile(mobj_t* source, mobjtype_t type)
   }
   else
   {
-    if (type == HEXEN_MT_LIGHTNING_FLOOR)
+    if (mobjinfo[type].flags3 & MF3_FLOORMISSILE) // HEXEN_MT_LIGHTNING_FLOOR
     {
       z = ONFLOORZ;
       aim.slope = 0;
     }
-    else if (type == HEXEN_MT_LIGHTNING_CEILING)
+    else if (mobjinfo[type].flags3 & MF3_CEILINGMISSILE) // HEXEN_MT_LIGHTNING_CEILING
     {
       z = ONCEILINGZ;
       aim.slope = 0;
@@ -3357,37 +3359,48 @@ mobj_t *P_SpawnMissileAngle(mobj_t * source, mobjtype_t type, angle_t angle, fix
     fixed_t z;
     mobj_t *mo;
 
-    switch (type)
+    if (mobjinfo[type].flags3 & MF3_FLOORMISSILE)
     {
-        case HERETIC_MT_MNTRFX1:       // Minotaur swing attack missile
-        case HEXEN_MT_MNTRFX1:         // Minotaur swing attack missile
-        case HEXEN_MT_MSTAFF_FX2:
-            z = source->z + 40 * FRACUNIT;
-            break;
-        case HEXEN_MT_MNTRFX2:       // Minotaur floor fire missile
-            z = ONFLOORZ + source->floorclip;
-            break;
-        case HERETIC_MT_MNTRFX2:       // Minotaur floor fire missile
-            z = ONFLOORZ;
-            break;
-        case HERETIC_MT_SRCRFX1:       // Sorcerer Demon fireball
-            z = source->z + 48 * FRACUNIT;
-            break;
-        case HEXEN_MT_ICEGUY_FX2:    // Secondary Projectiles of the Ice Guy
-            z = source->z + 3 * FRACUNIT;
-            break;
-        default:
-            z = source->z + 32 * FRACUNIT;
-            break;
-    }
+        z = ONFLOORZ;
 
-    if (hexen)
-    {
-        z -= source->floorclip;
+        // Vanilla Heretic does not allow minotaur attack in liquids
+        if (!exdefs) {
+          if (heretic && source->flags2 & MF2_FEETARECLIPPED)
+            z -= FOOTCLIPSIZE;
+        }
     }
-    else if (source->flags2 & MF2_FEETARECLIPPED)
+    else if (mobjinfo[type].flags3 & MF3_CEILINGMISSILE)
     {
-        z -= FOOTCLIPSIZE;
+        z = ONCEILINGZ;
+    }
+    else
+    {
+        switch (type)
+        {
+            case HERETIC_MT_MNTRFX1:       // Minotaur swing attack missile
+            case HEXEN_MT_MNTRFX1:         // Minotaur swing attack missile
+            case HEXEN_MT_MSTAFF_FX2:
+                z = source->z + 40 * FRACUNIT;
+                break;
+            case HERETIC_MT_SRCRFX1:       // Sorcerer Demon fireball
+                z = source->z + 48 * FRACUNIT;
+                break;
+            case HEXEN_MT_ICEGUY_FX2:    // Secondary Projectiles of the Ice Guy
+                z = source->z + 3 * FRACUNIT;
+                break;
+            default:
+                z = source->z + 32 * FRACUNIT;
+                break;
+        }
+
+        if (hexen)
+        {
+            z -= source->floorclip;
+        }
+        else if (source->flags2 & MF2_FEETARECLIPPED)
+        {
+            z -= FOOTCLIPSIZE;
+        }
     }
 
     mo = P_SpawnMobj(source->x, source->y, z, type);
