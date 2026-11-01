@@ -136,7 +136,7 @@ void R_InterpolateView(player_t *player, fixed_t frac)
       P_ResetWalkcam();
     }
 
-    if (walkcamera.type != 2)
+    if (!P_WalkCameraDetached())
     {
       viewx = player->mo->PrevX + FixedMul (frac, player->mo->x - player->mo->PrevX);
       viewy = player->mo->PrevY + FixedMul (frac, player->mo->y - player->mo->PrevY);
@@ -162,7 +162,7 @@ void R_InterpolateView(player_t *player, fixed_t frac)
   }
   else
   {
-    if (walkcamera.type != 2)
+    if (!P_WalkCameraDetached())
     {
       viewx = player->mo->x;
       viewy = player->mo->y;

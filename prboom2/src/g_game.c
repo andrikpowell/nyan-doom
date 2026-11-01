@@ -197,6 +197,7 @@ milestone_t     complete_milestones; // [Nugget]
 
 dboolean coop_spawns;
 dboolean skill_loadout;
+dboolean casual_freecamera;
 
 // e6y
 // There is a new command-line switch "-shorttics".
@@ -1042,6 +1043,20 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       }
     }
   }
+
+  // Free camera controls the camera instead of the player
+  if (casual_play && casual_freecamera && gamestate == GS_LEVEL)
+  {
+    int buttons = cmd->buttons & BT_SPECIAL ? cmd->buttons : 0;
+    excmd_t ex = cmd->ex;
+
+    ex.actions &= ~XC_LOOK;
+    ex.look = 0;
+
+    memset(cmd, 0, sizeof(*cmd));
+    cmd->buttons = buttons;
+    cmd->ex = ex;
+  }
 }
 
 static void G_SetInitialHealth(player_t *p)
@@ -1354,7 +1369,7 @@ dboolean G_Responder (event_t* ev)
 
       value = mouse_sensitivity_horiz * AccelerateMouse(ev->data1.i);
       mousex += G_CarryDouble(carry_mousex, value);
-      if (dsda_FreeAim())
+      if (dsda_FreeAim() || P_WalkCameraFreeAim())
       {
         value = mouse_sensitivity_mlook * AccelerateMouse(ev->data2.i);
         if (dsda_IntConfig(dsda_config_movement_mouseinvert))
@@ -1382,7 +1397,7 @@ dboolean G_Responder (event_t* ev)
       dsda_WatchGameControllerEvent();
 
       mousex += AccelerateAnalog(ev->data1.f);
-      if (dsda_FreeAim())
+      if (dsda_FreeAim() || P_WalkCameraFreeAim())
       {
         if (dsda_IntConfig(dsda_config_invert_analog_look))
           mlooky += AccelerateAnalog(ev->data2.f);
@@ -2922,7 +2937,8 @@ void G_DoNewGame (void)
 
   //jff 4/26/98 wake up the status bar in case were coming out of a DM demo
   ST_Start();
-  walkcamera.type=0; //e6y
+  walkcamera.type = walkcamera_off; //e6y
+  casual_freecamera = false;
 }
 
 // killough 4/10/98: New function to fix bug which caused Doom
@@ -4154,6 +4170,7 @@ void P_WalkTicker()
   int turnheld;
   int forward;
   int side;
+  int vertical;
   int angturn;
 
   if (!walkcamera.type || menuactive)
@@ -4164,7 +4181,7 @@ void P_WalkTicker()
   strafe = dsda_InputActive(dsda_input_strafe);
   speed = dsda_AutoRun() || dsda_InputActive(dsda_input_speed); // phares
 
-  forward = side = 0;
+  forward = side = vertical = 0;
   angturn = 0;
   turnheld = 0;
 
@@ -4216,18 +4233,38 @@ void P_WalkTicker()
   G_ConvertAnalogMotion(speed, &forward, &side);
 
   walkcamera.angle += ((angturn / 8) << ANGLETOFINESHIFT);
-  if (dsda_FreeAim())
+  if (dsda_FreeAim() || P_WalkCameraFreeAim())
   {
     walkcamera.pitch += ((mlooky / 8) << ANGLETOFINESHIFT);
     CheckPitch((signed int *) &walkcamera.pitch);
+
+    // Limit pitch in software mode
+    if (!V_IsOpenGLMode())
+    {
+      if ((int)walkcamera.pitch < (int) raven_angle_up_limit)
+        walkcamera.pitch = raven_angle_up_limit;
+
+      if ((int)walkcamera.pitch > (int) raven_angle_down_limit)
+        walkcamera.pitch = raven_angle_down_limit;
+    }
+  }
+  else if (walkcamera.type == walkcamera_free)
+  {
+    // If freeaim is disabled, don't allow looking up or down
+    // and reset camera pitch
+    walkcamera.pitch = 0;
   }
 
   if (dsda_InputActive(dsda_input_fire))
   {
-    walkcamera.x = players[0].mo->x;
-    walkcamera.y = players[0].mo->y;
-    walkcamera.angle = players[0].mo->angle;
-    walkcamera.pitch = dsda_PlayerPitch(&players[0]);
+    // for mulitplayer demos, let's use displayplayer instead of players[0]
+    player_t *player = &players[displayplayer];
+
+    walkcamera.x = player->mo->x;
+    walkcamera.y = player->mo->y;
+    walkcamera.z = player->viewz;
+    walkcamera.angle = player->mo->angle;
+    walkcamera.pitch = dsda_PlayerPitch(player);
   }
 
   if (forward > MAXPLMOVE)
@@ -4239,11 +4276,37 @@ void P_WalkTicker()
   else if (side < -MAXPLMOVE)
     side = -MAXPLMOVE;
 
+  // Allow fly keys for freecam
+  if (walkcamera.type == walkcamera_free)
+  {
+    if (dsda_InputActive(dsda_input_flyup))
+      vertical += forwardmove[speed];
+    if (dsda_InputActive(dsda_input_flydown))
+      vertical -= forwardmove[speed];
+  }
+
   // moving forward
-  walkcamera.x += FixedMul ((ORIG_FRICTION / 4) * forward,
-          finecosine[walkcamera.angle >> ANGLETOFINESHIFT]);
-  walkcamera.y += FixedMul ((ORIG_FRICTION / 4) * forward,
-          finesine[walkcamera.angle >> ANGLETOFINESHIFT]);
+  {
+    fixed_t angle_x = finecosine[walkcamera.angle >> ANGLETOFINESHIFT];
+    fixed_t angle_y = finesine[walkcamera.angle >> ANGLETOFINESHIFT];
+    fixed_t move = (ORIG_FRICTION / 4) * forward;
+
+    if (walkcamera.type == walkcamera_free)
+    {
+      angle_t pitch = walkcamera.pitch >> ANGLETOFINESHIFT;
+      fixed_t horiz_move = FixedMul(move, finecosine[pitch]);
+
+      walkcamera.x += FixedMul(horiz_move, angle_x);
+      walkcamera.y += FixedMul(horiz_move, angle_y);
+      walkcamera.z -= FixedMul(move, finesine[pitch]);
+      walkcamera.z += (ORIG_FRICTION / 4) * vertical;
+    }
+    else
+    {
+      walkcamera.x += FixedMul (move, angle_x);
+      walkcamera.y += FixedMul (move, angle_y);
+    }
+  }
 
   // strafing
   walkcamera.x += FixedMul ((ORIG_FRICTION / 6) * side,
@@ -4252,6 +4315,8 @@ void P_WalkTicker()
   walkcamera.y += FixedMul ((ORIG_FRICTION / 6) * side,
         finesine[(walkcamera.angle - ANG90) >> ANGLETOFINESHIFT]);
 
+  // snap to floor
+  if (walkcamera.type != walkcamera_free)
   {
     sector_t *sec = R_PointInSector (walkcamera.x, walkcamera.y);
     walkcamera.z = sec->floorheight + 41 * FRACUNIT;
@@ -4289,8 +4354,50 @@ void P_SyncWalkcam(dboolean sync_coords, dboolean sync_sight)
     {
       walkcamera.x = players[displayplayer].mo->x;
       walkcamera.y = players[displayplayer].mo->y;
+      walkcamera.z = players[displayplayer].viewz;
     }
   }
+}
+
+dboolean P_WalkCameraDetached(void)
+{
+  return walkcamera.type == walkcamera_walk ||
+         walkcamera.type == walkcamera_free;
+}
+
+dboolean P_WalkCameraFreeAim(void) {
+  return !demorecording &&
+         walkcamera.type != walkcamera_off &&
+         dsda_IntConfig(dsda_config_freelook);
+}
+
+void P_ToggleFreecam(void)
+{
+  player_t *player;
+
+  if (!casual_play || gamestate != GS_LEVEL)
+    return;
+
+  casual_freecamera = !casual_freecamera;
+  player = &players[displayplayer];
+
+  if (casual_freecamera && player->mo)
+  {
+    walkcamera.type = walkcamera_free;
+    walkcamera.x = walkcamera.PrevX = player->mo->x;
+    walkcamera.y = walkcamera.PrevY = player->mo->y;
+    walkcamera.z = walkcamera.PrevZ = player->viewz;
+    walkcamera.angle = walkcamera.PrevAngle = player->mo->angle;
+    walkcamera.pitch = walkcamera.PrevPitch = dsda_PlayerPitch(player);
+  }
+  else
+  {
+    walkcamera.type = walkcamera_off;
+    R_SmoothPlaying_Reset(NULL);
+  }
+
+  R_ResetViewInterpolation();
+  M_ChangeApplyPalette();
 }
 
 //e6y

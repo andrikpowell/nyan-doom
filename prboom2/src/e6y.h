@@ -44,6 +44,15 @@
 #define FOV_CORRECTION_FACTOR (1.13776f)
 #define FOV90 (90)
 
+typedef enum
+{
+  walkcamera_off,
+  walkcamera_player,
+  walkcamera_walk,
+  walkcamera_free,
+  walkcamera_mode_count
+} walkcamera_mode_t;
+
 typedef struct camera_s
 {
   fixed_t x;
@@ -56,7 +65,7 @@ typedef struct camera_s
   angle_t pitch;
   angle_t PrevAngle;
   angle_t PrevPitch;
-  int type;
+  walkcamera_mode_t type;
 } camera_t;
 
 extern dboolean wasWiped;
@@ -97,6 +106,9 @@ void e6y_InitCommandLine(void);
 void P_WalkTicker ();
 void P_SyncWalkcam(dboolean sync_coords, dboolean sync_sight);
 void P_ResetWalkcam(void);
+void P_ToggleFreecam(void);
+dboolean P_WalkCameraDetached(void);
+dboolean P_WalkCameraFreeAim(void);
 
 extern dboolean sound_inited_once;
 void e6y_I_uSleep(unsigned long usecs);

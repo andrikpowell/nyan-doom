@@ -124,4 +124,6 @@ void dsda_WatchGameControllerEvent(void);
 void dsda_WatchMouseEvent(void);
 void dsda_LiftInputRestrictions(void);
 
+dboolean dsda_FreeCamera(void);
+
 #endif

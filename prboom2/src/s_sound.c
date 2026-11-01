@@ -1191,7 +1191,7 @@ static mobj_t* GetSoundListener(void)
 
   if (players[displayplayer].mo != NULL)
   {
-    if (walkcamera.type > 1)
+    if (P_WalkCameraDetached())
     {
       static mobj_t walkcamera_listener;
 

@@ -1296,8 +1296,8 @@ static dboolean M_MouseResponder(event_t *ev)
 
   if (!menuactive && !messageToPrint)
   {
-    dboolean click_to_open_menu = (gamestate == GS_DEMOSCREEN ||
-                                  reelplayback);
+    dboolean click_to_open_menu = (gamestate == GS_DEMOSCREEN || reelplayback) &&
+                                  (walkcamera.type == walkcamera_off);
 
     if (click_to_open_menu && ev->type == ev_mouse &&
         (ev->data1.i & MENU_MOUSE_LEFT))
