@@ -1217,6 +1217,83 @@ static void P_ConvertPlayerArmor(player_t *player, pclass_t old_class, pclass_t 
     }
 }
 
+static void P_SetHexenPlayerTranslation(player_t *player, pclass_t pclass)
+{
+    int playerNum = P_GetPlayerNum(player);
+
+    if (pclass == PCLASS_FIGHTER)
+    {
+        // The first type should be blue, and the third should be the
+        // Fighter's original gold color
+        if (playerNum == 0)
+        {
+            player->mo->flags |= 2 << MF_TRANSSHIFT; // MF_TRANSLATION2;
+        }
+        else if (playerNum != 2)
+        {
+            player->mo->flags |= playerNum << MF_TRANSSHIFT;
+        }
+    }
+    else if (playerNum)
+    {                           // Set color translation bits for player sprites
+        player->mo->flags |= playerNum << MF_TRANSSHIFT;
+    }
+}
+
+static void P_ReplaceHexenPlayerMobj(player_t *player, pclass_t pclass)
+{
+    mobj_t *old_mobj = player->mo;
+    mobj_t *new_mobj;
+    mobjtype_t type;
+    fixed_t x = old_mobj->x;
+    fixed_t y = old_mobj->y;
+    fixed_t z = old_mobj->z;
+    fixed_t momx = old_mobj->momx;
+    fixed_t momy = old_mobj->momy;
+    fixed_t momz = old_mobj->momz;
+    angle_t angle = old_mobj->angle;
+    angle_t pitch = old_mobj->pitch;
+    uint64_t flags = old_mobj->flags;
+    uint64_t flags2 = old_mobj->flags2;
+
+    switch (pclass)
+    {
+        case PCLASS_FIGHTER:
+            type = HEXEN_MT_PLAYER_FIGHTER;
+            break;
+        case PCLASS_CLERIC:
+            type = HEXEN_MT_PLAYER_CLERIC;
+            break;
+        case PCLASS_MAGE:
+            type = HEXEN_MT_PLAYER_MAGE;
+            break;
+        default:
+            return;
+    }
+
+    P_SetMobjState(old_mobj, HEXEN_S_FREETARGMOBJ);
+    new_mobj = P_SpawnMobj(x, y, z, type);
+
+    new_mobj->angle = angle;
+    new_mobj->pitch = pitch;
+    new_mobj->momx = momx;
+    new_mobj->momy = momy;
+    new_mobj->momz = momz;
+    new_mobj->health = player->health;
+    new_mobj->player = player;
+
+    P_SetHexenPlayerTranslation(player, pclass);
+
+    // Follow morph flag behavior
+    if (flags2 & MF2_FLY)
+    {
+        new_mobj->flags2 |= MF2_FLY;
+        new_mobj->flags |= MF_NOGRAVITY;
+    }
+
+    player->mo = new_mobj;
+}
+
 // Keep the current weapon slot if available
 // [AR] TODO: Check if this is really how KEX works
 static weapontype_t P_ChangePlayerClassWeapon(player_t *player, pclass_t pclass, weapontype_t weapon)
@@ -1291,6 +1368,7 @@ dboolean P_ChangePlayerClass(player_t *player, pclass_t new_class, dboolean spaw
     else
     {
         player->pclass = new_class;
+        P_ReplaceHexenPlayerMobj(player, new_class);
         P_PostMorphWeapon(player, weapon);
     }
 
@@ -2047,23 +2125,7 @@ dboolean P_UndoPlayerMorph(player_t * player)
         player->morphTics = 2 * 35;
         return (false);
     }
-    if (player->pclass == PCLASS_FIGHTER)
-    {
-        // The first type should be blue, and the third should be the
-        // Fighter's original gold color
-        if (playerNum == 0)
-        {
-            mo->flags |= 2 << MF_TRANSSHIFT;
-        }
-        else if (playerNum != 2)
-        {
-            mo->flags |= playerNum << MF_TRANSSHIFT;
-        }
-    }
-    else if (playerNum)
-    {                           // Set color translation bits for player sprites
-        mo->flags |= playerNum << MF_TRANSSHIFT;
-    }
+    P_SetHexenPlayerTranslation(player, player->pclass);
     mo->angle = angle;
     mo->player = player;
     mo->reactiontime = 18;
