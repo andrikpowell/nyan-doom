@@ -1,4 +1,5 @@
 if(UNIX AND NOT APPLE)
     install(FILES nyan-doom.desktop DESTINATION share/applications)
     install(FILES nyan-doom.svg DESTINATION share/icons/hicolor/scalable/apps)
+    install(FILES nyan-doom-256.png DESTINATION share/icons/hicolor/256x256/apps RENAME nyan-doom.png)
 endif()
