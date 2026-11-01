@@ -358,40 +358,30 @@ void P_HandleExCmdLook(player_t* player)
   }
 }
 
-static void P_FreeAim_VerticalThrust(player_t* player, fixed_t move)
+static void P_Raven_VerticalThrust(player_t* player, angle_t angle, fixed_t move, int fly)
 {
-  fixed_t slope;
+  if (dsda_FreeAimFlying() && player->mo->pitch != 0)
+  {
+    fixed_t oldmove = move;
+    angle_t pitch = player->mo->pitch >> ANGLETOFINESHIFT;
+    fixed_t zpush = FixedMul(move, finesine[pitch]);
+    fixed_t newmove;
 
-  if (!dsda_FreeAimFlying())
-    return;
+    angle >>= ANGLETOFINESHIFT;
 
-  slope = finetangent[(ANG90 - player->mo->pitch) >> ANGLETOFINESHIFT];
+    // Raven up / down flight takes priority over pitch
+    // Add Vertical push
+    if (!fly)
+      player->mo->momz -= zpush;
 
-  player->flyheight += (FixedMul(move, slope) >> (FRACBITS - 3));
+    // Get left over Horizontal push
+    move = FixedMul(move, finecosine[pitch]);
 
-  // Clamp flyheight to max fly speed
-  // (fixes insane flyheight changes when looking directly up or down)
-  if (player->flyheight > 10)   player->flyheight = 10;
-  if (player->flyheight < -10)  player->flyheight = -10;
-}
+    // Remove some of the horizontal push, after vertical push was added
+    newmove = move - oldmove;
 
-static void P_FreeAim_ForwardThrust(player_t* player, fixed_t move)
-{
-  angle_t angle;
-  angle_t pitch;
-  fixed_t horizontal_move;
-  fixed_t vertical_move;
-
-  if (!dsda_FreeAimFlying())
-    return;
-
-  angle = player->mo->angle >> ANGLETOFINESHIFT;
-  pitch = player->mo->pitch >> ANGLETOFINESHIFT;
-  horizontal_move = FixedMul(move, finecosine[pitch]);
-  vertical_move = FixedMul(move, finesine[pitch]);
-
-  map_format.player_thrust(player, angle, horizontal_move - move);
-  player->mo->momz -= vertical_move << 3;
+    map_format.player_thrust(player, angle, newmove);
+  }
 }
 
 void P_MovePlayer (player_t* player)
@@ -455,11 +445,6 @@ void P_MovePlayer (player_t* player)
           P_Bob(player,mo->angle-ANG90,cmd->sidemove*bobfactor);
           P_Thrust(player,mo->angle-ANG90,cmd->sidemove*movefactor);
         }
-
-        if (cmd->forwardmove && mo->flags & MF_FLY)
-        {
-          P_FreeAim_VerticalThrust(player,cmd->forwardmove*movefactor);
-        }
       }
       else if (map_aircontrol)
       {
@@ -477,11 +462,6 @@ void P_MovePlayer (player_t* player)
         {
           P_Bob(player, mo->angle - ANG90, cmd->sidemove * movefactor);
           P_Thrust(player, player->mo->angle - ANG90, cmd->sidemove * movefactor);
-        }
-
-        if (cmd->forwardmove && mo->flags & MF_FLY)
-        {
-          P_FreeAim_VerticalThrust(player,cmd->forwardmove*movefactor);
         }
       }
       if (mo->state == states+S_PLAY)
@@ -1622,22 +1602,27 @@ void Raven_P_MovePlayer(player_t * player)
     }
     if (player->mo->flags2 & MF2_FLY)
     {
-        player->mo->momz = player->flyheight * FRACUNIT;
+        // Apply classic flight or explicit up/down movement
+        if (!dsda_FreeAimFlying() || player->flyheight)
+        {
+            player->mo->momz = player->flyheight * FRACUNIT;
+        }
         if (player->flyheight)
         {
             player->flyheight /= 2;
         }
     }
 
+    // Raven freeaim flying
     if (cmd->forwardmove && player->mo->flags2 & MF2_FLY)
     {
       if (player->chickenTics) // Chicken speed
       {
-        P_FreeAim_ForwardThrust(player,cmd->forwardmove*2500);
+        P_Raven_VerticalThrust(player,player->mo->angle,cmd->forwardmove*2500,fly);
       }
       else // Normal speed
       {
-        P_FreeAim_ForwardThrust(player,cmd->forwardmove*2048);
+        P_Raven_VerticalThrust(player,player->mo->angle,cmd->forwardmove*2048,fly);
       }
     }
 }
