@@ -859,10 +859,17 @@ floater:
     mo->momz = FixedMul (mo->momz, FRICTION_FLY);
   }
 
+  // Keep enhanced Raven flight momentum instead of resetting it every tic
+  if (mo->player && (mo->flags2 & MF2_FLY) && dsda_FreeAimFlying()
+      && (mo->z > mo->floorz))
+  {
+    mo->momz = FixedMul(mo->momz, FRICTION_FLY);
+  }
+
   if (mo->player && mo->flags2 & MF2_FLY && !(mo->z <= mo->floorz)
       && leveltime & 2)
   {
-      if (!dsda_CameraMode())
+      if (!dsda_CameraMode())  // Remove bobbing for camera mode
         mo->z += finesine[(FINEANGLES / 20 * leveltime >> 2) & FINEMASK];
   }
 
