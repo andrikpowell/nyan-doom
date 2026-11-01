@@ -1221,6 +1221,10 @@ static void P_SetHexenPlayerTranslation(player_t *player, pclass_t pclass)
 {
     int playerNum = P_GetPlayerNum(player);
 
+    // Vanilla had a bug which reset the fighter color to be wrong
+    // so since we call this later to fix it, we must clear translation flags
+    player->mo->flags &= ~MF_TRANSLATION;
+
     if (pclass == PCLASS_FIGHTER)
     {
         // The first type should be blue, and the third should be the
@@ -1282,8 +1286,6 @@ static void P_ReplaceHexenPlayerMobj(player_t *player, pclass_t pclass)
     new_mobj->health = player->health;
     new_mobj->player = player;
 
-    P_SetHexenPlayerTranslation(player, pclass);
-
     // Follow morph flag behavior
     if (flags2 & MF2_FLY)
     {
@@ -1292,6 +1294,7 @@ static void P_ReplaceHexenPlayerMobj(player_t *player, pclass_t pclass)
     }
 
     player->mo = new_mobj;
+    P_SetHexenPlayerTranslation(player, pclass);
 }
 
 // Keep the current weapon slot if available
@@ -2125,7 +2128,6 @@ dboolean P_UndoPlayerMorph(player_t * player)
         player->morphTics = 2 * 35;
         return (false);
     }
-    P_SetHexenPlayerTranslation(player, player->pclass);
     mo->angle = angle;
     mo->player = player;
     mo->reactiontime = 18;
@@ -2138,6 +2140,7 @@ dboolean P_UndoPlayerMorph(player_t * player)
     player->health = mo->health = MAXHEALTH;
     player->mo = mo;
     player->pclass = PlayerClass[playerNum];
+    P_SetHexenPlayerTranslation(player, player->pclass);
     angle >>= ANGLETOFINESHIFT;
     fog = P_SpawnMobj(x + 20 * finecosine[angle],
                       y + 20 * finesine[angle], z + TELEFOGHEIGHT, HEXEN_MT_TFOG);
