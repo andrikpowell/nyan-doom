@@ -2188,7 +2188,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [nyan_config_chasecam] = {
     "chasecam", nyan_config_chasecam,
-    dsda_config_int, 0, 2, { 0 }, NULL, NOT_STRICT
+    dsda_config_int, 0, 2, { 0 }, NULL, STRICT_INT(0)
   },
   [nyan_config_chasecam_distance] = {
     "chasecam_distance", nyan_config_chasecam_distance,
@@ -2200,7 +2200,7 @@ dsda_config_t dsda_config[dsda_config_count] = {
   },
   [nyan_config_death_camera] = {
     "death_camera", nyan_config_death_camera,
-    CONF_BOOL(0), NULL, NOT_STRICT
+    CONF_BOOL(0), NULL, STRICT_INT(0)
   },
   [nyan_config_colored_blood] = {
     "nyan_colored_blood", nyan_config_colored_blood,

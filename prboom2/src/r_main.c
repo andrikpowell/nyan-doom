@@ -1194,12 +1194,12 @@ dboolean R_ChasecamOn(void)
   if (gamestate != GS_LEVEL || walkcamera.type)
     return false;
 
-  if (dsda_IntConfig(nyan_config_chasecam))
+  if (dsda_ChasecamMode() != chasecam_off)
     return true;
 
   player = &players[displayplayer];
 
-  return dsda_IntConfig(nyan_config_death_camera) &&
+  return dsda_Deathcam() &&
          player->mo &&
          player->mo->health <= 0 &&
          player->playerstate == PST_DEAD;
@@ -1224,7 +1224,7 @@ static void R_ApplyChasecam(player_t *player)
   if (!R_ChasecamOn() || !player->mo)
     return;
 
-  mode = dsda_IntConfig(nyan_config_chasecam);
+  mode = dsda_ChasecamMode();
 
   // Death camera uses the normal rear view
   if (mode == chasecam_off)

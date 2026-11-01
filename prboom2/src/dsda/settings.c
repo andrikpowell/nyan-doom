@@ -391,6 +391,16 @@ dboolean dsda_MapTitle(void) {
   return dsda_IntConfig(dsda_config_map_title);
 }
 
+int dsda_ChasecamMode(void) {
+  if (!casual_play) return false;
+
+  return dsda_IntConfig(nyan_config_chasecam);
+}
+
+dboolean dsda_Deathcam(void) {
+  return casual_play && dsda_IntConfig(nyan_config_death_camera);
+}
+
 dboolean dsda_FreeCamera(void) {
   return (casual_play && casual_freecamera) ||
          (demoplayback && walkcamera.type == walkcamera_free);
