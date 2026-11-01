@@ -3411,6 +3411,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3419,7 +3420,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR | MF_NOGRAVITY,        // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MAPSPOTGRAVITY
@@ -3438,6 +3440,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3446,7 +3449,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     MF2_DONTDRAW               // flags2
+     MF2_DONTDRAW,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIREBALL1
@@ -3465,6 +3469,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FIREBALL1_X1,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_fireball,              // deathsound
      2 * FRACUNIT,              // speed
      8 * FRACUNIT,              // radius
@@ -3473,7 +3478,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE,   // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARROW
@@ -3492,6 +3498,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ARROW_X1,                // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      6 * FRACUNIT,              // speed
      8 * FRACUNIT,              // radius
@@ -3500,7 +3507,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DART
@@ -3519,6 +3527,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DART_X1,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      6 * FRACUNIT,              // speed
      8 * FRACUNIT,              // radius
@@ -3527,7 +3536,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_POISONDART
@@ -3546,6 +3556,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_POISONDART_X1,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      6 * FRACUNIT,              // speed
      8 * FRACUNIT,              // radius
@@ -3554,7 +3565,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_RIPPERBALL
@@ -3573,6 +3585,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_RIPPERBALL_X1,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      6 * FRACUNIT,              // speed
      8 * FRACUNIT,              // radius
@@ -3581,7 +3594,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_RIP   // flags2
+     MF2_NOTELEPORT | MF2_RIP,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_PROJECTILE_BLADE
@@ -3600,6 +3614,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_PRJ_BLADE_X1,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      6 * FRACUNIT,              // speed
      6 * FRACUNIT,              // radius
@@ -3608,7 +3623,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      3,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ICESHARD
@@ -3627,6 +3643,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SHARDFXE1_1,             // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_mage_shards_explode,   // deathsound
      25 * FRACUNIT,             // speed
      13 * FRACUNIT,             // radius
@@ -3635,7 +3652,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_ICEDAMAGE     // flags2
+     MF2_NOTELEPORT | MF2_ICEDAMAGE,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FLAME_SMALL_TEMP
@@ -3654,6 +3672,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3662,7 +3681,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FLAME_LARGE_TEMP
@@ -3681,6 +3701,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3689,7 +3710,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FLAME_SMALL
@@ -3708,6 +3730,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3716,7 +3739,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     MF2_NOTELEPORT | MF2_DONTDRAW      // flags2
+     MF2_NOTELEPORT | MF2_DONTDRAW,     // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FLAME_LARGE
@@ -3735,6 +3759,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3743,7 +3768,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     MF2_NOTELEPORT | MF2_DONTDRAW      // flags2
+     MF2_NOTELEPORT | MF2_DONTDRAW,     // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_HEALINGBOTTLE
@@ -3762,6 +3788,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3770,7 +3797,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_HEALTHFLASK
@@ -3789,6 +3817,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3797,7 +3826,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIFLY
@@ -3816,6 +3846,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3824,7 +3855,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIINVULNERABILITY
@@ -3843,6 +3875,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3851,7 +3884,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SUMMONMAULATOR
@@ -3870,6 +3904,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3878,7 +3913,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SUMMON_FX
@@ -3897,6 +3933,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SUMMON_FX2_1,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      20 * FRACUNIT,             // speed
      20 * FRACUNIT,             // radius
@@ -3905,7 +3942,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_MISSILE | MF_DROPOFF | MF_NOBLOCKMAP,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_THRUSTFLOOR_UP
@@ -3924,6 +3962,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3932,7 +3971,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_THRUSTFLOOR_DOWN
@@ -3951,6 +3991,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3959,7 +4000,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP | MF2_DONTDRAW      // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP | MF2_DONTDRAW,     // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TELEPORTOTHER
@@ -3978,6 +4020,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3986,7 +4029,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TELOTHER_FX1
@@ -4005,6 +4049,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_TELO_FX9,                // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      20 * FRACUNIT,             // speed
      16 * FRACUNIT,             // radius
@@ -4013,7 +4058,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      10001,                     // damage
      sfx_None,                  // activesound
      MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY | MF_NOBLOCKMAP,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TELOTHER_FX2
@@ -4032,6 +4078,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_TELO_FX9,                // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      16 * FRACUNIT,             // speed
      16 * FRACUNIT,             // radius
@@ -4040,7 +4087,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      10001,                     // damage
      sfx_None,                  // activesound
      MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY | MF_NOBLOCKMAP,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TELOTHER_FX3
@@ -4059,6 +4107,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_TELO_FX9,                // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      16 * FRACUNIT,             // speed
      16 * FRACUNIT,             // radius
@@ -4067,7 +4116,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      10001,                     // damage
      sfx_None,                  // activesound
      MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY | MF_NOBLOCKMAP,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TELOTHER_FX4
@@ -4086,6 +4136,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_TELO_FX9,                // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      16 * FRACUNIT,             // speed
      16 * FRACUNIT,             // radius
@@ -4094,7 +4145,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      10001,                     // damage
      sfx_None,                  // activesound
      MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY | MF_NOBLOCKMAP,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TELOTHER_FX5
@@ -4113,6 +4165,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_TELO_FX9,                // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      16 * FRACUNIT,             // speed
      16 * FRACUNIT,             // radius
@@ -4121,7 +4174,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      10001,                     // damage
      sfx_None,                  // activesound
      MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY | MF_NOBLOCKMAP,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DIRT1
@@ -4140,6 +4194,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DIRT1_D,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4148,7 +4203,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DIRT2
@@ -4167,6 +4223,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DIRT2_D,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4175,7 +4232,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DIRT3
@@ -4194,6 +4252,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DIRT3_D,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4202,7 +4261,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DIRT4
@@ -4221,6 +4281,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DIRT4_D,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4229,7 +4290,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT | MF2_LOGRAV        // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DIRT5
@@ -4248,6 +4310,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DIRT5_D,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4256,7 +4319,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT | MF2_LOGRAV        // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DIRT6
@@ -4275,6 +4339,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DIRT6_D,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4283,7 +4348,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT | MF2_LOGRAV        // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DIRTCLUMP
@@ -4302,6 +4368,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4310,7 +4377,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ROCK1
@@ -4329,6 +4397,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ROCK1_D,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4337,7 +4406,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ROCK2
@@ -4356,6 +4426,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ROCK2_D,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4364,7 +4435,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ROCK3
@@ -4383,6 +4455,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ROCK3_D,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4391,7 +4464,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FOGSPAWNER
@@ -4410,6 +4484,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4418,7 +4493,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
-     MF2_DONTDRAW | MF2_FLOATBOB        // flags2
+     MF2_DONTDRAW | MF2_FLOATBOB,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FOGPATCHS
@@ -4437,6 +4513,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FOGPATCHS0,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      FRACUNIT,                  // speed
      20 * FRACUNIT,             // radius
@@ -4445,7 +4522,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_FLOAT | MF_NOGRAVITY | MF_SHADOW | MF_NOCLIP,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FOGPATCHM
@@ -4464,6 +4542,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FOGPATCHM0,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      FRACUNIT,                  // speed
      20 * FRACUNIT,             // radius
@@ -4472,7 +4551,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_FLOAT | MF_NOGRAVITY | MF_SHADOW | MF_NOCLIP,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FOGPATCHL
@@ -4491,6 +4571,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FOGPATCHL0,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      FRACUNIT,                  // speed
      20 * FRACUNIT,             // radius
@@ -4499,7 +4580,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_FLOAT | MF_NOGRAVITY | MF_SHADOW | MF_NOCLIP,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_QUAKE_FOCUS
@@ -4518,6 +4600,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4526,7 +4609,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
-     MF2_DONTDRAW               // flags2
+     MF2_DONTDRAW,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SGSHARD1
@@ -4545,6 +4629,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SGSHARD1_D,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -4553,7 +4638,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SGSHARD2
@@ -4572,6 +4658,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SGSHARD2_D,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -4580,7 +4667,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SGSHARD3
@@ -4599,6 +4687,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SGSHARD3_D,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -4607,7 +4696,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SGSHARD4
@@ -4626,6 +4716,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SGSHARD4_D,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -4634,7 +4725,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SGSHARD5
@@ -4653,6 +4745,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SGSHARD5_D,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -4661,7 +4754,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SGSHARD6
@@ -4680,6 +4774,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SGSHARD6_D,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -4688,7 +4783,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SGSHARD7
@@ -4707,6 +4803,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SGSHARD7_D,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -4715,7 +4812,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SGSHARD8
@@ -4734,6 +4832,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SGSHARD8_D,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -4742,7 +4841,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SGSHARD9
@@ -4761,6 +4861,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SGSHARD9_D,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -4769,7 +4870,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SGSHARD0
@@ -4788,6 +4890,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SGSHARD0_D,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -4796,7 +4899,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIEGG
@@ -4815,6 +4919,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4823,7 +4928,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_EGGFX
@@ -4842,6 +4948,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_EGGFXI1_1,               // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      0,                         // deathsound
      18 * FRACUNIT,             // speed
      8 * FRACUNIT,              // radius
@@ -4850,7 +4957,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTISUPERHEAL
@@ -4869,6 +4977,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4877,7 +4986,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZWINGEDSTATUENOSKULL
@@ -4896,6 +5006,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -4904,7 +5015,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZGEMPEDESTAL
@@ -4923,6 +5035,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -4931,7 +5044,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZSKULL
@@ -4950,6 +5064,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4958,7 +5073,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZGEMBIG
@@ -4977,6 +5093,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4985,7 +5102,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZGEMRED
@@ -5004,6 +5122,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5012,7 +5131,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZGEMGREEN1
@@ -5031,6 +5151,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5039,7 +5160,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZGEMGREEN2
@@ -5058,6 +5180,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5066,7 +5189,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZGEMBLUE1
@@ -5085,6 +5209,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5093,7 +5218,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZGEMBLUE2
@@ -5112,6 +5238,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5120,7 +5247,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZBOOK1
@@ -5139,6 +5267,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5147,7 +5276,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZBOOK2
@@ -5166,6 +5296,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5174,7 +5305,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZSKULL2
@@ -5193,6 +5325,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5201,7 +5334,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZFWEAPON
@@ -5220,6 +5354,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5228,7 +5363,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZCWEAPON
@@ -5247,6 +5383,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5255,7 +5392,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZMWEAPON
@@ -5274,6 +5412,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5282,7 +5421,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZGEAR
@@ -5301,6 +5441,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5309,7 +5450,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZGEAR2
@@ -5328,6 +5470,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5336,7 +5479,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZGEAR3
@@ -5355,6 +5499,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5363,7 +5508,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPUZZGEAR4
@@ -5382,6 +5528,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5390,7 +5537,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTITORCH
@@ -5409,6 +5557,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5417,7 +5566,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIREBOMB
@@ -5436,6 +5586,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_flechette_explode,     // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5444,7 +5595,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOGRAVITY | MF_ALTSHADOW,       // flags
-     MF2_FIREDAMAGE             // flags2
+     MF2_FIREDAMAGE,            // flags2
+     MF3_FOILINVUL                          // flags3
      },
 
     {                           // HEXEN_MT_ARTITELEPORT
@@ -5463,6 +5615,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5471,7 +5624,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARTIPOISONBAG
@@ -5490,6 +5644,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5498,7 +5653,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_POISONBAG
@@ -5517,6 +5673,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -5525,7 +5682,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOGRAVITY | MF_NOBLOCKMAP,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_POISONCLOUD
@@ -5544,6 +5702,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_poisonshroom_death,    // deathsound
      0,                         // speed
      1,                         // radius
@@ -5552,7 +5711,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOGRAVITY | MF_NOBLOCKMAP | MF_SHADOW | MF_NOCLIP | MF_DROPOFF, // flags
-     MF2_NODMGTHRUST            // flags2
+     MF2_NODMGTHRUST,           // flags2
+     MF3_FOILINVUL                          // flags3
      },
 
     {                           // HEXEN_MT_THROWINGBOMB
@@ -5571,6 +5731,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_THROWINGBOMB_X1,         // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_flechette_explode,     // deathsound
      12 * FRACUNIT,             // speed
      8 * FRACUNIT,              // radius
@@ -5579,7 +5740,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_FLOORBOUNCE | MF2_FIREDAMAGE   // flags2
+     MF2_FLOORBOUNCE | MF2_FIREDAMAGE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SPEEDBOOTS
@@ -5598,6 +5760,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5606,7 +5769,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BOOSTMANA
@@ -5625,6 +5789,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5633,7 +5798,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BOOSTARMOR
@@ -5652,6 +5818,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5660,7 +5827,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BLASTRADIUS
@@ -5679,6 +5847,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5687,7 +5856,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_HEALRADIUS
@@ -5706,6 +5876,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5714,7 +5885,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SPLASH
@@ -5733,6 +5905,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SPLASHX,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -5741,7 +5914,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH       // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH,      // flags2
+     MF3_DONTBLAST                          // flags3
      },
 
     {                           // HEXEN_MT_SPLASHBASE
@@ -5760,6 +5934,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5768,7 +5943,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     MF3_DONTBLAST                          // flags3
      },
 
     {                           // HEXEN_MT_LAVASPLASH
@@ -5787,6 +5963,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5795,7 +5972,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_LAVASMOKE
@@ -5814,6 +5992,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5822,7 +6001,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SLUDGECHUNK
@@ -5841,6 +6021,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SLUDGECHUNKX,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -5849,7 +6030,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH       // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH,      // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SLUDGESPLASH
@@ -5868,6 +6050,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5876,7 +6059,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC0
@@ -5895,6 +6079,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -5903,7 +6088,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC1
@@ -5922,6 +6108,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5930,7 +6117,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC2
@@ -5949,6 +6137,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5957,7 +6146,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC3
@@ -5976,6 +6166,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5984,7 +6175,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC4
@@ -6003,6 +6195,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6011,7 +6204,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC5
@@ -6030,6 +6224,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6038,7 +6233,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC6
@@ -6057,6 +6253,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6065,7 +6262,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC7
@@ -6084,6 +6282,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -6092,7 +6291,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC8
@@ -6111,6 +6311,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      15 * FRACUNIT,             // radius
@@ -6119,7 +6320,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TREEDESTRUCTIBLE
@@ -6138,6 +6340,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZTREEDES_D1,             // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_tree_break,            // deathsound
      0,                         // speed
      15 * FRACUNIT,             // radius
@@ -6146,7 +6349,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_NOBLOOD,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC9
@@ -6165,6 +6369,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -6173,7 +6378,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC10
@@ -6192,6 +6398,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -6200,7 +6407,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC11
@@ -6219,6 +6427,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
@@ -6227,7 +6436,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC12
@@ -6246,6 +6456,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
@@ -6254,7 +6465,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC13
@@ -6273,6 +6485,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6281,7 +6494,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC14
@@ -6300,6 +6514,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6308,7 +6523,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC15
@@ -6327,6 +6543,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6335,7 +6552,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC16
@@ -6354,6 +6572,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6362,7 +6581,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC17
@@ -6381,6 +6601,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6389,7 +6610,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC18
@@ -6408,6 +6630,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6416,7 +6639,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC19
@@ -6435,6 +6659,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6443,7 +6668,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC20
@@ -6462,6 +6688,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6470,7 +6697,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC21
@@ -6489,6 +6717,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6497,7 +6726,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC22
@@ -6516,6 +6746,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6524,7 +6755,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC23
@@ -6543,6 +6775,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -6551,7 +6784,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC24
@@ -6570,6 +6804,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -6578,7 +6813,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC25
@@ -6597,6 +6833,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      6 * FRACUNIT,              // radius
@@ -6605,7 +6842,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC26
@@ -6624,6 +6862,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -6632,7 +6871,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC27
@@ -6651,6 +6891,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -6659,7 +6900,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC28
@@ -6678,6 +6920,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      6 * FRACUNIT,              // radius
@@ -6686,7 +6929,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC29
@@ -6705,6 +6949,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -6713,7 +6958,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC30
@@ -6732,6 +6978,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6740,7 +6987,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC31
@@ -6759,6 +7007,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6767,7 +7016,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC32
@@ -6786,6 +7036,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -6794,7 +7045,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC33
@@ -6813,6 +7065,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -6821,7 +7074,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC34
@@ -6840,6 +7094,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -6848,7 +7103,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC35
@@ -6867,6 +7123,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -6875,7 +7132,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC36
@@ -6894,6 +7152,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -6902,7 +7161,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC37
@@ -6921,6 +7181,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -6929,7 +7190,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC38
@@ -6948,6 +7210,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -6956,7 +7219,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC39
@@ -6975,6 +7239,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -6983,7 +7248,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC40
@@ -7002,6 +7268,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -7010,7 +7277,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC41
@@ -7029,6 +7297,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -7037,7 +7306,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC42
@@ -7056,6 +7326,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      6 * FRACUNIT,              // radius
@@ -7064,7 +7335,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC43
@@ -7083,6 +7355,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7091,7 +7364,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC44
@@ -7110,6 +7384,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7118,7 +7393,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC45
@@ -7137,6 +7413,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7145,7 +7422,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC46
@@ -7164,6 +7442,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7172,7 +7451,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC47
@@ -7191,6 +7471,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7199,7 +7480,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC48
@@ -7218,6 +7500,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7226,7 +7509,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC49
@@ -7245,6 +7529,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7253,7 +7538,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC50
@@ -7272,6 +7558,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7280,7 +7567,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC51
@@ -7299,6 +7587,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7307,7 +7596,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC52
@@ -7326,6 +7616,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7334,7 +7625,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC53
@@ -7353,6 +7645,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7361,7 +7654,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC54
@@ -7380,6 +7674,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7388,7 +7683,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC55
@@ -7407,6 +7703,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -7415,7 +7712,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC56
@@ -7434,6 +7732,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -7442,7 +7741,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC57
@@ -7461,6 +7761,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZTREELARGE1,             // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      15 * FRACUNIT,             // radius
@@ -7469,7 +7770,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC58
@@ -7488,6 +7790,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZTREELARGE2,             // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      15 * FRACUNIT,             // radius
@@ -7496,7 +7799,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC59
@@ -7515,6 +7819,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      22 * FRACUNIT,             // radius
@@ -7523,7 +7828,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC60
@@ -7542,6 +7848,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      22 * FRACUNIT,             // radius
@@ -7550,7 +7857,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC61
@@ -7569,6 +7877,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -7577,7 +7886,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC62
@@ -7596,6 +7906,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -7604,7 +7915,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC63
@@ -7623,6 +7935,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -7631,7 +7944,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC64
@@ -7650,6 +7964,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -7658,7 +7973,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC65
@@ -7677,6 +7993,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -7685,7 +8002,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC66
@@ -7704,6 +8022,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -7712,7 +8031,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC67
@@ -7731,6 +8051,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -7739,7 +8060,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC68
@@ -7758,6 +8080,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -7766,7 +8089,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC69
@@ -7785,6 +8109,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -7793,7 +8118,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC70
@@ -7812,6 +8138,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      17 * FRACUNIT,             // radius
@@ -7820,7 +8147,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC71
@@ -7839,6 +8167,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      15 * FRACUNIT,             // radius
@@ -7847,7 +8176,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC72
@@ -7866,6 +8196,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -7874,7 +8205,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC73
@@ -7893,6 +8225,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -7901,7 +8234,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC74
@@ -7920,6 +8254,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -7928,7 +8263,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC75
@@ -7947,6 +8283,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -7955,7 +8292,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC76
@@ -7974,6 +8312,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
@@ -7982,7 +8321,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_POTTERY1
@@ -8001,6 +8341,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZPOTTERY_EXPLODE,        // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -8009,7 +8350,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_NOBLOOD | MF_DROPOFF, // flags
-     MF2_SLIDE | MF2_PUSHABLE | MF2_TELESTOMP | MF2_PASSMOBJ    // flags2
+     MF2_SLIDE | MF2_PUSHABLE | MF2_TELESTOMP | MF2_PASSMOBJ,   // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_POTTERY2
@@ -8028,6 +8370,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZPOTTERY_EXPLODE,        // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -8036,7 +8379,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_NOBLOOD | MF_DROPOFF, // flags
-     MF2_SLIDE | MF2_PUSHABLE | MF2_TELESTOMP | MF2_PASSMOBJ    // flags2
+     MF2_SLIDE | MF2_PUSHABLE | MF2_TELESTOMP | MF2_PASSMOBJ,   // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_POTTERY3
@@ -8055,6 +8399,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZPOTTERY_EXPLODE,        // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      15 * FRACUNIT,             // radius
@@ -8063,7 +8408,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_NOBLOOD | MF_DROPOFF, // flags
-     MF2_SLIDE | MF2_PUSHABLE | MF2_TELESTOMP | MF2_PASSMOBJ    // flags2
+     MF2_SLIDE | MF2_PUSHABLE | MF2_TELESTOMP | MF2_PASSMOBJ,   // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_POTTERYBIT1
@@ -8082,6 +8428,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_POTTERYBIT_EX0,          // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -8090,7 +8437,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_MISSILE,                // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC77
@@ -8109,6 +8457,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      11 * FRACUNIT,             // radius
@@ -8117,7 +8466,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZLYNCHED_NOHEART
@@ -8136,6 +8486,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -8144,7 +8495,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC78
@@ -8163,6 +8515,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZCORPSESITTING_X,        // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      15 * FRACUNIT,             // radius
@@ -8171,7 +8524,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_NOBLOOD,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CORPSEBIT
@@ -8190,6 +8544,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -8198,7 +8553,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     MF2_TELESTOMP              // flags2
+     MF2_TELESTOMP,             // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CORPSEBLOODDRIP
@@ -8217,6 +8573,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_CORPSEBLOODDRIP_X1,      // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_drip,                  // deathsound
      0,                         // speed
      FRACUNIT,                  // radius
@@ -8225,7 +8582,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_MISSILE,                // flags
-     MF2_LOGRAV                 // flags2
+     MF2_LOGRAV,                // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BLOODPOOL
@@ -8244,6 +8602,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -8252,7 +8611,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC79
@@ -8271,6 +8631,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -8279,7 +8640,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC80
@@ -8298,6 +8660,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -8306,7 +8669,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
-     MF2_DONTDRAW               // flags2
+     MF2_DONTDRAW,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_LEAF1
@@ -8325,6 +8689,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_LEAF_X1,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -8333,7 +8698,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE,        // flags
-     MF2_NOTELEPORT | MF2_LOGRAV        // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_LEAF2
@@ -8352,6 +8718,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_LEAF_X1,                 // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -8360,7 +8727,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE,        // flags
-     MF2_NOTELEPORT | MF2_LOGRAV        // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZTWINEDTORCH
@@ -8379,6 +8747,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -8387,7 +8756,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZTWINEDTORCH_UNLIT
@@ -8406,6 +8776,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      10 * FRACUNIT,             // radius
@@ -8414,7 +8785,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BRIDGE
@@ -8433,6 +8805,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      32 * FRACUNIT,             // radius
@@ -8441,7 +8814,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_NOGRAVITY,   // flags
-     MF2_DONTDRAW               // flags2
+     MF2_DONTDRAW,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BRIDGEBALL
@@ -8460,6 +8834,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -8468,7 +8843,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZWALLTORCH
@@ -8487,6 +8863,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -8495,7 +8872,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZWALLTORCH_UNLIT
@@ -8514,6 +8892,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -8522,7 +8901,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZBARREL
@@ -8541,6 +8921,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      15 * FRACUNIT,             // radius
@@ -8549,7 +8930,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZSHRUB1
@@ -8568,6 +8950,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZSHRUB1_DIE,             // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_tree_explode,          // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -8576,7 +8959,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_NOBLOOD,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZSHRUB2
@@ -8595,6 +8979,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZSHRUB2_DIE,             // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_tree_explode,          // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -8603,7 +8988,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_NOBLOOD,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZBUCKET
@@ -8622,6 +9008,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -8630,7 +9017,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZPOISONSHROOM
@@ -8649,6 +9037,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZPOISONSHROOM_X1,        // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_poisonshroom_death,    // deathsound
      0,                         // speed
      6 * FRACUNIT,              // radius
@@ -8657,7 +9046,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SHOOTABLE | MF_SOLID | MF_NOBLOOD,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZFIREBULL
@@ -8676,6 +9066,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -8684,7 +9075,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZFIREBULL_UNLIT
@@ -8703,6 +9095,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -8711,7 +9104,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIRETHING
@@ -8730,6 +9124,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -8738,7 +9133,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BRASSTORCH
@@ -8757,6 +9153,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      6 * FRACUNIT,              // radius
@@ -8765,7 +9162,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZSUITOFARMOR
@@ -8784,6 +9182,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZSUITOFARMOR_X1,         // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_suitofarmor_break,     // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -8792,7 +9191,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_NOBLOOD,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZARMORCHUNK
@@ -8811,6 +9211,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -8819,7 +9220,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      0,                         // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZBELL
@@ -8838,6 +9240,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZBELL_X1,                // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_bellring,              // deathsound
      0,                         // speed
      56 * FRACUNIT,             // radius
@@ -8846,7 +9249,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_NOBLOOD | MF_NOGRAVITY | MF_SPAWNCEILING,     // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZBLUE_CANDLE
@@ -8865,6 +9269,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -8873,7 +9278,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZIRON_MAIDEN
@@ -8892,6 +9298,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
@@ -8900,7 +9307,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZXMAS_TREE
@@ -8919,6 +9327,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ZXMAS_TREE_DIE,          // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_tree_explode,          // deathsound
      0,                         // speed
      11 * FRACUNIT,             // radius
@@ -8927,7 +9336,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_NOBLOOD,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZCAULDRON
@@ -8946,6 +9356,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
@@ -8954,7 +9365,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZCAULDRON_UNLIT
@@ -8973,6 +9385,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
@@ -8981,7 +9394,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZCHAINBIT32
@@ -9000,6 +9414,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -9008,7 +9423,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SPAWNCEILING,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZCHAINBIT64
@@ -9027,6 +9443,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -9035,7 +9452,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SPAWNCEILING,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZCHAINEND_HEART
@@ -9054,6 +9472,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -9062,7 +9481,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SPAWNCEILING,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZCHAINEND_HOOK1
@@ -9081,6 +9501,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -9089,7 +9510,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SPAWNCEILING,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZCHAINEND_HOOK2
@@ -9108,6 +9530,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -9116,7 +9539,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SPAWNCEILING,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZCHAINEND_SPIKE
@@ -9135,6 +9559,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -9143,7 +9568,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SPAWNCEILING,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ZCHAINEND_SKULL
@@ -9162,6 +9588,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -9170,7 +9597,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SPAWNCEILING,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TABLE_SHIT1
@@ -9189,6 +9617,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9197,7 +9626,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TABLE_SHIT2
@@ -9216,6 +9646,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9224,7 +9655,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TABLE_SHIT3
@@ -9243,6 +9675,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9251,7 +9684,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TABLE_SHIT4
@@ -9270,6 +9704,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9278,7 +9713,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TABLE_SHIT5
@@ -9297,6 +9733,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9305,7 +9742,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TABLE_SHIT6
@@ -9324,6 +9762,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9332,7 +9771,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TABLE_SHIT7
@@ -9351,6 +9791,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9359,7 +9800,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TABLE_SHIT8
@@ -9378,6 +9820,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9386,7 +9829,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TABLE_SHIT9
@@ -9405,6 +9849,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9413,7 +9858,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TABLE_SHIT10
@@ -9432,6 +9878,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9440,7 +9887,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TFOG
@@ -9459,6 +9907,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9467,7 +9916,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MISC81
@@ -9486,6 +9936,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9494,7 +9945,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_TELEPORTMAN
@@ -9513,6 +9965,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9521,7 +9974,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_PUNCHPUFF
@@ -9540,6 +9994,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9548,7 +10003,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FW_AXE
@@ -9567,6 +10023,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9575,7 +10032,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_AXEPUFF
@@ -9594,6 +10052,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9602,7 +10061,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_AXEPUFF_GLOW
@@ -9621,6 +10081,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9629,7 +10090,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_AXEBLOOD
@@ -9648,6 +10110,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_AXEBLOOD6,               // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -9656,7 +10119,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_DROPOFF, // flags
-     MF2_NOTELEPORT | MF2_CANNOTPUSH    // flags2
+     MF2_NOTELEPORT | MF2_CANNOTPUSH,   // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FW_HAMMER
@@ -9675,6 +10139,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9683,7 +10148,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_HAMMER_MISSILE
@@ -9702,6 +10168,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_HAMMER_MISSILE_X1,       // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_fighter_hammer_explode,        // deathsound
      25 * FRACUNIT,             // speed
      14 * FRACUNIT,             // radius
@@ -9710,7 +10177,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      10,                        // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_FIREDAMAGE  // flags2
+     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_FIREDAMAGE, // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_HAMMERPUFF
@@ -9729,6 +10197,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9737,7 +10206,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FSWORD_MISSILE
@@ -9756,6 +10226,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FSWORD_MISSILE_X1,       // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_fighter_sword_explode, // deathsound
      30 * FRACUNIT,             // speed
      16 * FRACUNIT,             // radius
@@ -9764,7 +10235,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      8,                         // damage
      sfx_None,                  // activesound
      MF_MISSILE | MF_NOBLOCKMAP | MF_NOGRAVITY | MF_DROPOFF,    // flags
-     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS   // flags2
+     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FSWORD_FLAME
@@ -9783,6 +10255,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9791,7 +10264,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CW_SERPSTAFF
@@ -9810,6 +10284,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9818,7 +10293,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CSTAFF_MISSILE
@@ -9837,6 +10313,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_CSTAFF_MISSILE_X1,       // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_cleric_cstaff_explode, // deathsound
      22 * FRACUNIT,             // speed
      12 * FRACUNIT,             // radius
@@ -9845,7 +10322,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      5,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS   // flags2
+     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CSTAFFPUFF
@@ -9864,6 +10342,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9872,7 +10351,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CW_FLAME
@@ -9891,6 +10371,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9899,7 +10380,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CFLAMEFLOOR
@@ -9918,6 +10400,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -9926,7 +10409,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FLAMEPUFF
@@ -9945,6 +10429,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      FRACUNIT,                  // radius
@@ -9953,7 +10438,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FLAMEPUFF2
@@ -9972,6 +10458,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      FRACUNIT,                  // radius
@@ -9980,7 +10467,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CIRCLEFLAME
@@ -9999,6 +10487,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_CIRCLE_FLAME_X1,         // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_cleric_flame_circle,   // deathsound
      0,                         // speed
      6 * FRACUNIT,              // radius
@@ -10007,7 +10496,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE,   // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CFLAME_MISSILE
@@ -10026,6 +10516,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_CFLAME_MISSILE_X,        // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      200 * FRACUNIT,            // speed
      14 * FRACUNIT,             // radius
@@ -10034,7 +10525,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      8,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_DONTDRAW | MF2_FIREDAMAGE   // flags2
+     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_DONTDRAW | MF2_FIREDAMAGE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_HOLY_FX
@@ -10053,6 +10545,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_HOLY_FX_X1,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_spirit_die,            // deathsound
      12 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -10061,7 +10554,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      3,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_NOGRAVITY | MF_ALTSHADOW | MF_MISSILE,     // flags
-     MF2_NOTELEPORT | MF2_SEEKERMISSILE | MF2_RIP | MF2_IMPACT | MF2_PCROSS     // flags2
+     MF2_NOTELEPORT | MF2_SEEKERMISSILE | MF2_RIP | MF2_IMPACT | MF2_PCROSS,    // flags2
+     MF3_FOILINVUL                          // flags3
      },
 
     {                           // HEXEN_MT_HOLY_TAIL
@@ -10080,6 +10574,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      FRACUNIT,                  // radius
@@ -10088,7 +10583,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_NOGRAVITY | MF_NOCLIP | MF_ALTSHADOW,      // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_HOLY_PUFF
@@ -10107,6 +10603,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10115,7 +10612,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_HOLY_MISSILE
@@ -10134,6 +10632,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_HOLY_MISSILE_X,          // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      30 * FRACUNIT,             // speed
      15 * FRACUNIT,             // radius
@@ -10142,7 +10641,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_NOGRAVITY | MF_MISSILE,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_HOLY_MISSILE_PUFF
@@ -10161,6 +10661,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -10169,7 +10670,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_NOGRAVITY | MF_ALTSHADOW,  // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MWANDPUFF
@@ -10188,6 +10690,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10196,7 +10699,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     MF2_NOTELEPORT | MF2_CANNOTPUSH | MF2_NODMGTHRUST  // flags2
+     MF2_NOTELEPORT | MF2_CANNOTPUSH | MF2_NODMGTHRUST, // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MWANDSMOKE
@@ -10215,6 +10719,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10223,7 +10728,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     MF2_NOTELEPORT | MF2_CANNOTPUSH | MF2_NODMGTHRUST  // flags2
+     MF2_NOTELEPORT | MF2_CANNOTPUSH | MF2_NODMGTHRUST, // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MWAND_MISSILE
@@ -10242,6 +10748,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_MWANDPUFF1,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      184 * FRACUNIT,            // speed
      12 * FRACUNIT,             // radius
@@ -10250,7 +10757,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_RIP | MF2_IMPACT | MF2_PCROSS | MF2_NODMGTHRUST | MF2_CANNOTPUSH      // flags2
+     MF2_NOTELEPORT | MF2_RIP | MF2_IMPACT | MF2_PCROSS | MF2_NODMGTHRUST | MF2_CANNOTPUSH,     // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MW_LIGHTNING
@@ -10269,6 +10777,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10277,7 +10786,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_LIGHTNING_CEILING
@@ -10296,6 +10806,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_LIGHTNING_C_X1,          // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      25 * FRACUNIT,             // speed
      16 * FRACUNIT,             // radius
@@ -10304,7 +10815,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      8,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE | MF_DROPOFF,    // flags
-     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS   // flags2
+     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS,  // flags2
+     MF3_CEILINGMISSILE                          // flags3
      },
 
     {                           // HEXEN_MT_LIGHTNING_FLOOR
@@ -10323,6 +10835,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_LIGHTNING_F_X1,          // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      25 * FRACUNIT,             // speed
      16 * FRACUNIT,             // radius
@@ -10331,7 +10844,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      8,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE | MF_DROPOFF,    // flags
-     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS   // flags2
+     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS,  // flags2
+     MF3_FLOORMISSILE                          // flags3
      },
 
     {                           // HEXEN_MT_LIGHTNING_ZAP
@@ -10350,6 +10864,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_LIGHTNING_ZAP_X8,        // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      15 * FRACUNIT,             // radius
@@ -10358,7 +10873,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE | MF_DROPOFF,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MSTAFF_FX
@@ -10377,6 +10893,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_MSTAFF_FX_X1,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_mage_staff_explode,    // deathsound
      20 * FRACUNIT,             // speed
      16 * FRACUNIT,             // radius
@@ -10385,7 +10902,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      6,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE | MF2_RIP | MF2_IMPACT | MF2_PCROSS        // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE | MF2_RIP | MF2_IMPACT | MF2_PCROSS,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MSTAFF_FX2
@@ -10404,6 +10922,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_MSTAFF_FX2_X1,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_mage_staff_explode,    // deathsound
      17 * FRACUNIT,             // speed
      20 * FRACUNIT,             // radius
@@ -10412,7 +10931,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE | MF2_IMPACT | MF2_PCROSS | MF2_SEEKERMISSILE      // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE | MF2_IMPACT | MF2_PCROSS | MF2_SEEKERMISSILE,     // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FW_SWORD1
@@ -10431,6 +10951,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10439,7 +10960,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FW_SWORD2
@@ -10458,6 +10980,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10466,7 +10989,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FW_SWORD3
@@ -10485,6 +11009,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10493,7 +11018,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CW_HOLY1
@@ -10512,6 +11038,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10520,7 +11047,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CW_HOLY2
@@ -10539,6 +11067,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10547,7 +11076,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CW_HOLY3
@@ -10566,6 +11096,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10574,7 +11105,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MW_STAFF1
@@ -10593,6 +11125,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10601,7 +11134,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MW_STAFF2
@@ -10620,6 +11154,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10628,7 +11163,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MW_STAFF3
@@ -10647,6 +11183,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10655,7 +11192,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SNOUTPUFF
@@ -10674,6 +11212,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10682,7 +11221,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MW_CONE
@@ -10701,6 +11241,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10709,7 +11250,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SHARDFX1
@@ -10728,6 +11270,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SHARDFXE1_1,             // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_mage_shards_explode,   // deathsound
      25 * FRACUNIT,             // speed
      13 * FRACUNIT,             // radius
@@ -10736,7 +11279,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_ICEDAMAGE   // flags2
+     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_ICEDAMAGE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BLOOD
@@ -10755,6 +11299,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10763,7 +11308,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BLOODSPLATTER
@@ -10782,6 +11328,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_BLOODSPLATTERX,          // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -10790,7 +11337,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_NOTELEPORT | MF2_CANNOTPUSH    // flags2
+     MF2_NOTELEPORT | MF2_CANNOTPUSH,   // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_GIBS
@@ -10809,6 +11357,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10817,7 +11366,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_CORPSE,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_PLAYER_FIGHTER
@@ -10836,6 +11386,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FPLAY_DIE1,              // deathstate
      HEXEN_S_FPLAY_XDIE1,             // xdeathstate
+     HEXEN_S_FPLAY_ICE,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -10844,7 +11395,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_DROPOFF | MF_PICKUP | MF_NOTDMATCH,   // flags
-     MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_SLIDE | MF2_PASSMOBJ | MF2_TELESTOMP | MF2_PUSHWALL   // flags2
+     MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_SLIDE | MF2_PASSMOBJ | MF2_TELESTOMP | MF2_PUSHWALL,  // flags2
+     MF3_NOSRCDMGTHRUST                          // flags3
      },
 
     {                           // HEXEN_MT_BLOODYSKULL
@@ -10863,6 +11415,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -10871,7 +11424,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF,        // flags
-     MF2_LOGRAV | MF2_CANNOTPUSH        // flags2
+     MF2_LOGRAV | MF2_CANNOTPUSH,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_PLAYER_SPEED
@@ -10890,6 +11444,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -10898,7 +11453,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_ALTSHADOW,       // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ICECHUNK
@@ -10917,6 +11473,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      3 * FRACUNIT,              // radius
@@ -10925,7 +11482,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF,        // flags
-     MF2_LOGRAV | MF2_CANNOTPUSH | MF2_FOOTCLIP        // flags2
+     MF2_LOGRAV | MF2_CANNOTPUSH | MF2_FOOTCLIP,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_PLAYER_CLERIC
@@ -10944,6 +11502,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_CPLAY_DIE1,              // deathstate
      HEXEN_S_CPLAY_XDIE1,             // xdeathstate
+     HEXEN_S_CPLAY_ICE,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -10952,7 +11511,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_DROPOFF | MF_PICKUP | MF_NOTDMATCH,   // flags
-     MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_SLIDE | MF2_PASSMOBJ | MF2_TELESTOMP | MF2_PUSHWALL   // flags2
+     MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_SLIDE | MF2_PASSMOBJ | MF2_TELESTOMP | MF2_PUSHWALL,  // flags2
+     MF3_NOSRCDMGTHRUST                          // flags3
      },
 
     {                           // HEXEN_MT_PLAYER_MAGE
@@ -10971,6 +11531,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_MPLAY_DIE1,              // deathstate
      HEXEN_S_MPLAY_XDIE1,             // xdeathstate
+     HEXEN_S_MPLAY_ICE,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -10979,7 +11540,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_DROPOFF | MF_PICKUP | MF_NOTDMATCH,   // flags
-     MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_SLIDE | MF2_PASSMOBJ | MF2_TELESTOMP | MF2_PUSHWALL   // flags2
+     MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_SLIDE | MF2_PASSMOBJ | MF2_TELESTOMP | MF2_PUSHWALL,  // flags2
+     MF3_NOSRCDMGTHRUST                          // flags3
      },
 
     {                           // HEXEN_MT_PIGPLAYER
@@ -10998,6 +11560,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_PIG_DIE1,                // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_PIG_ICE,                    // icedeathstate
      hexen_sfx_pig_death,             // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -11006,7 +11569,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_DROPOFF | MF_NOTDMATCH,       // flags
-     MF2_WINDTHRUST | MF2_SLIDE | MF2_PASSMOBJ | MF2_FOOTCLIP | MF2_TELESTOMP | MF2_PUSHWALL   // flags2
+     MF2_WINDTHRUST | MF2_SLIDE | MF2_PASSMOBJ | MF2_FOOTCLIP | MF2_TELESTOMP | MF2_PUSHWALL,  // flags2
+     MF3_NOSRCDMGTHRUST                          // flags3
      },
 
     {                           // HEXEN_MT_PIG
@@ -11025,6 +11589,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_PIG_DIE1,                // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_PIG_ICE,                    // icedeathstate
      hexen_sfx_pig_death,             // deathsound
      10,                        // speed
      12 * FRACUNIT,             // radius
@@ -11033,7 +11598,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      hexen_sfx_pig_active1,           // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_TELESTOMP       // flags2
+     MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_TELESTOMP,      // flags2
+     MF3_DONTMORPH                          // flags3
      },
 
     {                           // HEXEN_MT_CENTAUR
@@ -11052,6 +11618,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_CENTAUR_DEATH1,          // deathstate
      HEXEN_S_CENTAUR_DEATH_X1,        // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_centaur_death,         // deathsound
      13,                        // speed
      20 * FRACUNIT,             // radius
@@ -11060,7 +11627,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      hexen_sfx_centaur_active,        // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_MCROSS | MF2_TELESTOMP   // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_MCROSS | MF2_TELESTOMP,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CENTAURLEADER
@@ -11079,6 +11647,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_CENTAUR_DEATH1,          // deathstate
      HEXEN_S_CENTAUR_DEATH_X1,        // xdeathstate
+     HEXEN_S_CENTAUR_ICE,                    // icedeathstate
      hexen_sfx_centaur_death,         // deathsound
      10,                        // speed
      20 * FRACUNIT,             // radius
@@ -11087,7 +11656,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      hexen_sfx_centaur_active,        // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_MCROSS | MF2_TELESTOMP   // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_MCROSS | MF2_TELESTOMP,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CENTAUR_FX
@@ -11106,6 +11676,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_CENTAUR_FX_X1,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_centaur_missile_explode,       // deathsound
      20 * FRACUNIT,             // speed
      20 * FRACUNIT,             // radius
@@ -11114,7 +11685,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_MISSILE | MF_NOBLOCKMAP | MF_NOGRAVITY | MF_DROPOFF,    // flags
-     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS   // flags2
+     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CENTAUR_SHIELD
@@ -11133,6 +11705,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_CENTAUR_SHIELD_X1,       // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -11141,7 +11714,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_DROPOFF | MF_CORPSE,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CENTAUR_SWORD
@@ -11160,6 +11734,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_CENTAUR_SWORD_X1,        // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -11168,7 +11743,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_DROPOFF | MF_CORPSE,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMON
@@ -11187,6 +11763,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMN_DEATH1,             // deathstate
      HEXEN_S_DEMN_XDEATH1,            // xdeathstate
+     HEXEN_S_DEMON_ICE,                    // icedeathstate
      hexen_sfx_demon_death,           // deathsound
      13,                        // speed
      32 * FRACUNIT,             // radius
@@ -11195,7 +11772,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      hexen_sfx_demon_active,          // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_MCROSS | MF2_TELESTOMP  // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_MCROSS | MF2_TELESTOMP, // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMONCHUNK1
@@ -11214,6 +11792,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMONCHUNK1_4,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -11222,7 +11801,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_CORPSE,       // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMONCHUNK2
@@ -11241,6 +11821,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMONCHUNK2_4,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -11249,7 +11830,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_CORPSE,       // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMONCHUNK3
@@ -11268,6 +11850,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMONCHUNK3_4,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -11276,7 +11859,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_CORPSE,       // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMONCHUNK4
@@ -11295,6 +11879,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMONCHUNK4_4,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -11303,7 +11888,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_CORPSE,       // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMONCHUNK5
@@ -11322,6 +11908,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMONCHUNK5_4,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -11330,7 +11917,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_CORPSE,       // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMONFX1
@@ -11349,6 +11937,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMONFX_BOOM1,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_demon_missile_explode, // deathsound
      15 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -11357,7 +11946,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      5,                         // damage
      sfx_None,                  // activesound
      MF_MISSILE | MF_NOBLOCKMAP | MF_NOGRAVITY | MF_DROPOFF,    // flags
-     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_FIREDAMAGE  // flags2
+     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_FIREDAMAGE, // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMON2
@@ -11376,6 +11966,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMN2_DEATH1,            // deathstate
      HEXEN_S_DEMN2_XDEATH1,           // xdeathstate
+     HEXEN_S_DEMON_ICE,                    // icedeathstate
      hexen_sfx_demon_death,           // deathsound
      13,                        // speed
      32 * FRACUNIT,             // radius
@@ -11384,7 +11975,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      hexen_sfx_demon_active,          // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_MCROSS | MF2_TELESTOMP  // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_MCROSS | MF2_TELESTOMP, // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMON2CHUNK1
@@ -11403,6 +11995,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMON2CHUNK1_4,          // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -11411,7 +12004,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_CORPSE,       // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMON2CHUNK2
@@ -11430,6 +12024,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMON2CHUNK2_4,          // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -11438,7 +12033,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_CORPSE,       // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMON2CHUNK3
@@ -11457,6 +12053,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMON2CHUNK3_4,          // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -11465,7 +12062,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_CORPSE,       // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMON2CHUNK4
@@ -11484,6 +12082,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMON2CHUNK4_4,          // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -11492,7 +12091,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_CORPSE,       // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMON2CHUNK5
@@ -11511,6 +12111,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMON2CHUNK5_4,          // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -11519,7 +12120,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_CORPSE,       // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMON2FX1
@@ -11538,6 +12140,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DEMON2FX_BOOM1,          // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_demon_missile_explode, // deathsound
      15 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -11546,7 +12149,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      5,                         // damage
      sfx_None,                  // activesound
      MF_MISSILE | MF_NOBLOCKMAP | MF_NOGRAVITY | MF_DROPOFF,    // flags
-     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_FIREDAMAGE  // flags2
+     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_FIREDAMAGE, // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_WRAITHB
@@ -11565,6 +12169,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_WRAITH_DEATH1_1,         // deathstate
      HEXEN_S_WRAITH_DEATH2_1,         // xdeathstate
+     HEXEN_S_WRAITH_ICE,                    // icedeathstate
      hexen_sfx_wraith_death,          // deathsound
      11,                        // speed
      20 * FRACUNIT,             // radius
@@ -11573,7 +12178,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      10,                        // damage
      hexen_sfx_wraith_active,         // activesound
      MF_DROPOFF | MF_NOGRAVITY | MF_FLOAT | MF_COUNTKILL,       // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_TELESTOMP | MF2_DONTDRAW // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_TELESTOMP | MF2_DONTDRAW,// flags2
+     MF3_STAYMORPHED   // flags3
      },
 
     {                           // HEXEN_MT_WRAITH
@@ -11592,6 +12198,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_WRAITH_DEATH1_1,         // deathstate
      HEXEN_S_WRAITH_DEATH2_1,         // xdeathstate
+     HEXEN_S_WRAITH_ICE,                    // icedeathstate
      hexen_sfx_wraith_death,          // deathsound
      11,                        // speed
      20 * FRACUNIT,             // radius
@@ -11600,7 +12207,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      10,                        // damage
      hexen_sfx_wraith_active,         // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_DROPOFF | MF_NOGRAVITY | MF_FLOAT,     // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_TELESTOMP        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_TELESTOMP,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_WRAITHFX1
@@ -11619,6 +12227,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_WRTHFX_BOOM1,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_wraith_missile_explode,        // deathsound
      14 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -11627,7 +12236,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      5,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_DROPOFF | MF_MISSILE,    // flags
-     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_FOOTCLIP | MF2_FIREDAMAGE  // flags2
+     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_FOOTCLIP | MF2_FIREDAMAGE, // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_WRAITHFX2
@@ -11646,6 +12256,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -11654,7 +12265,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF,        // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_WRAITHFX3
@@ -11673,6 +12285,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_WRTHFX_DEAD1,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_drip,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -11681,7 +12294,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_WRAITHFX4
@@ -11700,6 +12314,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_WRTHFX_ADEAD1,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_drip,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -11708,7 +12323,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_WRAITHFX5
@@ -11727,6 +12343,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_WRTHFX_BDEAD1,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_drip,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -11735,7 +12352,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MINOTAUR
@@ -11754,6 +12372,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_MNTR_DIE1,               // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_maulator_death,        // deathsound
      16,                        // speed
      28 * FRACUNIT,             // radius
@@ -11762,7 +12381,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      7,                         // damage
      hexen_sfx_maulator_active,       // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_SHADOW,        // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_TELESTOMP        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_TELESTOMP,       // flags2
+     MF3_STAYMORPHED | MF3_NOINFIGHTING   // flags3
      },
 
     {                           // HEXEN_MT_MNTRFX1
@@ -11781,6 +12401,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_MNTRFXI1_1,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      20 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -11789,7 +12410,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      3,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE,   // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MNTRFX2
@@ -11808,6 +12430,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_MNTRFXI2_1,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      14 * FRACUNIT,             // speed
      5 * FRACUNIT,              // radius
@@ -11816,7 +12439,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE,   // flags2
+     MF3_FLOORMISSILE                          // flags3
      },
 
     {                           // HEXEN_MT_MNTRFX3
@@ -11835,6 +12459,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_MNTRFXI2_1,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -11843,7 +12468,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE,   // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MNTRSMOKE
@@ -11862,6 +12488,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -11870,7 +12497,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MNTRSMOKEEXIT
@@ -11889,6 +12517,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -11897,7 +12526,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SERPENT
@@ -11916,6 +12546,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SERPENT_DIE1,            // deathstate
      HEXEN_S_SERPENT_XDIE1,           // xdeathstate
+     HEXEN_S_SERPENT_ICE,                    // icedeathstate
      hexen_sfx_serpent_death,         // deathsound
      12,                        // speed
      32 * FRACUNIT,             // radius
@@ -11924,7 +12555,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_COUNTKILL | MF_NOBLOOD,      // flags
-     MF2_PASSMOBJ | MF2_DONTDRAW | MF2_CANTLEAVEFLOORPIC | MF2_NONSHOOTABLE | MF2_MCROSS        // flags2
+     MF2_PASSMOBJ | MF2_DONTDRAW | MF2_CANTLEAVEFLOORPIC | MF2_NONSHOOTABLE | MF2_MCROSS,       // flags2
+     MF3_STAYMORPHED | MF3_DONTBLAST   // flags3
      },
 
     {                           // HEXEN_MT_SERPENTLEADER
@@ -11943,6 +12575,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SERPENT_DIE1,            // deathstate
      HEXEN_S_SERPENT_XDIE1,           // xdeathstate
+     HEXEN_S_SERPENT_ICE,                    // icedeathstate
      hexen_sfx_serpent_death,         // deathsound
      12,                        // speed
      32 * FRACUNIT,             // radius
@@ -11951,7 +12584,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_COUNTKILL | MF_NOBLOOD,      // flags
-     MF2_PASSMOBJ | MF2_DONTDRAW | MF2_CANTLEAVEFLOORPIC | MF2_NONSHOOTABLE | MF2_MCROSS        // flags2
+     MF2_PASSMOBJ | MF2_DONTDRAW | MF2_CANTLEAVEFLOORPIC | MF2_NONSHOOTABLE | MF2_MCROSS,       // flags2
+     MF3_STAYMORPHED | MF3_DONTBLAST   // flags3
      },
 
     {                           // HEXEN_MT_SERPENTFX
@@ -11970,6 +12604,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SERPENT_FX_X1,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_serpentfx_hit,         // deathsound
      15 * FRACUNIT,             // speed
      8 * FRACUNIT,              // radius
@@ -11978,7 +12613,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SERPENT_HEAD
@@ -11997,6 +12633,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -12005,7 +12642,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     MF2_LOGRAV                 // flags2
+     MF2_LOGRAV,                // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SERPENT_GIB1
@@ -12024,6 +12662,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      3 * FRACUNIT,              // radius
@@ -12032,7 +12671,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SERPENT_GIB2
@@ -12051,6 +12691,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      3 * FRACUNIT,              // radius
@@ -12059,7 +12700,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SERPENT_GIB3
@@ -12078,6 +12720,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      3 * FRACUNIT,              // radius
@@ -12086,7 +12729,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BISHOP
@@ -12105,6 +12749,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_BISHOP_DEATH1,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_BISHOP_ICE,                    // icedeathstate
      hexen_sfx_bishop_death,          // deathsound
      10,                        // speed
      22 * FRACUNIT,             // radius
@@ -12113,7 +12758,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      hexen_sfx_bishop_active,         // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_FLOAT | MF_NOGRAVITY | MF_NOBLOOD,     // flags
-     MF2_PASSMOBJ | MF2_PUSHWALL | MF2_TELESTOMP        // flags2
+     MF2_PASSMOBJ | MF2_PUSHWALL | MF2_TELESTOMP,       // flags2
+     MF3_RANDOMACTIVESOUND | MF3_NOFLYOVER | MF3_NOINFIGHTING    // flags3
      },
 
     {                           // HEXEN_MT_BISHOP_PUFF
@@ -12132,6 +12778,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -12140,7 +12787,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SHADOW | MF_NOBLOCKMAP | MF_NOGRAVITY,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BISHOPBLUR
@@ -12159,6 +12807,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -12167,7 +12816,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BISHOPPAINBLUR
@@ -12186,6 +12836,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -12194,7 +12845,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BISH_FX
@@ -12213,6 +12865,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_BISHFXI1_1,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_bishop_missile_explode,        // deathsound
      10 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -12221,7 +12874,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_SEEKERMISSILE // flags2
+     MF2_NOTELEPORT | MF2_SEEKERMISSILE,// flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DRAGON
@@ -12240,6 +12894,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DRAGON_DEATH1,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_dragon_death,          // deathsound
      10 * FRACUNIT,             // speed
      20 * FRACUNIT,             // radius
@@ -12248,7 +12903,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      hexen_sfx_dragon_active,         // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_FLOAT | MF_NOGRAVITY | MF_NOBLOOD,     // flags
-     MF2_PASSMOBJ | MF2_BOSS    // flags2
+     MF2_PASSMOBJ | MF2_BOSS,   // flags2
+     MF3_FULLVOLACTIVE | MF3_DONTMORPH   // flags3
      },
 
     {                           // HEXEN_MT_DRAGON_FX
@@ -12267,6 +12923,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_DRAGON_FX1_X1,           // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_dragon_fireball_explode,       // deathsound
      24 * FRACUNIT,             // speed
      12 * FRACUNIT,             // radius
@@ -12275,7 +12932,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      6,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE,   // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DRAGON_FX2
@@ -12294,6 +12952,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_dragon_fireball_explode,       // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12302,7 +12961,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE | MF2_DONTDRAW     // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE | MF2_DONTDRAW,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARMOR_1
@@ -12321,6 +12981,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -12329,7 +12990,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARMOR_2
@@ -12348,6 +13010,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -12356,7 +13019,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARMOR_3
@@ -12375,6 +13039,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -12383,7 +13048,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ARMOR_4
@@ -12402,6 +13068,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -12410,7 +13077,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MANA1
@@ -12429,6 +13097,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12437,7 +13106,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MANA2
@@ -12456,6 +13126,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12464,7 +13135,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_MANA3
@@ -12483,6 +13155,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12491,7 +13164,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KEY1
@@ -12510,6 +13184,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12518,7 +13193,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KEY2
@@ -12537,6 +13213,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12545,7 +13222,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KEY3
@@ -12564,6 +13242,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12572,7 +13251,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KEY4
@@ -12591,6 +13271,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12599,7 +13280,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KEY5
@@ -12618,6 +13300,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12626,7 +13309,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KEY6
@@ -12645,6 +13329,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12653,7 +13338,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KEY7
@@ -12672,6 +13358,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12680,7 +13367,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KEY8
@@ -12699,6 +13387,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12707,7 +13396,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KEY9
@@ -12726,6 +13416,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12734,7 +13425,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KEYA
@@ -12753,6 +13445,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12761,7 +13454,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KEYB
@@ -12780,6 +13474,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -12788,7 +13483,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SOUNDWIND
@@ -12807,6 +13503,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -12815,7 +13512,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SOUNDWATERFALL
@@ -12834,6 +13532,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -12842,7 +13541,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ETTIN
@@ -12861,6 +13561,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ETTIN_DEATH1_1,          // deathstate
      HEXEN_S_ETTIN_DEATH2_1,          // xdeathstate
+     HEXEN_S_ETTIN_ICE1,                    // icedeathstate
      hexen_sfx_ettin_death,           // deathsound
      13,                        // speed
      25 * FRACUNIT,             // radius
@@ -12869,7 +13570,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      3,                         // damage
      hexen_sfx_ettin_active,          // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PUSHWALL | MF2_MCROSS | MF2_TELESTOMP  // flags2
+     MF2_FOOTCLIP | MF2_PUSHWALL | MF2_MCROSS | MF2_TELESTOMP, // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ETTIN_MACE
@@ -12888,6 +13590,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ETTIN_MACE5,             // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -12896,7 +13599,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_DROPOFF | MF_CORPSE,    // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIREDEMON
@@ -12915,6 +13619,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_FIRED_XDEATH1,           // crashstate
      HEXEN_S_FIRED_DEATH1,            // deathstate
      HEXEN_S_FIRED_XDEATH1,           // xdeathstate
+     HEXEN_S_FIRED_ICE1,                    // icedeathstate
      hexen_sfx_fired_death,           // deathsound
      13,                        // speed
      20 * FRACUNIT,             // radius
@@ -12923,7 +13628,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      1,                         // damage
      hexen_sfx_fired_active,          // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_DROPOFF | MF_NOGRAVITY | MF_FLOAT,     // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_INVULNERABLE | MF2_MCROSS | MF2_TELESTOMP        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_INVULNERABLE | MF2_MCROSS | MF2_TELESTOMP,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIREDEMON_SPLOTCH1
@@ -12942,6 +13648,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      3 * FRACUNIT,              // radius
@@ -12950,7 +13657,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_DROPOFF | MF_CORPSE,    // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIREDEMON_SPLOTCH2
@@ -12969,6 +13677,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      3 * FRACUNIT,              // radius
@@ -12977,7 +13686,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_DROPOFF | MF_CORPSE,    // flags
-     MF2_NOTELEPORT | MF2_FOOTCLIP     // flags2
+     MF2_NOTELEPORT | MF2_FOOTCLIP,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIREDEMON_FX1
@@ -12996,6 +13706,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FIRED_RDEAD1_1,          // deathstate
      HEXEN_S_FIRED_RDEAD1_2,          // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      3 * FRACUNIT,              // radius
@@ -13004,7 +13715,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIREDEMON_FX2
@@ -13023,6 +13735,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FIRED_RDEAD2_1,          // deathstate
      HEXEN_S_FIRED_RDEAD2_2,          // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      3 * FRACUNIT,              // radius
@@ -13031,7 +13744,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIREDEMON_FX3
@@ -13050,6 +13764,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FIRED_RDEAD3_1,          // deathstate
      HEXEN_S_FIRED_RDEAD3_2,          // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      3 * FRACUNIT,              // radius
@@ -13058,7 +13773,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIREDEMON_FX4
@@ -13077,6 +13793,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FIRED_RDEAD4_1,          // deathstate
      HEXEN_S_FIRED_RDEAD4_2,          // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      3 * FRACUNIT,              // radius
@@ -13085,7 +13802,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIREDEMON_FX5
@@ -13104,6 +13822,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FIRED_RDEAD5_1,          // deathstate
      HEXEN_S_FIRED_RDEAD5_2,          // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      3 * FRACUNIT,              // radius
@@ -13112,7 +13831,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIREDEMON_FX6
@@ -13131,6 +13851,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FIRED_FX6_2,             // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_fired_missile_hit,     // deathsound
      10 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -13139,7 +13860,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_DROPOFF | MF_MISSILE,    // flags
-     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_FOOTCLIP | MF2_FIREDAMAGE  // flags2
+     MF2_NOTELEPORT | MF2_IMPACT | MF2_PCROSS | MF2_FOOTCLIP | MF2_FIREDAMAGE, // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ICEGUY
@@ -13158,6 +13880,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ICEGUY_DEATH,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      14,                        // speed
      22 * FRACUNIT,             // radius
@@ -13166,7 +13889,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      hexen_sfx_iceguy_active,         // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_NOBLOOD,       // flags
-     MF2_PASSMOBJ | MF2_PUSHWALL | MF2_ICEDAMAGE | MF2_MCROSS | MF2_TELESTOMP   // flags2
+     MF2_PASSMOBJ | MF2_PUSHWALL | MF2_ICEDAMAGE | MF2_MCROSS | MF2_TELESTOMP,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ICEGUY_FX
@@ -13185,6 +13909,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_ICEGUY_FX_X1,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_iceguy_fx_explode,     // deathsound
      14 * FRACUNIT,             // speed
      8 * FRACUNIT,              // radius
@@ -13193,7 +13918,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_ICEDAMAGE     // flags2
+     MF2_NOTELEPORT | MF2_ICEDAMAGE,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ICEFX_PUFF
@@ -13212,6 +13938,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      FRACUNIT,                  // radius
@@ -13220,7 +13947,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW | MF_DROPOFF,     // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ICEGUY_FX2
@@ -13239,6 +13967,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      10 * FRACUNIT,             // speed
      4 * FRACUNIT,              // radius
@@ -13247,7 +13976,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_MISSILE,   // flags
-     MF2_NOTELEPORT | MF2_LOGRAV | MF2_ICEDAMAGE        // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV | MF2_ICEDAMAGE,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ICEGUY_BIT
@@ -13266,6 +13996,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      FRACUNIT,                  // radius
@@ -13274,7 +14005,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF,        // flags
-     MF2_NOTELEPORT | MF2_LOGRAV        // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ICEGUY_WISP1
@@ -13293,6 +14025,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -13301,7 +14034,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_NOGRAVITY | MF_ALTSHADOW | MF_MISSILE,     // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ICEGUY_WISP2
@@ -13320,6 +14054,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -13328,7 +14063,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_NOGRAVITY | MF_ALTSHADOW | MF_MISSILE,     // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_FIGHTER_BOSS
@@ -13347,6 +14083,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_FIGHTER_DIE1,            // deathstate
      HEXEN_S_FIGHTER_XDIE1,           // xdeathstate
+     HEXEN_S_FIGHTER_ICE,                    // icedeathstate
      hexen_sfx_player_fighter_crazy_death,    // deathsound
      25,                        // speed
      16 * FRACUNIT,             // radius
@@ -13355,7 +14092,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_TELESTOMP | MF2_PUSHWALL | MF2_MCROSS   // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_TELESTOMP | MF2_PUSHWALL | MF2_MCROSS,  // flags2
+     MF3_DONTMORPH                           // flags3
      },
 
     {                           // HEXEN_MT_CLERIC_BOSS
@@ -13374,6 +14112,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_CLERIC_DIE1,             // deathstate
      HEXEN_S_CLERIC_XDIE1,            // xdeathstate
+     HEXEN_S_CLERIC_ICE,                    // icedeathstate
      hexen_sfx_player_cleric_crazy_death,     // deathsound
      25,                        // speed
      16 * FRACUNIT,             // radius
@@ -13382,7 +14121,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_TELESTOMP | MF2_PUSHWALL | MF2_MCROSS   // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_TELESTOMP | MF2_PUSHWALL | MF2_MCROSS,  // flags2
+     MF3_DONTMORPH                          // flags3
      },
 
     {                           // HEXEN_MT_MAGE_BOSS
@@ -13401,6 +14141,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_MAGE_DIE1,               // deathstate
      HEXEN_S_MAGE_XDIE1,              // xdeathstate
+     HEXEN_S_MAGE_ICE,                    // icedeathstate
      hexen_sfx_player_mage_crazy_death,       // deathsound
      25,                        // speed
      16 * FRACUNIT,             // radius
@@ -13409,7 +14150,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_TELESTOMP | MF2_PUSHWALL | MF2_MCROSS   // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_TELESTOMP | MF2_PUSHWALL | MF2_MCROSS,  // flags2
+     MF3_DONTMORPH                          // flags3
      },
 
     {                           // HEXEN_MT_SORCBOSS
@@ -13428,6 +14170,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SORC_DIE1,               // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_sorcerer_deathscream,  // deathsound
      16,                        // speed
      40 * FRACUNIT,             // radius
@@ -13436,7 +14179,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      9,                         // damage
      hexen_sfx_sorcerer_active,       // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_NOBLOOD,       // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_BOSS | MF2_MCROSS        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_PUSHWALL | MF2_BOSS | MF2_MCROSS,       // flags2
+     MF3_FULLVOLACTIVE | MF3_DONTMORPH   // flags3
      },
 
     {                           // HEXEN_MT_SORCBALL1
@@ -13455,6 +14199,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SORCBALL1_D5,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      10 * FRACUNIT,             // speed
      5 * FRACUNIT,              // radius
@@ -13463,7 +14208,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     MF3_DONTBLAST                          // flags3
      },
 
     {                           // HEXEN_MT_SORCBALL2
@@ -13482,6 +14228,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SORCBALL2_D5,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      10 * FRACUNIT,             // speed
      5 * FRACUNIT,              // radius
@@ -13490,7 +14237,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     MF3_DONTBLAST                          // flags3
      },
 
     {                           // HEXEN_MT_SORCBALL3
@@ -13509,6 +14257,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SORCBALL3_D5,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      10 * FRACUNIT,             // speed
      5 * FRACUNIT,              // radius
@@ -13517,7 +14266,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     MF3_DONTBLAST                          // flags3
      },
 
     {                           // HEXEN_MT_SORCFX1
@@ -13536,6 +14286,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SORCFX1_D1,              // deathstate
      HEXEN_S_SORCFX1_D1,              // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      7 * FRACUNIT,              // speed
      5 * FRACUNIT,              // radius
@@ -13544,7 +14295,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE,        // flags
-     MF2_NOTELEPORT | MF2_FLOORBOUNCE   // flags2
+     MF2_NOTELEPORT | MF2_FLOORBOUNCE,  // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SORCFX2
@@ -13563,6 +14315,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SORCFX2T1,               // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      15 * FRACUNIT,             // speed
      5 * FRACUNIT,              // radius
@@ -13571,7 +14324,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SORCFX2_T1
@@ -13590,6 +14344,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -13598,7 +14353,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_ALTSHADOW,       // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SORCFX3
@@ -13617,6 +14373,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_BISHMORPH1,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      15 * FRACUNIT,             // speed
      22 * FRACUNIT,             // radius
@@ -13625,7 +14382,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE,        // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SORCFX3_EXPLOSION
@@ -13644,6 +14402,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -13652,7 +14411,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_ALTSHADOW,       // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SORCFX4
@@ -13671,6 +14431,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_SORCFX4_D1,              // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_sorcerer_ballexplode,  // deathsound
      12 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -13679,7 +14440,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_NOGRAVITY, // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_SORCSPARK1
@@ -13698,6 +14460,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      5 * FRACUNIT,              // radius
@@ -13706,7 +14469,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF,        // flags
-     MF2_NOTELEPORT | MF2_LOGRAV        // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BLASTEFFECT
@@ -13725,6 +14489,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -13733,7 +14498,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_NOCLIP | MF_ALTSHADOW,   // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_WATER_DRIP
@@ -13752,6 +14518,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_drip,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -13760,7 +14527,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_MISSILE,                // flags
-     MF2_LOGRAV | MF2_NOTELEPORT        // flags2
+     MF2_LOGRAV | MF2_NOTELEPORT,       // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KORAX
@@ -13779,6 +14547,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_KORAX_DEATH1,            // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_korax_death,           // deathsound
      10,                        // speed
      65 * FRACUNIT,             // radius
@@ -13787,7 +14556,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      15,                        // damage
      hexen_sfx_korax_active,          // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PUSHWALL | MF2_MCROSS | MF2_TELESTOMP | MF2_BOSS       // flags2
+     MF2_FOOTCLIP | MF2_PUSHWALL | MF2_MCROSS | MF2_TELESTOMP | MF2_BOSS,      // flags2
+     MF3_FULLVOLACTIVE | MF3_DONTMORPH   // flags3
      },
 
     {                           // HEXEN_MT_KORAX_SPIRIT1
@@ -13806,6 +14576,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      8 * FRACUNIT,              // speed
      20 * FRACUNIT,             // radius
@@ -13814,7 +14585,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_NOGRAVITY | MF_ALTSHADOW | MF_MISSILE | MF_NOCLIP, // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KORAX_SPIRIT2
@@ -13833,6 +14605,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      8 * FRACUNIT,              // speed
      20 * FRACUNIT,             // radius
@@ -13841,7 +14614,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_NOGRAVITY | MF_ALTSHADOW | MF_MISSILE | MF_NOCLIP, // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KORAX_SPIRIT3
@@ -13860,6 +14634,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      8 * FRACUNIT,              // speed
      20 * FRACUNIT,             // radius
@@ -13868,7 +14643,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_NOGRAVITY | MF_ALTSHADOW | MF_MISSILE | MF_NOCLIP, // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KORAX_SPIRIT4
@@ -13887,6 +14663,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      8 * FRACUNIT,              // speed
      20 * FRACUNIT,             // radius
@@ -13895,7 +14672,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_NOGRAVITY | MF_ALTSHADOW | MF_MISSILE | MF_NOCLIP, // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KORAX_SPIRIT5
@@ -13914,6 +14692,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      8 * FRACUNIT,              // speed
      20 * FRACUNIT,             // radius
@@ -13922,7 +14701,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_NOGRAVITY | MF_ALTSHADOW | MF_MISSILE | MF_NOCLIP, // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KORAX_SPIRIT6
@@ -13941,6 +14721,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      8 * FRACUNIT,              // speed
      20 * FRACUNIT,             // radius
@@ -13949,7 +14730,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF | MF_NOGRAVITY | MF_ALTSHADOW | MF_MISSILE | MF_NOCLIP, // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMON_MASH
@@ -13968,6 +14750,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_demon_death,           // deathsound
      13,                        // speed
      32 * FRACUNIT,             // radius
@@ -13976,7 +14759,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      hexen_sfx_demon_active,          // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_ALTSHADOW | MF_NOBLOOD,        // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_MCROSS | MF2_PUSHWALL | MF2_BLASTED     // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_MCROSS | MF2_PUSHWALL | MF2_BLASTED,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_DEMON2_MASH
@@ -13995,6 +14779,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_demon_death,           // deathsound
      13,                        // speed
      32 * FRACUNIT,             // radius
@@ -14003,7 +14788,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      hexen_sfx_demon_active,          // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_ALTSHADOW | MF_NOBLOOD,        // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_MCROSS | MF2_PUSHWALL | MF2_BLASTED     // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_MCROSS | MF2_PUSHWALL | MF2_BLASTED,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_ETTIN_MASH
@@ -14022,6 +14808,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      hexen_sfx_ettin_death,           // deathsound
      13,                        // speed
      25 * FRACUNIT,             // radius
@@ -14030,7 +14817,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      3,                         // damage
      hexen_sfx_ettin_active,          // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_ALTSHADOW | MF_NOBLOOD,        // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_MCROSS | MF2_PUSHWALL | MF2_BLASTED     // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_MCROSS | MF2_PUSHWALL | MF2_BLASTED,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_CENTAUR_MASH
@@ -14049,6 +14837,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_CENTAUR_ICE,                    // icedeathstate
      hexen_sfx_centaur_death,         // deathsound
      13,                        // speed
      20 * FRACUNIT,             // radius
@@ -14057,7 +14846,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      hexen_sfx_centaur_active,        // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_ALTSHADOW | MF_NOBLOOD,        // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_MCROSS | MF2_PUSHWALL | MF2_BLASTED     // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_MCROSS | MF2_PUSHWALL | MF2_BLASTED,    // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_KORAX_BOLT
@@ -14076,6 +14866,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      15 * FRACUNIT,             // radius
@@ -14084,7 +14875,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE | MF_DROPOFF,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BAT_SPAWNER
@@ -14103,6 +14895,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_NULL,                    // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -14111,7 +14904,8 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR | MF_NOGRAVITY,        // flags
-     MF2_DONTDRAW               // flags2
+     MF2_DONTDRAW,              // flags2
+     0                          // flags3
      },
 
     {                           // HEXEN_MT_BAT
@@ -14130,6 +14924,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      HEXEN_S_NULL,                    // crashstate
      HEXEN_S_BAT_DEATH,               // deathstate
      HEXEN_S_NULL,                    // xdeathstate
+     HEXEN_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      5 * FRACUNIT,              // speed
      3 * FRACUNIT,              // radius
@@ -14138,6 +14933,7 @@ raven_mobjinfo_t hexen_mobjinfo[HEXEN_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
-     MF2_PASSMOBJ | MF2_NOTELEPORT      // flags2
+     MF2_PASSMOBJ | MF2_NOTELEPORT,     // flags2
+     0                          // flags3
      }
 };

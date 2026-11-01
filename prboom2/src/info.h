@@ -6675,6 +6675,7 @@ typedef struct
     int crashstate;
     int deathstate;
     int xdeathstate;
+    int icedeathstate;
     int deathsound;
     int speed;
     int radius;
@@ -6684,6 +6685,7 @@ typedef struct
     int activesound;
     uint64_t flags;
     uint64_t flags2;
+    uint64_t flags3;
 } raven_mobjinfo_t;
 
 // all the stuff - dynamically selected in global.c

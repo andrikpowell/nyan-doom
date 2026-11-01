@@ -183,120 +183,6 @@ void dsda_LinkSFXEffect(int sound, int fallback) {
     S_sfx[sound].link = &S_sfx[fallback];
 }
 
-// [AR] TODO: Add stuff into raven_mobjinfo_t
-static void dsda_ApplyHereticDefaults(void) {
-  // Sound stuff
-  mobjinfo[HERETIC_MT_WIZARD].flags3      |= MF3_RANDOMACTIVESOUND;
-  mobjinfo[HERETIC_MT_SORCERER2].flags3   |= MF3_FULLVOLACTIVE;
-
-  // don't let imps/wizards fly over each other
-  // note: heretic does not apply this to imp leaders
-  mobjinfo[HERETIC_MT_IMP].flags3         |= MF3_NOFLYOVER;
-  mobjinfo[HERETIC_MT_WIZARD].flags3      |= MF3_NOFLYOVER;
-
-  // these actors cannot be morphed
-  mobjinfo[HERETIC_MT_POD].flags3         |= MF3_DONTMORPH;
-  mobjinfo[HERETIC_MT_CHICKEN].flags3     |= MF3_DONTMORPH;
-  mobjinfo[HERETIC_MT_HEAD].flags3        |= MF3_DONTMORPH;
-  mobjinfo[HERETIC_MT_MINOTAUR].flags3    |= MF3_DONTMORPH;
-  mobjinfo[HERETIC_MT_SORCERER1].flags3   |= MF3_DONTMORPH;
-  mobjinfo[HERETIC_MT_SORCERER2].flags3   |= MF3_DONTMORPH;
-
-  // the maulotaur is invulnerable while charging
-  mobjinfo[HERETIC_MT_MINOTAUR].flags3    |= MF3_INVULNCHARGE;
-
-  // EXDEFS removes this POD behaviour
-  if (exdefs)   mobjinfo[HERETIC_MT_POD].flags3       &= ~MF3_TRANSFERVELOCITY;
-  else          mobjinfo[HERETIC_MT_POD].flags3       |= MF3_TRANSFERVELOCITY;
-
-  // floor missiles
-  mobjinfo[HERETIC_MT_MNTRFX2].flags3 |= MF3_FLOORMISSILE;
-}
-
-// [AR] TODO: Add stuff into raven_mobjinfo_t
-static void dsda_ApplyHexenDefaults(void) {
-  // Sound stuff
-  mobjinfo[HEXEN_MT_BISHOP].flags3        |= MF3_RANDOMACTIVESOUND;
-  mobjinfo[HEXEN_MT_DRAGON].flags3        |= MF3_FULLVOLACTIVE; // MF2_BOSS
-  mobjinfo[HEXEN_MT_SORCBOSS].flags3      |= MF3_FULLVOLACTIVE; // MF2_BOSS
-  mobjinfo[HEXEN_MT_KORAX].flags3         |= MF3_FULLVOLACTIVE; // MF2_BOSS
-
-  // [AR] The pig used a jank hardcoded thing which randomly chose active1 or active2
-  // This deliberately unhardcodes that, while keeping the same behaviour
-  mobjinfo[HEXEN_MT_PIG].flags3 |= MF3_RANDOMACTIVESOUND;
-  mobjinfo[HEXEN_MT_PIG].activesound = hexen_sfx_pig_active2;
-
-  // don't let bishops fly over each other
-  mobjinfo[HEXEN_MT_BISHOP].flags3        |= MF3_NOFLYOVER;
-
-  // these monsters remain morphed
-  mobjinfo[HEXEN_MT_WRAITHB].flags3       |= MF3_STAYMORPHED;
-  mobjinfo[HEXEN_MT_SERPENT].flags3       |= MF3_STAYMORPHED;
-  mobjinfo[HEXEN_MT_SERPENTLEADER].flags3 |= MF3_STAYMORPHED;
-  mobjinfo[HEXEN_MT_MINOTAUR].flags3      |= MF3_STAYMORPHED;
-
-  // these actors cannot be morphed
-  mobjinfo[HEXEN_MT_PIG].flags3          |= MF3_DONTMORPH;
-  mobjinfo[HEXEN_MT_FIGHTER_BOSS].flags3 |= MF3_DONTMORPH;
-  mobjinfo[HEXEN_MT_CLERIC_BOSS].flags3  |= MF3_DONTMORPH;
-  mobjinfo[HEXEN_MT_MAGE_BOSS].flags3    |= MF3_DONTMORPH;
-  mobjinfo[HEXEN_MT_DRAGON].flags3       |= MF3_DONTMORPH; // MF2_BOSS
-  mobjinfo[HEXEN_MT_SORCBOSS].flags3     |= MF3_DONTMORPH; // MF2_BOSS
-  mobjinfo[HEXEN_MT_KORAX].flags3        |= MF3_DONTMORPH; // MF2_BOSS
-
-  // player attacks do not thrust from damage
-  mobjinfo[HEXEN_MT_PLAYER_FIGHTER].flags3 |= MF3_NOSRCDMGTHRUST;
-  mobjinfo[HEXEN_MT_PLAYER_CLERIC].flags3  |= MF3_NOSRCDMGTHRUST;
-  mobjinfo[HEXEN_MT_PLAYER_MAGE].flags3    |= MF3_NOSRCDMGTHRUST;
-  mobjinfo[HEXEN_MT_PIGPLAYER].flags3      |= MF3_NOSRCDMGTHRUST;
-
-  // these attacks ignore monster invulnerability
-  mobjinfo[HEXEN_MT_HOLY_FX].flags3     |= MF3_FOILINVUL;
-  mobjinfo[HEXEN_MT_POISONCLOUD].flags3 |= MF3_FOILINVUL;
-  mobjinfo[HEXEN_MT_FIREBOMB].flags3    |= MF3_FOILINVUL;
-
-  // these actors cannot infight
-  mobjinfo[HEXEN_MT_BISHOP].flags3        |= MF3_NOINFIGHTING;
-  mobjinfo[HEXEN_MT_MINOTAUR].flags3      |= MF3_NOINFIGHTING;
-
-  // these actors cannot be blasted by the disc of repulsion
-  mobjinfo[HEXEN_MT_SPLASHBASE].flags3    |= MF3_DONTBLAST;
-  mobjinfo[HEXEN_MT_SPLASH].flags3        |= MF3_DONTBLAST;
-  mobjinfo[HEXEN_MT_SERPENT].flags3       |= MF3_DONTBLAST;
-  mobjinfo[HEXEN_MT_SERPENTLEADER].flags3 |= MF3_DONTBLAST;
-  mobjinfo[HEXEN_MT_SORCBALL1].flags3     |= MF3_DONTBLAST;
-  mobjinfo[HEXEN_MT_SORCBALL2].flags3     |= MF3_DONTBLAST;
-  mobjinfo[HEXEN_MT_SORCBALL3].flags3     |= MF3_DONTBLAST;
-
-  // floor / ceiling missiles
-  mobjinfo[HEXEN_MT_MNTRFX2].flags3           |= MF3_FLOORMISSILE;
-  mobjinfo[HEXEN_MT_LIGHTNING_FLOOR].flags3   |= MF3_FLOORMISSILE;
-  mobjinfo[HEXEN_MT_LIGHTNING_CEILING].flags3 |= MF3_CEILINGMISSILE;
-
-  // player ice deaths
-  mobjinfo[HEXEN_MT_FIGHTER_BOSS].icedeathstate   = HEXEN_S_FIGHTER_ICE;
-  mobjinfo[HEXEN_MT_CLERIC_BOSS].icedeathstate    = HEXEN_S_CLERIC_ICE;
-  mobjinfo[HEXEN_MT_MAGE_BOSS].icedeathstate      = HEXEN_S_MAGE_ICE;
-  mobjinfo[HEXEN_MT_PIG].icedeathstate            = HEXEN_S_PIG_ICE;
-
-  // actor ice deaths
-  mobjinfo[HEXEN_MT_PLAYER_FIGHTER].icedeathstate = HEXEN_S_FPLAY_ICE;
-  mobjinfo[HEXEN_MT_PLAYER_CLERIC].icedeathstate  = HEXEN_S_CPLAY_ICE;
-  mobjinfo[HEXEN_MT_PLAYER_MAGE].icedeathstate    = HEXEN_S_MPLAY_ICE;
-  mobjinfo[HEXEN_MT_PIGPLAYER].icedeathstate      = HEXEN_S_PIG_ICE;
-  mobjinfo[HEXEN_MT_BISHOP].icedeathstate         = HEXEN_S_BISHOP_ICE;
-  mobjinfo[HEXEN_MT_CENTAUR].icedeathstate        = HEXEN_S_CENTAUR_ICE;
-  mobjinfo[HEXEN_MT_CENTAURLEADER].icedeathstate  = HEXEN_S_CENTAUR_ICE;
-  mobjinfo[HEXEN_MT_DEMON].icedeathstate          = HEXEN_S_DEMON_ICE;
-  mobjinfo[HEXEN_MT_DEMON2].icedeathstate         = HEXEN_S_DEMON_ICE;
-  mobjinfo[HEXEN_MT_SERPENT].icedeathstate        = HEXEN_S_SERPENT_ICE;
-  mobjinfo[HEXEN_MT_SERPENTLEADER].icedeathstate  = HEXEN_S_SERPENT_ICE;
-  mobjinfo[HEXEN_MT_WRAITH].icedeathstate         = HEXEN_S_WRAITH_ICE;
-  mobjinfo[HEXEN_MT_WRAITHB].icedeathstate        = HEXEN_S_WRAITH_ICE;
-  mobjinfo[HEXEN_MT_ETTIN].icedeathstate          = HEXEN_S_ETTIN_ICE1;
-  mobjinfo[HEXEN_MT_FIREDEMON].icedeathstate      = HEXEN_S_FIRED_ICE1;
-}
-
 static void dsda_InitDoom(void) {
   int i;
   doom_mobjinfo_t* mobjinfo_p;
@@ -663,7 +549,7 @@ static void dsda_InitHeretic(void) {
     mobjinfo[j].raisestate   = 0; // not in heretic
     mobjinfo[j].droppeditem  = 0; // not in heretic
     mobjinfo[j].crashstate   = mobjinfo_p->crashstate;
-    mobjinfo[j].icedeathstate = 0; // not in heretic
+    mobjinfo[j].icedeathstate = mobjinfo_p->icedeathstate;
     mobjinfo[j].activatestate = 0; // not in heretic
     mobjinfo[j].deactivatestate = 0; // not in heretic
     mobjinfo[j].flags2       = mobjinfo_p->flags2;
@@ -681,7 +567,11 @@ static void dsda_InitHeretic(void) {
     mobjinfo[j].visibility = VF_HERETIC;
   }
 
-  dsda_ApplyHereticDefaults();
+  // EXDEFS removes this POD behaviour
+  if (exdefs)
+    mobjinfo[HERETIC_MT_POD].flags3 &= ~MF3_TRANSFERVELOCITY;
+  else
+    mobjinfo[HERETIC_MT_POD].flags3 |= MF3_TRANSFERVELOCITY;
 
   // heretic doesn't use "clip" concept
   for (i = 0; i < NUMAMMO; ++i) clipammo[i] = 1;
@@ -891,7 +781,7 @@ static void dsda_InitHexen(void) {
     mobjinfo[j].raisestate   = 0; // not in hexen
     mobjinfo[j].droppeditem  = 0; // not in hexen
     mobjinfo[j].crashstate   = mobjinfo_p->crashstate;
-    mobjinfo[j].icedeathstate = 0; // not added to raven_mobjinfo_t yet
+    mobjinfo[j].icedeathstate = mobjinfo_p->icedeathstate;
     mobjinfo[j].activatestate = 0; // not added to raven_mobjinfo_t yet
     mobjinfo[j].deactivatestate = 0; // not added to raven_mobjinfo_t yet
     mobjinfo[j].flags2       = mobjinfo_p->flags2;
@@ -909,7 +799,10 @@ static void dsda_InitHexen(void) {
     mobjinfo[j].visibility = VF_HEXEN;
   }
 
-  dsda_ApplyHexenDefaults();
+  // [AR] The pig used a jank hardcoded thing which randomly chose active1 or active2
+  // This deliberately unhardcodes that, while keeping the same behaviour
+  mobjinfo[HEXEN_MT_PIG].flags3 |= MF3_RANDOMACTIVESOUND;
+  mobjinfo[HEXEN_MT_PIG].activesound = hexen_sfx_pig_active2;
 
   {
     extern void P_UseHexenRNG(void);
