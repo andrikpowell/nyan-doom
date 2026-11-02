@@ -2202,8 +2202,9 @@ void P_TeleportToDeathmatchStarts(mobj_t * victim)
 
 static dboolean P_IsBanishmentSpot(mobj_t *spot)
 {
+    // [AR] TODO: not sure if the dormant is a thing tbh
     return spot->info->behavior == EXDEFS_BEHAVIOR_TELOTHER_SPOT &&
-                                   !(spot->flags2 & MF2_DORMANT); // TODO: not sure if the dormant is a thing tbh
+                                   !(spot->flags2 & MF2_DORMANT);
 }
 
 static dboolean P_BanishmentSpotsExist(void)
