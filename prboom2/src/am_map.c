@@ -41,6 +41,7 @@
 
 #include "gl_opengl.h"
 #include "doomstat.h"
+#include "e6y.h"
 #include "st_stuff.h"
 #include "r_main.h"
 #include "p_setup.h"
@@ -3016,7 +3017,7 @@ static void AM_DrawBossActionThings(void)
 //
 // Passed nothing, returns nothing
 //
-static void AM_drawFreeCameraPlayer(void)
+static void AM_drawCameraPlayer(void)
 {
   fixed_t scale = 16 << MAPBITS;
   mpoint_t pt;
@@ -3041,9 +3042,9 @@ static void AM_drawPlayers(void)
   fixed_t scale;
   fixed_t box_scale = 0;
 
-  // Free Camera Player
-  if (dsda_FreeCamera())
-    AM_drawFreeCameraPlayer();
+  // Camera Player
+  if (P_WalkCameraDetached())
+    AM_drawCameraPlayer();
 
   if (V_IsOpenGLMode())
   {
@@ -3063,7 +3064,7 @@ static void AM_drawPlayers(void)
   if (!netgame)
   {
     // draw the player separate from view
-    if (dsda_FreeCamera() || R_ChasecamOn())
+    if (P_WalkCameraDetached() || R_ChasecamOn())
     {
       AM_GetMobjPosition(plr->mo, &pt, &angle);
     }
