@@ -39,6 +39,7 @@
 #include "SDL.h"
 
 #include "doomstat.h"
+#include "d_main.h"
 #include "d_net.h"
 #include "w_wad.h"
 #include "r_main.h"
@@ -1191,7 +1192,8 @@ dboolean R_ChasecamOn(void)
 {
   player_t *player;
 
-  if (gamestate != GS_LEVEL || walkcamera.type)
+  // Advancedemo is here to avoid changing the view on the wipescreen
+  if (advancedemo || gamestate != GS_LEVEL || walkcamera.type)
     return false;
 
   if (dsda_ChasecamMode() != chasecam_off)
@@ -1202,7 +1204,8 @@ dboolean R_ChasecamOn(void)
   return dsda_Deathcam() &&
          player->mo &&
          player->mo->health <= 0 &&
-         player->playerstate == PST_DEAD;
+         (player->playerstate == PST_DEAD ||
+          player->playerstate == PST_REBORN);
 }
 
 static void R_ApplyChasecam(player_t *player)
@@ -1277,7 +1280,9 @@ static void R_ApplyChasecam(player_t *player)
   else
     player_z = player->mo->z;
 
-  if (player->mo->health <= 0 && player->playerstate == PST_DEAD)
+  if (player->mo->health <= 0 &&
+      (player->playerstate == PST_DEAD ||
+       player->playerstate == PST_REBORN))
     camera_z = player_z + 6 * FRACUNIT;
   else
     camera_z = player_z + dsda_IntConfig(nyan_config_chasecam_height) * FRACUNIT;
