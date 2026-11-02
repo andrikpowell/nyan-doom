@@ -1098,10 +1098,10 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
     // we want to use vis->mobjflags and not viewplayer->mo->flags
     // because the flags are different.
     // this makes the cleric work correctly with invuln.
-    if (vis->mobjflags & g_mf_translucent)
-      gld_StaticLightAlpha(light, gld_Shadow() * 0.01f);
-    else if (vis->mobjflags & g_mf_translucent_reverse)
+    if (vis->mobjflags & g_mf_translucent_reverse)
       gld_StaticLightAlpha(light, gld_AltShadow() * 0.01f);
+    else if (vis->mobjflags & g_mf_translucent)
+      gld_StaticLightAlpha(light, gld_Shadow() * 0.01f);
     else
       gld_StaticLight(light);
   }
@@ -2512,6 +2512,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
 {
   // Stupid C trick to get alignment without C11 alignof
   static const size_t align = offsetof(struct { char a; mobj_t m; }, m);
+  dboolean first_person;
   fixed_t   tx;
   spritedef_t   *sprdef;
   spriteframe_t *sprframe;
@@ -2670,8 +2671,11 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
       return;
   }
 
-  //e6y FIXME!!!
-  if (thing == players[displayplayer].mo && walkcamera.type != 2)
+  // e6y
+  // Don't draw the viewed player in first person
+  first_person = !P_WalkCameraDetached() && !R_ChasecamOn();
+
+  if (thing == players[displayplayer].mo && first_person)
     return;
 
   sprite.x =-(float)fx / MAP_SCALE;
@@ -2757,10 +2761,10 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
 
   if (thing->alpha != 1.f)
     sprite.alpha = thing->alpha;
-  else if (sprite.flags & g_mf_translucent)
-    sprite.alpha = gld_Shadow()*0.01f;
   else if (sprite.flags & g_mf_translucent_reverse)
     sprite.alpha = gld_AltShadow()*0.01f;
+  else if (sprite.flags & g_mf_translucent)
+    sprite.alpha = gld_Shadow()*0.01f;
   else
     sprite.alpha = 1.f;
 

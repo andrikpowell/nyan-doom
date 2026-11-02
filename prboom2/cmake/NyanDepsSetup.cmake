@@ -33,6 +33,11 @@ if(WITH_DISCORD_RPC)
     list(APPEND VCPKG_MANIFEST_FEATURES "discord-rpc")
 endif()
 
+option(WITH_YYJSON "Use yyjson if available" ON)
+if(WITH_YYJSON)
+    list(APPEND VCPKG_MANIFEST_FEATURES "yyjson")
+endif()
+
 if(CMAKE_TOOLCHAIN_FILE MATCHES "vcpkg.cmake$")
   option(VCPKG_APPLOCAL_DEPS "Copy dependencies in the output directory" ON)
   option(X_VCPKG_APPLOCAL_DEPS_INSTALL "Copy dependencies during installation" ON)

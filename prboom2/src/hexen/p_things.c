@@ -144,6 +144,15 @@ mobjtype_t TranslateThingType[] = {
     HEXEN_MT_WRAITHFX2                // T_SPARK_DRIP
 };
 
+dboolean P_HexenThingValid(int type)
+{
+    // Is valid spawnid?
+    if (type >= 0 && type < (int)(sizeof(TranslateThingType) / sizeof(*TranslateThingType)))
+        return true;
+
+    return false;
+}
+
 dboolean EV_ThingProjectile(byte * args, dboolean gravity)
 {
     int tid;
@@ -160,6 +169,10 @@ dboolean EV_ThingProjectile(byte * args, dboolean gravity)
     success = false;
     searcher = -1;
     tid = args[0];
+    if (!P_HexenThingValid(args[1]))
+    {
+        return false;
+    }
     moType = TranslateThingType[args[1]];
     if ((skill_info.flags & SI_NO_MONSTERS) && (mobjinfo[moType].flags & MF_COUNTKILL))
     {                           // Don't spawn monsters if -nomonsters
@@ -210,6 +223,10 @@ dboolean EV_ThingSpawn(byte * args, dboolean fog)
     success = false;
     searcher = -1;
     tid = args[0];
+    if (!P_HexenThingValid(args[1]))
+    {
+        return false;
+    }
     moType = TranslateThingType[args[1]];
     if ((skill_info.flags & SI_NO_MONSTERS) && (mobjinfo[moType].flags & MF_COUNTKILL))
     {                           // Don't spawn monsters if -nomonsters
@@ -341,6 +358,27 @@ static dboolean ActivateThing(mobj_t * mobj)
         }
         return false;
     }
+    if (exdefs)
+    {
+        // [AR] TODO: Double check behaviour regarding MF2_DORMANT
+        if (mobj->flags3 & MF3_DRAWONAUTOMAP)
+        {
+            mobj->flags2 &= ~MF2_DORMANT;
+            return true;
+        }
+        // [AR] TODO: Double check behaviour regarding MF2_DORMANT
+        if (mobj->flags2 & MF2_DORMANT)
+        {
+            mobj->flags2 &= ~MF2_DORMANT;
+            mobj->flags3 |= MF3_DRAWONAUTOMAP;
+            return true;
+        }
+        if (mobj->info->activatestate != 0)
+        {
+            P_SetMobjState(mobj, mobj->info->activatestate);
+            return true;
+        }
+    }
     switch (mobj->type)
     {
         case HEXEN_MT_ZTWINEDTORCH:
@@ -416,6 +454,20 @@ static dboolean DeactivateThing(mobj_t * mobj)
             return true;
         }
         return false;
+    }
+    if (exdefs)
+    {
+        // [AR] TODO: Double check behaviour regarding MF2_DORMANT
+        if (mobj->flags3 & MF3_DRAWONAUTOMAP)
+        {
+            mobj->flags2 |= MF2_DORMANT;
+            return true;
+        }
+        if (mobj->info->deactivatestate != 0)
+        {
+            P_SetMobjState(mobj, mobj->info->deactivatestate);
+            return true;
+        }
     }
     switch (mobj->type)
     {

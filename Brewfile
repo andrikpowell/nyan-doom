@@ -15,6 +15,7 @@ brew "sdl3"
 brew "sdl2-compat"
 brew "libspng"
 brew "sdl2_mixer"
+brew "yyjson"
 
 # Packaging tools
 brew "dylibbundler"

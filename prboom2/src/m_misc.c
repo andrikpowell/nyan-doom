@@ -346,6 +346,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_map_blinking_locks),
   MIGRATED_SETTING(dsda_config_map_secret_after),
   MIGRATED_SETTING(dsda_config_map_show_keys),
+  MIGRATED_SETTING(dsda_config_map_show_raven_waypoints),
   MIGRATED_SETTING(dsda_config_map_key_style),
   MIGRATED_SETTING(dsda_config_map_sprite_scale),
   MIGRATED_SETTING(dsda_config_map_minimap_sprite_scale),
@@ -500,6 +501,10 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(nyan_config_classic_idchoppers),
   MIGRATED_SETTING(nyan_config_vanilla_texture_emulation),
   MIGRATED_SETTING(nyan_config_vanilla_sprite_emulation),
+  MIGRATED_SETTING(nyan_config_chasecam),
+  MIGRATED_SETTING(nyan_config_chasecam_distance),
+  MIGRATED_SETTING(nyan_config_chasecam_height),
+  MIGRATED_SETTING(nyan_config_death_camera),
   MIGRATED_SETTING(nyan_config_colored_blood),
   MIGRATED_SETTING(nyan_config_colored_blood_baron),
   MIGRATED_SETTING(nyan_config_colored_blood_knight),
@@ -687,6 +692,7 @@ cfg_input_def_t input_defs[] = {
   INPUT_SETTING("input_demo_skip", dsda_input_demo_skip, KEYD_INSERT, -1, -1),
   INPUT_SETTING("input_demo_endlevel", dsda_input_demo_endlevel, KEYD_END, -1, -1),
   INPUT_SETTING("input_walkcamera", dsda_input_walkcamera, KEYD_KEYPAD0, -1, -1),
+  INPUT_SETTING("input_freecamera", nyan_input_freecamera, 0, -1, -1),
   INPUT_SETTING("input_join_demo", dsda_input_join_demo, 0, -1, -1),
   INPUT_SETTING("input_restart", dsda_input_restart, KEYD_HOME, -1, -1),
   INPUT_SETTING("input_nextlevel", dsda_input_nextlevel, KEYD_PAGEDOWN, -1, -1),
@@ -1426,4 +1432,26 @@ void* M_ArrayGetNewItem(array_t *data, int itemsize)
   data->count++;
 
   return (unsigned char*)data->data + (data->count - 1) * itemsize;
+}
+
+int M_CompareVersions(const version_t *v1, const version_t *v2)
+{
+    if (v1->major != v2->major)
+    {
+        return v1->major - v2->major;
+    }
+    if (v1->minor != v2->minor)
+    {
+        return v1->minor - v2->minor;
+    }
+    return v1->revision - v2->revision;
+}
+
+dboolean M_ParseVersion(const char *s, version_t *v)
+{
+    if (sscanf(s, "%d.%d.%d", &v->major, &v->minor, &v->revision) == 3)
+    {
+        return true;
+    }
+    return false;
 }

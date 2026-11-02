@@ -78,6 +78,7 @@ dboolean dsda_RenderWipeScreen(void);
 dboolean dsda_WipeAtFullSpeed(void);
 int dsda_WipeScreenSpeed(void);
 dboolean dsda_ShowAutomapKeys(void);
+dboolean dsda_ShowRavenAutomapWaypoints(void);
 dboolean dsda_ShowAutomapSprites(void);
 float dsda_AutomapSpriteScale(void);
 float dsda_MinimapSpriteScale(void);
@@ -123,5 +124,9 @@ dboolean dsda_AllowMouse(void);
 void dsda_WatchGameControllerEvent(void);
 void dsda_WatchMouseEvent(void);
 void dsda_LiftInputRestrictions(void);
+
+dboolean dsda_FreeCamera(void);
+dboolean dsda_Deathcam(void);
+int dsda_ChasecamMode(void);
 
 #endif

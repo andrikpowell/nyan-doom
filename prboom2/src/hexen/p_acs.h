@@ -81,7 +81,7 @@ void P_TagFinished(int tag);
 void P_PolyobjFinished(int po);
 void P_ACSInitNewGame(void);
 void P_CheckACSStore(void);
-void CheckACSPresent(int number);
+dboolean CheckACSPresent(int number);
 
 extern int ACScriptCount;
 extern const byte *ActionCodeBase;

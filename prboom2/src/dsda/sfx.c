@@ -19,6 +19,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "doomdef.h"
 #include "doomtype.h"
 #include "lprintf.h"
 
@@ -28,17 +29,32 @@
 
 sfxinfo_t* S_sfx;
 int num_sfx;
+static int sfx_capacity;
 static int deh_soundnames_size;
 static char** deh_soundnames;
 static byte* sfx_state;
-static int highest_index;
 
 static void dsda_ResetSFX(int from, int to) {
   int i;
 
   for (i = from; i < to; ++i) {
-    S_sfx[i].priority = 127;
-    S_sfx[i].pitch = -1;
+    if (hexen)
+    {
+      S_sfx[i].priority = 256;
+      S_sfx[i].pitch = 0;
+      S_sfx[i].numchannels = 2;
+    }
+    else if (heretic)
+    {
+      S_sfx[i].priority = 32;
+      S_sfx[i].pitch = -1;
+      S_sfx[i].numchannels = 2;
+    }
+    else // Doom
+    {
+      S_sfx[i].priority = 127;
+      S_sfx[i].pitch = -1;
+    }
   }
 }
 
@@ -55,50 +71,65 @@ static void dsda_PrepAllocation(void) {
 }
 
 static void dsda_EnsureCapacity(int limit) {
-  while (limit >= num_sfx) {
-    int old_num_sfx = num_sfx;
+  while (limit >= sfx_capacity) {
+    int old_capacity = sfx_capacity;
 
     dsda_PrepAllocation();
 
-    num_sfx *= 2;
+    sfx_capacity *= 2;
 
-    S_sfx = realloc(S_sfx, num_sfx * sizeof(*S_sfx));
-    memset(S_sfx + old_num_sfx, 0, (num_sfx - old_num_sfx) * sizeof(*S_sfx));
+    S_sfx = realloc(S_sfx, sfx_capacity * sizeof(*S_sfx));
+    memset(S_sfx + old_capacity, 0,
+      (sfx_capacity - old_capacity) * sizeof(*S_sfx));
 
     if (sfx_state) {
-      sfx_state = realloc(sfx_state, num_sfx * sizeof(*sfx_state));
-      memset(sfx_state + old_num_sfx, 0,
-        (num_sfx - old_num_sfx) * sizeof(*sfx_state));
+      sfx_state = realloc(sfx_state, sfx_capacity * sizeof(*sfx_state));
+      memset(sfx_state + old_capacity, 0,
+        (sfx_capacity - old_capacity) * sizeof(*sfx_state));
     }
 
-    dsda_ResetSFX(old_num_sfx, num_sfx);
+    dsda_ResetSFX(old_capacity, sfx_capacity);
   }
+}
+
+static void dsda_EnsureIndex(int index) {
+  dsda_EnsureCapacity(index);
+
+  // Extend sfx array
+  if (index >= num_sfx)
+    num_sfx = index + 1;
 }
 
 int dsda_GetDehSFXIndex(const char* key, size_t length) {
   int i;
+  const char *name;
 
-  // offset "ds" for dehacked names
-  for (i = 1; i < num_sfx; ++i)
-    if (
-      S_sfx[i].name &&
-      strlen(S_sfx[i].name + 2) == length &&
-      !strnicmp(S_sfx[i].name + 2, key, length) &&
-      !sfx_state[i]
-    ) {
+  for (i = 1; i < num_sfx; ++i) {
+    if (!S_sfx[i].name)
+      continue;
+
+    // doom has 2-char offset "ds" for dehacked names
+    name = raven ? S_sfx[i].name : S_sfx[i].name + 2;
+
+    if (strlen(name) == length &&
+        !strnicmp(name, key, length) &&
+        !sfx_state[i])
+    {
       sfx_state[i] = true; // sfx has been edited
       return i;
     }
+  }
 
   return -1;
 }
 
 int dsda_GetOriginalSFXIndex(const char* key) {
   int i;
+  int length = raven ? 8 : 6;
   const char* c;
 
   for (i = 1; deh_soundnames[i]; ++i)
-    if (!strncasecmp(deh_soundnames[i], key, 6))
+    if (!strncasecmp(deh_soundnames[i], key, length))
       return i;
 
   // is it a number?
@@ -107,16 +138,13 @@ int dsda_GetOriginalSFXIndex(const char* key) {
       return -1;
 
   i = atoi(key);
-  dsda_EnsureCapacity(i);
+  dsda_EnsureIndex(i);
 
   return i;
 }
 
 static sfxinfo_t* dsda_SFXAtIndex(int index) {
-  dsda_EnsureCapacity(index);
-
-  if (index > highest_index)
-    highest_index = index;
+  dsda_EnsureIndex(index);
 
   return &S_sfx[index];
 }
@@ -126,7 +154,7 @@ sfxinfo_t* dsda_GetDehSFX(int index) {
 }
 
 sfxinfo_t* dsda_NewSFX(int* index) {
-  *index = highest_index + 1;
+  *index = num_sfx;
 
   return dsda_SFXAtIndex(*index);
 }
@@ -136,7 +164,7 @@ void dsda_InitializeSFX(sfxinfo_t* source, int count) {
   extern int hexen;
 
   num_sfx = count;
-  highest_index = count - 1;
+  sfx_capacity = count;
   deh_soundnames_size = num_sfx + 1;
 
   S_sfx = source;
@@ -146,7 +174,7 @@ void dsda_InitializeSFX(sfxinfo_t* source, int count) {
   deh_soundnames = malloc(deh_soundnames_size * sizeof(*deh_soundnames));
   for (i = 1; i < num_sfx; i++)
     if (S_sfx[i].name != NULL)
-      deh_soundnames[i] = strdup(S_sfx[i].name + 2); // offset "ds" for dehacked names
+      deh_soundnames[i] = strdup(heretic ? S_sfx[i].name : S_sfx[i].name + 2);
     else
       deh_soundnames[i] = NULL;
   deh_soundnames[0] = NULL;
@@ -193,4 +221,46 @@ dboolean dsda_BlockSFX(sfxinfo_t *sfx) {
   ++sfx->parallel_count;
 
   return sfx->parallel_count > dsda_parallel_sfx_limit;
+}
+
+#define SFX_NOT_FOUND (-1)
+
+static int dsda_FindSFX(const char *name) {
+  int i;
+
+  for (i = 1; i < num_sfx; ++i)
+    if (S_sfx[i].tagname && !stricmp(S_sfx[i].tagname, name))
+      return i;
+
+  return SFX_NOT_FOUND;
+}
+
+dboolean dsda_SFXExists(const char *name) {
+  return dsda_FindSFX(name) != SFX_NOT_FOUND;
+}
+
+void dsda_UpdateSFX(const char *name, const char *lump) {
+  int index = dsda_FindSFX(name);
+
+  if (index != SFX_NOT_FOUND)
+  {
+    S_sfx[index].name = strdup(lump);
+    S_sfx[index].data = NULL;
+    S_sfx[index].lumpnum = -1;
+  }
+}
+
+int dsda_AppendSFX(const char *name, const char *lump) {
+  int index = num_sfx;
+
+  dsda_PrepAllocation();
+  dsda_EnsureIndex(index);
+  memset(&S_sfx[index], 0, sizeof(S_sfx[index]));
+  dsda_ResetSFX(index, index + 1);
+
+  S_sfx[index].name = strdup(lump);
+  S_sfx[index].tagname = strdup(name);
+  S_sfx[index].lumpnum = -1;
+
+  return index;
 }

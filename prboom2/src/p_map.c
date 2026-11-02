@@ -143,6 +143,7 @@ msecnode_t* sector_list = NULL;                             // phares 3/16/98
 //
 
 static dboolean telefrag;   /* killough 8/9/98: whether to telefrag at exit */
+static dboolean telefrag_camera;  // Camera telefrag
 
 dboolean PIT_StompThing (mobj_t* thing)
 {
@@ -162,6 +163,14 @@ dboolean PIT_StompThing (mobj_t* thing)
 
   if (D_abs(thing->x - tmx) >= blockdist || D_abs(thing->y - tmy) >= blockdist)
     return true; // didn't hit it
+
+  // Check z-position of camera cheat telefrag
+  if (telefrag_camera)
+  {
+    if (thing->z >= tmthing->z + tmthing->height ||
+        thing->z + thing->height <= tmthing->z)
+      return true;
+  }
 
   // monsters don't stomp things except on boss level
   // killough 8/9/98: make consistent across all levels
@@ -466,6 +475,46 @@ dboolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, dboolean boss)
   thing->PrevZ = thing->floorz;
 
   return true;
+}
+
+void P_CameraExitTelefrag(mobj_t *thing)
+{
+  int     xl;
+  int     xh;
+  int     yl;
+  int     yh;
+  int     bx;
+  int     by;
+
+  // kill anything occupying the position
+
+  tmthing = thing;
+
+  tmx = thing->x;
+  tmy = thing->y;
+
+  telefrag = true;
+  telefrag_camera = true;
+
+  tmbbox[BOXTOP] = tmy + thing->radius;
+  tmbbox[BOXBOTTOM] = tmy - thing->radius;
+  tmbbox[BOXRIGHT] = tmx + thing->radius;
+  tmbbox[BOXLEFT] = tmx - thing->radius;
+
+  // stomp on any things contacted
+
+  xl = P_GetSafeBlockX(tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS);
+  xh = P_GetSafeBlockX(tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS);
+  yl = P_GetSafeBlockY(tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS);
+  yh = P_GetSafeBlockY(tmbbox[BOXTOP] - bmaporgy + MAXRADIUS);
+
+  for (bx=xl ; bx<=xh ; bx++)
+    for (by=yl ; by<=yh ; by++)
+      P_BlockThingsIterator(bx, by, PIT_StompThing, true);
+
+  telefrag = false;
+  telefrag_camera = false;
+  tmthing = NULL;
 }
 
 
@@ -845,6 +894,11 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   if (thing == tmthing)
     return true;
 
+  // Camera mode phases through actors, but still checks walls and lines
+  if ((tmthing->player && tmthing->player->cheats & CF_CAMERA) ||
+      (thing->player && thing->player->cheats & CF_CAMERA))
+    return true;
+
   if (map_format.hexen)
     BlockingMobj = thing;
 
@@ -889,18 +943,11 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 
   if (tmthing->flags2 & MF2_PASSMOBJ)
   {                           // check if a mobj passed over/under another object
-    if (raven)
+    // [AR] don't let actors fly over other actors with this flag
+    // heretic imps/wizards / hexen bishops)
+    if ((tmthing->flags3 & MF3_NOFLYOVER) && (thing->flags3 & MF3_NOFLYOVER))
     {
-      if ((tmthing->type == HERETIC_MT_IMP || tmthing->type == HERETIC_MT_WIZARD)
-          && (thing->type == HERETIC_MT_IMP || thing->type == HERETIC_MT_WIZARD))
-      {                       // don't let imps/wizards fly over other imps/wizards
-        return false;
-      }
-
-      if (tmthing->type == HEXEN_MT_BISHOP && thing->type == HEXEN_MT_BISHOP)
-      {                       // don't let bishops fly over other bishops
-        return false;
-      }
+      return false;
     }
 
     if (
@@ -1022,6 +1069,12 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   {
     // Check for a non-shootable mobj
     if (thing->flags2 & MF2_NONSHOOTABLE)
+    {
+        return true;
+    }
+
+    // EXDEFS - Allow firing through ice corpses
+    if ((thing->flags & MF_ICECORPSE) && (tmthing->flags3 & MF3_THRUICECORPSE))
     {
         return true;
     }
@@ -1682,6 +1735,7 @@ dboolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
         floatok = true,
         !(thing->flags & MF_TELEPORT) &&
         tmceilingz - thing->z < thing->height &&
+        !(thing->flags3 & MF3_CEILINGMISSILE) && // exdefs - new
         !(thing->flags & MF_FLY) &&
         !(thing->flags2 & MF2_FLY)
       )
@@ -1712,7 +1766,7 @@ dboolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
 
     if (
       !(thing->flags & MF_TELEPORT) &&
-      (!heretic || thing->type != HERETIC_MT_MNTRFX2) &&
+      !(thing->flags3 & MF3_FLOORMISSILE) && // HERETIC_MT_MNTRFX2
       tmfloorz - thing->z > 24*FRACUNIT
     )
     {
@@ -2669,6 +2723,111 @@ dboolean PTR_ShootTraverse (intercept_t* in)
   return false;
 }
 
+//
+// Chasecam
+//
+// Partly based on Nugget
+//
+
+static fixed_t chasecam_x;
+static fixed_t chasecam_y;
+static fixed_t chasecam_z;
+static fixed_t chasecam_start_z;
+static fixed_t chasecam_slope;
+
+static dboolean PTR_ChasecamTraverse(intercept_t *in)
+{
+  line_t *line;
+  fixed_t frac;
+  fixed_t line_z;
+
+  if (!in->isaline)
+    return true;
+
+  line = in->d.line;
+  line_z = chasecam_start_z + FixedMul(chasecam_slope, FixedMul(attackrange, in->frac));
+
+  if (line->flags & ML_TWOSIDED)
+  {
+    P_LineOpening(line, NULL);
+
+    if (line->backsector &&
+        (line->frontsector->floorheight == line->backsector->floorheight ||
+        line_z >= line_opening.bottom + FRACUNIT) &&
+        (line->frontsector->ceilingheight == line->backsector->ceilingheight ||
+        line_z <= line_opening.top - FRACUNIT))
+    {
+      return true;
+    }
+  }
+
+  // Stop the camera just before the wall
+  frac = in->frac - FixedDiv(FRACUNIT, attackrange);
+  frac = MAX(0, frac);
+
+  chasecam_x = trace.x + FixedMul(trace.dx, frac);
+  chasecam_y = trace.y + FixedMul(trace.dy, frac);
+  chasecam_z = chasecam_start_z + FixedMul(chasecam_slope, FixedMul(attackrange, frac));
+
+  return false;
+}
+
+static void P_ClampChasecamHeight(void)
+{
+  fixed_t clamped_z;
+  fixed_t slope_distance;
+  fixed_t frac;
+  sector_t *sector;
+
+  sector = R_PointInSubsector(chasecam_x, chasecam_y)->sector;
+  clamped_z = CLAMP(chasecam_z, sector->floorheight + FRACUNIT,
+                                sector->ceilingheight - FRACUNIT);
+
+  if (clamped_z == chasecam_z)
+    return;
+
+  chasecam_z = clamped_z;
+  slope_distance = FixedMul(chasecam_slope, attackrange);
+
+  // Move forward along the trace when the camera hits the floor or ceiling
+  if (slope_distance)
+  {
+    frac = FixedDiv(chasecam_z - chasecam_start_z, slope_distance);
+    frac = CLAMP(frac, 0, FRACUNIT);
+    chasecam_x = trace.x + FixedMul(trace.dx, frac);
+    chasecam_y = trace.y + FixedMul(trace.dy, frac);
+  }
+}
+
+void P_ClipChasecam(fixed_t x, fixed_t y, fixed_t z, angle_t angle,
+                    fixed_t distance, fixed_t slope, fixed_t *camera_x,
+                    fixed_t *camera_y, fixed_t *camera_z)
+{
+  int saved_overflows_enabled = overflows_enabled;
+  fixed_t saved_attackrange = attackrange;
+  fixed_t trace_x;
+  fixed_t trace_y;
+  angle_t fineangle = (angle + ANG180) >> ANGLETOFINESHIFT;
+
+  attackrange = distance + FRACUNIT;
+  chasecam_start_z = z;
+  chasecam_slope = slope;
+  chasecam_x = x + FixedMul(distance, finecosine[fineangle]);
+  chasecam_y = y + FixedMul(distance, finesine[fineangle]);
+  chasecam_z = z + FixedMul(slope, distance);
+  trace_x = x + FixedMul(attackrange, finecosine[fineangle]);
+  trace_y = y + FixedMul(attackrange, finesine[fineangle]);
+
+  overflows_enabled = false;
+  P_PathTraverse(x, y, trace_x, trace_y, PT_ADDLINES | PT_NOAUTOMAPTRACE, PTR_ChasecamTraverse);
+  P_ClampChasecamHeight();
+  overflows_enabled = saved_overflows_enabled;
+  attackrange = saved_attackrange;
+
+  *camera_x = chasecam_x;
+  *camera_y = chasecam_y;
+  *camera_z = chasecam_z;
+}
 
 //
 // P_AimLineAttack
@@ -2948,6 +3107,9 @@ dboolean PTR_NoWayTraverse(intercept_t* in)
   );
 }
 
+static void P_UsePuzzleItemOnThing(player_t *player);
+static void P_UseSpecialThing(player_t *player);
+
 //
 // P_UseLines
 // Looks for special lines in front of the player to activate.
@@ -2980,8 +3142,12 @@ void P_UseLines (player_t*  player)
       S_StartSound (usething, sfx_noway);
 
   // allow kex-style puzzle item usage
-  if (hexen && dsda_SimplerPuzzleUse())
+  if (hexen && (exdefs || dsda_SimplerPuzzleUse()))
     P_UsePuzzleItemOnThing(player);
+
+  // allow kex class-change thing use
+  if (hexen && exdefs)
+    P_UseSpecialThing(player);
 }
 
 
@@ -4254,7 +4420,7 @@ static dboolean Hexen_P_TryMove(mobj_t* thing, fixed_t x, fixed_t y)
         floatok = true;
         if (!(thing->flags & MF_TELEPORT)
             && tmceilingz - thing->z < thing->height
-            && thing->type != HEXEN_MT_LIGHTNING_CEILING
+            && !(thing->flags3 & MF3_CEILINGMISSILE) // mage lightning ceiling
             && !(thing->flags2 & MF2_FLY))
         {                       // mobj must lower itself to fit
             goto pushline;
@@ -4274,8 +4440,8 @@ static dboolean Hexen_P_TryMove(mobj_t* thing, fixed_t x, fixed_t y)
             }
         }
         if (!(thing->flags & MF_TELEPORT)
-            // The Minotaur floor fire (HEXEN_MT_MNTRFX2) can step up any amount
-            && thing->type != HEXEN_MT_MNTRFX2 && thing->type != HEXEN_MT_LIGHTNING_FLOOR
+            // The Minotaur floor fire / Mage floor lightning can step up any amount
+            && !(thing->flags3 & MF3_FLOORMISSILE)
             && tmfloorz - thing->z > 24 * FRACUNIT)
         {
             goto pushline;
@@ -4527,7 +4693,7 @@ dboolean P_UsePuzzleItem(player_t * player, int itemType)
 // Special use artifact functions
 //
 
-int P_FindPuzzleItemType(player_t *player)
+static int P_FindPuzzleItemType(player_t *player)
 {
     int angle;
     fixed_t x1, y1, x2, y2;
@@ -4550,7 +4716,7 @@ int P_FindPuzzleItemType(player_t *player)
     return PuzzleUseThing;
 }
 
-dboolean P_UsePuzzleItemOnThing(player_t *player)
+static void P_UsePuzzleItemOnThing(player_t *player)
 {
     int required;
     int i;
@@ -4558,11 +4724,11 @@ dboolean P_UsePuzzleItemOnThing(player_t *player)
     artitype_t arti;
 
     if (!player || !player->mo)
-        return false;
+        return;
 
     required = P_FindPuzzleItemType(player);
     if (required < 0)
-        return false;
+        return;
 
     for (i = 0; i < player->artifactCount; i++)
     {
@@ -4584,15 +4750,60 @@ dboolean P_UsePuzzleItemOnThing(player_t *player)
                 S_StartVoidSound(hexen_sfx_puzzle_success);
                 ArtifactFlash = 4;
             }
-            return true;
+            return;
         }
 
         // kex adds this
         dsda_PuzzleFailMessage(player);
-        return false;
+        return;
     }
 
     // No matching puzzle item exists anywhere in inventory
     dsda_PuzzleMissingMessage(player);
-    return false;
+}
+
+//
+// EXDEFS - Use thing to activate line special
+//
+
+static dboolean PTR_UseThingTraverse(intercept_t *in)
+{
+  mobj_t *thing;
+
+  // stop at closed lines
+  if (in->isaline)
+  {
+    P_LineOpening(in->d.line, NULL);
+    return line_opening.range > 0;
+  }
+
+  // skip player and non-usable things
+  thing = in->d.thing;
+  if (thing == usething || !(thing->flags3 & MF3_USESPECIAL))
+    return true;
+
+  // skip things without a special
+  if (!thing->special)
+    return true;
+
+  // Do special!
+  map_format.execute_line_special(thing->special, thing->special_args, NULL, 0, usething);
+
+  return false;
+}
+
+static void P_UseSpecialThing(player_t *player)
+{
+  int angle;
+  fixed_t x1, y1, x2, y2;
+
+  if (!player || !player->mo)
+      return;
+
+  angle = player->mo->angle >> ANGLETOFINESHIFT;
+  x1 = player->mo->x;
+  y1 = player->mo->y;
+  x2 = x1 + (USERANGE >> FRACBITS) * finecosine[angle];
+  y2 = y1 + (USERANGE >> FRACBITS) * finesine[angle];
+  P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES | PT_ADDTHINGS, PTR_UseThingTraverse);
 }

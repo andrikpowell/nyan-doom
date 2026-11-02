@@ -391,19 +391,46 @@ dboolean dsda_MapTitle(void) {
   return dsda_IntConfig(dsda_config_map_title);
 }
 
+int dsda_ChasecamMode(void) {
+  if (!casual_play) return false;
+
+  return dsda_IntConfig(nyan_config_chasecam);
+}
+
+dboolean dsda_Deathcam(void) {
+  return casual_play && dsda_IntConfig(nyan_config_death_camera);
+}
+
+dboolean dsda_FreeCamera(void) {
+  return (casual_play && casual_freecamera) ||
+         (demoplayback && walkcamera.type == walkcamera_free);
+}
+
+static dboolean dsda_CameraDisableEffects(void) {
+  return (dsda_FreeCamera() || P_WalkCameraDetached());
+}
+
 dboolean dsda_PainPalette(void) {
+  if (dsda_CameraDisableEffects()) return false;
+
   return dsda_IntConfig(dsda_config_palette_ondamage);
 }
 
 dboolean dsda_PickupPalette(void) {
+  if (dsda_CameraDisableEffects()) return false;
+
   return dsda_IntConfig(dsda_config_palette_onbonus);
 }
 
 dboolean dsda_PowerPalette(void) {
+  if (dsda_CameraDisableEffects()) return false;
+
   return dsda_IntConfig(dsda_config_palette_onpowers);
 }
 
 dboolean dsda_EffectPalette(void) {
+  if (dsda_CameraDisableEffects()) return false;
+
   if (!casual_play || dsda_StrictMode()) return true;
 
   return dsda_IntConfig(dsda_config_palette_oneffects);
@@ -468,6 +495,10 @@ int dsda_ShowAliveMonsters(void) {
 
 dboolean dsda_ShowAutomapKeys(void) {
   return dsda_IntConfig(dsda_config_map_show_keys) && casual_play;
+}
+
+dboolean dsda_ShowRavenAutomapWaypoints(void) {
+  return dsda_IntConfig(dsda_config_map_show_raven_waypoints);
 }
 
 dboolean dsda_ShowAutomapSprites(void) {

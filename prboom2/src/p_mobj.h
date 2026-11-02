@@ -410,6 +410,9 @@ typedef struct mobj_s
     fixed_t gravity;
     float alpha;
 
+    // EXDEFS
+    uint64_t flags3;            // EXDEFS flags
+
     // misc
     byte color;
     const byte* tranmap;
@@ -533,6 +536,39 @@ void P_RemoveMonsters(void);
 // zdoom
 #define MF2_CANUSEWALLS       0x0002000000000000ull // can activate use lines
 #define MF2_COUNTSECRET       0x0004000000000000ull // picking up counts as a secret
+
+// ID24
+#define MF3_NORESPAWN               0x00000001ull // Disables nightmare respawns
+#define MF3_SPECIALSTAYS_SINGLE     0x00000002ull // N/A -- reserved, but unimplemented
+#define MF3_SPECIALSTAYS_COOP       0x00000004ull // N/A -- reserved, but unimplemented
+#define MF3_SPECIALSTAYS_DM         0x00000008ull // N/A -- reserved, but unimplemented
+
+// Raven EX
+#define MF3_FLOORMISSILE      0x00000010ull // projectile hugs the floor and can travel over any steps (e.g. minotaur floor fire attack, mage lightning)
+#define MF3_CEILINGMISSILE    0x00000020ull // ditto, for ceilings (e.g. mage lightning)
+#define MF3_INVULNCHARGE      0x00000040ull // monster is immune to damage while charging (i.e. when MF_SKULLFLY flag set)
+#define MF3_DONTMORPH         0x00000080ull // monster is immune to being morphed into a chicken/pig
+#define MF3_WALLBOUNCE        0x00000100ull // projectile bounces off walls. Hexen's counterpart to Heretic's MF2_FLOORBOUNCE.
+#define MF3_NOSPLASH          0x00000200ull // cannot trigger terrain splash effects when hitting the ground, regardless of mass
+#define MF3_NOMELEEGHOST      0x00000400ull // monster is unable to melee attack ghosts.
+#define MF3_NOINFIGHTING      0x00000800ull // monster will never infight with another monster.
+#define MF3_DRAWONAUTOMAP     0x00001000ull // actor's sprite is drawn on the automap -- drawing works just like AutomapMarker in GZDoom, effectively
+#define MF3_TOGGLEDORMANT     0x00002000ull // actor's MF2_DORMANT flag will be toggled when calling Thing Activate/Deactivate on it; previously hardcoded to MF_COUNTKILL -- GZDoom may have different semantics here?
+#define MF3_THRUICECORPSE     0x00004000ull // missile will pass through ice corpses
+#define MF3_PSETRANS          0x00008000ull // draw translucent if the "PSE translucency" menu option is enabled -- this may be N/A for ports unless they want to also add this feature to the menu (it's a quick thing to wire up).
+#define MF3_USESPECIAL        0x00010000ull // actor will execute its special when the player presses the Use button while facing it.
+#define MF3_SLIDEONACTORS     0x00020000ull // slides against other actors. in vanilla, Hexen actors have both SLIDE and SLIDEONACTORS, while Heretic just has SLIDE -- does GZDoom disambiguate?
+#define MF3_FULLVOLACTIVE     0x00040000ull // play active sounds at full volume; used by D'Sparil and Hexen bosses
+#define MF3_NOSRCDMGTHRUST    0x00080000ull // Do not thrust when damage is dealt by an attack whose source (not inflictor) has this flag; this is set on Hexen playerclasses, to prevent damage-based thrust for all attacks.
+#define MF3_FOILINVUL         0x00100000ull // missiles with this flag will ignore invulnerability on monsters (but not players)
+#define MF3_DONTBLAST         0x00200000ull // cannot be blasted by the disc of repulsion
+#define MF3_STAYMORPHED       0x00400000ull // monsters with this flag will never unmorph
+#define MF3_NONETSYNC         0x00800000ull // Object is never synchronized on the network (i.e. clientside-only)
+#define MF3_RANDOMACTIVESOUND 0x01000000ull // actor will randomly play its seesound instead of its activesound, 50% of the time (previously hardcoded to Wizard/Bishop/Pig)
+#define MF3_NOFLYOVER         0x02000000ull // actors with this flag will not attempt to fly over each other even if the PASSMOBJ flag is set (previously hardcoded to Gargoyle/Wizard/Bishop)
+#define MF3_TRANSFERVELOCITY  0x04000000ull // N-A -- transfer velocity to any objects that are standing on this object; formerly hardcoded to MT_POD -- H+H eventually shipped with this disabled 'cause it sucked :P
+#define MF3_SHIELDPARRY       0x08000000ull // Not directly exposed to EXDEFS -- Cleric shield parry: actors with a valid stunstate that perform a melee attack against an actor with SHIELDPARRY will jump to their stunstate and have the STUNNED flag set.
+#define MF3_STUNNED           0x10000000ull // Not directly exposed to EXDEFS -- Actor is stunned, and takes extra damage from certain melee attacks (e.g. mace). This flag is cleared in A_Chase.
 
 // extra
 #define MFX_MIRROREDCORPSE    0x00000002 // [woof] randomly flip corpse, blood and death animation sprites

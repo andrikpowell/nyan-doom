@@ -590,7 +590,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
   draw_column_vars_t dcvars;
   int isColor = 0;
   int isTranslucenct = 0;
-  int hexen_reverse_trans = 0;
+  int reverse_trans = 0;
 
   R_SetDefaultDrawColumnVars(&dcvars);
 
@@ -599,9 +599,20 @@ static void R_DrawVisSprite(vissprite_t *vis)
   if (vis->mobjflags & MF_PLAYERSPRITE)
     dcvars.isplayersprite = true;
 
-  // Add second Hexen translucent function
-  if (hexen && vis->mobjflags & MF_SHADOW)
-    hexen_reverse_trans++;
+  // Add reverse translucent function
+  if (raven)
+  {
+    uint64_t main_trans  = vis->mobjflags & (MF_SHADOW | MF_TRANSLUCENT);
+    uint64_t alt_trans   = vis->mobjflags & MF_ALTSHADOW;
+
+    if (hexen)
+      if (main_trans && !alt_trans)
+        reverse_trans++;
+
+    if (heretic)
+      if (alt_trans)
+        reverse_trans++;
+  }
 
   // killough 4/11/98: rearrange and handle translucent sprites
   // mixed with translucent/non-translucenct 2s normals
@@ -642,9 +653,9 @@ static void R_DrawVisSprite(vissprite_t *vis)
     }
 
     if (isColor && isTranslucenct)
-      colfunc = R_GetDrawColumnFunc(hexen_reverse_trans ? RDC_PIPELINE_ALT_TRTL : RDC_PIPELINE_TRTL, RDRAW_FILTER_POINT);
+      colfunc = R_GetDrawColumnFunc(reverse_trans ? RDC_PIPELINE_ALT_TRTL : RDC_PIPELINE_TRTL, RDRAW_FILTER_POINT);
     else if (isTranslucenct)
-      colfunc = R_GetDrawColumnFunc(hexen_reverse_trans ? RDC_PIPELINE_ALT_TL : RDC_PIPELINE_TRANSLUCENT, RDRAW_FILTER_POINT);
+      colfunc = R_GetDrawColumnFunc(reverse_trans ? RDC_PIPELINE_ALT_TL : RDC_PIPELINE_TRANSLUCENT, RDRAW_FILTER_POINT);
     else if (isColor)
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, RDRAW_FILTER_POINT);
     else
@@ -714,6 +725,7 @@ dboolean LevelUseFullBright = true;
 
 static void R_ProjectSprite (mobj_t* thing, int lightlevel)
 {
+  dboolean  first_person;
   fixed_t   gzt, gzb;               // killough 3/27/98
   fixed_t   tx;
   fixed_t   xscale;
@@ -888,9 +900,11 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
         return;
     }
 
-  //e6y FIXME!!!
-  if (thing == players[displayplayer].mo && walkcamera.type != 2)
-//  if (thing->player && thing->player == &players[displayplayer] && walkcamera.type != 2)
+  // e6y
+  // Don't draw the viewed player in first person
+  first_person = !P_WalkCameraDetached() && !R_ChasecamOn();
+
+  if (thing == players[displayplayer].mo && first_person)
     return;
 
   // store information in a vissprite
@@ -1539,7 +1553,7 @@ void R_DrawPlayerSprites(void)
   int i;
   pspdef_t *psp;
 
-  if (walkcamera.type != 0)
+  if (walkcamera.type != walkcamera_off || R_ChasecamOn())
     return;
 
   // get light level

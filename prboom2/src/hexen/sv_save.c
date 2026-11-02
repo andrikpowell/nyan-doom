@@ -394,6 +394,9 @@ static void StreamIn_mobj_t(mobj_t *str)
     // int flags2;
     str->flags2 = SV_ReadFlags();
 
+    // int flags3;
+    str->flags3 = SV_ReadFlags();
+
     // int flags_extra;
     str->flags_extra = SV_ReadFlags();
 
@@ -531,6 +534,9 @@ static void StreamOut_mobj_t(mobj_t *str)
 
     // int flags2;
     SV_WriteFlags(str->flags2);
+
+    // int flags3;
+    SV_WriteFlags(str->flags3);
 
     // int flags_extra;
     SV_WriteFlags(str->flags_extra);
@@ -2060,7 +2066,7 @@ void SV_MapTeleport(int map, int position)
     int currentInvPos = 0;
     dboolean rClass;
     dboolean playerWasReborn;
-    dboolean oldWeaponowned[HEXEN_NUMWEAPONS];
+    weaponowned_t oldWeaponowned[HEXEN_NUMWEAPONS];
     int oldKeys[NUMCARDS];
     int oldPieces = 0;
     int bestWeapon;
@@ -2178,10 +2184,17 @@ void SV_MapTeleport(int map, int position)
             players[i].pieces = oldPieces;
             for (bestWeapon = 0, j = 0; j < HEXEN_NUMWEAPONS; j++)
             {
-                if (oldWeaponowned[j])
+                if (exdefs) // Restore weapons per class
+                {
+                    players[i].weaponowned[j] |= oldWeaponowned[j];
+
+                    if (P_PlayerOwnsWeapon(&players[i], j))
+                        bestWeapon = j;
+                }
+                else if (oldWeaponowned[j])
                 {
                     bestWeapon = j;
-                    players[i].weaponowned[j] = true;
+                    P_GivePlayerWeapon(&players[i], j);
                 }
             }
             players[i].ammo[MANA_1] = 25;

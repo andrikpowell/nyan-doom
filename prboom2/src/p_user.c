@@ -60,10 +60,12 @@
 
 // heretic needs
 #include "heretic/def.h"
+#include "heretic/sb_bar.h"
 #include "hexen/dstrings.h"
 #include "s_sound.h"
 #include "sounds.h"
 #include "p_inter.h"
+#include "p_pspr.h"
 #include "m_random.h"
 
 //
@@ -358,40 +360,30 @@ void P_HandleExCmdLook(player_t* player)
   }
 }
 
-static void P_FreeAim_VerticalThrust(player_t* player, fixed_t move)
+static void P_Raven_VerticalThrust(player_t* player, angle_t angle, fixed_t move, int fly)
 {
-  fixed_t slope;
+  if (dsda_FreeAimFlying() && player->mo->pitch != 0)
+  {
+    fixed_t oldmove = move;
+    angle_t pitch = player->mo->pitch >> ANGLETOFINESHIFT;
+    fixed_t zpush = FixedMul(move, finesine[pitch]);
+    fixed_t newmove;
 
-  if (!dsda_FreeAimFlying())
-    return;
+    angle >>= ANGLETOFINESHIFT;
 
-  slope = finetangent[(ANG90 - player->mo->pitch) >> ANGLETOFINESHIFT];
+    // Raven up / down flight takes priority over pitch
+    // Add Vertical push
+    if (!fly)
+      player->mo->momz -= zpush;
 
-  player->flyheight += (FixedMul(move, slope) >> (FRACBITS - 3));
+    // Get left over Horizontal push
+    move = FixedMul(move, finecosine[pitch]);
 
-  // Clamp flyheight to max fly speed
-  // (fixes insane flyheight changes when looking directly up or down)
-  if (player->flyheight > 10)   player->flyheight = 10;
-  if (player->flyheight < -10)  player->flyheight = -10;
-}
+    // Remove some of the horizontal push, after vertical push was added
+    newmove = move - oldmove;
 
-static void P_FreeAim_ForwardThrust(player_t* player, fixed_t move)
-{
-  angle_t angle;
-  angle_t pitch;
-  fixed_t horizontal_move;
-  fixed_t vertical_move;
-
-  if (!dsda_FreeAimFlying())
-    return;
-
-  angle = player->mo->angle >> ANGLETOFINESHIFT;
-  pitch = player->mo->pitch >> ANGLETOFINESHIFT;
-  horizontal_move = FixedMul(move, finecosine[pitch]);
-  vertical_move = FixedMul(move, finesine[pitch]);
-
-  map_format.player_thrust(player, angle, horizontal_move - move);
-  player->mo->momz -= vertical_move << 3;
+    map_format.player_thrust(player, angle, newmove);
+  }
 }
 
 void P_MovePlayer (player_t* player)
@@ -455,11 +447,6 @@ void P_MovePlayer (player_t* player)
           P_Bob(player,mo->angle-ANG90,cmd->sidemove*bobfactor);
           P_Thrust(player,mo->angle-ANG90,cmd->sidemove*movefactor);
         }
-
-        if (cmd->forwardmove && mo->flags & MF_FLY)
-        {
-          P_FreeAim_VerticalThrust(player,cmd->forwardmove*movefactor);
-        }
       }
       else if (map_aircontrol)
       {
@@ -478,13 +465,9 @@ void P_MovePlayer (player_t* player)
           P_Bob(player, mo->angle - ANG90, cmd->sidemove * movefactor);
           P_Thrust(player, player->mo->angle - ANG90, cmd->sidemove * movefactor);
         }
-
-        if (cmd->forwardmove && mo->flags & MF_FLY)
-        {
-          P_FreeAim_VerticalThrust(player,cmd->forwardmove*movefactor);
-        }
       }
-      if (mo->state == states+S_PLAY)
+      // Don't start the walking animation without movement input
+      if ((cmd->forwardmove || cmd->sidemove) && mo->state == states+S_PLAY)
         P_SetMobjState(mo,S_PLAY_RUN1);
     }
 }
@@ -857,7 +840,7 @@ void P_PlayerThink (player_t* player)
       {
         P_DamageMobj(player->mo, NULL, NULL, 10000);
       }
-      if (cmd->arti == HEXEN_NUMARTIFACTS)
+      if (cmd->arti == (exdefs ? HEXEN_EXDEFS_NUMARTIFACTS : HEXEN_NUMARTIFACTS))
       {                       // use one of each artifact (except puzzle artifacts)
         int i;
 
@@ -926,7 +909,7 @@ void P_PlayerThink (player_t* player)
 
     // killough 2/8/98, 3/22/98 -- end of weapon selection changes
 
-    if (player->weaponowned[newweapon] && newweapon != player->readyweapon)
+    if (P_PlayerOwnsWeapon(player, newweapon) && newweapon != player->readyweapon)
 
       // Do not go to plasma or BFG in shareware,
       //  even if cheated.
@@ -1183,6 +1166,235 @@ int P_GetPlayerNum(player_t * player)
     return (0);
 }
 
+static void P_ConvertPlayerArmor(player_t *player, pclass_t old_class, pclass_t new_class)
+{
+    int i;
+    fixed_t armor_total;
+    fixed_t armor_remainder;
+
+    if (old_class < PCLASS_FIGHTER || old_class > PCLASS_MAGE)
+    {
+        memset(player->armorpoints, 0, sizeof(player->armorpoints));
+        return;
+    }
+
+    for (i = 0; i < NUMARMOR; ++i)
+    {
+        const fixed_t old_increment = pclass[old_class].armor_increment[i];
+        const fixed_t new_increment = pclass[new_class].armor_increment[i];
+        const fixed_t old_armor = player->armorpoints[i];
+
+        if (old_armor > old_increment)
+        {
+            // Preserve Dragonskin armor above the full piece as absolute AC
+            player->armorpoints[i] = new_increment + old_armor - old_increment;
+        }
+        else
+        {
+            // Preserve how worn the underlying armor piece is
+            player->armorpoints[i] = (fixed_t)((int64_t)old_armor * new_increment / old_increment);
+        }
+    }
+
+    armor_total = pclass[new_class].auto_armor_save
+                + player->armorpoints[ARMOR_ARMOR]
+                + player->armorpoints[ARMOR_SHIELD]
+                + player->armorpoints[ARMOR_HELMET]
+                + player->armorpoints[ARMOR_AMULET];
+    armor_remainder = armor_total % (5 * FRACUNIT);
+
+    // Avoid armor rounding errors
+    if (armor_remainder && 5 * FRACUNIT - armor_remainder <= NUMARMOR)
+    {
+        for (i = 0; i < NUMARMOR; ++i)
+        {
+            if (player->armorpoints[i])
+            {
+                player->armorpoints[i] += 5 * FRACUNIT - armor_remainder;
+                break;
+            }
+        }
+    }
+}
+
+static void P_SetHexenPlayerTranslation(player_t *player, pclass_t pclass)
+{
+    int playerNum = P_GetPlayerNum(player);
+
+    // Vanilla had a bug which reset the fighter color to be wrong
+    // so since we call this later to fix it, we must clear translation flags
+    player->mo->flags &= ~MF_TRANSLATION;
+
+    if (pclass == PCLASS_FIGHTER)
+    {
+        // The first type should be blue, and the third should be the
+        // Fighter's original gold color
+        if (playerNum == 0)
+        {
+            player->mo->flags |= 2 << MF_TRANSSHIFT; // MF_TRANSLATION2;
+        }
+        else if (playerNum != 2)
+        {
+            player->mo->flags |= playerNum << MF_TRANSSHIFT;
+        }
+    }
+    else if (playerNum)
+    {                           // Set color translation bits for player sprites
+        player->mo->flags |= playerNum << MF_TRANSSHIFT;
+    }
+}
+
+static void P_ReplaceHexenPlayerMobj(player_t *player, pclass_t pclass)
+{
+    mobj_t *old_mobj = player->mo;
+    mobj_t *new_mobj;
+    mobjtype_t type;
+    fixed_t x = old_mobj->x;
+    fixed_t y = old_mobj->y;
+    fixed_t z = old_mobj->z;
+    fixed_t momx = old_mobj->momx;
+    fixed_t momy = old_mobj->momy;
+    fixed_t momz = old_mobj->momz;
+    angle_t angle = old_mobj->angle;
+    angle_t pitch = old_mobj->pitch;
+    uint64_t flags2 = old_mobj->flags2;
+
+    switch (pclass)
+    {
+        case PCLASS_FIGHTER:
+            type = HEXEN_MT_PLAYER_FIGHTER;
+            break;
+        case PCLASS_CLERIC:
+            type = HEXEN_MT_PLAYER_CLERIC;
+            break;
+        case PCLASS_MAGE:
+            type = HEXEN_MT_PLAYER_MAGE;
+            break;
+        default:
+            return;
+    }
+
+    P_SetMobjState(old_mobj, HEXEN_S_FREETARGMOBJ);
+    new_mobj = P_SpawnMobj(x, y, z, type);
+
+    new_mobj->angle = angle;
+    new_mobj->pitch = pitch;
+    new_mobj->momx = momx;
+    new_mobj->momy = momy;
+    new_mobj->momz = momz;
+    new_mobj->health = player->health;
+    new_mobj->player = player;
+
+    // Follow morph flag behavior
+    if (flags2 & MF2_FLY)
+    {
+        new_mobj->flags2 |= MF2_FLY;
+        new_mobj->flags |= MF_NOGRAVITY;
+    }
+
+    player->mo = new_mobj;
+    P_SetHexenPlayerTranslation(player, pclass);
+}
+
+// Keep the current weapon slot if available
+// [AR] TODO: Check if this is really how KEX works
+static weapontype_t P_ChangePlayerClassWeapon(player_t *player, pclass_t pclass, weapontype_t weapon)
+{
+    int i;
+
+    // Make sure new class has weapon 1
+    P_GivePlayerClassWeapon(player, pclass, wp_first);
+
+    if (weapon < wp_first || weapon >= HEXEN_NUMWEAPONS)
+        weapon = wp_first;
+
+    if (P_PlayerClassOwnsWeapon(player, pclass, weapon))
+        return weapon;
+
+    for (i = weapon + 1; i < HEXEN_NUMWEAPONS; ++i)
+    {
+        if (P_PlayerClassOwnsWeapon(player, pclass, i))
+            return i;
+    }
+
+    for (i = weapon - 1; i >= wp_first; --i)
+    {
+        if (P_PlayerClassOwnsWeapon(player, pclass, i))
+            return i;
+    }
+
+    return wp_first;
+}
+
+dboolean P_ChangePlayerClass(player_t *player, pclass_t new_class, dboolean spawn_fog)
+{
+    int player_num;
+    dboolean morphed;
+    pclass_t old_class;
+    weapontype_t weapon;
+    mobj_t *fog;
+
+    if (!hexen)
+        return false;
+
+    if (new_class < PCLASS_FIGHTER || new_class > PCLASS_MAGE)
+        return false;
+
+    player_num = P_GetPlayerNum(player);
+    morphed = exdefs && player->morphTics;
+
+    // EXDEFS - allow changing classes while in pig form
+    // Restore new class after morph wears off
+    if (morphed)
+    {
+        old_class = PlayerClass[player_num];
+        weapon = player->mo->special1.i;
+    }
+    else
+    {
+        old_class = player->pclass;
+        weapon = player->readyweapon;
+    }
+
+    P_ConvertPlayerArmor(player, old_class, new_class);
+
+    // Keep the current weapon slot if available
+    weapon = P_ChangePlayerClassWeapon(player, new_class, weapon);
+    PlayerClass[player_num] = new_class;
+
+    if (morphed)
+    {
+        // Equip this weapon when the player unmorphs
+        player->mo->special1.i = weapon;
+    }
+    else
+    {
+        player->pclass = new_class;
+        P_ReplaceHexenPlayerMobj(player, new_class);
+        P_PostMorphWeapon(player, weapon);
+    }
+
+    // Teleport
+    if (spawn_fog && player->mo)
+    {
+      fixed_t x = player->mo->x;
+      fixed_t y = player->mo->y;
+      fixed_t z = player->mo->z;
+
+      fog = P_SpawnMobj(x, y, z + TELEFOGHEIGHT, HEXEN_MT_TFOG);
+      S_StartMobjSound(fog, hexen_sfx_teleport);
+    }
+
+    // Other players can changes classes
+    // We want to only update statusbar for the player
+    if (player_num == consoleplayer)
+    {
+        SB_SetClassData();
+    }
+
+    return true;
+}
+
 dboolean P_UndoPlayerChicken(player_t * player)
 {
     mobj_t *fog;
@@ -1196,6 +1408,7 @@ dboolean P_UndoPlayerChicken(player_t * player)
     weapontype_t weapon;
     uint64_t oldFlags;
     uint64_t oldFlags2;
+    uint64_t oldFlags3;
 
     pmo = player->mo;
     x = pmo->x;
@@ -1205,6 +1418,7 @@ dboolean P_UndoPlayerChicken(player_t * player)
     weapon = pmo->special1.i;
     oldFlags = pmo->flags;
     oldFlags2 = pmo->flags2;
+    oldFlags3 = pmo->flags3;
     P_SetMobjState(pmo, HERETIC_S_FREETARGMOBJ);
     mo = P_SpawnMobj(x, y, z, g_mt_player);
     if (P_TestMobjLocation(mo) == false)
@@ -1217,6 +1431,7 @@ dboolean P_UndoPlayerChicken(player_t * player)
         mo->player = player;
         mo->flags = oldFlags;
         mo->flags2 = oldFlags2;
+        mo->flags3 = oldFlags3;
         player->mo = mo;
         player->chickenTics = 2 * 35;
         return (false);
@@ -1622,22 +1837,27 @@ void Raven_P_MovePlayer(player_t * player)
     }
     if (player->mo->flags2 & MF2_FLY)
     {
-        player->mo->momz = player->flyheight * FRACUNIT;
+        // Apply classic flight or explicit up/down movement
+        if (!dsda_FreeAimFlying() || player->flyheight)
+        {
+            player->mo->momz = player->flyheight * FRACUNIT;
+        }
         if (player->flyheight)
         {
             player->flyheight /= 2;
         }
     }
 
+    // Raven freeaim flying
     if (cmd->forwardmove && player->mo->flags2 & MF2_FLY)
     {
       if (player->chickenTics) // Chicken speed
       {
-        P_FreeAim_ForwardThrust(player,cmd->forwardmove*2500);
+        P_Raven_VerticalThrust(player,player->mo->angle,cmd->forwardmove*2500,fly);
       }
       else // Normal speed
       {
-        P_FreeAim_ForwardThrust(player,cmd->forwardmove*2048);
+        P_Raven_VerticalThrust(player,player->mo->angle,cmd->forwardmove*2048,fly);
       }
     }
 }
@@ -1692,6 +1912,9 @@ void P_BlastMobj(mobj_t * source, mobj_t * victim, fixed_t strength)
     mobj_t *mo;
     fixed_t x, y, z;
 
+    if (victim->flags3 & MF3_DONTBLAST)
+      return;
+
     angle = R_PointToAngle2(source->x, source->y, victim->x, victim->y);
     angle >>= ANGLETOFINESHIFT;
     if (strength < BLAST_FULLSTRENGTH)
@@ -1712,19 +1935,10 @@ void P_BlastMobj(mobj_t * source, mobj_t * victim, fixed_t strength)
     {
         if (victim->flags & MF_MISSILE)
         {
-            switch (victim->type)
+            if (victim->type == HEXEN_MT_MSTAFF_FX2)     // Reflect to originato
             {
-                case HEXEN_MT_SORCBALL1:     // don't blast sorcerer balls
-                case HEXEN_MT_SORCBALL2:
-                case HEXEN_MT_SORCBALL3:
-                    return;
-                    break;
-                case HEXEN_MT_MSTAFF_FX2:    // Reflect to originator
-                    P_SetTarget(&victim->special1.m, victim->target);
-                    P_SetTarget(&victim->target, source);
-                    break;
-                default:
-                    break;
+                P_SetTarget(&victim->special1.m, victim->target);
+                P_SetTarget(&victim->target, source);
             }
         }
         if (victim->type == HEXEN_MT_HOLY_FX)
@@ -1817,14 +2031,6 @@ void P_BlastRadius(player_t * player)
         {
             continue;           // no underground wraiths
         }
-        if ((mo->type == HEXEN_MT_SPLASHBASE) || (mo->type == HEXEN_MT_SPLASH))
-        {
-            continue;
-        }
-        if (mo->type == HEXEN_MT_SERPENT || mo->type == HEXEN_MT_SERPENTLEADER)
-        {
-            continue;
-        }
         dist = P_AproxDistance(pmo->x - mo->x, pmo->y - mo->y);
         if (dist > BLAST_RADIUS_DIST)
         {                       // Out of range
@@ -1875,6 +2081,7 @@ dboolean P_UndoPlayerMorph(player_t * player)
     weapontype_t weapon;
     uint64_t oldFlags;
     uint64_t oldFlags2;
+    uint64_t oldFlags3;
     int oldBeast;
 
     pmo = player->mo;
@@ -1885,6 +2092,7 @@ dboolean P_UndoPlayerMorph(player_t * player)
     weapon = pmo->special1.i;
     oldFlags = pmo->flags;
     oldFlags2 = pmo->flags2;
+    oldFlags3 = pmo->flags3;
     oldBeast = pmo->type;
     P_SetMobjState(pmo, HEXEN_S_FREETARGMOBJ);
     playerNum = P_GetPlayerNum(player);
@@ -1914,26 +2122,10 @@ dboolean P_UndoPlayerMorph(player_t * player)
         mo->player = player;
         mo->flags = oldFlags;
         mo->flags2 = oldFlags2;
+        mo->flags3 = oldFlags3;
         player->mo = mo;
         player->morphTics = 2 * 35;
         return (false);
-    }
-    if (player->pclass == PCLASS_FIGHTER)
-    {
-        // The first type should be blue, and the third should be the
-        // Fighter's original gold color
-        if (playerNum == 0)
-        {
-            mo->flags |= 2 << MF_TRANSSHIFT;
-        }
-        else if (playerNum != 2)
-        {
-            mo->flags |= playerNum << MF_TRANSSHIFT;
-        }
-    }
-    else if (playerNum)
-    {                           // Set color translation bits for player sprites
-        mo->flags |= playerNum << MF_TRANSSHIFT;
     }
     mo->angle = angle;
     mo->player = player;
@@ -1947,6 +2139,7 @@ dboolean P_UndoPlayerMorph(player_t * player)
     player->health = mo->health = MAXHEALTH;
     player->mo = mo;
     player->pclass = PlayerClass[playerNum];
+    P_SetHexenPlayerTranslation(player, player->pclass);
     angle >>= ANGLETOFINESHIFT;
     fog = P_SpawnMobj(x + 20 * finecosine[angle],
                       y + 20 * finesine[angle], z + TELEFOGHEIGHT, HEXEN_MT_TFOG);
@@ -2007,6 +2200,68 @@ void P_TeleportToDeathmatchStarts(mobj_t * victim)
     }
 }
 
+static dboolean P_IsBanishmentSpot(mobj_t *spot)
+{
+    // [AR] TODO: not sure if the dormant is a thing tbh
+    return spot->info->behavior == EXDEFS_BEHAVIOR_TELOTHER_SPOT &&
+                                   !(spot->flags2 & MF2_DORMANT);
+}
+
+static dboolean P_BanishmentSpotsExist(void)
+{
+    thinker_t *thinker;
+
+    for (thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+    {
+        if (thinker->function == P_MobjThinker)
+        {
+            mobj_t *spot = (mobj_t *)thinker;
+
+            if (P_IsBanishmentSpot(spot))
+                return true;
+        }
+    }
+
+    return false;
+}
+
+static void P_TeleportToBanishmentSpot(mobj_t *victim)
+{
+    thinker_t *thinker;
+    mobj_t *spot;
+    int selections = 0;
+    int selection;
+
+    for (thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+    {
+        if (thinker->function == P_MobjThinker)
+        {
+            spot = (mobj_t *)thinker;
+
+            if (P_IsBanishmentSpot(spot))
+                selections++;
+        }
+    }
+
+    selection = P_Random(pr_hexen) % selections;
+
+    for (thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+    {
+        if (thinker->function != P_MobjThinker)
+            continue;
+
+        spot = (mobj_t *)thinker;
+        if (!P_IsBanishmentSpot(spot))
+            continue;
+
+        if (!selection--)
+        {
+            P_Teleport(victim, spot->x, spot->y, spot->angle, true);
+            return;
+        }
+    }
+}
+
 void P_TeleportOther(mobj_t * victim)
 {
     if (victim->player)
@@ -2026,8 +2281,11 @@ void P_TeleportOther(mobj_t * victim)
             victim->special = 0;
         }
 
-        // Send all monsters to deathmatch spots
-        P_TeleportToDeathmatchStarts(victim);
+        // Send all monsters to banishment/deathmatch spots
+        if (exdefs && P_BanishmentSpotsExist())
+            P_TeleportToBanishmentSpot(victim);
+        else
+            P_TeleportToDeathmatchStarts(victim);
     }
 }
 
@@ -2104,6 +2362,21 @@ static dboolean Hexen_P_UseArtifact(player_t * player, artitype_t arti)
     angle_t angle;
     int i;
     int count;
+
+    // Use puzzle item
+    if (arti >= hexen_arti_firstpuzzitem)
+    {
+        if (P_UsePuzzleItem(player, arti - hexen_arti_firstpuzzitem))
+        {
+            return true;
+        }
+        else
+        {
+            // Kex adds extra sfx
+            dsda_PuzzleFailMessage(player);
+            return false;
+        }
+    }
 
     switch (arti)
     {
@@ -2249,35 +2522,6 @@ static dboolean Hexen_P_UseArtifact(player_t * player, artitype_t arti)
             break;
         case hexen_arti_blastradius:
             P_BlastRadius(player);
-            break;
-
-        case hexen_arti_puzzskull:
-        case hexen_arti_puzzgembig:
-        case hexen_arti_puzzgemred:
-        case hexen_arti_puzzgemgreen1:
-        case hexen_arti_puzzgemgreen2:
-        case hexen_arti_puzzgemblue1:
-        case hexen_arti_puzzgemblue2:
-        case hexen_arti_puzzbook1:
-        case hexen_arti_puzzbook2:
-        case hexen_arti_puzzskull2:
-        case hexen_arti_puzzfweapon:
-        case hexen_arti_puzzcweapon:
-        case hexen_arti_puzzmweapon:
-        case hexen_arti_puzzgear1:
-        case hexen_arti_puzzgear2:
-        case hexen_arti_puzzgear3:
-        case hexen_arti_puzzgear4:
-            if (P_UsePuzzleItem(player, arti - hexen_arti_firstpuzzitem))
-            {
-                return true;
-            }
-            else
-            {
-                // Kex adds extra sfx
-                dsda_PuzzleFailMessage(player);
-                return false;
-            }
             break;
         default:
             return false;

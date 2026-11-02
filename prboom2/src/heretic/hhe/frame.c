@@ -145,7 +145,7 @@ static void hhe_procFrame(DEHFILE *fpin, char *line)
   sscanf(inbuffer, "%s %i", key, &og_indexnum);
   indexnum = HHE_MapHereticFrameNumber(og_indexnum);
   deh_log("Processing Frame %d (mapped %d): %s\n", og_indexnum, indexnum, key);
-  if (indexnum < 0 || indexnum >= num_states)
+  if (indexnum < 0)
   {
     deh_log("Invalid Frame %d (mapped %d)\n", og_indexnum, indexnum);
     return;

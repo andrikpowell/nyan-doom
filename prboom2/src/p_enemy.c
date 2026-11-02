@@ -179,6 +179,9 @@ static dboolean P_CheckMeleeRange(mobj_t *actor)
   if (actor->subsector->sector->flags & SECF_NOATTACK)
     return false;
 
+  if ((actor->flags3 & MF3_NOMELEEGHOST) && (actor->target->flags & MF_SHADOW))
+    return false;
+
   range = actor->info->meleerange;
 
   if (compatibility_level != doom_12_compatibility)
@@ -1408,23 +1411,22 @@ void A_Chase(mobj_t *actor)
   // make active sound
   if (actor->info->activesound && P_Random(pr_see) < 3)
   {
-    if (heretic && actor->type == HERETIC_MT_WIZARD && P_Random(pr_heretic) < 128)
-    {
-      S_StartMobjSound(actor, actor->info->seesound);
-    }
-    else if (heretic && actor->type == HERETIC_MT_SORCERER2)
-    {
-      S_StartVoidSound(actor->info->activesound);
-    }
-    else if (hexen && actor->type == HEXEN_MT_BISHOP && P_Random(pr_hexen) < 128)
-    {
-      S_StartMobjSound(actor, actor->info->seesound);
-    }
-    else if (hexen && actor->type == HEXEN_MT_PIG)
+    int random_type = hexen ? pr_hexen :
+                      heretic ? pr_heretic :
+                      pr_see; // Doom
+
+    // Preserve vanilla pig sound selection
+    if (hexen && !exdefs && actor->type == HEXEN_MT_PIG)
     {
       S_StartMobjSound(actor, hexen_sfx_pig_active1 + (P_Random(pr_hexen) & 1));
     }
-    else if (hexen && actor->flags2 & MF2_BOSS)
+    // Play see sound instead of active randomly 50% of the time
+    else if (actor->flags3 & MF3_RANDOMACTIVESOUND && P_Random(random_type) < 128)
+    {
+      S_StartMobjSound(actor, actor->info->seesound);
+    }
+    // active sounds are full volume (Heretic final boss / Hexen bosses)
+    else if (actor->flags3 & MF3_FULLVOLACTIVE)
     {
       S_StartVoidSound(actor->info->activesound);
     }
@@ -5417,15 +5419,9 @@ dboolean P_UpdateMorphedMonster(mobj_t * actor, int tics)
         return (false);
     }
     moType = actor->special2.i;
-    switch (moType)
+    if (mobjinfo[moType].flags3 & MF3_STAYMORPHED)
     {
-        case HEXEN_MT_WRAITHB:       // These must remain morphed
-        case HEXEN_MT_SERPENT:
-        case HEXEN_MT_SERPENTLEADER:
-        case HEXEN_MT_MINOTAUR:
-            return (false);
-        default:
-            break;
+        return false;       // These must remain morphed
     }
     x = actor->x;
     y = actor->y;
@@ -7737,9 +7733,28 @@ void A_SorcBallOrbit(mobj_t * actor)
     actor->special1.i = angle;    // Set previous angle
     x = parent->x + FixedMul(dist, finecosine[angle]);
     y = parent->y + FixedMul(dist, finesine[angle]);
-    actor->x = x;
-    actor->y = y;
-    actor->z = parent->z - parent->floorclip + parent->info->height;
+
+    // Fix ball orbit from getting stuck
+    // See Heresiarch room in "Heretic + Hexen"s hextest.wad
+    if (exdefs)
+    {
+        P_UnsetThingPosition(actor);
+
+        actor->x = x;
+        actor->y = y;
+        actor->z = parent->z - parent->floorclip + parent->info->height;
+
+        P_SetThingPosition(actor);
+
+        actor->floorz = parent->floorz;
+        actor->ceilingz = parent->ceilingz;
+    }
+    else
+    {
+        actor->x = x;
+        actor->y = y;
+        actor->z = parent->z - parent->floorclip + parent->info->height;
+    }
 }
 
 void A_SpeedBalls(mobj_t * actor)
@@ -8363,8 +8378,8 @@ void A_KoraxChase(mobj_t * actor)
             P_Teleport(actor, spot->x, spot->y, spot->angle, true);
         }
 
-        CheckACSPresent(249);
-        P_StartACS(249, 0, args, actor, NULL, 0);
+        if (CheckACSPresent(249))
+            P_StartACS(249, 0, args, actor, NULL, 0);
         actor->special2.i = 1;    // Don't run again
 
         return;
@@ -8441,8 +8456,8 @@ void A_KoraxBonePop(mobj_t * actor)
     if (mo)
         KSpiritInit(mo, actor);
 
-    CheckACSPresent(255);
-    P_StartACS(255, 0, args, actor, NULL, 0);   // Death script
+    if (CheckACSPresent(255))
+        P_StartACS(255, 0, args, actor, NULL, 0);   // Death script
 }
 
 void KSpiritInit(mobj_t * spirit, mobj_t * korax)
@@ -8557,24 +8572,24 @@ void A_KoraxCommand(mobj_t * actor)
     switch (P_Random(pr_hexen) % numcommands)
     {
         case 0:
-            CheckACSPresent(250);
-            P_StartACS(250, 0, args, actor, NULL, 0);
+            if (CheckACSPresent(250))
+                P_StartACS(250, 0, args, actor, NULL, 0);
             break;
         case 1:
-            CheckACSPresent(251);
-            P_StartACS(251, 0, args, actor, NULL, 0);
+            if (CheckACSPresent(251))
+                P_StartACS(251, 0, args, actor, NULL, 0);
             break;
         case 2:
-            CheckACSPresent(252);
-            P_StartACS(252, 0, args, actor, NULL, 0);
+            if (CheckACSPresent(252))
+                P_StartACS(252, 0, args, actor, NULL, 0);
             break;
         case 3:
-            CheckACSPresent(253);
-            P_StartACS(253, 0, args, actor, NULL, 0);
+            if (CheckACSPresent(253))
+                P_StartACS(253, 0, args, actor, NULL, 0);
             break;
         case 4:
-            CheckACSPresent(254);
-            P_StartACS(254, 0, args, actor, NULL, 0);
+            if (CheckACSPresent(254))
+                P_StartACS(254, 0, args, actor, NULL, 0);
             break;
     }
 }
@@ -8812,4 +8827,103 @@ void A_KBoltRaise(mobj_t * actor)
     {
         // Maybe cap it off here
     }
+}
+
+//
+// EXDEFS
+//
+
+void A_FlyTarget(mobj_t *actor)
+{
+    int count;
+    mobj_t *mo;
+    thinker_t *think;
+    int random;
+
+    random = P_Random(pr_hexen) % 50;
+    think = thinkercap.next;
+    while (random--)
+    {
+        think = think->next;
+    }
+    think = think->next;
+
+    count = 0;
+    for (; think != &thinkercap; think = think->next)
+    {
+        if (think->function != P_MobjThinker)
+        { // Not a mobj thinker
+            continue;
+        }
+
+        mo = (mobj_t *)think;
+        if (!(mo->flags & MF_CORPSE) || mo == actor || actor->target == mo)
+        { // Not a valid corpse
+            continue;
+        }
+        if (count++ > MONS_LOOK_LIMIT)
+        { // Stop searching
+            return;
+        }
+        if(!P_CheckSight(actor, mo))
+        { // Out of sight
+            continue;
+        }
+        // Found a target corpse
+        actor->target = mo;
+        P_SetMobjState(actor, actor->info->seestate);
+        return;
+    }
+
+    return;
+}
+
+void A_FlyChase(mobj_t *actor)
+{
+    mobj_t *target;
+    angle_t ang;
+    int x;
+    int y;
+    int random;
+
+    target = actor->target;
+    if (!target || !(target->flags & MF_CORPSE) || P_Random(pr_hexen) < 5)
+    {
+        P_SetMobjState(actor, actor->info->spawnstate);
+        return;
+    }
+
+    actor->special_args[0]++;
+
+    ang = R_PointToAngle2(actor->x, actor->y, target->x, target->y);
+    actor->angle = ang;
+    ang >>= ANGLETOFINESHIFT;
+    x = actor->x + FixedMul(6*FRACUNIT, finecosine[ang]);
+    y = actor->y + FixedMul(6*FRACUNIT, finesine[ang]);
+
+    if (!P_TryMove(actor, x, y, true))
+    {
+        P_SetMobjStateNF(actor, actor->info->spawnstate);
+        return;
+    }
+
+    if (actor->special_args[0] & 2)
+    {
+        actor->momx += (P_Random(pr_hexen) - 128) << 10;
+        actor->momy += (P_Random(pr_hexen) - 128) << 10;
+    }
+
+    random = P_Random(pr_hexen);
+    if(((target->z + 5 * FRACUNIT) < actor->z) && random > 150)
+    {
+        random = -random;
+    }
+    actor->momz = random << 10;
+
+    if (P_Random(pr_hexen) < 40)
+    {
+        S_StartSoundAtVolume(actor, actor->info->activesound, 64, false, 0);
+    }
+
+    return;
 }

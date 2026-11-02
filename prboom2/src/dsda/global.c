@@ -176,6 +176,8 @@ dboolean raven = false;
 dboolean uvplus = false;
 dboolean customskill = false;
 
+dboolean exdefs = false;
+
 void dsda_LinkSFXEffect(int sound, int fallback) {
   if (I_GetSfxLumpNum(&S_sfx[sound]) < 0)
     S_sfx[sound].link = &S_sfx[fallback];
@@ -185,7 +187,7 @@ static void dsda_InitDoom(void) {
   int i;
   doom_mobjinfo_t* mobjinfo_p;
 
-  dsda_InitializeMobjInfo(DOOM_MT_ZERO, DOOM_NUMMOBJTYPES, DOOM_NUMMOBJTYPES);
+  dsda_InitializeMobjInfo(DOOM_MT_ZERO, DOOM_NUMMOBJTYPES);
   dsda_InitializeStates(doom_states, DOOM_NUMSTATES);
   dsda_InitializeSprites(doom_sprnames, DOOM_NUMSPRITES);
   dsda_InitializeSFX(doom_S_sfx, DOOM_NUMSFX);
@@ -307,6 +309,9 @@ static void dsda_InitDoom(void) {
     mobjinfo[i].raisestate   = mobjinfo_p->raisestate;
     mobjinfo[i].droppeditem  = MT_NULL;
     mobjinfo[i].crashstate   = 0; // not in doom
+    mobjinfo[i].icedeathstate = 0; // not in doom
+    mobjinfo[i].activatestate = 0; // not in doom
+    mobjinfo[i].deactivatestate = 0; // not in doom
     mobjinfo[i].flags2       = 0; // not in doom
 
     // mbf21
@@ -388,7 +393,7 @@ static void dsda_InitHeretic(void) {
   int i, j;
   raven_mobjinfo_t* mobjinfo_p;
 
-  dsda_InitializeMobjInfo(HERETIC_MT_ZERO, HERETIC_NUMMOBJTYPES, HERETIC_NUMMOBJTYPES);
+  dsda_InitializeMobjInfo(HERETIC_MT_ZERO, HERETIC_NUMMOBJTYPES);
   dsda_InitializeStates(heretic_states, HERETIC_NUMSTATES);
   dsda_InitializeSprites(heretic_sprnames, HERETIC_NUMSPRITES);
   dsda_InitializeSFX(heretic_S_sfx, HERETIC_NUMSFX);
@@ -494,8 +499,8 @@ static void dsda_InitHeretic(void) {
 
   g_st_height = 42;
   g_border_offset = 4;
-  g_mf_translucent = MF_SHADOW; // 40%
-  g_mf_translucent_reverse = 0;
+  g_mf_translucent = MF_SHADOW | MF_TRANSLUCENT; // 40%
+  g_mf_translucent_reverse = MF_ALTSHADOW; // 60%
   g_mf_shadow_fuzz = 0; // doesn't exist in heretic
 
   g_menu_flat = "FLOOR30";
@@ -544,6 +549,9 @@ static void dsda_InitHeretic(void) {
     mobjinfo[j].raisestate   = 0; // not in heretic
     mobjinfo[j].droppeditem  = 0; // not in heretic
     mobjinfo[j].crashstate   = mobjinfo_p->crashstate;
+    mobjinfo[j].icedeathstate = mobjinfo_p->icedeathstate;
+    mobjinfo[j].activatestate = 0; // not in heretic
+    mobjinfo[j].deactivatestate = 0; // not in heretic
     mobjinfo[j].flags2       = mobjinfo_p->flags2;
 
     // mbf21
@@ -620,7 +628,7 @@ static void dsda_InitHexen(void) {
   int i, j;
   raven_mobjinfo_t* mobjinfo_p;
 
-  dsda_InitializeMobjInfo(HEXEN_MT_ZERO, HEXEN_NUMMOBJTYPES, TOTAL_NUMMOBJTYPES);
+  dsda_InitializeMobjInfo(HEXEN_MT_ZERO, HEXEN_NUMMOBJTYPES);
   dsda_InitializeStates(hexen_states, HEXEN_NUMSTATES);
   dsda_InitializeSprites(hexen_sprnames, HEXEN_NUMSPRITES);
   dsda_InitializeSFX(hexen_S_sfx, HEXEN_NUMSFX);
@@ -718,8 +726,8 @@ static void dsda_InitHexen(void) {
 
   g_st_height = 39;
   g_border_offset = 4;
-  g_mf_translucent = MF_SHADOW;             // hexen_note: SHADOW is actually opposite of Heretic - 60%
-  g_mf_translucent_reverse = MF_ALTSHADOW;  // hexen_note: ALTSHADOW is reverse SHADOW - 40%
+  g_mf_translucent = MF_SHADOW | MF_TRANSLUCENT;  // hexen_note: SHADOW is actually opposite of Heretic - 60%
+  g_mf_translucent_reverse = MF_ALTSHADOW;        // hexen_note: ALTSHADOW is reverse SHADOW - 40%
   g_mf_shadow_fuzz = 0; // doesn't exist in hexen
 
   g_menu_flat = "F_032";
@@ -767,6 +775,9 @@ static void dsda_InitHexen(void) {
     mobjinfo[j].raisestate   = 0; // not in hexen
     mobjinfo[j].droppeditem  = 0; // not in hexen
     mobjinfo[j].crashstate   = mobjinfo_p->crashstate;
+    mobjinfo[j].icedeathstate = mobjinfo_p->icedeathstate;
+    mobjinfo[j].activatestate = 0; // not added to raven_mobjinfo_t yet
+    mobjinfo[j].deactivatestate = 0; // not added to raven_mobjinfo_t yet
     mobjinfo[j].flags2       = mobjinfo_p->flags2;
 
     // mbf21
@@ -781,6 +792,11 @@ static void dsda_InitHexen(void) {
     mobjinfo[j].bloodcolor = 0; // default
     mobjinfo[j].visibility = VF_HEXEN;
   }
+
+  // [AR] The pig used a jank hardcoded thing which randomly chose active1 or active2
+  // This deliberately unhardcodes that, while keeping the same behaviour
+  mobjinfo[HEXEN_MT_PIG].flags3 |= MF3_RANDOMACTIVESOUND;
+  mobjinfo[HEXEN_MT_PIG].activesound = hexen_sfx_pig_active2;
 
   {
     extern void P_UseHexenRNG(void);

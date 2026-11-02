@@ -36,6 +36,10 @@ typedef struct dsda_pclass_s {
   int fire_weapon_state;
   int attack_state;
   int attack_end_state;
+
+  // exdefs
+  int firedeath;
+  int firedeathend;
 } dsda_pclass_t;
 
 extern dsda_pclass_t pclass[NUMCLASSES];

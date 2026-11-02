@@ -87,6 +87,8 @@ set(COMMON_SRC
     dsda/excmd.h
     dsda/exdemo.c
     dsda/exdemo.h
+    dsda/exdefs.c
+    dsda/exdefs.h
     dsda/exhud.c
     dsda/exhud.h
     dsda/features.c
@@ -435,6 +437,8 @@ set(COMMON_SRC
     m_fixed.h
     m_menu.c
     m_menu.h
+    m_json.c
+    m_json.h
     m_misc.c
     m_misc.h
     m_random.c

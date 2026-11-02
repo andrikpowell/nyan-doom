@@ -89,6 +89,9 @@ void    P_LineAttack(mobj_t *t1, angle_t angle, fixed_t distance,
 void P_RadiusAttack(mobj_t *spot, mobj_t *source, int damage, int distance, int flags);
 dboolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y);
 
+// Nyan camera mode
+void P_CameraExitTelefrag(mobj_t *thing);
+
 typedef struct
 {
   msecnode_t *node;
@@ -149,6 +152,10 @@ dboolean P_SkullSlam(mobj_t **skull, mobj_t *hitthing);
 
 void P_AppendSpecHit(line_t * ld);
 
+void P_ClipChasecam(fixed_t x, fixed_t y, fixed_t z, angle_t angle,
+                    fixed_t distance, fixed_t slope, fixed_t *camera_x,
+                    fixed_t *camera_y, fixed_t *camera_z);
+
 // hexen
 
 extern int tmfloorpic;
@@ -156,8 +163,6 @@ extern mobj_t *BlockingMobj;
 
 void P_BounceWall(mobj_t * mo);
 dboolean P_UsePuzzleItem(player_t * player, int itemType);
-dboolean P_UsePuzzleItemOnThing(player_t *player);
-void dsda_PuzzleFailSound(mobj_t *mo);
 void dsda_PuzzleMissingMessage(player_t *player);
 void dsda_PuzzleFailMessage(player_t *player);
 void PIT_ThrustSpike(mobj_t * actor);

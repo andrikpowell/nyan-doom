@@ -33,8 +33,9 @@ int dsda_TranslateDehMobjIndex(int index);
 int dsda_TranslateHereticMobjIndex(int index);
 int dsda_GetDehMobjIndex(int index);
 dsda_deh_mobjinfo_t dsda_GetDehMobjInfo(int index);
-void dsda_InitializeMobjInfo(int zero, int max, int count);
+void dsda_InitializeMobjInfo(int zero, int count);
 void dsda_FreeDehMobjInfo(void);
 void dsda_AppendZDoomMobjInfo(void);
+int dsda_AppendExDefsMobjInfo(void);
 
 #endif

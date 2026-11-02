@@ -329,23 +329,23 @@ static dboolean dsda_BFHaveItem(int item) {
     case dsda_bf_blue_skull_key:
       return player->cards[it_blueskull];
     case dsda_bf_fist:
-      return player->weaponowned[wp_fist];
+      return P_PlayerOwnsWeapon(player, wp_fist);
     case dsda_bf_pistol:
-      return player->weaponowned[wp_pistol];
+      return P_PlayerOwnsWeapon(player, wp_pistol);
     case dsda_bf_shotgun:
-      return player->weaponowned[wp_shotgun];
+      return P_PlayerOwnsWeapon(player, wp_shotgun);
     case dsda_bf_chaingun:
-      return player->weaponowned[wp_chaingun];
+      return P_PlayerOwnsWeapon(player, wp_chaingun);
     case dsda_bf_rocket_launcher:
-      return player->weaponowned[wp_missile];
+      return P_PlayerOwnsWeapon(player, wp_missile);
     case dsda_bf_plasma_gun:
-      return player->weaponowned[wp_plasma];
+      return P_PlayerOwnsWeapon(player, wp_plasma);
     case dsda_bf_bfg:
-      return player->weaponowned[wp_bfg];
+      return P_PlayerOwnsWeapon(player, wp_bfg);
     case dsda_bf_chainsaw:
-      return player->weaponowned[wp_chainsaw];
+      return P_PlayerOwnsWeapon(player, wp_chainsaw);
     case dsda_bf_super_shotgun:
-      return player->weaponowned[wp_supershotgun];
+      return P_PlayerOwnsWeapon(player, wp_supershotgun);
     default:
       return false;
   }

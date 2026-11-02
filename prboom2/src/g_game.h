@@ -102,6 +102,7 @@ extern int  key_backward;
 extern dboolean haswolflevels;  //jff 4/18/98 wolf levels present
 extern dboolean secretexit;
 extern dboolean skip_intermission;
+extern dboolean casual_freecamera;
 
 // killough 5/2/98: moved from d_deh.c:
 // Par times (new item with BOOM) - from g_game.c

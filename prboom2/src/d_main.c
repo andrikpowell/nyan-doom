@@ -91,6 +91,7 @@
 #include "dsda/configuration.h"
 #include "dsda/demo.h"
 #include "dsda/exdemo.h"
+#include "dsda/exdefs.h"
 #include "dsda/features.h"
 #include "dsda/global.h"
 #include "dsda/save.h"
@@ -2271,6 +2272,7 @@ static void D_DoomMainSetup(void)
 
   PostProcessDehacked();
   dsda_AppendZDoomMobjInfo();
+  dsda_ParseExDefs();
   dsda_ApplyBinaryMapFormat();
 
   deh_InitNyanTweaks();

@@ -27,5 +27,6 @@ dboolean EV_ThingRemove(int tid);
 dboolean EV_ThingDestroy(int tid);
 
 extern mobjtype_t TranslateThingType[];
+dboolean P_HexenThingValid(int type);
 
 #endif

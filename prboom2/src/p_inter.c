@@ -54,6 +54,7 @@
 #include "e6y.h"//e6y
 
 #include "dsda.h"
+#include "dsda/exdefs.h"
 #include "dsda/settings.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
@@ -98,6 +99,42 @@ int monsters_infight = 0; // e6y: Dehacked support - monsters infight
 // a big item has five clip loads
 int maxammo[NUMAMMO]  = {200, 50, 300, 50, 0, 0}; // heretic +2 ammo types
 int clipammo[NUMAMMO] = { 10,  4,  20,  1, 0, 0}; // heretic +2 ammo types
+
+//
+// PLAYER WEAPON STUFF
+//
+
+#define WEAPON_CLASS_FLAG(pclass) (1u << (pclass))
+
+dboolean P_PlayerOwnsWeapon(const player_t *player, weapontype_t weapon)
+{
+  return (player->weaponowned[weapon] & WEAPON_CLASS_FLAG(player->pclass));
+}
+
+void P_GivePlayerWeapon(player_t *player, weapontype_t weapon)
+{
+  player->weaponowned[weapon] |= WEAPON_CLASS_FLAG(player->pclass);
+}
+
+void P_RemovePlayerWeapon(player_t *player, weapontype_t weapon)
+{
+  player->weaponowned[weapon] &= ~WEAPON_CLASS_FLAG(player->pclass);
+}
+
+dboolean P_PlayerClassOwnsWeapon(const player_t *player, pclass_t pclass, weapontype_t weapon)
+{
+  return (player->weaponowned[weapon] & WEAPON_CLASS_FLAG(pclass));
+}
+
+void P_GivePlayerClassWeapon(player_t *player, pclass_t pclass, weapontype_t weapon)
+{
+  player->weaponowned[weapon] |= WEAPON_CLASS_FLAG(pclass);
+}
+
+void P_RemovePlayerClassWeapon(player_t *player, pclass_t pclass, weapontype_t weapon)
+{
+  player->weaponowned[weapon] &= ~WEAPON_CLASS_FLAG(pclass);
+}
 
 //
 // GET STUFF
@@ -148,7 +185,7 @@ static dboolean P_GiveAmmoAutoSwitch(player_t *player, ammotype_t ammo, int olda
     for (i = NUMWEAPONS - 1; i > player->readyweapon; --i)
     {
       if (
-        player->weaponowned[i] &&
+        P_PlayerOwnsWeapon(player, i) &&
         !(weaponinfo[i].flags & WPF_NOAUTOSWITCHTO) &&
         weaponinfo[i].ammo == ammo &&
         weaponinfo[i].ammopershot > oldammo &&
@@ -206,7 +243,7 @@ static dboolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
   if (heretic) {
     if (player->readyweapon == wp_staff || player->readyweapon == wp_gauntlets)
     {
-        if (player->weaponowned[GetAmmoChange[ammo]])
+        if (P_PlayerOwnsWeapon(player, GetAmmoChange[ammo]))
         {
               P_AutoSwitchWeapon(player, GetAmmoChange[ammo]);
         }
@@ -219,7 +256,7 @@ static dboolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
     {
     case am_clip:
       if (player->readyweapon == wp_fist) {
-        if (player->weaponowned[wp_chaingun])
+        if (P_PlayerOwnsWeapon(player, wp_chaingun))
           P_AutoSwitchWeapon(player, wp_chaingun);
         else
           P_AutoSwitchWeapon(player, wp_pistol);
@@ -228,19 +265,19 @@ static dboolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
 
     case am_shell:
       if (player->readyweapon == wp_fist || player->readyweapon == wp_pistol)
-        if (player->weaponowned[wp_shotgun])
+        if (P_PlayerOwnsWeapon(player, wp_shotgun))
           P_AutoSwitchWeapon(player, wp_shotgun);
       break;
 
       case am_cell:
         if (player->readyweapon == wp_fist || player->readyweapon == wp_pistol)
-          if (player->weaponowned[wp_plasma])
+          if (P_PlayerOwnsWeapon(player, wp_plasma))
             P_AutoSwitchWeapon(player, wp_plasma);
         break;
 
       case am_misl:
         if (player->readyweapon == wp_fist)
-          if (player->weaponowned[wp_missile])
+          if (P_PlayerOwnsWeapon(player, wp_missile))
             P_AutoSwitchWeapon(player, wp_missile);
     default:
       break;
@@ -263,11 +300,11 @@ dboolean P_GiveWeapon(player_t *player, weapontype_t weapon, dboolean dropped)
   if (netgame && deathmatch!=2 && !dropped)
     {
       // leave placed weapons forever on net games
-      if (player->weaponowned[weapon])
+      if (P_PlayerOwnsWeapon(player, weapon))
         return false;
 
       player->bonuscount += BONUSADD;
-      player->weaponowned[weapon] = true;
+      P_GivePlayerWeapon(player, weapon);
 
       P_GiveAmmo(player, weaponinfo[weapon].ammo, deathmatch ? 5 : 2);
       P_AutoSwitchWeapon(player, weapon);
@@ -290,12 +327,12 @@ dboolean P_GiveWeapon(player_t *player, weapontype_t weapon, dboolean dropped)
   else
     gaveammo = false;
 
-  if (player->weaponowned[weapon])
+  if (P_PlayerOwnsWeapon(player, weapon))
     gaveweapon = false;
   else
     {
       gaveweapon = true;
-      player->weaponowned[weapon] = true;
+      P_GivePlayerWeapon(player, weapon);
       P_AutoSwitchWeapon(player, weapon);
     }
   return gaveweapon || gaveammo;
@@ -1109,49 +1146,38 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
     // heretic
     if (target->flags2 & MF2_FIREDAMAGE)
     {                       // Player flame death
+      int firedeath = pclass[target->player->pclass].firedeath;
+
       switch (target->player->pclass)
       {
-        case PCLASS_NULL: // heretic
-          P_SetMobjState(target, HERETIC_S_PLAY_FDTH1);
-          return;
         case PCLASS_FIGHTER:
           S_StartMobjSound(target, hexen_sfx_player_fighter_burn_death);
-          P_SetMobjState(target, HEXEN_S_PLAY_F_FDTH1);
-          return;
+          break;
         case PCLASS_CLERIC:
           S_StartMobjSound(target, hexen_sfx_player_cleric_burn_death);
-          P_SetMobjState(target, HEXEN_S_PLAY_C_FDTH1);
-          return;
+          break;
         case PCLASS_MAGE:
           S_StartMobjSound(target, hexen_sfx_player_mage_burn_death);
-          P_SetMobjState(target, HEXEN_S_PLAY_M_FDTH1);
-          return;
+          break;
         default:
           break;
       }
+
+      P_SetMobjState(target, firedeath);
+      return;
     }
 
     // hexen
     if (target->flags2 & MF2_ICEDAMAGE)
     {                       // Player ice death
-      target->flags &= ~(7 << MF_TRANSSHIFT);     //no translation
-      target->flags |= MF_ICECORPSE;
-      switch (target->player->pclass)
+      int icedeath = target->info->icedeathstate;
+
+      if (icedeath)
       {
-        case PCLASS_FIGHTER:
-          P_SetMobjState(target, HEXEN_S_FPLAY_ICE);
-          return;
-        case PCLASS_CLERIC:
-          P_SetMobjState(target, HEXEN_S_CPLAY_ICE);
-          return;
-        case PCLASS_MAGE:
-          P_SetMobjState(target, HEXEN_S_MPLAY_ICE);
-          return;
-        case PCLASS_PIG:
-          P_SetMobjState(target, HEXEN_S_PIG_ICE);
-          return;
-        default:
-            break;
+        target->flags &= ~(7 << MF_TRANSSHIFT);     //no translation
+        target->flags |= MF_ICECORPSE;
+        P_SetMobjState(target, icedeath);
+        return;
       }
     }
 
@@ -1161,6 +1187,7 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
 
   if (hexen)
   {
+    // [AR] TODO: de-hardcode firedeath?
     if (target->flags2 & MF2_FIREDAMAGE)
     {
       if (target->type == HEXEN_MT_FIGHTER_BOSS
@@ -1195,49 +1222,12 @@ static void P_KillMobj(mobj_t *source, mobj_t *inflictor, mobj_t *target, method
     }
     if (target->flags2 & MF2_ICEDAMAGE)
     {
-      target->flags |= MF_ICECORPSE;
-      switch (target->type)
+      int icedeath = target->info->icedeathstate;
+      if (icedeath)
       {
-        case HEXEN_MT_BISHOP:
-          P_SetMobjState(target, HEXEN_S_BISHOP_ICE);
-          return;
-        case HEXEN_MT_CENTAUR:
-        case HEXEN_MT_CENTAURLEADER:
-          P_SetMobjState(target, HEXEN_S_CENTAUR_ICE);
-          return;
-        case HEXEN_MT_DEMON:
-        case HEXEN_MT_DEMON2:
-          P_SetMobjState(target, HEXEN_S_DEMON_ICE);
-          return;
-        case HEXEN_MT_SERPENT:
-        case HEXEN_MT_SERPENTLEADER:
-          P_SetMobjState(target, HEXEN_S_SERPENT_ICE);
-          return;
-        case HEXEN_MT_WRAITH:
-        case HEXEN_MT_WRAITHB:
-          P_SetMobjState(target, HEXEN_S_WRAITH_ICE);
-          return;
-        case HEXEN_MT_ETTIN:
-          P_SetMobjState(target, HEXEN_S_ETTIN_ICE1);
-          return;
-        case HEXEN_MT_FIREDEMON:
-          P_SetMobjState(target, HEXEN_S_FIRED_ICE1);
-          return;
-        case HEXEN_MT_FIGHTER_BOSS:
-          P_SetMobjState(target, HEXEN_S_FIGHTER_ICE);
-          return;
-        case HEXEN_MT_CLERIC_BOSS:
-          P_SetMobjState(target, HEXEN_S_CLERIC_ICE);
-          return;
-        case HEXEN_MT_MAGE_BOSS:
-          P_SetMobjState(target, HEXEN_S_MAGE_ICE);
-          return;
-        case HEXEN_MT_PIG:
-          P_SetMobjState(target, HEXEN_S_PIG_ICE);
-          return;
-        default:
-          target->flags &= ~MF_ICECORPSE;
-          break;
+        target->flags |= MF_ICECORPSE;
+        P_SetMobjState(target, icedeath);
+        return;
       }
     }
 
@@ -1352,6 +1342,23 @@ static dboolean P_InfightingImmune(mobj_t *target, mobj_t *source)
     mobjinfo[target->type].infighting_group == mobjinfo[source->type].infighting_group;
 }
 
+static dboolean P_SourcePreventsDamageThrust(mobj_t *source)
+{
+    // No source to apply thrust
+    if (!source)
+        return false;
+
+    // Source actor prevents thrust (EXDEFS allow for actors other than the player)
+    if (source->flags3 & MF3_NOSRCDMGTHRUST)
+        return true;
+
+    // Source player's weapon prevents thrust
+    if (!hexen && source->player && (weaponinfo[source->player->readyweapon].flags & WPF_NOTHRUST))
+        return true;
+
+    return false;
+}
+
 static dboolean P_MorphMonster(mobj_t * actor);
 
 void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage, method_t mod)
@@ -1384,25 +1391,13 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
   {
     if ((target->flags2 & MF2_INVULNERABLE) && damage < 10000)
     {                           // mobj is invulnerable
+      // Invulnerable players cannot be damaged
       if (target->player)
-        return;             // for player, no exceptions
-      if (inflictor)
-      {
-        switch (inflictor->type)
-        {
-              // These inflictors aren't foiled by invulnerability
-          case HEXEN_MT_HOLY_FX:
-          case HEXEN_MT_POISONCLOUD:
-          case HEXEN_MT_FIREBOMB:
-            break;
-          default:
-            return;
-        }
-      }
-      else
-      {
         return;
-      }
+
+      // Only FOILINVUL attacks can damage invulnerable actors
+      if (!(inflictor && (inflictor->flags3 & MF3_FOILINVUL)))
+        return;
     }
     if (target->player)
     {
@@ -1416,7 +1411,7 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
 
   if (target->flags & MF_SKULLFLY)
   {
-    if (heretic && target->type == HERETIC_MT_MINOTAUR) return;
+    if (target->flags3 & MF3_INVULNCHARGE) return; // if invuln while charging, don't stop (Heretic Minotaur)
     target->momx = target->momy = target->momz = 0;
   }
 
@@ -1619,11 +1614,7 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
   if (
     inflictor &&
     !(target->flags & MF_NOCLIP) && // hexen_note: not done in hexen, does it matter?
-    !(
-      source &&
-      source->player &&
-      (hexen || weaponinfo[source->player->readyweapon].flags & WPF_NOTHRUST)
-    ) &&
+    !P_SourcePreventsDamageThrust(source) &&
     !(inflictor->flags2 & MF2_NODMGTHRUST)
   )
   {
@@ -1940,9 +1931,9 @@ void P_DamageMobjBy(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damag
     !(
       raven && (
         source->flags2 & MF2_BOSS ||
+         target->flags3 & MF3_NOINFIGHTING ||
+         // [AR] TODO: Add infighting groups
         (target->type == HERETIC_MT_SORCERER2 && source->type == HERETIC_MT_WIZARD) ||
-        target->type == HEXEN_MT_BISHOP ||
-        target->type == HEXEN_MT_MINOTAUR ||
         (target->type == HEXEN_MT_CENTAUR && source->type == HEXEN_MT_CENTAURLEADER) ||
         (target->type == HEXEN_MT_CENTAURLEADER && source->type == HEXEN_MT_CENTAUR)
       )
@@ -2512,12 +2503,12 @@ dboolean Heretic_P_GiveWeapon(player_t * player, weapontype_t weapon)
 
     if (netgame && !deathmatch)
     {                           // Cooperative net-game
-        if (player->weaponowned[weapon])
+        if (P_PlayerOwnsWeapon(player, weapon))
         {
             return (false);
         }
         player->bonuscount += BONUSADD;
-        player->weaponowned[weapon] = true;
+        P_GivePlayerWeapon(player, weapon);
         P_GiveAmmo(player, wpnlev1info[weapon].ammo, GetWeaponAmmo[weapon]);
         P_AutoSwitchWeapon(player, weapon);
         if (player == &players[consoleplayer])
@@ -2528,14 +2519,14 @@ dboolean Heretic_P_GiveWeapon(player_t * player, weapontype_t weapon)
     }
     gaveAmmo = P_GiveAmmo(player, wpnlev1info[weapon].ammo,
                           GetWeaponAmmo[weapon]);
-    if (player->weaponowned[weapon])
+    if (P_PlayerOwnsWeapon(player, weapon))
     {
         gaveWeapon = false;
     }
     else
     {
         gaveWeapon = true;
-        player->weaponowned[weapon] = true;
+        P_GivePlayerWeapon(player, weapon);
         if (WeaponValue[weapon] > WeaponValue[player->readyweapon])
         {                       // Only switch to more powerful weapons
             P_AutoSwitchWeapon(player, weapon);
@@ -2671,19 +2662,11 @@ dboolean P_ChickenMorph(mobj_t * actor)
     {
         return (false);
     }
-    moType = actor->type;
-    switch (moType)
+    if (actor->flags3 & MF3_DONTMORPH)
     {
-        case HERETIC_MT_POD:
-        case HERETIC_MT_CHICKEN:
-        case HERETIC_MT_HEAD:
-        case HERETIC_MT_MINOTAUR:
-        case HERETIC_MT_SORCERER1:
-        case HERETIC_MT_SORCERER2:
-            return (false);
-        default:
-            break;
+        return (false);
     }
+    moType = actor->type;
     x = actor->x;
     y = actor->y;
     z = actor->z;
@@ -2996,8 +2979,8 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
                      const char *message)
 {
     dboolean remove;
-    dboolean gaveMana;
-    dboolean gaveWeapon;
+    dboolean gaveMana = false;
+    dboolean gaveWeapon = false;
 
     remove = true;
     if (player->pclass != weaponClass)
@@ -3008,14 +2991,26 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
         }
         if (weaponType == wp_second)
         {
-            if (!P_GiveMana(player, MANA_1, 25))
-            {
-                return;
-            }
+            gaveMana = P_GiveMana(player, MANA_1, 25);
         }
         else
         {
-            if (!P_GiveMana(player, MANA_2, 25))
+            gaveMana = P_GiveMana(player, MANA_2, 25);
+        }
+
+        // Vanilla Hexen
+        if (!gaveMana && !exdefs)
+        {                   // Didn't need the mana, so don't pick it up
+          return;
+        }
+        else // EXDEFS
+        {
+            gaveWeapon = !P_PlayerClassOwnsWeapon(player, weaponClass, weaponType);
+            if (gaveWeapon)
+            {
+                P_GivePlayerClassWeapon(player, weaponClass, weaponType);
+            }
+            if (!(gaveWeapon || gaveMana))
             {
                 return;
             }
@@ -3023,11 +3018,18 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
     }
     else if (netgame && !deathmatch)
     {                           // Cooperative net-game
-        if (player->weaponowned[weaponType])
+        if (P_PlayerOwnsWeapon(player, weaponType))
         {
             return;
         }
-        player->weaponowned[weaponType] = true;
+        if (exdefs)
+        {
+            P_GivePlayerClassWeapon(player, weaponClass, weaponType);
+        }
+        else
+        {
+            P_GivePlayerWeapon(player, weaponType);
+        }
         if (weaponType == wp_second)
         {
             P_GiveMana(player, MANA_1, 25);
@@ -3049,14 +3051,21 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
         {
             gaveMana = P_GiveMana(player, MANA_2, 25);
         }
-        if (player->weaponowned[weaponType])
+        if (P_PlayerOwnsWeapon(player, weaponType))
         {
             gaveWeapon = false;
         }
         else
         {
             gaveWeapon = true;
-            player->weaponowned[weaponType] = true;
+            if (exdefs)
+            {                   // EXDEFS - can get weapons from other class
+                P_GivePlayerClassWeapon(player, weaponClass, weaponType);
+            }
+            else
+            {                   // Vanilla - only get weapon if it's for specific class
+                P_GivePlayerWeapon(player, weaponType);
+            }
             if (weaponType > player->readyweapon)
             {                   // Only switch to more powerful weapons
                 P_AutoSwitchWeapon(player, weaponType);
@@ -3095,11 +3104,40 @@ void TryPickupWeapon(player_t * player, pclass_t weaponClass,
     }
 }
 
+static int P_PlayerWhichClassPiece(pclass_t pclass) {
+  return exdefs ? (pclass * 3) : 0;
+}
+
+int P_PlayerClassWeaponPieces(player_t *player, pclass_t pclass) {
+  return (player->pieces >> P_PlayerWhichClassPiece(pclass)) & (WPIECE1 | WPIECE2 | WPIECE3);
+}
+
+void P_GivePlayerClassWeaponPiece(player_t *player, pclass_t pclass, int piece) {
+  player->pieces |= piece << P_PlayerWhichClassPiece(pclass);
+}
+
+dboolean P_PlayerClassOwnsWeaponPiece(player_t *player, pclass_t pclass, int piece) {
+  return P_PlayerClassWeaponPieces(player, pclass) & piece;
+}
+
+int P_PlayerWeaponPieces(player_t *player) {
+  return P_PlayerClassWeaponPieces(player, player->pclass);
+}
+
+void P_GivePlayerWeaponPiece(player_t *player, int piece) {
+  P_GivePlayerClassWeaponPiece(player, player->pclass, piece);
+}
+
+dboolean P_PlayerOwnsWeaponPiece(player_t *player, int piece) {
+  return P_PlayerClassOwnsWeaponPiece(player, player->pclass, piece);
+}
+
 static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
                                  int pieceValue, mobj_t * pieceMobj)
 {
     dboolean remove;
     dboolean checkAssembled;
+    dboolean gavePiece;
     dboolean gaveWeapon;
     int gaveMana;
     static const char *fourthWeaponText[] = {
@@ -3124,6 +3162,7 @@ static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
 
     remove = true;
     checkAssembled = true;
+    gavePiece = false;
     gaveWeapon = false;
     if (player->pclass != matchClass)
     {                           // Wrong class, but try to pick up for mana
@@ -3134,14 +3173,35 @@ static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
         checkAssembled = false;
         gaveMana = P_GiveMana(player, MANA_1, 20) +
             P_GiveMana(player, MANA_2, 20);
-        if (!gaveMana)
+
+        // Vanilla Hexen
+        if (!exdefs && !gaveMana)
         {                       // Didn't need the mana, so don't pick it up
             return;
+        }
+        else // EXDEFS
+        {
+            if (!P_PlayerClassOwnsWeaponPiece(player, matchClass, pieceValue))
+            {
+                gavePiece = true;
+                P_GivePlayerClassWeaponPiece(player, matchClass, pieceValue);
+
+                if (P_PlayerClassWeaponPieces(player, matchClass) == (WPIECE1 | WPIECE2 | WPIECE3))
+                {
+                    gaveWeapon = true;
+                    P_GivePlayerClassWeapon(player, matchClass, wp_fourth);
+                }
+            }
+
+            if (!(gavePiece || gaveMana))
+            {                   // Already had the piece and didn't need mana
+                return;
+            }
         }
     }
     else if (netgame && !deathmatch)
     {                           // Cooperative net-game
-        if (player->pieces & pieceValue)
+        if (P_PlayerOwnsWeaponPiece(player, pieceValue))
         {                       // Already has the piece
             return;
         }
@@ -3154,7 +3214,7 @@ static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
     {                           // Deathmatch or single player game
         gaveMana = P_GiveMana(player, MANA_1, 20) +
             P_GiveMana(player, MANA_2, 20);
-        if (player->pieces & pieceValue)
+        if (P_PlayerOwnsWeaponPiece(player, pieceValue))
         {                       // Already has the piece, check if mana needed
             if (!gaveMana)
             {                   // Didn't need the mana, so don't pick it up
@@ -3190,11 +3250,11 @@ static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
     // Check if fourth weapon assembled
     if (checkAssembled)
     {
-        player->pieces |= pieceValue;
-        if (player->pieces == (WPIECE1 | WPIECE2 | WPIECE3))
+        P_GivePlayerWeaponPiece(player, pieceValue);
+        if (P_PlayerWeaponPieces(player) == (WPIECE1 | WPIECE2 | WPIECE3))
         {
             gaveWeapon = true;
-            player->weaponowned[wp_fourth] = true;
+            P_GivePlayerWeapon(player, wp_fourth);
             P_AutoSwitchWeapon(player, wp_fourth);
         }
     }
@@ -3314,8 +3374,10 @@ static void TryPickupArtifact(player_t * player, artitype_t artifactType, mobj_t
         }
         else
         {                       // Puzzle item
+            dboolean vanilla_artifact = (artifactType < (hexen ? HEXEN_NUMARTIFACTS : NUMARTIFACTS));
+            const char *message = vanilla_artifact ? artifactMessages[artifactType] : dsda_ExDefsArtifactMessage(artifactType);
             S_StartVoidSound(hexen_sfx_pickup_item);
-            P_SetColoredMessage(player, artifactMessages[artifactType], true);
+            P_SetColoredMessage(player, message ? message : "", true); // blank puzzle message
             if (!netgame || deathmatch)
             {                   // Remove puzzle items if not cooperative netplay
                 P_RemoveMobj(artifact);
@@ -3347,6 +3409,17 @@ static void Hexen_P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
     // Disable picking up items in Camera Mode
     if (dsda_CameraMode())
         return;
+
+    if (exdefs)
+    {
+        int artifact = dsda_ExDefsArtifactPickup(special->type);
+
+        if (artifact != hexen_arti_none)
+        {
+            TryPickupArtifact(player, artifact, special);
+            return;
+        }
+    }
 
     switch (special->sprite)
     {
@@ -3733,21 +3806,9 @@ static dboolean P_MorphMonster(mobj_t * actor)
         return (false);
     if (!(actor->flags & MF_COUNTKILL))
         return false;
-    if (actor->flags2 & MF2_BOSS)
+    if (actor->flags3 & MF3_DONTMORPH)
         return false;
     moType = actor->type;
-    switch (moType)
-    {
-        case HEXEN_MT_PIG:
-            return (false);
-        case HEXEN_MT_FIGHTER_BOSS:
-        case HEXEN_MT_CLERIC_BOSS:
-        case HEXEN_MT_MAGE_BOSS:
-            return (false);
-        default:
-            break;
-    }
-
     oldMonster = *actor;
     x = oldMonster.x;
     y = oldMonster.y;

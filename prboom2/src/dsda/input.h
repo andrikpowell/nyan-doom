@@ -120,6 +120,7 @@ typedef enum {
   dsda_input_demo_skip,
   dsda_input_demo_endlevel,
   dsda_input_walkcamera,
+  nyan_input_freecamera,
   dsda_input_restart,
   dsda_input_nextlevel,
   dsda_input_prevlevel,

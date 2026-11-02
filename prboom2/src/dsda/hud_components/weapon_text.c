@@ -89,19 +89,19 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
       "%s%s %s%c %s%c %s%c",
       dsda_TextColor(dsda_tc_exhud_weapon_label),
       local->label_w,
-      dsda_WeaponColor(player, 0), player->weaponowned[0] ? '1' : ' ',
-      dsda_WeaponColor(player, 1), player->weaponowned[1] ? '2' : ' ',
-      dsda_WeaponColor(player, 2), player->weaponowned[2] ? '3' : ' ',
+      dsda_WeaponColor(player, 0), P_PlayerOwnsWeapon(player, 0) ? '1' : ' ',
+      dsda_WeaponColor(player, 1), P_PlayerOwnsWeapon(player, 1) ? '2' : ' ',
+      dsda_WeaponColor(player, 2), P_PlayerOwnsWeapon(player, 2) ? '3' : ' ',
       dsda_TextColor(dsda_tc_exhud_weapon_label),
       local->label_p,
-      dsda_WeaponColor(player, 3), player->weaponowned[3] ? '4' : ' ',
-      dsda_WeaponColor(player, 4), player->weaponowned[4] ? '5' : ' ',
-      dsda_WeaponColor(player, 5), player->weaponowned[5] ? '6' : ' ',
+      dsda_WeaponColor(player, 3), P_PlayerOwnsWeapon(player, 3) ? '4' : ' ',
+      dsda_WeaponColor(player, 4), P_PlayerOwnsWeapon(player, 4) ? '5' : ' ',
+      dsda_WeaponColor(player, 5), P_PlayerOwnsWeapon(player, 5) ? '6' : ' ',
       dsda_TextColor(dsda_tc_exhud_weapon_label),
       local->label_n,
-      dsda_WeaponColor(player, 6), player->weaponowned[6] ? '7' : ' ',
-      dsda_WeaponColor(player, 7), player->weaponowned[7] ? '8' : ' ',
-      dsda_WeaponColor(player, 8), player->weaponowned[8] ? '9' : ' '
+      dsda_WeaponColor(player, 6), P_PlayerOwnsWeapon(player, 6) ? '7' : ' ',
+      dsda_WeaponColor(player, 7), P_PlayerOwnsWeapon(player, 7) ? '8' : ' ',
+      dsda_WeaponColor(player, 8), P_PlayerOwnsWeapon(player, 8) ? '9' : ' '
     );
   else
     snprintf(
@@ -110,15 +110,15 @@ static void dsda_UpdateComponentText(char* str, size_t max_size) {
       "%s%s%s%c %s%c %s%c %s%c %s%c %s%c %s%c %s%c %s%c",
       dsda_TextColor(dsda_tc_exhud_weapon_label),
       local->label_wpn,
-      dsda_WeaponColor(player, 0), player->weaponowned[0] ? '1' : ' ',
-      dsda_WeaponColor(player, 1), player->weaponowned[1] ? '2' : ' ',
-      dsda_WeaponColor(player, 2), player->weaponowned[2] ? '3' : ' ',
-      dsda_WeaponColor(player, 3), player->weaponowned[3] ? '4' : ' ',
-      dsda_WeaponColor(player, 4), player->weaponowned[4] ? '5' : ' ',
-      dsda_WeaponColor(player, 5), player->weaponowned[5] ? '6' : ' ',
-      dsda_WeaponColor(player, 6), player->weaponowned[6] ? '7' : ' ',
-      dsda_WeaponColor(player, 7), player->weaponowned[7] ? '8' : ' ',
-      dsda_WeaponColor(player, 8), player->weaponowned[8] ? '9' : ' '
+      dsda_WeaponColor(player, 0), P_PlayerOwnsWeapon(player, 0) ? '1' : ' ',
+      dsda_WeaponColor(player, 1), P_PlayerOwnsWeapon(player, 1) ? '2' : ' ',
+      dsda_WeaponColor(player, 2), P_PlayerOwnsWeapon(player, 2) ? '3' : ' ',
+      dsda_WeaponColor(player, 3), P_PlayerOwnsWeapon(player, 3) ? '4' : ' ',
+      dsda_WeaponColor(player, 4), P_PlayerOwnsWeapon(player, 4) ? '5' : ' ',
+      dsda_WeaponColor(player, 5), P_PlayerOwnsWeapon(player, 5) ? '6' : ' ',
+      dsda_WeaponColor(player, 6), P_PlayerOwnsWeapon(player, 6) ? '7' : ' ',
+      dsda_WeaponColor(player, 7), P_PlayerOwnsWeapon(player, 7) ? '8' : ' ',
+      dsda_WeaponColor(player, 8), P_PlayerOwnsWeapon(player, 8) ? '9' : ' '
     );
 }
 

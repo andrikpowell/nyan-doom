@@ -45,6 +45,7 @@ int MN_TextBWidth(const char *text);
 
 void MN_DrawEpisode(void);
 void MN_UpdateClass(int choice);
+void MN_OpenClassChangeMenu(void);
 void MN_DrTextAYellow(const char *text, int x, int y);
 void MN_DrawSkillMenu(void);
 

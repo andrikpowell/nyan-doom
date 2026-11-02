@@ -1276,6 +1276,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1284,7 +1285,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_ITEMSHIELD1
@@ -1303,6 +1305,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1311,7 +1314,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_ITEMSHIELD2
@@ -1330,6 +1334,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1338,7 +1343,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC1
@@ -1357,6 +1363,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1365,7 +1372,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC2
@@ -1384,6 +1392,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1392,7 +1401,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_ARTIINVISIBILITY
@@ -1411,6 +1421,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1419,7 +1430,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_SHADOW | MF_COUNTITEM,     // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC3
@@ -1438,6 +1450,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1446,7 +1459,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_ARTIFLY
@@ -1465,6 +1479,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1473,7 +1488,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_ARTIINVULNERABILITY
@@ -1492,6 +1508,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1500,7 +1517,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_ARTITOMEOFPOWER
@@ -1519,6 +1537,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1527,7 +1546,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_ARTIEGG
@@ -1546,6 +1566,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1554,7 +1575,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_EGGFX
@@ -1573,6 +1595,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_EGGFXI1_1,               // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      18 * FRACUNIT,             // speed
      8 * FRACUNIT,              // radius
@@ -1581,7 +1604,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_ARTISUPERHEAL
@@ -1600,6 +1624,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1608,7 +1633,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC4
@@ -1627,6 +1653,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1635,7 +1662,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC5
@@ -1654,6 +1682,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1662,7 +1691,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_FIREBOMB
@@ -1681,6 +1711,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_phohit,                // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1689,7 +1720,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_ARTITELEPORT
@@ -1708,6 +1740,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1716,7 +1749,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_COUNTITEM, // flags
-     MF2_FLOATBOB               // flags2
+     MF2_FLOATBOB,              // flags2
+     0                          // flags3
      },
 
     {                           // MT_POD
@@ -1735,6 +1769,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_POD_DIE1,                // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_podexp,                // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -1743,7 +1778,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_NOBLOOD | MF_SHOOTABLE | MF_DROPOFF, // flags
-     MF2_WINDTHRUST | MF2_PUSHABLE | MF2_SLIDE | MF2_PASSMOBJ | MF2_TELESTOMP   // flags2
+     MF2_WINDTHRUST | MF2_PUSHABLE | MF2_SLIDE | MF2_PASSMOBJ | MF2_TELESTOMP,  // flags2
+     MF3_DONTMORPH | MF3_TRANSFERVELOCITY   // flags3
      },
 
     {                           // MT_PODGOO
@@ -1762,6 +1798,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_PODGOOX,                 // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -1770,7 +1807,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH       // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH,      // flags2
+     0                          // flags3
      },
 
     {                           // MT_PODGENERATOR
@@ -1789,6 +1827,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1797,7 +1836,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_SPLASH
@@ -1816,6 +1856,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SPLASHX,                 // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -1824,7 +1865,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH       // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH,      // flags2
+     0                          // flags3
      },
 
     {                           // MT_SPLASHBASE
@@ -1843,6 +1885,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1851,7 +1894,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_LAVASPLASH
@@ -1870,6 +1914,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1878,7 +1923,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_LAVASMOKE
@@ -1897,6 +1943,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1905,7 +1952,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_SLUDGECHUNK
@@ -1924,6 +1972,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SLUDGECHUNKX,            // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -1932,7 +1981,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH       // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH,      // flags2
+     0                          // flags3
      },
 
     {                           // MT_SLUDGESPLASH
@@ -1951,6 +2001,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1959,7 +2010,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_SKULLHANG70
@@ -1978,6 +2030,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -1986,7 +2039,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_SKULLHANG60
@@ -2005,6 +2059,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2013,7 +2068,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_SKULLHANG45
@@ -2032,6 +2088,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2040,7 +2097,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_SKULLHANG35
@@ -2059,6 +2117,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2067,7 +2126,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_CHANDELIER
@@ -2086,6 +2146,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2094,7 +2155,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_SERPTORCH
@@ -2113,6 +2175,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
@@ -2121,7 +2184,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_SMALLPILLAR
@@ -2140,6 +2204,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -2148,7 +2213,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_STALAGMITESMALL
@@ -2167,6 +2233,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -2175,7 +2242,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_STALAGMITELARGE
@@ -2194,6 +2262,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
@@ -2202,7 +2271,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_STALACTITESMALL
@@ -2221,6 +2291,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -2229,7 +2300,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_STALACTITELARGE
@@ -2248,6 +2320,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
@@ -2256,7 +2329,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC6
@@ -2275,6 +2349,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -2283,7 +2358,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_BARREL
@@ -2302,6 +2378,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
@@ -2310,7 +2387,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC7
@@ -2329,6 +2407,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      14 * FRACUNIT,             // radius
@@ -2337,7 +2416,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC8
@@ -2356,6 +2436,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2364,7 +2445,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC9
@@ -2383,6 +2465,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2391,7 +2474,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPAWNCEILING | MF_NOGRAVITY,    // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC10
@@ -2410,6 +2494,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2418,7 +2503,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOGRAVITY,              // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC11
@@ -2437,6 +2523,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -2445,7 +2532,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SPAWNCEILING | MF_NOGRAVITY, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_KEYGIZMOBLUE
@@ -2464,6 +2552,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -2472,7 +2561,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_KEYGIZMOGREEN
@@ -2491,6 +2581,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -2499,7 +2590,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_KEYGIZMOYELLOW
@@ -2518,6 +2610,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -2526,7 +2619,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_KEYGIZMOFLOAT
@@ -2545,6 +2639,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -2553,7 +2648,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_NOGRAVITY,   // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC12
@@ -2572,6 +2668,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      12 * FRACUNIT,             // radius
@@ -2580,7 +2677,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID,                  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_VOLCANOBLAST
@@ -2599,6 +2697,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_VOLCANOBALLX1,           // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_volhit,                // deathsound
      2 * FRACUNIT,              // speed
      8 * FRACUNIT,              // radius
@@ -2607,7 +2706,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_LOGRAV | MF2_NOTELEPORT | MF2_FIREDAMAGE       // flags2
+     MF2_LOGRAV | MF2_NOTELEPORT | MF2_FIREDAMAGE,      // flags2
+     0                          // flags3
      },
 
     {                           // MT_VOLCANOTBLAST
@@ -2626,6 +2726,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_VOLCANOTBALLX1,          // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      2 * FRACUNIT,              // speed
      8 * FRACUNIT,              // radius
@@ -2634,7 +2735,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_LOGRAV | MF2_NOTELEPORT | MF2_FIREDAMAGE       // flags2
+     MF2_LOGRAV | MF2_NOTELEPORT | MF2_FIREDAMAGE,      // flags2
+     0                          // flags3
      },
 
     {                           // MT_TELEGLITGEN
@@ -2653,6 +2755,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2661,7 +2764,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_NOSECTOR,        // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_TELEGLITGEN2
@@ -2680,6 +2784,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2688,7 +2793,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_NOSECTOR,        // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_TELEGLITTER
@@ -2707,6 +2813,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2715,7 +2822,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_TELEGLITTER2
@@ -2734,6 +2842,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2742,7 +2851,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_TFOG
@@ -2761,6 +2871,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2769,7 +2880,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_TELEPORTMAN
@@ -2788,6 +2900,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2796,7 +2909,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_STAFFPUFF
@@ -2815,6 +2929,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2823,7 +2938,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_STAFFPUFF2
@@ -2842,6 +2958,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2850,7 +2967,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_BEAKPUFF
@@ -2869,6 +2987,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2877,7 +2996,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC13
@@ -2896,6 +3016,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2904,7 +3025,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_GAUNTLETPUFF1
@@ -2923,6 +3045,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2931,7 +3054,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_GAUNTLETPUFF2
@@ -2950,6 +3074,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2958,7 +3083,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC14
@@ -2977,6 +3103,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -2985,7 +3112,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_BLASTERFX1
@@ -3004,6 +3132,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_BLASTERFXI1_1,           // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_blshit,                // deathsound
      184 * FRACUNIT,            // speed
      12 * FRACUNIT,             // radius
@@ -3012,7 +3141,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_BLASTERSMOKE
@@ -3031,6 +3161,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3039,7 +3170,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     MF2_NOTELEPORT | MF2_CANNOTPUSH    // flags2
+     MF2_NOTELEPORT | MF2_CANNOTPUSH,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_RIPPER
@@ -3058,6 +3190,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_RIPPERX1,                // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_hrnhit,                // deathsound
      14 * FRACUNIT,             // speed
      8 * FRACUNIT,              // radius
@@ -3066,7 +3199,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_RIP   // flags2
+     MF2_NOTELEPORT | MF2_RIP,  // flags2
+     0                          // flags3
      },
 
     {                           // MT_BLASTERPUFF1
@@ -3085,6 +3219,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3093,7 +3228,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_BLASTERPUFF2
@@ -3112,6 +3248,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3120,7 +3257,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_WMACE
@@ -3139,6 +3277,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3147,7 +3286,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_MACEFX1
@@ -3166,6 +3306,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MACEFXI1_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      20 * FRACUNIT,             // speed
      8 * FRACUNIT,              // radius
@@ -3174,7 +3315,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_FLOORBOUNCE | MF2_THRUGHOST | MF2_NOTELEPORT   // flags2
+     MF2_FLOORBOUNCE | MF2_THRUGHOST | MF2_NOTELEPORT,  // flags2
+     0                          // flags3
      },
 
     {                           // MT_MACEFX2
@@ -3193,6 +3335,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MACEFXI2_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      10 * FRACUNIT,             // speed
      8 * FRACUNIT,              // radius
@@ -3201,7 +3344,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_LOGRAV | MF2_FLOORBOUNCE | MF2_THRUGHOST | MF2_NOTELEPORT      // flags2
+     MF2_LOGRAV | MF2_FLOORBOUNCE | MF2_THRUGHOST | MF2_NOTELEPORT,     // flags2
+     0                          // flags3
      },
 
     {                           // MT_MACEFX3
@@ -3220,6 +3364,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MACEFXI1_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      7 * FRACUNIT,              // speed
      8 * FRACUNIT,              // radius
@@ -3228,7 +3373,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_LOGRAV | MF2_FLOORBOUNCE | MF2_THRUGHOST | MF2_NOTELEPORT      // flags2
+     MF2_LOGRAV | MF2_FLOORBOUNCE | MF2_THRUGHOST | MF2_NOTELEPORT,     // flags2
+     0                          // flags3
      },
 
     {                           // MT_MACEFX4
@@ -3247,6 +3393,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MACEFXI4_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      7 * FRACUNIT,              // speed
      8 * FRACUNIT,              // radius
@@ -3255,7 +3402,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      18,                        // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_LOGRAV | MF2_FLOORBOUNCE | MF2_THRUGHOST | MF2_TELESTOMP       // flags2
+     MF2_LOGRAV | MF2_FLOORBOUNCE | MF2_THRUGHOST | MF2_TELESTOMP,      // flags2
+     0                          // flags3
      },
 
     {                           // MT_WSKULLROD
@@ -3274,6 +3422,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3282,7 +3431,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_HORNRODFX1
@@ -3301,6 +3451,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_HRODFXI1_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_hrnhit,                // deathsound
      22 * FRACUNIT,             // speed
      12 * FRACUNIT,             // radius
@@ -3309,7 +3460,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      3,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_WINDTHRUST | MF2_NOTELEPORT    // flags2
+     MF2_WINDTHRUST | MF2_NOTELEPORT,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_HORNRODFX2
@@ -3328,6 +3480,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_HRODFXI2_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_ramphit,               // deathsound
      22 * FRACUNIT,             // speed
      12 * FRACUNIT,             // radius
@@ -3336,7 +3489,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      10,                        // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_RAINPLR1
@@ -3355,6 +3509,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_RAINPLR1X_1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      12 * FRACUNIT,             // speed
      5 * FRACUNIT,              // radius
@@ -3363,7 +3518,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      5,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_RAINPLR2
@@ -3382,6 +3538,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_RAINPLR2X_1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      12 * FRACUNIT,             // speed
      5 * FRACUNIT,              // radius
@@ -3390,7 +3547,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      5,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_RAINPLR3
@@ -3409,6 +3567,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_RAINPLR3X_1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      12 * FRACUNIT,             // speed
      5 * FRACUNIT,              // radius
@@ -3417,7 +3576,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      5,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_RAINPLR4
@@ -3436,6 +3596,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_RAINPLR4X_1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      12 * FRACUNIT,             // speed
      5 * FRACUNIT,              // radius
@@ -3444,7 +3605,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      5,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_GOLDWANDFX1
@@ -3463,6 +3625,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_GWANDFXI1_1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_gldhit,                // deathsound
      22 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -3471,7 +3634,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_GOLDWANDFX2
@@ -3490,6 +3654,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_GWANDFXI1_1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      18 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -3498,7 +3663,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_GOLDWANDPUFF1
@@ -3517,6 +3683,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3525,7 +3692,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_GOLDWANDPUFF2
@@ -3544,6 +3712,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3552,7 +3721,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_WPHOENIXROD
@@ -3571,6 +3741,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3579,7 +3750,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_PHOENIXFX1
@@ -3598,6 +3770,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_PHOENIXFXI1_1,           // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_phohit,                // deathsound
      20 * FRACUNIT,             // speed
      11 * FRACUNIT,             // radius
@@ -3606,7 +3779,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      20,                        // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_THRUGHOST | MF2_NOTELEPORT     // flags2
+     MF2_THRUGHOST | MF2_NOTELEPORT,    // flags2
+     0                          // flags3
      },
 
     // The following thing is present in the mobjinfo table from Heretic 1.0,
@@ -3629,6 +3803,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_PHOENIXFXIX_3,           // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -3637,7 +3812,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT     // flags2
+     MF2_NOTELEPORT,    // flags2
+     0                          // flags3
      },
 
     {                           // MT_PHOENIXPUFF
@@ -3656,6 +3832,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3664,7 +3841,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_SHADOW,  // flags
-     MF2_NOTELEPORT | MF2_CANNOTPUSH    // flags2
+     MF2_NOTELEPORT | MF2_CANNOTPUSH,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_PHOENIXFX2
@@ -3683,6 +3861,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_PHOENIXFXI2_1,           // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      10 * FRACUNIT,             // speed
      6 * FRACUNIT,              // radius
@@ -3691,7 +3870,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_MISC15
@@ -3710,6 +3890,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3718,7 +3899,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_CRBOWFX1
@@ -3737,6 +3919,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_CRBOWFXI1_1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_hrnhit,                // deathsound
      30 * FRACUNIT,             // speed
      11 * FRACUNIT,             // radius
@@ -3745,7 +3928,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      10,                        // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_CRBOWFX2
@@ -3764,6 +3948,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_CRBOWFXI1_1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_hrnhit,                // deathsound
      32 * FRACUNIT,             // speed
      11 * FRACUNIT,             // radius
@@ -3772,7 +3957,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      6,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_CRBOWFX3
@@ -3791,6 +3977,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_CRBOWFXI3_1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_hrnhit,                // deathsound
      20 * FRACUNIT,             // speed
      11 * FRACUNIT,             // radius
@@ -3799,7 +3986,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_WINDTHRUST | MF2_THRUGHOST | MF2_NOTELEPORT    // flags2
+     MF2_WINDTHRUST | MF2_THRUGHOST | MF2_NOTELEPORT,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_CRBOWFX4
@@ -3818,6 +4006,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3826,7 +4015,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     MF2_LOGRAV                 // flags2
+     MF2_LOGRAV,                // flags2
+     0                          // flags3
      },
 
     {                           // MT_BLOOD
@@ -3845,6 +4035,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -3853,7 +4044,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_BLOODSPLATTER
@@ -3872,6 +4064,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_BLOODSPLATTERX,          // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -3880,7 +4073,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_NOTELEPORT | MF2_CANNOTPUSH    // flags2
+     MF2_NOTELEPORT | MF2_CANNOTPUSH,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_PLAYER
@@ -3899,6 +4093,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_PLAY_DIE1,               // deathstate
      HERETIC_S_PLAY_XDIE1,              // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_plrdth,                // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -3907,7 +4102,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_DROPOFF | MF_PICKUP | MF_NOTDMATCH,   // flags
-     MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_SLIDE | MF2_PASSMOBJ | MF2_TELESTOMP   // flags2
+     MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_SLIDE | MF2_PASSMOBJ | MF2_TELESTOMP,  // flags2
+     0                          // flags3
      },
 
     {                           // MT_BLOODYSKULL
@@ -3926,6 +4122,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      4 * FRACUNIT,              // radius
@@ -3934,7 +4131,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_DROPOFF,        // flags
-     MF2_LOGRAV | MF2_CANNOTPUSH        // flags2
+     MF2_LOGRAV | MF2_CANNOTPUSH,       // flags2
+     0                          // flags3
      },
 
     {                           // MT_CHICPLAYER
@@ -3953,6 +4151,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_CHICKEN_DIE1,            // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_chicdth,               // deathsound
      0,                         // speed
      16 * FRACUNIT,             // radius
@@ -3961,7 +4160,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SOLID | MF_SHOOTABLE | MF_DROPOFF | MF_NOTDMATCH,       // flags
-     MF2_WINDTHRUST | MF2_SLIDE | MF2_PASSMOBJ | MF2_FOOTCLIP | MF2_LOGRAV | MF2_TELESTOMP      // flags2
+     MF2_WINDTHRUST | MF2_SLIDE | MF2_PASSMOBJ | MF2_FOOTCLIP | MF2_LOGRAV | MF2_TELESTOMP,     // flags2
+     0                          // flags3
      },
 
     {                           // MT_CHICKEN
@@ -3980,6 +4180,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_CHICKEN_DIE1,            // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_chicdth,               // deathsound
      4,                         // speed
      9 * FRACUNIT,              // radius
@@ -3988,7 +4189,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_chicact,               // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_DROPOFF,       // flags
-     MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_PASSMOBJ       // flags2
+     MF2_WINDTHRUST | MF2_FOOTCLIP | MF2_PASSMOBJ,      // flags2
+     MF3_DONTMORPH                          // flags3
      },
 
     {                           // MT_FEATHER
@@ -4007,6 +4209,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_FEATHERX,                // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      2 * FRACUNIT,              // radius
@@ -4015,7 +4218,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF,   // flags
-     MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH | MF2_WINDTHRUST      // flags2
+     MF2_NOTELEPORT | MF2_LOGRAV | MF2_CANNOTPUSH | MF2_WINDTHRUST,     // flags2
+     0                          // flags3
      },
 
     {                           // MT_MUMMY
@@ -4034,6 +4238,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MUMMY_DIE1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_mumdth,                // deathsound
      12,                        // speed
      22 * FRACUNIT,             // radius
@@ -4042,7 +4247,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_mumact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ,       // flags2
+     0                          // flags3
      },
 
     {                           // MT_MUMMYLEADER
@@ -4061,6 +4267,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MUMMY_DIE1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_mumdth,                // deathsound
      12,                        // speed
      22 * FRACUNIT,             // radius
@@ -4069,7 +4276,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_mumact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ,       // flags2
+     0                          // flags3
      },
 
     {                           // MT_MUMMYGHOST
@@ -4088,6 +4296,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MUMMY_DIE1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_mumdth,                // deathsound
      12,                        // speed
      22 * FRACUNIT,             // radius
@@ -4096,7 +4305,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_mumact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_SHADOW,        // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ,       // flags2
+     0                          // flags3
      },
 
     {                           // MT_MUMMYLEADERGHOST
@@ -4115,6 +4325,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MUMMY_DIE1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_mumdth,                // deathsound
      12,                        // speed
      22 * FRACUNIT,             // radius
@@ -4123,7 +4334,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_mumact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_SHADOW,        // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ,       // flags2
+     0                          // flags3
      },
 
     {                           // MT_MUMMYSOUL
@@ -4142,6 +4354,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4150,7 +4363,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_MUMMYFX1
@@ -4169,6 +4383,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MUMMYFXI1_1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      9 * FRACUNIT,              // speed
      8 * FRACUNIT,              // radius
@@ -4177,7 +4392,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_BEAST
@@ -4196,6 +4412,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_BEAST_DIE1,              // deathstate
      HERETIC_S_BEAST_XDIE1,             // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_bstdth,                // deathsound
      14,                        // speed
      32 * FRACUNIT,             // radius
@@ -4204,7 +4421,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_bstact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ,       // flags2
+     0                          // flags3
      },
 
     {                           // MT_BEASTBALL
@@ -4223,6 +4441,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_BEASTBALLX1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      12 * FRACUNIT,             // speed
      9 * FRACUNIT,              // radius
@@ -4231,7 +4450,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_WINDTHRUST | MF2_NOTELEPORT    // flags2
+     MF2_WINDTHRUST | MF2_NOTELEPORT,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_BURNBALL
@@ -4250,6 +4470,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_BEASTBALLX1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      10 * FRACUNIT,             // speed
      6 * FRACUNIT,              // radius
@@ -4258,7 +4479,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_BURNBALLFB
@@ -4277,6 +4499,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_BEASTBALLX1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      10 * FRACUNIT,             // speed
      6 * FRACUNIT,              // radius
@@ -4285,7 +4508,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_PUFFY
@@ -4304,6 +4528,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_PUFFY1,                  // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      10 * FRACUNIT,             // speed
      6 * FRACUNIT,              // radius
@@ -4312,7 +4537,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY | MF_MISSILE, // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_SNAKE
@@ -4331,6 +4557,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SNAKE_DIE1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_snkdth,                // deathsound
      10,                        // speed
      22 * FRACUNIT,             // radius
@@ -4339,7 +4566,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_snkact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ,       // flags2
+     0                          // flags3
      },
 
     {                           // MT_SNAKEPRO_A
@@ -4358,6 +4586,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SNAKEPRO_AX1,            // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      14 * FRACUNIT,             // speed
      12 * FRACUNIT,             // radius
@@ -4366,7 +4595,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_WINDTHRUST | MF2_NOTELEPORT    // flags2
+     MF2_WINDTHRUST | MF2_NOTELEPORT,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_SNAKEPRO_B
@@ -4385,6 +4615,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SNAKEPRO_BX1,            // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      14 * FRACUNIT,             // speed
      12 * FRACUNIT,             // radius
@@ -4393,7 +4624,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      3,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_HEAD
@@ -4412,6 +4644,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_HEAD_DIE1,               // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_heddth,                // deathsound
      6,                         // speed
      40 * FRACUNIT,             // radius
@@ -4420,7 +4653,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_hedact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_NOBLOOD,       // flags
-     MF2_PASSMOBJ               // flags2
+     MF2_PASSMOBJ,              // flags2
+     MF3_DONTMORPH                          // flags3
      },
 
     {                           // MT_HEADFX1
@@ -4439,6 +4673,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_HEADFXI1_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      13 * FRACUNIT,             // speed
      12 * FRACUNIT,             // radius
@@ -4447,7 +4682,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_THRUGHOST     // flags2
+     MF2_NOTELEPORT | MF2_THRUGHOST,    // flags2
+     0                          // flags3
      },
 
     {                           // MT_HEADFX2
@@ -4466,6 +4702,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_HEADFXI2_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      8 * FRACUNIT,              // speed
      12 * FRACUNIT,             // radius
@@ -4474,7 +4711,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      3,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_HEADFX3
@@ -4493,6 +4731,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_HEADFXI3_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      10 * FRACUNIT,             // speed
      14 * FRACUNIT,             // radius
@@ -4501,7 +4740,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      5,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_WINDTHRUST | MF2_NOTELEPORT    // flags2
+     MF2_WINDTHRUST | MF2_NOTELEPORT,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_WHIRLWIND
@@ -4520,6 +4760,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_HEADFXI4_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      10 * FRACUNIT,             // speed
      16 * FRACUNIT,             // radius
@@ -4528,7 +4769,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY | MF_SHADOW,        // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_CLINK
@@ -4547,6 +4789,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_CLINK_DIE1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_clkdth,                // deathsound
      14,                        // speed
      20 * FRACUNIT,             // radius
@@ -4555,7 +4798,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_clkact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_NOBLOOD,       // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ,       // flags2
+     0                          // flags3
      },
 
     {                           // MT_WIZARD
@@ -4574,6 +4818,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_WIZARD_DIE1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_wizdth,                // deathsound
      12,                        // speed
      16 * FRACUNIT,             // radius
@@ -4582,7 +4827,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_wizact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_FLOAT | MF_NOGRAVITY,  // flags
-     MF2_PASSMOBJ               // flags2
+     MF2_PASSMOBJ,              // flags2
+     MF3_RANDOMACTIVESOUND | MF3_NOFLYOVER    // flags3
      },
 
     {                           // MT_WIZFX1
@@ -4601,6 +4847,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_WIZFXI1_1,               // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      18 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -4609,7 +4856,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      3,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_IMP
@@ -4628,6 +4876,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_IMP_CRASH1,              // crashstate
      HERETIC_S_IMP_DIE1,                // deathstate
      HERETIC_S_IMP_XDIE1,               // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_impdth,                // deathsound
      10,                        // speed
      16 * FRACUNIT,             // radius
@@ -4636,7 +4885,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_impact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_FLOAT | MF_NOGRAVITY | MF_COUNTKILL,  // flags
-     MF2_SPAWNFLOAT | MF2_PASSMOBJ | MF2_RANGEHALF      // flags2
+     MF2_SPAWNFLOAT | MF2_PASSMOBJ | MF2_RANGEHALF,     // flags2
+     MF3_NOFLYOVER                          // flags3
      },
 
     {                           // MT_IMPLEADER
@@ -4655,6 +4905,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_IMP_CRASH1,              // crashstate
      HERETIC_S_IMP_DIE1,                // deathstate
      HERETIC_S_IMP_XDIE1,               // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_impdth,                // deathsound
      10,                        // speed
      16 * FRACUNIT,             // radius
@@ -4663,7 +4914,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_impact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_FLOAT | MF_NOGRAVITY | MF_COUNTKILL,  // flags
-     MF2_SPAWNFLOAT | MF2_PASSMOBJ      // flags2
+     MF2_SPAWNFLOAT | MF2_PASSMOBJ,     // flags2
+     0                          // flags3
      },
 
     {                           // MT_IMPCHUNK1
@@ -4682,6 +4934,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4690,7 +4943,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_IMPCHUNK2
@@ -4709,6 +4963,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4717,7 +4972,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_IMPBALL
@@ -4736,6 +4992,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_IMPFXI1,                 // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      10 * FRACUNIT,             // speed
      8 * FRACUNIT,              // radius
@@ -4744,7 +5001,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_WINDTHRUST | MF2_NOTELEPORT    // flags2
+     MF2_WINDTHRUST | MF2_NOTELEPORT,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_KNIGHT
@@ -4763,6 +5021,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_KNIGHT_DIE1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_kgtdth,                // deathsound
      12,                        // speed
      24 * FRACUNIT,             // radius
@@ -4771,7 +5030,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_kgtact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ,       // flags2
+     0                          // flags3
      },
 
     {                           // MT_KNIGHTGHOST
@@ -4790,6 +5050,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_KNIGHT_DIE1,             // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_kgtdth,                // deathsound
      12,                        // speed
      24 * FRACUNIT,             // radius
@@ -4798,7 +5059,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_kgtact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_SHADOW,        // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ        // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ,       // flags2
+     0                          // flags3
      },
 
     {                           // MT_KNIGHTAXE
@@ -4817,6 +5079,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SPINAXEX1,               // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_hrnhit,                // deathsound
      9 * FRACUNIT,              // speed
      10 * FRACUNIT,             // radius
@@ -4825,7 +5088,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      2,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_WINDTHRUST | MF2_NOTELEPORT | MF2_THRUGHOST    // flags2
+     MF2_WINDTHRUST | MF2_NOTELEPORT | MF2_THRUGHOST,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_REDAXE
@@ -4844,6 +5108,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_REDAXEX1,                // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_hrnhit,                // deathsound
      9 * FRACUNIT,              // speed
      10 * FRACUNIT,             // radius
@@ -4852,7 +5117,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      7,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_THRUGHOST     // flags2
+     MF2_NOTELEPORT | MF2_THRUGHOST,    // flags2
+     0                          // flags3
      },
 
     {                           // MT_SORCERER1
@@ -4871,6 +5137,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SRCR1_DIE1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_sbtdth,                // deathsound
      16,                        // speed
      28 * FRACUNIT,             // radius
@@ -4879,7 +5146,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_sbtact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL,    // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_BOSS     // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_BOSS,    // flags2
+     MF3_DONTMORPH                          // flags3
      },
 
     {                           // MT_SRCRFX1
@@ -4898,6 +5166,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SRCRFXI1_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      20 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -4906,7 +5175,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      10,                        // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_SORCERER2
@@ -4925,6 +5195,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SOR2_DIE1,               // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      14,                        // speed
      16 * FRACUNIT,             // radius
@@ -4933,7 +5204,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      heretic_sfx_soract,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_DROPOFF,       // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_BOSS     // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_BOSS,    // flags2
+     MF3_FULLVOLACTIVE | MF3_DONTMORPH   // flags3
      },
 
     {                           // MT_SOR2FX1
@@ -4952,6 +5224,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SOR2FXI1_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      20 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -4960,7 +5233,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      1,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_SOR2FXSPARK
@@ -4979,6 +5253,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -4987,7 +5262,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOGRAVITY,      // flags
-     MF2_NOTELEPORT | MF2_CANNOTPUSH    // flags2
+     MF2_NOTELEPORT | MF2_CANNOTPUSH,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_SOR2FX2
@@ -5006,6 +5282,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_SOR2FXI2_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      6 * FRACUNIT,              // speed
      10 * FRACUNIT,             // radius
@@ -5014,7 +5291,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      10,                        // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT             // flags2
+     MF2_NOTELEPORT,            // flags2
+     0                          // flags3
      },
 
     {                           // MT_SOR2TELEFADE
@@ -5033,6 +5311,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5041,7 +5320,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP,             // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_MINOTAUR
@@ -5060,6 +5340,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MNTR_DIE1,               // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_mindth,                // deathsound
      16,                        // speed
      28 * FRACUNIT,             // radius
@@ -5068,7 +5349,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      7,                         // damage
      heretic_sfx_minact,                // activesound
      MF_SOLID | MF_SHOOTABLE | MF_COUNTKILL | MF_DROPOFF,       // flags
-     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_BOSS     // flags2
+     MF2_FOOTCLIP | MF2_PASSMOBJ | MF2_BOSS,    // flags2
+     MF3_DONTMORPH | MF3_INVULNCHARGE   // flags3
      },
 
     {                           // MT_MNTRFX1
@@ -5087,6 +5369,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MNTRFXI1_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      0,                         // deathsound
      20 * FRACUNIT,             // speed
      10 * FRACUNIT,             // radius
@@ -5095,7 +5378,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      3,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_MNTRFX2
@@ -5114,6 +5398,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MNTRFXI2_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_phohit,                // deathsound
      14 * FRACUNIT,             // speed
      5 * FRACUNIT,              // radius
@@ -5122,7 +5407,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE,   // flags2
+     MF3_FLOORMISSILE                          // flags3
      },
 
     {                           // MT_MNTRFX3
@@ -5141,6 +5427,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_MNTRFXI2_1,              // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      heretic_sfx_phohit,                // deathsound
      0,                         // speed
      8 * FRACUNIT,              // radius
@@ -5149,7 +5436,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      4,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_MISSILE | MF_DROPOFF | MF_NOGRAVITY,    // flags
-     MF2_NOTELEPORT | MF2_FIREDAMAGE    // flags2
+     MF2_NOTELEPORT | MF2_FIREDAMAGE,   // flags2
+     0                          // flags3
      },
 
     {                           // MT_AKYY
@@ -5168,6 +5456,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5176,7 +5465,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOTDMATCH, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_BKYY
@@ -5195,6 +5485,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5203,7 +5494,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOTDMATCH, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_CKEY
@@ -5222,6 +5514,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5230,7 +5523,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL | MF_NOTDMATCH, // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_AMGWNDWIMPY
@@ -5249,6 +5543,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5257,7 +5552,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_AMGWNDHEFTY
@@ -5276,6 +5572,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5284,7 +5581,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_AMMACEWIMPY
@@ -5303,6 +5601,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5311,7 +5610,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_AMMACEHEFTY
@@ -5330,6 +5630,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5338,7 +5639,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_AMCBOWWIMPY
@@ -5357,6 +5659,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5365,7 +5668,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_AMCBOWHEFTY
@@ -5384,6 +5688,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5392,7 +5697,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_AMSKRDWIMPY
@@ -5411,6 +5717,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5419,7 +5726,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_AMSKRDHEFTY
@@ -5438,6 +5746,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5446,7 +5755,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_AMPHRDWIMPY
@@ -5465,6 +5775,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5473,7 +5784,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_AMPHRDHEFTY
@@ -5492,6 +5804,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5500,7 +5813,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_AMBLSRWIMPY
@@ -5519,6 +5833,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5527,7 +5842,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_AMBLSRHEFTY
@@ -5546,6 +5862,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5554,7 +5871,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_SPECIAL,                // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_SOUNDWIND
@@ -5573,6 +5891,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5581,7 +5900,8 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      },
 
     {                           // MT_SOUNDWATERFALL
@@ -5600,6 +5920,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      HERETIC_S_NULL,                    // crashstate
      HERETIC_S_NULL,                    // deathstate
      HERETIC_S_NULL,                    // xdeathstate
+     HERETIC_S_NULL,                    // icedeathstate
      sfx_None,                  // deathsound
      0,                         // speed
      20 * FRACUNIT,             // radius
@@ -5608,6 +5929,7 @@ raven_mobjinfo_t heretic_mobjinfo[HERETIC_NUMMOBJTYPES] = {
      0,                         // damage
      sfx_None,                  // activesound
      MF_NOBLOCKMAP | MF_NOSECTOR,       // flags
-     0                          // flags2
+     0,                         // flags2
+     0                          // flags3
      }
 };

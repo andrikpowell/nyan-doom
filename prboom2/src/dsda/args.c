@@ -190,6 +190,11 @@ static arg_config_t arg_config[dsda_arg_count] = {
     "sets a random player class in hexen deathmatch",
     arg_null,
   },
+  [dsda_arg_exdefs] = {
+    "-exdefs", NULL, NULL, NULL,
+    "sets exdefs loading for heretic and hexen",
+    arg_null,
+  },
   [dsda_arg_dsdademo] = {
     "-dsdademo", NULL, NULL, NULL,
     "turns on extended demo format (for testing)",

@@ -6531,6 +6531,12 @@ typedef enum {
   SG_END
 } splash_group_t;
 
+typedef enum
+{
+  EXDEFS_BEHAVIOR_NONE,
+  EXDEFS_BEHAVIOR_TELOTHER_SPOT,
+} behavior_t;
+
 /********************************************************************
  * Definition of the Thing structure
  ********************************************************************/
@@ -6613,6 +6619,13 @@ typedef struct
   // automap
   int automapoffsetx;
   int automapoffsety;
+
+  // exdefs
+  int icedeathstate;
+  int activatestate;
+  int deactivatestate;
+  behavior_t behavior;
+  uint64_t flags3;      // EXDEFS flags
 } mobjinfo_t;
 
 #define NO_ALTSPEED -1
@@ -6662,6 +6675,7 @@ typedef struct
     int crashstate;
     int deathstate;
     int xdeathstate;
+    int icedeathstate;
     int deathsound;
     int speed;
     int radius;
@@ -6671,6 +6685,7 @@ typedef struct
     int activesound;
     uint64_t flags;
     uint64_t flags2;
+    uint64_t flags3;
 } raven_mobjinfo_t;
 
 // all the stuff - dynamically selected in global.c
@@ -6694,7 +6709,6 @@ extern int num_sprites;
 extern mobjinfo_t* mobjinfo;
 extern int num_mobj_types;
 extern int mobj_types_zero;
-extern int mobj_types_max;
 
 // zdoom
 
@@ -6705,5 +6719,9 @@ extern int ZMT_MAPSPOT_GRAVITY;
 extern int ZMT_TELEPORTDEST2;
 extern int ZMT_TELEPORTDEST3;
 extern int ZMT_AMBIENTSOUND;
+
+// exdefs
+extern actionf_t Hexen_FindAction(const char *name);
+
 
 #endif

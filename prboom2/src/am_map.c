@@ -62,6 +62,7 @@
 #include "d_main.h"
 #include "m_menu.h"
 
+#include "dsda/exdefs.h"
 #include "dsda/id_list.h"
 #include "dsda/input.h"
 #include "dsda/map_format.h"
@@ -338,6 +339,21 @@ mline_t thingbox_guy[] =
 #undef R
 #define NUMTHINGBOXGUYLINES (sizeof(thingbox_guy)/sizeof(mline_t))
 
+// Free camera
+#define R (FRACUNIT)
+mline_t camera_guy[] =
+{
+  { { -3*R/4, -R/2 }, {  R/4, -R/2 } },   // Square top
+  { {  R/4, -R/2 }, {  R/4,  R/2 } },     // Square right
+  { {  R/4,  R/2 }, { -3*R/4,  R/2 } },   // Square bottom
+  { { -3*R/4,  R/2 }, { -3*R/4, -R/2 } }, // Square left
+  { {  R/4, -R/3 }, {  R,   -R/2 } },     // Lens side slant
+  { {  R,   -R/2 }, {  R,    R/2 } },     // Lens front
+  { {  R,    R/2 }, {  R/4,  R/3 } },     // Lens side slant
+};
+#undef R
+#define NUMCAMERALINES (sizeof(camera_guy)/sizeof(mline_t))
+
 // Digit Segments
 #define R (FRACUNIT)
 #define SEG_T  { { -R/2,  R }, {  R/2,  R } } // top
@@ -459,6 +475,43 @@ static fixed_t prev_scale_mtof = (fixed_t)INITSCALEMTOF;
 static player_t *plr;           // the player represented by an arrow
 static vertex_t oldplr;
 
+static angle_t AM_GetViewAngle(void)
+{
+  // If chasecam, use the player angle and not camera angle
+  if (R_ChasecamOn() && plr && plr->mo)
+  {
+    if (R_ViewInterpolation())
+    {
+      return plr->prev_viewangle + FixedMul(tic_vars.frac, R_SmoothPlaying_Get(plr) - plr->prev_viewangle);
+    }
+
+    return plr->mo->angle;
+  }
+
+  return viewangle;
+}
+
+static void AM_GetFollowPosition(fixed_t *x, fixed_t *y)
+{
+  *x = viewx;
+  *y = viewy;
+
+  // If chasecam, use the player position and not camera position
+  if (R_ChasecamOn() && plr && plr->mo)
+  {
+    if (R_ViewInterpolation())
+    {
+      *x = plr->mo->PrevX + FixedMul(tic_vars.frac, plr->mo->x - plr->mo->PrevX);
+      *y = plr->mo->PrevY + FixedMul(tic_vars.frac, plr->mo->y - plr->mo->PrevY);
+    }
+    else
+    {
+      *x = plr->mo->x;
+      *y = plr->mo->y;
+    }
+  }
+}
+
 // killough 2/22/98: Remove limit on automap marks,
 // and make variables external for use in savegames.
 
@@ -560,6 +613,8 @@ static void AM_saveScaleAndLoc(void)
 //
 static void AM_restoreScaleAndLoc(void)
 {
+  fixed_t follow_x, follow_y;
+
   m_w = old_m_w;
   m_h = old_m_h;
   if (!automap_follow)
@@ -569,8 +624,9 @@ static void AM_restoreScaleAndLoc(void)
   }
   else
   {
-    m_x = (viewx >> FRACTOMAPBITS) - m_w/2;//e6y
-    m_y = (viewy >> FRACTOMAPBITS) - m_h/2;//e6y
+    AM_GetFollowPosition(&follow_x, &follow_y);
+    m_x = (follow_x >> FRACTOMAPBITS) - m_w/2;//e6y
+    m_y = (follow_y >> FRACTOMAPBITS) - m_h/2;//e6y
   }
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
@@ -743,7 +799,7 @@ static void AM_moveWindowLoc(fixed_t origin_x, fixed_t origin_y, fixed_t incx, f
 
   if (automap_rotate)
   {
-    AM_rotate(&incx, &incy, viewangle - ANG90);
+    AM_rotate(&incx, &incy, AM_GetViewAngle() - ANG90);
   }
 
   m_x = origin_x + incx;
@@ -2099,7 +2155,10 @@ static void AM_changeWindowScale(void)
 //
 static void AM_doFollowPlayer(void)
 {
-  AM_SetMapCenter(viewx, viewy);
+  fixed_t x, y;
+
+  AM_GetFollowPosition(&x, &y);
+  AM_SetMapCenter(x, y);
 }
 
 //
@@ -2840,7 +2899,7 @@ static void AM_drawLineCharacter
   if (box_scale && dsda_RevealAutomap() == 2)
     AM_drawLineCharacter(thingbox_guy, NUMTHINGBOXGUYLINES, box_scale, 0, 0x40000000, mapcolor_p->hitbox, x, y);
 
-  if (automap_rotate) angle -= viewangle - ANG90; // cph
+  if (automap_rotate) angle -= AM_GetViewAngle() - ANG90; // cph
 
   for (i=0;i<lineguylines;i++)
   {
@@ -2958,6 +3017,23 @@ static void AM_DrawBossActionThings(void)
 //
 // Passed nothing, returns nothing
 //
+static void AM_drawFreeCameraPlayer(void)
+{
+  fixed_t scale = 16 << MAPBITS;
+  mpoint_t pt;
+
+  pt.x = viewx >> FRACTOMAPBITS;
+  pt.y = viewy >> FRACTOMAPBITS;
+
+  if (automap_rotate)
+    AM_rotatePoint(&pt);
+  else
+    AM_SetMPointFloatValue(&pt);
+
+  AM_drawLineCharacter(camera_guy, NUMCAMERALINES, scale, 0,
+      viewangle, mapcolor_p->sngl, pt.x, pt.y);
+}
+
 static void AM_drawPlayers(void)
 {
   int   i;
@@ -2965,6 +3041,10 @@ static void AM_drawPlayers(void)
   mpoint_t pt;
   fixed_t scale;
   fixed_t box_scale = 0;
+
+  // Free Camera Player
+  if (dsda_FreeCamera())
+    AM_drawFreeCameraPlayer();
 
   if (V_IsOpenGLMode())
   {
@@ -2983,17 +3063,27 @@ static void AM_drawPlayers(void)
 
   if (!netgame)
   {
-    pt.x = viewx >> FRACTOMAPBITS;
-    pt.y = viewy >> FRACTOMAPBITS;
+    // draw the player separate from view
+    if (dsda_FreeCamera() || R_ChasecamOn())
+    {
+      AM_GetMobjPosition(plr->mo, &pt, &angle);
+    }
+    else
+    {
+      pt.x = viewx >> FRACTOMAPBITS;
+      pt.y = viewy >> FRACTOMAPBITS;
+      angle = viewangle;
+    }
+
     if (automap_rotate)
       AM_rotatePoint(&pt);
     else
       AM_SetMPointFloatValue(&pt);
 
     if (dsda_RevealAutomap())
-      AM_drawLineCharacter(cheat_player_arrow, numcheatplyrlines, scale, box_scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
+      AM_drawLineCharacter(cheat_player_arrow, numcheatplyrlines, scale, box_scale, angle, mapcolor_p->sngl, pt.x, pt.y);
     else
-      AM_drawLineCharacter(player_arrow, numplyrlines, scale, box_scale, viewangle, mapcolor_p->sngl, pt.x, pt.y);
+      AM_drawLineCharacter(player_arrow, numplyrlines, scale, box_scale, angle, mapcolor_p->sngl, pt.x, pt.y);
     return;
   }
 
@@ -3438,7 +3528,7 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
     return;
   }
 
-  ang = (rotate ? angle : 0) + (automap_rotate ? ANG90 - viewangle : 0);
+  ang = (rotate ? angle : 0) + (automap_rotate ? ANG90 - AM_GetViewAngle() : 0);
   rot = -(float)ang / (float)(1u << 31) * (float)M_PI;
 
   // shadow will end up drawing underneath
@@ -3479,6 +3569,13 @@ static automap_key_t AM_IsAutomapKey(const mobj_t *thing)
 
   if (hexen)
   {
+    // Kex puzzle pieces
+    if (exdefs)
+    {
+      if (dsda_ExDefsArtifactPickup(thing->type) >= hexen_arti_firstpuzzitem)
+        return automap_key_puzzle;
+    }
+
     // Hexen Keys
     if ((num >= 8030 && num <= 8039) || num == 8200)
       return automap_key_hexen;
@@ -4123,7 +4220,7 @@ static void AM_drawMarks(void)
           fixed_t digit_size    = FRACUNIT * 2 * SCREENWIDTH / 320;
           fixed_t digit_scale   = FixedDiv(digit_size, scale_mtof);
           fixed_t digit_spacing = FixedMul(digit_scale, FRACUNIT*2);
-          angle_t digit_angle   = automap_rotate ? (viewangle - ANG90) : 0;
+          angle_t digit_angle   = automap_rotate ? (AM_GetViewAngle() - ANG90) : 0;
 
           // Center digit on marker
           fixed_t bx = mx;
@@ -4292,11 +4389,41 @@ static float AM_GetThingSpriteScale(void)
   return MAX(scale * (1.0f - zoom), minimum);
 }
 
+static void AM_drawExDefsWaypoints(void)
+{
+  thinker_t *thinker;
+  float scale;
+
+  if (!dsda_ShowRavenAutomapWaypoints())
+    return;
+
+  scale = AM_GetThingSpriteScale();
+
+  for (thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+  {
+    mobj_t *thing;
+
+    if (thinker->function != P_MobjThinker)
+      continue;
+
+    thing = (mobj_t *)thinker;
+
+    // [AR] TODO: Double check MF2_DORMANT use with MF3_DRAWONAUTOMAP
+    if (!(thing->flags3 & MF3_DRAWONAUTOMAP) || (thing->flags2 & MF2_DORMANT))
+      continue;
+
+    AM_drawThingSprite(thing, scale);
+  }
+}
+
 static void AM_drawThingSprites(void)
 {
   thinker_t *thinker;
   float scale;
   dboolean showkeys = skill_info.flags & SI_EASY_KEY || dsda_ShowAutomapKeys();
+
+  if (exdefs)
+    AM_drawExDefsWaypoints();
 
   if (!dsda_ShowAutomapSprites() || (!showkeys && dsda_RevealAutomap() != 2))
     return;
@@ -4311,6 +4438,12 @@ static void AM_drawThingSprites(void)
       continue;
 
     thing = (mobj_t *)thinker;
+
+    if (exdefs && dsda_ShowRavenAutomapWaypoints())
+    {
+      if (thing->flags3 & MF3_DRAWONAUTOMAP)
+        continue;
+    }
 
     if (AM_IsAutomapKey(thing) == automap_key_none)
       continue;
@@ -4452,11 +4585,11 @@ static void AM_setFrameVariables(void)
 {
   float angle;
 
-  angle = (float)(ANG90 - viewangle) / (float)(1u << 31) * (float)M_PI;
+  angle = (float)(ANG90 - AM_GetViewAngle()) / (float)(1u << 31) * (float)M_PI;
   am_frame.sin_f = (float)sin(angle);
   am_frame.cos_f = (float)cos(angle);
-  am_frame.sin = finesine[(ANG90 - viewangle)>>ANGLETOFINESHIFT];
-  am_frame.cos = finecosine[(ANG90 - viewangle)>>ANGLETOFINESHIFT];
+  am_frame.sin = finesine[(ANG90 - AM_GetViewAngle())>>ANGLETOFINESHIFT];
+  am_frame.cos = finecosine[(ANG90 - AM_GetViewAngle())>>ANGLETOFINESHIFT];
 
   am_frame.centerx = m_x + m_w / 2;
   am_frame.centery = m_y + m_h / 2;

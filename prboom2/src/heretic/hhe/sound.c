@@ -63,9 +63,14 @@ static void hhe_procSounds(DEHFILE *fpin, char *line)
   sscanf(inbuffer, "%s %i", key, &indexnum);
   deh_log("Processing Sounds at index %d: %s\n", indexnum, key);
   if (indexnum < 0)
+  {
     deh_log("Sound number must be positive (%d)\n", indexnum);
-
-  hhe_sfx = dsda_GetDehSFX(indexnum);
+    hhe_sfx = NULL;
+  }
+  else
+  {
+    hhe_sfx = dsda_GetDehSFX(indexnum);
+  }
 
   while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
   {
@@ -82,6 +87,9 @@ static void hhe_procSounds(DEHFILE *fpin, char *line)
       deh_log("Bad data pair in '%s'\n", inbuffer);
       continue;
     }
+
+    if (!hhe_sfx)
+      continue;
 
     // well we have to do this here cuz heretic doesn't store sound names in strings :)
     if (!deh_strcasecmp(key, "Name"))

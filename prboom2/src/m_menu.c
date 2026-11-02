@@ -204,6 +204,8 @@ static setup_menu_t *setup_reset_item = NULL;
 static dboolean sub_advanced_audio_active = false;
 static dboolean sub_mouse_active = false;
 static dboolean sub_gamepad_active = false;
+static dboolean sub_chasecam_active = false;
+static dboolean sub_palette_active = false;
 static dboolean sub_colored_blood_active = false;
 static dboolean sub_trans_active = false;
 static dboolean sub_statbar_color_active = false;
@@ -423,6 +425,8 @@ static void M_Sub_Crosshair(void);
 static void M_Sub_Overflows(void);
 static void M_Sub_AutoMapMarker(void);
 static void M_Sub_AutoMapOpenGL(void);
+static void M_Sub_Chasecam(void);
+static void M_Sub_Palette(void);
 static void M_Sub_ColorAutomap(void);
 static void M_Sub_ColorMessages(void);
 static void M_Sub_ColorStatusBar(void);
@@ -454,6 +458,8 @@ static void M_Sub_DrawCrosshair(void);
 static void M_Sub_DrawOverflows(void);
 static void M_Sub_DrawAutoMapMarker(void);
 static void M_Sub_DrawAutoMapOpenGL(void);
+static void M_Sub_DrawChasecam(void);
+static void M_Sub_DrawPalette(void);
 static void M_Sub_DrawColor(void);
 
 menu_t SkillDef;                                              // phares 5/04/98
@@ -2139,6 +2145,26 @@ static menu_t SubGamepadDef =
   &GeneralDef,
   Generic_Setup,
   M_Sub_DrawGamepad,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubChasecamDef =
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawChasecam,
+  34,5,      // skull drawn here
+  0
+};
+
+static menu_t SubPaletteDef =
+{
+  generic_setup_end,
+  &DisplayDef,
+  Generic_Setup,
+  M_Sub_DrawPalette,
   34,5,      // skull drawn here
   0
 };
@@ -4248,6 +4274,8 @@ static void M_ClearSetupMenuState(void)
   sub_advanced_audio_active = false;
   sub_mouse_active = false;
   sub_gamepad_active = false;
+  sub_chasecam_active = false;
+  sub_palette_active = false;
   sub_colored_blood_active = false;
   sub_trans_active = false;
   sub_statbar_color_active = false;
@@ -4557,6 +4585,7 @@ setup_menu_t keys_toggles_settings[] = {
   { "FPS",                  S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_fps },
   { "Show Alive Monsters",  S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_showalive },
   { "Show Target's Health", S_INPUT|S_NYAN, m_scrn, g_all, KB_X, 0, dsda_input_target_health },
+  { "Free Camera",          S_INPUT|S_NYAN, m_scrn, g_all, MS_X, 0,  nyan_input_freecamera },
   EMPTY_LINE,
   TITLE("Cycle", MS_X),
   { "Cycle Input Profile",  S_INPUT, m_scrn, g_all, KB_X, 0, dsda_input_cycle_profile },
@@ -5070,6 +5099,7 @@ static const char *map_key_marker_style_list[] = { "Sprite", "Line", NULL };
 
 setup_menu_t automap_marker_adv_settings[] = {
   { "Automap Marker Style", S_CHOICE | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_marker_style, 0, map_marker_style_list },
+  { "Show Waypoints", S_YESNO | S_NYAN, m_conf, g_hexen, AA_X, dsda_config_map_show_raven_waypoints },
   { "Always Show Keys", S_YESNO | S_NYAN, m_conf, g_all, AA_X, dsda_config_map_show_keys },
   EMPTY_LINE,
   TITLE_ADV("Advanced", g_all, AA_X),
@@ -5660,11 +5690,8 @@ static const char* fake_contrast_list[] =
 static const char *gl_fade_mode_list[] = { "Normal", "Smooth", "TrueColor", NULL };
 static const char* wipe_screen_list[] = { "Off", "On", "Fast", NULL };
 static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
-static const char* palette_list[] = { "Off", "Default", NULL };
-static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
 static const char* swirling_flat_list[] = { "Off", "Smart", "All", NULL };
 static const char* sky_projection_list[] = { "Vanilla", "Linear", "Cylindrical", NULL };
-static const char* invuln_sky_list[] = { "Default", "MBF", "Vanilla", NULL };
 
 setup_menu_t display_options_settings[] = {
   { "Screen Wipe Effect", S_CHOICE | S_NYAN, m_conf, g_doom, G_X, dsda_config_render_wipescreen, 0, wipe_screen_list },
@@ -5678,12 +5705,8 @@ setup_menu_t display_options_settings[] = {
   { "GL Light Fade", S_CHOICE, m_conf, g_all, G_X, dsda_config_gl_fade_mode, 0, gl_fade_mode_list, DEPEND(dsda_config_videomode, OPENGL_MODE) },
   { "GL Health Bars", S_YESNO, m_conf, g_all, G_X, dsda_config_gl_health_bar, DEPEND_GL },
   EMPTY_LINE,
-  { "Palette On Pain", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_ondamage, 0, palette_reduced_list },
-  { "Palette On Pickup", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onbonus, 0, palette_reduced_list },
-  { "Palette On Powers", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onpowers, 0, palette_list },
-  { "Palette On Effects", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_oneffects, 0, palette_reduced_list },
-  { "Invuln Sky Behavior", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_invulnerability_sky, 0, invuln_sky_list },
-  { "Gray Invulnerability", S_YESNO | S_NYAN, m_conf, g_doom, G_X, dsda_config_gray_invulnerability },
+  FUNC("Chasecam Options", S_NYAN, G_X, M_Sub_Chasecam),
+  FUNC("Palette Options", S_NYAN, G_X, M_Sub_Palette),
   EMPTY_LINE,
   { "Menu Background", S_CHOICE, m_conf, g_all, G_X, dsda_config_menu_background, 0, menu_background_list },
 
@@ -5829,6 +5852,107 @@ static void M_DrawDisplay(void)
   M_DrawBackground(g_menu_flat);
 
   M_DrawTitle(2, "Display", cr_title); // M_DSPLAY
+  M_DrawInstructions();
+  M_DrawSetupTabs(TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Chasecam Options
+
+
+static const char *chasecam_pages[] =
+{
+  "Chasecam Options",
+  NULL
+};
+
+setup_menu_t chasecam_options_settings[];
+
+setup_menu_t* chasecam_settings[] =
+{
+  chasecam_options_settings,
+  NULL
+};
+
+static const char *chasecam_mode_list[] = { "Off", "Back", "Front", NULL };
+
+setup_menu_t chasecam_options_settings[] =
+{
+  { "Chasecam", S_CHOICE | S_NYAN, m_conf, g_all, G_X, nyan_config_chasecam, 0, chasecam_mode_list },
+  { "Death Camera", S_YESNO | S_NYAN, m_conf, g_all, G_X, nyan_config_death_camera },
+  { "Chasecam Distance", S_THERMO | S_NYAN, m_conf, g_all, G_X, nyan_config_chasecam_distance },
+  { "Chasecam Height", S_THERMO | S_NYAN, m_conf, g_all, G_X, nyan_config_chasecam_height },
+
+  FINAL_ENTRY
+};
+
+static void M_Sub_Chasecam(void)
+{
+  M_EnterSubSetup(&SubChasecamDef, &sub_chasecam_active, chasecam_settings, chasecam_pages);
+}
+
+static void M_Sub_DrawChasecam(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "Display", cr_title);
+  M_DrawInstructions();
+  M_DrawSetupTabs(TABS_Y);
+  M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
+}
+
+/////////////////////////////
+//
+// Sub Menu - Palette Options
+
+
+static const char *palette_pages[] =
+{
+  "Palette Options",
+  NULL
+};
+
+setup_menu_t palette_options_settings[];
+
+setup_menu_t* palette_settings[] =
+{
+  palette_options_settings,
+  NULL
+};
+
+static const char* palette_list[] = { "Off", "Default", NULL };
+static const char* palette_reduced_list[] = { "Off", "Default", "Reduced", NULL };
+static const char* invuln_sky_list[] = { "Default", "MBF", "Vanilla", NULL };
+
+setup_menu_t palette_options_settings[] =
+{
+  { "Palette On Pain", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_ondamage, 0, palette_reduced_list },
+  { "Palette On Pickup", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onbonus, 0, palette_reduced_list },
+  { "Palette On Powers", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_onpowers, 0, palette_list },
+  { "Palette On Effects", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_palette_oneffects, 0, palette_reduced_list },
+  EMPTY_LINE,
+  { "Invuln Sky Behavior", S_CHOICE | S_NYAN, m_conf, g_all, G_X, dsda_config_invulnerability_sky, 0, invuln_sky_list },
+  { "Gray Invulnerability", S_YESNO | S_NYAN, m_conf, g_doom, G_X, dsda_config_gray_invulnerability },
+
+  FINAL_ENTRY
+};
+
+static void M_Sub_Palette(void)
+{
+  M_EnterSubSetup(&SubPaletteDef, &sub_palette_active, palette_settings, palette_pages);
+}
+
+static void M_Sub_DrawPalette(void)
+{
+  M_ChangeMenu(NULL, mnact_full);
+
+  M_DrawBackground(g_menu_flat);
+
+  M_DrawTitle(2, "Display", cr_title);
   M_DrawInstructions();
   M_DrawSetupTabs(TABS_Y);
   M_DrawScreenItems(current_setup_menu, DEFAULT_LIST_Y);
@@ -8900,6 +9024,13 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
     // return true;
   }
 
+  // Walkcamera mode on the main menu demo?
+  if (!in_game && walkcamera.type != walkcamera_off &&
+      dsda_InputActivated(dsda_input_fire))
+  {
+    return false;
+  }
+
   // Pop-up Main menu?
   if (ch == KEYD_ESCAPE || action == MENU_ESCAPE ||
       (!in_game && (ch == KEYD_ENTER || ch == KEYD_SPACEBAR || ch == KEYD_KEYPADENTER ||
@@ -9023,13 +9154,30 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
   {
     if (demoplayback && gamestate == GS_LEVEL)
     {
-      walkcamera.type = (walkcamera.type+1)%3;
-      P_SyncWalkcam (true, (walkcamera.type!=2));
+      walkcamera.type = (walkcamera.type + 1) % walkcamera_mode_count;
+
+      if (walkcamera.type == walkcamera_player)
+        P_SyncWalkcam(true, true);
+      else if (walkcamera.type == walkcamera_walk)
+        P_SyncWalkcam(true, false);
+      // walkcamera_free inherits position from walkcamera_walk
+
       R_ResetViewInterpolation ();
-      if (walkcamera.type==0)
+      M_ChangeApplyPalette();
+      if (walkcamera.type == walkcamera_off)
         R_SmoothPlaying_Reset(NULL);
       // Don't eat the keypress in this case.
       // return true;
+    }
+  }
+
+  if (dsda_InputActivated(nyan_input_freecamera))
+  {
+    if (casual_play && gamestate == GS_LEVEL)
+    {
+      P_ToggleFreecam();
+      doom_printf("Free Camera %s", casual_freecamera ? "On" : "Off");
+      return true;
     }
   }
 

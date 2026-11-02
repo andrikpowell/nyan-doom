@@ -28,6 +28,7 @@
 #include "r_draw.h"
 
 #include "dsda/exhud.h"
+#include "dsda/exdefs.h"
 #include "dsda/pause.h"
 #include "dsda/settings.h"
 #include "dsda/stretch.h"
@@ -167,7 +168,7 @@ static char hexen_namearti[][10] = {
     {"ARTIGER3"},               // hexen_arti_puzzgear3
     {"ARTIGER4"},               // hexen_arti_puzzgear4
 };
-static int hexen_lumparti[33];
+static int hexen_lumparti[NUMINVENTORYSLOTS];
 
 static int *lumparti;
 
@@ -1025,7 +1026,7 @@ static raven_namearti_t heretic_namearti_help[11] = {
     {&s_HERETIC_TXT_ARTITELEPORT,          HERETIC_ARTI_DESC_J}, // teleport
 };
 
-static raven_namearti_t hexen_namearti_help[33] = {
+static raven_namearti_t hexen_namearti_help[HEXEN_NUMARTIFACTS] = {
     {&s_blank, ""},                                    // none
     {&s_TXT_ARTIINVULNERABILITY,   HEXEN_ARTI_DESC_A}, // invulnerability
     {&s_TXT_ARTIHEALTH,            HEXEN_ARTI_DESC_B}, // health
@@ -1098,8 +1099,17 @@ const char* dsda_InventoryString(raven_namearti_type_t type)
         inv = &players[displayplayer].inventory[CPlayer->inv_ptr];
         if (inv->type > 0)
         {
-            if (type == artifact_name) return *namearti_help[inv->type].name; // Name
-            if (type == artifact_desc) return  namearti_help[inv->type].desc; // Description
+            dboolean exdefs_artifact = exdefs && (inv->type >= (hexen ? HEXEN_NUMARTIFACTS : NUMARTIFACTS));
+            if (exdefs_artifact)
+            {
+                if (type == artifact_name) return dsda_ExDefsArtifactDisplayName(inv->type);
+                if (type == artifact_desc) return HEXEN_ARTI_DESC_PUZZLE;
+            }
+            else
+            {
+                if (type == artifact_name) return *namearti_help[inv->type].name; // Name
+                if (type == artifact_desc) return  namearti_help[inv->type].desc; // Description
+            }
         }
     }
     
@@ -1152,9 +1162,18 @@ static void Hexen_SB_Init(void)
     R_SetPatchNum(&brdr_br, "bordbr");
     R_SetPatchNum(&stbarbg, "H2BAR");
 
-    for (i = 0; i < 33; ++i)
+    for (i = 0; i < HEXEN_NUMARTIFACTS; ++i)
     {
       lumparti[i] = W_CheckNumForName2(hexen_namearti[i], ns_sprites);
+    }
+
+    if (exdefs)
+    {
+        for (i = HEXEN_NUMARTIFACTS; i < dsda_ExDefsArtifactsMax(); ++i)
+        {
+            const char *icon = dsda_ExDefsArtifactIcon(i);
+            lumparti[i] = icon ? W_CheckNumForName2(icon, ns_sprites) : -1;
+        }
     }
 
     LumpH2BAR = W_GetNumForName("H2BAR");
@@ -1533,21 +1552,23 @@ static int PieceX[NUMCLASSES][3] = {
 
 static void DrawWeaponPieces(void)
 {
-    if (CPlayer->pieces == 7)
+    int pieces = P_PlayerClassWeaponPieces(CPlayer, PlayerClass[consoleplayer]);
+
+    if (pieces == (WPIECE1 | WPIECE2 | WPIECE3))
     {
         V_DrawNumPatch(190, 162, LumpWEAPONFULL, CR_DEFAULT, VPT_STRETCH);
         return;
     }
     V_DrawNumPatch(190, 162, LumpWEAPONSLOT, CR_DEFAULT, VPT_STRETCH);
-    if (CPlayer->pieces & WPIECE1)
+    if (pieces & WPIECE1)
     {
         V_DrawNumPatch(PieceX[PlayerClass[consoleplayer]][0], 162, LumpPIECE1, CR_DEFAULT, VPT_STRETCH);
     }
-    if (CPlayer->pieces & WPIECE2)
+    if (pieces & WPIECE2)
     {
         V_DrawNumPatch(PieceX[PlayerClass[consoleplayer]][1], 162, LumpPIECE2, CR_DEFAULT, VPT_STRETCH);
     }
-    if (CPlayer->pieces & WPIECE3)
+    if (pieces & WPIECE3)
     {
         V_DrawNumPatch(PieceX[PlayerClass[consoleplayer]][2], 162, LumpPIECE3, CR_DEFAULT, VPT_STRETCH);
     }
@@ -1727,9 +1748,9 @@ static void Hexen_DrawMainBar(void)
         DrINumber(temp, 250, 176);
     }
     // Weapon Pieces
-    if (oldpieces != CPlayer->pieces)
+    if (oldpieces != P_PlayerClassWeaponPieces(CPlayer, PlayerClass[consoleplayer]))
     {
         DrawWeaponPieces();
-        oldpieces = CPlayer->pieces;
+        oldpieces = P_PlayerClassWeaponPieces(CPlayer, PlayerClass[consoleplayer]);
     }
 }

@@ -71,11 +71,11 @@ dboolean G_WeaponSelectable(weapontype_t weapon)
         return false;
     }
 
-    return weapon != wp_beak && players[consoleplayer].weaponowned[weapon];
+    return weapon != wp_beak && P_PlayerOwnsWeapon(&players[consoleplayer], weapon);
   }
   else if (hexen)
   {
-    return weapon < HEXEN_NUMWEAPONS && players[consoleplayer].weaponowned[weapon];
+    return weapon < HEXEN_NUMWEAPONS && P_PlayerOwnsWeapon(&players[consoleplayer], weapon);
   }
 
   if (gamemode == shareware)
@@ -91,7 +91,7 @@ dboolean G_WeaponSelectable(weapontype_t weapon)
   }
 
   // Can't select a weapon if we don't own it.
-  if (!players[consoleplayer].weaponowned[weapon])
+  if (!P_PlayerOwnsWeapon(&players[consoleplayer], weapon))
   {
     return false;
   }
@@ -100,7 +100,7 @@ dboolean G_WeaponSelectable(weapontype_t weapon)
   // we also have the berserk pack.
   if (demo_compatibility &&
       weapon == wp_fist &&
-      players[consoleplayer].weaponowned[wp_chainsaw] &&
+      P_PlayerOwnsWeapon(&players[consoleplayer], wp_chainsaw) &&
       !players[consoleplayer].powers[pw_strength])
   {
     return false;
@@ -114,7 +114,7 @@ static weapontype_t G_AdjustVanillaWeaponSelection(const player_t *player, weapo
   if (hexen)
     return weapon;
 
-  if (weapon == g_wp_fist && player->weaponowned[g_wp_chainsaw])
+  if (weapon == g_wp_fist && P_PlayerOwnsWeapon(player, g_wp_chainsaw))
   {
     // Heretic - always just direct to gauntlets.
     if (heretic)
@@ -138,7 +138,7 @@ static weapontype_t G_AdjustVanillaWeaponSelection(const player_t *player, weapo
   }
 
   if (!heretic && weapon == wp_shotgun && gamemode == commercial &&
-      player->weaponowned[wp_supershotgun] &&
+      P_PlayerOwnsWeapon(player, wp_supershotgun) &&
       current_weapon != wp_supershotgun)
     weapon = wp_supershotgun;
 
@@ -156,7 +156,7 @@ static weapontype_t G_AdjustBoomWeaponSelection(const player_t *player, weaponty
   // does not have the berserker strength.
   //
   // [AR] Add berserk priority option.
-  if (weapon == wp_fist && player->weaponowned[wp_chainsaw] &&
+  if (weapon == wp_fist && P_PlayerOwnsWeapon(player, wp_chainsaw) &&
       current_weapon != wp_chainsaw)
   {
     dboolean prefer_berserk = dsda_BerserkPreferred() &&
@@ -174,8 +174,8 @@ static weapontype_t G_AdjustBoomWeaponSelection(const player_t *player, weaponty
   // shotgun, or if the shotgun is already in use, or if the SSG is not
   // already in use and the player prefers it.
   if (weapon == wp_shotgun && gamemode == commercial &&
-      player->weaponowned[wp_supershotgun] &&
-      (!player->weaponowned[wp_shotgun] ||
+      P_PlayerOwnsWeapon(player, wp_supershotgun) &&
+      (!P_PlayerOwnsWeapon(player, wp_shotgun) ||
        current_weapon == wp_shotgun ||
        (current_weapon != wp_supershotgun &&
         P_WeaponPreferred(wp_supershotgun, wp_shotgun))))
