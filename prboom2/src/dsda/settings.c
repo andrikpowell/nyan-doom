@@ -20,6 +20,7 @@
 #include <stdlib.h>
 
 #include "doomstat.h"
+#include "d_main.h"
 #include "m_menu.h"
 #include "e6y.h"
 #include "r_things.h"
@@ -494,7 +495,7 @@ int dsda_ShowAliveMonsters(void) {
 }
 
 dboolean dsda_ShowAutomapKeys(void) {
-  return dsda_IntConfig(dsda_config_map_show_keys) && casual_play;
+  return dsda_IntConfig(dsda_config_map_show_keys) && casual_play && !advancedemo;
 }
 
 dboolean dsda_ShowAutomapSprites(void) {
