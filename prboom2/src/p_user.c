@@ -1257,7 +1257,6 @@ static void P_ReplaceHexenPlayerMobj(player_t *player, pclass_t pclass)
     fixed_t momz = old_mobj->momz;
     angle_t angle = old_mobj->angle;
     angle_t pitch = old_mobj->pitch;
-    uint64_t flags = old_mobj->flags;
     uint64_t flags2 = old_mobj->flags2;
 
     switch (pclass)

@@ -32,12 +32,14 @@
 dboolean JS_GetVersion(json_t *json, version_t *version)
 {
     json_t *js_version = JS_GetObject(json, "version");
+    const char *string;
+
     if (!JS_IsString(js_version))
     {
         return false;
     }
 
-    const char *string = JS_GetString(js_version);
+    string = JS_GetString(js_version);
     if (M_ParseVersion(string, version))
     {
         return true;
@@ -58,28 +60,36 @@ json_t *JS_OpenOptions(int lumpnum, dboolean comments)
 {
     const char *string = W_LumpByNum(lumpnum);
     int length = W_LumpLength(lumpnum);
-
     yyjson_read_flag flag = comments ? YYJSON_READ_ALLOW_COMMENTS : 0;
-
     yyjson_read_err err;
+    char *input;
+    yyjson_doc *json_doc;
+    doc_t *doc;
+    json_t *json;
+
+    input = malloc(length);
+    memcpy(input, string, length);
+
     // yyjson only modifies the input when YYJSON_READ_INSITU is requested.
-    yyjson_doc *json_doc = yyjson_read_opts((char *)(void *)string, length,
-                                            flag, NULL, &err);
+    json_doc = yyjson_read_opts(input, length, flag, NULL, &err);
+    free(input);
 
     if (!json_doc)
     {
         size_t line, col, chr;
+        const char *name;
+
         yyjson_locate_pos(string, length, err.pos, &line, &col, &chr);
-        const char *name = W_LumpName(lumpnum);
+        name = W_LumpName(lumpnum);
         lprintf(LO_ERROR, "%.8s(%d:%d): read error: %s\n", name, (int)line,
                 (int)col, err.msg);
         return NULL;
     }
 
-    doc_t *doc = M_ArrayGetNewItem(&docs, sizeof(*doc));
+    doc = M_ArrayGetNewItem(&docs, sizeof(*doc));
     *doc = (doc_t){json_doc, lumpnum};
 
-    json_t *json = yyjson_doc_get_root(json_doc);
+    json = yyjson_doc_get_root(json_doc);
 
     return json;
 }
@@ -87,18 +97,23 @@ json_t *JS_OpenOptions(int lumpnum, dboolean comments)
 json_t *JS_Open(const char *lump, const char *type, version_t maxversion)
 {
     int lumpnum = W_CheckNumForName(lump);
+    json_t *json;
+    json_t *js_type;
+    const char *s;
+    version_t v = {0};
+
     if (lumpnum < 0)
     {
         return NULL;
     }
 
-    json_t *json = JS_OpenOptions(lumpnum, false);
+    json = JS_OpenOptions(lumpnum, false);
     if (!json)
     {
         return NULL;
     }
 
-    json_t *js_type = JS_GetObject(json, "type");
+    js_type = JS_GetObject(json, "type");
     if (!JS_IsString(js_type))
     {
         lprintf(LO_ERROR, "%s: no type string", lump);
@@ -106,7 +121,7 @@ json_t *JS_Open(const char *lump, const char *type, version_t maxversion)
         return NULL;
     }
 
-    const char *s = JS_GetString(js_type);
+    s = JS_GetString(js_type);
     if (strcmp(s, type))
     {
         lprintf(LO_ERROR, "%s: wrong type %s", lump, s);
@@ -114,7 +129,6 @@ json_t *JS_Open(const char *lump, const char *type, version_t maxversion)
         return NULL;
     }
 
-    version_t v = {0};
     if (!JS_GetVersion(json, &v))
     {
         lprintf(LO_ERROR, "%s: no version string", lump);
@@ -136,8 +150,9 @@ json_t *JS_Open(const char *lump, const char *type, version_t maxversion)
 void JS_CloseOptions(int lumpnum)
 {
     doc_t *doc = docs.data;
+    int i;
 
-    for (int i = 0; i < docs.count; ++i)
+    for (i = 0; i < docs.count; ++i)
     {
         if (doc[i].lumpnum == lumpnum)
         {
