@@ -25,7 +25,6 @@ find_package(SDL2_mixer REQUIRED)
 find_package(SndFile 1.0.29 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(libzip REQUIRED)
-find_package(yyjson CONFIG REQUIRED)
 
 # ZLIB 1.3.2 static now requires explicit ZLIBSTATIC
 if(NOT TARGET ZLIB::ZLIB AND TARGET ZLIB::ZLIBSTATIC)
@@ -83,6 +82,11 @@ if(WITH_DISCORD_RPC)
   set(HAVE_DISCORD_RPC TRUE)
 endif()
 
+if(WITH_YYJSON)
+  include(NyanYYJSON)
+  set(HAVE_YYJSON TRUE)
+endif()
+
 # Before SDL 2.24.x, all SDL2::* targets were created in autotools builds, even if the underlying library wasn't built.
 # So wrap all this in our interface library
 add_library(nyan_SDL2 INTERFACE IMPORTED)
@@ -131,7 +135,6 @@ target_link_libraries(nyan_dependencies
   OpenGL::GLU
   SndFile::sndfile
   libzip::zip
-  yyjson::yyjson
   ZLIB::ZLIB
 
   nyan::xmp
@@ -141,6 +144,7 @@ target_link_libraries(nyan_dependencies
   $<$<BOOL:${HAVE_LIBPORTMIDI}>:PortMidi::portmidi>
   $<$<BOOL:${HAVE_LIBSPNG}>:$<IF:$<TARGET_EXISTS:spng::spng>,spng::spng,spng::spng_static>>
   $<$<BOOL:${HAVE_DISCORD_RPC}>:DiscordRPC::discord-rpc>
+  $<$<BOOL:${HAVE_YYJSON}>:yyjson::yyjson>
 
   $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
 

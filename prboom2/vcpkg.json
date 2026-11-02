@@ -25,8 +25,7 @@
         "opusfile"
       ]
     },
-    "zlib",
-    "yyjson"
+    "zlib"
   ],
   "features": {
     "discord-rpc": {
@@ -75,6 +74,12 @@
       "description": "Build with PortMidi support",
       "dependencies": [
         "portmidi"
+      ]
+    },
+    "yyjson": {
+      "description": "Build with yyjson support",
+      "dependencies": [
+        "yyjson"
       ]
     }
   }
