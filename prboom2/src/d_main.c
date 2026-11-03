@@ -2088,15 +2088,15 @@ static void D_DoomMainSetup(void)
   //e6y: some stuff from command-line should be initialised before ProcessDehacked()
   e6y_InitCommandLine();
 
-  D_AddFile(port_wad_file, source_port_wad);
+  HandlePlayback(); // must come before autoload: may detect iwad in footer
+
+  EvaluateDoomVerStr(); // must come after HandlePlayback (may change iwad)
 
   // Check arguments for demoplayback / demorecording
   started_demo = dsda_Flag(dsda_arg_record) || dsda_Flag(dsda_arg_recordfromto) ||
   dsda_Flag(dsda_arg_playdemo) || dsda_Flag(dsda_arg_timedemo) || dsda_Flag(dsda_arg_fastdemo);
 
-  HandlePlayback(); // must come before autoload: may detect iwad in footer
-
-  EvaluateDoomVerStr(); // must come after HandlePlayback (may change iwad)
+  D_AddFile(port_wad_file, source_port_wad);
 
   // add wad files from autoload directory before wads from -file parameter
   if (autoload)
