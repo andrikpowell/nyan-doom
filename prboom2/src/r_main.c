@@ -1223,6 +1223,7 @@ static void R_ApplyChasecam(player_t *player)
   fixed_t player_z;
   fixed_t slope;
   chasecam_t mode;
+  dboolean player_is_dead;
 
   if (!R_ChasecamOn() || !player->mo)
     return;
@@ -1280,12 +1281,22 @@ static void R_ApplyChasecam(player_t *player)
   else
     player_z = player->mo->z;
 
-  if (player->mo->health <= 0 &&
-      (player->playerstate == PST_DEAD ||
-       player->playerstate == PST_REBORN))
-    camera_z = player_z + 6 * FRACUNIT;
-  else
+  player_is_dead = player->mo->health <= 0 &&
+                   (player->playerstate == PST_DEAD ||
+                    player->playerstate == PST_REBORN);
+
+  if (!player_is_dead)
+  {
     camera_z = player_z + dsda_IntConfig(nyan_config_chasecam_height) * FRACUNIT;
+
+    // Lower chasecam when morphed (actors are 20 units shorter)
+    if ((heretic && player->chickenTics) || (hexen && player->morphTics))
+      camera_z -= 20 * FRACUNIT;
+  }
+  else // player is dead
+  {
+    camera_z = player_z + 6 * FRACUNIT;
+  }
 
   camera_z = MIN(camera_z, player->mo->ceilingz - 2 * FRACUNIT);
 
