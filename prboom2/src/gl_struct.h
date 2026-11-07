@@ -100,6 +100,7 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel);
 void gld_FillBlock(int x, int y, int width, int height, int col, int trans_percent);
 void gld_FillBlockShaded(int x, int y, int w, int h, int start_shade, int end_shade, int vertical);
 void gld_DrawShaded(int x, int y, int width, int height, int shade);
+void gld_DrawDithered(int x, int y, int width, int height);
 void gld_SetPalette(int palette);
 unsigned char *gld_ReadScreen(void);
 
@@ -125,6 +126,9 @@ int gld_wipe_EndScreen(void);
 
 // fuzz
 dboolean gld_FuzzTextureExist(void);
+
+// menu dither
+void gld_CleanDitherTexture(void);
 
 //clipper
 dboolean gld_clipper_SafeCheckRange(angle_t startAngle, angle_t endAngle);

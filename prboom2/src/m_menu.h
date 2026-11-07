@@ -49,9 +49,19 @@
 
 dboolean M_Responder (event_t *ev);
 
-dboolean fadeBG(void);
+// Menu background / shade
+
+typedef enum
+{
+  MENU_BACKGROUND_OFF,
+  MENU_BACKGROUND_DARK,
+  MENU_BACKGROUND_DITHER,
+  MENU_BACKGROUND_TEXTURE
+} menu_background_t;
+
+extern int dsda_menu_background;
+
 dboolean M_MenuIsShaded(void);
-void M_ShadedScreen(void);
 #define FULLSHADE 20
 extern int screenshade;
 

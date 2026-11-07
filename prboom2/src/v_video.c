@@ -1383,6 +1383,37 @@ static void FUNC_V_DrawShaded(int x, int y, int width, int height, int shade)
   }
 }
 
+static void FUNC_V_DrawDithered(int x, int y, int width, int height)
+{
+  // Quake's software overlay
+  // 4 pixels wide, 2 pixels tall
+  //
+  // 0 = transparent
+  // 1 = black
+  static const byte dither_pattern[2][4] = {
+    { 0, 1, 1, 1 },
+    { 1, 1, 0, 1 }
+  };
+
+  int ix, iy;
+  const int scale_w = 640;
+  const int scale_h = 400;
+  const int scale = MAX(1, MIN((SCREENWIDTH + scale_w / 2) / scale_w,
+                               (SCREENHEIGHT + scale_h / 2) / scale_h));
+
+  if (!V_ClipToScreen(FG, &x, &y, &width, &height))
+    return;
+
+  for (ix = x; ix < x + width; ++ix)
+  {
+    byte *dest = screens[FG].data + y + ix * screens[FG].pitch;
+
+    for (iy = y; iy < y + height; ++iy, ++dest)
+      if (dither_pattern[(iy / scale) % 2][(ix / scale) % 4])
+        *dest = playpal_darkest;
+  }
+}
+
 // CPhipps - some simple, useful wrappers for that function, for drawing patches from wads
 
 // CPhipps - GNU C only suppresses generating a copy of a function if it is
@@ -1663,6 +1694,10 @@ static void WRAP_gld_DrawShaded(int x, int y, int width, int height, int shade)
 {
   gld_DrawShaded(x, y, width, height, shade);
 }
+static void WRAP_gld_DrawDithered(int x, int y, int width, int height)
+{
+  gld_DrawDithered(x, y, width, height);
+}
 
 static void NULL_BeginUIDraw(void) {}
 static void NULL_EndUIDraw(void) {}
@@ -1687,6 +1722,7 @@ static void NULL_PlotPixelWu(int x, int y, byte color, int weight) {}
 static void NULL_DrawLine(fline_t* fl, int color) {}
 static void NULL_DrawLineWu(fline_t* fl, int color) {}
 static void NULL_DrawShaded(int x, int y, int width, int height, int shade) {}
+static void NULL_DrawDithered(int x, int y, int width, int height) {}
 
 static video_mode_t current_videomode = VID_MODESW;
 
@@ -1713,6 +1749,7 @@ V_PlotPixelWu_f V_PlotPixelWu = NULL_PlotPixelWu;
 V_DrawLine_f V_DrawLine = NULL_DrawLine;
 V_DrawLineWu_f V_DrawLineWu = NULL_DrawLineWu;
 V_DrawShaded_f V_DrawShaded = NULL_DrawShaded;
+V_DrawDithered_f V_DrawDithered = NULL_DrawDithered;
 
 //
 // V_InitMode
@@ -1744,6 +1781,7 @@ void V_InitMode(video_mode_t mode) {
       V_DrawLine = WRAP_V_DrawLine;
       V_DrawLineWu = WRAP_V_DrawLineWu;
       V_DrawShaded = FUNC_V_DrawShaded;
+      V_DrawDithered = FUNC_V_DrawDithered;
       current_videomode = VID_MODESW;
       break;
     case VID_MODEGL:
@@ -1771,6 +1809,7 @@ void V_InitMode(video_mode_t mode) {
       V_DrawLine = WRAP_gld_DrawLine;
       V_DrawLineWu = WRAP_gld_DrawLine;
       V_DrawShaded = WRAP_gld_DrawShaded;
+      V_DrawDithered = WRAP_gld_DrawDithered;
       current_videomode = VID_MODEGL;
       break;
   }

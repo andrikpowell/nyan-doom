@@ -1816,6 +1816,7 @@ void gld_CleanMemory(void)
 
 void gld_CleanStaticMemory(void)
 {
+  gld_CleanDitherTexture();
   gld_CleanTexItems(numlumps, &gld_GLStaticPatchTextures);
   gld_CleanTexItems(numlumps, &gld_GLIndexedStaticPatchTextures);
   gld_CleanTexItems(gld_numGLColormaps, &gld_GLColormapTextures);

@@ -1219,6 +1219,97 @@ void gld_DrawShaded(int x, int y, int width, int height, int shade)
   glsl_PopNullShader();
 }
 
+static GLuint dither_texture = 0;
+
+dboolean gld_DitherTextureExist(void)
+{
+  return (dither_texture == 0) ? false : true;
+}
+
+void gld_InitDitherTexture(void)
+{
+  if (dither_texture == 0)
+  {
+    // Quake's software overlay
+    // 4 pixels wide, 2 pixels tall
+    //
+    // 0   = transparent
+    // 255 = black
+    static const GLubyte dither_pattern[2][4] = {
+      {   0, 255, 255, 255 },
+      { 255, 255,   0, 255 }
+    };
+
+    glGenTextures(1, &dither_texture);
+    glBindTexture(GL_TEXTURE_2D, dither_texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA,
+                4, 2, 0, GL_ALPHA,
+                GL_UNSIGNED_BYTE, dither_pattern);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  }
+}
+
+void gld_DrawDithered(int x, int y, int width, int height)
+{
+  color_rgb_t color = gld_LookupIndexedColor(playpal_darkest, V_IsAutomapLightmodeIndexed() || V_IsMenuLightmodeIndexed());
+
+  // Match 640x480 scale if larger
+  const int scale_w = 640;
+  const int scale_h = 400;
+  const int scale = MAX(1, MIN((SCREENWIDTH + scale_w / 2) / scale_w,
+                               (SCREENHEIGHT + scale_h / 2) / scale_h));
+
+  const float fU1 = (float)x / (4 * scale);
+  const float fV1 = (float)y / (2 * scale);
+  const float fU2 = (float)(x + width) / (4 * scale);
+  const float fV2 = (float)(y + height) / (2 * scale);
+
+  glsl_PushNullShader();
+
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
+
+  if (!gld_DitherTextureExist())
+    gld_InitDitherTexture();
+
+  glBindTexture(GL_TEXTURE_2D, dither_texture);
+
+  glColor4f((float)color.r / 255.0f,
+            (float)color.g / 255.0f,
+            (float)color.b / 255.0f,
+            1.0f);
+
+  glBegin(GL_TRIANGLE_STRIP);
+    glTexCoord2f(fU1, fV1); glVertex2i(x, y);
+    glTexCoord2f(fU1, fV2); glVertex2i(x, y + height);
+    glTexCoord2f(fU2, fV1); glVertex2i(x + width, y);
+    glTexCoord2f(fU2, fV2); glVertex2i(x + width, y + height);
+  glEnd();
+
+  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+  // Since we bind a texture, reset the last texture
+  // so we don't mess with level texture bindings
+  gld_ResetLastTexture();
+
+  glsl_PopNullShader();
+}
+
+void gld_CleanDitherTexture(void)
+{
+  if (dither_texture)
+  {
+    glDeleteTextures(1, &dither_texture);
+    dither_texture = 0;
+  }
+}
+
 void gld_SetPalette(int palette)
 {
   static int last_palette = 0;

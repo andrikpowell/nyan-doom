@@ -235,9 +235,11 @@ static dboolean messageNeedsInput; // timed message = no input from user
 
 static void (*messageRoutine)(int response);
 
+int dsda_menu_background;
+
 static void M_DrawBackground(const char *flat)
 {
-  if (dsda_IntConfig(dsda_config_menu_background) == 2)
+  if (dsda_menu_background == MENU_BACKGROUND_TEXTURE)
     V_DrawBackgroundName(flat);
 }
 
@@ -5686,9 +5688,17 @@ static const char* fake_contrast_list[] =
   NULL
 };
 
+static const char* menu_background_list[] =
+{
+  [MENU_BACKGROUND_OFF] = "Off",
+  [MENU_BACKGROUND_DARK] = "Dark",
+  [MENU_BACKGROUND_DITHER] = "Dithered",
+  [MENU_BACKGROUND_TEXTURE] = "Texture",
+  NULL
+};
+
 static const char *gl_fade_mode_list[] = { "Normal", "Smooth", "TrueColor", NULL };
 static const char* wipe_screen_list[] = { "Off", "On", "Fast", NULL };
-static const char* menu_background_list[] = { "Off", "Dark", "Texture", NULL };
 static const char* swirling_flat_list[] = { "Off", "Smart", "All", NULL };
 static const char* sky_projection_list[] = { "Vanilla", "Linear", "Cylindrical", NULL };
 
@@ -9857,20 +9867,21 @@ void M_StartControlPanel (void)
 //
 // This displays a dark overlay under certain screens of the menus
 
-dboolean fadeBG(void)
+static dboolean M_MenuShadeActive(void)
 {
-  return dsda_IntConfig(dsda_config_menu_background) == 1;
+  return dsda_menu_background == MENU_BACKGROUND_DARK ||
+         dsda_menu_background == MENU_BACKGROUND_DITHER;
 }
 
 dboolean M_MenuIsShaded(void)
 {
-  int WhichMenuFade = dsda_IntConfig(nyan_config_full_menu_fade);
+  int full_menu_fade = dsda_IntConfig(nyan_config_full_menu_fade);
   int messages  = (menuactive == mnact_float);
   int skillmenu = (currentMenu == &SkillDef);
   int console   = (currentMenu == &dsda_ConsoleDef);
   int Options   = (setup_active || currentMenu == &OptionsDef);
-  int All       = WhichMenuFade && (Options || messages || skillmenu) && !(console && automap_full);
-  return (Options || All) && fadeBG();
+  int shade_all = full_menu_fade && (Options || messages || skillmenu) && !(console && automap_full);
+  return M_MenuShadeActive() && (Options || shade_all);
 }
 
 int screenshade = 20;
@@ -9899,19 +9910,27 @@ static void M_GradualShade(void)
   oldtic = gametic;
 }
 
-void M_ShadedScreen(void)
+static void M_ShadeMenuScreen(void)
 {
-  int gradualShade = dsda_IntConfig(nyan_config_gradual_menu_fade);
-  int automapShade = automap_overlay == 2 && automap_full;
+  if (dsda_menu_background == MENU_BACKGROUND_DITHER)
+  {
+    // Quake style dither overlay
+    V_DrawDithered(0, 0, SCREENWIDTH, SCREENHEIGHT);
+  }
+  else // Dark overlay
+  {
+    int gradualShade = dsda_IntConfig(nyan_config_gradual_menu_fade);
+    int automapShade = automap_overlay == 2 && automap_full;
 
-  // Disables shade when automap overlay or gradual shade is turned off
-  if (!gradualShade || automapShade)
-    screenshade = FULLSHADE;
-  
-  // Always run gradual shade for smooth setting change transition
-  M_GradualShade();
+    // Disables shade when automap overlay or gradual shade is turned off
+    if (!gradualShade || automapShade)
+      screenshade = FULLSHADE;
+    
+    // Always run gradual shade for smooth setting change transition
+    M_GradualShade();
 
-  V_DrawShaded(0, 0, SCREENWIDTH, SCREENHEIGHT, screenshade);
+    V_DrawShaded(0, 0, SCREENWIDTH, SCREENHEIGHT, screenshade);
+  }
 }
 
 static dboolean M_OptionalLumpMissing(const menuitem_t *item)
@@ -9959,7 +9978,7 @@ void M_Drawer (void)
 
   V_BeginMenuDraw();
   if (M_MenuIsShaded())
-    M_ShadedScreen();
+    M_ShadeMenuScreen();
   V_EndMenuDraw();
 
   // Horiz. & Vertically center string and print it.
