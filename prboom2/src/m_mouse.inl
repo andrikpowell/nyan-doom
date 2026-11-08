@@ -1287,12 +1287,39 @@ static dboolean M_MouseButtonResponder(event_t *ev)
   return false;
 }
 
+static dboolean M_MousePromptResponder(event_t *ev)
+{
+  int buttons = ev->data1.i;
+  int pressed = buttons & ~menu_mouse_buttons;
+
+  menu_mouse_buttons = buttons;
+
+  if (pressed & MENU_MOUSE_RIGHT)
+    return M_MouseMenuAction(MENU_BACKSPACE, ev);
+
+  if (pressed & MENU_MOUSE_LEFT)
+    return M_MouseMenuAction(MENU_ENTER, ev);
+
+  return true; // Ignore other mouse input
+}
+
 static dboolean M_MouseResponder(event_t *ev)
 {
-  int action = M_MouseWheelAction(ev);
+  int wheel_action = M_MouseWheelAction(ev);
 
   if (!dsda_IntConfig(dsda_config_mouse_menu_navigation))
     return false;
+
+  // [AR] While prompts are active, don't allow the mouse to select or change anything
+  if (setup_reset_verify || delete_verify)
+  {
+    if (ev->type == ev_mouse)
+      return M_MousePromptResponder(ev);
+
+    // Ignore mouse movement / mousewheel
+    if (ev->type == ev_mousemotion || wheel_action != MENU_NULL)
+      return true;
+  }
 
   if (!menuactive && !messageToPrint)
   {
@@ -1317,10 +1344,10 @@ static dboolean M_MouseResponder(event_t *ev)
     return false;
   }
 
-  if (M_MouseWheelResponder(ev, action))
+  if (M_MouseWheelResponder(ev, wheel_action))
     return true;
 
-  if (action != MENU_NULL)
+  if (wheel_action != MENU_NULL)
     return false;
 
   if (ev->type != ev_mouse && ev->type != ev_mousemotion)
