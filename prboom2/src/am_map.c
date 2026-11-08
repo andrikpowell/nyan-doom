@@ -4644,8 +4644,12 @@ void AM_Drawer (dboolean minimap)
 
   if (!automap_overlay) // cph - If not overlay mode, clear background for the automap
     AM_DrawBackground();
-  if (automap_overlay == 2 && !M_MenuIsShaded())   // If fade overlay mode, add shaded background
-    V_DrawShaded(f_x, f_y, f_w, f_h, screenshade);
+  if (automap_overlay == 2)   // If fade overlay mode, add shaded background
+  {
+    // Don't draw automap shade, if menu shade... But draw automap shade with menu dither
+    if (!M_MenuIsShaded() || dsda_menu_background == MENU_BACKGROUND_DITHER)
+      V_DrawShaded(f_x, f_y, f_w, f_h, screenshade);
+  }
 
   if (map_textured)
   {
