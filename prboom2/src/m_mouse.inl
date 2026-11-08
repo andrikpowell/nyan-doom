@@ -363,8 +363,13 @@ static dboolean M_MouseUpdateMainHover(void)
   if (menu_mouse_hover_main != index)
   {
     menu_mouse_hover_main = index;
-    itemOn = index;
-    S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);
+
+    // [AR] If item is already selected, don't replay the sound
+    if (itemOn != index)
+    {
+      itemOn = index;
+      S_StartOptionalSound(g_sfx_mnumov, g_sfx_menu, true);
+    }
   }
 
   return true;
@@ -1184,6 +1189,10 @@ static dboolean M_MouseSoundSliderTitleAtPointer(void)
 
 static dboolean M_MouseMotionResponder(void)
 {
+  // [AR] Don't play sound when hovering over messages
+  if (messageToPrint)
+    return true;
+
   if (menu_mouse_drag_setup >= 0 && (menu_mouse_buttons & MENU_MOUSE_LEFT))
     return M_MouseSetSetupThermo(menu_mouse_drag_setup);
 
