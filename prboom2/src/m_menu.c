@@ -5354,6 +5354,7 @@ setup_menu_t gen_device_settings[] = {
   { "Enable Mouse", S_YESNO, m_conf, g_all, G2_X, dsda_config_use_mouse },
   { "Vertical Mouse Movement", S_YESNO, m_conf, g_all, G2_X, dsda_config_vertmouse, 0, empty_list, DEPEND(dsda_config_use_mouse, true) },
   { "Invert Look", S_YESNO, m_conf, g_all, G2_X, dsda_config_movement_mouseinvert, 0, empty_list, DEPEND(dsda_config_use_mouse, true) },
+  { "Mouse Menu Navigation", S_YESNO, m_conf, g_all, G2_X, dsda_config_mouse_menu_navigation },
   FUNC_DEPEND("Mouse Options", 0, g_all, G2_X, M_Sub_Mouse, dsda_config_use_mouse, true),
   EMPTY_LINE,
   { "Enable Gamepad", S_YESNO, m_conf, g_all, G2_X, dsda_config_use_game_controller },
@@ -5521,6 +5522,8 @@ setup_menu_t mouse_adv_settings[] = {
   { "Vertical Mouse Movement", S_YESNO, m_conf, g_all, G3_X, dsda_config_vertmouse },
   { "Carry Fractional Tics", S_YESNO, m_conf, g_all, G3_X, dsda_config_mouse_carrytics },
   { "Mouse Stutter Correction", S_YESNO, m_conf, g_all, G3_X, dsda_config_mouse_stutter_correction },
+  EMPTY_LINE,
+  { "Mouse Menu Navigation", S_YESNO, m_conf, g_all, G2_X, dsda_config_mouse_menu_navigation },
 
   FINAL_ENTRY
 };
