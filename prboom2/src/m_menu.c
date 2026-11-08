@@ -9050,7 +9050,10 @@ static dboolean M_InactiveMenuResponder(int ch, int action, event_t* ev)
   // Pop-up Main menu?
   if (ch == KEYD_ESCAPE || action == MENU_ESCAPE ||
       (!in_game && (ch == KEYD_ENTER || ch == KEYD_SPACEBAR || ch == KEYD_KEYPADENTER ||
-       dsda_InputActivated(dsda_input_fire) || dsda_InputActivated(dsda_input_use) || dsda_InputActivated(dsda_input_menu_enter)))) // phares
+       (ev->type != ev_mouse &&                          // Ignore mouse inputs
+        (dsda_InputActivated(dsda_input_fire) ||
+         dsda_InputActivated(dsda_input_use) ||
+         dsda_InputActivated(dsda_input_menu_enter)))))) // phares
   {
     M_StartControlPanel();
     S_StartOptionalSound(g_sfx_mnuopn, g_sfx_swtchn, true);
