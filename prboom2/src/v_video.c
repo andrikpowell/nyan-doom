@@ -3183,13 +3183,14 @@ void V_DrawRawScreenOffset(const char *lump_name, float x_offset, float y_offset
   {
     stretch_param_t* stretch;
     float ratio_x, ratio_y;
+    float x, y;
     int width = lumpwidth;
     int height = lumpheight;
 
     if (flags & VPT_STRETCH_MASK)
     {
       // ratio Correction
-      stretch = dsda_StretchParams(VPT_STRETCH);
+      stretch = dsda_StretchParams(flags);
       ratio_x = stretch->video->width / 320.f;
       ratio_y = stretch->video->height / 200.f;
 
@@ -3197,16 +3198,26 @@ void V_DrawRawScreenOffset(const char *lump_name, float x_offset, float y_offset
       width = (int)(lumpwidth * ratio_x);
       height = (int)(lumpheight * ratio_y);
 
-      x_offset = (float)((SCREENWIDTH - (lumpwidth * ratio_x)) / 2);
-      y_offset = (float)((y_offset * ratio_y));
+      x = stretch->deltax1 + x_offset * ratio_x;
+
+      // Center wide raw screens
+      if (lumpwidth > 320)
+        x -= (lumpwidth - 320) * ratio_x / 2.0f;
+
+      y = stretch->deltay1 + y_offset * ratio_y;
+    }
+    else
+    {
+      x = x_offset;
+      y = y_offset;
     }
 
     // draw the RAW screen
-    V_FillNumRawPrecise(lump_num, x_offset, y_offset, lumpwidth, lumpheight, width, height, VPT_STRETCH);
+    V_FillNumRawPrecise(lump_num, x, y, lumpwidth, lumpheight, width, height, flags);
   }
   else
   {
     // custom widescreen assets are a different format
-    V_DrawNamePatchPreciseFS(x_offset, y_offset, lump_name, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatchPreciseFS(x_offset, y_offset, lump_name, CR_DEFAULT, flags);
   }
 }
