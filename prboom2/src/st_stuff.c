@@ -787,11 +787,11 @@ void ST_updateBlinkingKeys(player_t* plyr)
         {
           case KEYBLINK_CARD:
             if (i == 0)
-              V_DrawNamePatch(153, 180, "bkeyicon", CR_DEFAULT, VPT_STRETCH);
+              V_DrawNamePatch(153, 180, "bkeyicon", CR_DEFAULT, VPT_ALIGN_BOTTOM);
             else if (i == 1)
-              V_DrawNamePatch(153, 164, "ykeyicon", CR_DEFAULT, VPT_STRETCH);
+              V_DrawNamePatch(153, 164, "ykeyicon", CR_DEFAULT, VPT_ALIGN_BOTTOM);
             else if (i == 2)
-              V_DrawNamePatch(153, 172, "gkeyicon", CR_DEFAULT, VPT_STRETCH);
+              V_DrawNamePatch(153, 172, "gkeyicon", CR_DEFAULT, VPT_ALIGN_BOTTOM);
             break;
 
           case KEYBLINK_NONE:
