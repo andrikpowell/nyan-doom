@@ -1332,6 +1332,14 @@ static void DrawAnimatedIcons(void)
 {
     int frame;
     static dboolean hitCenterFrame;
+    int config = dsda_IntConfig(dsda_config_raven_animated_icons);
+    dboolean show_icons = config > 0;
+    dboolean wide = (config == 2);
+    int flags_left = wide ? VPT_ALIGN_LEFT_TOP : VPT_ALIGN_TOP;
+    int flags_right = wide ? VPT_ALIGN_RIGHT_TOP : VPT_ALIGN_TOP;
+
+    if (show_icons == 0)
+        return;
 
     // Flight icons
     if (CPlayer->powers[pw_flight] && !dsda_CameraMode())
@@ -1344,11 +1352,11 @@ static void DrawAnimatedIcons(void)
             {
                 if (hitCenterFrame && (frame != 15 && frame != 0))
                 {
-                    V_DrawMenuNumPatch(20, sb_icon_y, spinflylump + 15, CR_DEFAULT, VPT_ALIGN_TOP);
+                    V_DrawMenuNumPatch(20, sb_icon_y, spinflylump + 15, CR_DEFAULT, flags_left);
                 }
                 else
                 {
-                    V_DrawMenuNumPatch(20, sb_icon_y, spinflylump + frame, CR_DEFAULT, VPT_ALIGN_TOP);
+                    V_DrawMenuNumPatch(20, sb_icon_y, spinflylump + frame, CR_DEFAULT, flags_left);
                     hitCenterFrame = false;
                 }
             }
@@ -1356,25 +1364,26 @@ static void DrawAnimatedIcons(void)
             {
                 if (!hitCenterFrame && (frame != 15 && frame != 0))
                 {
-                    V_DrawMenuNumPatch(20, sb_icon_y, spinflylump + frame, CR_DEFAULT, VPT_ALIGN_TOP);
+                    V_DrawMenuNumPatch(20, sb_icon_y, spinflylump + frame, CR_DEFAULT, flags_left);
                     hitCenterFrame = false;
                 }
                 else
                 {
-                    V_DrawMenuNumPatch(20, sb_icon_y, spinflylump + 15, CR_DEFAULT, VPT_ALIGN_TOP);
+                    V_DrawMenuNumPatch(20, sb_icon_y, spinflylump + 15, CR_DEFAULT, flags_left);
                     hitCenterFrame = true;
                 }
             }
         }
     }
 
+    // Tome of Power
     if (CPlayer->powers[pw_weaponlevel2] && !CPlayer->chickenTics)
     {
         if (CPlayer->powers[pw_weaponlevel2] > BLINKTHRESHOLD
             || !(CPlayer->powers[pw_weaponlevel2] & 16))
         {
             frame = (leveltime / 3) & 15;
-            V_DrawMenuNumPatch(300, sb_icon_y, spinbooklump + frame, CR_DEFAULT, VPT_ALIGN_TOP);
+            V_DrawMenuNumPatch(300, sb_icon_y, spinbooklump + frame, CR_DEFAULT, flags_right);
         }
     }
 
@@ -1385,7 +1394,7 @@ static void DrawAnimatedIcons(void)
             || !(CPlayer->powers[pw_speed] & 16))
         {
             frame = (leveltime / 3) & 15;
-            V_DrawMenuNumPatch(60, sb_icon_y, SpinSpeedLump + frame, CR_DEFAULT, VPT_ALIGN_TOP);
+            V_DrawMenuNumPatch(60, sb_icon_y, SpinSpeedLump + frame, CR_DEFAULT, flags_left);
         }
     }
 
@@ -1396,7 +1405,7 @@ static void DrawAnimatedIcons(void)
             || !(CPlayer->powers[pw_invulnerability] & 16))
         {
             frame = (leveltime / 3) & 15;
-            V_DrawMenuNumPatch(260, sb_icon_y, SpinDefenseLump + frame, CR_DEFAULT, VPT_ALIGN_TOP);
+            V_DrawMenuNumPatch(260, sb_icon_y, SpinDefenseLump + frame, CR_DEFAULT, flags_right);
         }
     }
 
@@ -1407,7 +1416,7 @@ static void DrawAnimatedIcons(void)
             || !(CPlayer->powers[pw_minotaur] & 16))
         {
             frame = (leveltime / 3) & 15;
-            V_DrawMenuNumPatch(300, sb_icon_y, SpinMinotaurLump + frame, CR_DEFAULT, VPT_ALIGN_TOP);
+            V_DrawMenuNumPatch(300, sb_icon_y, SpinMinotaurLump + frame, CR_DEFAULT, flags_right);
         }
     }
 }

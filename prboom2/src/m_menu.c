@@ -5807,6 +5807,8 @@ DEPEND_LIST(fade_messages_list,
   DEP(dsda_config_show_messages, true)
 );
 
+static const char* animated_icon_list[] = { "Off", "Vanilla", "Widescreen", NULL };
+
 setup_menu_t display_hud_settings[] =  // Demos Settings screen
 {
   TITLE("Messages", G_X),
@@ -5815,6 +5817,8 @@ setup_menu_t display_hud_settings[] =  // Demos Settings screen
   { "Fade Messages", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_fade_messages, 0, empty_list, DEPEND_MULTI(fade_messages_list) },
   FUNC("Announcements", S_NYAN, G_X, M_Sub_Announce),
   FUNC("Obituaries", S_NYAN, G_X, M_Sub_Obituary),
+  EMPTY_LINE_ADV(g_raven),
+  { "Show Animated Power Icons", S_CHOICE | S_NYAN, m_conf, g_raven, G2_X, dsda_config_raven_animated_icons, 0, animated_icon_list },
   EMPTY_LINE,
   FUNC("Ex-Hud", S_NYAN, G_X, M_Sub_ExHud),
   FUNC("Status Widgets", S_NYAN, G_X, M_Sub_StatusWidgets),

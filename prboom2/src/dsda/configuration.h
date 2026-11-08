@@ -129,6 +129,7 @@ enum {
   dsda_config_organize_failed_demos,
   dsda_config_classic_flight,
   dsda_config_weapon_carousel,
+  dsda_config_raven_animated_icons,
   dsda_config_artifact_descriptions,
   dsda_config_quick_artifact_use,
   dsda_config_hexen_skip_ethereal_travel,
