@@ -304,6 +304,15 @@ static void D_Wipe(void)
     nowtime = dsda_GetTick();
     tics = nowtime - wipestart;
 
+    // Allow using the menu during wipe
+    {
+      // Get SDL input
+      I_StartTic();
+
+      for (int i = 0; i < tics; ++i)
+        M_Ticker();
+    }
+
     // elim - Enable render-to-texture for GL so "melt" is rendered at same resolution as the game scene
     if (V_IsOpenGLMode())
     {
