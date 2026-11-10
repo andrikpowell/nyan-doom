@@ -90,6 +90,7 @@ extern int g_sfx_menu;
 extern int g_sfx_respawn;
 extern int g_sfx_secret;
 extern int g_sfx_secret_subtle;
+extern int g_sfx_secret_og;
 extern int g_sfx_gibdth;
 extern int g_sfx_idnut;
 extern int g_sfx_revive;
@@ -109,6 +110,11 @@ extern int g_sfx_inttot;
 extern int g_sfx_intnex;
 extern int g_sfx_intnet;
 extern int g_sfx_intdms;
+extern int g_sfx_inttic_og;
+extern int g_sfx_inttot_og;
+extern int g_sfx_intnex_og;
+extern int g_sfx_intnet_og;
+extern int g_sfx_intdms_og;
 
 extern int g_door_normal;
 extern int g_door_raise_in_5_mins;
@@ -135,7 +141,6 @@ extern dboolean uvplus;
 extern dboolean customskill;
 
 void dsda_InitGlobal(void);
-
-void dsda_LinkSFXEffect(int sound, int fallback);
+void dsda_LinkOptionalSounds(void);
 
 #endif

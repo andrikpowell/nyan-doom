@@ -1744,21 +1744,12 @@ static const char* dsda_GetSecretMessage(void)
 int P_GetMilestoneSound(int config_id)
 {
   int config = dsda_IntConfig(config_id);
-  int fallback_sfx;
 
   if (config == 0)
     return 0;
 
-  fallback_sfx  = raven ? hexen ? hexen_sfx_chat :
-                                  heretic_sfx_chat :
-                                  sfx_itmbk;
-
-  dsda_LinkSFXEffect(g_sfx_secret, fallback_sfx);
-  dsda_LinkSFXEffect(g_sfx_secret_subtle, fallback_sfx);
-
   if (config == 1)
     return g_sfx_secret;
-
 
   return g_sfx_secret_subtle;
 }

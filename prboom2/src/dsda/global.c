@@ -122,6 +122,7 @@ int g_sfx_menu;
 int g_sfx_respawn;
 int g_sfx_secret;
 int g_sfx_secret_subtle;
+int g_sfx_secret_fallback;
 int g_sfx_gibdth;
 int g_sfx_idnut;
 int g_sfx_revive;
@@ -141,6 +142,13 @@ int g_sfx_inttot;
 int g_sfx_intnex;
 int g_sfx_intnet;
 int g_sfx_intdms;
+
+// Original intermission sounds
+int g_sfx_inttic_og;
+int g_sfx_inttot_og;
+int g_sfx_intnex_og;
+int g_sfx_intnet_og;
+int g_sfx_intdms_og;
 
 int g_door_normal;
 int g_door_raise_in_5_mins;
@@ -176,9 +184,38 @@ dboolean raven = false;
 dboolean uvplus = false;
 dboolean customskill = false;
 
-void dsda_LinkSFXEffect(int sound, int fallback) {
+static void dsda_LinkSFXEffect(int sound, int fallback) {
   if (I_GetSfxLumpNum(&S_sfx[sound]) < 0)
     S_sfx[sound].link = &S_sfx[fallback];
+}
+
+typedef struct {
+  int sound;
+  int fallback;
+} optional_sound_link_t;
+
+void dsda_LinkOptionalSounds(void) {
+  const optional_sound_link_t optional_sounds[] = {
+    { g_sfx_secret, g_sfx_secret_fallback },
+    { g_sfx_secret_subtle, g_sfx_secret_fallback },
+    { g_sfx_mnuopn, g_sfx_swtchn },
+    { g_sfx_mnucls, g_sfx_swtchx },
+    { g_sfx_mnuact, g_sfx_pistol },
+    { g_sfx_mnubak, g_sfx_swtchn },
+    { g_sfx_mnumov, g_sfx_menu },
+    { g_sfx_mnusli, g_sfx_stnmov },
+    { g_sfx_mnusel, g_sfx_itemup },
+    { g_sfx_mnuerr, g_sfx_oof },
+    { g_sfx_inttic, g_sfx_inttic_og },
+    { g_sfx_inttot, g_sfx_inttot_og },
+    { g_sfx_intnex, g_sfx_intnex_og },
+    { g_sfx_intnet, g_sfx_intnet_og },
+    { g_sfx_intdms, g_sfx_intdms_og },
+  };
+  int i;
+
+  for (i = 0; i < arrlen(optional_sounds); ++i)
+    dsda_LinkSFXEffect(optional_sounds[i].sound, optional_sounds[i].fallback);
 }
 
 static void dsda_InitDoom(void) {
@@ -232,10 +269,18 @@ static void dsda_InitDoom(void) {
   g_sfx_menu = sfx_pstop;
   g_sfx_secret = sfx_secret;
   g_sfx_secret_subtle = sfx_secret_subtle;
+  g_sfx_secret_fallback = sfx_itmbk;
   g_sfx_gibdth = sfx_gibdth;
   g_sfx_idnut = sfx_idnut; // nyan
   g_sfx_revive = sfx_slop;
   g_sfx_console = sfx_radio;
+
+  // Original intermission sounds
+  g_sfx_inttic_og = sfx_pistol;
+  g_sfx_inttot_og = sfx_barexp;
+  g_sfx_intnex_og = sfx_sgcock;
+  g_sfx_intnet_og = sfx_pldeth;
+  g_sfx_intdms_og = sfx_slop;
 
   // Optional menu/intermission sounds
   g_sfx_mnuopn = sfx_mnuopn;
@@ -468,10 +513,18 @@ static void dsda_InitHeretic(void) {
   g_sfx_respawn = heretic_sfx_respawn;
   g_sfx_secret = heretic_sfx_secret;
   g_sfx_secret_subtle = heretic_sfx_secret_subtle;
+  g_sfx_secret_fallback = heretic_sfx_chat;
   g_sfx_gibdth = sfx_None;
   g_sfx_idnut = sfx_None;
   g_sfx_revive = heretic_sfx_telept;
   g_sfx_console = heretic_sfx_chat;
+
+  // Original intermission sounds
+  g_sfx_inttic_og = sfx_None;           // Not in Heretic
+  g_sfx_inttot_og = heretic_sfx_dorcls;
+  g_sfx_intnex_og = heretic_sfx_pstop;
+  g_sfx_intnet_og = sfx_None;           // Not in Heretic
+  g_sfx_intdms_og = heretic_sfx_wpnup;
 
   // Optional menu/intermission sounds
   g_sfx_mnuopn = heretic_sfx_mnuopn;
@@ -696,10 +749,18 @@ static void dsda_InitHexen(void) {
   g_sfx_respawn = hexen_sfx_respawn;
   g_sfx_secret = hexen_sfx_secret;
   g_sfx_secret_subtle = hexen_sfx_secret_subtle;
+  g_sfx_secret_fallback = hexen_sfx_chat;
   g_sfx_gibdth = sfx_None;
   g_sfx_idnut = sfx_None;
   g_sfx_revive = hexen_sfx_teleport;
   g_sfx_console = hexen_sfx_chat;
+
+  // Original intermission sounds
+  g_sfx_inttic_og = sfx_None; // Not in Hexen
+  g_sfx_inttot_og = sfx_None;
+  g_sfx_intnex_og = sfx_None;
+  g_sfx_intnet_og = sfx_None;
+  g_sfx_intdms_og = sfx_None;
 
   // Optional menu/intermission sounds
   g_sfx_mnuopn = hexen_sfx_mnuopn;

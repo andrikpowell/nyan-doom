@@ -57,6 +57,7 @@
 #include "hexen/sn_sonix.h"
 
 #include "dsda/configuration.h"
+#include "dsda/global.h"
 #include "dsda/map_format.h"
 #include "dsda/mapinfo.h"
 #include "dsda/memory.h"
@@ -216,6 +217,8 @@ void S_Init(void)
       lprintf(LO_DEBUG, " Precaching all sound effects... ");
       I_CacheSounds();
       lprintf(LO_DEBUG, "done\n");
+
+      dsda_LinkOptionalSounds();
 
       // {
       //   int i;
@@ -483,16 +486,9 @@ void S_LoopVoidSound(int sfx_id, int timeout)
   S_LoopSound(NULL, sfx_id, timeout);
 }
 
-void S_StartOptionalSound(int sfx_id, int fallback_sfx_id, dboolean important)
+void S_StartImportantVoidSound(int sfx_id)
 {
-  if (I_GetSfxLumpNum(&S_sfx[sfx_id]) != -1)
-  {
-    S_StartSoundAtVolume(NULL, sfx_id, raven ? 127 : sfx_volume, important, 0);
-  }
-  else if (fallback_sfx_id != -1) // Play a fallback?
-  {
-    S_StartSoundAtVolume(NULL, fallback_sfx_id, raven ? 127 : sfx_volume, important, 0);
-  }
+  S_StartSoundAtVolume(NULL, sfx_id, raven ? 127 : sfx_volume, true, 0);
 }
 
 void S_StartLineSound(line_t *line, degenmobj_t *soundorg, int sfx_id)

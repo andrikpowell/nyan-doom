@@ -450,7 +450,7 @@ static void I_GetEvent(void)
         break;
 
       case SDL_QUIT:
-        S_StartOptionalSound(g_sfx_mnucls, g_sfx_swtchn, true);
+        S_StartImportantVoidSound(g_sfx_mnucls);
         M_QuitDOOM(0);
 
       default:
