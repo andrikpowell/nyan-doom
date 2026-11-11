@@ -5713,6 +5713,7 @@ setup_menu_t display_options_settings[] = {
   EMPTY_LINE,
   { "GL Light Fade", S_CHOICE, m_conf, g_all, G_X, dsda_config_gl_fade_mode, 0, gl_fade_mode_list, DEPEND(dsda_config_videomode, OPENGL_MODE) },
   { "GL Health Bars", S_YESNO, m_conf, g_all, G_X, dsda_config_gl_health_bar, DEPEND_GL },
+  { "GL Simple Shadows", S_YESNO | S_NYAN, m_conf, g_all, G_X, dsda_config_gl_shadows, DEPEND_GL },
   EMPTY_LINE,
   FUNC("Chasecam Options", S_NYAN, G_X, M_Sub_Chasecam),
   FUNC("Palette Options", S_NYAN, G_X, M_Sub_Palette),
