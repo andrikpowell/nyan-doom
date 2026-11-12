@@ -368,7 +368,7 @@ static dboolean M_MouseUpdateMainHover(void)
     if (itemOn != index)
     {
       itemOn = index;
-      S_StartImportantVoidSound(g_sfx_mnumov);
+      S_StartImportantVoidSound(g_sfx_mnusel); // Use more subtle sound for mouse hover
     }
   }
 
