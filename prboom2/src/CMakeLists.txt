@@ -566,6 +566,8 @@ set(OPENAL_SOURCES
     SDL/i_openal.h
     SDL/i_openal_stream.c
     SDL/i_openal_stream.h
+    SDL/i_openal_sound.c
+    SDL/i_openal_sound.h
 )
 
 set(DOOMMUSIC_SOURCES

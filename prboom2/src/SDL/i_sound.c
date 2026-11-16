@@ -54,6 +54,7 @@
 #include "alc.h"
 #include "i_openal.h"
 #include "i_openal_stream.h"
+#include "i_openal_sound.h"
 
 #include "z_zone.h"
 
@@ -107,6 +108,7 @@ typedef struct
   const unsigned char *data;
   const unsigned char *startdata;
   const unsigned char *enddata;
+  size_t length;
   // Time/gametic that the channel started playing,
   //  used to determine oldest, which automatically
   //  has lowest priority.
@@ -291,6 +293,8 @@ void I_InitSoundParams(void)
 
 static void stopchan(int i)
 {
+  I_OAL_StopSound(i);
+
   if (channelinfo[i].data) /* cph - prevent excess unlocks */
   {
     channelinfo[i].data = NULL;
@@ -536,6 +540,7 @@ static int addsfx(int sfxid, int channel, const channel_info_t *cinfo)
 
   ci->data = cinfo->data;
   ci->enddata = cinfo->enddata;
+  ci->length = cinfo->length;
   ci->samplerate = cinfo->samplerate;
   ci->bits = cinfo->bits;
 
@@ -583,6 +588,7 @@ static void updateSoundParams(int handle, sfx_params_t *params)
   int slot = handle;
   int rightvol;
   int leftvol;
+  int separation = params->separation;
 
 #ifdef RANGECHECK
   if ((handle < 0) || (handle >= MAX_CHANNELS))
@@ -629,6 +635,12 @@ static void updateSoundParams(int handle, sfx_params_t *params)
   //  for this volume level???
   channelinfo[slot].leftvol = leftvol;
   channelinfo[slot].rightvol = rightvol;
+
+  if (!dumping_sound)
+  {
+    I_OAL_SetVolume(slot, params->volume);
+    I_OAL_SetPan(slot, separation);
+  }
 }
 
 void I_UpdateSoundParams(int handle, sfx_params_t *params)
@@ -749,6 +761,7 @@ int I_StartSound(int id, int channel, sfx_params_t *params)
     {
       cinfo.data = &data[DMXHDRSIZE + DMXPADSIZE];
       cinfo.enddata = &cinfo.data[dmx_len - DMXPADSIZE * 2 - 1];
+      cinfo.length = dmx_len - DMXPADSIZE * 2;
       cinfo.samplerate = GetDMXSampleRate(data);
       cinfo.bits = 8;
     }
@@ -765,6 +778,7 @@ int I_StartSound(int id, int channel, sfx_params_t *params)
     {
       cinfo.data = snd_data->data;
       cinfo.enddata = &cinfo.data[snd_data->samplelen - 1];
+      cinfo.length = snd_data->samplelen;
       cinfo.samplerate = snd_data->samplerate;
       cinfo.bits = 16;
     }
@@ -779,6 +793,15 @@ int I_StartSound(int id, int channel, sfx_params_t *params)
   // Returns a handle (not used).
   addsfx(id, channel, &cinfo);
   updateSoundParams(channel, params);
+
+  if (!dumping_sound &&
+      !I_OAL_StartSound(channel, id, cinfo.data, cinfo.length, cinfo.bits,
+                        cinfo.samplerate, params->loop,
+                        pitched_sounds ? (float)steptable[params->pitch] / 65536.0f : 1.0f))
+  {
+    stopchan(channel);
+    channel = -1;
+  }
 
   SDL_UnlockMutex (sfxmutex);
 
@@ -808,6 +831,12 @@ dboolean I_SoundIsPlaying(int handle)
     I_Error("I_SoundIsPlaying: handle out of range");
 #endif
 
+  if (dumping_sound)
+    return channelinfo[handle].data != NULL;
+
+  if (channelinfo[handle].data && !I_OAL_SoundIsPlaying(handle))
+    channelinfo[handle].data = NULL;
+
   return channelinfo[handle].data != NULL;
 }
 
@@ -818,7 +847,7 @@ dboolean I_AnySoundStillPlaying(void)
   int i;
 
   for (i = 0; i < MAX_CHANNELS; i++)
-    result |= channelinfo[i].data != NULL;
+    result |= I_SoundIsPlaying(i);
 
   return result;
 }
@@ -986,6 +1015,20 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
   SDL_UnlockMutex (sfxmutex);
 }
 
+static void I_UpdateMusicOutput(void *unused, unsigned char *stream, int len)
+{
+  (void)unused;
+
+  memset(stream, 0, len);
+
+  if (registered_non_rw)
+  {
+    SDL_LockMutex(musmutex);
+    UpdateMusic(stream, len / 4);
+    SDL_UnlockMutex(musmutex);
+  }
+}
+
 static dboolean sound_was_initialized;
 
 #define MAX_AUDIO_DEVICES 64
@@ -1027,7 +1070,7 @@ static void I_RememberAudioDevice(const char *snd_device)
   snprintf(current_audio_device, sizeof(current_audio_device), "%s", snd_device ? snd_device : "");
 }
 
-static const char *I_OpenALDeviceName(const char *display_name)
+static const char *I_OAL_DeviceName(const char *display_name)
 {
   int i;
 
@@ -1044,18 +1087,20 @@ static const char *I_OpenALDeviceName(const char *display_name)
 static void I_CloseAudioDevice(void)
 {
   I_StopOpenALStream();
+  I_OAL_ShutdownSound();
   I_CloseOpenALDevice();
 }
 
 static dboolean I_OpenAudioDevice(int audio_rate, int audio_channels, int audio_buffers, const char *snd_device)
 {
-  const char *openal_device = I_OpenALDeviceName(snd_device);
+  const char *openal_device = I_OAL_DeviceName(snd_device);
 
   if (audio_channels != 2)
     return false;
 
   if (!I_OpenALDevice(openal_device, audio_rate) ||
-      !I_StartOpenALStream(audio_rate, audio_buffers, I_UpdateSound, NULL))
+      !I_OAL_InitSound(MAX_CHANNELS) ||
+      !I_StartOpenALStream(audio_rate, audio_buffers, I_UpdateMusicOutput, NULL))
   {
     I_CloseAudioDevice();
     return false;
