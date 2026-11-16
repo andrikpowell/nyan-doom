@@ -561,6 +561,13 @@ set(SDLDOOM_SOURCES
     SDL/i_video.c
 )
 
+set(OPENAL_SOURCES
+    SDL/i_openal.c
+    SDL/i_openal.h
+    SDL/i_openal_stream.c
+    SDL/i_openal_stream.h
+)
+
 set(DOOMMUSIC_SOURCES
     MUSIC/xmpplayer.c
     MUSIC/xmpplayer.h
@@ -597,6 +604,7 @@ set(NYAN_SOURCES
     ${WAD_SRC}
     ${MUS2MID_SRC}
     ${SDLDOOM_SOURCES}
+    ${OPENAL_SOURCES}
     ${DOOMMUSIC_SOURCES}
     ${EXTRA_FILES}
 )

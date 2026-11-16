@@ -21,7 +21,7 @@ if(APPLE)
 endif()
 
 find_package(SDL2 2.0.12 CONFIG REQUIRED)
-find_package(SDL2_mixer REQUIRED)
+find_package(OpenAL REQUIRED)
 find_package(SndFile 1.0.29 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(libzip REQUIRED)
@@ -128,6 +128,7 @@ target_link_libraries(nyan_dependencies
   INTERFACE
   OpenGL::GL
   OpenGL::GLU
+  OpenAL::OpenAL
   SndFile::sndfile
   libzip::zip
   ZLIB::ZLIB
@@ -139,8 +140,6 @@ target_link_libraries(nyan_dependencies
   $<$<BOOL:${HAVE_LIBPORTMIDI}>:PortMidi::portmidi>
   $<$<BOOL:${HAVE_LIBSPNG}>:$<IF:$<TARGET_EXISTS:spng::spng>,spng::spng,spng::spng_static>>
   $<$<BOOL:${HAVE_DISCORD_RPC}>:DiscordRPC::discord-rpc>
-
-  $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
 
   nyan::SDL2
 )

@@ -14,17 +14,8 @@
         "liblzma"
       ]
     },
+    "openal-soft",
     "sdl2",
-    {
-      "name": "sdl2-mixer",
-      "features": [
-        "fluidsynth",
-        "libflac",
-        "libmodplug",
-        "mpg123",
-        "opusfile"
-      ]
-    },
     "zlib"
   ],
   "features": {
