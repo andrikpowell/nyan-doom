@@ -98,7 +98,7 @@ jobs:
             ${{ matrix.config.msys-env }}-libmad
             ${{ matrix.config.msys-env }}-libvorbis
             ${{ matrix.config.msys-env }}-portmidi
-            ${{ matrix.config.msys-env }}-SDL2
+            ${{ matrix.config.msys-env }}-sdl3
             ${{ matrix.config.msys-env }}-openal
             ${{ matrix.config.msys-env }}-libspng
             ${{ matrix.config.msys-env }}-libsndfile
@@ -121,7 +121,6 @@ jobs:
             libglu1-mesa-dev \
             libmad0-dev \
             libportmidi-dev \
-            libsdl2-dev \
             libopenal-dev \
             libvorbis-dev \
             libsndfile1-dev \
@@ -129,6 +128,14 @@ jobs:
             zipcmp \
             zipmerge \
             ziptool
+
+      - name: Install SDL3 (Linux)
+        if: runner.os == 'Linux'
+        uses: libsdl-org/setup-sdl@main
+        with:
+          version: 3.4.0
+          cmake-generator: Ninja
+          install-linux-dependencies: true
 
       - name: Install Dependencies (macOS)
         if: runner.os == 'macOS'
