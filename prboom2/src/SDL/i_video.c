@@ -113,7 +113,6 @@ extern void M_QuitDOOM(int choice);
 int desired_fullscreen;
 int exclusive_fullscreen;
 SDL_Surface *screen;
-static SDL_Surface *buffer;
 static SDL_Palette *screen_palette;
 SDL_Window *sdl_window;
 SDL_Renderer *sdl_renderer;
@@ -699,12 +698,8 @@ void I_FinishUpdate (void)
     newpal = NO_PALETTE_CHANGE;
   }
 
-  // Blit from the paletted 8-bit screen buffer to the intermediate
-  // 32-bit RGBA buffer that we can load into the texture.
-  SDL_BlitSurfaceUnchecked(screen, &src_rect, buffer, &src_rect);
-
-  // Update the intermediate texture with the contents of the RGBA buffer.
-  SDL_UpdateTexture(sdl_texture, &src_rect, buffer->pixels, buffer->pitch);
+  // Upload the paletted 8-bit screen buffer directly
+  SDL_UpdateTexture(sdl_texture, &src_rect, screen->pixels, screen->pitch);
 
   // Make sure the pillarboxes are kept clear each frame.
   SDL_RenderClear(sdl_renderer);
@@ -765,7 +760,6 @@ static void I_ShutdownSDL(void)
 {
   if (sdl_glcontext) SDL_GL_DestroyContext(sdl_glcontext);
   if (screen) SDL_DestroySurface(screen);
-  if (buffer) SDL_DestroySurface(buffer);
   if (screen_palette) SDL_DestroyPalette(screen_palette);
   if (sdl_texture_fallback) SDL_DestroyTexture(sdl_texture_fallback);
   if (sdl_texture) SDL_DestroyTexture(sdl_texture);
@@ -1317,7 +1311,6 @@ void I_UpdateVideoMode(void)
 
     if (sdl_glcontext) SDL_GL_DestroyContext(sdl_glcontext);
     if (screen) SDL_DestroySurface(screen);
-    if (buffer) SDL_DestroySurface(buffer);
     if (screen_palette) SDL_DestroyPalette(screen_palette);
     if (sdl_texture_fallback) SDL_DestroyTexture(sdl_texture_fallback);
     if (sdl_texture) SDL_DestroyTexture(sdl_texture);
@@ -1328,7 +1321,6 @@ void I_UpdateVideoMode(void)
     sdl_window = NULL;
     sdl_glcontext = NULL;
     screen = NULL;
-    buffer = NULL;
     screen_palette = NULL;
     sdl_texture_fallback = NULL;
     sdl_texture = NULL;
@@ -1413,19 +1405,20 @@ void I_UpdateVideoMode(void)
     // [AR] swap width + height for software transposed rendering
     screen = SDL_CreateSurface(SCREENHEIGHT, SCREENWIDTH, SDL_PIXELFORMAT_INDEX8);
     screen_palette = SDL_CreatePalette(256);
-    buffer = SDL_CreateSurface(SCREENHEIGHT, SCREENWIDTH, SDL_PIXELFORMAT_ARGB8888);
 
-    if (!screen || !screen_palette || !buffer)
-      I_Error("Couldn't create software video surfaces [%s]", SDL_GetError());
+    if (!screen || !screen_palette)
+      I_Error("Couldn't create software video surface [%s]", SDL_GetError());
 
     SDL_SetSurfacePalette(screen, screen_palette);
-    SDL_FillSurfaceRect(buffer, NULL, 0);
 
-    sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREENHEIGHT, SCREENWIDTH);
+    sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_INDEX8, SDL_TEXTUREACCESS_STREAMING, SCREENHEIGHT, SCREENWIDTH);
 
-    if(screen == NULL || buffer == NULL || sdl_texture == NULL) {
+    if (sdl_texture == NULL) {
       I_Error("Couldn't set %dx%d video mode [%s]", SCREENWIDTH, SCREENHEIGHT, SDL_GetError());
     }
+
+    if (!SDL_SetTexturePalette(sdl_texture, screen_palette))
+      I_Error("Couldn't set software texture palette [%s]", SDL_GetError());
 
     SDL_SetTextureScaleMode(sdl_texture, SDL_SCALEMODE_NEAREST);
 
