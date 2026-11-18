@@ -562,12 +562,12 @@ set(SDLDOOM_SOURCES
 )
 
 set(OPENAL_SOURCES
-    SDL/i_openal.c
-    SDL/i_openal.h
-    SDL/i_openal_music.c
-    SDL/i_openal_music.h
-    SDL/i_openal_sound.c
-    SDL/i_openal_sound.h
+    OAL/i_openal.c
+    OAL/i_openal.h
+    OAL/i_openal_music.c
+    OAL/i_openal_music.h
+    OAL/i_openal_sound.c
+    OAL/i_openal_sound.h
 )
 
 set(DOOMMUSIC_SOURCES

@@ -52,9 +52,9 @@
 #include "SDL_thread.h"
 
 #include "alc.h"
-#include "i_openal.h"
-#include "i_openal_music.h"
-#include "i_openal_sound.h"
+#include "OAL/i_openal.h"
+#include "OAL/i_openal_music.h"
+#include "OAL/i_openal_sound.h"
 
 #include "z_zone.h"
 
