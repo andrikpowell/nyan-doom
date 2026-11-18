@@ -1535,6 +1535,11 @@ void M_ChangeSoundfont(void)
 // Derived value (not saved, accounts for muted music)
 static int music_volume;
 
+void I_ResetMusicAutoGain(void)
+{
+  I_ConfigureOpenALStreamGain(dsda_IntConfig(dsda_config_music_auto_gain), music_volume);
+}
+
 void I_ResetMusicVolume(void)
 {
   snd_MusicVolume = dsda_IntConfig(dsda_config_music_volume);
@@ -1546,6 +1551,8 @@ void I_ResetMusicVolume(void)
     music_volume = 0;
   else
     music_volume = snd_MusicVolume;
+
+  I_ConfigureOpenALStreamGain(dsda_IntConfig(dsda_config_music_auto_gain), music_volume);
 
   if (music_handle)
   {
@@ -1622,6 +1629,7 @@ static void PlaySong(int handle, int looping)
     music_players[current_player]->play (music_handle, looping);
     music_players[current_player]->setvolume (music_volume);
     SDL_UnlockMutex (musmutex);
+    I_ResetOpenALStreamGain();
   }
 }
 

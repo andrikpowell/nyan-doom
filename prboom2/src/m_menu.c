@@ -5460,6 +5460,8 @@ setup_menu_t* audio_settings[] =
 };
 
 setup_menu_t audio_adv_settings[] = {
+  { "Music Auto Gain", S_YESNO, m_conf, g_all, G3_X, dsda_config_music_auto_gain },
+  EMPTY_LINE,
   { "Number of Sound Channels", S_THERMO, m_conf, g_all, G_X, dsda_config_snd_channels },
   EMPTY_LINE,
   { "Pitch-Shifting", S_YESNO, m_conf, g_all, G_X, dsda_config_pitched_sounds },

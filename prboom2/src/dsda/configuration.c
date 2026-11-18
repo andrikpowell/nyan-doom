@@ -114,6 +114,7 @@ void M_ChangeSkyMode(void);
 void M_ChangeMessages(void);
 void S_ResetSfxVolume(void);
 void I_ResetMusicVolume(void);
+void I_ResetMusicAutoGain(void);
 void M_ChangeAllowFog(void);
 void gld_ResetShadowParameters(void);
 void gld_MultisamplingInit(void);
@@ -1339,6 +1340,10 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_music_volume] = {
     "music_volume", dsda_config_music_volume,
     dsda_config_int, 0, 15, { 8 }, NULL, NOT_STRICT, I_ResetMusicVolume
+  },
+  [dsda_config_music_auto_gain] = {
+    "music_auto_gain", dsda_config_music_auto_gain,
+    CONF_BOOL(1), NULL, NOT_STRICT, I_ResetMusicAutoGain
   },
   [dsda_config_mus_pause_opt] = {
     "mus_pause_opt", dsda_config_mus_pause_opt,

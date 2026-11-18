@@ -5,6 +5,7 @@ brew "pkgconf"
 
 # Library dependencies
 brew "fluid-synth"
+brew "libebur128"
 brew "libsndfile"
 brew "libvorbis"
 brew "libxmp"

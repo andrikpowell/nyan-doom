@@ -135,6 +135,7 @@ cfg_def_t cfg_defs[] =
   MIGRATED_SETTING(dsda_config_snd_samplecount),
   MIGRATED_SETTING(dsda_config_sfx_volume),
   MIGRATED_SETTING(dsda_config_music_volume),
+  MIGRATED_SETTING(dsda_config_music_auto_gain),
   MIGRATED_SETTING(dsda_config_mus_pause_opt),
   MIGRATED_SETTING(dsda_config_snd_channels),
   MIGRATED_SETTING(dsda_config_snd_limiter),

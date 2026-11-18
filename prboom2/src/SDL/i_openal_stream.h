@@ -1,4 +1,5 @@
 //
+// Copyright(C) 2023 by Roman Fomin
 // Copyright(C) 2026 by Andrik Powell
 //
 // This program is free software; you can redistribute it and/or
@@ -23,6 +24,8 @@
 typedef void (*openal_stream_callback_t)(void *userdata, unsigned char *buffer, int length);
 
 dboolean I_StartOpenALStream(int sample_rate, int sample_frames, openal_stream_callback_t callback, void *userdata);
+void I_ConfigureOpenALStreamGain(dboolean enabled, int volume);
+void I_ResetOpenALStreamGain(void);
 void I_StopOpenALStream(void);
 
 #endif

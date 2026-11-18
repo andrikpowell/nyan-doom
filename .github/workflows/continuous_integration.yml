@@ -93,6 +93,7 @@ jobs:
             ${{ matrix.config.msys-env }}-ninja
             ${{ matrix.config.msys-env }}-pkgconf
             ${{ matrix.config.msys-env }}-libxmp
+            ${{ matrix.config.msys-env }}-libebur128
             ${{ matrix.config.msys-env }}-fluidsynth
             ${{ matrix.config.msys-env }}-libmad
             ${{ matrix.config.msys-env }}-libvorbis
@@ -113,6 +114,7 @@ jobs:
             ninja-build \
             pkg-config \
             libxmp-dev \
+            libebur128-dev \
             libfluidsynth-dev \
             fluidsynth \
             libgl-dev \

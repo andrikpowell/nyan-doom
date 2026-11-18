@@ -308,6 +308,7 @@ enum {
   dsda_config_snd_samplecount,
   dsda_config_sfx_volume,
   dsda_config_music_volume,
+  dsda_config_music_auto_gain,
   dsda_config_mus_pause_opt,
   dsda_config_snd_channels,
   dsda_config_snd_limiter,

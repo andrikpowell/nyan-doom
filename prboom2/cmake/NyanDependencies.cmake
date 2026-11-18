@@ -22,6 +22,7 @@ endif()
 
 find_package(SDL2 2.0.12 CONFIG REQUIRED)
 find_package(OpenAL REQUIRED)
+find_package(libebur128 REQUIRED)
 find_package(SndFile 1.0.29 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(libzip REQUIRED)
@@ -129,6 +130,7 @@ target_link_libraries(nyan_dependencies
   OpenGL::GL
   OpenGL::GLU
   OpenAL::OpenAL
+  libebur128::libebur128
   SndFile::sndfile
   libzip::zip
   ZLIB::ZLIB
