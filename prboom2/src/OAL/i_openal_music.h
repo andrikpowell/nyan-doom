@@ -21,9 +21,9 @@
 
 #include "doomtype.h"
 
-typedef void (*openal_music_callback_t)(void *userdata, unsigned char *buffer, int length);
+typedef void (*openal_music_callback_t)(unsigned char *buffer, int length);
 
-dboolean I_StartOpenALMusic(int sample_rate, int sample_frames, openal_music_callback_t callback, void *userdata);
+dboolean I_StartOpenALMusic(int sample_rate, openal_music_callback_t callback);
 void I_ConfigureOpenALMusicGain(dboolean enabled, int volume);
 void I_ResetOpenALMusicGain(void);
 void I_StopOpenALMusic(void);

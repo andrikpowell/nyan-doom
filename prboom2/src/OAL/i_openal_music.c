@@ -33,20 +33,33 @@
 
 #define DB_TO_GAIN(x) powf(10.0f, (x) / 20.0f)
 
-static ALuint stream_source;
-static ALuint stream_buffers[NUM_BUFFERS];
+typedef struct
+{
+  // These are the buffers and source to play out through OpenAL with
+  ALuint buffers[NUM_BUFFERS];
+  ALuint source;
+
+  byte *data;
+
+  ALfloat gain;
+  ALfloat auto_gain;
+
+  // The format of the output stream
+  ALenum format;
+  ALsizei freq;
+  ALsizei frame_size;
+  int channels;
+  int total_frames;
+} stream_player_t;
+
+static stream_player_t player;
+static openal_music_callback_t music_callback;
 static SDL_Thread *stream_thread;
 static SDL_atomic_t stream_running;
-static int stream_buffer_bytes;
-static int stream_sample_rate;
-static openal_music_callback_t stream_callback;
-static void *stream_userdata;
 static SDL_atomic_t stream_auto_gain;
 static SDL_atomic_t stream_music_volume;
 static SDL_atomic_t stream_reset_gain;
 static ebur128_state *ebur_state;
-static float auto_gain = 1.0f;
-static int total_frames;
 
 static void ShutdownAutoGain(void)
 {
@@ -58,18 +71,23 @@ static void ShutdownAutoGain(void)
 
 static void InitAutoGain(void)
 {
+  int volume;
+
   ShutdownAutoGain();
 
-  ebur_state = ebur128_init(2, stream_sample_rate, EBUR128_MODE_S
+  ebur_state = ebur128_init(player.channels, player.freq, EBUR128_MODE_S
     | EBUR128_MODE_I | EBUR128_MODE_SAMPLE_PEAK | EBUR128_MODE_HISTOGRAM);
 
-  auto_gain = 1.0f;
-  total_frames = 0;
+  volume = SDL_AtomicGet(&stream_music_volume);
 
-  alSourcef(stream_source, AL_GAIN, 1.0f);
+  player.gain = (ALfloat)volume / 15.0f;
+  player.auto_gain = 1.0f;
+  player.total_frames = 0;
+
+  alSourcef(player.source, AL_GAIN, player.auto_gain);
 }
 
-static void AutoGain(const int16_t *buffer, int frames)
+static void AutoGain(int frames)
 {
   const float target = -23.0f; // UFS
 
@@ -82,9 +100,16 @@ static void AutoGain(const int16_t *buffer, int frames)
   if (!SDL_AtomicGet(&stream_auto_gain) || !ebur_state)
     return;
 
-  ebur128_add_frames_short(ebur_state, buffer, frames);
+  if (player.format == AL_FORMAT_MONO16 || player.format == AL_FORMAT_STEREO16)
+  {
+    ebur128_add_frames_short(ebur_state, (int16_t *)player.data, frames);
+  }
+  else
+  {
+    ebur128_add_frames_float(ebur_state, (float *)player.data, frames);
+  }
 
-  total_frames += frames;
+  player.total_frames += frames;
 
   if (EBUR128_SUCCESS != ebur128_loudness_momentary(ebur_state, &momentary))
   {
@@ -106,12 +131,12 @@ static void AutoGain(const int16_t *buffer, int frames)
       failed = true;
   }
 
-  if (total_frames < 3 * BUFFER_SAMPLES && !failed)
+  if (player.total_frames < 3 * BUFFER_SAMPLES && !failed)
   {
     if (momentary > -70.0)
     {
       const float diff = target - (float)momentary;
-      auto_gain = DB_TO_GAIN(diff);
+      player.auto_gain = DB_TO_GAIN(diff);
     }
   }
 
@@ -125,7 +150,8 @@ static void AutoGain(const int16_t *buffer, int frames)
         failed = true;
     }
 
-    if (EBUR128_SUCCESS != ebur128_prev_sample_peak(ebur_state, 1, &peak_R))
+    if (player.channels == 2 &&
+        EBUR128_SUCCESS != ebur128_prev_sample_peak(ebur_state, 1, &peak_R))
     {
         failed = true;
     }
@@ -147,91 +173,88 @@ static void AutoGain(const int16_t *buffer, int frames)
 
       if (peak >= 0.00001 && gain * peak < 1.0f)
       {
-        auto_gain = gain;
+        player.auto_gain = gain;
       }
     }
   }
 
-  alSourcef(stream_source, AL_GAIN, ((float)SDL_AtomicGet(&stream_music_volume) / 15.0f) * auto_gain);
+  alSourcef(player.source, AL_GAIN, player.gain * player.auto_gain);
 }
 
-static void UpdateMusicGain(unsigned char *buffer)
+static void UpdateMusicGain(void)
 {
   if (SDL_AtomicSet(&stream_reset_gain, 0))
     InitAutoGain();
 
-  // 2 channels x 2 bytes = 4 bytes
-  AutoGain((const int16_t *)buffer, stream_buffer_bytes / 4);
+  AutoGain(BUFFER_SAMPLES);
 }
 
 static int MusicThread(void *unused)
 {
-  unsigned char *buffer;
+  const int size = BUFFER_SAMPLES * player.frame_size;
   int i;
 
   (void)unused;
 
-  buffer = SDL_malloc(stream_buffer_bytes);
-  if (!buffer)
+  player.data = SDL_malloc(size);
+  if (!player.data)
     return 1;
 
   for (i = 0; i < NUM_BUFFERS; ++i)
   {
-    memset(buffer, 0, stream_buffer_bytes);
-    stream_callback(stream_userdata, buffer, stream_buffer_bytes);
-    UpdateMusicGain(buffer);
-    alBufferData(stream_buffers[i], AL_FORMAT_STEREO16, buffer, stream_buffer_bytes, stream_sample_rate);
+    memset(player.data, 0, size);
+    music_callback(player.data, size);
+    UpdateMusicGain();
+    alBufferData(player.buffers[i], player.format, player.data, size, player.freq);
   }
 
-  alSourceQueueBuffers(stream_source, NUM_BUFFERS, stream_buffers);
-  alSourcePlay(stream_source);
+  alSourceQueueBuffers(player.source, NUM_BUFFERS, player.buffers);
+  alSourcePlay(player.source);
 
   while (SDL_AtomicGet(&stream_running))
   {
     ALint processed = 0;
 
-    alGetSourcei(stream_source, AL_BUFFERS_PROCESSED, &processed);
+    alGetSourcei(player.source, AL_BUFFERS_PROCESSED, &processed);
     while (processed-- > 0)
     {
       ALuint buffer_id;
 
-      alSourceUnqueueBuffers(stream_source, 1, &buffer_id);
-      memset(buffer, 0, stream_buffer_bytes);
-      stream_callback(stream_userdata, buffer, stream_buffer_bytes);
-      UpdateMusicGain(buffer);
-      alBufferData(buffer_id, AL_FORMAT_STEREO16, buffer, stream_buffer_bytes, stream_sample_rate);
-      alSourceQueueBuffers(stream_source, 1, &buffer_id);
+      alSourceUnqueueBuffers(player.source, 1, &buffer_id);
+      memset(player.data, 0, size);
+      music_callback(player.data, size);
+      UpdateMusicGain();
+      alBufferData(buffer_id, player.format, player.data, size, player.freq);
+      alSourceQueueBuffers(player.source, 1, &buffer_id);
     }
 
     {
       ALint state;
-      alGetSourcei(stream_source, AL_SOURCE_STATE, &state);
+      alGetSourcei(player.source, AL_SOURCE_STATE, &state);
       if (state != AL_PLAYING)
-        alSourcePlay(stream_source);
+        alSourcePlay(player.source);
     }
 
     SDL_Delay(1);
   }
 
-  alSourceStop(stream_source);
-  SDL_free(buffer);
+  alSourceStop(player.source);
+  SDL_free(player.data);
+  player.data = NULL;
   return 0;
 }
 
-dboolean I_StartOpenALMusic(int sample_rate, int sample_frames, openal_music_callback_t callback, void *userdata)
+dboolean I_StartOpenALMusic(int sample_rate, openal_music_callback_t callback)
 {
-  int buffer_frames = (sample_frames + NUM_BUFFERS - 1) / NUM_BUFFERS;
-
-  stream_sample_rate = sample_rate;
-  // Split buffer size across all OpenAL buffers
-  // This fixes sound effects being delayed
-  stream_buffer_bytes = buffer_frames * 2 * sizeof(short);
-  stream_callback = callback;
-  stream_userdata = userdata;
+  player.format = AL_FORMAT_STEREO16;
+  player.freq = sample_rate;
+  player.channels = 2;
+  player.frame_size = player.channels * sizeof(short);
+  music_callback = callback;
   SDL_AtomicSet(&stream_reset_gain, 1);
 
-  alGenSources(1, &stream_source);
-  alGenBuffers(NUM_BUFFERS, stream_buffers);
+  alGenSources(1, &player.source);
+  alGenBuffers(NUM_BUFFERS, player.buffers);
   if (alGetError() != AL_NO_ERROR)
   {
     lprintf(LO_WARN, "couldn't create OpenAL streaming objects\n");
@@ -274,16 +297,16 @@ void I_StopOpenALMusic(void)
 
   ShutdownAutoGain();
 
-  if (stream_source)
+  if (player.source)
   {
-    alSourcei(stream_source, AL_BUFFER, 0);
-    alDeleteSources(1, &stream_source);
-    stream_source = 0;
+    alSourcei(player.source, AL_BUFFER, 0);
+    alDeleteSources(1, &player.source);
+    player.source = 0;
   }
 
-  if (stream_buffers[0])
+  if (player.buffers[0])
   {
-    alDeleteBuffers(NUM_BUFFERS, stream_buffers);
-    memset(stream_buffers, 0, sizeof(stream_buffers));
+    alDeleteBuffers(NUM_BUFFERS, player.buffers);
+    memset(player.buffers, 0, sizeof(player.buffers));
   }
 }

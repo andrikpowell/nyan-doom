@@ -1021,10 +1021,8 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
   SDL_UnlockMutex (sfxmutex);
 }
 
-static void I_UpdateMusicOutput(void *unused, unsigned char *stream, int len)
+static void I_UpdateMusicOutput(unsigned char *stream, int len)
 {
-  (void)unused;
-
   memset(stream, 0, len);
 
   if (registered_non_rw)
@@ -1097,7 +1095,7 @@ static void I_CloseAudioDevice(void)
   I_CloseOpenALDevice();
 }
 
-static dboolean I_OpenAudioDevice(int audio_rate, int audio_channels, int audio_buffers, const char *snd_device)
+static dboolean I_OpenAudioDevice(int audio_rate, int audio_channels, const char *snd_device)
 {
   const char *openal_device = I_OAL_DeviceName(snd_device);
 
@@ -1106,7 +1104,7 @@ static dboolean I_OpenAudioDevice(int audio_rate, int audio_channels, int audio_
 
   if (!I_OpenALDevice(openal_device, audio_rate) ||
       !I_OAL_InitSound(MAX_CHANNELS) ||
-      !I_StartOpenALMusic(audio_rate, audio_buffers, I_UpdateMusicOutput, NULL))
+      !I_StartOpenALMusic(audio_rate, I_UpdateMusicOutput))
   {
     I_CloseAudioDevice();
     return false;
@@ -1128,7 +1126,7 @@ static dboolean I_ReopenAudioDevice(const char *snd_device)
 
   I_CloseAudioDevice();
 
-  if (!I_OpenAudioDevice(snd_samplerate, 2, getSliceSize(), snd_device))
+  if (!I_OpenAudioDevice(snd_samplerate, 2, snd_device))
   {
     lprintf(LO_ERROR, "audio device switch failed, sound disabled\n");
     sound_was_initialized = false;
@@ -1248,7 +1246,7 @@ void I_InitSound(void)
 
   sfxmutex = SDL_CreateMutex ();
 
-  if (!sfxmutex || !I_OpenAudioDevice(audio_rate, audio_channels, audio_buffers, snd_device))
+  if (!sfxmutex || !I_OpenAudioDevice(audio_rate, audio_channels, snd_device))
   {
     if (sfxmutex)
     {
