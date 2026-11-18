@@ -194,6 +194,9 @@ void dsda_InitPlayPal(int playpal_i) {
 
   dsda_FreePlayPal(playpal_i);
 
+  if (!playpal_data[playpal_i].lump_name[0])
+    return;
+
   lump = W_CheckNumForName(playpal_data[playpal_i].lump_name);
   if (lump == LUMP_NOT_FOUND)
     return;
