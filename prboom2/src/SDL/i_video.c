@@ -1239,19 +1239,16 @@ void I_SetWindowCaption(void)
 
 void I_SetWindowIcon(void)
 {
-  static SDL_Surface *surface = NULL;
-
-  // do it only once, because of crash in SDL_InitVideoMode in SDL 1.3
-  if (!surface)
-  {
-    SDL_CreateSurfaceFrom(
-      icon_w, icon_h, SDL_PIXELFORMAT_RGBA32, icon_data, icon_w * 4);
-  }
+#ifndef _WIN32
+  SDL_Surface *surface = SDL_CreateSurfaceFrom(
+    icon_w, icon_h, SDL_PIXELFORMAT_RGBA32, icon_data, icon_w * 4);
 
   if (surface)
   {
-    SDL_SetWindowIcon(NULL, surface);
+    SDL_SetWindowIcon(sdl_window, surface);
+    SDL_DestroySurface(surface);
   }
+#endif
 }
 
 void I_InitGraphics(void)
