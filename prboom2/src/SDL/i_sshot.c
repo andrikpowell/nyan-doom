@@ -37,9 +37,8 @@
 #endif
 
 #include <stdlib.h>
-#include <string.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "spng.h"
 
 #include "doomstat.h"
@@ -58,8 +57,11 @@ int renderH;
 
 void I_UpdateRenderSize(void)
 {
-  renderW = renderer_rect.w;
-  renderH = renderer_rect.h;
+  if (!sdl_renderer || !SDL_GetCurrentRenderOutputSize(sdl_renderer, &renderW, &renderH))
+  {
+    renderW = renderer_rect.w;
+    renderH = renderer_rect.h;
+  }
 }
 
 //
@@ -125,10 +127,30 @@ int I_ScreenShot(const char *fname)
 // Modified to work with SDL2 resizeable window and fullscreen desktop - DTIED
 //
 
+// Logical presentation limits readback to the game viewport
+// Capture full window with black bars
+static SDL_Surface *I_ReadFullRendererOutput(void)
+{
+  SDL_RendererLogicalPresentation presentation;
+  SDL_Surface *readback;
+  int logical_w, logical_h;
+
+  SDL_GetRenderLogicalPresentation(sdl_renderer, &logical_w, &logical_h, &presentation);
+  SDL_SetRenderLogicalPresentation(sdl_renderer, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
+  readback = SDL_RenderReadPixels(sdl_renderer, NULL);
+  SDL_SetRenderLogicalPresentation(sdl_renderer, logical_w, logical_h, presentation);
+
+  if (!readback)
+    lprintf(LO_ERROR, "SDL_RenderReadPixels: %s\n", SDL_GetError());
+
+  return readback;
+}
+
 unsigned char *I_GrabScreen(void)
 {
   static unsigned char *pixels = NULL;
   static int pixels_size = 0;
+  SDL_Surface *readback;
   int size;
 
   I_UpdateRenderSize();
@@ -138,6 +160,12 @@ unsigned char *I_GrabScreen(void)
     return gld_ReadScreen();
   }
 
+  readback = I_ReadFullRendererOutput();
+  if (!readback)
+    return NULL;
+
+  renderW = readback->w;
+  renderH = readback->h;
   size = renderW * renderH * 3;
   if (!pixels || size > pixels_size)
   {
@@ -147,19 +175,17 @@ unsigned char *I_GrabScreen(void)
 
   if (pixels && size)
   {
-    int dest_x, dest_y;
-    SDL_Rect screen = viewport_rect;
-
-    // software can include borderbox areas outside the game viewport
-    // keep those borderbox pixels black, but read the viewport pixels
-    memset(pixels, 0, size);
-
-    // to avoid screenshot drawing from the top left, center it (pad with borderboxes)
-    dest_x = screen.x * 3;
-    dest_y = screen.y * renderW * 3;
-
-    SDL_RenderReadPixels(sdl_renderer, &screen, SDL_PIXELFORMAT_RGB24, pixels + dest_x + dest_y, renderW * 3);
+    if (!SDL_ConvertPixels(readback->w, readback->h,
+                           readback->format, readback->pixels, readback->pitch,
+                           SDL_PIXELFORMAT_RGB24, pixels, renderW * 3))
+    {
+      lprintf(LO_ERROR, "I_GrabScreen: %s\n", SDL_GetError());
+      SDL_DestroySurface(readback);
+      return NULL;
+    }
   }
+
+  SDL_DestroySurface(readback);
 
   return pixels;
 }

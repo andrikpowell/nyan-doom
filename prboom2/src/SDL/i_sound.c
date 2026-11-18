@@ -42,14 +42,7 @@
 #include <unistd.h>
 #endif
 
-#include "SDL.h"
-#include "SDL_audio.h"
-#include "SDL_mutex.h"
-
-#include "SDL_endian.h"
-
-#include "SDL_version.h"
-#include "SDL_thread.h"
+#include <SDL3/SDL.h>
 
 #include "alc.h"
 #include "OAL/i_openal.h"
@@ -134,9 +127,9 @@ static int dumping_sound = 0;
 
 
 // lock for updating any params related to sfx
-SDL_mutex *sfxmutex;
+SDL_Mutex *sfxmutex;
 // lock for updating any params related to music
-SDL_mutex *musmutex;
+SDL_Mutex *musmutex;
 
 static int pitched_sounds;
 int snd_samplerate; // samples per second
@@ -304,34 +297,26 @@ static void stopchan(int i)
 // [FG] support multi-channel samples by converting them to mono first
 static Uint8 *ConvertAudioFormat(void **data, SDL_AudioSpec *sample, Uint32 *len)
 {
-  SDL_AudioCVT cvt;
+  SDL_AudioSpec converted_sample  = { SDL_AUDIO_S16LE, 1, snd_samplerate };
+  Uint8 *converted_sampledata;
+  int converted_samplelen;
+  void *local_sampledata;
 
-  if (SDL_BuildAudioCVT(&cvt,
-                        sample->format, sample->channels, sample->freq,
-                        AUDIO_S16, 1, snd_samplerate) < 0)
+  if (!SDL_ConvertAudioSamples(sample, *data, *len, &converted_sample ,
+                               &converted_sampledata, &converted_samplelen))
   {
-    lprintf(LO_WARN, "SDL_BuildAudioCVT: %s\n", SDL_GetError());
+    lprintf(LO_WARN, "SDL_ConvertAudioSamples: %s\n", SDL_GetError());
     return NULL;
   }
 
-  cvt.len = *len;
-  cvt.buf = Z_Malloc(cvt.len * cvt.len_mult);
-  memcpy(cvt.buf, *data, cvt.len);
-
-  if (SDL_ConvertAudio(&cvt) < 0)
-  {
-    Z_Free(cvt.buf);
-    lprintf(LO_WARN, "SDL_ConvertAudio: %s\n", SDL_GetError());
-    return NULL;
-  }
-
+  local_sampledata = Z_Malloc(converted_samplelen);
+  memcpy(local_sampledata, converted_sampledata, converted_samplelen);
+  SDL_free(converted_sampledata);
   Z_Free(*data);
 
-  sample->channels = 1;
-  sample->format = AUDIO_S16;
-  sample->freq = snd_samplerate;
-  *data = cvt.buf;
-  *len = cvt.len_cvt;
+  *sample = converted_sample;
+  *data = local_sampledata;
+  *len = converted_samplelen;
 
   return *data;
 }

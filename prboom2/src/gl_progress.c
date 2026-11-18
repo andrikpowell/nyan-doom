@@ -33,7 +33,7 @@
 
 #include "gl_opengl.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "gl_intern.h"
 #include "i_video.h"
@@ -44,7 +44,7 @@
 #include "dsda/utility.h"
 
 static GLuint progress_texid = 0;
-static unsigned int lastupdate = 0;
+static Uint64 lastupdate = 0;
 
 int gld_ProgressStart(void)
 {
@@ -127,7 +127,7 @@ void gld_ProgressUpdate(const char * text, int progress, int total)
 {
   int len;
   static char last_text[32] = {0};
-  unsigned int tic;
+  Uint64 tic;
 
   if (!progress_texid)
     return;

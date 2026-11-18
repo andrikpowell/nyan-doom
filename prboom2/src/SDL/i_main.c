@@ -38,6 +38,8 @@
 #include "config.h"
 #endif
 
+#include <SDL3/SDL_main.h>
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
