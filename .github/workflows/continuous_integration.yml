@@ -66,6 +66,7 @@ jobs:
             extra_options: >-
               -G Ninja
               -DCMAKE_INSTALL_PREFIX=/usr
+              -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON
             release: true
             package_name: "linux_gcc"
             shell: bash
