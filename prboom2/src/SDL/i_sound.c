@@ -1010,6 +1010,10 @@ static void I_UpdateMusicOutput(unsigned char *stream, int len)
 {
   memset(stream, 0, len);
 
+  // Video capture advances music through I_GrabSound instead
+  if (dumping_sound)
+    return;
+
   if (registered_non_rw)
   {
     SDL_LockMutex(musmutex);
