@@ -1092,7 +1092,7 @@ static const char *I_OAL_DeviceName(const char *display_name)
 
 static void I_CloseAudioDevice(void)
 {
-  I_StopOpenALStream();
+  I_StopOpenALMusic();
   I_OAL_ShutdownSound();
   I_CloseOpenALDevice();
 }
@@ -1106,7 +1106,7 @@ static dboolean I_OpenAudioDevice(int audio_rate, int audio_channels, int audio_
 
   if (!I_OpenALDevice(openal_device, audio_rate) ||
       !I_OAL_InitSound(MAX_CHANNELS) ||
-      !I_StartOpenALStream(audio_rate, audio_buffers, I_UpdateMusicOutput, NULL))
+      !I_StartOpenALMusic(audio_rate, audio_buffers, I_UpdateMusicOutput, NULL))
   {
     I_CloseAudioDevice();
     return false;
@@ -1537,7 +1537,7 @@ static int music_volume;
 
 void I_ResetMusicAutoGain(void)
 {
-  I_ConfigureOpenALStreamGain(dsda_IntConfig(dsda_config_music_auto_gain), music_volume);
+  I_ConfigureOpenALMusicGain(dsda_IntConfig(dsda_config_music_auto_gain), music_volume);
 }
 
 void I_ResetMusicVolume(void)
@@ -1552,7 +1552,7 @@ void I_ResetMusicVolume(void)
   else
     music_volume = snd_MusicVolume;
 
-  I_ConfigureOpenALStreamGain(dsda_IntConfig(dsda_config_music_auto_gain), music_volume);
+  I_ConfigureOpenALMusicGain(dsda_IntConfig(dsda_config_music_auto_gain), music_volume);
 
   if (music_handle)
   {
@@ -1629,7 +1629,7 @@ static void PlaySong(int handle, int looping)
     music_players[current_player]->play (music_handle, looping);
     music_players[current_player]->setvolume (music_volume);
     SDL_UnlockMutex (musmutex);
-    I_ResetOpenALStreamGain();
+    I_ResetOpenALMusicGain();
   }
 }
 

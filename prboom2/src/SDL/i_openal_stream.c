@@ -155,7 +155,7 @@ static void AutoGain(const int16_t *buffer, int frames)
   alSourcef(stream_source, AL_GAIN, ((float)SDL_AtomicGet(&stream_music_volume) / 15.0f) * auto_gain);
 }
 
-static void UpdateStreamGain(unsigned char *buffer)
+static void UpdateMusicGain(unsigned char *buffer)
 {
   if (SDL_AtomicSet(&stream_reset_gain, 0))
     InitAutoGain();
@@ -164,7 +164,7 @@ static void UpdateStreamGain(unsigned char *buffer)
   AutoGain((const int16_t *)buffer, stream_buffer_bytes / 4);
 }
 
-static int StreamThread(void *unused)
+static int MusicThread(void *unused)
 {
   unsigned char *buffer;
   int i;
@@ -179,7 +179,7 @@ static int StreamThread(void *unused)
   {
     memset(buffer, 0, stream_buffer_bytes);
     stream_callback(stream_userdata, buffer, stream_buffer_bytes);
-    UpdateStreamGain(buffer);
+    UpdateMusicGain(buffer);
     alBufferData(stream_buffers[i], AL_FORMAT_STEREO16, buffer, stream_buffer_bytes, stream_sample_rate);
   }
 
@@ -198,7 +198,7 @@ static int StreamThread(void *unused)
       alSourceUnqueueBuffers(stream_source, 1, &buffer_id);
       memset(buffer, 0, stream_buffer_bytes);
       stream_callback(stream_userdata, buffer, stream_buffer_bytes);
-      UpdateStreamGain(buffer);
+      UpdateMusicGain(buffer);
       alBufferData(buffer_id, AL_FORMAT_STEREO16, buffer, stream_buffer_bytes, stream_sample_rate);
       alSourceQueueBuffers(stream_source, 1, &buffer_id);
     }
@@ -218,7 +218,7 @@ static int StreamThread(void *unused)
   return 0;
 }
 
-dboolean I_StartOpenALStream(int sample_rate, int sample_frames, openal_stream_callback_t callback, void *userdata)
+dboolean I_StartOpenALMusic(int sample_rate, int sample_frames, openal_stream_callback_t callback, void *userdata)
 {
   int buffer_frames = (sample_frames + NUM_BUFFERS - 1) / NUM_BUFFERS;
 
@@ -235,35 +235,35 @@ dboolean I_StartOpenALStream(int sample_rate, int sample_frames, openal_stream_c
   if (alGetError() != AL_NO_ERROR)
   {
     lprintf(LO_WARN, "couldn't create OpenAL streaming objects\n");
-    I_StopOpenALStream();
+    I_StopOpenALMusic();
     return false;
   }
 
   SDL_AtomicSet(&stream_running, 1);
-  stream_thread = SDL_CreateThread(StreamThread, "OpenAL output", NULL);
+  stream_thread = SDL_CreateThread(MusicThread, "OpenAL music", NULL);
   if (!stream_thread)
   {
-    lprintf(LO_WARN, "couldn't create OpenAL output thread (%s)\n", SDL_GetError());
-    I_StopOpenALStream();
+    lprintf(LO_WARN, "couldn't create OpenAL music thread (%s)\n", SDL_GetError());
+    I_StopOpenALMusic();
     return false;
   }
 
   return true;
 }
 
-void I_ConfigureOpenALStreamGain(dboolean enabled, int volume)
+void I_ConfigureOpenALMusicGain(dboolean enabled, int volume)
 {
   SDL_AtomicSet(&stream_auto_gain, enabled);
   SDL_AtomicSet(&stream_music_volume, volume);
   SDL_AtomicSet(&stream_reset_gain, 1);
 }
 
-void I_ResetOpenALStreamGain(void)
+void I_ResetOpenALMusicGain(void)
 {
   SDL_AtomicSet(&stream_reset_gain, 1);
 }
 
-void I_StopOpenALStream(void)
+void I_StopOpenALMusic(void)
 {
   if (stream_thread)
   {

@@ -23,9 +23,9 @@
 
 typedef void (*openal_stream_callback_t)(void *userdata, unsigned char *buffer, int length);
 
-dboolean I_StartOpenALStream(int sample_rate, int sample_frames, openal_stream_callback_t callback, void *userdata);
-void I_ConfigureOpenALStreamGain(dboolean enabled, int volume);
-void I_ResetOpenALStreamGain(void);
-void I_StopOpenALStream(void);
+dboolean I_StartOpenALMusic(int sample_rate, int sample_frames, openal_stream_callback_t callback, void *userdata);
+void I_ConfigureOpenALMusicGain(dboolean enabled, int volume);
+void I_ResetOpenALMusicGain(void);
+void I_StopOpenALMusic(void);
 
 #endif
