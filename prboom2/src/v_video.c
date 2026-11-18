@@ -41,6 +41,7 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <SDL3/SDL.h>
@@ -1029,14 +1030,20 @@ static void V_DrawPatchStretch(float fx, float fy, int scrn, const rpatch_t *pat
         }
 
         if (dcvars.yl < 0) {
+          float offset;
+
           clipped_top = true;
-          yoffset = (int)ceilf((0 - dcvars.yl) * 200.0f / params->video->height / scale);
+          offset = ceilf((0 - dcvars.yl) * 200.0f / params->video->height / scale);
+          yoffset = (int)offset;
           dcvars.yl = 0;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }
         if (dcvars.yl < top) {
+          float offset;
+
           clipped_top = true;
-          yoffset = (int)ceilf((top - dcvars.yl) * 200.0f / params->video->height / scale);
+          offset = ceilf((top - dcvars.yl) * 200.0f / params->video->height / scale);
+          yoffset = (int)offset;
           dcvars.yl = top;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }

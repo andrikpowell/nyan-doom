@@ -1464,7 +1464,7 @@ void I_UpdateVideoMode(void)
 
   if (V_IsSoftwareMode())
   {
-    lprintf(LO_DEBUG, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen && screen->pixels ? "SDL buffer" : "own buffer", screen && SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
+    lprintf(LO_DEBUG, "I_UpdateVideoMode: 0x%llx, %s, %s\n", (unsigned long long)init_flags, screen && screen->pixels ? "SDL buffer" : "own buffer", screen && SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
 
     // Get the info needed to render to the display
     if (!SDL_MUSTLOCK(screen))

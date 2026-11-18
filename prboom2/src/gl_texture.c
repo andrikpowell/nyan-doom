@@ -1797,7 +1797,7 @@ void gld_Precache(void)
 
     snprintf(map, sizeof(map), "%s", dsda_MapLumpName(gameepisode, gamemap));
 
-    lprintf(LO_DEBUG, "gld_Precache: %s done in %d ms\n", map, SDL_GetTicks() - tics);
+    lprintf(LO_DEBUG, "gld_Precache: %s done in %llu ms\n", map, (unsigned long long)(SDL_GetTicks() - tics));
   }
 }
 
