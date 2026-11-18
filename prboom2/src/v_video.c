@@ -41,6 +41,7 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <SDL3/SDL.h>

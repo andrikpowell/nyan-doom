@@ -16,6 +16,7 @@
 //	OpenAL music
 //
 
+#include <math.h>
 #include <string.h>
 
 #include <SDL3/SDL.h>
