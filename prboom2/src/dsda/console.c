@@ -2794,7 +2794,7 @@ static dboolean dsda_ExecuteConsole(const char* command_line, dboolean noise) {
   return ret;
 }
 
-void dsda_UpdateConsoleText(char* text) {
+void dsda_UpdateConsoleText(const char* text) {
   int i;
   int length;
 

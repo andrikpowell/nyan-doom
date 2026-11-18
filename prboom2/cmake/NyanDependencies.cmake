@@ -20,7 +20,7 @@ if(APPLE)
   set(CMAKE_FIND_FRAMEWORK ${find_framework_backup})
 endif()
 
-find_package(SDL2 2.0.12 CONFIG REQUIRED)
+find_package(SDL3 3.4.0 CONFIG REQUIRED COMPONENTS SDL3)
 
 if(APPLE)
   find_package(OpenAL CONFIG REQUIRED
@@ -93,32 +93,9 @@ if(WITH_DISCORD_RPC)
   set(HAVE_DISCORD_RPC TRUE)
 endif()
 
-# Before SDL 2.24.x, all SDL2::* targets were created in autotools builds, even if the underlying library wasn't built.
-# So wrap all this in our interface library
-add_library(nyan_SDL2 INTERFACE IMPORTED)
-add_library(nyan::SDL2 ALIAS nyan_SDL2)
-
-if(TARGET SDL2::SDL2main)
-  get_target_property(sdl2_main_library SDL2::SDL2main LOCATION)
-  if(EXISTS ${sdl2_main_library})
-    target_link_libraries(nyan_SDL2 INTERFACE SDL2::SDL2main)
-  endif()
-endif()
-
-if(TARGET SDL2::SDL2)
-  get_target_property(sdl2_library SDL2::SDL2 LOCATION)
-endif()
-if(TARGET SDL2::SDL2-static)
-  get_target_property(sdl2_static_library SDL2::SDL2-static LOCATION)
-endif()
-
-if(EXISTS ${sdl2_library})
-  target_link_libraries(nyan_SDL2 INTERFACE SDL2::SDL2)
-elseif(EXISTS ${sdl2_static_library})
-  target_link_libraries(nyan_SDL2 INTERFACE SDL2::SDL2-static)
-else()
-  message(FATAL_ERROR "Neither '${sdl2_library}' or '${sdl2_static_library}' exist, your SDL installation may be broken.")
-endif()
+add_library(nyan_SDL3 INTERFACE IMPORTED)
+add_library(nyan::SDL3 ALIAS nyan_SDL3)
+target_link_libraries(nyan_SDL3 INTERFACE SDL3::SDL3)
 
 # TODO: Rework libxmp's find module to avoid this workaround
 add_library(nyan_xmp INTERFACE IMPORTED)
@@ -153,7 +130,7 @@ target_link_libraries(nyan_dependencies
   $<$<BOOL:${HAVE_LIBSPNG}>:$<IF:$<TARGET_EXISTS:spng::spng>,spng::spng,spng::spng_static>>
   $<$<BOOL:${HAVE_DISCORD_RPC}>:DiscordRPC::discord-rpc>
 
-  nyan::SDL2
+  nyan::SDL3
 )
 
 if(WIN32)

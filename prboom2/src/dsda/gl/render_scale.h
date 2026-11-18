@@ -16,7 +16,7 @@
 //  Original Author: elim
 //
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 extern int gl_statusbar_height;
 extern int gl_scene_width;

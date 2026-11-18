@@ -47,7 +47,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -10112,12 +10112,12 @@ void M_ChangeMenu(menu_t *menudef, menuactive_t mnact)
   if (mnact > mnact_inactive && gamestate == GS_LEVEL)
     dsda_TrackFeature(uf_menu);
 
-  if (SDL_IsTextInputActive()) {
+  if (SDL_TextInputActive(sdl_window)) {
     if (!(currentMenu && currentMenu->flags & MENUF_TEXTINPUT))
-      SDL_StopTextInput();
+      SDL_StopTextInput(sdl_window);
   }
   else if (currentMenu && currentMenu->flags & MENUF_TEXTINPUT)
-    SDL_StartTextInput();
+    SDL_StartTextInput(sdl_window);
 }
 
 //

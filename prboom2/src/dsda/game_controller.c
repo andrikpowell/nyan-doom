@@ -15,7 +15,7 @@
 //	DSDA Game Controller
 //
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "d_event.h"
 #include "d_main.h"
@@ -27,20 +27,20 @@
 #include "game_controller.h"
 
 static int use_game_controller;
-static SDL_GameController* game_controller;
+static SDL_Gamepad* game_controller;
 
 typedef struct {
-  SDL_GameControllerAxis axis;
+  SDL_GamepadAxis axis;
   int deadzone;
   int sensitivity;
 } axis_t;
 
-static axis_t left_analog_x = { SDL_CONTROLLER_AXIS_LEFTX };
-static axis_t left_analog_y = { SDL_CONTROLLER_AXIS_LEFTY };
-static axis_t right_analog_x = { SDL_CONTROLLER_AXIS_RIGHTX };
-static axis_t right_analog_y = { SDL_CONTROLLER_AXIS_RIGHTY };
-static axis_t left_trigger = { SDL_CONTROLLER_AXIS_TRIGGERLEFT };
-static axis_t right_trigger = { SDL_CONTROLLER_AXIS_TRIGGERRIGHT };
+static axis_t left_analog_x = { SDL_GAMEPAD_AXIS_LEFTX };
+static axis_t left_analog_y = { SDL_GAMEPAD_AXIS_LEFTY };
+static axis_t right_analog_x = { SDL_GAMEPAD_AXIS_RIGHTX };
+static axis_t right_analog_y = { SDL_GAMEPAD_AXIS_RIGHTY };
+static axis_t left_trigger = { SDL_GAMEPAD_AXIS_LEFT_TRIGGER };
+static axis_t right_trigger = { SDL_GAMEPAD_AXIS_RIGHT_TRIGGER };
 
 static int swap_analogs;
 
@@ -98,7 +98,7 @@ const char* dsda_GameControllerButtonName(int button) {
 static float dsda_AxisValue(axis_t* axis) {
   int value;
 
-  value = SDL_GameControllerGetAxis(game_controller, axis->axis);
+  value = SDL_GetGamepadAxis(game_controller, axis->axis);
 
   // the positive axis max is 1 less
   if (value > (axis->deadzone - 1))
@@ -144,7 +144,7 @@ static void dsda_PollRightStick(void) {
 static inline int PollButton(dsda_game_controller_button_t button)
 {
   // This depends on enums having same values
-  return SDL_GameControllerGetButton(game_controller, (SDL_GameControllerButton) button) << button;
+  return SDL_GetGamepadButton(game_controller, (SDL_GamepadButton) button) << button;
 }
 
 void dsda_PollGameControllerButtons(void) {
@@ -231,55 +231,61 @@ static void dsda_CloseGameController(void)
   if (!game_controller)
     return;
 
-  lprintf(LO_INFO, "%s Disconnected\n", SDL_GameControllerName(game_controller));
-  SDL_GameControllerClose(game_controller);
+  lprintf(LO_INFO, "%s Disconnected\n", SDL_GetGamepadName(game_controller));
+  SDL_CloseGamepad(game_controller);
   game_controller = NULL;
 }
 
-static dboolean dsda_OpenGameController(int device_index)
+static dboolean dsda_OpenGameController(SDL_JoystickID instance_id)
 {
-  if (device_index < 0 || device_index >= SDL_NumJoysticks() || !SDL_IsGameController(device_index))
+  if (!instance_id || !SDL_IsGamepad(instance_id))
   {
     return false;
   }
 
-  game_controller = SDL_GameControllerOpen(device_index);
+  game_controller = SDL_OpenGamepad(instance_id);
 
   if (!game_controller)
   {
-    lprintf(LO_ERROR, "dsda_OpenGameController: error opening game controller %d: %s\n", device_index + 1, SDL_GetError());
+    lprintf(LO_ERROR, "dsda_OpenGameController: error opening game controller %u: %s\n", instance_id, SDL_GetError());
     return false;
   }
 
-  lprintf(LO_INFO, "%s Connected\n", SDL_GameControllerName(game_controller));
+  lprintf(LO_INFO, "%s Connected\n", SDL_GetGamepadName(game_controller));
   return true;
 }
 
 static void dsda_OpenAvailableGameController(void)
 {
   int preferred_index;
-  int num_joysticks;
+  int num_gamepads;
   int i;
+  SDL_JoystickID *gamepads;
 
   if (!use_game_controller || game_controller)
     return;
 
-  num_joysticks = SDL_NumJoysticks();
-  preferred_index = use_game_controller - 1;
-
-  if (preferred_index < num_joysticks && dsda_OpenGameController(preferred_index))
+  gamepads = SDL_GetGamepads(&num_gamepads);
+  if (!gamepads)
     return;
 
-  for (i = 0; i < num_joysticks; ++i)
+  preferred_index = use_game_controller - 1;
+
+  if (!(preferred_index >= 0 && preferred_index < num_gamepads && dsda_OpenGameController(gamepads[preferred_index])))
   {
-    if (i != preferred_index && dsda_OpenGameController(i))
-      return;
+    for (i = 0; i < num_gamepads; ++i)
+    {
+      if (i != preferred_index && dsda_OpenGameController(gamepads[i]))
+        break;
+    }
   }
+
+  SDL_free(gamepads);
 }
 
-void dsda_GameControllerAdded(int device_index)
+void dsda_GameControllerAdded(int instance_id)
 {
-  if (device_index < 0 || !use_game_controller || game_controller)
+  if (instance_id <= 0 || !use_game_controller || game_controller)
     return;
 
   dsda_OpenAvailableGameController();
@@ -292,9 +298,9 @@ void dsda_GameControllerRemoved(int instance_id)
   if (!game_controller)
     return;
 
-  joystick = SDL_GameControllerGetJoystick(game_controller);
+  joystick = SDL_GetGamepadJoystick(game_controller);
 
-  if (SDL_JoystickInstanceID(joystick) != instance_id)
+  if (SDL_GetJoystickID(joystick) != instance_id)
     return;
 
   dsda_CloseGameController();
@@ -311,7 +317,7 @@ void dsda_InitGameController(void) {
     return;
 
   dsda_InitGameControllerParameters();
-  if (!(SDL_WasInit(SDL_INIT_GAMECONTROLLER) & SDL_INIT_GAMECONTROLLER) && SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) < 0)
+  if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD) && !SDL_InitSubSystem(SDL_INIT_GAMEPAD))
   {
     lprintf(LO_ERROR, "dsda_InitGameController: %s\n", SDL_GetError());
     return;

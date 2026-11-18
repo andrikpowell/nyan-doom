@@ -15,7 +15,7 @@
 //	DSDA Mouse
 //
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "dsda/configuration.h"
 #include "dsda/features.h"
@@ -63,11 +63,13 @@ void dsda_QueueQuickstart(void) {
 
 void dsda_GetMousePosition(int *x, int *y)
 {
-  SDL_GetMouseState(x, y);
+  float mouse_x, mouse_y;
+
+  SDL_GetMouseState(&mouse_x, &mouse_y);
 
   // Lets account for HiDPI displays since SDL_GetMouseState doesnt
-  *x = (int)(*x * (float)renderer_rect.w / (float)window_rect.w);
-  *y = (int)(*y * (float)renderer_rect.h / (float)window_rect.h);
+  *x = (int)(mouse_x * (float)renderer_rect.w / (float)window_rect.w);
+  *y = (int)(mouse_y * (float)renderer_rect.h / (float)window_rect.h);
 
   // x and y currently have the mouse position in the renderer_rect
   // but we want the mouse position in the viewport_rect

@@ -51,7 +51,7 @@
 #endif
 #include <stdio.h>
 #include <string.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "doomtype.h"
 #include "w_wad.h"
 #include "d_event.h"
@@ -1623,7 +1623,7 @@ void gld_Precache(void)
   int hit, hitcount = 0;
   GLTexture *gltexture;
 
-  unsigned int tics = SDL_GetTicks();
+  Uint64 tics = SDL_GetTicks();
 
   if (nodrawers)
     return;
@@ -1797,7 +1797,7 @@ void gld_Precache(void)
 
     snprintf(map, sizeof(map), "%s", dsda_MapLumpName(gameepisode, gamemap));
 
-    lprintf(LO_DEBUG, "gld_Precache: %s done in %d ms\n", map, SDL_GetTicks() - tics);
+    lprintf(LO_DEBUG, "gld_Precache: %s done in %llu ms\n", map, (unsigned long long)(SDL_GetTicks() - tics));
   }
 }
 

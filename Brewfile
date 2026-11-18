@@ -14,7 +14,6 @@ brew "mad"
 brew "openal-soft"
 brew "portmidi"
 brew "sdl3"
-brew "sdl2-compat"
 brew "libspng"
 
 # Packaging tools

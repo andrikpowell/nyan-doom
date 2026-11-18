@@ -38,11 +38,11 @@
 #include "config.h"
 #endif
 
-#include <SDL.h>
-#include <SDL_opengl.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_opengl.h>
 
 #if SDL_VERSION_ATLEAST(1, 3, 0)
-#if defined(__MACOSX__)
+#if defined(SDL_PLATFORM_MACOS)
 #include <OpenGL/gl.h>	/* Header File For The OpenGL Library */
 #include <OpenGL/glu.h>	/* Header File For The GLU Library */
 #elif defined(__MACOS__)
@@ -63,8 +63,6 @@
 #define isExtensionSupported(ext) strstr(extensions, ext)
 
 extern int gl_max_texture_size;
-
-extern SDL_PixelFormat RGBAFormat;
 
 extern dboolean gl_ext_texture_filter_anisotropic;
 extern dboolean gl_arb_texture_compression;
