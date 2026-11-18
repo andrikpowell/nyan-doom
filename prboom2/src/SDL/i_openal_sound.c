@@ -229,6 +229,16 @@ dboolean I_OAL_SoundIsPlaying(int channel)
   return state == AL_PLAYING;
 }
 
+void I_OAL_SetGain(int channel, float gain)
+{
+  if (!sound_sources)
+  {
+    return;
+  }
+
+  alSourcef(sound_sources[channel], AL_GAIN, (ALfloat)gain);
+}
+
 void I_OAL_SetVolume(int channel, int volume)
 {
   if (!sound_sources)

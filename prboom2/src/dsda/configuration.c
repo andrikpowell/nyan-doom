@@ -127,6 +127,7 @@ void M_ChangeShorttics(void);
 void I_InitSoundParams(void);
 void S_Init(void);
 void I_ChangeAudioDevice(void);
+void I_ChangeSoundLimiter(void);
 void M_ChangeMIDIPlayer(void);
 void M_ChangeSoundfont(void);
 void HU_InitCrosshair(void);
@@ -1346,6 +1347,18 @@ dsda_config_t dsda_config[dsda_config_count] = {
   [dsda_config_snd_channels] = {
     "snd_channels", dsda_config_snd_channels,
     dsda_config_int, 1, MAX_CHANNELS, { 32 }, NULL, NOT_STRICT, S_Init
+  },
+  [dsda_config_snd_limiter] = {
+    "snd_limiter", dsda_config_snd_limiter,
+    CONF_BOOL(0), NULL, NOT_STRICT, I_ChangeSoundLimiter
+  },
+  [dsda_config_snd_channels_per_sfx] = {
+    "snd_channels_per_sfx", dsda_config_snd_channels_per_sfx,
+    dsda_config_int, 0, MAX_CHANNELS, { 5 }, NULL, NOT_STRICT, S_ResetSfxLimiter
+  },
+  [dsda_config_snd_volume_per_sfx] = {
+    "snd_volume_per_sfx", dsda_config_snd_volume_per_sfx,
+    dsda_config_int, 0, MAX_CHANNELS * 100, { 500 }, NULL, NOT_STRICT, S_ResetSfxLimiter
   },
   [dsda_config_snd_midiplayer] = {
     "snd_midiplayer", dsda_config_snd_midiplayer,

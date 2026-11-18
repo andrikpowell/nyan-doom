@@ -21,6 +21,7 @@
 #include "doomtype.h"
 
 dboolean I_OpenALDevice(const char *device_name, int sample_rate);
+dboolean I_ResetOpenALDevice(void);
 void I_CloseOpenALDevice(void);
 
 #endif

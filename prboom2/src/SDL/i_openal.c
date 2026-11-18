@@ -17,16 +17,45 @@
 
 #include "al.h"
 #include "alc.h"
+#include "alext.h"
 
+#include "dsda/configuration.h"
 #include "i_openal.h"
 #include "lprintf.h"
 
 static ALCdevice *oal_device;
 static ALCcontext *oal_context;
+static int oal_sample_rate;
+
+static void I_OpenALAttributes(ALCint *attributes, int sample_rate)
+{
+  int i = 0;
+
+  attributes[i++] = ALC_FREQUENCY;
+  attributes[i++] = sample_rate;
+
+#ifdef ALC_OUTPUT_MODE_SOFT
+  if (oal_device &&
+      alcIsExtensionPresent(oal_device, "ALC_SOFT_output_mode") == ALC_TRUE)
+  {
+    attributes[i++] = ALC_OUTPUT_MODE_SOFT;
+    attributes[i++] = ALC_STEREO_BASIC_SOFT;
+  }
+#endif
+
+  if (oal_device &&
+      alcIsExtensionPresent(oal_device, "ALC_SOFT_output_limiter") == ALC_TRUE)
+  {
+    attributes[i++] = ALC_OUTPUT_LIMITER_SOFT;
+    attributes[i++] = dsda_IntConfig(dsda_config_snd_limiter) ? ALC_TRUE : ALC_FALSE;
+  }
+
+  attributes[i] = 0;
+}
 
 dboolean I_OpenALDevice(const char *device_name, int sample_rate)
 {
-  ALCint attributes[] = { ALC_FREQUENCY, sample_rate, 0 };
+  ALCint attributes[7];
 
   oal_device = alcOpenDevice(device_name);
   if (!oal_device && device_name)
@@ -41,11 +70,40 @@ dboolean I_OpenALDevice(const char *device_name, int sample_rate)
     return false;
   }
 
+  I_OpenALAttributes(attributes, sample_rate);
+
   oal_context = alcCreateContext(oal_device, attributes);
   if (!oal_context || !alcMakeContextCurrent(oal_context))
   {
     lprintf(LO_WARN, "couldn't create an OpenAL context\n");
     I_CloseOpenALDevice();
+    return false;
+  }
+
+  oal_sample_rate = sample_rate;
+
+  return true;
+}
+
+dboolean I_ResetOpenALDevice(void)
+{
+  LPALCRESETDEVICESOFT alcResetDeviceSOFT;
+  ALCint attributes[7];
+
+  if (!oal_device ||
+      alcIsExtensionPresent(oal_device, "ALC_SOFT_HRTF") != ALC_TRUE)
+    return false;
+
+  alcResetDeviceSOFT =
+    (LPALCRESETDEVICESOFT)alcGetProcAddress(oal_device, "alcResetDeviceSOFT");
+  if (!alcResetDeviceSOFT)
+    return false;
+
+  I_OpenALAttributes(attributes, oal_sample_rate);
+
+  if (alcResetDeviceSOFT(oal_device, attributes) != ALC_TRUE)
+  {
+    lprintf(LO_WARN, "couldn't reset the OpenAL device\n");
     return false;
   }
 
@@ -66,4 +124,6 @@ void I_CloseOpenALDevice(void)
     alcCloseDevice(oal_device);
     oal_device = NULL;
   }
+
+  oal_sample_rate = 0;
 }

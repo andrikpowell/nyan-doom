@@ -29,6 +29,7 @@ dboolean I_OAL_StartSound(int channel, int sound_id, const void *data, size_t le
                           int bits, int sample_rate, dboolean loop, float pitch);
 void I_OAL_StopSound(int channel);
 dboolean I_OAL_SoundIsPlaying(int channel);
+void I_OAL_SetGain(int channel, float gain);
 void I_OAL_SetVolume(int channel, int volume);
 void I_OAL_SetPan(int channel, int separation);
 

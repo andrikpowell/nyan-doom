@@ -57,6 +57,12 @@ typedef struct {
   sfx_class_t sfx_class;
 } sfx_params_t;
 
+// Used for sfx limiter
+typedef struct {
+  int count;
+  int volume;
+} sfxactive_t;
+
 //
 // SoundFX struct.
 //
@@ -93,6 +99,8 @@ struct sfxinfo_struct {
 
   int parallel_tic;
   int parallel_count;
+
+  sfxactive_t active;
 };
 
 //

@@ -650,6 +650,12 @@ void I_UpdateSoundParams(int handle, sfx_params_t *params)
   SDL_UnlockMutex (sfxmutex);
 }
 
+void I_SetGain(int handle, float gain)
+{
+  if (!dumping_sound)
+    I_OAL_SetGain(handle, gain);
+}
+
 //
 // SFX API
 // Note: this was called by S_Init.
@@ -1109,18 +1115,9 @@ static dboolean I_OpenAudioDevice(int audio_rate, int audio_channels, int audio_
   return true;
 }
 
-void I_ChangeAudioDevice(void)
+static dboolean I_ReopenAudioDevice(const char *snd_device)
 {
-  const char *snd_device;
   int i;
-
-  if (!sound_was_initialized || dumping_sound)
-    return;
-
-  snd_device = I_ResolveAudioDevice();
-
-  if (!strcasecmp(snd_device ? snd_device : "", current_audio_device))
-    return;
 
   S_StopMusic();
 
@@ -1135,14 +1132,45 @@ void I_ChangeAudioDevice(void)
   {
     lprintf(LO_ERROR, "audio device switch failed, sound disabled\n");
     sound_was_initialized = false;
-    return;
+    return false;
   }
 
   I_RememberAudioDevice(snd_device);
 
   S_RestartMusic();
 
+  return true;
+}
+
+void I_ChangeAudioDevice(void)
+{
+  const char *snd_device;
+
+  if (!sound_was_initialized || dumping_sound)
+    return;
+
+  snd_device = I_ResolveAudioDevice();
+
+  if (!strcasecmp(snd_device ? snd_device : "", current_audio_device))
+    return;
+
+  if (!I_ReopenAudioDevice(snd_device))
+    return;
+
   lprintf(LO_INFO, "switched audio output to \"%s\"\n", current_audio_device);
+}
+
+void I_ChangeSoundLimiter(void)
+{
+  S_ResetSfxLimiter();
+
+  if (!sound_was_initialized || dumping_sound)
+    return;
+
+  if (I_ResetOpenALDevice())
+    lprintf(LO_DEBUG, "updated OpenAL sound limiter\n");
+  else
+    lprintf(LO_WARN, "couldn't update OpenAL sound limiter while running\n");
 }
 
 void I_ShutdownSound(void)
