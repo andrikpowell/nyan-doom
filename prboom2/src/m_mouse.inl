@@ -129,7 +129,7 @@ static void M_MouseSetLogicalPosition(int x, int y)
 
 static void M_MouseReadPosition(void)
 {
-  int window_x, window_y;
+  float window_x, window_y;
   int renderer_x, renderer_y;
 
   SDL_GetMouseState(&window_x, &window_y);
@@ -137,13 +137,13 @@ static void M_MouseReadPosition(void)
   if (window_rect.w > 0 && window_rect.h > 0 &&
       renderer_rect.w > 0 && renderer_rect.h > 0)
   {
-    renderer_x = window_x * renderer_rect.w / window_rect.w;
-    renderer_y = window_y * renderer_rect.h / window_rect.h;
+    renderer_x = (int)(window_x * renderer_rect.w / window_rect.w);
+    renderer_y = (int)(window_y * renderer_rect.h / window_rect.h);
   }
   else
   {
-    renderer_x = window_x;
-    renderer_y = window_y;
+    renderer_x = (int)window_x;
+    renderer_y = (int)window_y;
   }
 
   M_MouseSetLogicalPosition(renderer_x - viewport_rect.x,

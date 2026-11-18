@@ -39,7 +39,7 @@
 #include "config.h"
 #endif
 
-#include "SDL_timer.h"
+#include <SDL3/SDL.h>
 
 #ifdef _MSC_VER
 #include <io.h>

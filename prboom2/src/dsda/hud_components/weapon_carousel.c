@@ -15,7 +15,7 @@
 //	DSDA Weapon Carousel Component
 //
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "base.h"
 #include "dsda/messenger.h"
@@ -124,7 +124,7 @@ typedef struct {
   int selected_index;
 
   int last_index;
-  unsigned int last_time;
+  Uint64 last_time;
   int distance;
 
   int duration;
@@ -349,7 +349,7 @@ static int CalcOffset(local_component_t* c)
 {
   if (c->distance)
   {
-    const unsigned int delta = SDL_GetTicks() - c->last_time;
+    const Uint64 delta = SDL_GetTicks() - c->last_time;
 
     if (delta < ANIMATION_MS)
     {

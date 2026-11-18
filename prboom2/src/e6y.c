@@ -40,7 +40,7 @@
 #include <direct.h>
 #include <winreg.h>
 #endif
-#include <SDL_opengl.h>
+#include <SDL3/SDL_opengl.h>
 #include <string.h>
 #include <math.h>
 
@@ -48,10 +48,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#include "SDL.h"
-#ifdef _WIN32
-#include <SDL_syswm.h>
-#endif
+#include <SDL3/SDL.h>
 
 #include "hu_lib.h"
 
@@ -764,7 +761,7 @@ int force_singletics_to = 0;
 static int demobar_h;
 static int demobar_anim_start_h;
 static int demobar_anim_end_h;
-static unsigned int demobar_anim_start_time;
+static Uint64 demobar_anim_start_time;
 
 static void HU_ResetMouseDemoProgressBar(void)
 {
@@ -783,13 +780,13 @@ static dboolean HU_MouseDemoProgressBar(int bar_h, int collapsed_h)
 static int HU_MouseDemoProgressBarHeight(int collapsed_h)
 {
   extern int mouse_hide_timer;
-  const unsigned int animate_time = 128;
-  const unsigned int current_time = SDL_GetTicks();
+  const Uint64 animate_time = 128;
+  const Uint64 current_time = SDL_GetTicks();
 
   const dboolean demobar_expanded = (mouse_hide_timer > 0);
   const int demobar_end_h = demobar_expanded ? (ST_SCALED_HEIGHT / 6) : collapsed_h;
 
-  unsigned int elapsed;
+  Uint64 elapsed;
   int height_change;
 
   if (!demobar_anim_start_time || demobar_anim_end_h != demobar_end_h)
@@ -835,11 +832,11 @@ dboolean HU_MouseOnDemoProgressBar(int *position_x)
 
 int HU_DrawDemoProgress(int force)
 {
-  static unsigned int last_update = 0;
+  static Uint64 last_update = 0;
   static int prev_len = -1;
 
   int len, tics_count, diff;
-  unsigned int tick, max_period;
+  Uint64 tick, max_period;
   int bar_h = 0;
   dboolean mouse_demo_progress_bar = false;
 

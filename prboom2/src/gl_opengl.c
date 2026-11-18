@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "gl_opengl.h"
 
 #include "doomtype.h"
@@ -49,8 +49,6 @@
 #define isExtensionSupported(ext) strstr(extensions, ext)
 
 int gl_max_texture_size = 0;
-
-SDL_PixelFormat RGBAFormat;
 
 dboolean gl_ext_texture_filter_anisotropic = false;
 dboolean gl_arb_texture_compression = false;
@@ -352,21 +350,6 @@ void gld_InitOpenGL(void)
     gld_EnableClientCoordArray(texture, false);
   }
 
-  //init global variables
-  RGBAFormat.palette = 0;
-  RGBAFormat.BitsPerPixel = 32;
-  RGBAFormat.BytesPerPixel = 4;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-  RGBAFormat.Rmask = 0xFF000000; RGBAFormat.Rshift = 0; RGBAFormat.Rloss = 0;
-  RGBAFormat.Gmask = 0x00FF0000; RGBAFormat.Gshift = 8; RGBAFormat.Gloss = 0;
-  RGBAFormat.Bmask = 0x0000FF00; RGBAFormat.Bshift = 16; RGBAFormat.Bloss = 0;
-  RGBAFormat.Amask = 0x000000FF; RGBAFormat.Ashift = 24; RGBAFormat.Aloss = 0;
-#else
-  RGBAFormat.Rmask = 0x000000FF; RGBAFormat.Rshift = 24; RGBAFormat.Rloss = 0;
-  RGBAFormat.Gmask = 0x0000FF00; RGBAFormat.Gshift = 16; RGBAFormat.Gloss = 0;
-  RGBAFormat.Bmask = 0x00FF0000; RGBAFormat.Bshift = 8; RGBAFormat.Bloss = 0;
-  RGBAFormat.Amask = 0xFF000000; RGBAFormat.Ashift = 0; RGBAFormat.Aloss = 0;
-#endif
 }
 
 void gld_EnableTexture2D(GLenum texture, int enable)

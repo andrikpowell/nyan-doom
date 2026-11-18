@@ -48,7 +48,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -379,7 +379,7 @@ const char *I_ConfigDir(void)
       // Legacy directory is not accessible. Use XDG directory.
       Z_Free(base);
 
-#ifdef __APPLE__
+#ifdef SDL_PLATFORM_APPLE
       base = dsda_ConcatDir(home, "Library/Application Support/nyan-doom");
 #else
       base = dsda_ConcatDir(I_GetXDGDataHome(), "nyan-doom");
@@ -444,7 +444,7 @@ dboolean HasTrailingSlash(const char* dn)
 
 static const char *I_GetBasePath(void)
 {
-  static char *executable_dir;
+  static const char *executable_dir;
   /* SDL_GetBasePath is an expensive call */
   if (!executable_dir)
     executable_dir = SDL_GetBasePath();

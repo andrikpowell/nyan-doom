@@ -18,7 +18,7 @@
 
 #include <string.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "al.h"
 #include "ebur128.h"
 
@@ -55,11 +55,11 @@ typedef struct
 static stream_player_t player;
 static openal_music_callback_t music_callback;
 static SDL_Thread *stream_thread;
-static SDL_atomic_t stream_running;
-static SDL_atomic_t stream_restart;
-static SDL_atomic_t stream_auto_gain;
-static SDL_atomic_t stream_music_volume;
-static SDL_atomic_t stream_reset_gain;
+static SDL_AtomicInt stream_running;
+static SDL_AtomicInt stream_restart;
+static SDL_AtomicInt stream_auto_gain;
+static SDL_AtomicInt stream_music_volume;
+static SDL_AtomicInt stream_reset_gain;
 static ebur128_state *ebur_state;
 
 static void ShutdownAutoGain(void)
@@ -79,7 +79,7 @@ static void InitAutoGain(void)
   ebur_state = ebur128_init(player.channels, player.freq, EBUR128_MODE_S
     | EBUR128_MODE_I | EBUR128_MODE_SAMPLE_PEAK | EBUR128_MODE_HISTOGRAM);
 
-  volume = SDL_AtomicGet(&stream_music_volume);
+  volume = SDL_GetAtomicInt(&stream_music_volume);
 
   player.gain = (ALfloat)volume / 15.0f;
   player.auto_gain = 1.0f;
@@ -98,7 +98,7 @@ static void AutoGain(int frames)
   double global = 0.0;
   double relative = 0.0;
 
-  if (!SDL_AtomicGet(&stream_auto_gain) || !ebur_state)
+  if (!SDL_GetAtomicInt(&stream_auto_gain) || !ebur_state)
     return;
 
   if (player.format == AL_FORMAT_MONO16 || player.format == AL_FORMAT_STEREO16)
@@ -184,7 +184,7 @@ static void AutoGain(int frames)
 
 static void UpdateMusicGain(void)
 {
-  if (SDL_AtomicSet(&stream_reset_gain, 0))
+  if (SDL_SetAtomicInt(&stream_reset_gain, 0))
     InitAutoGain();
 
   AutoGain(BUFFER_SAMPLES);
@@ -212,12 +212,12 @@ static int MusicThread(void *unused)
   alSourceQueueBuffers(player.source, NUM_BUFFERS, player.buffers);
   alSourcePlay(player.source);
 
-  while (SDL_AtomicGet(&stream_running))
+  while (SDL_GetAtomicInt(&stream_running))
   {
     ALint processed = 0;
 
     // Clear queued audio and restart playback immediately for a new song
-    if (SDL_AtomicSet(&stream_restart, 0))
+    if (SDL_SetAtomicInt(&stream_restart, 0))
     {
       alSourceStop(player.source);
       alSourcei(player.source, AL_BUFFER, 0);
@@ -265,7 +265,7 @@ static int MusicThread(void *unused)
 
 void I_RestartOpenALMusic(void)
 {
-  SDL_AtomicSet(&stream_restart, 1);
+  SDL_SetAtomicInt(&stream_restart, 1);
 }
 
 dboolean I_StartOpenALMusic(int sample_rate, openal_music_callback_t callback)
@@ -275,7 +275,7 @@ dboolean I_StartOpenALMusic(int sample_rate, openal_music_callback_t callback)
   player.channels = 2;
   player.frame_size = player.channels * sizeof(short);
   music_callback = callback;
-  SDL_AtomicSet(&stream_reset_gain, 1);
+  SDL_SetAtomicInt(&stream_reset_gain, 1);
 
   alGenSources(1, &player.source);
   alGenBuffers(NUM_BUFFERS, player.buffers);
@@ -286,7 +286,7 @@ dboolean I_StartOpenALMusic(int sample_rate, openal_music_callback_t callback)
     return false;
   }
 
-  SDL_AtomicSet(&stream_running, 1);
+  SDL_SetAtomicInt(&stream_running, 1);
   stream_thread = SDL_CreateThread(MusicThread, "OpenAL music", NULL);
   if (!stream_thread)
   {
@@ -300,21 +300,21 @@ dboolean I_StartOpenALMusic(int sample_rate, openal_music_callback_t callback)
 
 void I_ConfigureOpenALMusicGain(dboolean enabled, int volume)
 {
-  SDL_AtomicSet(&stream_auto_gain, enabled);
-  SDL_AtomicSet(&stream_music_volume, volume);
-  SDL_AtomicSet(&stream_reset_gain, 1);
+  SDL_SetAtomicInt(&stream_auto_gain, enabled);
+  SDL_SetAtomicInt(&stream_music_volume, volume);
+  SDL_SetAtomicInt(&stream_reset_gain, 1);
 }
 
 void I_ResetOpenALMusicGain(void)
 {
-  SDL_AtomicSet(&stream_reset_gain, 1);
+  SDL_SetAtomicInt(&stream_reset_gain, 1);
 }
 
 void I_StopOpenALMusic(void)
 {
   if (stream_thread)
   {
-    SDL_AtomicSet(&stream_running, 0);
+    SDL_SetAtomicInt(&stream_running, 0);
     SDL_WaitThread(stream_thread, NULL);
     stream_thread = NULL;
   }

@@ -37,7 +37,7 @@
 
 #include "gl_opengl.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "gl_intern.h"
 

@@ -69,7 +69,7 @@ typedef struct
   evtype_t type;
   event_data_t data1;
   event_data_t data2;
-  char *text;
+  const char *text;
 } event_t;
 
 

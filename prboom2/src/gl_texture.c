@@ -51,7 +51,7 @@
 #endif
 #include <stdio.h>
 #include <string.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "doomtype.h"
 #include "w_wad.h"
 #include "d_event.h"
@@ -1623,7 +1623,7 @@ void gld_Precache(void)
   int hit, hitcount = 0;
   GLTexture *gltexture;
 
-  unsigned int tics = SDL_GetTicks();
+  Uint64 tics = SDL_GetTicks();
 
   if (nodrawers)
     return;

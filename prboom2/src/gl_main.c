@@ -41,7 +41,7 @@
 
 #include "z_zone.h"
 #include <math.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "doomtype.h"
 #include "w_wad.h"
 #include "d_event.h"
