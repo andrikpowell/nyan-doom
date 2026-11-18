@@ -21,7 +21,17 @@ if(APPLE)
 endif()
 
 find_package(SDL2 2.0.12 CONFIG REQUIRED)
-find_package(OpenAL REQUIRED)
+
+if(APPLE)
+  find_package(OpenAL CONFIG REQUIRED
+    HINTS
+      /opt/homebrew/opt/openal-soft
+      /usr/local/opt/openal-soft
+  )
+else()
+  find_package(OpenAL REQUIRED)
+endif()
+
 find_package(libebur128 REQUIRED)
 find_package(SndFile 1.0.29 REQUIRED)
 find_package(ZLIB REQUIRED)
