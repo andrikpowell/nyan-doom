@@ -123,10 +123,12 @@ static void *Z_MallocTag(size_t size, int tag)
 
 void Z_Free(void *p)
 {
-  memblock_t *block = (memblock_t *)((char *) p - HEADER_SIZE);
+  memblock_t *block;
 
   if (!p)
     return;
+
+  block = (memblock_t *)((char *) p - HEADER_SIZE);
 
   if (block->signature != ZONE_SIGNATURE)
     I_Error("Z_Free: freed a non-zone pointer");

@@ -87,6 +87,17 @@ typedef struct
   mappatch_t patches[1];
 } PACKEDATTR maptexture_t;
 
+// Based on Eternity Engine's TEXINT
+static int32_t R_TexInt(const byte **data)
+{
+  int32_t value;
+
+  memcpy(&value, *data, sizeof(value));
+  *data += sizeof(value);
+
+  return LittleLong(value);
+}
+
 // A maptexturedef_t describes a rectangular texture, which is composed
 // of one or more mappatch_t structures that arrange graphic patches.
 
@@ -146,8 +157,8 @@ static void R_InitTextures (void)
   texpatch_t   *patch;
   int  i, j;
   int         maptex_lump[2] = {-1, -1};
-  const int  *maptex;
-  const int  *maptex1, *maptex2;
+  const byte *maptex;
+  const byte *maptex1, *maptex2;
   char name[9];
   int names_lump; // cph - new wad lump handling
   const char *names; // cph -
@@ -157,13 +168,14 @@ static void R_InitTextures (void)
   int  offset;
   int  maxoff, maxoff2;
   int  numtextures1, numtextures2;
-  const int *directory;
+  const byte *directory, *directory2;
   int  errors = 0;
 
   // Load the patch names from pnames.lmp.
   name[8] = 0;
   names = W_LumpByNum(names_lump = W_GetNumForName("PNAMES"));
-  nummappatches = LittleLong(*((const int *)names));
+  memcpy(&nummappatches, names, sizeof(nummappatches));
+  nummappatches = LittleLong(nummappatches);
   name_p = names+4;
   patchlookup = Z_Malloc(nummappatches*sizeof(*patchlookup));  // killough
 
@@ -191,19 +203,21 @@ static void R_InitTextures (void)
   //  TEXTURE1 for shareware, plus TEXTURE2 for commercial.
 
   maptex = maptex1 = W_LumpByNum(maptex_lump[0] = W_GetNumForName("TEXTURE1"));
-  numtextures1 = LittleLong(*maptex);
+  directory = maptex;
+  numtextures1 = R_TexInt(&directory);
   maxoff = W_LumpLength(maptex_lump[0]);
-  directory = maptex+1;
 
   if (W_LumpNameExists("TEXTURE2"))
     {
       maptex2 = W_LumpByNum(maptex_lump[1] = W_GetNumForName("TEXTURE2"));
-      numtextures2 = LittleLong(*maptex2);
+      directory2 = maptex2;
+      numtextures2 = R_TexInt(&directory2);
       maxoff2 = W_LumpLength(maptex_lump[1]);
     }
   else
     {
       maptex2 = NULL;
+      directory2 = NULL;
       numtextures2 = 0;
       maxoff2 = 0;
     }
@@ -215,17 +229,17 @@ static void R_InitTextures (void)
   textures = Z_Malloc(numtextures*sizeof*textures);
   textureheight = Z_Malloc(numtextures*sizeof*textureheight);
 
-  for (i=0 ; i<numtextures ; i++, directory++)
+  for (i=0 ; i<numtextures ; i++)
     {
       if (i == numtextures1)
         {
           // Start looking in second texture file.
           maptex = maptex2;
           maxoff = maxoff2;
-          directory = maptex+1;
+          directory = directory2;
         }
 
-      offset = LittleLong(*directory);
+      offset = R_TexInt(&directory);
 
       if (offset > maxoff)
         I_Error("R_InitTextures: Bad texture directory");
