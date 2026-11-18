@@ -13,17 +13,17 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	OpenAL output stream
+//	OpenAL music
 //
 
-#ifndef I_OPENAL_STREAM_H
-#define I_OPENAL_STREAM_H
+#ifndef I_OPENAL_MUSIC_H
+#define I_OPENAL_MUSIC_H
 
 #include "doomtype.h"
 
-typedef void (*openal_stream_callback_t)(void *userdata, unsigned char *buffer, int length);
+typedef void (*openal_music_callback_t)(void *userdata, unsigned char *buffer, int length);
 
-dboolean I_StartOpenALMusic(int sample_rate, int sample_frames, openal_stream_callback_t callback, void *userdata);
+dboolean I_StartOpenALMusic(int sample_rate, int sample_frames, openal_music_callback_t callback, void *userdata);
 void I_ConfigureOpenALMusicGain(dboolean enabled, int volume);
 void I_ResetOpenALMusicGain(void);
 void I_StopOpenALMusic(void);

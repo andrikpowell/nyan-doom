@@ -13,7 +13,7 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	OpenAL output stream
+//	OpenAL music
 //
 
 #include <string.h>
@@ -22,7 +22,7 @@
 #include "al.h"
 #include "ebur128.h"
 
-#include "i_openal_stream.h"
+#include "i_openal_music.h"
 #include "lprintf.h"
 
 // Define the number of buffers and buffer size (in milliseconds) to use. 4
@@ -39,7 +39,7 @@ static SDL_Thread *stream_thread;
 static SDL_atomic_t stream_running;
 static int stream_buffer_bytes;
 static int stream_sample_rate;
-static openal_stream_callback_t stream_callback;
+static openal_music_callback_t stream_callback;
 static void *stream_userdata;
 static SDL_atomic_t stream_auto_gain;
 static SDL_atomic_t stream_music_volume;
@@ -218,7 +218,7 @@ static int MusicThread(void *unused)
   return 0;
 }
 
-dboolean I_StartOpenALMusic(int sample_rate, int sample_frames, openal_stream_callback_t callback, void *userdata)
+dboolean I_StartOpenALMusic(int sample_rate, int sample_frames, openal_music_callback_t callback, void *userdata)
 {
   int buffer_frames = (sample_frames + NUM_BUFFERS - 1) / NUM_BUFFERS;
 

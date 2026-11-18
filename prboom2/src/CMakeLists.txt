@@ -564,8 +564,8 @@ set(SDLDOOM_SOURCES
 set(OPENAL_SOURCES
     SDL/i_openal.c
     SDL/i_openal.h
-    SDL/i_openal_stream.c
-    SDL/i_openal_stream.h
+    SDL/i_openal_music.c
+    SDL/i_openal_music.h
     SDL/i_openal_sound.c
     SDL/i_openal_sound.h
 )
