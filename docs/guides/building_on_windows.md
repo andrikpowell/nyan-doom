@@ -125,7 +125,7 @@ pacman -S mingw-w64-ucrt-x86_64-gcc cmake git ninja pkgconf
 Additionally, you will need the following external libraries:
 
 ```
-pacman -S mingw-w64-ucrt-x86_64-libxmp mingw-w64-ucrt-x86_64-fluidsynth mingw-w64-ucrt-x86_64-libmad mingw-w64-ucrt-x86_64-libvorbis mingw-w64-ucrt-x86_64-libzip mingw-w64-ucrt-x86_64-portmidi mingw-w64-ucrt-x86_64-SDL3 mingw-w64-ucrt-x86_64-openal mingw-w64-ucrt-x86_64-libebur128 mingw-w64-ucrt-x86_64-libspng mingw-w64-ucrt-x86_64-libsndfile mingw-w64-ucrt-x86_64-zlib
+pacman -S mingw-w64-ucrt-x86_64-libxmp mingw-w64-ucrt-x86_64-fluidsynth mingw-w64-ucrt-x86_64-libmad mingw-w64-ucrt-x86_64-libvorbis mingw-w64-ucrt-x86_64-libzip mingw-w64-ucrt-x86_64-portmidi mingw-w64-ucrt-x86_64-sdl3 mingw-w64-ucrt-x86_64-openal mingw-w64-ucrt-x86_64-libebur128 mingw-w64-ucrt-x86_64-libspng mingw-w64-ucrt-x86_64-libsndfile mingw-w64-ucrt-x86_64-zlib
 ```
 
 ## Installing Discord Rich Presence (Optional)
