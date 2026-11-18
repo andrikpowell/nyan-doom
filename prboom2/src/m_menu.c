@@ -5460,14 +5460,20 @@ setup_menu_t* audio_settings[] =
 };
 
 setup_menu_t audio_adv_settings[] = {
+  { "Music Auto Gain", S_YESNO, m_conf, g_all, G3_X, dsda_config_music_auto_gain },
+  EMPTY_LINE,
   { "Number of Sound Channels", S_THERMO, m_conf, g_all, G_X, dsda_config_snd_channels },
   EMPTY_LINE,
   { "Pitch-Shifting", S_YESNO, m_conf, g_all, G_X, dsda_config_pitched_sounds },
   { "Disable Sound Cutoffs", S_YESNO, m_conf, g_all, G_X, dsda_config_full_sounds },
+  EMPTY_LINE_ADV(g_doom),
+  { "Sound Limiter", S_YESNO, m_conf, g_doom, G_X, dsda_config_snd_limiter },
+  { "Channels per sfx", S_NUM, m_conf, g_doom, G_X, dsda_config_snd_channels_per_sfx, 0, empty_list, DEPEND(dsda_config_snd_limiter, true) },
+  { "Volume per sfx", S_NUM, m_conf, g_doom, G_X, dsda_config_snd_volume_per_sfx, 0, empty_list, DEPEND(dsda_config_snd_limiter, true) },
   EMPTY_LINE,
   { "Limit Overlapping for Same-Sound", S_YESNO, m_conf, g_all, G_X, dsda_config_parallel_sfx_active },
   { "Number of Overlapping Sounds", S_NUM, m_conf, g_all, G_X, dsda_config_parallel_sfx_limit, 0, empty_list, DEPEND(dsda_config_parallel_sfx_active, true) },
-  { "Sound Replay Window (s)", S_NUM, m_conf, g_all, G_X, dsda_config_parallel_sfx_window, 0, empty_list, DEPEND(dsda_config_parallel_sfx_active, true) },
+  { "Sound Replay Window (tics)", S_NUM, m_conf, g_all, G_X, dsda_config_parallel_sfx_window, 0, empty_list, DEPEND(dsda_config_parallel_sfx_active, true) },
   EMPTY_LINE,
   { "Audio Output Device", S_CHOICE | S_STR | S_TWO_LINE, m_conf, g_all, G_X, dsda_config_snd_device, 0, audio_devices_list },
 
