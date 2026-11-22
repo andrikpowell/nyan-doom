@@ -1630,8 +1630,9 @@ static void PlaySong(int handle, int looping)
     SDL_LockMutex (musmutex);
     music_players[current_player]->play (music_handle, looping);
     music_players[current_player]->setvolume (music_volume);
-    SDL_UnlockMutex (musmutex);
     I_ResetOpenALMusicGain();
+    I_RestartOpenALMusic();
+    SDL_UnlockMutex (musmutex);
   }
 }
 

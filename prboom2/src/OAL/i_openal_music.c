@@ -56,6 +56,7 @@ static stream_player_t player;
 static openal_music_callback_t music_callback;
 static SDL_Thread *stream_thread;
 static SDL_atomic_t stream_running;
+static SDL_atomic_t stream_restart;
 static SDL_atomic_t stream_auto_gain;
 static SDL_atomic_t stream_music_volume;
 static SDL_atomic_t stream_reset_gain;
@@ -215,6 +216,24 @@ static int MusicThread(void *unused)
   {
     ALint processed = 0;
 
+    // Clear queued audio and restart playback immediately for a new song
+    if (SDL_AtomicSet(&stream_restart, 0))
+    {
+      alSourceStop(player.source);
+      alSourcei(player.source, AL_BUFFER, 0);
+
+      for (i = 0; i < NUM_BUFFERS; ++i)
+      {
+        memset(player.data, 0, size);
+        music_callback(player.data, size);
+        UpdateMusicGain();
+        alBufferData(player.buffers[i], player.format, player.data, size, player.freq);
+      }
+
+      alSourceQueueBuffers(player.source, NUM_BUFFERS, player.buffers);
+      alSourcePlay(player.source);
+    }
+
     alGetSourcei(player.source, AL_BUFFERS_PROCESSED, &processed);
     while (processed-- > 0)
     {
@@ -242,6 +261,11 @@ static int MusicThread(void *unused)
   SDL_free(player.data);
   player.data = NULL;
   return 0;
+}
+
+void I_RestartOpenALMusic(void)
+{
+  SDL_AtomicSet(&stream_restart, 1);
 }
 
 dboolean I_StartOpenALMusic(int sample_rate, openal_music_callback_t callback)
