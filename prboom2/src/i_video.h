@@ -62,6 +62,7 @@ void I_SetWindowIcon(void); /* Set the application icon */
 void I_InitGraphics (void);
 void I_UpdateVideoMode(void);
 void I_ShutdownGraphics(void);
+void I_ShowWindow(void);
 
 void *I_GetSDLWindow(void);
 void *I_GetSDLRenderer(void);

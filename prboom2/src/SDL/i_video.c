@@ -617,6 +617,21 @@ void I_ShutdownGraphics(void)
 
 static dboolean queue_frame_capture;
 static dboolean queue_screenshot;
+static dboolean show_window;
+
+void I_ShowWindow(void)
+{
+  if (!show_window)
+    return;
+
+  SDL_ShowWindow(sdl_window);
+  SDL_SyncWindow(sdl_window);
+
+  // Update viewport after showing window
+  I_SetWindowRect();
+  I_SetViewportRect();
+  show_window = false;
+}
 
 void I_QueueFrameCapture(void)
 {
@@ -665,6 +680,7 @@ void I_FinishUpdate (void)
   if (V_IsOpenGLMode()) {
     // proff 04/05/2000: swap OpenGL buffers
     gld_Finish();
+    I_ShowWindow();
     return;
   }
 
@@ -740,6 +756,7 @@ void I_FinishUpdate (void)
 
   // Draw!
   SDL_RenderPresent(sdl_renderer);
+  I_ShowWindow();
 }
 
 //
@@ -1276,7 +1293,9 @@ void I_InitGraphics(void)
 
 void I_UpdateVideoMode(void)
 {
-  SDL_WindowFlags init_flags = SDL_WINDOW_HIGH_PIXEL_DENSITY;
+  // Hide window by default (so it doesn't show when changing resolutions)
+  SDL_WindowFlags init_flags = SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_HIDDEN;
+  dboolean reuse_window = false;
   int screen_multiply;
   int render_vsync;
   int integer_scaling;
@@ -1298,6 +1317,8 @@ void I_UpdateVideoMode(void)
 
   if(sdl_window)
   {
+    dboolean was_opengl = V_IsOpenGLMode();
+
     // video capturing cannot be continued with new screen settings
     I_CaptureFinish();
 
@@ -1308,18 +1329,22 @@ void I_UpdateVideoMode(void)
     }
 
     I_InitScreenResolution();
+    reuse_window = (was_opengl == V_IsOpenGLMode());
 
-    if (sdl_glcontext) SDL_GL_DestroyContext(sdl_glcontext);
+    if (sdl_glcontext && !reuse_window) SDL_GL_DestroyContext(sdl_glcontext);
     if (screen) SDL_DestroySurface(screen);
     if (screen_palette) SDL_DestroyPalette(screen_palette);
     if (sdl_texture_fallback) SDL_DestroyTexture(sdl_texture_fallback);
     if (sdl_texture) SDL_DestroyTexture(sdl_texture);
-    if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
-    SDL_DestroyWindow(sdl_window);
+    if (sdl_renderer && !reuse_window) SDL_DestroyRenderer(sdl_renderer);
+    if (!reuse_window) SDL_DestroyWindow(sdl_window);
 
-    sdl_renderer = NULL;
-    sdl_window = NULL;
-    sdl_glcontext = NULL;
+    if (!reuse_window)
+    {
+      sdl_renderer = NULL;
+      sdl_window = NULL;
+      sdl_glcontext = NULL;
+    }
     screen = NULL;
     screen_palette = NULL;
     sdl_texture_fallback = NULL;
@@ -1359,6 +1384,19 @@ void I_UpdateVideoMode(void)
       init_flags |= SDL_WINDOW_FULLSCREEN;
   }
 
+  if (reuse_window)
+  {
+    SDL_SetWindowMinimumSize(sdl_window, 1, 1);
+    SDL_SetWindowSize(sdl_window, SCREENWIDTH * screen_multiply, ACTUALHEIGHT * screen_multiply);
+  }
+  else
+  {
+    sdl_window = SDL_CreateWindow(
+      PROJECT_STRING,
+      SCREENWIDTH * screen_multiply, ACTUALHEIGHT * screen_multiply,
+      init_flags);
+  }
+
   if (V_IsOpenGLMode())
   {
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
@@ -1378,22 +1416,18 @@ void I_UpdateVideoMode(void)
     //e6y: anti-aliasing
     gld_MultisamplingInit();
 
-    sdl_window = SDL_CreateWindow(
-      PROJECT_STRING,
-      SCREENWIDTH * screen_multiply, ACTUALHEIGHT * screen_multiply,
-      init_flags);
-    sdl_glcontext = SDL_GL_CreateContext(sdl_window);
+    if (!sdl_glcontext)
+      sdl_glcontext = SDL_GL_CreateContext(sdl_window);
+
     SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, ACTUALHEIGHT);
   }
   else
   {
     const char *renderer_name;
 
-    sdl_window = SDL_CreateWindow(
-      PROJECT_STRING,
-      SCREENWIDTH * screen_multiply, ACTUALHEIGHT * screen_multiply,
-      init_flags);
-    sdl_renderer = SDL_CreateRenderer(sdl_window, NULL);
+    if (!sdl_renderer)
+      sdl_renderer = SDL_CreateRenderer(sdl_window, NULL);
+
     SDL_SetRenderVSync(sdl_renderer, render_vsync ? 1 : 0);
 
     SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, ACTUALHEIGHT);
@@ -1445,8 +1479,15 @@ void I_UpdateVideoMode(void)
   }
   else
   {
+    SDL_SetWindowFullscreen(sdl_window, false);
     SDL_SetWindowResizable(sdl_window, true);
   }
+
+  SDL_SyncWindow(sdl_window);
+
+  // Update viewport after changing window size, since we resuse the window
+  I_SetWindowRect();
+  I_SetViewportRect();
 
   windowid = SDL_GetWindowID(sdl_window);
 
@@ -1539,6 +1580,9 @@ void I_UpdateVideoMode(void)
   // [AR] swap width + height for software transposed rendering
   src_rect.w = V_IsSoftwareMode() ? SCREENHEIGHT : SCREENWIDTH;
   src_rect.h = V_IsSoftwareMode() ? SCREENWIDTH  : SCREENHEIGHT;
+
+  if (!reuse_window)
+    show_window = true;
 }
 
 static void ActivateMouse(void)

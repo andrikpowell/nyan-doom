@@ -207,6 +207,7 @@ static void GL_SetupOrtho(int w, int h)
 static void GL_InitStartupCanvas(void)
 {
   int drawable_w, drawable_h;
+  I_ShowWindow(); // GL needs this, else it won't fit the whole screen
   SDL_GetWindowSizeInPixels(I_GetSDLWindow(), &drawable_w, &drawable_h);
   GL_SetupOrtho(drawable_w, drawable_h);
 }
@@ -308,6 +309,7 @@ static void UpdateStartup(void)
   SDL_RenderPresent(renderer);
   SDL_DestroyTexture(texture);
   SDL_SetRenderLogicalPresentation(renderer, SCREENWIDTH, ACTUALHEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+  I_ShowWindow();
 }
 
 static void DrawStartupBanner(void)
