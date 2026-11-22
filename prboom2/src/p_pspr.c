@@ -3140,6 +3140,7 @@ void A_MStaffAttack(player_t * player, pspdef_t * psp)
                 pal = STARTSCOURGEPAL + 1; // Reduced: only use 2 of the 3 palettes
             }
             V_SetPalette(pal);
+            SB_Refresh();
         }
     }
 }
@@ -3165,7 +3166,11 @@ void A_MStaffPalette(player_t * player, pspdef_t * psp)
         {                       // reset back to original playpal
             pal = 0;
         }
-        if (dsda_EffectPalette()) V_SetPalette(pal);
+        if (dsda_EffectPalette())
+        {
+            V_SetPalette(pal);
+            SB_Refresh();
+        }
     }
 }
 
@@ -3689,6 +3694,7 @@ void A_CHolyAttack(player_t * player, pspdef_t * psp)
                 pal = STARTHOLYPAL + 1; // Reduced: only use 2 of the 3 palettes
             }
             V_SetPalette(pal);
+            SB_Refresh();
         }
     }
     S_StartMobjSound(player->mo, hexen_sfx_choly_fire);
@@ -3715,7 +3721,11 @@ void A_CHolyPalette(player_t * player, pspdef_t * psp)
         {                       // reset back to original playpal
             pal = 0;
         }
-        if (dsda_EffectPalette()) V_SetPalette(pal);
+        if (dsda_EffectPalette())
+        {
+            V_SetPalette(pal);
+            SB_Refresh();
+        }
     }
 }
 

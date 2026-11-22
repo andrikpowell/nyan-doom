@@ -78,6 +78,8 @@ void N_ReloadAnimateLumps(void);
 // Main Draw Functions
 #define V_DrawNamePatchAnimate(x,y,lump,color,flags) V_DrawNumPatch(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
 #define V_DrawNamePatchAnimateFS(x,y,lump,color,flags) V_DrawNumPatchFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
+#define V_DrawNamePatchAnimateBG(x,y,lump,color,flags) V_DrawNumPatchGen(x,y,BG,N_GetPatchAnimateNum(lump, true),PATCH_NORMAL,CROP_NULL,color,ALPHA_FULL,SCALE_1X,flags)
+#define V_DrawNamePatchAnimateFSBG(x,y,lump,color,flags) V_DrawNumPatchGen(x,y,BG,N_GetPatchAnimateNum(lump, true),PATCH_FULLSCREEN,CROP_NULL,color,ALPHA_FULL,SCALE_1X,flags)
 #define V_DrawNamePatchAnimatePrecise(x,y,lump,color,flags) V_DrawNumPatchPrecise(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
 #define V_DrawNamePatchAnimatePreciseFS(x,y,lump,color,flags) V_DrawNumPatchPreciseFS(x, y, N_GetPatchAnimateNum(lump, true), color, flags)
 

@@ -193,6 +193,26 @@ static int sb_full_inv_select_y;
 static int sb_full_inv_gem_xl;
 static int sb_full_inv_gem_xr;
 
+typedef enum
+{
+    SB_REFRESH,
+    SB_MAINBAR,
+    SB_INVENTORY,
+} sb_state_t;
+
+sb_state_t SB_state = SB_REFRESH;
+
+void SB_Refresh(void)
+{
+  SB_state = SB_REFRESH;
+}
+
+void SB_Start(void)
+{
+    SB_Refresh();
+    st_clock = 0;
+}
+
 //---------------------------------------------------------------------------
 //
 // PROC SB_Init
@@ -329,6 +349,7 @@ void SB_Ticker(void)
     // Allow for animated health / armor counts
     st_health = HealthMarker = SmoothCount(HealthMarker, CPlayer->mo->health, true);
     st_armor  = SmoothCount(st_armor, armortype, false);
+    st_clock++;
 
     if (heretic && leveltime & 1 && !dsda_PausedOutsideDemo())
     {
@@ -489,6 +510,29 @@ static void ShadeChain(void)
 
 //---------------------------------------------------------------------------
 //
+// PROC UpdateKeyBar
+//
+//---------------------------------------------------------------------------
+
+// Hexen Keybar Scroll
+static dboolean oldkeybarvisible = false;
+static int keybarstarttic = 0;
+
+void SB_UpdateKeyBar(void)
+{
+    if (hexen)
+    {
+        dboolean keybarvisible = !inventory && automap_full;
+
+        if (keybarvisible && !oldkeybarvisible)
+            keybarstarttic = leveltime;
+
+        oldkeybarvisible = keybarvisible;
+    }
+}
+
+//---------------------------------------------------------------------------
+//
 // PROC SB_Drawer
 //
 //---------------------------------------------------------------------------
@@ -516,17 +560,18 @@ static int oldmana1 = -1;
 static int oldmana2 = -1;
 static int oldpieces = -1;
 
-static dboolean oldkeybarvisible = false;
-static int keybarstarttic = 0;
-
-void SB_Drawer(dboolean statusbaron)
+void SB_Drawer(dboolean statusbaron, dboolean refresh)
 {
-    dboolean keybarvisible = hexen && !inventory && automap_full;
+    static int old_st_clock = -1;
 
-    if (keybarvisible && !oldkeybarvisible)
-        keybarstarttic = leveltime;
+    // [AR] Redraw when called explicitly, menu fade, opengl, or per tic
+    // Doom doesn't need this cuz it requires less refresh management
+    if (refresh || M_MenuIsShaded() || V_IsOpenGLMode() || st_clock != old_st_clock)
+        SB_state = SB_REFRESH;
 
-    oldkeybarvisible = keybarvisible;
+    old_st_clock = st_clock;
+
+    CPlayer = &players[consoleplayer];
 
     if (!statusbaron)
     {
@@ -539,56 +584,66 @@ void SB_Drawer(dboolean statusbaron)
         return;
     }
 
-    CPlayer = &players[consoleplayer];
-    if (heretic)
+    if (SB_state == SB_REFRESH)
     {
-        V_DrawNumPatch(0, 158, LumpBARBACK, CR_DEFAULT, VPT_ALIGN_BOTTOM);
-        if (players[consoleplayer].cheats & CF_GODMODE)
-        {
-            V_DrawNamePatch(16, 167, "GOD1", CR_DEFAULT, VPT_ALIGN_BOTTOM);
-            V_DrawNamePatch(287, 167, "GOD2", CR_DEFAULT, VPT_ALIGN_BOTTOM);
-        }
-    }
-    else
-    {
-        int stbar_wing = (R_NumPatchWidth(LumpH2BAR) / 2) - 70;
-        patch_crop_t top_wings_crop = {0, 29, stbar_wing, stbar_wing};
-        patch_crop_t mainbar_crop   = {26, 0, 0, 0};
+        // Refresh background buffer
+        V_CopyRect(BG, FG, 0, SCREENHEIGHT - ST_SCALED_HEIGHT, SCREENWIDTH, ST_SCALED_HEIGHT, VPT_NONE);
 
-        V_DrawNumPatchCrop(0, 134, LumpH2BAR, top_wings_crop, CR_DEFAULT, VPT_ALIGN_BOTTOM);  // cut off sides
-        V_DrawNumPatchCrop(0, 134, LumpH2BAR, mainbar_crop, CR_DEFAULT, VPT_ALIGN_BOTTOM);    // keep middle
-    }
-
-    oldhealth = -1;
-    DrawCommonBar();
-    if (!inventory)
-    {
-        // Main interface
         if (heretic)
         {
-            V_DrawNumPatch(34, 160, LumpSTATBAR, CR_DEFAULT, VPT_ALIGN_BOTTOM);
+            V_DrawNumPatch(0, 158, LumpBARBACK, CR_DEFAULT, VPT_ALIGN_BOTTOM);
+            if (players[consoleplayer].cheats & CF_GODMODE)
+            {
+                V_DrawNamePatch(16, 167, "GOD1", CR_DEFAULT, VPT_ALIGN_BOTTOM);
+                V_DrawNamePatch(287, 167, "GOD2", CR_DEFAULT, VPT_ALIGN_BOTTOM);
+            }
         }
         else
         {
-            if (!automap_full)
+            int stbar_wing = (R_NumPatchWidth(LumpH2BAR) / 2) - 70;
+            patch_crop_t top_wings_crop = {0, 29, stbar_wing, stbar_wing};
+            patch_crop_t mainbar_crop   = {26, 0, 0, 0};
+
+            V_DrawNumPatchCrop(0, 134, LumpH2BAR, top_wings_crop, CR_DEFAULT, VPT_ALIGN_BOTTOM);  // cut off sides
+            V_DrawNumPatchCrop(0, 134, LumpH2BAR, mainbar_crop, CR_DEFAULT, VPT_ALIGN_BOTTOM);    // keep middle
+        }
+
+        oldhealth = -1;
+    }
+
+    DrawCommonBar();
+    if (!inventory)
+    {
+        if (SB_state != SB_MAINBAR)
+        {
+            // Main interface
+            if (heretic)
             {
-                V_DrawNumPatch(38, 162, LumpSTATBAR, CR_DEFAULT, VPT_ALIGN_BOTTOM);
+                V_DrawNumPatch(34, 160, LumpSTATBAR, CR_DEFAULT, VPT_ALIGN_BOTTOM);
             }
             else
             {
-                V_DrawNumPatch(38, 162, LumpKEYBAR, CR_DEFAULT, VPT_ALIGN_BOTTOM);
+                if (!automap_full)
+                {
+                    V_DrawNumPatch(38, 162, LumpSTATBAR, CR_DEFAULT, VPT_ALIGN_BOTTOM);
+                }
+                else
+                {
+                    V_DrawNumPatch(38, 162, LumpKEYBAR, CR_DEFAULT, VPT_ALIGN_BOTTOM);
+                }
             }
+            oldarti = 0;
+            oldammo = -1;
+            oldmana1 = -1;
+            oldmana2 = -1;
+            oldarmor = -1;
+            oldpieces = -1;
+            oldweapon = -1;
+            oldfrags = -9999;       //can't use -1, 'cuz of negative frags
+            oldlife = -1;
+            oldkeys = -1;
         }
-        oldarti = 0;
-        oldammo = -1;
-        oldmana1 = -1;
-        oldmana2 = -1;
-        oldarmor = -1;
-        oldpieces = -1;
-        oldweapon = -1;
-        oldfrags = -9999;       //can't use -1, 'cuz of negative frags
-        oldlife = -1;
-        oldkeys = -1;
+
         if (heretic || !automap_full)
         {
             DrawMainBar();
@@ -597,18 +652,21 @@ void SB_Drawer(dboolean statusbaron)
         {
             DrawKeyBar();
         }
+        SB_state = SB_MAINBAR;
     }
     else
     {
-        if (heretic)
+        if (heretic && SB_state != SB_INVENTORY)
         {
             V_DrawNumPatch(34, 160, LumpINVBAR, CR_DEFAULT, VPT_ALIGN_BOTTOM);
         }
         DrawInventoryBar();
+        SB_state = SB_INVENTORY;
     }
     SB_PaletteFlash(false);
     DrawAnimatedIcons();
     ST_updateBlinkingKeys(CPlayer);
+    SB_UpdateKeyBar();
 }
 
 // sets the new palette based upon current values of player->damagecount
@@ -675,6 +733,7 @@ void SB_PaletteFlash(dboolean forceChange)
     }
     if (palette != sb_palette)
     {
+        SB_state = SB_REFRESH;
         sb_palette = palette;
         V_SetPalette(sb_palette);
     }
@@ -1227,6 +1286,7 @@ void SB_SetClassData(void)
     {
         LumpLIFEGEM = W_GetNumForName("lifegem") + g_maxplayers * class + consoleplayer;
     }
+    SB_state = SB_REFRESH;
 }
 
 static void Hexen_DrINumber(signed int val, int x, int y)

@@ -33,9 +33,11 @@
 
 extern dboolean inventory;
 
+void SB_Start(void);
+void SB_Refresh(void);
 void SB_Init(void);
 void SB_Ticker(void);
-void SB_Drawer(dboolean statusbaron);
+void SB_Drawer(dboolean statusbaron, dboolean refresh);
 void SB_PaletteFlash(dboolean forceChange);
 
 void dsda_GetInventoryDescription(const char** name, const char** desc);

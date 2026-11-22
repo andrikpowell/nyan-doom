@@ -452,6 +452,8 @@ void M_CheatGod(void)
   }
   else
     dsda_AddMessage(raven ? s_HERETIC_TXT_CHEATGODOFF : s_STSTR_DQDOFF);
+
+  if (raven) SB_Refresh();
 }
 
 int hexen_suicide_seq = 0;
@@ -615,6 +617,9 @@ static void cheat_k()
         }
         dsda_AddMessage(raven ? s_HERETIC_TXT_CHEATKEYS : "Keys Added");
       }
+
+  // heretic - reset status bar
+  if (raven) SB_Refresh();
 }
 
 static void cheat_dostrip(int idkfa_raven)
@@ -2543,6 +2548,7 @@ static void cheat_classx(char *buf)
   PlayerClass[consoleplayer] = new_class;
   P_PostMorphWeapon(plyr, wp_first);
   SB_SetClassData();
+  SB_Refresh();
   P_SetMessage(plyr, HEXEN_TXT_CHEATCLASS2, true);
 }
 

@@ -391,6 +391,7 @@ void IN_WaitStop(void)
 void IN_Stop(void)
 {
     intermission = false;
+    SB_Refresh();
 }
 
 //========================================================================

@@ -112,6 +112,7 @@ static void Stop(void)
 {
     intermission = false;
     ethereal_travel = false;
+    SB_Refresh();
 }
 
 static const char *ClusMsgLumpNames[] = {
