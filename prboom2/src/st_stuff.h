@@ -69,7 +69,7 @@ dboolean ST_Responder(event_t* ev);
 void ST_Ticker(void);
 
 // Called by main loop.
-void ST_Drawer(void);
+void ST_Drawer(dboolean refresh);
 
 // Called when the console player is spawned on each level.
 void ST_Start(void);
@@ -77,8 +77,12 @@ void ST_Start(void);
 // Called by startup code.
 void ST_Init(void);
 
+// Called for stbar timing
+extern unsigned int st_clock;
+
 // After changing videomode;
 void ST_SetResolution(void);
+void ST_Refresh(void);
 void M_ChangeApplyPalette(void);
 
 int ST_HealthColor(int health);

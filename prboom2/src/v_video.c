@@ -1029,14 +1029,16 @@ static void V_DrawPatchStretch(float fx, float fy, int scrn, const rpatch_t *pat
         }
 
         if (dcvars.yl < 0) {
+          float offset = ceilf((0 - dcvars.yl) * 200.0f / params->video->height / scale);
+          yoffset = (int)offset;
           clipped_top = true;
-          yoffset = (int)ceilf((0 - dcvars.yl) * 200.0f / params->video->height / scale);
           dcvars.yl = 0;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }
         if (dcvars.yl < top) {
+          float offset = ceilf((top - dcvars.yl) * 200.0f / params->video->height / scale);
+          yoffset = (int)offset;
           clipped_top = true;
-          yoffset = (int)ceilf((top - dcvars.yl) * 200.0f / params->video->height / scale);
           dcvars.yl = top;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }

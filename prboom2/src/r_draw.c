@@ -907,12 +907,6 @@ void R_DrawViewBorder(void)
     return;
   }
 
-  // e6y: wide-res
-  if (ratio_multiplier != ratio_scale || wide_offsety)
-  {
-    R_CopyScreenBufferRect(0, SCREENHEIGHT - ST_SCALED_HEIGHT, SCREENWIDTH, ST_SCALED_HEIGHT);
-  }
-
   if ( viewheight >= ( SCREENHEIGHT - ST_SCALED_HEIGHT ))
     return; // if high-res, don't go any further!
 

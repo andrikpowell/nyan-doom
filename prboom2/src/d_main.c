@@ -286,6 +286,8 @@ static void D_Wipe(void)
     if (!raven)
       dsda_TrackFeature(uf_wipescreen);
 
+    // If there's no screen wipe, we still need to refresh the status bar
+    if (raven) SB_Refresh();
     return;
   }
 
@@ -403,6 +405,7 @@ void D_Display (fixed_t frac)
   static gamestate_t oldgamestate = GS_DEFAULT;
   dboolean wipe;
   dboolean viewactive = false, isborder = false;
+  dboolean refresh_statusbar = false;
 
   // e6y
   if (dsda_SkipMode())
@@ -473,6 +476,7 @@ void D_Display (fixed_t frac)
     if (oldgamestate != GS_LEVEL || must_fill_back_screen) {
       must_fill_back_screen = false;
       R_FillBackScreen ();    // draw the pattern into the back screen
+      refresh_statusbar = true;
     }
 
     // elim - Update viewport and scene offsets whenever the view is changed (user hits "-" or "+")
@@ -519,7 +523,7 @@ void D_Display (fixed_t frac)
     R_RestoreInterpolations();
 
     DSDA_ADD_CONTEXT(sf_status_bar);
-    ST_Drawer();
+    ST_Drawer(refresh_statusbar);
     DSDA_REMOVE_CONTEXT(sf_status_bar);
 
     DSDA_ADD_CONTEXT(sf_hud);

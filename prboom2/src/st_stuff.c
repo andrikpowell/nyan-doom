@@ -286,7 +286,10 @@ static int veryfirsttime = 1;
 // CPhipps - no longer do direct PLAYPAL handling here
 
 // used for timing
-static unsigned int st_clock;
+unsigned int st_clock;
+
+// used to force refresh
+static dboolean stbar_refresh;
 
 // whether left-side main status bar is active
 static dboolean st_statusbaron;
@@ -393,6 +396,13 @@ void ST_LoadTextColors(void)
 
 int sts_solid_bg_color;
 
+void ST_Refresh(void)
+{
+  if (raven) RETURN(SB_Refresh());
+
+  stbar_refresh = true;
+}
+
 static void ST_refreshBackground(void)
 {
   int y = ST_Y;
@@ -400,23 +410,26 @@ static void ST_refreshBackground(void)
 
   if (st_statusbaron)
     {
+      int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
       flags = VPT_ALIGN_BOTTOM;
 
       // Draw Normal stbar if it exists
       if (stbar_exists)
-        V_DrawNamePatchAnimateFS(ST_X, y, stbar, CR_DEFAULT, flags);
+        V_DrawNamePatchAnimateFSBG(ST_X, y, stbar, CR_DEFAULT, flags);
 
       // Draw Doom v1.1 two part statusbar (if stbar not found)
       if (doom_v11 && !stbar_exists)
       {
-        V_DrawNamePatch(ST_X, y, "STMBARL", CR_DEFAULT, flags);
-        V_DrawNamePatch(ST_ARMSBGX, y, "STMBARR", CR_DEFAULT, flags);
+        V_DrawNamePatchBG(ST_X, y, "STMBARL", CR_DEFAULT, flags);
+        V_DrawNamePatchBG(ST_ARMSBGX, y, "STMBARR", CR_DEFAULT, flags);
       }
 
       if (!deathmatch)
       {
-        V_DrawNamePatchAnimate(ST_ARMSBGX, y, starms, CR_DEFAULT, flags);
+        V_DrawNamePatchAnimateBG(ST_ARMSBGX, y, starms, CR_DEFAULT, flags);
       }
+
+      V_CopyRect(BG, FG, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, VPT_NONE);
     }
 }
 
@@ -1267,6 +1280,7 @@ static void ST_drawWidgets(void)
 
 void ST_SetResolution(void)
 {
+  stbar_refresh = true;
   R_FillBackScreen();
 }
 
@@ -1291,18 +1305,23 @@ void ST_DrawDisk(int x, int y, int vpt)
   }
 }
 
-void ST_Drawer(void)
+void ST_Drawer(dboolean refresh)
 {
+  static int old_st_clock = -1;
   dboolean statusbaron = R_StatusBarVisible();
 
   V_BeginUIDraw();
 
   if (raven)
   {
-    SB_Drawer(statusbaron);
+    SB_Drawer(statusbaron, refresh);
     V_EndUIDraw();
     return;
   }
+
+  // Track stbar timing
+  stbar_refresh = stbar_refresh || refresh || st_clock != old_st_clock;
+  old_st_clock = st_clock;
 
   /* cph - let status bar on be controlled
    * completely by the call from D_Display
@@ -1312,8 +1331,28 @@ void ST_Drawer(void)
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
   if (statusbaron) {
-    ST_refreshBackground(); // draw status bar background to off-screen buff
-    ST_drawWidgets(); // draw widgets
+    if (V_IsSoftwareMode())
+    {
+      int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
+
+      if (stbar_refresh)
+      {
+        ST_refreshBackground(); // draw status bar background to off-screen buff
+        stbar_refresh = false;
+      }
+      else
+      {
+        /* Otherwise, update background */
+        V_CopyRect(BG, FG, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, VPT_NONE);
+      }
+
+      ST_drawWidgets(); // draw widgets
+    }
+    else // OpenGL
+    {
+      ST_refreshBackground(); // draw status bar background to off-screen buff
+      ST_drawWidgets(); // draw widgets
+    }
   }
 
   V_EndUIDraw();
@@ -1454,6 +1493,7 @@ static void ST_initData(void)
   st_clock = 0;
 
   st_statusbaron = true;
+  stbar_refresh = true;
 
   st_lastattackcount = -1;
   st_faceindex = 0;
@@ -1471,7 +1511,7 @@ static dboolean st_stopped = true;
 
 void ST_Start(void)
 {
-  if (raven) return;
+  if (raven) RETURN(SB_Start());
 
   if (!st_stopped)
     ST_Stop();

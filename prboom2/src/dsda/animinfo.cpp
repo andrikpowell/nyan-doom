@@ -315,6 +315,7 @@ void N_ReloadAnimateLumps(void)
     if (!raven) {
         animateLumps = dsda_IntConfig(nyan_config_enable_animate_lumps);
         widescreenLumps = dsda_IntConfig(nyan_config_enable_widescreen_lumps);
+        ST_SetResolution();
     }
 }
 

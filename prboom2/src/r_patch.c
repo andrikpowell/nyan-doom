@@ -106,7 +106,7 @@ typedef struct
   short leftoffset;     // pixels to the left of origin
   short topoffset;      // pixels below the origin
   int columnofs[8];     // only [width] used
-} patch_t;
+} PACKEDATTR patch_t;
 
 //---------------------------------------------------------------------------
 // Re-engineered patch support
@@ -124,6 +124,15 @@ static int playpal_transparent, playpal_duplicate;
 // indices of darkest and lightest colors
 int playpal_darkest;
 int playpal_lightest;
+
+// Size changes based on 32/64 bit leading to undefined behaviour (ASAN/UBSan)
+static int R_AlignColumnOffset(int offset)
+{
+  static const int alignment = sizeof(void *);
+  int remainder = offset % alignment;
+
+  return remainder ? offset + alignment - remainder : offset;
+}
 
 //---------------------------------------------------------------------------
 void R_InitPatches(void) {
@@ -439,6 +448,7 @@ static void R_LinearToTransPatch(rpatch_t *patch, const byte *data,
   }
 
   pixelDataSize = (patch->width * patch->height + 4) & ~3;
+  pixelDataSize = R_AlignColumnOffset(pixelDataSize);
   columnsDataSize = sizeof(rcolumn_t) * patch->width;
   postsDataSize = sizeof(rpost_t) * numPostsTotal;
   dataSize = pixelDataSize + columnsDataSize + postsDataSize;
@@ -602,6 +612,7 @@ static void createPatch(int id) {
 
   // work out how much memory we need to allocate for this patch's data
   pixelDataSize = (patch->width * patch->height + 4) & ~3;
+  pixelDataSize = R_AlignColumnOffset(pixelDataSize);
   columnsDataSize = sizeof(rcolumn_t) * patch->width;
 
   // count the number of posts in each column
@@ -876,6 +887,7 @@ static void createTextureCompositePatch(int id) {
 
   // work out how much memory we need to allocate for this patch's data
   pixelDataSize = (composite_patch->width * composite_patch->height + 4) & ~3;
+  pixelDataSize = R_AlignColumnOffset(pixelDataSize);
   pixelDataSizeWithArtifacts = pixelDataSize;
   columnsDataSize = sizeof(rcolumn_t) * composite_patch->width;
 
@@ -923,6 +935,8 @@ static void createTextureCompositePatch(int id) {
     R_CalculateVanillaDataSize(texture, composite_patch, countsInColumn, pixelDataSize, &vanillaData);
     pixelDataSizeWithArtifacts = vanillaData.pixelDataSizeWithArtifacts;
   }
+
+  pixelDataSizeWithArtifacts = R_AlignColumnOffset(pixelDataSizeWithArtifacts);
 
   // allocate our data chunk
   dataSize = pixelDataSizeWithArtifacts + columnsDataSize + postsDataSize;

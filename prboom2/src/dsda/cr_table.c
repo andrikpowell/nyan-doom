@@ -89,13 +89,13 @@ static void dsda_CalculateFontBounds(const byte* playpal) {
   else
     lump = W_LumpByName(ref_lump_doom);
 
-  width = *((const int16_t *) lump);
+  memcpy(&width, lump, sizeof(width));
   width = LittleShort(width);
 
   for (i = 0; i < width; ++i) {
     int32_t offset;
     p = lump + 8 + 4 * i;
-    offset = *((const int32_t *) p);
+    memcpy(&offset, p, sizeof(offset));
     p = lump + LittleLong(offset);
 
     while (*p != 0xff) {

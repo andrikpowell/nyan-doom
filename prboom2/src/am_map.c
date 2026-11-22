@@ -1032,6 +1032,9 @@ static void AM_initVariables(void)
   old_m_y = m_y;
   old_m_w = m_w;
   old_m_h = m_h;
+
+  // inform the status bar of the change
+  ST_Refresh();
 }
 
 void AM_SetResolution(void)

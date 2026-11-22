@@ -1789,6 +1789,11 @@ static void G_PlayerFinishLevel(int player)
   p->bonuscount = 0;
   p->poisoncount = 0;
 
+  if (p == &players[consoleplayer])
+  {
+    if (raven) SB_Refresh();          // refresh the status bar
+  }
+
   memset(p->keyblinkkeys, 0, sizeof p->keyblinkkeys);
   p->keyblinktics = 0;
 }
@@ -1869,6 +1874,7 @@ void G_PlayerReborn (int player)
   localQuakeHappening[player] = false;
   if (p == &players[consoleplayer])
   {
+    if (raven) SB_Refresh();   // refresh the status bar
     p->inv_ptr = 0;            // reset the inventory pointer
     p->curpos = 0;
   }

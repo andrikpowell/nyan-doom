@@ -1,4 +1,5 @@
 //
+// Copyright(C) 2026 by El-Juancho
 // Copyright(C) 2026 by Andrik Powell
 //
 // This program is free software; you can redistribute it and/or
