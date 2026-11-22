@@ -134,20 +134,36 @@ static void M_MouseReadPosition(void)
 
   SDL_GetMouseState(&window_x, &window_y);
 
-  if (window_rect.w > 0 && window_rect.h > 0 &&
-      renderer_rect.w > 0 && renderer_rect.h > 0)
+  // SDL3 allows us to directly check for black bars for Software
+  // So we don't need to do the viewport check like OpenGL (it actually causes issues)
+  if (V_IsSoftwareMode())
   {
-    renderer_x = (int)(window_x * renderer_rect.w / window_rect.w);
-    renderer_y = (int)(window_y * renderer_rect.h / window_rect.h);
-  }
-  else
-  {
-    renderer_x = (int)window_x;
-    renderer_y = (int)window_y;
-  }
+    float logical_x, logical_y;
 
-  M_MouseSetLogicalPosition(renderer_x - viewport_rect.x,
-                            renderer_y - viewport_rect.y);
+    if (SDL_RenderCoordinatesFromWindow(sdl_renderer, window_x, window_y, &logical_x, &logical_y))
+    {
+      renderer_x = (int)(logical_x * viewport_rect.w / SCREENWIDTH);
+      renderer_y = (int)(logical_y * viewport_rect.h / ACTUALHEIGHT);
+      M_MouseSetLogicalPosition(renderer_x, renderer_y);
+    }
+  }
+  else // OpenGL
+  {
+    if (window_rect.w > 0 && window_rect.h > 0 &&
+        renderer_rect.w > 0 && renderer_rect.h > 0)
+    {
+      renderer_x = (int)(window_x * renderer_rect.w / window_rect.w);
+      renderer_y = (int)(window_y * renderer_rect.h / window_rect.h);
+    }
+    else
+    {
+      renderer_x = (int)window_x;
+      renderer_y = (int)window_y;
+    }
+
+    M_MouseSetLogicalPosition(renderer_x - viewport_rect.x,
+                              renderer_y - viewport_rect.y);
+  }
 }
 
 static int M_MouseWheelAction(event_t *ev)
