@@ -78,7 +78,7 @@ void ST_Start(void);
 void ST_Init(void);
 
 // Called for stbar timing
-unsigned int st_clock;
+extern unsigned int st_clock;
 
 // After changing videomode;
 void ST_SetResolution(void);
