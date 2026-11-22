@@ -874,9 +874,12 @@ signed int TXT_GetChar(void)
                 {
                     return 0;
                 }
+                // OpenGL - Stop ENDOOM from disappearing when moving the mouse
+                break;
 
             // Force content resize on OpenGL
             case SDL_EVENT_WINDOW_RESIZED:
+            case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
                 if (is_opengl)
                 {
                     GL_TXT_SetupOrtho(ev.window.data1, ev.window.data2);
