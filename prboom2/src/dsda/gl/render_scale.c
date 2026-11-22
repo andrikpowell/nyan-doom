@@ -36,8 +36,8 @@ float gl_scale_x;
 float gl_scale_y;
 int gl_letterbox_clear_required = 0;
 
-static int gl_clear_box_width;
-static int gl_clear_box_height;
+static int gl_clear_box_width[2];
+static int gl_clear_box_height[2];
 
 
 void dsda_GLSetRenderViewportParams() {
@@ -58,8 +58,12 @@ void dsda_GLSetRenderViewportParams() {
   //        each frame to prevent artifacts smearing on undrawn framebuffer area
   gl_letterbox_clear_required = viewport_rect.x + viewport_rect.y;
   if (gl_letterbox_clear_required) {
-    gl_clear_box_width = ((viewport_rect.y != 0) * renderer_rect.w) + viewport_rect.x;
-    gl_clear_box_height = ((viewport_rect.y == 0) * renderer_rect.h) + viewport_rect.y;
+    gl_clear_box_width[0]   = ((viewport_rect.y != 0) * renderer_rect.w) + viewport_rect.x;
+    gl_clear_box_height[0]  = ((viewport_rect.y == 0) * renderer_rect.h) + viewport_rect.y;
+
+    // Fix SDL3 OpenGL edge screen artifacts when changing resolutions
+    gl_clear_box_width[1]   = ((viewport_rect.y != 0) * renderer_rect.w) + renderer_rect.w - viewport_rect.x - viewport_rect.w;
+    gl_clear_box_height[1]  = ((viewport_rect.y == 0) * renderer_rect.h) + renderer_rect.h - viewport_rect.y - viewport_rect.h;
   }
 }
 
@@ -107,13 +111,13 @@ void dsda_GLLetterboxClear() {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
   // Bottom or left box
-  glScissor(0, 0, gl_clear_box_width, gl_clear_box_height);
+  glScissor(0, 0, gl_clear_box_width[0], gl_clear_box_height[0]);
   glClear(GL_COLOR_BUFFER_BIT);
 
   // Top or right box
-  glScissor(renderer_rect.w - gl_clear_box_width,
-            renderer_rect.h - gl_clear_box_height,
-            gl_clear_box_width, gl_clear_box_height);
+  glScissor(renderer_rect.w - gl_clear_box_width[1],
+            renderer_rect.h - gl_clear_box_height[1],
+            gl_clear_box_width[1], gl_clear_box_height[1]);
   glClear(GL_COLOR_BUFFER_BIT);
 
   // Reset to expected state before rendering the actual frame starts
