@@ -768,6 +768,7 @@ void dsda_HereticStartup(void)
     TXT_SetHeader(title);
   }
 
+  I_ShowWindow();
   TXT_PreInit(I_GetSDLWindow(), I_GetSDLRenderer(), V_IsOpenGLMode());
 
   if (!TXT_Init())
