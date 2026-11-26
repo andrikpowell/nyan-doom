@@ -426,6 +426,7 @@ static void I_GetEvent(void)
       case SDL_EVENT_WINDOW_MAXIMIZED:
       case SDL_EVENT_WINDOW_RESTORED:
       case SDL_EVENT_WINDOW_MOVED:
+      case SDL_EVENT_WINDOW_RESIZED:
       case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
         if (Event->window.windowID == windowid)
         {
@@ -442,6 +443,7 @@ static void I_GetEvent(void)
             // update mouse cursor position
             I_SetWindowRect();
             break;
+          case SDL_EVENT_WINDOW_RESIZED:
           case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
             ApplyWindowResize(Event);
             break;
@@ -1302,6 +1304,7 @@ void I_UpdateVideoMode(void)
   const char *sdl_video_window_pos;
   int sdl_video_display_index;
   SDL_DisplayID sdl_video_display_id;
+  int window_w, window_h;
   int x, y;
   const dboolean novsync = dsda_Flag(dsda_arg_timedemo) ||
                            dsda_Flag(dsda_arg_fastdemo);
@@ -1366,6 +1369,23 @@ void I_UpdateVideoMode(void)
     ACTUALHEIGHT = SCREENHEIGHT;
   }
 
+  window_w = SCREENWIDTH * screen_multiply;
+  window_h = ACTUALHEIGHT * screen_multiply;
+
+// [AR] Fix macos fullscreen "notch" bounds
+#ifdef __APPLE__
+  if (desired_fullscreen && !exclusive_fullscreen)
+  {
+    SDL_Rect usable_bounds;
+
+    if (SDL_GetDisplayUsableBounds(sdl_video_display_id, &usable_bounds))
+    {
+      window_w = usable_bounds.w;
+      window_h = usable_bounds.h;
+    }
+  }
+#endif
+
   x = SDL_WINDOWPOS_CENTERED_DISPLAY(sdl_video_display_id);
   y = SDL_WINDOWPOS_CENTERED_DISPLAY(sdl_video_display_id);
   if (sdl_video_window_pos)
@@ -1379,21 +1399,18 @@ void I_UpdateVideoMode(void)
   }
 
   if (desired_fullscreen)
-  {
-    if (exclusive_fullscreen)
-      init_flags |= SDL_WINDOW_FULLSCREEN;
-  }
+    init_flags |= SDL_WINDOW_FULLSCREEN;
 
   if (reuse_window)
   {
     SDL_SetWindowMinimumSize(sdl_window, 1, 1);
-    SDL_SetWindowSize(sdl_window, SCREENWIDTH * screen_multiply, ACTUALHEIGHT * screen_multiply);
+    SDL_SetWindowSize(sdl_window, window_w, window_h);
   }
   else
   {
     sdl_window = SDL_CreateWindow(
       PROJECT_STRING,
-      SCREENWIDTH * screen_multiply, ACTUALHEIGHT * screen_multiply,
+      window_w, window_h,
       init_flags);
   }
 
