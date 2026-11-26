@@ -5614,8 +5614,24 @@ static void M_Sub_DrawGamepad(void)
 }
 
 // To (un)set fullscreen video after menu changes
+enum video_mode_change_e
+{
+  VIDEO_MODE_CHANGE_NONE,
+  VIDEO_MODE_CHANGE_FULLSCREEN,
+  VIDEO_MODE_CHANGE_RESOLUTION,
+} video_mode_change_t;
+
+static int pending_video_mode_change;
+
 void M_ChangeFullScreen(void)
 {
+  if (D_WipeActive())
+  {
+    if (pending_video_mode_change != VIDEO_MODE_CHANGE_RESOLUTION)
+      pending_video_mode_change = VIDEO_MODE_CHANGE_FULLSCREEN;
+    return;
+  }
+
   I_UpdateVideoMode();
 
   if (V_IsOpenGLMode())
@@ -5626,12 +5642,31 @@ void M_ChangeFullScreen(void)
 
 void M_ChangeVideoMode(void)
 {
+  if (D_WipeActive())
+  {
+    pending_video_mode_change = VIDEO_MODE_CHANGE_RESOLUTION;
+    return;
+  }
+
   V_ChangeScreenResolution();
 }
 
 void M_ChangeUseGLSurface(void)
 {
-  V_ChangeScreenResolution();
+  M_ChangeVideoMode();
+}
+
+// [AR] Wait to change resolution once wipe has finished
+void M_ApplyPendingVideoMode(void)
+{
+  int change = pending_video_mode_change;
+
+  pending_video_mode_change = VIDEO_MODE_CHANGE_NONE;
+
+  if (change == VIDEO_MODE_CHANGE_RESOLUTION)
+    V_ChangeScreenResolution();
+  else if (change == VIDEO_MODE_CHANGE_FULLSCREEN)
+    M_ChangeFullScreen();
 }
 
 void M_ChangeDemoSmoothTurns(void)

@@ -274,6 +274,13 @@ void D_PostEvent(event_t *ev)
 // The screens to wipe between are already stored, this just does the timing
 // and screen updating
 
+static dboolean wipeactive;
+
+dboolean D_WipeActive(void)
+{
+  return wipeactive;
+}
+
 static void D_Wipe(void)
 {
   dboolean done;
@@ -298,6 +305,7 @@ static void D_Wipe(void)
   }
 
   wipestart = dsda_GetTick() - 1;
+  wipeactive = true;
 
   do
   {
@@ -348,6 +356,9 @@ static void D_Wipe(void)
   {
     dsda_UpdateGameSpeed(old_game_speed);
   }
+
+  wipeactive = false;
+  M_ApplyPendingVideoMode();
 
   force_singletics_to = gametic + BACKUPTICS;
 }
