@@ -157,10 +157,7 @@ typedef struct sector_s
   int heightsec;    // other sector, or -1 if no other sector
 
   // killough 4/4/98: dynamic colormaps
-  short bottommap;
-  short midmap;
-  short topmap;
-  short colormap;
+  int32_t colormap, bottommap, midmap, topmap;
 
   // list of mobjs that are at least partially in the sector
   // thinglist is a subset of touching_thinglist
@@ -236,6 +233,9 @@ typedef struct
   short bottomtexture;
   short midtexture;
   sector_t* sector;      // Sector the SideDef is facing.
+  int32_t topindex;
+  int32_t bottomindex;
+  int32_t midindex;
 
   // killough 4/4/98, 4/11/98: highest referencing special linedef's type,
   // or lump number of special effect. Allows texture names to be overloaded
@@ -352,10 +352,6 @@ typedef struct line_s
   int healthgroup;
   const byte* tranmap;
   float alpha;
-
-  // ID24 line specials
-  int frontmusic; // Front upper texture -- activated from the front side
-  int backmusic;  // Front lower texture -- activated from the back side
 } line_t;
 
 #define LINE_ARG_COUNT 5

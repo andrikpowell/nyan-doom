@@ -2027,7 +2027,8 @@ void EV_ChangeMusic(line_t *line, int side)
   dboolean loops = false;
   dboolean resets = false;
 
-  int music = side ? line->backmusic : line->frontmusic;
+  side_t *sidedef = &sides[line->sidenum[0]];
+  int music = side ? sidedef->bottomindex : sidedef->topindex;
 
   switch (line->special)
   {
