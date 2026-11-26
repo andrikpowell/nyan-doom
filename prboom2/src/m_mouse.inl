@@ -129,25 +129,41 @@ static void M_MouseSetLogicalPosition(int x, int y)
 
 static void M_MouseReadPosition(void)
 {
-  int window_x, window_y;
+  float window_x, window_y;
   int renderer_x, renderer_y;
 
   SDL_GetMouseState(&window_x, &window_y);
 
-  if (window_rect.w > 0 && window_rect.h > 0 &&
-      renderer_rect.w > 0 && renderer_rect.h > 0)
+  // SDL3 allows us to directly check for black bars for Software
+  // So we don't need to do the viewport check like OpenGL (it actually causes issues)
+  if (V_IsSoftwareMode())
   {
-    renderer_x = window_x * renderer_rect.w / window_rect.w;
-    renderer_y = window_y * renderer_rect.h / window_rect.h;
-  }
-  else
-  {
-    renderer_x = window_x;
-    renderer_y = window_y;
-  }
+    float logical_x, logical_y;
 
-  M_MouseSetLogicalPosition(renderer_x - viewport_rect.x,
-                            renderer_y - viewport_rect.y);
+    if (SDL_RenderCoordinatesFromWindow(sdl_renderer, window_x, window_y, &logical_x, &logical_y))
+    {
+      renderer_x = (int)(logical_x * viewport_rect.w / SCREENWIDTH);
+      renderer_y = (int)(logical_y * viewport_rect.h / ACTUALHEIGHT);
+      M_MouseSetLogicalPosition(renderer_x, renderer_y);
+    }
+  }
+  else // OpenGL
+  {
+    if (window_rect.w > 0 && window_rect.h > 0 &&
+        renderer_rect.w > 0 && renderer_rect.h > 0)
+    {
+      renderer_x = (int)(window_x * renderer_rect.w / window_rect.w);
+      renderer_y = (int)(window_y * renderer_rect.h / window_rect.h);
+    }
+    else
+    {
+      renderer_x = (int)window_x;
+      renderer_y = (int)window_y;
+    }
+
+    M_MouseSetLogicalPosition(renderer_x - viewport_rect.x,
+                              renderer_y - viewport_rect.y);
+  }
 }
 
 static int M_MouseWheelAction(event_t *ev)
@@ -393,16 +409,15 @@ static dboolean M_MouseSelectMainItem(void)
 
 static int M_MouseSliderValue(int x, int slider_x, int width, int low, int high)
 {
-  int range = high - low + 1;
   int rel = x - slider_x - 8;
   int span = width * 8;
   int value;
 
-  if (range <= 1 || width <= 0)
+  if (high <= low || span <= 1)
     return low;
 
   rel = CLAMP(rel, 0, span - 1);
-  value = low + rel * range / span;
+  value = low + rel * (high - low) / (span - 1);
 
   return CLAMP(value, low, high);
 }
@@ -584,7 +599,7 @@ static dboolean M_MouseSetupSettingAtPointer(const setup_menu_t *item, int y)
   {
     rect.left = item->m_x;
     rect.top = y;
-    rect.right = item->m_x + 80 + width;
+    rect.right = item->m_x + M_ThermoFullWidth(item) + width;
     rect.bottom = y + 3 + menu_font->height;
   }
   else
@@ -712,7 +727,7 @@ static dboolean M_MouseSetupItemAtPointer(int *index)
 static dboolean M_MouseSetupThermoAtPointer(const setup_menu_t *item)
 {
   return menu_mouse_x >= item->m_x &&
-         menu_mouse_x < item->m_x + 80;
+         menu_mouse_x < item->m_x + M_ThermoFullWidth(item);
 }
 
 static const char **M_MouseCurrentTabs(int *visible_tabs, int *y,
@@ -955,6 +970,7 @@ static dboolean M_MouseSetSetupThermo(int index)
   int step;
   int step_index;
   int value;
+  int thermo_patches;
 
   if (!current_setup_menu || index < 0)
     return false;
@@ -966,17 +982,40 @@ static dboolean M_MouseSetSetupThermo(int index)
   if (M_ItemDisabled(item))
     return true;
 
-  lower_limit = dsda_LowerLimitConfig(item->config_id);
-  upper_limit = M_ThermoDisplayUpperLimit(item);
+  thermo_patches = M_ThermoPatchNum(item);
 
-  step = M_ThermoStep(item);
-  step_index = M_MouseThermoValue(menu_mouse_x, item->m_x, 8, 0, M_ThermoDisplayRange(item) - 1);
-
-  value = MIN(upper_limit, lower_limit + step_index * step);
-  if (dsda_IntConfig(item->config_id) != value)
+  // Choice thermo
+  if (item->m_flags & S_CHOICE)
   {
-    dsda_UpdateIntConfig(item->config_id, value, true);
-    S_StartVoidSound(g_sfx_mnusli);
+    const char **choices = M_SetupChoiceList(item);
+    int count = M_ChoiceCount(choices);
+    int value;
+
+    if (!setup_select || count < 1)
+      return true;
+
+    value = M_MouseThermoValue(menu_mouse_x, item->m_x, thermo_patches, 0, count - 1);
+    if (value != M_SetupChoiceValue(item))
+    {
+      strncpy(entry_string_index, choices[value], ENTRY_STRING_BFR_SIZE - 1);
+      entry_string_index[ENTRY_STRING_BFR_SIZE - 1] = '\0';
+      S_StartVoidSound(g_sfx_mnusli);
+    }
+  }
+  else // Number Thermo
+  {
+    lower_limit = dsda_LowerLimitConfig(item->config_id);
+    upper_limit = M_ThermoDisplayUpperLimit(item);
+
+    step = M_ThermoStep(item);
+    step_index = M_MouseThermoValue(menu_mouse_x, item->m_x, thermo_patches, 0, M_ThermoDisplayRange(item) - 1);
+
+    value = MIN(upper_limit, lower_limit + step_index * step);
+    if (dsda_IntConfig(item->config_id) != value)
+    {
+      dsda_UpdateIntConfig(item->config_id, value, true);
+      S_StartVoidSound(g_sfx_mnusli);
+    }
   }
 
   return true;
@@ -1073,6 +1112,10 @@ static dboolean M_MouseActivateSetupItem(event_t *ev)
       if (!M_MouseSetupThermoAtPointer(item))
         return true;
 
+      // Start editing (setup) so dragged choice is applied on mouse release
+      if ((item->m_flags & S_CHOICE) && !setup_select)
+        M_SetupResponder(MENU_NULL, MENU_ENTER, ev);
+
       menu_mouse_drag_setup = set_menu_itemon;
       return M_MouseSetSetupThermo(set_menu_itemon);
     }
@@ -1094,6 +1137,10 @@ static dboolean M_MouseActivateSetupItem(event_t *ev)
     if (!M_MouseSetupThermoAtPointer(item))
       return true;
 
+    // Start editing (setup) so dragged choice is applied on mouse release
+    if ((item->m_flags & S_CHOICE) && !setup_select)
+      M_SetupResponder(MENU_NULL, MENU_ENTER, ev);
+
     menu_mouse_drag_setup = set_menu_itemon;
     return M_MouseSetSetupThermo(set_menu_itemon);
   }
@@ -1110,6 +1157,17 @@ static dboolean M_MouseActivateSetupItem(event_t *ev)
     return M_MouseCycleSetupChoice(item);
 
   return M_SetupResponder(MENU_NULL, MENU_ENTER, ev);
+}
+
+static void M_MouseApplyThermoChoice(event_t *ev)
+{
+  if (setup_select && menu_mouse_drag_setup >= 0)
+  {
+    setup_menu_t *item = current_setup_menu + menu_mouse_drag_setup;
+
+    if ((item->m_flags & S_CHOICE) && (item->m_flags & S_THERMO))
+      M_SetupResponder(MENU_NULL, MENU_ENTER, ev);
+  }
 }
 
 static dboolean M_MouseCancelSetupSelection(event_t *ev)
@@ -1268,6 +1326,9 @@ static dboolean M_MouseButtonResponder(event_t *ev)
 
   if (released & MENU_MOUSE_LEFT)
   {
+    // Apply thermo choice on mouse release
+    M_MouseApplyThermoChoice(ev);
+
     menu_mouse_drag_setup = -1;
     menu_mouse_drag_main = -1;
   }

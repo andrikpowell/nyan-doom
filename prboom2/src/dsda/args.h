@@ -110,6 +110,7 @@ typedef enum {
   dsda_arg_nomusic,
   dsda_arg_nosfx,
   dsda_arg_nodraw,
+  dsda_arg_ignore_tex_errors,
   dsda_arg_nodeh,
   dsda_arg_nomapinfo,
   dsda_arg_noautoload,

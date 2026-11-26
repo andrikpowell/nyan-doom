@@ -17,7 +17,7 @@
 
 #include <string.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -40,12 +40,12 @@
 
 #include "textscreen/fonts/normal.h"
 
-static void dsda_WaitForProgressStep(unsigned int start_time, unsigned int step_duration)
+static void dsda_WaitForProgressStep(Uint64 start_time, Uint64 step_duration)
 {
-  unsigned int elapsed;
+  Uint64 elapsed;
 
   while ((elapsed = SDL_GetTicks() - start_time) < step_duration)
-    I_uSleep((step_duration - elapsed) * 1000);
+    I_uSleep((unsigned long)((step_duration - elapsed) * 1000));
 }
 
 //
@@ -110,17 +110,17 @@ static void CheckEvents(int min_type, int max_type)
   while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, min_type, max_type) > 0)
   {
     // Controller
-    if (event.type == SDL_CONTROLLERBUTTONDOWN)
+    if (event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN)
     {
-      switch (event.cbutton.button)
+      switch (event.gbutton.button)
       {
-        case SDL_CONTROLLER_BUTTON_A:
-        case SDL_CONTROLLER_BUTTON_B:
-        case SDL_CONTROLLER_BUTTON_START:
-        case SDL_CONTROLLER_BUTTON_DPAD_UP:
-        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-        case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+        case SDL_GAMEPAD_BUTTON_SOUTH:
+        case SDL_GAMEPAD_BUTTON_EAST:
+        case SDL_GAMEPAD_BUTTON_START:
+        case SDL_GAMEPAD_BUTTON_DPAD_UP:
+        case SDL_GAMEPAD_BUTTON_DPAD_DOWN:
+        case SDL_GAMEPAD_BUTTON_DPAD_LEFT:
+        case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
           startup_skipped = true;
           break;
 
@@ -130,7 +130,7 @@ static void CheckEvents(int min_type, int max_type)
     }
 
     // Keyboard / Mouse
-    if (event.type == SDL_KEYDOWN || event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEWHEEL)
+    if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_MOUSE_BUTTON_DOWN || event.type == SDL_EVENT_MOUSE_WHEEL)
     {
       startup_skipped = true;
     }
@@ -142,9 +142,9 @@ static dboolean StartupSkipped(void)
 {
   SDL_PumpEvents();
 
-  CheckEvents(SDL_KEYDOWN, SDL_KEYUP);
-  CheckEvents(SDL_MOUSEBUTTONDOWN, SDL_MOUSEWHEEL);
-  CheckEvents(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLERBUTTONUP);
+  CheckEvents(SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_UP);
+  CheckEvents(SDL_EVENT_MOUSE_BUTTON_DOWN, SDL_EVENT_MOUSE_WHEEL);
+  CheckEvents(SDL_EVENT_GAMEPAD_BUTTON_DOWN, SDL_EVENT_GAMEPAD_BUTTON_UP);
 
   return startup_skipped;
 }
@@ -154,9 +154,9 @@ static dboolean StartupSkipped(void)
 static void ClearKeyPresses(void)
 {
   SDL_PumpEvents();
-  SDL_FlushEvents(SDL_KEYDOWN, SDL_KEYUP);
-  SDL_FlushEvents(SDL_MOUSEBUTTONDOWN, SDL_MOUSEWHEEL);
-  SDL_FlushEvents(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLERBUTTONUP);
+  SDL_FlushEvents(SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_UP);
+  SDL_FlushEvents(SDL_EVENT_MOUSE_BUTTON_DOWN, SDL_EVENT_MOUSE_WHEEL);
+  SDL_FlushEvents(SDL_EVENT_GAMEPAD_BUTTON_DOWN, SDL_EVENT_GAMEPAD_BUTTON_UP);
 }
 
 static int HeaderHeight(void)
@@ -207,7 +207,8 @@ static void GL_SetupOrtho(int w, int h)
 static void GL_InitStartupCanvas(void)
 {
   int drawable_w, drawable_h;
-  SDL_GL_GetDrawableSize(I_GetSDLWindow(), &drawable_w, &drawable_h);
+  I_ShowWindow(); // GL needs this, else it won't fit the whole screen
+  SDL_GetWindowSizeInPixels(I_GetSDLWindow(), &drawable_w, &drawable_h);
   GL_SetupOrtho(drawable_w, drawable_h);
 }
 
@@ -302,12 +303,13 @@ static void UpdateStartup(void)
   // Software startup rendering uses the RGBA canvas (for PNG support)
   // Instead of previously using the indexed game framebuffer
   SDL_UpdateTexture(texture, NULL, startup_rgba, tex_w2 * 4);
-  SDL_RenderSetLogicalSize(renderer, width, canvas_height);
+  SDL_SetRenderLogicalPresentation(renderer, width, canvas_height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
   SDL_RenderClear(renderer);
-  SDL_RenderCopy(renderer, texture, NULL, NULL);
+  SDL_RenderTexture(renderer, texture, NULL, NULL);
   SDL_RenderPresent(renderer);
   SDL_DestroyTexture(texture);
-  SDL_RenderSetLogicalSize(renderer, SCREENWIDTH, ACTUALHEIGHT);
+  SDL_SetRenderLogicalPresentation(renderer, SCREENWIDTH, ACTUALHEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+  I_ShowWindow();
 }
 
 static void DrawStartupBanner(void)
@@ -660,7 +662,7 @@ void dsda_HexenStartup(void)
   // Draw progress bar
   for (int i = 0; i < MAX_NOTCHES; ++i)
   {
-    unsigned int start_time;
+    Uint64 start_time;
     int step_duraton = 25; // 32 notches × 25 ms = 800 ms
 
     if (!startup_active || StartupSkipped())
@@ -715,7 +717,7 @@ static void dsda_DoomStartup(void)
 
   for (i = 0; i < MAX_NOTCHES; ++i)
   {
-    unsigned int start_time;
+    Uint64 start_time;
     int step_duraton = 25; // 32 notches × 25 ms = 800 ms
 
     if (StartupSkipped())
@@ -766,6 +768,7 @@ void dsda_HereticStartup(void)
     TXT_SetHeader(title);
   }
 
+  I_ShowWindow();
   TXT_PreInit(I_GetSDLWindow(), I_GetSDLRenderer(), V_IsOpenGLMode());
 
   if (!TXT_Init())
@@ -789,7 +792,7 @@ void dsda_HereticStartup(void)
   for (i = 0; i < THERM_LENGTH; ++i)
   {
     int offset;
-    unsigned int start_time;
+    Uint64 start_time;
     int step_duraton = 15; // 52 therm × 15 ms = 780 ms
 
     if (StartupSkipped())
@@ -807,7 +810,7 @@ void dsda_HereticStartup(void)
 
   if (V_IsSoftwareMode())
   {
-    SDL_RenderSetLogicalSize(I_GetSDLRenderer(), SCREENWIDTH, ACTUALHEIGHT);
+    SDL_SetRenderLogicalPresentation(I_GetSDLRenderer(), SCREENWIDTH, ACTUALHEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
     V_FillRect(0, 0, SCREENWIDTH, SCREENHEIGHT, 0);
   }
   else

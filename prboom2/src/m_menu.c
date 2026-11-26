@@ -47,7 +47,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -161,6 +161,8 @@
 #define S_PERC_RANGE    0x000004000000000ULL // convert config range to 0-100%
 #define S_MULTIPLIER    0x000008000000000ULL // display config as a multiplier
 #define S_UNBOUND       0x000010000000000ULL // allow values outside display thermo
+#define S_THERMO_SML    0x000040000000000ULL // small thermo size
+#define S_THERMO_MED    0x000080000000000ULL // medium thermo size
 
 /* S_SHOWDESC  = the set of items whose description should be displayed
  * S_SHOWSET   = the set of items whose setting should be displayed
@@ -2975,6 +2977,27 @@ static int M_ThermoStep(const setup_menu_t *s)
   return MAX(1, s->thermo_step);
 }
 
+// How many patches used to build thermo
+static int M_ThermoPatchNum(const setup_menu_t *s)
+{
+  // Small
+  if (s->m_flags & S_THERMO_SML)
+    return !raven ? 3 : 5; // Raven requires at least 5
+
+  // Medium
+  else if (s->m_flags & S_THERMO_MED)
+    return 6;
+
+  // Default
+  return 8;
+}
+
+// How wide is the thermo itself
+static int M_ThermoFullWidth(const setup_menu_t *s)
+{
+  return (M_ThermoPatchNum(s) + 2) * 8;
+}
+
 static int M_ThermoDisplayValue(const setup_menu_t *s)
 {
   int lower_limit = dsda_LowerLimitConfig(s->config_id);
@@ -3114,6 +3137,16 @@ static int M_IndexInChoices(const char *str, const char **choices) {
   return 0;
 }
 
+static int M_ChoiceCount(const char **choices)
+{
+  int count = 0;
+
+  while (choices && choices[count])
+    ++count;
+
+  return count;
+}
+
 // select either color or config list
 static const char **M_SetupChoiceList(const setup_menu_t *s)
 {
@@ -3135,7 +3168,7 @@ static int M_SetupChoiceValue(const setup_menu_t *s)
 {
   menu_flags_t flags = s->m_flags;
 
-  if (flags & S_THERMO)
+  if ((flags & S_THERMO) && !(flags & S_CHOICE))
     return dsda_IntConfig(s->config_id);
 
   if (flags & S_STR)
@@ -3168,7 +3201,7 @@ static dboolean M_PrevChoiceExists(const setup_menu_t *s)
   menu_flags_t flags = s->m_flags;
   const char **choice_list;
 
-  if (flags & S_THERMO)
+  if ((flags & S_THERMO) && !(flags & S_CHOICE))
     return value > dsda_LowerLimitConfig(s->config_id);
 
   if (flags & S_STR)
@@ -3190,7 +3223,7 @@ static dboolean M_NextChoiceExists(const setup_menu_t *s)
   menu_flags_t flags = s->m_flags;
   const char **choice_list;
 
-  if (flags & S_THERMO)
+  if ((flags & S_THERMO) && !(flags & S_CHOICE))
     return M_NextThermoValueExists(s);
 
   choice_list = M_SetupChoiceList(s);
@@ -3306,7 +3339,8 @@ static dboolean M_SetupSettingText(const setup_menu_t *s,
   if (flags & S_YESNO)
     M_CopyText(text, text_size,
                dsda_IntConfig(s->config_id) ? "Yes" : "No");
-  else if (flags & (S_WEAP | S_NUM | S_PERC | S_PERC_RANGE | S_THERMO))
+  else if ((flags & (S_WEAP | S_NUM | S_PERC | S_PERC_RANGE | S_THERMO)) &&
+           !(flags & S_CHOICE))
   {
     if ((flags & (S_HILITE | S_SELECT)) && setup_gather)
     {
@@ -3576,9 +3610,25 @@ static void M_DrawSetting(const setup_menu_t* s, int y)
 
   if (flags & S_THERMO)
   {
-    M_DrawThermoSmall(x, y, 8, M_ThermoDisplayRange(s), M_ThermoDisplayValue(s), s);
+    int thermo_patches = M_ThermoPatchNum(s);
 
-    x += 80;
+    if (flags & S_CHOICE)
+    {
+      const char **choices = M_SetupChoiceList(s);
+      int choice_count = M_ChoiceCount(choices);
+
+      // Choice needs at least 2 options for a thermo
+      if (choice_count < 2)
+        choice_count = 2;
+
+      M_DrawThermoSmall(x, y, thermo_patches, choice_count, M_SetupChoiceValue(s), s);
+    }
+    else
+    {
+      M_DrawThermoSmall(x, y, thermo_patches, M_ThermoDisplayRange(s), M_ThermoDisplayValue(s), s);
+    }
+
+    x += M_ThermoFullWidth(s); // default 80
     y += 3;
   }
 
@@ -3964,6 +4014,7 @@ static dboolean M_ResetSetupItemDefault(setup_menu_t *ptr)
   switch (flags & (S_STR | S_YESNO | S_NUM | S_PERC | S_COLOR | S_CRCHOICE | S_CHOICE | S_THERMO))
   {
     case S_CHOICE | S_STR:
+    case S_CHOICE | S_STR | S_THERMO:
       dsda_UpdateStringConfig(ptr->config_id, dsda_DefaultStringConfig(ptr->config_id), true);
       return true;
 
@@ -4087,6 +4138,7 @@ static void M_DrawInstructions(void)
       case S_CHOICE:
       case S_CRCHOICE:
       case S_THERMO:
+      case S_THERMO | S_CHOICE:
         M_DrawInstructionString(cr_info_edit, "Press left or right to choose");
         break;
       case S_FILE:
@@ -5256,6 +5308,7 @@ setup_menu_t* gen_settings[] =
 };
 
 #define G_X 210
+#define G1_X 160
 #define G2_X 220
 #define G3_X 200
 #define GP_X 180
@@ -5305,22 +5358,22 @@ static const char *render_aspects_list[] = { "Auto", "16:9", "16:10", "4:3", "5:
 // static const char* render_stretch_list[] = { "Not Adjusted", "Doom Format", "Fit to Width", NULL };
 
 setup_menu_t gen_video_settings[] = {
-  { "Video mode", S_CHOICE | S_STR, m_conf, g_all, G_X, dsda_config_videomode, 0, videomodes },
-  { "Screen Resolution", S_CHOICE | S_STR, m_conf, g_all, G_X, dsda_config_screen_resolution, 0, screen_resolutions_list },
-  { "Aspect Ratio", S_CHOICE, m_conf, g_all, G_X, dsda_config_render_aspect, 0, render_aspects_list },
-  { "Fullscreen Video mode", S_YESNO, m_conf, g_all, G_X, dsda_config_use_fullscreen },
-  { "Exclusive Fullscreen", S_YESNO, m_conf, g_all, G_X, dsda_config_exclusive_fullscreen },
-  //{ "Field of View", S_THERMO | S_NYAN, m_conf, g_all, G_X, dsda_config_render_fov },
-  { "Zoom FOV", S_THERMO | S_NYAN, m_conf, g_all, G_X, dsda_config_zoom_fov },
+  { "Video mode", S_CHOICE | S_STR, m_conf, g_all, G1_X, dsda_config_videomode, 0, videomodes },
+  { "Screen Resolution", S_CHOICE | S_STR | S_THERMO | S_THERMO_MED, m_conf, g_all, G1_X, dsda_config_screen_resolution, 0, screen_resolutions_list },
+  { "Aspect Ratio", S_CHOICE, m_conf, g_all, G1_X, dsda_config_render_aspect, 0, render_aspects_list },
+  { "Fullscreen Video mode", S_YESNO, m_conf, g_all, G1_X, dsda_config_use_fullscreen },
+  { "Exclusive Fullscreen", S_YESNO, m_conf, g_all, G1_X, dsda_config_exclusive_fullscreen },
+  //{ "Field of View", S_THERMO | S_NYAN, m_conf, g_all, G1_X, dsda_config_render_fov },
+  { "Zoom FOV", S_THERMO | S_NYAN, m_conf, g_all, G1_X, dsda_config_zoom_fov },
   EMPTY_LINE,
-  TITLE("FPS", G_X),
-  { "Vertical Sync", S_YESNO, m_conf, g_all, G_X, dsda_config_render_vsync },
-  { "Uncapped FPS", S_YESNO, m_conf, g_all, G_X, dsda_config_uncapped_framerate },
-  { "FPS Limit", S_NUM, m_conf, g_all, G_X, dsda_config_fps_limit },
-  { "Background FPS Limit", S_NUM, m_conf, g_all, G_X, dsda_config_background_fps_limit },
-  { "Show FPS", S_YESNO,  m_conf, g_all, G_X, dsda_config_show_fps },
+  TITLE("FPS", G1_X),
+  { "Vertical Sync", S_YESNO, m_conf, g_all, G1_X, dsda_config_render_vsync },
+  { "Uncapped FPS", S_YESNO, m_conf, g_all, G1_X, dsda_config_uncapped_framerate },
+  { "FPS Limit", S_NUM, m_conf, g_all, G1_X, dsda_config_fps_limit },
+  { "Background FPS Limit", S_NUM, m_conf, g_all, G1_X, dsda_config_background_fps_limit },
+  { "Show FPS", S_YESNO,  m_conf, g_all, G1_X, dsda_config_show_fps },
   EMPTY_LINE,
-  { "Extra Lighting", S_THERMO | S_NYAN, m_conf, g_all, G_X, dsda_config_extra_level_brightness },
+  { "Extra Lighting", S_THERMO | S_NYAN, m_conf, g_all, G1_X, dsda_config_extra_level_brightness },
 
   NEXT_PAGE(gen_audio_settings),
   FINAL_ENTRY
@@ -5460,14 +5513,20 @@ setup_menu_t* audio_settings[] =
 };
 
 setup_menu_t audio_adv_settings[] = {
+  { "Music Auto Gain", S_YESNO, m_conf, g_all, G3_X, dsda_config_music_auto_gain },
+  EMPTY_LINE,
   { "Number of Sound Channels", S_THERMO, m_conf, g_all, G_X, dsda_config_snd_channels },
   EMPTY_LINE,
   { "Pitch-Shifting", S_YESNO, m_conf, g_all, G_X, dsda_config_pitched_sounds },
   { "Disable Sound Cutoffs", S_YESNO, m_conf, g_all, G_X, dsda_config_full_sounds },
+  EMPTY_LINE_ADV(g_doom),
+  { "Sound Limiter", S_YESNO, m_conf, g_doom, G_X, dsda_config_snd_limiter },
+  { "Channels per sfx", S_NUM, m_conf, g_doom, G_X, dsda_config_snd_channels_per_sfx, 0, empty_list, DEPEND(dsda_config_snd_limiter, true) },
+  { "Volume per sfx", S_NUM, m_conf, g_doom, G_X, dsda_config_snd_volume_per_sfx, 0, empty_list, DEPEND(dsda_config_snd_limiter, true) },
   EMPTY_LINE,
   { "Limit Overlapping for Same-Sound", S_YESNO, m_conf, g_all, G_X, dsda_config_parallel_sfx_active },
   { "Number of Overlapping Sounds", S_NUM, m_conf, g_all, G_X, dsda_config_parallel_sfx_limit, 0, empty_list, DEPEND(dsda_config_parallel_sfx_active, true) },
-  { "Sound Replay Window (s)", S_NUM, m_conf, g_all, G_X, dsda_config_parallel_sfx_window, 0, empty_list, DEPEND(dsda_config_parallel_sfx_active, true) },
+  { "Sound Replay Window (tics)", S_NUM, m_conf, g_all, G_X, dsda_config_parallel_sfx_window, 0, empty_list, DEPEND(dsda_config_parallel_sfx_active, true) },
   EMPTY_LINE,
   { "Audio Output Device", S_CHOICE | S_STR | S_TWO_LINE, m_conf, g_all, G_X, dsda_config_snd_device, 0, audio_devices_list },
 
@@ -5608,8 +5667,24 @@ static void M_Sub_DrawGamepad(void)
 }
 
 // To (un)set fullscreen video after menu changes
+enum video_mode_change_e
+{
+  VIDEO_MODE_CHANGE_NONE,
+  VIDEO_MODE_CHANGE_FULLSCREEN,
+  VIDEO_MODE_CHANGE_RESOLUTION,
+} video_mode_change_t;
+
+static int pending_video_mode_change;
+
 void M_ChangeFullScreen(void)
 {
+  if (D_WipeActive())
+  {
+    if (pending_video_mode_change != VIDEO_MODE_CHANGE_RESOLUTION)
+      pending_video_mode_change = VIDEO_MODE_CHANGE_FULLSCREEN;
+    return;
+  }
+
   I_UpdateVideoMode();
 
   if (V_IsOpenGLMode())
@@ -5620,12 +5695,31 @@ void M_ChangeFullScreen(void)
 
 void M_ChangeVideoMode(void)
 {
+  if (D_WipeActive())
+  {
+    pending_video_mode_change = VIDEO_MODE_CHANGE_RESOLUTION;
+    return;
+  }
+
   V_ChangeScreenResolution();
 }
 
 void M_ChangeUseGLSurface(void)
 {
-  V_ChangeScreenResolution();
+  M_ChangeVideoMode();
+}
+
+// [AR] Wait to change resolution once wipe has finished
+void M_ApplyPendingVideoMode(void)
+{
+  int change = pending_video_mode_change;
+
+  pending_video_mode_change = VIDEO_MODE_CHANGE_NONE;
+
+  if (change == VIDEO_MODE_CHANGE_RESOLUTION)
+    V_ChangeScreenResolution();
+  else if (change == VIDEO_MODE_CHANGE_FULLSCREEN)
+    M_ChangeFullScreen();
 }
 
 void M_ChangeDemoSmoothTurns(void)
@@ -10106,12 +10200,12 @@ void M_ChangeMenu(menu_t *menudef, menuactive_t mnact)
   if (mnact > mnact_inactive && gamestate == GS_LEVEL)
     dsda_TrackFeature(uf_menu);
 
-  if (SDL_IsTextInputActive()) {
+  if (SDL_TextInputActive(sdl_window)) {
     if (!(currentMenu && currentMenu->flags & MENUF_TEXTINPUT))
-      SDL_StopTextInput();
+      SDL_StopTextInput(sdl_window);
   }
   else if (currentMenu && currentMenu->flags & MENUF_TEXTINPUT)
-    SDL_StartTextInput();
+    SDL_StartTextInput(sdl_window);
 }
 
 //

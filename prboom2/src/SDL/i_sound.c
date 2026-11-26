@@ -42,16 +42,12 @@
 #include <unistd.h>
 #endif
 
-#include "SDL.h"
-#include "SDL_audio.h"
-#include "SDL_mutex.h"
+#include <SDL3/SDL.h>
 
-#include "SDL_endian.h"
-
-#include "SDL_version.h"
-#include "SDL_thread.h"
-#define USE_RWOPS
-#include "SDL_mixer.h"
+#include "alc.h"
+#include "OAL/i_openal.h"
+#include "OAL/i_openal_music.h"
+#include "OAL/i_openal_sound.h"
 
 #include "z_zone.h"
 
@@ -105,6 +101,7 @@ typedef struct
   const unsigned char *data;
   const unsigned char *startdata;
   const unsigned char *enddata;
+  size_t length;
   // Time/gametic that the channel started playing,
   //  used to determine oldest, which automatically
   //  has lowest priority.
@@ -130,9 +127,9 @@ static int dumping_sound = 0;
 
 
 // lock for updating any params related to sfx
-SDL_mutex *sfxmutex;
+SDL_Mutex *sfxmutex;
 // lock for updating any params related to music
-SDL_mutex *musmutex;
+SDL_Mutex *musmutex;
 
 static int pitched_sounds;
 int snd_samplerate; // samples per second
@@ -289,6 +286,8 @@ void I_InitSoundParams(void)
 
 static void stopchan(int i)
 {
+  I_OAL_StopSound(i);
+
   if (channelinfo[i].data) /* cph - prevent excess unlocks */
   {
     channelinfo[i].data = NULL;
@@ -298,34 +297,26 @@ static void stopchan(int i)
 // [FG] support multi-channel samples by converting them to mono first
 static Uint8 *ConvertAudioFormat(void **data, SDL_AudioSpec *sample, Uint32 *len)
 {
-  SDL_AudioCVT cvt;
+  SDL_AudioSpec converted_sample  = { SDL_AUDIO_S16LE, 1, snd_samplerate };
+  Uint8 *converted_sampledata;
+  int converted_samplelen;
+  void *local_sampledata;
 
-  if (SDL_BuildAudioCVT(&cvt,
-                        sample->format, sample->channels, sample->freq,
-                        AUDIO_S16, 1, snd_samplerate) < 0)
+  if (!SDL_ConvertAudioSamples(sample, *data, *len, &converted_sample ,
+                               &converted_sampledata, &converted_samplelen))
   {
-    lprintf(LO_WARN, "SDL_BuildAudioCVT: %s\n", SDL_GetError());
+    lprintf(LO_WARN, "SDL_ConvertAudioSamples: %s\n", SDL_GetError());
     return NULL;
   }
 
-  cvt.len = *len;
-  cvt.buf = Z_Malloc(cvt.len * cvt.len_mult);
-  memcpy(cvt.buf, *data, cvt.len);
-
-  if (SDL_ConvertAudio(&cvt) < 0)
-  {
-    Z_Free(cvt.buf);
-    lprintf(LO_WARN, "SDL_ConvertAudio: %s\n", SDL_GetError());
-    return NULL;
-  }
-
+  local_sampledata = Z_Malloc(converted_samplelen);
+  memcpy(local_sampledata, converted_sampledata, converted_samplelen);
+  SDL_free(converted_sampledata);
   Z_Free(*data);
 
-  sample->channels = 1;
-  sample->format = AUDIO_S16;
-  sample->freq = snd_samplerate;
-  *data = cvt.buf;
-  *len = cvt.len_cvt;
+  *sample = converted_sample;
+  *data = local_sampledata;
+  *len = converted_samplelen;
 
   return *data;
 }
@@ -534,6 +525,7 @@ static int addsfx(int sfxid, int channel, const channel_info_t *cinfo)
 
   ci->data = cinfo->data;
   ci->enddata = cinfo->enddata;
+  ci->length = cinfo->length;
   ci->samplerate = cinfo->samplerate;
   ci->bits = cinfo->bits;
 
@@ -581,6 +573,7 @@ static void updateSoundParams(int handle, sfx_params_t *params)
   int slot = handle;
   int rightvol;
   int leftvol;
+  int separation = params->separation;
 
 #ifdef RANGECHECK
   if ((handle < 0) || (handle >= MAX_CHANNELS))
@@ -627,6 +620,12 @@ static void updateSoundParams(int handle, sfx_params_t *params)
   //  for this volume level???
   channelinfo[slot].leftvol = leftvol;
   channelinfo[slot].rightvol = rightvol;
+
+  if (!dumping_sound)
+  {
+    I_OAL_SetVolume(slot, params->volume);
+    I_OAL_SetPan(slot, separation);
+  }
 }
 
 void I_UpdateSoundParams(int handle, sfx_params_t *params)
@@ -634,6 +633,12 @@ void I_UpdateSoundParams(int handle, sfx_params_t *params)
   SDL_LockMutex (sfxmutex);
   updateSoundParams(handle, params);
   SDL_UnlockMutex (sfxmutex);
+}
+
+void I_SetGain(int handle, float gain)
+{
+  if (!dumping_sound)
+    I_OAL_SetGain(handle, gain);
 }
 
 //
@@ -747,6 +752,7 @@ int I_StartSound(int id, int channel, sfx_params_t *params)
     {
       cinfo.data = &data[DMXHDRSIZE + DMXPADSIZE];
       cinfo.enddata = &cinfo.data[dmx_len - DMXPADSIZE * 2 - 1];
+      cinfo.length = dmx_len - DMXPADSIZE * 2;
       cinfo.samplerate = GetDMXSampleRate(data);
       cinfo.bits = 8;
     }
@@ -763,6 +769,7 @@ int I_StartSound(int id, int channel, sfx_params_t *params)
     {
       cinfo.data = snd_data->data;
       cinfo.enddata = &cinfo.data[snd_data->samplelen - 1];
+      cinfo.length = snd_data->samplelen;
       cinfo.samplerate = snd_data->samplerate;
       cinfo.bits = 16;
     }
@@ -777,6 +784,15 @@ int I_StartSound(int id, int channel, sfx_params_t *params)
   // Returns a handle (not used).
   addsfx(id, channel, &cinfo);
   updateSoundParams(channel, params);
+
+  if (!dumping_sound &&
+      !I_OAL_StartSound(channel, id, cinfo.data, cinfo.length, cinfo.bits,
+                        cinfo.samplerate, params->loop,
+                        pitched_sounds ? (float)steptable[params->pitch] / 65536.0f : 1.0f))
+  {
+    stopchan(channel);
+    channel = -1;
+  }
 
   SDL_UnlockMutex (sfxmutex);
 
@@ -806,6 +822,12 @@ dboolean I_SoundIsPlaying(int handle)
     I_Error("I_SoundIsPlaying: handle out of range");
 #endif
 
+  if (dumping_sound)
+    return channelinfo[handle].data != NULL;
+
+  if (channelinfo[handle].data && !I_OAL_SoundIsPlaying(handle))
+    channelinfo[handle].data = NULL;
+
   return channelinfo[handle].data != NULL;
 }
 
@@ -816,7 +838,7 @@ dboolean I_AnySoundStillPlaying(void)
   int i;
 
   for (i = 0; i < MAX_CHANNELS; i++)
-    result |= channelinfo[i].data != NULL;
+    result |= I_SoundIsPlaying(i);
 
   return result;
 }
@@ -984,11 +1006,28 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
   SDL_UnlockMutex (sfxmutex);
 }
 
+static void I_UpdateMusicOutput(unsigned char *stream, int len)
+{
+  memset(stream, 0, len);
+
+  // Video capture advances music through I_GrabSound instead
+  if (dumping_sound)
+    return;
+
+  if (registered_non_rw)
+  {
+    SDL_LockMutex(musmutex);
+    UpdateMusic(stream, len / 4);
+    SDL_UnlockMutex(musmutex);
+  }
+}
+
 static dboolean sound_was_initialized;
 
 #define MAX_AUDIO_DEVICES 64
 #define AUDIO_DEVICE_DEFAULT "Default"
 const char *audio_devices_list[MAX_AUDIO_DEVICES + 1] = { NULL };
+static const char *openal_device_names[MAX_AUDIO_DEVICES + 1] = { NULL };
 
 static char current_audio_device[256] = "";
 
@@ -1024,26 +1063,68 @@ static void I_RememberAudioDevice(const char *snd_device)
   snprintf(current_audio_device, sizeof(current_audio_device), "%s", snd_device ? snd_device : "");
 }
 
-static dboolean I_OpenAudioDevice(int audio_rate, int audio_channels, int audio_buffers, const char *snd_device)
+static const char *I_OAL_DeviceName(const char *display_name)
 {
-  if (Mix_OpenAudioDevice(audio_rate, MIX_DEFAULT_FORMAT, audio_channels, audio_buffers, snd_device, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0)
+  int i;
+
+  if (!display_name)
+    return NULL;
+
+  for (i = 1; audio_devices_list[i]; ++i)
+    if (!strcasecmp(audio_devices_list[i], display_name))
+      return openal_device_names[i];
+
+  return display_name;
+}
+
+static void I_CloseAudioDevice(void)
+{
+  I_StopOpenALMusic();
+  I_OAL_ShutdownSound();
+  I_CloseOpenALDevice();
+}
+
+static dboolean I_OpenAudioDevice(int audio_rate, int audio_channels, const char *snd_device)
+{
+  const char *openal_device = I_OAL_DeviceName(snd_device);
+
+  if (audio_channels != 2)
+    return false;
+
+  if (!I_OpenALDevice(openal_device, audio_rate) ||
+      !I_OAL_InitSound(MAX_CHANNELS) ||
+      !I_StartOpenALMusic(audio_rate, I_UpdateMusicOutput))
   {
-    lprintf(LO_WARN, "couldn't open audio device \"%s\" (%s)\n", snd_device ? snd_device : "default", SDL_GetError());
-    if (snd_device)
-    {
-      lprintf(LO_WARN, "falling back to default audio device\n");
-      if (Mix_OpenAudioDevice(audio_rate, MIX_DEFAULT_FORMAT, audio_channels, audio_buffers, NULL, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0)
-      {
-        lprintf(LO_WARN, "couldn't open audio with desired format (%s)\n", SDL_GetError());
-        return false;
-      }
-    }
-    else
-    {
-      lprintf(LO_WARN, "couldn't open audio with desired format (%s)\n", SDL_GetError());
-      return false;
-    }
+    I_CloseAudioDevice();
+    return false;
   }
+
+  return true;
+}
+
+static dboolean I_ReopenAudioDevice(const char *snd_device)
+{
+  int i;
+
+  S_StopMusic();
+
+  SDL_LockMutex(sfxmutex);
+  for (i = 0; i < MAX_CHANNELS; ++i)
+    stopchan(i);
+  SDL_UnlockMutex(sfxmutex);
+
+  I_CloseAudioDevice();
+
+  if (!I_OpenAudioDevice(snd_samplerate, 2, snd_device))
+  {
+    lprintf(LO_ERROR, "audio device switch failed, sound disabled\n");
+    sound_was_initialized = false;
+    return false;
+  }
+
+  I_RememberAudioDevice(snd_device);
+
+  S_RestartMusic();
 
   return true;
 }
@@ -1051,7 +1132,6 @@ static dboolean I_OpenAudioDevice(int audio_rate, int audio_channels, int audio_
 void I_ChangeAudioDevice(void)
 {
   const char *snd_device;
-  int i;
 
   if (!sound_was_initialized || dumping_sound)
     return;
@@ -1061,51 +1141,34 @@ void I_ChangeAudioDevice(void)
   if (!strcasecmp(snd_device ? snd_device : "", current_audio_device))
     return;
 
-  S_StopMusic();
-
-  SDL_LockMutex(sfxmutex);
-  for (i = 0; i < MAX_CHANNELS; ++i)
-    stopchan(i);
-  SDL_UnlockMutex(sfxmutex);
-
-  Mix_HaltMusic();
-  Mix_CloseAudio();
-  SDL_CloseAudio();
-
-  if (!I_OpenAudioDevice(snd_samplerate, 2, getSliceSize(), snd_device))
-  {
-    lprintf(LO_ERROR, "audio device switch failed, sound disabled\n");
-    sound_was_initialized = false;
+  if (!I_ReopenAudioDevice(snd_device))
     return;
-  }
-
-  Mix_QuerySpec(&snd_samplerate, NULL, NULL);
-
-  Mix_SetPostMix(I_UpdateSound, NULL);
-
-  SDL_PauseAudio(0);
-
-  I_RememberAudioDevice(snd_device);
-
-  S_RestartMusic();
 
   lprintf(LO_INFO, "switched audio output to \"%s\"\n", current_audio_device);
 }
 
+void I_ChangeSoundLimiter(void)
+{
+  S_ResetSfxLimiter();
+
+  if (!sound_was_initialized || dumping_sound)
+    return;
+
+  if (I_ResetOpenALDevice())
+    lprintf(LO_DEBUG, "updated OpenAL sound limiter\n");
+  else
+    lprintf(LO_WARN, "couldn't update OpenAL sound limiter while running\n");
+}
+
 void I_ShutdownSound(void)
 {
-  if (sound_was_initialized)
+  I_CloseAudioDevice();
+  sound_was_initialized = false;
+
+  if (sfxmutex)
   {
-    Mix_CloseAudio();
-    SDL_CloseAudio();
-
-    sound_was_initialized = false;
-
-    if (sfxmutex)
-    {
-      SDL_DestroyMutex (sfxmutex);
-      sfxmutex = NULL;
-    }
+    SDL_DestroyMutex (sfxmutex);
+    sfxmutex = NULL;
   }
 }
 
@@ -1121,14 +1184,6 @@ void I_InitSound(void)
   if (sound_was_initialized || (nomusicparm && nosfxparm))
     return;
 
-  if (SDL_InitSubSystem(SDL_INIT_AUDIO))
-  {
-    lprintf(LO_WARN, "Couldn't initialize SDL audio (%s))\n", SDL_GetError());
-    nosfxparm = true;
-    nomusicparm = true;
-    return;
-  }
-
   // Secure and configure sound device first.
   lprintf(LO_DEBUG, "I_InitSound: ");
 
@@ -1138,18 +1193,39 @@ void I_InitSound(void)
 
   {
     // the device list is built once at startup, so anything plugged in afterward will need a restart
-    int i, count = SDL_GetNumAudioDevices(0);
+    const ALCchar *devices = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
     int list_size = 0;
+
+    // For older OpenAL headers
+#ifdef ALC_ALL_DEVICES_SPECIFIER
+    if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
+      devices = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+#endif
 
     audio_devices_list[list_size++] = AUDIO_DEVICE_DEFAULT;
 
-    for (i = 0; i < count && list_size < MAX_AUDIO_DEVICES; ++i)
+    while (devices && *devices && list_size < MAX_AUDIO_DEVICES)
     {
-      const char *name = SDL_GetAudioDeviceName(i, 0);
-      if (name)
-        audio_devices_list[list_size++] = Z_Strdup(name);
+      // Devices found by OpenAL have a prefix "OpenAL Soft on"
+      // Remove the prefix to see the actual audio device names
+      // SDL mixer was better about this :/
+      static const char prefix[] = "OpenAL Soft on ";
+
+      if (strcasecmp(devices, "OpenAL Soft"))
+      {
+        const char *display_name = devices;
+
+        if (!strncasecmp(display_name, prefix, sizeof(prefix) - 1))
+          display_name += sizeof(prefix) - 1;
+
+        audio_devices_list[list_size] = Z_Strdup(display_name);
+        openal_device_names[list_size] = Z_Strdup(devices);
+        ++list_size;
+      }
+      devices += strlen(devices) + 1;
     }
     audio_devices_list[list_size] = NULL;
+    openal_device_names[list_size] = NULL;
   }
 
   snd_device = I_ResolveAudioDevice();
@@ -1157,33 +1233,32 @@ void I_InitSound(void)
   if (snd_device)
     lprintf(LO_DEBUG, "opening configured audio device \"%s\"\n", snd_device);
 
-  if (!I_OpenAudioDevice(audio_rate, audio_channels, audio_buffers, snd_device))
+  sfxmutex = SDL_CreateMutex ();
+
+  if (!sfxmutex || !I_OpenAudioDevice(audio_rate, audio_channels, snd_device))
   {
+    if (sfxmutex)
+    {
+      SDL_DestroyMutex(sfxmutex);
+      sfxmutex = NULL;
+    }
     nosfxparm = true;
     nomusicparm = true;
     return;
   }
 
-  // [FG] feed actual sample frequency back into config variable
-  Mix_QuerySpec(&snd_samplerate, NULL, NULL);
-
   sound_was_initialized = true;
 
   I_RememberAudioDevice(snd_device);
-
-  Mix_SetPostMix(I_UpdateSound, NULL);
 
   lprintf(LO_DEBUG, " configured audio device with %d samples/slice\n", audio_buffers);
 
   I_AtExit(I_ShutdownSound, true, "I_ShutdownSound", exit_priority_normal);
 
-  sfxmutex = SDL_CreateMutex ();
-
   if (!nomusicparm)
     I_InitMusic();
 
   lprintf(LO_DEBUG, "I_InitSound: sound module ready\n");
-  SDL_PauseAudio(0);
 }
 
 
@@ -1288,12 +1363,6 @@ static void PlaySong(int handle, int looping);
 #include "MUSIC/vorbisplayer.h"
 #include "MUSIC/portmidiplayer.h"
 
-static Mix_Music *music[2] = { NULL, NULL };
-
-// Some tracks are directly streamed from the RWops;
-// we need to free them in the end
-static SDL_RWops *rwops_stream = NULL;
-
 // note that the "handle" passed around by s_sound is ignored
 // however, a handle is maintained for the individual music players
 
@@ -1350,6 +1419,8 @@ static void I_InitMusicPlayers(void)
 void I_ShutdownMusic(void)
 {
   int i;
+
+  I_CloseAudioDevice();
   S_StopMusic ();
 
   for (i = 0; music_players[i]; i++)
@@ -1451,6 +1522,11 @@ void M_ChangeSoundfont(void)
 // Derived value (not saved, accounts for muted music)
 static int music_volume;
 
+void I_ResetMusicAutoGain(void)
+{
+  I_ConfigureOpenALMusicGain(dsda_IntConfig(dsda_config_music_auto_gain), music_volume);
+}
+
 void I_ResetMusicVolume(void)
 {
   snd_MusicVolume = dsda_IntConfig(dsda_config_music_volume);
@@ -1463,7 +1539,7 @@ void I_ResetMusicVolume(void)
   else
     music_volume = snd_MusicVolume;
 
-  Mix_VolumeMusic(music_volume * 8);
+  I_ConfigureOpenALMusicGain(dsda_IntConfig(dsda_config_music_auto_gain), music_volume);
 
   if (music_handle)
   {
@@ -1475,105 +1551,27 @@ void I_ResetMusicVolume(void)
 
 void I_PlaySong(int handle, int looping)
 {
-  if (registered_non_rw)
-  {
-    PlaySong (handle, looping);
-    return;
-  }
-
-  if ( music[handle] ) {
-    //Mix_FadeInMusic(music[handle], looping ? -1 : 0, 500);
-    Mix_PlayMusic(music[handle], looping ? -1 : 0);
-
-    // haleyjd 10/28/05: make sure volume settings remain consistent
-    I_ResetMusicVolume();
-  }
+  PlaySong(handle, looping);
 }
 
 void I_PauseSong (int handle)
 {
-  if (registered_non_rw)
-  {
-    PauseSong (handle);
-    return;
-  }
-
-  switch (dsda_IntConfig(dsda_config_mus_pause_opt))
-  {
-    case 0:
-        I_StopSong(handle);
-      break;
-    case 1:
-      switch (Mix_GetMusicType(NULL))
-      {
-        case MUS_NONE:
-          break;
-        default:
-          Mix_PauseMusic();
-          break;
-      }
-      break;
-  }
-  // Default - let music continue
+  PauseSong(handle);
 }
 
 void I_ResumeSong (int handle)
 {
-  if (registered_non_rw)
-  {
-    ResumeSong (handle);
-    return;
-  }
-
-  switch (dsda_IntConfig(dsda_config_mus_pause_opt)) {
-    case 0:
-        I_PlaySong(handle,1);
-      break;
-    case 1:
-      switch (Mix_GetMusicType(NULL))
-      {
-        case MUS_NONE:
-          break;
-        default:
-          Mix_ResumeMusic();
-          break;
-      }
-      break;
-  }
-  /* Otherwise, music wasn't stopped */
+  ResumeSong(handle);
 }
 
 void I_StopSong(int handle)
 {
-  if (registered_non_rw)
-  {
-    StopSong (handle);
-    return;
-  }
-
-  // halt music playback
-  Mix_HaltMusic();
+  StopSong(handle);
 }
 
 void I_UnRegisterSong(int handle)
 {
-  if (registered_non_rw)
-  {
-    UnRegisterSong (handle);
-    return;
-  }
-
-  if ( music[handle] ) {
-    Mix_FreeMusic(music[handle]);
-    music[handle] = NULL;
-
-    // Free RWops
-    if (rwops_stream != NULL)
-    {
-      //SDL_FreeRW(rwops_stream);
-      rwops_stream = NULL;
-    }
-  }
+  UnRegisterSong(handle);
 }
 
 int I_RegisterSong(const void *data, size_t len)
@@ -1587,27 +1585,25 @@ int I_RegisterSong(const void *data, size_t len)
   // Now you can hear title music in deca.wad
   // http://www.doomworld.com/idgames/index.php?id=8808
   // Ability to use mp3 and ogg as inwad lump
-
-  music[0] = NULL;
-
-  rwops_stream = SDL_RWFromConstMem(data, (int)len);
-  if (rwops_stream)
+  //
+  // Some vanilla-compatible MUS lumps are damaged
+  // If normal format detection fails, try to repair it via MUS copy
+  // (SDL2-Mixer used to accept these through its fallback)
+  if (len >= 4 && memcmp(data, "MUS\x1a", 4) != 0)
   {
-    music[0] = Mix_LoadMUS_RW(rwops_stream, SDL_FALSE);
+    unsigned char *repaired_mus = Z_Malloc(len);
+    int result;
+
+    memcpy(repaired_mus, data, len);
+    memcpy(repaired_mus, "MUS\x1a", 4);
+    result = RegisterSong(repaired_mus, len);
+    Z_Free(repaired_mus);
+
+    if (result)
+      return 0;
   }
 
-  // Failed to load
-  if (!music[0])
-  {
-    // Conversion failed, free everything
-    if (rwops_stream != NULL)
-    {
-      //SDL_FreeRW(rwops_stream);
-      rwops_stream = NULL;
-    }
-
-    lprintf(LO_ERROR, "Error loading song: %s\n", Mix_GetError());
-  }
+  lprintf(LO_ERROR, "I_RegisterSong: no available music player accepted the song\n");
 
   return (0);
 }
@@ -1619,6 +1615,8 @@ static void PlaySong(int handle, int looping)
     SDL_LockMutex (musmutex);
     music_players[current_player]->play (music_handle, looping);
     music_players[current_player]->setvolume (music_volume);
+    I_ResetOpenALMusicGain();
+    I_RestartOpenALMusic();
     SDL_UnlockMutex (musmutex);
   }
 }

@@ -43,7 +43,7 @@
 
 #include "gl_opengl.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <math.h>
 
 #include "doomtype.h"

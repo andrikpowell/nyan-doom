@@ -127,6 +127,10 @@ int numChannels;
 //jff 3/17/98 to keep track of last IDMUS specified music num
 int idmusnum;
 
+// sound channel limiter
+static int max_channels_per_sfx;
+static int max_volume_per_sfx;
+
 //
 // Internals.
 //
@@ -136,6 +140,7 @@ void S_StopChannel(int cnum);
 int S_AdjustSoundParams(mobj_t *listener, mobj_t *source, channel_t *channel, sfx_params_t *params);
 
 static int S_getChannel(void *origin, sfxinfo_t *sfxinfo, sfx_params_t *params);
+static void S_LimitVolumePerSfx(void);
 
 
 // heretic
@@ -167,6 +172,47 @@ void S_ResetSfxVolume(void)
     sfx_volume = snd_SfxVolume;
 }
 
+void S_ResetSfxLimiter(void)
+{
+  int cnum;
+  int snd_channels;
+  dboolean snd_limiter = dsda_IntConfig(dsda_config_snd_limiter);
+
+  max_channels_per_sfx = 0;
+  max_volume_per_sfx = 0;
+
+  // Raven has its own sound logic
+  if (raven)
+    return;
+
+  // Restore the gain of sounds that may have been limited
+  // We must call this because unlike Woof, we don't update sound sources every tick
+  for (cnum = 0; cnum < numChannels; ++cnum)
+  {
+    if (channels[cnum].active)
+      I_SetGain(channels[cnum].handle, (float)channels[cnum].volume / 127.0f);
+  }
+
+  if (snd_limiter)
+  {
+    int config_snd_channels   = dsda_IntConfig(dsda_config_snd_channels);
+    int snd_channels_per_sfx  = dsda_IntConfig(dsda_config_snd_channels_per_sfx);
+    int snd_volume_per_sfx    = dsda_IntConfig(dsda_config_snd_volume_per_sfx);
+
+    snd_channels = numChannels ? numChannels : config_snd_channels;
+
+    max_channels_per_sfx = MIN(snd_channels_per_sfx, snd_channels);
+
+    // Limit volume per sfx only when it makes sense to do so.
+    if (max_channels_per_sfx < 1
+        || snd_volume_per_sfx < max_channels_per_sfx * 100)
+    {
+      // Convert percent to Doom's volume scale.
+      max_volume_per_sfx = 127 * snd_volume_per_sfx / 100;
+    }
+  }
+}
+
 void S_ResetVolume(void)
 {
   void I_ResetMusicVolume(void);
@@ -187,6 +233,7 @@ void S_Init(void)
   S_Stop();
 
   numChannels = dsda_IntConfig(dsda_config_snd_channels);
+  S_ResetSfxLimiter();
 
   //jff 1/22/98 skip sound init if sound not enabled
   if (!nosfxparm)
@@ -434,12 +481,15 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume, dboolean impor
       channels[cnum].handle = h;
       channels[cnum].pitch = params.pitch;
       channels[cnum].priority = params.priority;
+      channels[cnum].volume = params.volume;
       channels[cnum].ambient = params.ambient;
       channels[cnum].attenuation = params.attenuation;
       channels[cnum].volume_factor = params.volume_factor;
       channels[cnum].loop = params.loop;
       channels[cnum].loop_timeout = params.loop_timeout;
       channels[cnum].active = true;
+      channels[cnum].sfxinfo->active.count++;
+      S_LimitVolumePerSfx();
     }
   }
 }
@@ -597,6 +647,60 @@ void S_ResumeSound(void)
     }
 }
 
+static void S_LimitVolumePerSfx(void)
+{
+  int cnum;
+
+  // Raven has its own sound logic
+  if (raven)
+    return;
+
+  if (max_volume_per_sfx < 1)
+    return;
+
+  for (cnum = 0; cnum < numChannels; ++cnum)
+  {
+    channel_t *c = &channels[cnum];
+    sfxinfo_t *sfx = c->sfxinfo;
+
+    if (sfx)
+    {
+      // We must call this because unlike Woof, we don't update sound sources every tick
+      I_SetGain(c->handle, (float)c->volume / 127.0f);
+
+      sfx->active.volume = 0;
+    }
+  }
+
+  // Find channels using the same sound and add up the total volume.
+  for (cnum = 0; cnum < numChannels; ++cnum)
+  {
+    channel_t *c = &channels[cnum];
+    sfxinfo_t *sfx = c->sfxinfo;
+
+    if (sfx && sfx->active.count > 1 && c->origin)
+    {
+      sfx->active.volume += c->volume;
+    }
+  }
+
+  // If the total volume of a sound is too loud, reduce the volume of each
+  // channel playing that sound.
+  for (cnum = 0; cnum < numChannels; ++cnum)
+  {
+    channel_t *c = &channels[cnum];
+    sfxinfo_t *sfx = c->sfxinfo;
+
+    if (sfx && sfx->active.volume > max_volume_per_sfx)
+    {
+      const float gain = (float)c->volume * max_volume_per_sfx
+                         / (127 * sfx->active.volume);
+
+      I_SetGain(c->handle, gain);
+    }
+  }
+}
+
 
 //
 // Updates music & sounds
@@ -645,6 +749,11 @@ void S_UpdateSounds(void)
           if (S_AdjustSoundParams(listener, channel->origin, channel, &params))
           {
             I_UpdateSoundParams(channel->handle, &params);
+
+            // Raven has its own sound logic
+            if (!raven)
+              channel->volume = params.volume;
+
             channel->priority = params.priority;
           }
           else
@@ -657,6 +766,8 @@ void S_UpdateSounds(void)
         S_StopChannel(cnum);
     }
   }
+
+  S_LimitVolumePerSfx();
 }
 
 // Starts some music with the music id found in sounds.h.
@@ -863,6 +974,8 @@ void S_StopChannel(int cnum)
     if (I_SoundIsPlaying(c->handle))
       I_StopSound(c->handle);
 
+    c->sfxinfo->active.count--;
+
     c->active = false;
     c->sfxinfo = NULL;
     c->origin = NULL;
@@ -967,29 +1080,74 @@ int S_AdjustSoundParams(mobj_t *listener, mobj_t *source, channel_t *channel, sf
 //   If none available, return -1.  Otherwise channel #.
 //
 
-static int S_ChannelScore(channel_t *channel)
-{
-  return channel->priority;
-}
-
-static int S_LowestScoreChannel(void)
+static int S_LowestPriorityChannel(void)
 {
   int cnum;
-  int lowest_score = INT_MAX;
-  int lowest_cnum = channel_not_found;
+  int lowestpriority = INT_MAX;
+  int lpcnum = channel_not_found;
 
   for (cnum = 0; cnum < numChannels; ++cnum)
   {
-    int score = S_ChannelScore(&channels[cnum]);
+    const channel_t *c = &channels[cnum];
 
-    if (score < lowest_score)
+    if (c->priority < lowestpriority)
     {
-      lowest_score = score;
-      lowest_cnum = cnum;
+      lowestpriority = c->priority;
+      lpcnum = cnum;
     }
   }
 
-  return lowest_cnum;
+  return lpcnum;
+}
+
+static void S_LimitChannelsPerSfx(void *origin, sfxinfo_t *sfxinfo,
+                                  sfx_params_t *params, int *cnum)
+{
+  int i;
+  int lowestpriority = INT_MAX;
+  int lpcnum = channel_not_found;
+  int num_channels = 0;
+
+  // Raven has its own sound logic
+  if (raven)
+    return;
+
+  if (max_channels_per_sfx < 1 || *cnum != numChannels || !origin)
+    return;
+
+  for (i = 0; i < numChannels; ++i)
+  {
+    const channel_t *c = &channels[i];
+    const sfxinfo_t *sfx = c->sfxinfo;
+
+    if (sfx && sfxinfo == sfx && c->origin)
+    {
+      // Find the lowest priority channel using the target sound.
+      if (c->priority < lowestpriority)
+      {
+        lowestpriority = c->priority;
+        lpcnum = i;
+      }
+
+      // Find the number of channels using the target sound.
+      num_channels++;
+    }
+  }
+
+  if (num_channels >= max_channels_per_sfx)
+  {
+    if (params->priority > lowestpriority)
+    {
+      // Stop the lowest priority channel.
+      S_StopChannel(lpcnum);
+      *cnum = lpcnum;
+    }
+    else
+    {
+      // The other channels have higher priority.
+      *cnum = channel_not_found;
+    }
+  }
 }
 
 static int S_getChannel(void *origin, sfxinfo_t *sfxinfo, sfx_params_t *params)
@@ -1021,6 +1179,11 @@ static int S_getChannel(void *origin, sfxinfo_t *sfxinfo, sfx_params_t *params)
       break;
     }
 
+  S_LimitChannelsPerSfx(origin, sfxinfo, params, &cnum);
+
+  if (cnum == channel_not_found)
+    return channel_not_found;
+
   // Find an open channel
   for (cnum = 0; cnum < numChannels; cnum++)
     if (!channels[cnum].active)
@@ -1035,12 +1198,12 @@ static int S_getChannel(void *origin, sfxinfo_t *sfxinfo, sfx_params_t *params)
     temp_channel.priority = params->priority;
     temp_channel.volume = params->volume;
 
-    cnum = S_LowestScoreChannel();
+    cnum = S_LowestPriorityChannel();
 
     if (cnum == channel_not_found)
       return channel_not_found;
 
-    if (S_ChannelScore(&temp_channel) > S_ChannelScore(&channels[cnum]))
+    if (params->priority > channels[cnum].priority)
       S_StopChannel(cnum);
     else
       return channel_not_found;
@@ -1309,6 +1472,7 @@ static void Raven_S_StartSoundAtVolume(void *_origin, int sound_id, int volume, 
   channels[cnum].loop = params.loop;
   channels[cnum].loop_timeout = params.loop_timeout;
   channels[cnum].active = true;
+  channels[cnum].sfxinfo->active.count++;
   if (channels[cnum].ambient) // TODO: can ambient sounds even reach this flow?
     AmbChan = cnum;
 }
@@ -1372,6 +1536,7 @@ void S_StartAmbientSound(void *_origin, int sound_id, int volume)
   channels[i].loop = params.loop;
   channels[i].loop_timeout = params.loop_timeout;
   channels[i].active = true;
+  channels[i].sfxinfo->active.count++;
 }
 
 static void Heretic_S_StopSound(void *_origin)

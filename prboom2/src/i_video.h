@@ -38,11 +38,11 @@
 #include "config.h"
 #endif
 
-#include <SDL_opengl.h>
+#include <SDL3/SDL_opengl.h>
 
 #include "doomtype.h"
 #include "v_video.h"
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 extern SDL_Window *sdl_window;
 extern SDL_Renderer *sdl_renderer;
@@ -62,6 +62,7 @@ void I_SetWindowIcon(void); /* Set the application icon */
 void I_InitGraphics (void);
 void I_UpdateVideoMode(void);
 void I_ShutdownGraphics(void);
+void I_ShowWindow(void);
 
 void *I_GetSDLWindow(void);
 void *I_GetSDLRenderer(void);

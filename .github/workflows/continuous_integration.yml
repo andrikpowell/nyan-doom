@@ -66,6 +66,7 @@ jobs:
             extra_options: >-
               -G Ninja
               -DCMAKE_INSTALL_PREFIX=/usr
+              -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON
             release: true
             package_name: "linux_gcc"
             shell: bash
@@ -93,12 +94,13 @@ jobs:
             ${{ matrix.config.msys-env }}-ninja
             ${{ matrix.config.msys-env }}-pkgconf
             ${{ matrix.config.msys-env }}-libxmp
+            ${{ matrix.config.msys-env }}-libebur128
             ${{ matrix.config.msys-env }}-fluidsynth
             ${{ matrix.config.msys-env }}-libmad
             ${{ matrix.config.msys-env }}-libvorbis
             ${{ matrix.config.msys-env }}-portmidi
-            ${{ matrix.config.msys-env }}-SDL2
-            ${{ matrix.config.msys-env }}-SDL2_mixer
+            ${{ matrix.config.msys-env }}-sdl3
+            ${{ matrix.config.msys-env }}-openal
             ${{ matrix.config.msys-env }}-libspng
             ${{ matrix.config.msys-env }}-libsndfile
             ${{ matrix.config.msys-env }}-libzip
@@ -113,20 +115,28 @@ jobs:
             ninja-build \
             pkg-config \
             libxmp-dev \
+            libebur128-dev \
             libfluidsynth-dev \
             fluidsynth \
             libgl-dev \
             libglu1-mesa-dev \
             libmad0-dev \
             libportmidi-dev \
-            libsdl2-dev \
-            libsdl2-mixer-dev \
+            libopenal-dev \
             libvorbis-dev \
             libsndfile1-dev \
             libzip-dev \
             zipcmp \
             zipmerge \
             ziptool
+
+      - name: Install SDL3 (Linux)
+        if: runner.os == 'Linux'
+        uses: libsdl-org/setup-sdl@main
+        with:
+          version: 3.4.0
+          cmake-generator: Ninja
+          install-linux-dependencies: true
 
       - name: Install Dependencies (macOS)
         if: runner.os == 'macOS'

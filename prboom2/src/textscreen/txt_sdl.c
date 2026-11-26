@@ -15,8 +15,8 @@
 // Text mode emulation in SDL
 //
 
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_opengl.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -58,6 +58,7 @@ static int glwindow_h = 0;
 
 static SDL_Window *TXT_SDLWindow = NULL;
 static SDL_Surface *screenbuffer;
+static SDL_Palette *palette;
 static unsigned char *screendata;
 static SDL_Renderer *renderer;
 static SDL_Texture *texture_upscaled;
@@ -114,7 +115,7 @@ void TXT_SetColor(txt_color_t color, int r, int g, int b)
     SDL_Color c = {r, g, b, 0xff};
 
     SDL_LockSurface(screenbuffer);
-    SDL_SetPaletteColors(screenbuffer->format->palette, &c, color, 1);
+    SDL_SetPaletteColors(palette, &c, color, 1);
     SDL_UnlockSurface(screenbuffer);
 }
 
@@ -148,7 +149,7 @@ void TXT_PreInit(SDL_Window *preset_window, SDL_Renderer *preset_renderer, int o
 int TXT_Init(void)
 {
     int flags = 0;
-    SDL_RendererInfo info;
+    const char *renderer_name;
 
     if (is_opengl)
         return GL_TXT_Init();
@@ -159,7 +160,7 @@ int TXT_Init(void)
     screen_image_h = TXT_SCREEN_H * font->h + HeaderHeight();
 
     // try to initialize high dpi rendering.
-    flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+    flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
     if (TXT_SDLWindow == NULL)
     {
@@ -168,9 +169,7 @@ int TXT_Init(void)
         w = 3 * screen_image_w / 2;
         h = 3 * screen_image_h / 2;
 
-        TXT_SDLWindow = SDL_CreateWindow("",
-                            SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                            w, h, flags);
+        TXT_SDLWindow = SDL_CreateWindow("", w, h, flags);
         SDL_SetWindowMinimumSize(TXT_SDLWindow, screen_image_w, screen_image_h);
     }
 
@@ -179,10 +178,9 @@ int TXT_Init(void)
 
     if (renderer == NULL)
     {
-        renderer = SDL_CreateRenderer(TXT_SDLWindow, -1, SDL_RENDERER_PRESENTVSYNC);
-
-        if (renderer == NULL)
-            renderer = SDL_CreateRenderer(TXT_SDLWindow, -1, SDL_RENDERER_SOFTWARE);
+        renderer = SDL_CreateRenderer(TXT_SDLWindow, NULL);
+        if (renderer != NULL)
+            SDL_SetRenderVSync(renderer, 1);
     }
 
     if (renderer == NULL)
@@ -191,35 +189,36 @@ int TXT_Init(void)
     // Instead, we draw everything into an intermediate 8-bit surface
     // the same dimensions as the screen. SDL then takes care of all the
     // 8->32 bit (or whatever depth) color conversions for us.
-    screenbuffer = SDL_CreateRGBSurface(0,
-                                        TXT_SCREEN_W * font->w,
-                                        screen_image_h,
-                                        8, 0, 0, 0, 0);
+    screenbuffer = SDL_CreateSurface(TXT_SCREEN_W * font->w,
+                                     screen_image_h,
+                                     SDL_PIXELFORMAT_INDEX8);
+
+    palette = SDL_CreatePalette(256);
+    SDL_SetSurfacePalette(screenbuffer, palette);
 
     // Set width and height of the logical viewport for automatic scaling.
-    SDL_RenderSetLogicalSize(renderer, screenbuffer->w, screenbuffer->h);
+    SDL_SetRenderLogicalPresentation(renderer, screenbuffer->w, screenbuffer->h, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
     SDL_LockSurface(screenbuffer);
-    SDL_SetPaletteColors(screenbuffer->format->palette, ega_colors, 0, 16);
+    SDL_SetPaletteColors(palette, ega_colors, 0, 16);
     SDL_UnlockSurface(screenbuffer);
 
     screendata = malloc(TXT_SCREEN_W * TXT_SCREEN_H * 2);
     memset(screendata, 0, TXT_SCREEN_W * TXT_SCREEN_H * 2);
 
-    SDL_GetRendererInfo(renderer, &info);
+    renderer_name = SDL_GetRendererName(renderer);
 
-    if (!(info.flags & SDL_RENDERER_SOFTWARE))
+    if (renderer_name == NULL || strcmp(renderer_name, SDL_SOFTWARE_RENDERER) != 0)
     {
       // Set the scaling quality for rendering the upscaled texture to "linear",
       // which looks much softer and smoother than "nearest" but does a better
       // job at downscaling from the upscaled texture to screen.
 
-      SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-
       texture_upscaled = SDL_CreateTexture(renderer,
-                           SDL_GetWindowPixelFormat(TXT_SDLWindow),
+                           SDL_PIXELFORMAT_ARGB8888,
                            SDL_TEXTUREACCESS_TARGET,
                            2 * screenbuffer->w, 2 * screenbuffer->h);
+      SDL_SetTextureScaleMode(texture_upscaled, SDL_SCALEMODE_LINEAR);
     }
 
     return 1;
@@ -247,8 +246,10 @@ void TXT_Shutdown(void)
 
     free(screendata);
     screendata = NULL;
-    SDL_FreeSurface(screenbuffer);
+    SDL_DestroySurface(screenbuffer);
+    SDL_DestroyPalette(palette);
     screenbuffer = NULL;
+    palette = NULL;
     header_title = NULL;
 }
 
@@ -378,7 +379,7 @@ static void GetDestRect(SDL_Rect *rect)
 void TXT_UpdateScreenArea(int x, int y, int w, int h)
 {
     SDL_Texture *screentx;
-    SDL_Rect rect;
+    SDL_ScaleMode screenscale;
     int x1, y1;
     int x_end;
     int y_end;
@@ -402,7 +403,7 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h)
 
     SDL_UnlockSurface(screenbuffer);
 
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, texture_upscaled ? "nearest" : "linear");
+    screenscale = texture_upscaled ? SDL_SCALEMODE_NEAREST : SDL_SCALEMODE_LINEAR;
 
     // TODO: This is currently creating a new texture every time we render
     // the screen; find a more efficient way to do it.
@@ -415,7 +416,7 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h)
     }
 
     SDL_RenderClear(renderer);
-    GetDestRect(&rect);
+    SDL_SetTextureScaleMode(screentx, screenscale);
 
     if (texture_upscaled)
     {
@@ -423,16 +424,16 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h)
       // using "nearest" integer scaling.
 
       SDL_SetRenderTarget(renderer, texture_upscaled);
-      SDL_RenderCopy(renderer, screentx, NULL, NULL);
+      SDL_RenderTexture(renderer, screentx, NULL, NULL);
 
       // Finally, render this upscaled texture to screen using linear scaling.
 
       SDL_SetRenderTarget(renderer, NULL);
-      SDL_RenderCopy(renderer, texture_upscaled, NULL, NULL);
+      SDL_RenderTexture(renderer, texture_upscaled, NULL, NULL);
     }
     else
     {
-      SDL_RenderCopy(renderer, screentx, NULL, &rect);
+      SDL_RenderTexture(renderer, screentx, NULL, NULL);
     }
 
     SDL_RenderPresent(renderer);
@@ -493,7 +494,7 @@ int GL_TXT_Init(void)
     screen_image_w = TXT_SCREEN_W * font->w;
     screen_image_h = TXT_SCREEN_H * font->h + HeaderHeight();
 
-    screenbuffer = SDL_CreateRGBSurface(0, screen_image_w, screen_image_h, 8, 0, 0, 0, 0);
+    screenbuffer = SDL_CreateSurface(screen_image_w, screen_image_h, SDL_PIXELFORMAT_INDEX8);
     if (!screenbuffer)
     {
         lprintf(LO_ERROR, "Failed to create software screenbuffer!\n");
@@ -501,7 +502,9 @@ int GL_TXT_Init(void)
     }
 
     SDL_LockSurface(screenbuffer);
-    SDL_SetPaletteColors(screenbuffer->format->palette, ega_colors, 0, 16);
+    palette = SDL_CreatePalette(256);
+    SDL_SetSurfacePalette(screenbuffer, palette);
+    SDL_SetPaletteColors(palette, ega_colors, 0, 16);
     SDL_UnlockSurface(screenbuffer);
 
     screendata = malloc(TXT_SCREEN_W * TXT_SCREEN_H * 2);
@@ -510,7 +513,7 @@ int GL_TXT_Init(void)
     if (!TXT_SDLWindow)
         return 0;
 
-    SDL_GL_GetDrawableSize(TXT_SDLWindow, &glwindow_w, &glwindow_h);
+    SDL_GetWindowSizeInPixels(TXT_SDLWindow, &glwindow_w, &glwindow_h);
 
     GL_TXT_SetupOrtho(glwindow_w, glwindow_h);
 
@@ -568,7 +571,7 @@ void GL_TXT_UpdateScreen(void)
 
         for (int y = 0; y < HeaderHeight(); ++y)
             for (int x = 0; x < tex_w; ++x)
-                GL_TXT_SetPixel(gl_texture_data, tex_w2, x, y, screenbuffer->format->palette->colors[TXT_COLOR_HEADER_BACKGROUND]);
+                GL_TXT_SetPixel(gl_texture_data, tex_w2, x, y, palette->colors[TXT_COLOR_HEADER_BACKGROUND]);
 
         for (int i = 0; i < length; ++i)
         {
@@ -577,7 +580,7 @@ void GL_TXT_UpdateScreen(void)
             for (int y = 0; y < (int)FONT_CHAR_H; ++y)
                 for (int x = 0; x < (int)FONT_CHAR_W; ++x)
                     if (glyph[y] & (1 << x))
-                        GL_TXT_SetPixel(gl_texture_data, tex_w2, start_x + i * FONT_CHAR_W + x, (HeaderHeight() - FONT_CHAR_H) / 2 + y, screenbuffer->format->palette->colors[TXT_COLOR_HEADER_FOREGROUND]);
+                        GL_TXT_SetPixel(gl_texture_data, tex_w2, start_x + i * FONT_CHAR_W + x, (HeaderHeight() - FONT_CHAR_H) / 2 + y, palette->colors[TXT_COLOR_HEADER_FOREGROUND]);
         }
     }
 
@@ -661,8 +664,11 @@ void GL_TXT_UpdateScreen(void)
 void TXT_GetMousePosition(int *x, int *y)
 {
     int window_w, window_h;
+    float mouse_x, mouse_y;
 
-    SDL_GetMouseState(x, y);
+    SDL_GetMouseState(&mouse_x, &mouse_y);
+    *x = (int)mouse_x;
+    *y = (int)mouse_y;
 
     // Translate mouse position from 'pixel' position into character position.
     // We are working here in screen coordinates and not pixels, since this is
@@ -726,18 +732,18 @@ static int TranslateScancode(SDL_Scancode scancode)
     }
 }
 
-static int TranslateKeysym(const SDL_Keysym *sym)
+static int TranslateKey(const SDL_KeyboardEvent *key)
 {
     int translated;
 
     // We cheat here and make use of TranslateScancode. The range of keys
     // associated with printable characters is pretty contiguous, so if it's
     // inside that range we want the localized version of the key instead.
-    translated = TranslateScancode(sym->scancode);
+    translated = TranslateScancode(key->scancode);
 
     if (translated >= 0x20 && translated < 0x7f)
     {
-        return sym->sym;
+        return key->key;
     }
     else
     {
@@ -817,37 +823,37 @@ signed int TXT_GetChar(void)
 
         switch (ev.type)
         {
-            case SDL_MOUSEBUTTONDOWN:
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
                 if (ev.button.button < TXT_MAX_MOUSE_BUTTONS)
                 {
                     return SDLButtonToTXTButton(ev.button.button);
                 }
                 break;
 
-            case SDL_MOUSEWHEEL:
+            case SDL_EVENT_MOUSE_WHEEL:
                 return SDLWheelToTXTButton(&ev.wheel);
 
-            case SDL_KEYDOWN:
+            case SDL_EVENT_KEY_DOWN:
                 switch (input_mode)
                 {
                     case TXT_INPUT_RAW:
-                        return TranslateScancode(ev.key.keysym.scancode);
+                        return TranslateScancode(ev.key.scancode);
                     case TXT_INPUT_NORMAL:
-                        return TranslateKeysym(&ev.key.keysym);
+                        return TranslateKey(&ev.key);
                     case TXT_INPUT_TEXT:
                         // We ignore key inputs in this mode, except for a
                         // few special cases needed during text input:
-                        if (ev.key.keysym.sym == SDLK_ESCAPE
-                         || ev.key.keysym.sym == SDLK_BACKSPACE
-                         || ev.key.keysym.sym == SDLK_RETURN)
+                        if (ev.key.key == SDLK_ESCAPE
+                         || ev.key.key == SDLK_BACKSPACE
+                         || ev.key.key == SDLK_RETURN)
                         {
-                            return TranslateKeysym(&ev.key.keysym);
+                            return TranslateKey(&ev.key);
                         }
                         break;
                 }
                 break;
 
-            case SDL_TEXTINPUT:
+            case SDL_EVENT_TEXT_INPUT:
                 if (input_mode == TXT_INPUT_TEXT)
                 {
                     // TODO: Support input of more than just the first char?
@@ -859,51 +865,54 @@ signed int TXT_GetChar(void)
                 }
                 break;
 
-            case SDL_QUIT:
+            case SDL_EVENT_QUIT:
                 // Quit = escape
                 return 27;
 
-            case SDL_MOUSEMOTION:
+            case SDL_EVENT_MOUSE_MOTION:
                 if (MouseHasMoved())
                 {
                     return 0;
                 }
+                // OpenGL - Stop ENDOOM from disappearing when moving the mouse
+                break;
 
             // Force content resize on OpenGL
-            case SDL_WINDOWEVENT:
-                if (is_opengl && ev.window.event == SDL_WINDOWEVENT_RESIZED)
+            case SDL_EVENT_WINDOW_RESIZED:
+            case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+                if (is_opengl)
                 {
                     GL_TXT_SetupOrtho(ev.window.data1, ev.window.data2);
                 }
                 break;
 
             // add controller support
-            case SDL_CONTROLLERBUTTONDOWN:
-                switch (ev.cbutton.button)
+            case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+                switch (ev.gbutton.button)
                 {
-                    case SDL_CONTROLLER_BUTTON_A:
-                    case SDL_CONTROLLER_BUTTON_START:
+                    case SDL_GAMEPAD_BUTTON_SOUTH:
+                    case SDL_GAMEPAD_BUTTON_START:
                         return KEY_ENTER;
 
-                    case SDL_CONTROLLER_BUTTON_B:
+                    case SDL_GAMEPAD_BUTTON_EAST:
                         return 27; // escape
 
-                    case SDL_CONTROLLER_BUTTON_DPAD_UP:
+                    case SDL_GAMEPAD_BUTTON_DPAD_UP:
                         return KEY_UPARROW;
 
-                    case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+                    case SDL_GAMEPAD_BUTTON_DPAD_DOWN:
                         return KEY_DOWNARROW;
 
-                    case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+                    case SDL_GAMEPAD_BUTTON_DPAD_LEFT:
                         return KEY_LEFTARROW;
 
-                    case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+                    case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
                         return KEY_RIGHTARROW;
                 }
                 break;
 
-            case SDL_CONTROLLERDEVICEADDED:
-            case SDL_CONTROLLERDEVICEREMOVED:
+            case SDL_EVENT_GAMEPAD_ADDED:
+            case SDL_EVENT_GAMEPAD_REMOVED:
                 SDL_PushEvent(&ev);
                 break;
 
@@ -950,7 +959,7 @@ int TXT_ScreenHasBlinkingChars(void)
 
 void TXT_Sleep(int timeout)
 {
-    unsigned int start_time;
+    Uint64 start_time;
 
     if (TXT_ScreenHasBlinkingChars())
     {

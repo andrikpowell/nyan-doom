@@ -32,6 +32,8 @@
  *
  *-----------------------------------------------------------------------------*/
 
+#include <math.h>
+
 #include "doomstat.h"
 #include "r_main.h"
 #include "p_mobj.h"

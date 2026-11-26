@@ -81,6 +81,7 @@ dboolean I_AnySoundStillPlaying(void);
 // Updates the volume, separation,
 //  and pitch of a sound channel.
 void I_UpdateSoundParams(int handle, sfx_params_t *params);
+void I_SetGain(int handle, float gain);
 
 // NSM sound capture routines
 // silences sound output, and instead allows sound capture to work
@@ -143,5 +144,6 @@ void M_ChangeMIDIPlayer(void);
 void M_ChangeSoundfont(void);
 
 void I_ChangeAudioDevice(void);
+void I_ChangeSoundLimiter(void);
 
 #endif

@@ -16,7 +16,7 @@
 #ifndef I_SNDFILE_H
 #define I_SNDFILE_H
 
-#include "SDL_audio.h"
+#include <SDL3/SDL.h>
 
 void *Load_SNDFile(const void *data, SDL_AudioSpec *sample, void **sampledata,
 				   Uint32 *samplelen);

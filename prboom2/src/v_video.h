@@ -37,7 +37,7 @@
 #ifndef __V_VIDEO__
 #define __V_VIDEO__
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "doomtype.h"
 #include "doomdef.h"
@@ -176,8 +176,6 @@ dboolean V_IsAutomapLightmodeIndexed(void);
 dboolean V_IsMenuLightmodeIndexed(void);
 
 //jff 4/24/98 loads color translation lumps
-void V_UpdateColorTranslation(void);
-void V_UpdateColormaps(void);
 const byte *V_GrayInvulnColormap(void);
 
 void V_InitFlexTranTable(void);
@@ -441,6 +439,7 @@ extern V_DrawDithered_f V_DrawDithered;
 void V_TouchPalette(void);
 void V_SetPalette(int pal);
 void V_SetPlayPal(int playpal_i);
+void V_InitPlayPal(void);
 
 void V_SetDynamicPalette(const byte *pal);
 void V_ClearDynamicPalette(void);
