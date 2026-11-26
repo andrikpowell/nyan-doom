@@ -170,6 +170,7 @@ static void R_InitTextures (void)
   int  numtextures1, numtextures2;
   const byte *directory, *directory2;
   int  errors = 0;
+  dboolean ignore_errors = false;
 
   // Load the patch names from pnames.lmp.
   name[8] = 0;
@@ -178,6 +179,7 @@ static void R_InitTextures (void)
   nummappatches = LittleLong(nummappatches);
   name_p = names+4;
   patchlookup = Z_Malloc(nummappatches*sizeof(*patchlookup));  // killough
+  ignore_errors = dsda_Flag(dsda_arg_ignore_tex_errors);
 
   for (i=0 ; i<nummappatches ; i++)
     {
@@ -312,12 +314,16 @@ static void R_InitTextures (void)
           patch->direct = R_IsDirectTallPatchLump(patch->patch);
           if (patch->direct)
             texture->direct = true;
-          if (patch->patch == -1)
+          if (patch->patch == LUMP_NOT_FOUND)
             {
               //jff 8/3/98 use logical output routine
-              lprintf(LO_ERROR,"\nR_InitTextures: Missing patch %d in texture %.8s",
+              lprintf(ignore_errors ? LO_WARN : LO_ERROR,
+                      "\nR_InitTextures: Missing patch %d in texture %.8s",
                      patchindex, texture->name); // killough 4/17/98
               ++errors;
+
+              if (ignore_errors)
+                patch->patch = W_CheckNumForName2("TNT1A0", ns_sprites);
             }
 
           ++patch;
@@ -336,11 +342,19 @@ static void R_InitTextures (void)
   if (errors)
   {
     const lumpinfo_t* info;
+    dsda_string_t msg;
 
     info = W_GetLumpInfoByNum(names_lump);
 
-    I_Error("Texture errors: %d!\n%s seems to be incompatible with %s.\nAre you using the right IWAD?",
-            errors, dsda_BaseName(info->wadfile->name), doomverstr);
+    dsda_StringPrintF(&msg, "\nTexture errors: %d!\n%s seems to be incompatible with %s.\nAre you using the right IWAD?\n",
+                      errors, dsda_BaseName(info->wadfile->name), doomverstr);
+
+    if (ignore_errors)
+      lprintf(LO_WARN, "%s", msg.string);
+    else
+      I_Error("%s", msg.string);
+
+    dsda_FreeString(&msg);
   }
 
   // Create translation table for global animation.

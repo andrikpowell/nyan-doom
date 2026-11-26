@@ -500,6 +500,11 @@ static arg_config_t arg_config[dsda_arg_count] = {
     "turn off drawing",
     arg_null,
   },
+  [dsda_arg_ignore_tex_errors] = {
+    "-ignore_tex_errors", NULL, NULL, NULL,
+    "continue loading when textures reference missing patches",
+    arg_null,
+  },
   [dsda_arg_nodeh] = {
     "-nodeh", NULL, NULL, NULL,
     "skip dehacked lumps inside wads",
