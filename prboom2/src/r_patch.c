@@ -115,6 +115,10 @@ static rpatch_t *patches = 0;
 
 static rpatch_t *texture_composites = 0;
 
+// Cache PNG -> Doom Format Patches for Textures
+static patch_t **png_patch_cache = 0;
+static int *png_patch_cache_size = 0;
+
 // Switch between tutti-frutti and normal textures
 static dboolean composites_need_flush = false;
 
@@ -141,6 +145,11 @@ void R_InitPatches(void) {
     patches = Z_Malloc(numlumps * sizeof(rpatch_t));
     // clear out new patches to signal they're uninitialized
     memset(patches, 0, sizeof(rpatch_t)*numlumps);
+  }
+  if (!png_patch_cache)
+  {
+    png_patch_cache = Z_Calloc(numlumps, sizeof(*png_patch_cache));
+    png_patch_cache_size = Z_Calloc(numlumps, sizeof(*png_patch_cache_size));
   }
   if (!texture_composites)
   {
@@ -171,6 +180,15 @@ void R_FlushAllPatches(void) {
   {
     Z_Free(patches);
     patches = NULL;
+  }
+  if (png_patch_cache)
+  {
+    for (i = 0; i < numlumps; ++i)
+      Z_Free(png_patch_cache[i]);
+    Z_Free(png_patch_cache);
+    Z_Free(png_patch_cache_size);
+    png_patch_cache = NULL;
+    png_patch_cache_size = NULL;
   }
   if (texture_composites)
   {
@@ -414,8 +432,205 @@ static void StorePixel(rpatch_t *patch, int x, int y, byte color)
   patch->pixels[x * patch->height + y] = color;
 }
 
-static void R_LinearToTransPatch(rpatch_t *patch, const byte *data,
-                                 int color_key, const byte *translate)
+//
+// SLADE - It's a Doom Editor
+// Copyright(C) 2008 - 2019 Simon Judd
+// Copyright(C) 2024 Roman Fomin
+//
+// [Woof]
+// Converts a linear graphic to a patch with transparency.
+// Mostly straight from SLADE.
+//
+#define PUTBYTE(r, v)  \
+  *r = (uint8_t)(v); \
+  ++r
+
+#define PUTSHORT(r, v)                              \
+  *(r + 0) = (byte)(((uint16_t)(v) >> 0) & 0xff); \
+  *(r + 1) = (byte)(((uint16_t)(v) >> 8) & 0xff); \
+  r += 2
+
+#define PUTLONG(r, v)                                \
+  *(r + 0) = (byte)(((uint32_t)(v) >> 0) & 0xff);  \
+  *(r + 1) = (byte)(((uint32_t)(v) >> 8) & 0xff);  \
+  *(r + 2) = (byte)(((uint32_t)(v) >> 16) & 0xff); \
+  *(r + 3) = (byte)(((uint32_t)(v) >> 24) & 0xff); \
+  r += 4
+
+static patch_t *R_LinearToTransPatch(const byte *data, int width, int height, int *output_size,
+                                     int color_key, const byte *translate)
+{
+  size_t size = 4 * sizeof(int16_t) + width * sizeof(int32_t);
+  byte *output;
+  byte *rover;
+  byte *col_offsets;
+  int c;
+
+  // Calculate needed memory size to allocate patch buffer
+  for (c = 0; c < width; c++)
+  {
+    uint32_t offset = c;
+    dboolean ispost = false;
+    dboolean first_254 = true;
+    byte row_off = 0;
+    int r;
+
+    size += 1; // room for 0xff cap byte
+
+    for (r = 0; r < height; r++)
+    {
+      // if we're at offset 254, create a dummy post for tall doom gfx
+      // support
+      if (row_off == 254)
+      {
+        size += 4;
+        first_254 = false;
+        row_off = 0;
+        ispost = false;
+      }
+
+      if (color_key == NO_COLOR_KEY || data[offset] != color_key)
+      {
+        if (!ispost)
+        {
+          size += 4;
+
+          if (!first_254)
+            row_off = 0;
+
+          ispost = true;
+        }
+
+        size += 1;
+      }
+      else
+        ispost = false;
+
+      offset += width;
+      ++row_off;
+    }
+  }
+
+  output = Z_Malloc(size);
+  rover = output;
+
+  // write header fields
+  PUTSHORT(rover, width);
+  PUTSHORT(rover, height);
+  // This is written to afterwards
+  PUTSHORT(rover, 0);
+  PUTSHORT(rover, 0);
+
+  // set starting position of column offsets table, and skip over it
+  col_offsets = rover;
+  rover += width * 4;
+
+  // Go through columns
+  for (c = 0; c < width; c++)
+  {
+    uint32_t offset = c;
+    uint32_t offs = (uint32_t)(rover - output);
+    dboolean ispost = false;
+    dboolean first_254 = true; // first 254 pixels use absolute offsets
+    byte row_off = 0;
+    byte *post_length = NULL;
+    byte lastval = 0;
+    int numpixels = 0;
+    int r;
+
+    // write column offset to offset table
+    PUTLONG(col_offsets, offs);
+
+    for (r = 0; r < height; r++)
+    {
+      // if we're at offset 254, create a dummy post for tall doom gfx
+      // support
+      if (row_off == 254)
+      {
+        // Finish current post if any
+        if (ispost)
+        {
+          *post_length = numpixels;
+          PUTBYTE(rover, lastval);
+          ispost = false;
+        }
+
+        // Begin relative offsets
+        first_254 = false;
+
+        // Create dummy post
+        PUTBYTE(rover, 254);
+        PUTBYTE(rover, 0);
+        PUTBYTE(rover, 0);
+        PUTBYTE(rover, 0);
+
+        // Clear post
+        row_off = 0;
+      }
+
+      // If the current pixel is not transparent, add it to the current
+      // post
+      if (color_key == NO_COLOR_KEY || data[offset] != color_key)
+      {
+        lastval = translate ? translate[data[offset]] : data[offset];
+
+        // If we're not currently building a post, begin one and set its
+        // offset
+        if (!ispost)
+        {
+          // Set offset
+          PUTBYTE(rover, row_off);
+
+          // Reset offset if we're in relative offsets mode
+          if (!first_254)
+            row_off = 0;
+
+          // Start post
+          post_length = rover;
+          PUTBYTE(rover, 0);
+          PUTBYTE(rover, lastval);
+          numpixels = 0;
+          ispost = true;
+        }
+
+        // Add the pixel to the post
+        PUTBYTE(rover, lastval);
+        ++numpixels;
+      }
+      else if (ispost)
+      {
+        // If the current pixel is transparent and we are currently
+        // building a post, finish it
+        *post_length = numpixels;
+        PUTBYTE(rover, lastval);
+        ispost = false;
+      }
+
+      // Go to next row
+      offset += width;
+      ++row_off;
+    }
+
+    // If the column ended with a post, finish it
+    if (ispost)
+    {
+      *post_length = numpixels;
+      PUTBYTE(rover, lastval);
+    }
+
+    // Write 255 cap byte
+    PUTBYTE(rover, 0xff);
+  }
+
+  if (output_size)
+    *output_size = (int)size;
+
+  // Done!
+  return (patch_t *)output;
+}
+
+static void R_ConvertPNG(rpatch_t *patch, const byte *data, int color_key,
+                         const byte *translate, patch_t **png_patch, int *png_patch_size)
 {
   int *numPostsInColumn;
   int pixelDataSize, columnsDataSize, postsDataSize, dataSize;
@@ -502,6 +717,8 @@ static void R_LinearToTransPatch(rpatch_t *patch, const byte *data,
   if (color_key != NO_COLOR_KEY)
     patch->flags |= PATCH_HASHOLES | PATCH_ISNOTTILEABLE;
 
+  *png_patch = R_LinearToTransPatch(data, patch->width, patch->height, png_patch_size, color_key, translate);
+
   Z_Free(numPostsInColumn);
 }
 
@@ -547,7 +764,9 @@ static void createPNGPatch(int id)
   GetPNGOffsets(png.ctx, &patch->leftoffset, &patch->topoffset);
   patch->flags = 0;
 
-  R_LinearToTransPatch(patch, png.image, png.color_key, png.translate);
+  R_ConvertPNG(patch, png.image, png.color_key, png.translate, &png_patch_cache[id], &png_patch_cache_size[id]);
+  png_patch_cache[id]->leftoffset = LittleShort(patch->leftoffset);
+  png_patch_cache[id]->topoffset = LittleShort(patch->topoffset);
   FillEmptySpace(patch);
   FreePNG(&png);
 }
@@ -740,6 +959,33 @@ typedef struct {
   unsigned short posts_used;
 } count_t;
 
+// Get patch conversion of PNG, else direct lookup
+static const patch_t *R_CachePatchNum(int lumpnum)
+{
+  if (R_IsPNGLump(lumpnum))
+  {
+    if (!png_patch_cache[lumpnum])
+      R_PatchByNum(lumpnum);
+
+    return png_patch_cache[lumpnum];
+  }
+
+  return W_LumpByNum(lumpnum);
+}
+
+// Get patch conversion size of PNG, else direct lookup
+static int R_PatchLength(int lumpnum)
+{
+  if (R_IsPNGLump(lumpnum))
+  {
+    R_CachePatchNum(lumpnum);
+    return png_patch_cache_size[lumpnum];
+  }
+
+  return W_LumpLength(lumpnum);
+}
+
+//---------------------------------------------------------------------------
 // includes Tutti-Frutti / Medusa code
 #include "r_patch_vanilla.inl"
 
@@ -786,7 +1032,7 @@ static dboolean R_isDirectTallPatch(int patchNum, const patch_t *patch)
   int x;
   int width = LittleShort(patch->width);
   int height = LittleShort(patch->height);
-  int lumpLength = W_LumpLength(patchNum);
+  int lumpLength = R_PatchLength(patchNum);
 
   if (height <= 255)
     return false;
@@ -815,7 +1061,11 @@ dboolean R_IsDirectTallPatchLump(int lumpnum)
   if (lumpnum == LUMP_NOT_FOUND)
     return false;
 
-  patch = (const patch_t *)W_LumpByNum(lumpnum);
+  // You can't have PNG direct patches
+  if (R_IsPNGLump(lumpnum))
+    return false;
+
+  patch = R_CachePatchNum(lumpnum);
 
   return R_isDirectTallPatch(lumpnum, patch);
 }
@@ -831,7 +1081,7 @@ static int R_DirectTallTextureHeight(texture_t *texture)
   for (i=0; i<texture->patchcount; i++)
   {
     texpatch_t *texpatch = &texture->patches[i];
-    const patch_t *patch = (const patch_t*)W_LumpByNum(texpatch->patch);
+    const patch_t *patch = R_CachePatchNum(texpatch->patch);
 
     if (texpatch->direct)
       height = MAX(height, LittleShort(patch->height));
@@ -898,7 +1148,7 @@ static void createTextureCompositePatch(int id) {
   for (i=0; i<texture->patchcount; i++) {
     texpatch = &texture->patches[i];
     patchNum = texpatch->patch;
-    oldPatch = (const patch_t*)W_LumpByNum(patchNum);
+    oldPatch = R_CachePatchNum(patchNum);
 
     for (x=0; x<LittleShort(oldPatch->width); x++) {
       int tx = texpatch->originx + x;
@@ -985,7 +1235,7 @@ static void createTextureCompositePatch(int id) {
   for (i=0; i<texture->patchcount; i++) {
     texpatch = &texture->patches[i];
     patchNum = texpatch->patch;
-    oldPatch = (const patch_t*)W_LumpByNum(patchNum);
+    oldPatch = R_CachePatchNum(patchNum);
 
     for (x=0; x<LittleShort(oldPatch->width); x++) {
       int top = -1;

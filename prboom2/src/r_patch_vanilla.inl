@@ -120,9 +120,9 @@ static void R_CalculateVanillaDataSize(const texture_t *texture, const rpatch_t 
     {
       const texpatch_t *texpatch = &texture->patches[i];
       int patchNum = texpatch->patch;
-      const patch_t *oldPatch = (const patch_t*)W_LumpByNum(patchNum);
+      const patch_t *oldPatch = R_CachePatchNum(patchNum);
       const byte *raw_patch = (const byte *)oldPatch;
-      int patchSize = W_LumpLength(patchNum);
+      int patchSize = R_PatchLength(patchNum);
 
       for (x=0; x<LittleShort(oldPatch->width); x++)
       {
@@ -203,7 +203,7 @@ static void R_AddTuttiFruttiPatchArtifacts(rpatch_t *composite_patch, const text
 
   raw_patch = (const byte *)oldPatch;
   source = (const byte *)oldColumn + 3;
-  patchSize = W_LumpLength(patchNum);
+  patchSize = R_PatchLength(patchNum);
   sourceOffset = (int)(source - raw_patch);
 
   // count bytes from the first post's pixels to the end of the patch lump
@@ -294,7 +294,7 @@ static void R_AddVanillaCompositeArtifacts(rpatch_t *composite_patch, const text
       {
         const texpatch_t *texpatch = &texture->patches[i];
         int patchNum = texpatch->patch;
-        const patch_t *oldPatch = (const patch_t*)W_LumpByNum(patchNum);
+        const patch_t *oldPatch = R_CachePatchNum(patchNum);
         const byte *raw_patch = (const byte *)oldPatch;
         const int patch_header_size = 8;
         int j;
