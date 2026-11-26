@@ -2293,9 +2293,6 @@ static void D_DoomMainSetup(void)
 
   lprintf(LO_INFO, "\n"); // Separator after file loading
 
-  V_UpdateColorTranslation(); //jff 4/24/98 load color translation lumps
-  V_UpdateColormaps();        // Update overlay / gray invuln
-
   //jff 9/3/98 use logical output routine
   lprintf(LO_DEBUG, "M_Init: Init miscellaneous info.\n");
   M_Init();
@@ -2310,6 +2307,7 @@ static void D_DoomMainSetup(void)
   //jff 9/3/98 use logical output routine
   lprintf(LO_DEBUG, "R_Init: Init DOOM refresh daemon - ");
   R_Init();
+  V_InitPlayPal();
 
   dsda_LoadMapInfo();
   dsda_InitSkills();

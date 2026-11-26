@@ -214,7 +214,7 @@ static void V_UpdateInvulnColormap(void)
   }
 }
 
-void V_UpdateColormaps(void)
+static void V_UpdateColormaps(void)
 {
   V_UpdateShadeColormap();    // Update automap / menu overlay
   V_UpdateInvulnColormap();   // Update gray invulnerability
@@ -225,7 +225,7 @@ const byte *V_GrayInvulnColormap(void)
   return gray_invuln_colormap;
 }
 
-void V_UpdateColorTranslation(void)
+static void V_UpdateColorTranslation(void)
 {
   int i;
 
@@ -1483,7 +1483,7 @@ void V_SetPlayPal(int playpal_i)
   R_UpdatePlayPal();
   V_SetPalette(currentPaletteIndex);
 
-  V_UpdateColorTranslation(); // Update Text Colors
+  V_UpdateColorTranslation(); // 4/24/98 load color translation lumps
   V_UpdateColormaps();        // Update overlay / gray invuln
   dsda_RefreshTranMaps();     // Update shadows / translucency
   V_UpdateStbarColor();       // Update stbar background color
@@ -1492,6 +1492,11 @@ void V_SetPlayPal(int playpal_i)
   {
     gld_FlushTextures();
   }
+}
+
+void V_InitPlayPal(void)
+{
+  V_SetPlayPal(playpal_default);
 }
 
 const byte *dynamic_palette;
