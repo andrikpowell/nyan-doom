@@ -1334,6 +1334,13 @@ void I_UpdateVideoMode(void)
     I_InitScreenResolution();
     reuse_window = (was_opengl == V_IsOpenGLMode());
 
+    // [AR] Fix fullscreen option not applying on first change
+    if (reuse_window && !desired_fullscreen && (SDL_GetWindowFlags(sdl_window) & SDL_WINDOW_FULLSCREEN))
+    {
+      SDL_SetWindowFullscreen(sdl_window, false);
+      SDL_SyncWindow(sdl_window);
+    }
+
     if (sdl_glcontext && !reuse_window) SDL_GL_DestroyContext(sdl_glcontext);
     if (screen) SDL_DestroySurface(screen);
     if (screen_palette) SDL_DestroyPalette(screen_palette);
