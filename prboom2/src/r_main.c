@@ -1080,6 +1080,7 @@ void R_ResetColorMap(void)
 static void R_SetupFrame (player_t *player)
 {
   dboolean HU_CrosshairEnabled(void);
+  const sector_t * sec;
 
   int i, cm;
 
@@ -1112,21 +1113,28 @@ static void R_SetupFrame (player_t *player)
 
   // killough 3/20/98, 4/4/98: select colormap based on player status
 
-  if (player->mo->subsector->sector->colormap)
-    cm = player->mo->subsector->sector->colormap;
-  else if (player->mo->subsector->sector->heightsec != -1)
+  sec = player->mo->subsector->sector;
+
+  if (sec->colormap)
   {
-    const sector_t *s = player->mo->subsector->sector->heightsec + sectors;
-    cm = viewz < s->floorheight ? s->bottommap :
+    cm = sec->colormap;
+  }
+  else if (sec->heightsec != -1)
+  {
+    const sector_t *s = sec->heightsec + sectors;
+    cm = viewz < s->floorheight   ? s->bottommap :
          viewz > s->ceilingheight ? s->topmap :
-         s->midmap;
-    if (cm < 0 || cm > numcolormaps)
-      cm = 0;
+                                    s->midmap;
   }
   else if (dsda_MapFadeTable()) // Hexen Fog - fadetable
     cm = FADETABLE;
-  else
+  else                          // ZDoom Colormap
     cm = map_colormap;
+
+  if (cm < 0 || cm > numcolormaps)
+  {
+    cm = 0;
+  }
 
   //e6y: save previous and current colormap
   boom_cm = cm;
