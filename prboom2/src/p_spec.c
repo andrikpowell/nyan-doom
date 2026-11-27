@@ -1466,12 +1466,20 @@ short P_CeilingLightLevel(const sector_t *sec)
 
 int P_FloorTint(const sector_t *sec)
 {
+  // UDMF
+  if (sec->tintfloor >= 0)
+    return sec->tintfloor;
+
   return sec->floorlightsec == -1 ? sec->tint
                                   : sectors[sec->floorlightsec].tint;
 }
 
 int P_CeilingTint(const sector_t *sec)
 {
+  // UDMF
+  if (sec->tintceiling >= 0)
+    return sec->tintceiling;
+
   return sec->ceilinglightsec == -1 ? sec->tint
                                     : sectors[sec->ceilinglightsec].tint;
 }
@@ -1486,6 +1494,7 @@ dboolean P_FloorPlanesDiffer(const sector_t *sec, const sector_t *other)
          sec->floor_yscale != other->floor_yscale ||
          sec->special != other->special ||
          sec->tint != other->tint ||
+         sec->tintfloor != other->tintfloor ||
          sec->floorlightsec != other->floorlightsec ||
          P_FloorLightLevel(sec) != P_FloorLightLevel(other);
 }
@@ -1499,6 +1508,7 @@ dboolean P_CeilingPlanesDiffer(const sector_t *sec, const sector_t *other)
          sec->ceiling_xscale != other->ceiling_xscale ||
          sec->ceiling_yscale != other->ceiling_yscale ||
          sec->tint != other->tint ||
+         sec->tintceiling != other->tintceiling ||
          sec->ceilinglightsec != other->ceilinglightsec ||
          P_CeilingLightLevel(sec) != P_CeilingLightLevel(other);
 }

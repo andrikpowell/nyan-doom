@@ -779,6 +779,7 @@ static void P_InitializeSectorDefaults(sector_t *ss)
 
   // killough 4/4/98: colormaps:
   ss->bottommap = ss->midmap = ss->topmap = ss->colormap = ss->tint = 0;
+  ss->tintfloor = ss->tintceiling = -1;
 
   ss->floorsky = 0;
   ss->ceilingsky = 0;
@@ -890,6 +891,27 @@ static void P_LoadUDMFSectors(int lump)
         lprintf(LO_WARN, "Unknown colormap %s in sector %d.\n", ms->colormap, i);
         ss->colormap = 0;
       }
+    }
+
+    // ID24 Colormaps
+    if (ms->tint)
+    {
+      ss->tint = R_ColormapNumForName(ms->tint);
+      if (ss->tint < 0)
+      {
+        lprintf(LO_WARN, "Unknown colormap tint %s in sector %d.\n", ms->tint, i);
+        ss->tint = 0;
+      }
+    }
+
+    if (ms->tintfloor)
+    {
+      ss->tintfloor = R_ColormapNumForName(ms->tintfloor);
+    }
+
+    if (ms->tintceiling)
+    {
+      ss->tintceiling = R_ColormapNumForName(ms->tintceiling);
     }
 
     if (ms->skyfloor)

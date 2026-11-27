@@ -162,7 +162,7 @@ typedef struct sector_s
   // sector tinting, uses colormap lumps as well
   // * independent of player view
   // * specific take priority over broad
-  int32_t tint;
+  int32_t tint, tintfloor, tintceiling;
 
   // list of mobjs that are at least partially in the sector
   // thinglist is a subset of touching_thinglist

@@ -195,6 +195,9 @@ typedef struct {
   char* skyfloor;
   char* skyceiling;
   char* colormap;
+  char* tint;
+  char* tintfloor;
+  char* tintceiling;
   char* moreids;
   float xpanningfloor;
   float ypanningfloor;
