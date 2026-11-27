@@ -138,6 +138,9 @@ typedef struct
   byte flag;
   seg_t *seg;
 
+  // ID24
+  int tint; // ID24 per-sector colormaps
+
   // Hexen DoubleSky stuff
   GLTexture *gltexlayer;
   float skylayer_pitch;
@@ -163,6 +166,7 @@ typedef struct
 {
   int sectornum;
   float light; // the lightlevel of the flat
+  int tint; // ID24 per-sector colormaps
   float fogdensity;
   float uoffs,voffs; // the texture coordinates
   float rotation;
@@ -258,6 +262,7 @@ extern GLSeg *gl_lines;
 typedef struct
 {
   int cm;
+  int tint; // ID24 per-sector colormaps
   float x,y,z;
   float vt,vb;
   float ul,ur;
@@ -379,6 +384,8 @@ void gld_BindSkyTexture(GLTexture *gltexture, int skylayer);
 GLTexture *gld_RegisterColormapTexture(int palette_index, int gamma_level, dboolean fullbright);
 void gld_BindColormapTexture(GLTexture *gltexture, int palette_index, int gamma_level, dboolean fullbright);
 void gld_InitColormapTextures(dboolean fullbright);
+void gld_SetTintColormap(int tint);
+void gld_ClearTintColormap(void);
 void gld_InitFuzzTexture(void);
 int gld_GetTexDimension(int value);
 void gld_SetIndexedPalette(int palette_index);
