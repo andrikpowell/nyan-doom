@@ -66,7 +66,8 @@ visplane_t *R_FindPlane(
                         fixed_t yoffs,
                         angle_t rotation,
                         fixed_t xscale,
-                        fixed_t yscale
+                        fixed_t yscale,
+                        int tint // ID24 per-sector colormaps
                        );
 
 visplane_t *R_CheckPlane(visplane_t *pl, int start, int stop);

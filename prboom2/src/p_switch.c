@@ -820,6 +820,17 @@ P_UseSpecialLine
       EV_ChangeMusic(line, side);
       return true;
 
+    // ID24 Colormaps
+    case 2078:
+      P_ChangeSwitchTexture(line,0);
+      EV_ChangeColormap(line, side);
+      return true;
+
+    case 2079:
+      P_ChangeSwitchTexture(line,1);
+      EV_ChangeColormap(line, side);
+      return true;
+
       // killough 1/31/98: factored out compatibility check;
       // added inner switch, relaxed check to demo_compatibility
 

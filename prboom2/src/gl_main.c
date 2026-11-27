@@ -419,7 +419,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
       int loopnum;
 
       // For lighting and texture determination
-      sector_t *sec = R_FakeFlat(sub->sector, &tempsec, &floorlight, NULL, false);
+      sector_t *sec = R_FakeFlat(sub->sector, &tempsec, &floorlight, NULL, NULL, NULL, false);
 
       if (swirling_flat)
         gld_BindSwirlFlat(gltexture, false, 0);
@@ -1055,13 +1055,16 @@ int gld_AltShadow(void)
   return tran_reverse_filter_pct;
 }
 
-void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
+void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel, int tint)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
   float fy1, fy2;
   float x1,y1,x2,y2;
   float light;
+
+  // ID24 per-sector colormaps
+  gld_SetTintColormap(tint);
 
   gltexture=gld_RegisterPatch(firstspritelump+weaponlump, CR_DEFAULT, false, true);
   if (!gltexture)
@@ -1571,6 +1574,12 @@ static void gld_DrawWall(GLWall *wall)
 
   dsda_RecordDrawSeg();
 
+  // ID24 per-sector colormaps
+  if (wall->flag >= GLDWF_SKY)
+    gld_ClearTintColormap();
+  else
+    gld_SetTintColormap(wall->tint);
+
   // Do not repeat middle texture vertically
   // to avoid visual glitches for textures with holes
   if ((wall->flag == GLDWF_M2S) && (wall->flag < GLDWF_SKY))
@@ -1718,17 +1727,20 @@ void gld_AddWall(seg_t *seg)
 
     if (!poly_frontsector)
       return;
-    frontsector=R_FakeFlat(poly_frontsector, &ftempsec, NULL, NULL, false); // for boom effects
+    frontsector=R_FakeFlat(poly_frontsector, &ftempsec, NULL, NULL, NULL, NULL, false); // for boom effects
   }
   else
   {
     if (!seg->frontsector)
       return;
-    frontsector=R_FakeFlat(seg->frontsector, &ftempsec, NULL, NULL, false); // for boom effects
+    frontsector=R_FakeFlat(seg->frontsector, &ftempsec, NULL, NULL, NULL, NULL, false); // for boom effects
   }
 
   if (!frontsector)
     return;
+
+  // ID24 per-sector colormaps
+  wall.tint = frontsector->tint;
 
   // Enhanced Light Amp - Allow dark areas to be seen
   if(nyan_liteamp && (frontsector->lightlevel <= 64))
@@ -1781,7 +1793,7 @@ void gld_AddWall(seg_t *seg)
     fixed_t max_ceiling, min_ceiling;
     //fixed_t max_floor_tex, min_ceiling_tex;
 
-    backsector=R_FakeFlat(seg->backsector, &btempsec, NULL, NULL, true); // for boom effects
+    backsector=R_FakeFlat(seg->backsector, &btempsec, NULL, NULL, NULL, NULL, true); // for boom effects
     if (!backsector)
       return;
 
@@ -2165,6 +2177,9 @@ static void gld_DrawFlat(GLFlat *flat)
 
   dsda_RecordVisPlane();
 
+  // ID24 per-sector colormaps
+  gld_SetTintColormap(flat->tint);
+
   has_offset = (flat->flags & GLFLAT_HAVE_TRANSFORM);
 
   if (flat->flags & GLFLAT_SWIRL)
@@ -2228,7 +2243,8 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     return;
   flat.sectornum=sectornum;
   sector=&sectors[sectornum]; // get the sector
-  sector=R_FakeFlat(sector, &tempsec, &floorlightlevel, &ceilinglightlevel, false); // for boom effects
+  sector=R_FakeFlat(sector, &tempsec, &floorlightlevel, &ceilinglightlevel, NULL, NULL, false); // for boom effects
+  flat.tint = plane->tint; // get tint from plane, and not fake floor
   flat.flags = (ceiling ? GLFLAT_CEILING : 0);
 
   if (plane->picnum & PL_SKYFLAT || plane->picnum == skyflatnum) // don't draw if sky
@@ -2432,6 +2448,9 @@ static void gld_DrawSprite(GLSprite *sprite)
   int restore = 0;
 
   dsda_RecordVisSprite();
+
+  // ID24 per-sector colormaps
+  gld_SetTintColormap(sprite->tint);
 
   gld_BindPatch(sprite->gltexture,sprite->cm);
 
@@ -2806,6 +2825,15 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   }
 
   sprite.scale = FixedDiv(projectiony, tz);;
+
+  // ID24 per-sector colormaps
+  {
+    const sector_t *sec = thing->subsector->sector;
+
+    sprite.tint = sec->floorlightsec == -1 ? sec->tint
+                                           : sectors[sec->floorlightsec].tint;
+  }
+
   if ((thing->frame & FF_FULLBRIGHT) || dsda_ShowAliveMonsters())
   {
     sprite.light = 1.0f;

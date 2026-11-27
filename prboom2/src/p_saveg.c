@@ -232,6 +232,7 @@ void P_ArchiveWorld (void)
     P_SAVE_X(sec->floor_yoffs);
     P_SAVE_X(sec->ceiling_xoffs);
     P_SAVE_X(sec->ceiling_yoffs);
+    P_SAVE_X(sec->tint);
   }
 
   for (i = 0, li = lines; i < numlines; i++, li++)
@@ -248,10 +249,6 @@ void P_ArchiveWorld (void)
     P_SAVE_X(li->automap_style);
     P_SAVE_X(li->health);
     P_SAVE_X(li->alpha);
-
-    // ID24
-    P_SAVE_X(li->frontmusic);
-    P_SAVE_X(li->backmusic);
 
     for (j = 0; j < 2; j++)
       if (li->sidenum[j] != NO_INDEX)
@@ -330,6 +327,7 @@ void P_UnArchiveWorld (void)
     P_LOAD_X(sec->floor_yoffs);
     P_LOAD_X(sec->ceiling_xoffs);
     P_LOAD_X(sec->ceiling_yoffs);
+    P_LOAD_X(sec->tint);
 
     sec->ceilingdata = 0; //jff 2/22/98 now three thinker fields, not two
     sec->floordata = 0;
@@ -352,10 +350,6 @@ void P_UnArchiveWorld (void)
     P_LOAD_X(li->automap_style);
     P_LOAD_X(li->health);
     P_LOAD_X(li->alpha);
-
-    // ID24
-    P_LOAD_X(li->frontmusic);
-    P_LOAD_X(li->backmusic);
 
     if (li->alpha < 1.f)
       li->tranmap = dsda_TranMap(dsda_FloatToPercent(li->alpha));

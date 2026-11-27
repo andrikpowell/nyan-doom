@@ -1464,6 +1464,26 @@ short P_CeilingLightLevel(const sector_t *sec)
   );
 }
 
+int P_FloorTint(const sector_t *sec)
+{
+  // UDMF
+  if (sec->tintfloor >= 0)
+    return sec->tintfloor;
+
+  return sec->floorlightsec == -1 ? sec->tint
+                                  : sectors[sec->floorlightsec].tint;
+}
+
+int P_CeilingTint(const sector_t *sec)
+{
+  // UDMF
+  if (sec->tintceiling >= 0)
+    return sec->tintceiling;
+
+  return sec->ceilinglightsec == -1 ? sec->tint
+                                    : sectors[sec->ceilinglightsec].tint;
+}
+
 dboolean P_FloorPlanesDiffer(const sector_t *sec, const sector_t *other)
 {
   return sec->floorpic != other->floorpic ||
@@ -1473,6 +1493,8 @@ dboolean P_FloorPlanesDiffer(const sector_t *sec, const sector_t *other)
          sec->floor_xscale != other->floor_xscale ||
          sec->floor_yscale != other->floor_yscale ||
          sec->special != other->special ||
+         sec->tint != other->tint ||
+         sec->tintfloor != other->tintfloor ||
          sec->floorlightsec != other->floorlightsec ||
          P_FloorLightLevel(sec) != P_FloorLightLevel(other);
 }
@@ -1485,6 +1507,8 @@ dboolean P_CeilingPlanesDiffer(const sector_t *sec, const sector_t *other)
          sec->ceiling_rotation != other->ceiling_rotation ||
          sec->ceiling_xscale != other->ceiling_xscale ||
          sec->ceiling_yscale != other->ceiling_yscale ||
+         sec->tint != other->tint ||
+         sec->tintceiling != other->tintceiling ||
          sec->ceilinglightsec != other->ceilinglightsec ||
          P_CeilingLightLevel(sec) != P_CeilingLightLevel(other);
 }
@@ -1586,6 +1610,13 @@ int P_CheckTag(line_t *line)
     case 2096:
     case 2097:
     case 2098:
+    case 2075:              // ID24 sector colormaps
+    case 2076:
+    case 2077:
+    case 2078:
+    case 2079:
+    case 2080:
+    case 2081:
       return 1;   // zero tag allowed
 
     default:
@@ -2027,7 +2058,8 @@ void EV_ChangeMusic(line_t *line, int side)
   dboolean loops = false;
   dboolean resets = false;
 
-  int music = side ? line->backmusic : line->frontmusic;
+  side_t *sidedef = &sides[line->sidenum[0]];
+  int music = side ? sidedef->bottomindex : sidedef->topindex;
 
   switch (line->special)
   {
@@ -2063,6 +2095,17 @@ void EV_ChangeMusic(line_t *line, int side)
 
   if (once)
     line->special = 0;
+}
+
+void EV_ChangeColormap(line_t *line, int side)
+{
+    const int *id_p;
+
+    side_t *sidedef = &sides[line->sidenum[0]];
+    int colormap_index = side ? sidedef->bottomindex : sidedef->topindex;
+
+    FIND_SECTORS(id_p, line->special_args[0])
+      sectors[*id_p].tint = colormap_index;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2692,6 +2735,12 @@ void P_CrossCompatibleSpecialLine(line_t *line, int side, mobj_t *thing, dboolea
       EV_ChangeMusic(line, side);
       break;
 
+    case 2076:
+    case 2077:
+      // ID24 Colormaps
+      EV_ChangeColormap(line, (line->special == 2077));
+      break;
+
       // Extended walk triggers
 
       // jff 1/29/98 added new linedef types to fill all functions out so that
@@ -3190,6 +3239,17 @@ void P_ShootCompatibleSpecialLine(mobj_t *thing, line_t *line, int side)
     case 2062: case 2068: case 2092: case 2098:
       P_ChangeSwitchTexture(line,1);
       EV_ChangeMusic(line, side);
+      break;
+
+    // ID24 Colormaps
+    case 2080:
+      P_ChangeSwitchTexture(line,0);
+      EV_ChangeColormap(line, side);
+      break;
+
+    case 2081:
+      P_ChangeSwitchTexture(line,1);
+      EV_ChangeColormap(line, side);
       break;
 
     //jff 1/30/98 added new gun linedefs here
@@ -4044,6 +4104,14 @@ void P_SpawnCompatibleExtra(line_t *l, int i)
       {
         sectors[*id_p].floorsky = i | PL_SKYFLAT_LINE;
         sectors[*id_p].ceilingsky = i | PL_SKYFLAT_LINE;
+      }
+      break;
+
+    case 2075:
+      FIND_SECTORS(id_p, lines[i].special_args[0])
+      {
+        side_t *side = &sides[lines[i].sidenum[0]];
+        sectors[*id_p].tint = side->topindex;
       }
       break;
   }

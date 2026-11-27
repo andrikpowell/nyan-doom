@@ -1035,6 +1035,8 @@ dboolean PUREFUNC P_LightingActive(const sector_t *sec);
 
 short P_FloorLightLevel(const sector_t *sec);
 short P_CeilingLightLevel(const sector_t *sec);
+int P_FloorTint(const sector_t *sec);
+int P_CeilingTint(const sector_t *sec);
 dboolean P_FloorPlanesDiffer(const sector_t *sec, const sector_t *other);
 dboolean P_CeilingPlanesDiffer(const sector_t *sec, const sector_t *other);
 
@@ -1236,6 +1238,7 @@ int EV_DoGenLockedDoor
 
 // ID24
 void EV_ChangeMusic(line_t* line, int side);
+void EV_ChangeColormap(line_t* line, int side);
 
 ////////////////////////////////////////////////////////////////
 //

@@ -519,6 +519,8 @@ void gld_DrawStripsSky(int skylayer)
   int i;
   GLTexture *gltexture = NULL;
 
+  gld_ClearTintColormap();
+
   if (gl_drawskys == skytype_standard)
   {
     glEnable(GL_TEXTURE_GEN_S);

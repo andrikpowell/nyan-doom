@@ -93,6 +93,9 @@ static GLTexture **gld_GLColormapTextures = NULL;
 static GLTexture **gld_GLFullbrightColormapTextures = NULL; // yeah, a "fullbright colormap" is really just a palette, but it matches the name elsewhere...
 int gld_numGLColormaps = -1;
 int gld_paletteIndex = 0;
+// ID24 color-mapped sectors
+// Unlike boom_cm, these can be seen outside in other sectors
+static int gld_sector_cm;
 /* [XA] Sky textures for indexed lightmode -- name is sort
 of a misnomer since the textures themselves aren't indexed,
 but rather have the GL colormaps pre-applied, but meh. */
@@ -180,7 +183,7 @@ static void gld_GetTextureTexID(GLTexture *gltexture, int cm)
     INVULN_PLAYER_CM
   };
   int player_cm;
-  int bcm = boom_cm;
+  int bcm = gld_sector_cm;
 
   gltexture->cm = cm;
   gltexture->player_cm = player_cm = data[frame_fixedcolormap];
@@ -311,7 +314,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
   int i, pos;
   int bpp;
   const unsigned char *playpal;
-  const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
+  const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : colormaps[gld_sector_cm]);
 
   if (!gltexture)
     return;
@@ -406,7 +409,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const rp
   int i, pos;
   const unsigned char *playpal;
   const unsigned char *outr;
-  const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
+  const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : colormaps[gld_sector_cm]);
   int bpp;
 
   if (!gltexture)
@@ -510,7 +513,7 @@ static void gld_AddRawToTexture(GLTexture *gltexture, unsigned char *buffer, con
 {
   int x,y,w,pos,bpp;
   const unsigned char *playpal;
-  const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
+  const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : colormaps[gld_sector_cm]);
 
   if (!gltexture)
     return;
@@ -572,7 +575,7 @@ static void gld_AddColormapToTexture(GLTexture *gltexture, unsigned char *buffer
   // figure out which palette variant to use
   // (e.g. normal, pain flash, item flash, etc).
   playpal = V_GetPlaypal() + (palette_index*PALETTE_SIZE);
-  colormap = fullcolormap;
+  colormap = colormaps[gld_sector_cm];
 
   // fallback in case the current colormap hasn't been set
   // yet; this occurs when rendering the main menu for the
@@ -1447,6 +1450,9 @@ void gld_InitColormapTextures(dboolean fullbright)
 {
   GLTexture *gltexture;
 
+  // Store for ID24 colored sectors
+  gld_sector_cm = boom_cm;
+
   // figure out how many palette variants are in the
   // PLAYPAL lump and create a colormap texture for
   // each palette at each gamma level. word.
@@ -1463,6 +1469,36 @@ void gld_InitColormapTextures(dboolean fullbright)
   gltexture = gld_RegisterColormapTexture(gld_paletteIndex, usegamma, fullbright);
   if (gltexture)
     gld_BindColormapTexture(gltexture, gld_paletteIndex, usegamma, fullbright);
+}
+
+static void gld_SetColormap(int colormap)
+{
+  GLTexture *gltexture;
+
+  // Powerup colormaps override sector colormaps
+  if (frame_fixedcolormap)
+    colormap = boom_cm;
+
+  if (colormap < 0 || colormap >= numcolormaps)
+    colormap = boom_cm;
+
+  if (gld_sector_cm == colormap)
+    return;
+
+  gld_sector_cm = colormap;
+  gltexture = gld_RegisterColormapTexture(gld_paletteIndex, usegamma, false);
+  if (gltexture)
+    gld_BindColormapTexture(gltexture, gld_paletteIndex, usegamma, false);
+}
+
+void gld_SetTintColormap(int tint)
+{
+  gld_SetColormap(tint ? tint : boom_cm);
+}
+
+void gld_ClearTintColormap(void)
+{
+  gld_SetColormap(boom_cm);
 }
 
 // Darkness values for 1 to 5 iterations of fuzz darkening, derived from

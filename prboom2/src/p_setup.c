@@ -778,7 +778,8 @@ static void P_InitializeSectorDefaults(sector_t *ss)
   ss->ceilinglightsec = -1;
 
   // killough 4/4/98: colormaps:
-  ss->bottommap = ss->midmap = ss->topmap = ss->colormap = 0;
+  ss->bottommap = ss->midmap = ss->topmap = ss->colormap = ss->tint = 0;
+  ss->tintfloor = ss->tintceiling = -1;
 
   ss->floorsky = 0;
   ss->ceilingsky = 0;
@@ -890,6 +891,27 @@ static void P_LoadUDMFSectors(int lump)
         lprintf(LO_WARN, "Unknown colormap %s in sector %d.\n", ms->colormap, i);
         ss->colormap = 0;
       }
+    }
+
+    // ID24 Colormaps
+    if (ms->tint)
+    {
+      ss->tint = R_ColormapNumForName(ms->tint);
+      if (ss->tint < 0)
+      {
+        lprintf(LO_WARN, "Unknown colormap tint %s in sector %d.\n", ms->tint, i);
+        ss->tint = 0;
+      }
+    }
+
+    if (ms->tintfloor)
+    {
+      ss->tintfloor = R_ColormapNumForName(ms->tintfloor);
+    }
+
+    if (ms->tintceiling)
+    {
+      ss->tintceiling = R_ColormapNumForName(ms->tintceiling);
     }
 
     if (ms->skyfloor)
@@ -2310,7 +2332,7 @@ void P_PostProcessCompatibleLineSpecial(line_t *ld)
       const byte* tranmap;
       int lump, j;
 
-      lump = sides[*ld->sidenum].special; // translucency from sidedef
+      lump = sides[*ld->sidenum].midindex; // translucency from sidedef
 
       if (!lump)
         tranmap = main_tranmap;
@@ -2410,54 +2432,101 @@ static void P_AllocateUDMFSideDefs(int lump)
   sides = calloc_IfSameLevel(sides, numsides, sizeof(side_t));
 }
 
-dboolean P_PostProcessID24MusicSidedefSpecial(side_t *sd, const char *bottom, const char *mid, const char *top, sector_t *sec, int i)
+static int32_t GetColormapOrTexture(int32_t *out, const char *texture_name)
+{
+  int32_t texture_index = 0;
+  int32_t colormap_index = R_ColormapNumForName(texture_name);
+
+  if (colormap_index < 0)
+  {
+    colormap_index = 0;
+    texture_index = R_TextureNumForName(texture_name);
+  }
+  else
+  {
+    texture_index = 0;
+  }
+
+  *out = colormap_index;
+  return texture_index;
+}
+
+static int32_t GetMusicOrTexture(int32_t *out, const char *texture_name)
+{
+  int32_t texture_index = 0;
+  int32_t music_index = W_CheckNumForName(texture_name);
+
+  if (music_index < 0)
+  {
+    music_index = 0;
+    texture_index = R_TextureNumForName(texture_name);
+  }
+  else
+  {
+    texture_index = 0;
+  }
+
+  *out = music_index;
+  return texture_index;
+}
+
+static int32_t GetTranmapOrTexture(int32_t *out, const char *texture_name)
+{
+  int32_t tranmap_index = 0;
+  int32_t texture_index = 0;
+
+  if (strncasecmp("TRANMAP", texture_name, 8) != 0)
+  {
+    tranmap_index = W_CheckNumForName(texture_name);
+
+    if (tranmap_index >= 0 && W_LumpLength(tranmap_index) == 65536)
+    {
+      tranmap_index++;
+      texture_index = 0;
+    }
+    else
+    {
+      tranmap_index = 0;
+      texture_index = R_TextureNumForName(texture_name);
+    }
+  }
+
+  *out = tranmap_index;
+  return texture_index;
+}
+
+dboolean P_PostProcessID24SidedefSpecial(side_t *sd, const char *bottom, const char *mid, const char *top, sector_t *sec, int i)
 {
   dboolean found = false;
 
   switch (sd->special)
   {
+    // ID24 Music Changer Lines
     case 2057: case 2058: case 2059: case 2060: case 2061: case 2062:
     case 2063: case 2064: case 2065: case 2066: case 2067: case 2068:
     case 2087: case 2088: case 2089: case 2090: case 2091: case 2092:
     case 2093: case 2094: case 2095: case 2096: case 2097: case 2098:
-    {
-      // All of the W1, WR, S1, SR, G1, GR activations can be triggered from
-      // the back sidedef (reading the front bottom texture) and triggered
-      // from the front sidedef (reading the front upper texture).
-      for (int j = 0; j < numlines; j++)
-      {
-        if (lines[j].sidenum[0] == i)
-        {
-          // Back triggered
-          if ((lines[j].backmusic = W_CheckNumForName(bottom)) < 0)
-          {
-            lines[j].backmusic = 0;
-            sd->bottomtexture = R_TextureNumForName(bottom);
-          }
-          else
-          {
-            sd->bottomtexture = 0;
-          }
-
-          // Front triggered
-          if ((lines[j].frontmusic = W_CheckNumForName(top)) < 0)
-          {
-            lines[j].frontmusic = 0;
-            sd->toptexture = R_TextureNumForName(top);
-          }
-          else
-          {
-            sd->toptexture = 0;
-          }
-        }
-      }
-
-      // Allow midtextures
+      sd->toptexture = GetMusicOrTexture(&sd->topindex, top);
       sd->midtexture = R_SafeTextureNumForName(mid, i);
-
-      found = true;
+      sd->bottomtexture = GetMusicOrTexture(&sd->bottomindex, bottom);
+      return true;
       break;
-    }
+
+    // ID24 Colormap
+    case 2076: case 2077: case 2078: case 2079: case 2080: case 2081:
+      sd->toptexture = GetColormapOrTexture(&sd->topindex, top);
+      sd->midtexture = R_SafeTextureNumForName(mid, i);
+      sd->bottomtexture = GetColormapOrTexture(&sd->bottomindex, bottom);
+      return true;
+      break;
+
+    // ID24 Colormap - Always
+    case 2075:
+      sd->toptexture = GetColormapOrTexture(&sd->topindex, top);
+      sd->midtexture = R_SafeTextureNumForName(mid, i);
+      sd->bottomtexture = R_SafeTextureNumForName(bottom, i);
+      return true;
+      break;
 
     default:
       break;
@@ -2468,7 +2537,7 @@ dboolean P_PostProcessID24MusicSidedefSpecial(side_t *sd, const char *bottom, co
 
 void P_PostProcessCompatibleSidedefSpecial(side_t *sd, const char *bottom, const char *mid, const char *top, sector_t *sec, int i)
 {
-  if (P_PostProcessID24MusicSidedefSpecial(sd, bottom, mid, top, sec, i))
+  if (P_PostProcessID24SidedefSpecial(sd, bottom, mid, top, sec, i))
     return;
 
   // killough 4/4/98: allow sidedef texture names to be overloaded
@@ -2477,30 +2546,20 @@ void P_PostProcessCompatibleSidedefSpecial(side_t *sd, const char *bottom, const
   switch (sd->special)
   {
     case 242:                       // variable colormap via 242 linedef
-      sd->bottomtexture =
-        (sec->bottommap =   R_ColormapNumForName(bottom)) < 0 ?
-        sec->bottommap = 0, R_TextureNumForName(bottom): 0 ;
-      sd->midtexture =
-        (sec->midmap =   R_ColormapNumForName(mid)) < 0 ?
-        sec->midmap = 0, R_TextureNumForName(mid)  : 0 ;
-      sd->toptexture =
-        (sec->topmap =   R_ColormapNumForName(top)) < 0 ?
-        sec->topmap = 0, R_TextureNumForName(top)  : 0 ;
+      sd->toptexture = GetColormapOrTexture(&sec->topmap, top);
+      sd->midtexture = GetColormapOrTexture(&sec->midmap, mid);
+      sd->bottomtexture = GetColormapOrTexture(&sec->bottommap, bottom);
       break;
 
     case 260: // killough 4/11/98: apply translucency to 2s normal texture
-      sd->midtexture = strncasecmp("TRANMAP", mid, 8) ?
-        (sd->special = W_CheckNumForName(mid)) == LUMP_NOT_FOUND ||
-        W_LumpLength(sd->special) != 65536 ?
-        sd->special=0, R_TextureNumForName(mid) :
-          (sd->special++, 0) : (sd->special=0);
       sd->toptexture = R_TextureNumForName(top);
+      sd->midtexture = GetTranmapOrTexture(&sd->midindex, mid);
       sd->bottomtexture = R_TextureNumForName(bottom);
       break;
 
     default:                        // normal cases
-      sd->midtexture = R_SafeTextureNumForName(mid, i);
       sd->toptexture = R_SafeTextureNumForName(top, i);
+      sd->midtexture = R_SafeTextureNumForName(mid, i);
       sd->bottomtexture = R_SafeTextureNumForName(bottom, i);
       break;
   }
@@ -2508,7 +2567,7 @@ void P_PostProcessCompatibleSidedefSpecial(side_t *sd, const char *bottom, const
 
 void P_PostProcessHereticSidedefSpecial(side_t *sd, const char *bottom, const char *mid, const char *top, sector_t *sec, int i)
 {
-  if (P_PostProcessID24MusicSidedefSpecial(sd, bottom, mid, top, sec, i))
+  if (P_PostProcessID24SidedefSpecial(sd, bottom, mid, top, sec, i))
     return;
 
   sd->midtexture = R_SafeTextureNumForName(mid, i);

@@ -36,7 +36,7 @@
 
 #include "doomtype.h"
 
-#define NYAN_SAVE_VERSION 1
+#define NYAN_SAVE_VERSION 2
 
 /* Persistent storage/archiving.
  * These are the load / save game routines. */
