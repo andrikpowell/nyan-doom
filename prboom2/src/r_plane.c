@@ -89,8 +89,8 @@ static angle_t *xtoskyangle;
 // killough -- hash function for visplanes
 // Empirically verified to be fairly uniform:
 
-#define visplane_hash(picnum,lightlevel,height,tint) \
-  ((unsigned)((picnum)*3+(lightlevel)+(height)*7+(tint)*11) & (MAXVISPLANES-1))
+#define visplane_hash(picnum, lightlevel, height, tint) \
+  (((unsigned)(picnum) * 3 + (unsigned)(lightlevel) + (unsigned)(height) * 7 + (unsigned)(tint) * 11) & (MAXVISPLANES - 1))
 
 size_t maxopenings;
 int *openings,*lastopening; // dropoff overflow
