@@ -94,6 +94,7 @@ static fixed_t  rw_midtexturemid;
 static fixed_t  rw_toptexturemid;
 static fixed_t  rw_bottomtexturemid;
 static int      rw_lightlevel;
+static int      rw_tint;
 static int      worldtop;
 static int      worldbottom;
 static int      worldhigh;
@@ -339,7 +340,9 @@ const lighttable_t** GetLightTable(int lightlevel)
   if (nyan_liteamp)
     lightnum += NYAN_LITESCALE;
 
-  return scalelight[CLAMP(lightnum, 0, LIGHTLEVELS - 1)];
+  // ID24 per-sector colormaps
+  return rw_tint ? c_scalelight[rw_tint][CLAMP(lightnum, 0, LIGHTLEVELS - 1)] :
+                   scalelight[CLAMP(lightnum, 0, LIGHTLEVELS - 1)];
 }
 
 static void R_UpdateWallLights(int lightlevel)
@@ -448,6 +451,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   int64_t masked_scaleerr;
   int64_t masked_scalespan64;
   int masked_scalespan;
+  sector_t *fakeflat;
 
   R_SetDefaultDrawColumnVars(&dcvars);
 
@@ -475,8 +479,14 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   if (raven || !comp[comp_maskedanim])
     texnum = texturetranslation[texnum];
 
+  fakeflat = R_FakeFlat(frontsector, &tempsec, NULL, NULL, NULL, NULL, false);
+
   // killough 4/13/98: get correct lightlevel for 2s normal textures
-  rw_lightlevel = R_FakeFlat(frontsector, &tempsec, NULL, NULL, false) ->lightlevel;
+  rw_lightlevel = fakeflat->lightlevel;
+
+  // Get tint lightlevel for ID24 Colormaps
+  rw_tint = fakeflat->tint;
+
   R_ApplyMidLight(curline->sidedef);
 
   maskedtexturecol = ds->maskedtexturecol;
@@ -1115,6 +1125,7 @@ void R_StoreWallRange(const int start, const int stop)
     rw_centerangle = ANG90 + viewangle - rw_normalangle;
 
     rw_lightlevel = frontsector->lightlevel;
+    rw_tint = frontsector->tint;
   }
 
   // if a floor / ceiling plane is on the wrong side of the view

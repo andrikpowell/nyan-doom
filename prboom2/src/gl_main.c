@@ -419,7 +419,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
       int loopnum;
 
       // For lighting and texture determination
-      sector_t *sec = R_FakeFlat(sub->sector, &tempsec, &floorlight, NULL, false);
+      sector_t *sec = R_FakeFlat(sub->sector, &tempsec, &floorlight, NULL, NULL, NULL, false);
 
       if (swirling_flat)
         gld_BindSwirlFlat(gltexture, false, 0);
@@ -1718,13 +1718,13 @@ void gld_AddWall(seg_t *seg)
 
     if (!poly_frontsector)
       return;
-    frontsector=R_FakeFlat(poly_frontsector, &ftempsec, NULL, NULL, false); // for boom effects
+    frontsector=R_FakeFlat(poly_frontsector, &ftempsec, NULL, NULL, NULL, NULL, false); // for boom effects
   }
   else
   {
     if (!seg->frontsector)
       return;
-    frontsector=R_FakeFlat(seg->frontsector, &ftempsec, NULL, NULL, false); // for boom effects
+    frontsector=R_FakeFlat(seg->frontsector, &ftempsec, NULL, NULL, NULL, NULL, false); // for boom effects
   }
 
   if (!frontsector)
@@ -1781,7 +1781,7 @@ void gld_AddWall(seg_t *seg)
     fixed_t max_ceiling, min_ceiling;
     //fixed_t max_floor_tex, min_ceiling_tex;
 
-    backsector=R_FakeFlat(seg->backsector, &btempsec, NULL, NULL, true); // for boom effects
+    backsector=R_FakeFlat(seg->backsector, &btempsec, NULL, NULL, NULL, NULL, true); // for boom effects
     if (!backsector)
       return;
 
@@ -2228,7 +2228,7 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     return;
   flat.sectornum=sectornum;
   sector=&sectors[sectornum]; // get the sector
-  sector=R_FakeFlat(sector, &tempsec, &floorlightlevel, &ceilinglightlevel, false); // for boom effects
+  sector=R_FakeFlat(sector, &tempsec, &floorlightlevel, &ceilinglightlevel, NULL, NULL, false); // for boom effects
   flat.flags = (ceiling ? GLFLAT_CEILING : 0);
 
   if (plane->picnum & PL_SKYFLAT || plane->picnum == skyflatnum) // don't draw if sky

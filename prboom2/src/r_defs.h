@@ -159,6 +159,11 @@ typedef struct sector_s
   // killough 4/4/98: dynamic colormaps
   int32_t colormap, bottommap, midmap, topmap;
 
+  // sector tinting, uses colormap lumps as well
+  // * independent of player view
+  // * specific take priority over broad
+  int32_t tint;
+
   // list of mobjs that are at least partially in the sector
   // thinglist is a subset of touching_thinglist
   struct msecnode_s *touching_thinglist;               // phares 3/14/98
@@ -577,6 +582,7 @@ typedef struct visplane
 {
   struct visplane *next;        // Next visplane in hash chain -- killough
   int picnum, lightlevel, minx, maxx;
+  int tint; // ID24 per-sector colormap
   int special; // heretic
   fixed_t height;
   fixed_t xoffs, yoffs;         // killough 2/28/98: Support scrolling flats

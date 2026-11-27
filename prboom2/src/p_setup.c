@@ -778,7 +778,7 @@ static void P_InitializeSectorDefaults(sector_t *ss)
   ss->ceilinglightsec = -1;
 
   // killough 4/4/98: colormaps:
-  ss->bottommap = ss->midmap = ss->topmap = ss->colormap = 0;
+  ss->bottommap = ss->midmap = ss->topmap = ss->colormap = ss->tint = 0;
 
   ss->floorsky = 0;
   ss->ceilingsky = 0;
@@ -2487,6 +2487,22 @@ dboolean P_PostProcessID24SidedefSpecial(side_t *sd, const char *bottom, const c
       sd->toptexture = GetMusicOrTexture(&sd->topindex, top);
       sd->midtexture = R_SafeTextureNumForName(mid, i);
       sd->bottomtexture = GetMusicOrTexture(&sd->bottomindex, bottom);
+      return true;
+      break;
+
+    // ID24 Colormap
+    case 2076: case 2077: case 2078: case 2079: case 2080: case 2081:
+      sd->toptexture = GetColormapOrTexture(&sd->topindex, top);
+      sd->midtexture = R_SafeTextureNumForName(mid, i);
+      sd->bottomtexture = GetColormapOrTexture(&sd->bottomindex, bottom);
+      return true;
+      break;
+
+    // ID24 Colormap - Always
+    case 2075:
+      sd->toptexture = GetColormapOrTexture(&sd->topindex, top);
+      sd->midtexture = R_SafeTextureNumForName(mid, i);
+      sd->bottomtexture = R_SafeTextureNumForName(bottom, i);
       return true;
       break;
 

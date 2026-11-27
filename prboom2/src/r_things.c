@@ -524,7 +524,7 @@ void R_DrawMaskedColumn(
   dcvars->texturemid = basetexturemid;
 }
 
-static void R_SetSpritelights(int lightlevel)
+static void R_SetSpritelights(int lightlevel, int tint)
 {
   int lightnum;
 
@@ -537,7 +537,9 @@ static void R_SetSpritelights(int lightlevel)
   if (nyan_liteamp)
     lightnum += NYAN_LITESCALE;
 
-  spritelights = scalelight[CLAMP(lightnum, 0, LIGHTLEVELS - 1)];
+  // ID24 per-sector colormaps
+  spritelights = tint ? c_scalelight[tint][CLAMP(lightnum, 0, LIGHTLEVELS - 1)]
+                      : scalelight[CLAMP(lightnum, 0, LIGHTLEVELS - 1)];
 }
 
 static void R_UpdateFuzzCellSize(vissprite_t *vis)
@@ -727,6 +729,8 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   vissprite_t *vis;
   fixed_t   iscale;
   int heightsec;      // killough 3/27/98
+  sector_t *sec;
+  int tint;
 
   // transform the origin point
   //e6y
@@ -970,13 +974,21 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     vis->startfrac += vis->xiscale*(vis->x1-x1);
   vis->patch = lump;
 
-  R_SetSpritelights(lightlevel);
+  sec = thing->subsector->sector;
+
+  // ID24 per-sector colormaps
+  tint = sec->floorlightsec == -1 ? sec->tint
+                                  : sectors[sec->floorlightsec].tint;
+
+  R_SetSpritelights(lightlevel, tint);
 
   // get light level
   if (thing->flags & g_mf_shadow_fuzz)
       vis->colormap = NULL;             // shadow draw
   else if (fixedcolormap && !nyan_liteamp)
     vis->colormap = fixedcolormap;      // fixed map
+  else if (LevelUseFullBright && thing->frame & FF_FULLBRIGHT && tint)
+    vis->colormap = colormaps[tint];    // ID24 Colormaps
   else if (LevelUseFullBright && thing->frame & FF_FULLBRIGHT)
     vis->colormap = fullcolormap;     // full bright  // killough 3/20/98
   else
@@ -1287,7 +1299,7 @@ static fixed_t R_WeaponPitchOffset(pspdef_t *psp)
   return (fixed_t)(offset * FRACUNIT);
 }
 
-static void R_DrawPSprite (pspdef_t *psp)
+static void R_DrawPSprite (pspdef_t *psp, int tint)
 {
   int           x1, x2;
   int           gx1;
@@ -1425,6 +1437,8 @@ static void R_DrawPSprite (pspdef_t *psp)
   }
   else if (fixedcolormap)
     vis->colormap = fixedcolormap;           // fixed color
+  else if (psp->state->frame & FF_FULLBRIGHT && tint)
+    vis->colormap = colormaps[tint];        // ID24 Colormaps
   else if (psp->state->frame & FF_FULLBRIGHT)
     vis->colormap = fullcolormap;            // full bright // killough 3/20/98
   else
@@ -1521,7 +1535,7 @@ static void R_DrawPSprite (pspdef_t *psp)
     {
 //      lightlevel = (viewplayer->mo->subsector->sector->lightlevel) + (extralight << LIGHTSEGSHIFT);
       R_FakeFlat( viewplayer->mo->subsector->sector, &tmpsec,
-                  &floorlightlevel, &ceilinglightlevel, false);
+                  &floorlightlevel, &ceilinglightlevel, NULL, NULL, false);
       lightlevel = ((floorlightlevel+ceilinglightlevel) >> 1) + (extralight << LIGHTSEGSHIFT);
 
       if (lightlevel < 0)
@@ -1529,7 +1543,7 @@ static void R_DrawPSprite (pspdef_t *psp)
       else if (lightlevel >= 255)
         lightlevel = 255;
     }
-    gld_DrawWeapon(lump,vis,lightlevel);
+    gld_DrawWeapon(lump,vis,lightlevel,tint);
   }
 }
 
@@ -1540,13 +1554,21 @@ static void R_DrawPSprite (pspdef_t *psp)
 void R_DrawPlayerSprites(void)
 {
   int i;
+  int tint;
   pspdef_t *psp;
+  sector_t *sector;
 
   if (walkcamera.type != walkcamera_off || R_ChasecamOn())
     return;
 
+  sector = viewplayer->mo->subsector->sector;
+
+  // ID24 Colormaps
+  tint = sector->floorlightsec == -1 ? sector->tint
+                                     : sectors[sector->floorlightsec].tint;
+
   // get light level
-  R_SetSpritelights(viewplayer->mo->subsector->sector->lightlevel);
+  R_SetSpritelights(sector->lightlevel, tint);
 
   // clip to screen bounds
   mfloorclip = screenheightarray;
@@ -1555,7 +1577,7 @@ void R_DrawPlayerSprites(void)
   // add all active psprites
   for (i=0, psp=viewplayer->psprites; i<NUMPSPRITES; i++,psp++)
     if (psp->state)
-      R_DrawPSprite (psp);
+      R_DrawPSprite (psp, tint);
 }
 
 //

@@ -228,6 +228,7 @@ static void R_RecalcLineFlags(line_t *linedef)
 
 sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
                      int *floorlightlevel, int *ceilinglightlevel,
+                     int *floortint, int *ceilingtint,
                      dboolean back)
 {
   if (floorlightlevel)
@@ -235,6 +236,12 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
 
   if (ceilinglightlevel)
     *ceilinglightlevel = P_CeilingLightLevel(sec);
+
+  if (floortint)
+    *floortint = P_FloorTint(sec);
+
+  if (ceilingtint)
+    *ceilingtint = P_CeilingTint(sec);
 
   if (sec->heightsec != -1)
   {
@@ -280,6 +287,12 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
 
       if (ceilinglightlevel)
         *ceilinglightlevel = P_CeilingLightLevel(s);
+
+      if (floortint)
+        *floortint = P_FloorTint(s);
+
+      if (ceilingtint)
+        *ceilingtint = P_CeilingTint(s);
     }
     else if (heightsec != -1 && viewz >= sectors[heightsec].ceilingheight &&
              sec->ceilingheight > s->ceilingheight)
@@ -306,6 +319,12 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
 
       if (ceilinglightlevel)
         *ceilinglightlevel = P_CeilingLightLevel(s);
+
+      if (floortint)
+        *floortint = P_FloorTint(s);
+
+      if (ceilingtint)
+        *ceilingtint = P_CeilingTint(s);
     }
 
     sec = tempsec; // Use other sector
@@ -321,8 +340,8 @@ static dboolean CheckClip(seg_t * seg, sector_t * frontsector, sector_t * backse
 {
   static sector_t tempsec_back, tempsec_front;
 
-  backsector = R_FakeFlat(backsector, &tempsec_back, NULL, NULL, true);
-  frontsector = R_FakeFlat(frontsector, &tempsec_front, NULL, NULL, false);
+  backsector = R_FakeFlat(backsector, &tempsec_back, NULL, NULL, NULL, NULL, true);
+  frontsector = R_FakeFlat(frontsector, &tempsec_front, NULL, NULL, NULL, NULL, false);
 
   // check for closed sectors!
   if (backsector->ceilingheight <= frontsector->floorheight)
@@ -523,7 +542,7 @@ static void R_AddLine (seg_t *line)
   // Single sided line?
   if (backsector)
     // killough 3/8/98, 4/4/98: hack for invisible ceilings / deep water
-    backsector = R_FakeFlat(backsector, &tempsec, NULL, NULL, true);
+    backsector = R_FakeFlat(backsector, &tempsec, NULL, NULL, NULL, NULL, true);
 
   /* cph - roll up linedef properties in flags */
   if ((linedef = curline->linedef)->r_validcount != gametic)
@@ -651,6 +670,7 @@ static void R_HandleGLFakeFlats(sector_t *sector)
           dummyfloorplane.lightlevel = tmpsec->lightlevel;
           dummyfloorplane.picnum = tmpsec->floorpic;
           dummyfloorplane.special = tmpsec->special;
+          dummyfloorplane.tint = tmpsec->tint;
           floorplane = &dummyfloorplane;
         }
       }
@@ -666,6 +686,7 @@ static void R_HandleGLFakeFlats(sector_t *sector)
           dummyceilingplane.lightlevel = tmpsec->lightlevel;
           dummyceilingplane.picnum = tmpsec->ceilingpic;
           dummyceilingplane.special = 0;
+          dummyceilingplane.tint = tmpsec->tint;
           ceilingplane = &dummyceilingplane;
         }
       }
@@ -714,6 +735,7 @@ static void R_HandleGLFakeFlats(sector_t *sector)
         dummyfloorplane.yoffs = tmpsec->floor_yoffs;
         dummyfloorplane.xscale = tmpsec->floor_xscale;
         dummyfloorplane.yscale = tmpsec->floor_yscale;
+        dummyfloorplane.tint = tmpsec->tint;
 
         floorplane = &dummyfloorplane;
       }
@@ -743,20 +765,21 @@ static void R_HandleGLFakeFlats(sector_t *sector)
         dummyceilingplane.yoffs = tmpsec->ceiling_yoffs;
         dummyceilingplane.xscale = tmpsec->ceiling_xscale;
         dummyceilingplane.yscale = tmpsec->ceiling_yscale;
+        dummyceilingplane.tint = tmpsec->tint;
         ceilingplane = &dummyceilingplane;
       }
     }
   }
 }
 
-static void R_UpdateGlobalPlanes(sector_t *sector, int *floorlightlevel, int *ceilinglightlevel)
+static void R_UpdateGlobalPlanes(sector_t *sector, int *floorlightlevel, int *ceilinglightlevel, int *floortint, int *ceilingtint)
 {
   // TODO: this data must persist, but the reason is to be investigated
   static sector_t tempsec;
 
   // killough 3/8/98, 4/4/98: Deep water / fake ceiling effect
   frontsector = // killough 4/11/98
-    R_FakeFlat(sector, &tempsec, floorlightlevel, ceilinglightlevel, false);
+    R_FakeFlat(sector, &tempsec, floorlightlevel, ceilinglightlevel, floortint, ceilingtint, false);
 
   // killough 3/7/98: Add (x,y) offsets to flats, add deep water check
   // killough 3/16/98: add floorlightlevel
@@ -774,7 +797,8 @@ static void R_UpdateGlobalPlanes(sector_t *sector, int *floorlightlevel, int *ce
                 frontsector->floor_yoffs,
                 frontsector->floor_rotation,
                 frontsector->floor_xscale,
-                frontsector->floor_yscale
+                frontsector->floor_yscale,
+                *floortint
                 ) : NULL;
 
   ceilingplane = frontsector->ceilingheight > viewz ||
@@ -791,7 +815,8 @@ static void R_UpdateGlobalPlanes(sector_t *sector, int *floorlightlevel, int *ce
                 frontsector->ceiling_yoffs,
                 frontsector->ceiling_rotation,
                 frontsector->ceiling_xscale,
-                frontsector->ceiling_yscale
+                frontsector->ceiling_yscale,
+                *ceilingtint
                 ) : NULL;
 
   if (V_IsOpenGLMode())
@@ -832,6 +857,8 @@ static void R_Subsector(int num)
   subsector_t *sub;
   int         floorlightlevel;      // killough 3/16/98: set floor lightlevel
   int         ceilinglightlevel;    // killough 4/11/98
+  int         floortint;
+  int         ceilingtint;
 
 #ifdef RANGECHECK
   if (num>=numsubsectors)
@@ -843,7 +870,7 @@ static void R_Subsector(int num)
 
   if (V_IsSoftwareMode() || sub->sector->gl_validcount != validcount)
   {
-    R_UpdateGlobalPlanes(sub->sector, &floorlightlevel, &ceilinglightlevel);
+    R_UpdateGlobalPlanes(sub->sector, &floorlightlevel, &ceilinglightlevel, &floortint, &ceilingtint);
 
     // killough 9/18/98: Fix underwater slowdown, by passing real sector
     // instead of fake one. Improve sprite lighting by basing sprite

@@ -57,6 +57,6 @@ void R_RenderBSPNode(int bspnum);
 void R_ForceRenderPolyObjs(void);
 
 /* killough 4/13/98: fake floors/ceilings for deep water / fake ceilings: */
-sector_t *R_FakeFlat(sector_t *, sector_t *, int *, int *, dboolean);
+sector_t *R_FakeFlat(sector_t *, sector_t *, int *, int *, int *, int *, dboolean);
 
 #endif

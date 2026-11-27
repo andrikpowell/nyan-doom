@@ -89,8 +89,8 @@ static angle_t *xtoskyangle;
 // killough -- hash function for visplanes
 // Empirically verified to be fairly uniform:
 
-#define visplane_hash(picnum,lightlevel,height) \
-  ((unsigned)((picnum)*3+(lightlevel)+(height)*7) & (MAXVISPLANES-1))
+#define visplane_hash(picnum,lightlevel,height,tint) \
+  ((unsigned)((picnum)*3+(lightlevel)+(height)*7+(tint)*11) & (MAXVISPLANES-1))
 
 size_t maxopenings;
 int *openings,*lastopening; // dropoff overflow
@@ -469,12 +469,13 @@ static visplane_t *new_visplane(unsigned hash)
 visplane_t *R_DupPlane(const visplane_t *pl, int start, int stop)
 {
       int i;
-      unsigned hash = visplane_hash(pl->picnum, pl->lightlevel, pl->height);
+      unsigned hash = visplane_hash(pl->picnum, pl->lightlevel, pl->height, pl->tint);
       visplane_t *new_pl = new_visplane(hash);
 
       new_pl->height = pl->height;
       new_pl->picnum = pl->picnum;
       new_pl->lightlevel = pl->lightlevel;
+      new_pl->tint = pl->tint;
       new_pl->special = pl->special;
       new_pl->xoffs = pl->xoffs;           // killough 2/28/98
       new_pl->yoffs = pl->yoffs;
@@ -493,7 +494,7 @@ visplane_t *R_DupPlane(const visplane_t *pl, int start, int stop)
 // killough 2/28/98: Add offsets
 
 visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel, int special,
-                        fixed_t xoffs, fixed_t yoffs, angle_t rotation, fixed_t xscale, fixed_t yscale)
+                        fixed_t xoffs, fixed_t yoffs, angle_t rotation, fixed_t xscale, fixed_t yscale, int tint)
 {
   visplane_t *check;
   unsigned hash;                      // killough
@@ -517,12 +518,13 @@ visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel, int special,
   }
 
   // New visplane algorithm uses hash table -- killough
-  hash = visplane_hash(picnum,lightlevel,height);
+  hash = visplane_hash(picnum,lightlevel,height,tint);
 
   for (check=visplanes[hash]; check; check=check->next)  // killough
     if (height == check->height &&
         picnum == check->picnum &&
         lightlevel == check->lightlevel &&
+        tint == check->tint &&
         special == check->special &&
         xoffs == check->xoffs &&      // killough 2/28/98: Add offset checks
         yoffs == check->yoffs &&
@@ -536,6 +538,7 @@ visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel, int special,
   check->height = height;
   check->picnum = picnum;
   check->lightlevel = lightlevel;
+  check->tint = tint;
   check->special = special;
   check->xoffs = xoffs;               // killough 2/28/98: Save offsets
   check->yoffs = yoffs;
@@ -986,7 +989,8 @@ static void R_DoDrawPlane(visplane_t *pl)
         light = 0;
 
       stop = pl->maxx + 1;
-      dsvars.planezlight = zlight[light];
+      dsvars.planezlight = pl->tint ? c_zlight[pl->tint][light]
+                                    : zlight[light];
       dsvars.minzlight = NULL;
 
       // Set darkest allowed colormap value (64)
@@ -1000,7 +1004,8 @@ static void R_DoDrawPlane(visplane_t *pl)
         if (minlight < 0)
           minlight = 0;
 
-        dsvars.minzlight = zlight[minlight][MAXLIGHTZ - 1];
+        dsvars.minzlight = pl->tint ? c_zlight[pl->tint][minlight][MAXLIGHTZ - 1]
+                                    : zlight[minlight][MAXLIGHTZ - 1];
       }
 
       if (V_IsSoftwareMode())
